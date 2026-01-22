@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대형폐기물 배출 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        /* 모달 스타일 */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.2s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        /* 스크롤바 커스텀 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative">
+    <header class="bg-[#1e293b] text-white"><div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center"><div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'"><img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold shadow-md">[로고 이미지]</div><span class="text-2xl font-bold tracking-wider">효빈광역시</span></div><div class="flex items-center space-x-5 text-gray-300"><button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1"><i data-lucide="home" class="w-5 h-5"></i><span class="text-sm font-bold">메인으로</span></button></div></div></header>
+
+    <div class="w-full bg-slate-700 py-12 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-green-700 opacity-60"></div>
+        <div class="relative z-10">
+            <h1 class="text-4xl font-black mb-3">대형폐기물 배출신청</h1>
+            <p class="text-slate-200">가구, 가전 등 대형폐기물, 간편하게 신청하세요.</p>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 py-10 w-full mb-20">
+        
+        <div class="bg-white p-8 rounded-xl shadow-md border border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 border-b pb-2">배출 신청</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-slate-700 font-bold mb-2">신청인 정보</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="applicantName" placeholder="이름" class="border border-slate-300 rounded p-3 w-full outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition">
+                        <input type="text" id="applicantPhone" placeholder="연락처 (-없이 입력)" class="border border-slate-300 rounded p-3 w-full outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-bold mb-2">배출 장소</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="addressInput" placeholder="우측 주소 검색 버튼을 눌러주세요" class="border border-slate-300 rounded p-3 w-full outline-none bg-slate-50 text-slate-600 cursor-not-allowed" readonly>
+                        <button onclick="openAddressModal()" class="bg-slate-600 text-white px-6 rounded font-bold hover:bg-slate-700 transition flex-shrink-0 flex items-center gap-2">
+                            <i data-lucide="search" class="w-4 h-4"></i> 주소 검색
+                        </button>
+                    </div>
+                    <input type="text" id="addressDetail" placeholder="상세 주소 (아파트 동/호수, 건물명 등)" class="border border-slate-300 rounded p-3 w-full outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-bold mb-2">배출 품목</label>
+                    <!-- 선택된 품목 리스트 -->
+                    <div id="selectedItemsList" class="mb-3 space-y-2">
+                        <!-- 동적으로 추가됨 -->
+                    </div>
+                    <button onclick="openItemModal()" class="w-full py-4 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 font-bold hover:border-green-500 hover:text-green-600 transition flex items-center justify-center">
+                        <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> 품목 추가하기
+                    </button>
+                </div>
+
+                <div class="pt-6 border-t border-slate-200 flex justify-end items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-sm text-slate-500">총 결제 예정 금액</span>
+                        <div class="text-2xl font-black text-green-600" id="totalPriceDisplay">0원</div>
+                    </div>
+                    <button onclick="openPaymentModal()" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-md">신청 및 결제하기</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-slate-100 p-6 rounded-lg text-sm text-slate-600 border border-slate-200">
+            <h4 class="font-bold mb-2 flex items-center"><i data-lucide="alert-circle" class="w-4 h-4 mr-2 text-orange-500"></i> 유의사항</h4>
+            <ul class="list-disc list-inside space-y-1">
+                <li>폐가전제품 무상방문수거 서비스는 1599-0903으로 별도 문의 바랍니다.</li>
+                <li>배출 전 결제가 완료되어야 하며, 신고필증(번호)을 부착하여 배출해야 합니다.</li>
+                <li>수거 예정일 전날 일몰 후 배출 장소에 내놓아 주시기 바랍니다.</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <!-- 1. 주소 검색 모달 -->
+    <div id="address-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeAddressModal()"></div>
+        <div class="modal-content bg-white w-full max-w-2xl max-h-[80vh] rounded-xl shadow-2xl overflow-hidden flex flex-col relative z-10">
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg">행정구역 주소 검색</h3>
+                    <p class="text-xs text-slate-300 mt-1">동 이름(행정동/법정동) 또는 키워드로 검색하세요.</p>
+                </div>
+                <button onclick="closeAddressModal()" class="hover:bg-slate-700 p-1 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <div class="p-4 border-b border-slate-100 shrink-0 bg-slate-50">
+                <div class="relative">
+                    <input type="text" id="modalSearchInput" placeholder="예: 고송, 사능, 뱅드림, 러브라이브..." 
+                           class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 transition shadow-sm"
+                           onkeyup="filterAddress()">
+                    <i data-lucide="search" class="absolute left-3 top-3.5 text-slate-400 w-5 h-5"></i>
+                </div>
+            </div>
+
+            <div class="overflow-y-auto p-0 flex-grow custom-scrollbar bg-white">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-600 font-bold sticky top-0 shadow-sm z-10">
+                        <tr>
+                            <th class="px-5 py-3 border-b w-20">구/군</th>
+                            <th class="px-5 py-3 border-b w-28">행정동</th>
+                            <th class="px-5 py-3 border-b">법정동 (비고)</th>
+                            <th class="px-4 py-3 border-b w-20 text-center">선택</th>
+                        </tr>
+                    </thead>
+                    <tbody id="addressTableBody" class="divide-y divide-slate-100 text-slate-600">
+                        <!-- JS로 데이터 로드 -->
+                    </tbody>
+                </table>
+                <div id="noResult" class="hidden py-12 text-center text-slate-400 flex flex-col items-center">
+                    <i data-lucide="search-x" class="w-8 h-8 mb-2 opacity-50"></i>
+                    검색 결과가 없습니다.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 품목 추가 모달 -->
+    <div id="item-modal" class="modal fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeItemModal()"></div>
+        <div class="modal-content bg-white w-full max-w-lg max-h-[80vh] rounded-xl shadow-2xl overflow-hidden flex flex-col relative z-10">
+            <div class="bg-green-700 p-5 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg">배출 품목 선택</h3>
+                <button onclick="closeItemModal()" class="hover:bg-green-800 p-1 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0">
+                <input type="text" id="itemSearchInput" placeholder="품목명 검색 (예: 책상, 의자)" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-500" onkeyup="filterItems()">
+            </div>
+            <div class="overflow-y-auto p-0 flex-grow custom-scrollbar">
+                <table class="w-full text-sm text-left">
+                    <tbody id="itemTableBody" class="divide-y divide-slate-100">
+                        <!-- 아이템 목록 로드 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 결제 확인 모달 -->
+    <div id="payment-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closePaymentModal()"></div>
+        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden relative z-10">
+            <div class="bg-slate-800 p-5 text-white">
+                <h3 class="font-bold text-lg">신청 내역 확인 및 결제</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">신청인</span>
+                        <div class="font-bold text-slate-800" id="pay-name"></div>
+                        <div class="text-sm text-slate-500" id="pay-phone"></div>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">배출 장소</span>
+                        <div class="text-sm text-slate-700" id="pay-address"></div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                        <span class="text-xs text-slate-400 block mb-2">배출 품목</span>
+                        <ul id="pay-items" class="text-sm text-slate-700 space-y-1 mb-3"></ul>
+                        <div class="border-t border-slate-200 pt-2 flex justify-between items-center">
+                            <span class="font-bold">총 결제 금액</span>
+                            <span class="font-black text-xl text-green-600" id="pay-total"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="closePaymentModal()" class="w-full py-3 rounded-lg border border-slate-300 text-slate-600 font-bold hover:bg-slate-50">취소</button>
+                    <button onclick="processPayment()" class="w-full py-3 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 shadow-md">결제하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.</div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // --- 데이터 ---
+        const districtData = [
+            { gu: "남구", admin: "고당동", legal: "고간동", note: "" },
+            { gu: "남구", admin: "고당동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "곽산1동", legal: "곽산동", note: "" },
+            { gu: "남구", admin: "곽산2동", legal: "곽산동", note: "" },
+            { gu: "남구", admin: "어간1동", legal: "어간동", note: "" },
+            { gu: "남구", admin: "어간2동", legal: "어간동", note: "" },
+            { gu: "남구", admin: "어간3동", legal: "어간동", note: "" },
+            { gu: "남구", admin: "어간3동", legal: "운양동", note: "" },
+            { gu: "남구", admin: "월천동", legal: "박산동", note: "" },
+            { gu: "남구", admin: "월천동", legal: "신흥동", note: "" },
+            { gu: "남구", admin: "월천동", legal: "월천동", note: "" },
+            { gu: "남구", admin: "월천동", legal: "포장동", note: "" },
+            { gu: "남구", admin: "평당1동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "평당2동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "평당3동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "평당4동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "평당5동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "평당6동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "평당7동", legal: "평당동", note: "" },
+            { gu: "남구", admin: "항1동", legal: "항동1가", note: "" },
+            { gu: "남구", admin: "항2동", legal: "항동1가", note: "" },
+            { gu: "남구", admin: "항2동", legal: "항동2가", note: "" },
+            { gu: "남구", admin: "항3동", legal: "항동1가", note: "" },
+            { gu: "남구", admin: "항3동", legal: "항동2가", note: "" },
+            { gu: "남구", admin: "항3동", legal: "항동3가", note: "" },
+            { gu: "남구", admin: "항4동", legal: "항동1가", note: "" },
+            { gu: "남구", admin: "항4동", legal: "항동3가", note: "" },
+            { gu: "동구", admin: "덕현11동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현1동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현2동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현3동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현4동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현5동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현6동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현7동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "덕현9동", legal: "덕현동", note: "" },
+            { gu: "동구", admin: "사가당1동", legal: "사가당동", note: "" },
+            { gu: "동구", admin: "사가당2동", legal: "사가당동", note: "" },
+            { gu: "동구", admin: "사가당3동", legal: "사가당동", note: "" },
+            { gu: "동구", admin: "사가당4동", legal: "사가당동", note: "" },
+            { gu: "동구", admin: "전천동", legal: "전천동", note: "" },
+            { gu: "북구", admin: "고송1동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송2동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송3동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송4동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송5동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송6동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송7동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "고송8동", legal: "고송동", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { gu: "북구", admin: "남전동", legal: "남전동", note: "러브라이브 토죠 노조미 성우(쿠스다 아이나) 성씨 한자" },
+            { gu: "북구", admin: "사능2동", legal: "사능동2가", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { gu: "북구", admin: "사능동", legal: "사능동1가", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { gu: "북구", admin: "사능동", legal: "사능동2가", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { gu: "북구", admin: "사능동", legal: "사능동3가", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { gu: "북구", admin: "사능동", legal: "생곡동", note: "" },
+            { gu: "북구", admin: "사능동", legal: "치남동", note: "" },
+            { gu: "북구", admin: "산고동", legal: "사연동", note: "" },
+            { gu: "북구", admin: "산고동", legal: "서도동", note: "" },
+            { gu: "북구", admin: "산고동", legal: "추산동", note: "케이온 아키야마 미오의 성씨 한자" },
+            { gu: "북구", admin: "소조동", legal: "소조동", note: "러브라이브 미나미 코토리 중 코토리의 한자로 만들때 나오는 조합" },
+            { gu: "북구", admin: "오내1동", legal: "오내동", note: "" },
+            { gu: "북구", admin: "오내2동", legal: "오내동", note: "" },
+            { gu: "북구", admin: "중수1동", legal: "중수동", note: "러브라이브 니지동 나카스 카스미 성씨 한자" },
+            { gu: "북구", admin: "중수2동", legal: "중수동", note: "" },
+            { gu: "북구", admin: "중수3동", legal: "중수동", note: "" },
+            { gu: "북구", admin: "중수4동", legal: "중수동", note: "" },
+            { gu: "북구", admin: "진희동", legal: "입희동", note: "뱅드림 시이나 타키 이름 한자" },
+            { gu: "북구", admin: "진희동", legal: "진희동", note: "러브라이브 니시키노 마키, 뱅드림 시이나 타키의 언니 시이나 마키" },
+            { gu: "북구", admin: "채산동", legal: "곡진동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "등기동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "수포동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "습지동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "신영동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "실본동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "아자동", note: "뱅드림 우다가와 아코 이름 한자" },
+            { gu: "북구", admin: "채산동", legal: "아진동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "채산동", note: "" },
+            { gu: "북구", admin: "채산동", legal: "평전동", note: "" },
+            { gu: "북구", admin: "천왕사동", legal: "천왕사동", note: "러브라이브 니지동 텐노지 리나 성씨 한자" },
+            { gu: "북구", admin: "천왕사동", legal: "해서동", note: "" },
+            { gu: "북구", admin: "청능동", legal: "입선동", note: "" },
+            { gu: "북구", admin: "청능동", legal: "입희동", note: "뱅드림 시이나 타키 이름 한자" },
+            { gu: "북구", admin: "청능동", legal: "청능동", note: "" },
+            { gu: "북구", admin: "포산동", legal: "포산동", note: "" },
+            { gu: "서구", admin: "과진1동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "과진2동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "과진3동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "과진4동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "과진5동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "과진6동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "과진7동", legal: "과진동", note: "" },
+            { gu: "서구", admin: "당선1동", legal: "당선동", note: "" },
+            { gu: "서구", admin: "당선2동", legal: "당선동", note: "" },
+            { gu: "서구", admin: "당선3동", legal: "당선동", note: "" },
+            { gu: "서구", admin: "당선4동", legal: "당선동", note: "" },
+            { gu: "서구", admin: "당선4동", legal: "칠천동", note: "" },
+            { gu: "서구", admin: "북성동", legal: "내성동1가", note: "" },
+            { gu: "서구", admin: "북성동", legal: "내성동2가", note: "" },
+            { gu: "서구", admin: "북성동", legal: "내성동3가", note: "" },
+            { gu: "서구", admin: "북성동", legal: "북문동1가", note: "" },
+            { gu: "서구", admin: "북성동", legal: "북문동2가", note: "" },
+            { gu: "서구", admin: "사복1동", legal: "사복동", note: "" },
+            { gu: "서구", admin: "사복2동", legal: "사복동", note: "" },
+            { gu: "서구", admin: "청덕1동", legal: "청덕동", note: "" },
+            { gu: "서구", admin: "청덕2동", legal: "청덕동", note: "" },
+            { gu: "서구", admin: "청덕3동", legal: "청덕동", note: "" },
+            { gu: "안천구", admin: "뇌전동", legal: "뇌전동", note: "뱅드림 세타 카오루의 성씨 한자" },
+            { gu: "안천구", admin: "뇌전동", legal: "상가동", note: "" },
+            { gu: "안천구", admin: "뇌전동", legal: "세익동", note: "" },
+            { gu: "안천구", admin: "뇌전동", legal: "치장동", note: "" },
+            { gu: "안천구", admin: "뇌전동", legal: "팔월동", note: "" },
+            { gu: "안천구", admin: "뇌전동", legal: "하가동", note: "" },
+            { gu: "안천구", admin: "당가1동", legal: "당가동", note: "러브라이브 슈퍼스타 탕 쿠쿠 이름 일부(唐可) 한자" },
+            { gu: "안천구", admin: "당가2동", legal: "당가동", note: "러브라이브 슈퍼스타 탕 쿠쿠 이름 일부(唐可) 한자" },
+            { gu: "안천구", admin: "백합동", legal: "백합동", note: "뱅드림 우시고메 리미의 언니 우시고메 유리의 이름 한자" },
+            { gu: "안천구", admin: "백합동", legal: "상점동", note: "" },
+            { gu: "안천구", admin: "북택동", legal: "북택동", note: "뱅드림 키타자와 하구미 성씨 한자" },
+            { gu: "안천구", admin: "북택동", legal: "하구동", note: "뱅드림 키타자와 하구미 이름 일부 그대로 사용" },
+            { gu: "안천구", admin: "성저동", legal: "성저동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "광상동", note: "뱅드림 애프터 글로우의 곡 헤이데이 광상곡의 이름 일부" },
+            { gu: "안천구", admin: "악부동", legal: "군청동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "무로동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "악부동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "일화동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "제택동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "천문동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "천본동", note: "" },
+            { gu: "안천구", admin: "악부동", legal: "초음동", note: "뱅드림 미스미 우이카 본명(미스미 하츠네)의 이름 한자" },
+            { gu: "안천구", admin: "악부동", legal: "타천동", note: "러브라이브 선샤인 츠시마 요시코의 '타천'" },
+            { gu: "안천구", admin: "악부동", legal: "팔망성동", note: "" },
+            { gu: "안천구", admin: "안천1동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "안천2동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "안천3동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "안천4동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "안천5동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "안천6동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "안천7동", legal: "안천동", note: "" },
+            { gu: "안천구", admin: "이십기동", legal: "리의동", note: "뱅드림 우자와 리이 이름 한자" },
+            { gu: "안천구", admin: "이십기동", legal: "심회동", note: "" },
+            { gu: "안천구", admin: "이십기동", legal: "이십기동", note: "뱅드림 니쥿키 히나코의 이름 한자" },
+            { gu: "안천구", admin: "이십기동", legal: "추자동", note: "뱅드림 니쥿키 히나코의 이름 한자" },
+            { gu: "안천구", admin: "이자1동", legal: "신동", note: "" },
+            { gu: "안천구", admin: "이자1동", legal: "이자동", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { gu: "안천구", admin: "이자2동", legal: "이자동", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { gu: "안천구", admin: "이자3동", legal: "이자동", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { gu: "안천구", admin: "이자3동", legal: "탄자동", note: "" },
+            { gu: "안천구", admin: "이자4동", legal: "이자동", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { gu: "안천구", admin: "창건동", legal: "창건동", note: "" },
+            { gu: "안천구", admin: "칠채동", legal: "남동", note: "러브라이브 미나미 코토리 성씨 한자" },
+            { gu: "안천구", admin: "칠채동", legal: "능릉동", note: "" },
+            { gu: "안천구", admin: "칠채동", legal: "서수동", note: "뱅드림 토가와 사키코의 어머니 토가와 미즈호의 이름 한자" },
+            { gu: "안천구", admin: "칠채동", legal: "영색무동", note: "뱅드림 마이고 노래중 실루엣댄스(영색무)의 한자표기명 사용" },
+            { gu: "안천구", admin: "칠채동", legal: "월삼동", note: "뱅드림 학교중 츠키노모리 여학교 한자와 유사" },
+            { gu: "안천구", admin: "칠채동", legal: "융문동", note: "" },
+            { gu: "안천구", admin: "칠채동", legal: "정치동", note: "" },
+            { gu: "안천구", admin: "칠채동", legal: "칠채동", note: "러브라이브 니지동 유키 세츠나의 이름 한자" },
+            { gu: "중구", admin: "고도동", legal: "고도동", note: "" },
+            { gu: "중구", admin: "고도동", legal: "서남동", note: "" },
+            { gu: "중구", admin: "고도동", legal: "시남동", note: "" },
+            { gu: "중구", admin: "고도동", legal: "시북동", note: "" },
+            { gu: "중구", admin: "고도동", legal: "십덕동", note: "" },
+            { gu: "중구", admin: "고도동", legal: "우이동", note: "케이온 히라사와 우이 이름 그대로 사용" },
+            { gu: "중구", admin: "궁영동", legal: "궁정동", note: "" },
+            { gu: "중구", admin: "궁영동", legal: "도람동", note: "" },
+            { gu: "중구", admin: "궁영동", legal: "만실동", note: "" },
+            { gu: "중구", admin: "궁영동", legal: "영동1가", note: "" },
+            { gu: "중구", admin: "궁영동", legal: "영동2가", note: "" },
+            { gu: "중구", admin: "내조1동", legal: "내조동", note: "" },
+            { gu: "중구", admin: "내조2동", legal: "내조동", note: "" },
+            { gu: "중구", admin: "내항동", legal: "내항동", note: "" },
+            { gu: "중구", admin: "내항동", legal: "명일동", note: "" },
+            { gu: "중구", admin: "신덕동", legal: "신덕동", note: "" },
+            { gu: "중구", admin: "약맥동", legal: "목동", note: "뱅드림 와카바 무츠미 이름 한자" },
+            { gu: "중구", admin: "약맥동", legal: "삼각동", note: "뱅드림 미스미 우이카의 성씨 한자" },
+            { gu: "중구", admin: "약맥동", legal: "약맥동", note: "" },
+            { gu: "중구", admin: "약맥동", legal: "오주동", note: "" },
+            { gu: "중구", admin: "약맥동", legal: "일향동", note: "뱅드림 토야마 아스카의 이름 한자" },
+            { gu: "중구", admin: "유내동", legal: "경동", note: "" },
+            { gu: "중구", admin: "유내동", legal: "리사동", note: "뱅드림 이마이 리사의 이름 그대로" },
+            { gu: "중구", admin: "유내동", legal: "유내동", note: "" },
+            { gu: "중구", admin: "유내동", legal: "정동", note: "" },
+            { gu: "중구", admin: "조유동", legal: "조유동1가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "조유동2가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "조유동3가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "조유동4가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "조유동5가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "천석동1가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "천석동2가", note: "" },
+            { gu: "중구", admin: "조유동", legal: "천석동3가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "소장동1가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "소장동2가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "심동1가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "심동2가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "원동1가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "원동2가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "원동3가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "원동4가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로1가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로2가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로3가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로4가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로5가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로6가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "지유동1가", note: "뱅드림 츄츄(타마데 치유)의 이름 중국어 번안 한자" },
+            { gu: "중구", admin: "중앙동", legal: "지유동2가", note: "뱅드림 츄츄(타마데 치유)의 이름 중국어 번안 한자" },
+            { gu: "중구", admin: "중앙동", legal: "창선동1가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "창선동2가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "창선동3가", note: "" },
+            { gu: "중구", admin: "중앙동", legal: "훈동", note: "뱅드림 세타 카오루 이름 한자" },
+            { gu: "중구", admin: "중정동", legal: "오석동", note: "" },
+            { gu: "중구", admin: "중정동", legal: "완동1가", note: "" },
+            { gu: "중구", admin: "중정동", legal: "완동2가", note: "" },
+            { gu: "중구", admin: "중정동", legal: "완동3가", note: "" },
+            { gu: "중구", admin: "중정동", legal: "중동1가", note: "" },
+            { gu: "중구", admin: "중정동", legal: "중동2가", note: "" },
+            { gu: "중구", admin: "중정동", legal: "중동3가", note: "" },
+            { gu: "중구", admin: "중정동", legal: "중보로", note: "" },
+            { gu: "창전구", admin: "광정동", legal: "광정동", note: "뱅드림 히로마치 나나미의 성씨 한자" },
+            { gu: "창전구", admin: "광정동", legal: "마시동", note: "뱅드림 쿠라타 \"마시\"로" },
+            { gu: "창전구", admin: "광정동", legal: "보통동", note: "뱅드림 히로마치 나나미의 평소 말버릇중 \"보통\"" },
+            { gu: "창전구", admin: "광정동", legal: "생덕동", note: "" },
+            { gu: "창전구", admin: "동곡동", legal: "동곡동", note: "뱅드림 키리가야 토우코 성씨 한자와 유사" },
+            { gu: "창전구", admin: "동곡동", legal: "투자동", note: "뱅드림 키리가야 토우코 이름 한자" },
+            { gu: "창전구", admin: "쌍엽1동", legal: "쌍엽동", note: "뱅드림 후타바 츠쿠시 성씨와 유사한 뜻" },
+            { gu: "창전구", admin: "쌍엽2동", legal: "쌍엽동", note: "뱅드림 후타바 츠쿠시 성씨와 유사한 뜻" },
+            { gu: "창전구", admin: "유류동", legal: "유류동", note: "뱅드림 야시오 루이 이름 한자" },
+            { gu: "창전구", admin: "진백동", legal: "시로동", note: "뱅드림 쿠라타 마\"시로\"" },
+            { gu: "창전구", admin: "진백동", legal: "진백동", note: "뱅드림 쿠라타 마시로 이름 중국 번안 한자" },
+            { gu: "창전구", admin: "창전1동", legal: "창전동", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { gu: "창전구", admin: "창전2동", legal: "창전동", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { gu: "창전구", admin: "창전3동", legal: "창전동", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { gu: "창전구", admin: "창전4동", legal: "창전동", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { gu: "창전구", admin: "창전5동", legal: "창전동", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { gu: "창전구", admin: "칠심1동", legal: "칠심동", note: "뱅드림 히로마치 나나미 이름 한자" },
+            { gu: "창전구", admin: "칠심2동", legal: "칠심동", note: "뱅드림 히로마치 나나미 이름 한자" },
+            { gu: "창전구", admin: "칠심3동", legal: "칠심동", note: "뱅드림 히로마치 나나미 이름 한자" },
+            { gu: "창전구", admin: "팔조동", legal: "팔조동", note: "뱅드림 야시오 루이 성씨 한자" },
+            { gu: "청엽구", admin: "동리동", legal: "동리동", note: "뱅드림 하자와 츠구미 이름 중국번안 한자" },
+            { gu: "청엽구", admin: "등동", legal: "등동", note: "뱅드림 타카마츠 토모리 이름 한자+동" },
+            { gu: "청엽구", admin: "마잡1동", legal: "마잡동", note: "뱅드림 아오바 모카 이름 중국어 번안 한자" },
+            { gu: "청엽구", admin: "마잡1동", legal: "서증동", note: "" },
+            { gu: "청엽구", admin: "마잡1동", legal: "헌이송동", note: "" },
+            { gu: "청엽구", admin: "마잡2동", legal: "마잡동", note: "뱅드림 아오바 모카 이름 중국어 번안 한자" },
+            { gu: "청엽구", admin: "비마리동", legal: "비마동", note: "뱅드림 우에하라 히마리 이름을 중국 번안 한자중 일부" },
+            { gu: "청엽구", admin: "비마리동", legal: "사노동", note: "" },
+            { gu: "청엽구", admin: "우전1동", legal: "우전동", note: "뱅드림 우다가와 아코, 우다가와 토모에 성씨 한자" },
+            { gu: "청엽구", admin: "우전2동", legal: "우전동", note: "" },
+            { gu: "청엽구", admin: "우전3동", legal: "우전동", note: "" },
+            { gu: "청엽구", admin: "우택동", legal: "우택동", note: "뱅드림 하자와 츠구미 성씨 한자" },
+            { gu: "청엽구", admin: "입빈동", legal: "입동1가", note: "" },
+            { gu: "청엽구", admin: "입빈동", legal: "입동2가", note: "" },
+            { gu: "청엽구", admin: "입빈동", legal: "입동3가", note: "" },
+            { gu: "청엽구", admin: "입빈동", legal: "효빈동1가", note: "" },
+            { gu: "청엽구", admin: "입빈동", legal: "효빈동2가", note: "" },
+            { gu: "청엽구", admin: "청엽1동", legal: "청엽동", note: "뱅드림 아오바 모카 성씨 한자" },
+            { gu: "청엽구", admin: "청엽2동", legal: "청엽동", note: "뱅드림 아오바 모카 성씨 한자" },
+            { gu: "청엽구", admin: "청엽3동", legal: "청엽동", note: "뱅드림 아오바 모카 성씨 한자" },
+            { gu: "청엽구", admin: "청엽4동", legal: "청엽동", note: "뱅드림 아오바 모카 성씨 한자" },
+            { gu: "청엽구", admin: "청엽5동", legal: "청엽동", note: "뱅드림 아오바 모카 성씨 한자" },
+            { gu: "청엽구", admin: "청엽6동", legal: "청엽동", note: "뱅드림 아오바 모카 성씨 한자" },
+            { gu: "탄성군", admin: "고해읍", legal: "고해리", note: "러브라이브 선샤인 타카미 치카 성씨 한자" },
+            { gu: "탄성군", admin: "고해읍", legal: "율일리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "은진원리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "이식리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "이와리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "장심리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "전추리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "정명리", note: "" },
+            { gu: "탄성군", admin: "고해읍", legal: "천가리", note: "러브라이브 선샤인 타카미 치카 이름 한자" },
+            { gu: "탄성군", admin: "도변읍", legal: "계층리", note: "" },
+            { gu: "탄성군", admin: "도변읍", legal: "도변리", note: "러브라이브 선샤인 와타나베 요우 성씨 한자" },
+            { gu: "탄성군", admin: "도변읍", legal: "요우리", note: "러브라이브 선샤인 와타나베 요우 이름 그대로" },
+            { gu: "탄성군", admin: "도변읍", legal: "잠재리", note: "뱅드림 마이고의 노래 잠재표명중 잠재" },
+            { gu: "탄성군", admin: "도변읍", legal: "조일리", note: "뱅드림 아사히 롯카의 성씨 한자" },
+            { gu: "탄성군", admin: "도변읍", legal: "표명리", note: "뱅드림 마이고의 노래 잠재표명중 표명" },
+            { gu: "탄성군", admin: "도변읍(앵내출장소)", legal: "앵내리", note: "러브라이브 선샤인 사쿠라우치 리코 성씨 한자" },
+            { gu: "탄성군", admin: "도향면", legal: "미로리", note: "뱅드림 마이고 노래 일일 미로중 미로" },
+            { gu: "탄성군", admin: "도향면", legal: "반주리", note: "뱅드림 마이고 노래 벽천반주 중 반주" },
+            { gu: "탄성군", admin: "도향면", legal: "벽천리", note: "뱅드림 마이고 노래 벽천반주 중 벽천" },
+            { gu: "탄성군", admin: "도향면", legal: "분음리", note: "도향면: 걸즈 밴드크라이 카와라기 모모카의 이름 한자" },
+            { gu: "탄성군", admin: "도향면", legal: "시초리", note: "뱅드림 마이고 노래 시초반 중 시초" },
+            { gu: "탄성군", admin: "도향면", legal: "영왕리", note: "" },
+            { gu: "탄성군", admin: "도향면", legal: "일일리", note: "뱅드림 마이고 노래 일일 미로중 일일" },
+            { gu: "탄성군", admin: "도향면", legal: "일하리", note: "" },
+            { gu: "탄성군", admin: "도향면", legal: "초반리", note: "뱅드림 마이고 노래 시초반 중 초반" },
+            { gu: "탄성군", admin: "도향면", legal: "춘일경리", note: "뱅드림 마이고 노래 춘일경(하루히카게) 중 춘일경" },
+            { gu: "탄성군", admin: "도향면", legal: "하공리", note: "" },
+            { gu: "탄성군", admin: "서목읍", legal: "록구리", note: "뱅드림 아사히 롯카의 별명 관련(LOCK)" },
+            { gu: "탄성군", admin: "서목읍", legal: "마희리", note: "" },
+            { gu: "탄성군", admin: "서목읍", legal: "서목리", note: "러브라이브 니시키노 마키의 성씨 한자중 일부" },
+            { gu: "탄성군", admin: "서목읍", legal: "소춘리", note: "" },
+            { gu: "탄성군", admin: "서목읍", legal: "승남리", note: "" },
+            { gu: "탄성군", admin: "서목읍", legal: "음일리", note: "뱅드림 마이고 노래 음일회 중 음일" },
+            { gu: "탄성군", admin: "서목읍", legal: "일회리", note: "뱅드림 마이고 노래 음일회 중 일회" },
+            { gu: "탄성군", admin: "서목읍", legal: "입리", note: "" },
+            { gu: "탄성군", admin: "서목읍", legal: "잠금리", note: "뱅드림 아사히 롯카의 별명 한국어 관련(LOCK)" },
+            { gu: "탄성군", admin: "서목읍", legal: "조산리", note: "" },
+            { gu: "탄성군", admin: "서목읍", legal: "파래리", note: "뱅드림 파레오의 이름 변형" },
+            { gu: "탄성군", admin: "소원면", legal: "라면리", note: "" },
+            { gu: "탄성군", admin: "소원면", legal: "부우리", note: "" },
+            { gu: "탄성군", admin: "소원면", legal: "소원리", note: "러브라이브 선샤인 오하라 마리 성씨 한자" },
+            { gu: "탄성군", admin: "소원면", legal: "윤부리", note: "" },
+            { gu: "탄성군", admin: "야진읍", legal: "미우리", note: "" },
+            { gu: "탄성군", admin: "야진읍", legal: "신리", note: "" },
+            { gu: "탄성군", admin: "야진읍", legal: "아득리", note: "" },
+            { gu: "탄성군", admin: "야진읍", legal: "야진리", note: "러브라이브 니시키노 마키의 성씨 이름 한자 일부 인용" },
+            { gu: "탄성군", admin: "야진읍", legal: "원심리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "구생리", note: "정근면: 걸즈 밴드크라이 이세리 니나의 성씨 한자" },
+            { gu: "탄성군", admin: "정근면", legal: "사촌리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "안경리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "익목리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "처구리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "촌주리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "층부리", note: "" },
+            { gu: "탄성군", admin: "정근면", legal: "회층리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "고무리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "공리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "명무리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "무성리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "미성리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "성규리", note: "" },
+            { gu: "탄성군", admin: "탄성읍", legal: "탄성리", note: "" },
+            { gu: "탄성군", admin: "흑택면", legal: "루비리", note: "러브라이브 선샤인 쿠로사와 루비 이름 그대로" },
+            { gu: "탄성군", admin: "흑택면", legal: "명현리", note: "" },
+            { gu: "탄성군", admin: "흑택면", legal: "보습리", note: "" },
+            { gu: "탄성군", admin: "흑택면", legal: "은염리", note: "" },
+            { gu: "탄성군", admin: "흑택면", legal: "흑택리", note: "러브라이브 선샤인 쿠로사와 루비, 쿠로사와 다이아의 성씨 한자" }
+        ];
+
+        // 가상 폐기물 품목 데이터
+        const wasteItems = [
+            { name: "장롱 (1쪽당)", price: 15000 },
+            { name: "침대 (매트리스 포함)", price: 20000 },
+            { name: "소파 (3인용 이상)", price: 18000 },
+            { name: "식탁 (4인용)", price: 10000 },
+            { name: "의자 (회전형)", price: 5000 },
+            { name: "책상 (양수)", price: 8000 },
+            { name: "서랍장 (5단 이상)", price: 12000 },
+            { name: "거울 (전신)", price: 4000 },
+            { name: "자전거", price: 3000 },
+            { name: "카펫/장판 (10㎡당)", price: 5000 },
+            { name: "여행용 가방", price: 3000 },
+            { name: "유모차", price: 3000 }
+        ];
+
+        let selectedItems = [];
+
+        // 모달 열기 (주소)
+        function openAddressModal() {
+            renderAddressTable(districtData);
+            document.getElementById('modalSearchInput').value = '';
+            document.getElementById('address-modal').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('address-modal').classList.add('active'); }, 10);
+            document.getElementById('modalSearchInput').focus();
+        }
+
+        // 모달 닫기 (주소)
+        function closeAddressModal() {
+            document.getElementById('address-modal').classList.remove('active');
+            setTimeout(() => { document.getElementById('address-modal').classList.add('hidden'); }, 200);
+        }
+
+        // 모달 열기 (품목)
+        function openItemModal() {
+            renderItemTable(wasteItems);
+            document.getElementById('itemSearchInput').value = '';
+            document.getElementById('item-modal').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('item-modal').classList.add('active'); }, 10);
+            document.getElementById('itemSearchInput').focus();
+        }
+
+        // 모달 닫기 (품목)
+        function closeItemModal() {
+            document.getElementById('item-modal').classList.remove('active');
+            setTimeout(() => { document.getElementById('item-modal').classList.add('hidden'); }, 200);
+        }
+
+        // 모달 열기 (결제)
+        function openPaymentModal() {
+            const name = document.getElementById('applicantName').value;
+            const phone = document.getElementById('applicantPhone').value;
+            const addr = document.getElementById('addressInput').value;
+            const detail = document.getElementById('addressDetail').value;
+
+            if(!name || !phone || !addr) {
+                alert('신청인 정보와 주소를 모두 입력해주세요.');
+                return;
+            }
+            if(selectedItems.length === 0) {
+                alert('배출할 품목을 1개 이상 추가해주세요.');
+                return;
+            }
+
+            document.getElementById('pay-name').innerText = name;
+            document.getElementById('pay-phone').innerText = phone;
+            document.getElementById('pay-address').innerText = `${addr} ${detail}`;
+            
+            const itemList = document.getElementById('pay-items');
+            itemList.innerHTML = '';
+            let total = 0;
+            selectedItems.forEach(item => {
+                const li = document.createElement('li');
+                li.innerText = `${item.name} (${item.price.toLocaleString()}원) x ${item.count}개`;
+                itemList.appendChild(li);
+                total += item.price * item.count;
+            });
+            document.getElementById('pay-total').innerText = `${total.toLocaleString()}원`;
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('payment-modal').classList.add('active'); }, 10);
+        }
+
+        // 모달 닫기 (결제)
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+            setTimeout(() => { document.getElementById('payment-modal').classList.add('hidden'); }, 200);
+        }
+
+        // 테이블 렌더링 (주소)
+        function renderAddressTable(data) {
+            const tbody = document.getElementById('addressTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                document.getElementById('noResult').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('noResult').classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 cursor-pointer transition border-b border-slate-50 last:border-b-0';
+                tr.onclick = () => selectAddress(item);
+
+                const noteIcon = item.note ? `<i data-lucide="info" class="w-3 h-3 text-blue-500 ml-1 inline-block" title="${item.note}"></i>` : '';
+
+                tr.innerHTML = `
+                    <td class="px-5 py-3 font-bold text-slate-700">${item.gu}</td>
+                    <td class="px-5 py-3">${item.admin}</td>
+                    <td class="px-5 py-3 text-slate-500">${item.legal} ${noteIcon}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-green-200 transition">선택</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // 테이블 렌더링 (품목)
+        function renderItemTable(data) {
+            const tbody = document.getElementById('itemTableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-100 hover:bg-slate-50 cursor-pointer';
+                tr.onclick = () => addItem(item);
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-700">${item.name}</td>
+                    <td class="px-4 py-3 text-right font-bold text-green-600">${item.price.toLocaleString()}원</td>
+                    <td class="px-4 py-3 text-center"><i data-lucide="plus" class="w-4 h-4 text-slate-400"></i></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // 검색 필터링 (주소)
+        function filterAddress() {
+            const input = document.getElementById('modalSearchInput').value.toLowerCase();
+            const filteredData = districtData.filter(item => {
+                return item.admin.includes(input) || 
+                       item.legal.includes(input) || 
+                       item.gu.includes(input) ||
+                       (item.note && item.note.includes(input));
+            });
+            renderAddressTable(filteredData);
+        }
+
+        // 검색 필터링 (품목)
+        function filterItems() {
+            const input = document.getElementById('itemSearchInput').value.toLowerCase();
+            const filtered = wasteItems.filter(i => i.name.toLowerCase().includes(input));
+            renderItemTable(filtered);
+        }
+
+        // 주소 선택
+        function selectAddress(item) {
+            const fullAddress = `효빈광역시 ${item.gu} ${item.admin} (${item.legal})`;
+            document.getElementById('addressInput').value = fullAddress;
+            closeAddressModal();
+        }
+
+        // 품목 추가 로직
+        function addItem(item) {
+            const existing = selectedItems.find(i => i.name === item.name);
+            if(existing) {
+                existing.count++;
+            } else {
+                selectedItems.push({ ...item, count: 1 });
+            }
+            updateSelectedList();
+            closeItemModal();
+        }
+
+        // 선택 품목 리스트 업데이트
+        function updateSelectedList() {
+            const list = document.getElementById('selectedItemsList');
+            list.innerHTML = '';
+            let total = 0;
+
+            selectedItems.forEach((item, index) => {
+                total += item.price * item.count;
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-slate-50 p-3 rounded border border-slate-200';
+                div.innerHTML = `
+                    <div>
+                        <span class="font-bold text-slate-700">${item.name}</span>
+                        <span class="text-sm text-slate-500 ml-2">${item.price.toLocaleString()}원</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center border border-slate-300 rounded bg-white">
+                            <button onclick="changeCount(${index}, -1)" class="px-2 py-1 hover:bg-slate-100">-</button>
+                            <span class="px-2 text-sm font-bold">${item.count}</span>
+                            <button onclick="changeCount(${index}, 1)" class="px-2 py-1 hover:bg-slate-100">+</button>
+                        </div>
+                        <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            
+            document.getElementById('totalPriceDisplay').innerText = total.toLocaleString() + "원";
+            lucide.createIcons();
+        }
+
+        function changeCount(index, delta) {
+            selectedItems[index].count += delta;
+            if(selectedItems[index].count <= 0) selectedItems.splice(index, 1);
+            updateSelectedList();
+        }
+
+        function removeItem(index) {
+            selectedItems.splice(index, 1);
+            updateSelectedList();
+        }
+
+        function processPayment() {
+            alert('결제가 완료되었습니다.\n신고필증 번호가 문자로 발송됩니다.');
+            closePaymentModal();
+            location.reload(); // 초기화
+        }
+    </script>
+</body>
+</html>

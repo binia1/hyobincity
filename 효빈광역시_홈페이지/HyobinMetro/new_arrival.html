@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신상품 - 효빈교통공사 굿즈샵</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .goods-gradient { background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
+        /* 캐릭터별 테마 색상 (뱃지용) */
+        .bg-line-1 { background-color: #0077DD; }
+        .bg-line-2 { background-color: #00CCAA; }
+        .bg-line-3 { background-color: #FFCC11; color: black; }
+        .bg-line-4 { background-color: #FF5522; }
+        .bg-line-5 { background-color: #EE0022; }
+        .bg-line-6 { background-color: #881188; }
+        .bg-line-7 { background-color: #FF8899; }
+        .bg-line-8 { background-color: #9856FF; }
+        .bg-line-bh { background-color: #6677CC; }
+
+        /* 필터 애니메이션 */
+        .product-card { transition: all 0.3s ease-in-out; }
+        .product-card.hidden-card { display: none; }
+        
+        /* 팝업 애니메이션 */
+        #product-modal, #payment-modal, #purchase-modal { transition: opacity 0.3s ease; }
+        #product-modal.hidden, #payment-modal.hidden, #purchase-modal.hidden { opacity: 0; pointer-events: none; }
+        #product-modal:not(.hidden), #payment-modal:not(.hidden), #purchase-modal:not(.hidden) { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+        #product-modal:not(.hidden) .modal-content, #payment-modal:not(.hidden) .modal-content, #purchase-modal:not(.hidden) .modal-content { transform: scale(1); }
+
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(30, 41, 59, 0.95);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* 결제 수단 선택 스타일 */
+        .payment-method.selected {
+            border-color: #0284c7; /* sky-600 */
+            background-color: #f0f9ff; /* sky-50 */
+            color: #0284c7;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Global File Input for Image Upload -->
+    <input type="file" id="global-file-input" accept="image/*" style="display:none">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="goods.html" class="flex items-center gap-2 group">
+                <div class="h-8 w-8 bg-sky-600 rounded-full flex items-center justify-center text-white font-black text-xs">HB</div>
+                <div class="text-3xl font-black text-sky-600 hb-logo hidden md:block">HB</div>
+                <div class="text-sm font-bold text-gray-800 leading-tight ml-2">
+                    효빈교통공사<br><span class="text-sky-600">GOODS SHOP</span>
+                </div>
+            </a>
+            <nav class="hidden md:flex space-x-8 text-sm font-bold text-gray-600">
+                <a href="new_arrival.html" class="text-sky-600 transition">신상품</a>
+                <a href="goods.html#search-section" class="hover:text-sky-600 transition">매장 찾기</a>
+                <a href="goods.html#shop-list" class="hover:text-sky-600 transition">전체 매장</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a href="#" class="relative text-gray-500 hover:text-sky-600 transition group" onclick="showToast('장바구니 페이지는 준비 중입니다.', 'info')">
+                    <i class="fa-solid fa-cart-shopping text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </a>
+                <a href="goods.html" class="text-gray-500 hover:text-gray-900 md:hidden">
+                    <i class="fa-solid fa-arrow-left text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Title Section -->
+    <div class="bg-white py-12 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="text-sky-600 font-bold text-sm tracking-widest uppercase mb-2 block">NEW ARRIVALS</span>
+            <h1 class="text-3xl md:text-4xl font-black text-gray-900">이달의 신상품</h1>
+            <p class="text-gray-500 mt-3">캐릭터 굿즈부터 철도 모형, 피규어까지 새롭게 출시된 아이템을 만나보세요.</p>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <section class="py-12 max-w-7xl mx-auto px-4 flex-grow">
+        <!-- Filter/Category -->
+        <div class="flex justify-center gap-3 mb-10 overflow-x-auto pb-2 scrollbar-hide" id="filter-buttons">
+            <button onclick="filterProducts('all')" class="filter-btn active px-4 py-2 bg-slate-800 text-white rounded-full text-sm font-bold shadow-md whitespace-nowrap transition-colors" data-filter="all">전체보기</button>
+            <button onclick="filterProducts('figure')" class="filter-btn px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-50 whitespace-nowrap transition-colors" data-filter="figure">피규어(SEGA/GSC)</button>
+            <button onclick="filterProducts('character')" class="filter-btn px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-50 whitespace-nowrap transition-colors" data-filter="character">캐릭터 굿즈</button>
+            <button onclick="filterProducts('train')" class="filter-btn px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-50 whitespace-nowrap transition-colors" data-filter="train">철도/모형</button>
+            <button onclick="filterProducts('stationery')" class="filter-btn px-4 py-2 bg-white text-gray-600 border border-gray-200 rounded-full text-sm font-medium hover:bg-gray-50 whitespace-nowrap transition-colors" data-filter="stationery">문구/잡화</button>
+        </div>
+
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            
+            <!-- [FIGURES] data-category="figure" -->
+            <!-- 25: 1호선 고나미 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="25" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 1호선 고나미 1/7 스케일 피규어" data-price="75,900원" data-img="images/25.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="SEGA S-FIRE 콜라보! 완벽한 제복 핏" data-detail="SEGA의 하이엔드 브랜드 S-FIRE와 효빈교통공사의 첫 만남! <br>철저한 고증을 거친 1호선 제복의 주름과 고나미 특유의 날카로운 지적확인 손동작을 1/7 스케일로 완벽하게 입체화했습니다. 전용 디오라마 베이스 포함.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/25.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/0077DD/ffffff?text=Gonami+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-1 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">[SEGA] 1호선 고나미 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">SEGA S-FIRE 콜라보! 완벽한 제복 핏</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '25', `[SEGA] 1호선 고나미 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            
+            <!-- 28: 고나미 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="28" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 고나미" data-price="45,000원" data-img="images/28.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="Good Smile Company 정품" data-detail="손바닥 위의 귀여운 기관사, 넨도로이드 고나미! <br>표정 파츠 3종(진지, 미소, 당황)과 탈착 가능한 안전모, 지적확인용 손 파츠가 포함되어 다양한 상황극이 가능합니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/28.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/0077DD/ffffff?text=Gonami+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">넨도로이드 고나미</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">안전모와 지적확인 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '28', `넨도로이드 고나미`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 26: 2호선 하루빈 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="26" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 2호선 하루빈 1/7 스케일 피규어" data-price="75,900원" data-img="images/26.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="흩날리는 사원증과 아이스 아메리카노" data-detail="출근길 인파를 뚫고 질주하는 하루빈의 역동적인 순간을 포착했습니다. <br>손에 든 아이스 아메리카노의 얼음 질감 표현과 휘날리는 민트색 머릿결이 압권입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/26.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/00CCAA/ffffff?text=Harubin+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-2 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-teal-500 transition-colors">[SEGA] 2호선 하루빈 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">흩날리는 사원증과 아이스 아메리카노</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '26', `[SEGA] 2호선 하루빈 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 29: 하루빈 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="29" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 하루빈" data-price="45,000원" data-img="images/29.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="Good Smile Company 정품" data-detail="퇴근하고 싶은 직장인 요정, 넨도로이드 하루빈! <br>표정 파츠(영혼 없음, 환한 미소, 분노)와 옵션 파츠로 사원증, 테이크아웃 커피, 서류 가방이 들어있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/29.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/00CCAA/ffffff?text=Harubin+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-teal-500 transition-colors">넨도로이드 하루빈</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">'영혼 가출' 표정 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '29', `넨도로이드 하루빈`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 31: 3호선 박라미 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="31" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 3호선 박라미 1/7 스케일 피규어" data-price="75,900원" data-img="images/31.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="엽월대 캠퍼스 벤치 Ver." data-detail="과잠바의 질감을 리얼하게 살린 박라미 스케일 피규어입니다. <br>캠퍼스 벤치에 앉아 전공책을 읽고 있는 지적인 모습을 연출했으며, 벤치 파츠가 기본 포함되어 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/31.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FFCC11/000000?text=Rami+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-3 text-black text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-yellow-500 transition-colors">[SEGA] 3호선 박라미 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">캠퍼스 벤치 비넷 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '31', `[SEGA] 3호선 박라미 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 33: 박라미 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="33" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 박라미" data-price="45,000원" data-img="images/33.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="전공책과 안경 파츠 포함" data-detail="지적인 대학생 박라미 넨도로이드. <br>탈착 가능한 뿔테 안경과 두꺼운 전공책, 테이크아웃 커피 컵이 포함되어 캠퍼스 라이프를 재현할 수 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/33.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FFCC11/000000?text=Rami+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-yellow-500 transition-colors">넨도로이드 박라미</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">전공책과 안경 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '33', `넨도로이드 박라미`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 32: 4호선 다로나 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="32" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 4호선 다로나 1/7 스케일 피규어" data-price="75,900원" data-img="images/32.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="정의의 경광봉 액션 포즈" data-detail="정의감 넘치는 다로나의 역동적인 액션 포즈! <br>휘두르는 경광봉의 잔상 이펙트 클리어 파츠가 포함되어 있으며, 휘날리는 제복 망토가 박력 넘치게 조형되었습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/32.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF5522/ffffff?text=Darona+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-4 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-orange-500 transition-colors">[SEGA] 4호선 다로나 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">정의의 경광봉 액션 포즈</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '32', `[SEGA] 4호선 다로나 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 34: 다로나 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="34" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 다로나" data-price="45,000원" data-img="images/34.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="호루라기와 경광봉 파츠" data-detail="열혈 경찰 지망생 다로나 넨도로이드. <br>입에 물 수 있는 호루라기 파츠와 불이 들어온 듯한 도색의 경광봉, 늠름한 경례 손 파츠가 포함됩니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/34.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF5522/ffffff?text=Darona+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-orange-500 transition-colors">넨도로이드 다로나</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">호루라기와 경광봉 파츠</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '34', `넨도로이드 다로나`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 35: 5호선 미소하 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="35" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 5호선 미소하 1/7 스케일 피규어" data-price="53,000원" data-img="images/35.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="사회복지정책학과의 교통복지 천재 Ver." data-detail="사회복지정책론책에 둘러싸인 미소하를 정교하게 표현했습니다. <br>정책론과목을 열심히 듣고 정책을 실제로 분석, 만드는 미소하의 모습을 구현했습니다!">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/35.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/EE0022/ffffff?text=Misoha+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-5 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-red-600 transition-colors">[SEGA] 5호선 미소하 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">사회복지정책학과의 교통복지 천재 Ver.</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">53,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '35', `[SEGA] 5호선 미소하 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 36: 미소하 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="36" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 미소하" data-price="45,000원" data-img="images/36.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="사회복지정책론책과 사회복지관안내도 파츠 포함" data-detail="천재 공학자 미소하 넨도로이드. <br>머리에 쓴 고글은 탈착 가능하며, 커다란 스패너와 펼쳐진 도면 파츠가 포함되어 연구하는 모습을 연출할 수 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/36.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/EE0022/ffffff?text=Misoha+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-red-600 transition-colors">넨도로이드 미소하</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">사회복지정책론책과 사회복지관안내도 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '36', `넨도로이드 미소하`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 37: 6호선 라세나 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="37" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 6호선 라세나 1/7 스케일 피규어" data-price="75,900원" data-img="images/37.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="도서관의 문학소녀 Ver." data-detail="조용한 도서관 사다리에 앉아 책을 읽는 라세나를 입체화했습니다. <br>차분하게 내려앉은 보라색 머리카락과 앤티크한 도서관 배경 비넷이 고풍스러운 분위기를 자아냅니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/37.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/881188/ffffff?text=Lasena+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-6 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">[굿스마일 컴퍼니] 6호선 라세나 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">도서관의 문학소녀 Ver.</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '37', `[SEGA] 6호선 라세나 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 38: 라세나 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="38" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 라세나" data-price="45,000원" data-img="images/38.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="책과 이어폰 파츠 포함" data-detail="문학소녀 라세나 넨도로이드. <br>펼친 책과 닫은 책 파츠, 감상에 젖은 표정, 그리고 목에 걸 수 있는 헤드폰 파츠가 포함되어 감성적인 연출이 가능합니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/38.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/881188/ffffff?text=Lasena+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">넨도로이드 라세나</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">책과 이어폰 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '38', `넨도로이드 라세나`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 39-1: 7호선 임세정 스케일 (분리됨) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="39_1" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 7호선 임세정 1/7 스케일 피규어" data-price="75,900원" data-img="images/39_1.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="활기찬 출근길 Ver." data-detail="7호선의 활력소, 언니 임세정의 에너지 넘치는 출근길을 조형했습니다. <br>한 손에 든 샌드위치와 역동적으로 휘날리는 머릿결, 긍정적인 표정이 보는 사람에게 힘을 줍니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/39_1.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF8899/ffffff?text=Sejeong+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-7 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-pink-400 transition-colors">[SEGA] 7호선 임세정 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">활기찬 출근길 Ver.</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '39_1', `[SEGA] 7호선 임세정 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 39-2: 7호선 임세하 스케일 (분리됨) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="39_2" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 7호선 임세하 1/7 스케일 피규어" data-price="75,900원" data-img="images/39_2.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="정밀 시스템 점검 Ver." data-detail="7호선의 브레인, 동생 임세하의 지적인 모멘트. <br>홀로그램 패널을 조작하는 손끝의 디테일과 차분하지만 날카로운 눈빛을 완벽하게 재현했습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/39_2.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF8899/ffffff?text=Seha+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-7 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-pink-400 transition-colors">[SEGA] 7호선 임세하 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">정밀 시스템 점검 Ver.</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '39_2', `[SEGA] 7호선 임세하 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 30-1: 임세정 넨도 (분리됨) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="30_1" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 임세정" data-price="45,000원" data-img="images/30_1.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="확성기와 도시락 파츠 포함" data-detail="7호선의 씩씩한 언니 임세정 넨도로이드. <br>활짝 웃는 표정과 윙크 표정, 그리고 승객 안내용 확성기와 손수 싼 도시락 파츠가 포함되어 생활감 넘치는 연출이 가능합니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/30_1.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF8899/ffffff?text=Sejeong+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-pink-400 transition-colors">넨도로이드 임세정</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">확성기와 도시락 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '30_1', `넨도로이드 임세정`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 30-2: 임세하 넨도 (분리됨) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="30_2" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 임세하" data-price="45,000원" data-img="images/30_2.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="태블릿PC와 안경 파츠 포함" data-detail="7호선의 똑순이 동생 임세하 넨도로이드. <br>집중하는 표정과 곤란한 표정, 그리고 업무용 태블릿 PC와 데이터 케이블 파츠가 들어있어 스마트한 모습을 연출하세요.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/30_2.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF8899/ffffff?text=Seha+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-pink-400 transition-colors">넨도로이드 임세하</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">태블릿PC와 안경 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '30_2', `넨도로이드 임세하`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 40: 8호선 유리아 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="40" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 8호선 유리아 1/7 스케일 피규어" data-price="75,900원" data-img="images/40.jpg" data-badge="Pre-order" data-badge-class="bg-purple-600" data-desc="쿨 뷰티 메카닉 Ver." data-detail="시크한 공고생 유리아의 작업복 스타일을 스타일리시하게 재해석했습니다. <br>허리에 찬 공구 벨트의 디테일과 한 손으로 머리를 쓸어 넘기는 쿨한 포즈가 매력적입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/40.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/9856FF/ffffff?text=Yuria+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-8 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-violet-500 transition-colors">[SEGA] 8호선 유리아 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">쿨 뷰티 메카닉 Ver.</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">75,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '40', `[SEGA] 8호선 유리아 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 41: 유리아 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="41" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 유리아" data-price="45,000원" data-img="images/41.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="메탈 자와 안전화 파츠 포함" data-detail="팩트 폭격기 유리아 넨도로이드. <br>무심한 표정과 찌푸린 표정 파츠가 들어있으며, 손에 쥘 수 있는 메탈 자와 교체 가능한 작업용 안전화 다리 파츠가 포함됩니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/41.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/9856FF/ffffff?text=Yuria+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-violet-500 transition-colors">넨도로이드 유리아</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">메탈 자와 안전화 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '41', `넨도로이드 유리아`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- 27: 전노아 스케일 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="27" data-category="figure" onclick="openModal(this)" data-title="[SEGA] 빈효선 전노아 1/7 스케일 피규어" data-price="65,300원" data-img="images/27.jpg" data-badge="Limited" data-badge-class="bg-slate-800" data-desc="화려한 무대 의상 Ver. (LED 베이스 포함)" data-detail="관종력 폭발! 전노아의 아이돌 데뷔 무대 의상 버전입니다. <br>스커트의 펄 도색과 투명 파츠가 화려함을 더하며, 베이스에는 실제 LED가 내장되어 무대 조명 효과를 연출할 수 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/27.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/6677CC/ffffff?text=Noa+Scale';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Pre-order</div><div class="absolute bottom-3 right-3 bg-line-bh text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">SEGA x HB</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-indigo-500 transition-colors">[SEGA] 빈효선 전노아 1/7 스케일 피규어</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">화려한 무대 의상 Ver. (LED 베이스 포함)</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">65,300원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '27', `[SEGA] 빈효선 전노아 1/7 스케일 피규어`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            <!-- 42: 전노아 넨도 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="42" data-category="figure" onclick="openModal(this)" data-title="넨도로이드 전노아" data-price="45,000원" data-img="images/42.jpg" data-badge="New" data-badge-class="bg-red-500" data-desc="마이크와 응원봉 파츠 포함" data-detail="슈퍼스타 전노아 넨도로이드 데뷔! <br>윙크하는 표정과 노래하는 표정 파츠가 있으며, 핸드 마이크와 팬클럽 응원봉 파츠가 들어있어 콘서트 장면을 연출할 수 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/42.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/6677CC/ffffff?text=Noa+Nendo';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div><div class="absolute bottom-3 right-3 bg-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">GSC Nendo</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">피규어</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-indigo-500 transition-colors">넨도로이드 전노아</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">마이크와 응원봉 파츠 포함</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '42', `넨도로이드 전노아`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- [Existing Goods 1-24] -->
+            <!-- 1호선 고나미 (Original) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" 
+                 data-id="1"
+                 data-category="character" 
+                 onclick="openModal(this)"
+                 data-title="고나미의 'FM 안전' 헬멧 키링"
+                 data-price="6,500원"
+                 data-img="images/1.jpg"
+                 data-badge="1호선 고나미"
+                 data-badge-class="bg-line-1"
+                 data-desc="규정은 피로 쓰였다! 기관사 안전모 미니어처"
+                 data-detail="1호선 기관사 고나미가 착용하는 안전모를 완벽하게 축소한 키링입니다. <br>고강도 ABS 재질로 제작되어 튼튼하며, 안전제일 로고가 선명하게 인쇄되어 있습니다. 가방이나 에어팟 케이스에 달아 나만의 안전 부적처럼 사용해보세요.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/1.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/0077DD/ffffff?text=Keyring';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                    <div class="absolute bottom-3 right-3 bg-line-1 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">1호선 고나미</div>
+                </div>
+                <div class="p-5">
+                    <p class="text-gray-400 text-xs font-bold mb-1">패션/잡화</p>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">고나미의 'FM 안전' 헬멧 키링</h3>
+                    <p class="text-xs text-gray-500 mb-4 line-clamp-1">"규정은 피로 쓰였다!" 기관사 안전모 미니어처</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-black text-gray-900">6,500원</span>
+                        <button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '1', `고나미의 'FM 안전' 헬멧 키링`)"><i class="fa-regular fa-heart text-xl"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 2 (하루빈) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="2" data-category="character" onclick="openModal(this)" data-title="하루빈의 '처세술 만렙' 사원증 홀더" data-price="12,000원" data-img="images/2.jpg" data-badge="2호선 하루빈" data-badge-class="bg-line-2" data-desc="칼퇴를 부르는 민트색 목걸이 줄 포함" data-detail="사회생활 만렙 하루빈의 필수품! <br>고급 PU 가죽 소재로 제작된 사원증 홀더입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/2.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/00CCAA/ffffff?text=Holder';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-2 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">2호선 하루빈</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/오피스</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-teal-500 transition-colors">하루빈의 '처세술 만렙' 사원증 홀더</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">12,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '2', `하루빈의 '처세술 만렙' 사원증 홀더`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+            
+            <!-- Item 3 (박라미) -->
+             <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="3" data-category="character" onclick="openModal(this)" data-title="박라미의 'F학점 방지' 노트북 파우치" data-price="28,000원" data-img="images/3.jpg" data-badge="3호선 박라미" data-badge-class="bg-line-3" data-desc="엽월대 과잠 스타일의 포근한 파우치" data-detail="대학생 라미의 '과잠' 소재를 모티브로 한 13-14인치용 노트북 파우치입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/3.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FFCC11/000000?text=Pouch';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-3 text-black text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">3호선 박라미</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">디지털/가전</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-yellow-500 transition-colors">박라미의 'F학점 방지' 노트북 파우치</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">28,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '3', `박라미의 'F학점 방지' 노트북 파우치`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 4 (다로나) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="4" data-category="character" onclick="openModal(this)" data-title="다로나의 '정의 구현' 호루라기 볼펜" data-price="4,500원" data-img="images/4.jpg" data-badge="4호선 다로나" data-badge-class="bg-line-4" data-desc="불의를 보면 불이 들어오는 경광봉 기능 탑재" data-detail="경찰 지망생 다로나의 아이템! 버튼을 누르면 끝부분에 빨간 LED가 반짝이는 경광봉 기능이 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/4.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF5522/ffffff?text=Pen';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-4 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">4호선 다로나</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/오피스</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-orange-500 transition-colors">다로나의 '정의 구현' 호루라기 볼펜</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">4,500원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '4', `다로나의 '정의 구현' 호루라기 볼펜`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+             <!-- Item 5 (미소하) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="5" data-category="character" onclick="openModal(this)" data-title="미소하의 '배리어프리' 분석 노트 세트" data-price="8,000원" data-img="images/5.jpg" data-badge="5호선 미소하" data-badge-class="bg-line-5" data-desc="교통 시설과 복지 정책을 정리하는 모눈 노트" data-detail="연구원 지망 미소하가 즐겨 쓰는 그리드(모눈) 노트 3권 세트입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/5.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/EE0022/ffffff?text=Note';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-5 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">5호선 미소하</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/오피스</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-red-600 transition-colors">미소하의 '브레인' 분석 노트 세트</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">8,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '5', `미소하의 '브레인' 분석 노트 세트`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 6 (라세나) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="6" data-category="character" onclick="openModal(this)" data-title="라세나의 '수능 대박' 스터디 플래너" data-price="14,000원" data-img="images/6.jpg" data-badge="6호선 라세나" data-badge-class="bg-line-6" data-desc="조용한 치유계 감성의 보라색 하드커버" data-detail="수험생 라세나의 꼼꼼한 시간 관리 비법이 담긴 6개월 만년형 스터디 플래너입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/6.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/881188/ffffff?text=Planner';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-6 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">6호선 라세나</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/오피스</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">라세나의 '수능 대박' 스터디 플래너</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">14,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '6', `라세나의 '수능 대박' 스터디 플래너`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+             <!-- Item 7 (임자매) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="7" data-category="character" onclick="openModal(this)" data-title="임자매의 7호선 무가선 트램 다이캐스트" data-price="35,000원" data-img="images/7.jpg" data-badge="7호선 자매" data-badge-class="bg-line-7" data-desc="세정의 억척스러움과 세하의 공학 기술의 결정체" data-detail="7호선을 책임지는 임자매가 기획한 한정판 트램 다이캐스트입니다. 실제 운행 예정인 친환경 무가선 트램을 정교하게 축소하였습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/7.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/FF8899/ffffff?text=Tram';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-7 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">7호선 자매</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">콜렉션/취미</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-pink-400 transition-colors">임자매의 7호선 무가선 트램 다이캐스트</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">35,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '7', `임자매의 7호선 무가선 트램 다이캐스트`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 8 (유리아) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="8" data-category="character" onclick="openModal(this)" data-title="유리아의 '팩트 체크' 메탈 자 세트" data-price="7,000원" data-img="images/8.jpg" data-badge="8호선 유리아" data-badge-class="bg-line-8" data-desc="효율과 정확성을 사랑하는 공고생의 필수템" data-detail="공고생 유리아가 강력 추천하는 15cm, 30cm 스테인리스 자 세트입니다. 눈금이 레이저 각인되어 지워지지 않습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/8.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/9856FF/ffffff?text=Ruler';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-8 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">8호선 유리아</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/오피스</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-violet-500 transition-colors">유리아의 '팩트 체크' 메탈 자 세트</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">7,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '8', `유리아의 '팩트 체크' 메탈 자 세트`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 9 (전노아) -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="9" data-category="character" onclick="openModal(this)" data-title="전노아의 '관종력 폭발' LED 네임택" data-price="9,900원" data-img="images/9.jpg" data-badge="빈효선 전노아" data-badge-class="bg-line-bh" data-desc="내가 나서야 해결된다! 어디서든 빛나는 존재감" data-detail="어디서든 주목받고 싶은 당신을 위한 스마트폰 연동 LED 네임택입니다. 전용 앱을 통해 원하는 문구를 자유롭게 설정할 수 있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/9.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/6677CC/ffffff?text=Nametag';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-line-bh text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">빈효선 전노아</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">패션/잡화</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-indigo-500 transition-colors">전노아의 '관종력 폭발' LED 네임택</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">9,900원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '9', `전노아의 '관종력 폭발' LED 네임택`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 10 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="10" data-category="train" onclick="openModal(this)" data-title="1호선 신형 VVVF 전동차 정밀 모형" data-price="150,000원" data-img="images/10.jpg" data-badge="Limited" data-badge-class="bg-slate-800" data-desc="실제 차량 도면을 바탕으로 제작된 1:87 스케일" data-detail="철도 마니아를 위한 하이엔드 컬렉션! 1호선의 최신형 VVVF 전동차를 1:87(HO스케일)로 완벽하게 재현했습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/10.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/0077DD/ffffff?text=Model';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">Limited</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">철도/모형</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">1호선 신형 VVVF 전동차 정밀 모형</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">150,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '10', `1호선 신형 VVVF 전동차 정밀 모형`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 11 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="11" data-category="train" onclick="openModal(this)" data-title="2호선 전동차 모찌 쿠션" data-price="25,000원" data-img="images/11.jpg" data-desc="안고 자면 꿀잠 보장! 말랑말랑한 촉감" data-detail="퇴근길 지하철에서 졸던 추억을 집에서도! 2호선 전동차 모양을 본뜬 60cm 대형 모찌 쿠션입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/11.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/00CCAA/ffffff?text=Cushion';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">리빙/홈</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-teal-500 transition-colors">2호선 전동차 모찌 쿠션</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">25,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '11', `2호선 전동차 모찌 쿠션`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 12 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="12" data-category="train" onclick="openModal(this)" data-title= "임세하 봉제인형" data-price="12,000원" data-img="images/12.jpg" data-desc="이제는 볼 수 없는 그 시절 초저항 열차" data-detail="7호선 임세하의 귀여운 봉제인형입니다!">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/12.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/555555/ffffff?text=Stand';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">콜렉션/취미</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-slate-600 transition-colors">임세하 봉제인형</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">12,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '12', `'응답하라 1990' 구형 전동차 아크릴 스탠드`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 13 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="13" data-category="stationery" onclick="openModal(this)" data-title="HB 시그니처 3단 자동 우산" data-price="18,000원" data-img="images/13.jpg" data-desc="비 오는 날에도 효빈교통공사와 함께" data-detail="심플한 네이비 컬러에 HB 로고가 포인트로 들어간 3단 자동 우산입니다. 튼튼한 살대와 발수 코팅 원단을 사용하였습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/13.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/003366/ffffff?text=Umbrella';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">패션/잡화</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors">HB 시그니처 3단 자동 우산</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">18,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '13', `HB 시그니처 3단 자동 우산`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 14 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="14" data-category="stationery" onclick="openModal(this)" data-title="효빈 광역전철 노선도 손수건" data-price="8,000원" data-img="images/14.jpg" data-desc="길 잃을 걱정 없는 실용만점 디자인" data-detail="효빈교통공사의 모든 노선이 인쇄된 대형 손수건입니다. 부드러운 면 100% 소재로 피부에 자극이 없습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/14.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/eeeeee/333333?text=Map';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">패션/잡화</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">효빈 광역전철 노선도 손수건</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">8,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '14', `효빈 광역전철 노선도 손수건`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 15 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="15" data-category="stationery" onclick="openModal(this)" data-title="'우리 동네 역이 나올까?' 역명판 마그넷 랜덤박스" data-price="4,000원" data-img="images/15.jpg" data-badge="Random" data-badge-class="bg-slate-800" data-desc="총 50종의 역명판 중 하나가 들어있어요" data-detail="수집욕을 자극하는 귀여운 역명판 마그넷! 중수역, 고송교차로역 등 주요 50개 역명판 중 1개가 랜덤으로 들어있습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/15.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/333333/ffffff?text=Magnet';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">Random</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">콜렉션/취미</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">'우리 동네 역이 나올까?' 역명판 마그넷 랜덤박스</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">4,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '15', `'우리 동네 역이 나올까?' 역명판 마그넷 랜덤박스`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 16 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="16" data-category="stationery" onclick="openModal(this)" data-title="레트로 마그네틱 승차권 폰케이스" data-price="16,000원" data-img="images/16.jpg" data-desc="추억의 종이 승차권 디자인 (전 기종 가능)" data-detail="지금은 사라진 노란색 마그네틱 종이 승차권을 폰케이스로 재현했습니다. 젤리 케이스 위에 고해상도 인쇄를 하여 실제 승차권 같습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/16.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/f5deb3/333333?text=Case';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">디지털/가전</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-orange-600 transition-colors">레트로 마그네틱 승차권 폰케이스</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">16,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '16', `레트로 마그네틱 승차권 폰케이스`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 17 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="17" data-category="stationery" onclick="openModal(this)" data-title="HB 에코 스텐 텀블러 (450ml)" data-price="22,000원" data-img="images/17.jpg" data-desc="보온/보냉 완벽, 사무실 필수템" data-detail="환경 보호를 실천하는 당신을 위한 화이트 텀블러. 이중 진공 구조로 결로 현상이 없으며, 보온 6시간, 보냉 12시간 지속됩니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/17.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/ffffff/333333?text=Tumbler';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">리빙/홈</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">HB 에코 스텐 텀블러 (450ml)</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">22,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '17', `HB 에코 스텐 텀블러 (450ml)`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 18 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="18" data-category="stationery" onclick="openModal(this)" data-title="핑크빛 배려석 인형 키링" data-price="6,000원" data-img="images/18.jpg" data-desc="가방에 달면 귀여움이 2배! 수익금 일부 기부" data-detail="따뜻한 마음을 나누는 핑크색 배려석 인형입니다. 판매 수익금의 10%는 교통 약자를 위한 기금으로 기부됩니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/18.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/ffc0cb/ffffff?text=Keyring';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">패션/잡화</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-pink-500 transition-colors">핑크빛 배려석 인형 키링</h3><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">6,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '18', `핑크빛 배려석 인형 키링`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 19 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="19" data-category="character" onclick="openModal(this)" data-title="효빈 프렌즈 미니 봉제 인형 세트" data-price="45,000원" data-img="images/19.jpg" data-badge="Best" data-badge-class="bg-red-500" data-desc="내 방을 효빈시로! 귀여운 캐릭터 5종 세트" data-detail="효빈교통공사의 마스코트들이 한자리에! 고나미, 하루빈, 박라미 등 인기 캐릭터 5종이 포함된 미니 인형 선물 세트입니다. 침대맡이나 책상 위에 올려두면 귀여움이 폭발합니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/19.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/ffcc00/ffffff?text=Dolls';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">Best</div><div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">캐릭터 굿즈</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-yellow-500 transition-colors">효빈 프렌즈 미니 봉제 인형 세트</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">내 방을 효빈시로! 귀여운 캐릭터 5종 세트</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">45,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '19', `효빈 프렌즈 미니 봉제 인형 세트`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 20 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="20" data-category="character" onclick="openModal(this)" data-title="캐릭터 얼굴 3단 스마트톡" data-price="9,000원" data-img="images/20.jpg" data-badge="Hot" data-badge-class="bg-orange-500" data-desc="핸드폰 뒤에 착! 3단 높이 조절 가능" data-detail="매일 쓰는 스마트폰에 최애 캐릭터를 붙여보세요. 3단으로 높이 조절이 가능해 이어폰 줄감개나 거치대로도 활용할 수 있습니다. 고나미, 하루빈 등 8가지 디자인 중 선택 가능합니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/20.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/00CCAA/ffffff?text=Tok';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute bottom-3 right-3 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">Hot</div><div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">캐릭터 굿즈</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-teal-500 transition-colors">캐릭터 얼굴 3단 스마트톡</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">핸드폰 뒤에 착! 3단 높이 조절 가능</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">9,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '20', `캐릭터 얼굴 3단 스마트톡`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 21 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="21" data-category="train" onclick="openModal(this)" data-title="1호선 전동차 조립 블록" data-price="48,000원" data-img="images/21.jpg" data-desc="직접 조립하는 디테일한 전동차 블록" data-detail="아이들과 철도 동호인 모두를 위한 옥스포드 호환 블록입니다. 1호선 전동차의 특징인 파란색 띠와 운전실 내부까지 블록으로 정교하게 재현했습니다. 총 500피스로 조립하는 재미가 쏠쏠합니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/21.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/0077DD/ffffff?text=Block';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">철도/모형</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-sky-600 transition-colors">1호선 전동차 조립 블록</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">직접 조립하는 디테일한 전동차 블록</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">48,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '21', `1호선 전동차 조립 블록`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 22 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="22" data-category="train" onclick="openModal(this)" data-title="역명판 디자인 블루투스 스피커" data-price="32,000원" data-img="images/22.jpg" data-desc="안내방송이 나올 것 같은 레트로 감성 스피커" data-detail="시청역 역명판을 그대로 옮겨놓은 듯한 디자인의 블루투스 스피커입니다. 전원을 켜면 '이번 역은 효빈시청, 시청역입니다'라는 안내방송 효과음이 나옵니다. 인테리어 소품으로도 제격입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/22.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/333333/ffffff?text=Speaker';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">철도/모형</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-slate-600 transition-colors">역명판 디자인 블루투스 스피커</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">안내방송이 나올 것 같은 레트로 감성 스피커</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">32,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '22', `역명판 디자인 블루투스 스피커`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 23 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="23" data-category="stationery" onclick="openModal(this)" data-title="효빈시티 야경 장패드" data-price="15,000원" data-img="images/23.jpg" data-desc="책상 위를 넓게 쓰는 미끄럼 방지 데스크 매트" data-detail="효빈시의 아름다운 야경과 지하철 노선도가 어우러진 대형 마우스 장패드입니다. 5mm의 두툼한 두께로 손목의 피로를 덜어주며, 바닥면은 논슬립 러버 코팅이 되어 있어 밀리지 않습니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/23.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/000033/ffffff?text=Pad';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/잡화</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-indigo-800 transition-colors">효빈시티 야경 장패드</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">책상 위를 넓게 쓰는 미끄럼 방지 데스크 매트</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">15,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '23', `효빈시티 야경 장패드`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+            <!-- Item 24 -->
+            <div class="product-card bg-white rounded-xl overflow-hidden border border-gray-100 card-hover transition-all duration-300 group cursor-pointer" data-id="24" data-category="stationery" onclick="openModal(this)" data-title="픽셀아트 캔버스 에코백" data-price="12,000원" data-img="images/24.jpg" data-desc="도트 감성으로 재해석한 f튼튼한 캔버스 백" data-detail="8비트 게임 속 세상처럼 픽셀 아트로 표현된 효빈시 지하철 풍경이 담긴 에코백입니다. 튼튼한 캔버스 원단으로 제작되어 전공책이나 노트북도 거뜬히 들어갑니다. 내부 포켓이 있어 실용적입니다.">
+                <div class="relative overflow-hidden aspect-square bg-gray-50">
+                    <img src="images/24.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x600/f0f0f0/333333?text=Bag';">
+                    <button onclick="triggerUpload(event, this.closest('.product-card'))" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center transition z-20 backdrop-blur-sm opacity-0 group-hover:opacity-100" title="이미지 변경"><i class="fa-solid fa-camera text-sm"></i></button>
+                    <div class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">New</div>
+                </div>
+                <div class="p-5"><p class="text-gray-400 text-xs font-bold mb-1">문구/잡화</p><h3 class="text-lg font-bold text-gray-800 mb-2 group-hover:text-gray-600 transition-colors">픽셀아트 캔버스 에코백</h3><p class="text-xs text-gray-500 mb-4 line-clamp-1">도트 감성으로 재해석한 튼튼한 캔버스 백</p><div class="flex justify-between items-center"><span class="text-xl font-black text-gray-900">12,000원</span><button class="wishlist-btn text-gray-300 hover:text-red-500 transition p-2" onclick="toggleWishlist(this, event, '24', `픽셀아트 캔버스 에코백`)"><i class="fa-regular fa-heart text-xl"></i></button></div></div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Product Modal Structure -->
+    <div id="product-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4 pointer-events-none">
+            <div class="modal-content bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row pointer-events-auto max-h-[90vh] md:max-h-[80vh]">
+                <button onclick="closeModal()" class="absolute top-4 right-4 z-10 md:hidden bg-white/80 rounded-full p-2 text-gray-500 hover:text-gray-800">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+
+                <!-- Image Section -->
+                <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center relative p-8">
+                    <img id="modal-img" src="" alt="Product Detail" class="w-full h-full object-contain max-h-[400px]" onerror="this.onerror=null; this.src='https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image';">
+                    <span id="modal-badge" class="absolute top-6 left-6 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm hidden"></span>
+                </div>
+
+                <!-- Info Section -->
+                <div class="w-full md:w-1/2 p-8 md:p-10 flex flex-col overflow-y-auto">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p id="modal-category" class="text-sm font-bold text-sky-600 mb-1 tracking-wide uppercase">CATEGORY</p>
+                            <h2 id="modal-title" class="text-2xl md:text-3xl font-black text-gray-900 leading-tight">Product Name</h2>
+                        </div>
+                        <button onclick="closeModal()" class="hidden md:block text-gray-400 hover:text-gray-600 transition">
+                            <i class="fa-solid fa-xmark text-2xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="flex text-yellow-400 text-sm">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="text-gray-400 text-xs font-medium">(리뷰 42개)</span>
+                    </div>
+
+                    <p id="modal-desc" class="text-gray-600 text-base leading-relaxed mb-8 flex-grow">
+                        상품 상세 설명이 들어갑니다.
+                    </p>
+
+                    <div class="mt-auto">
+                        <div class="flex justify-between items-center mb-6 border-t border-gray-100 pt-6">
+                            <span class="text-gray-500 font-medium">판매가</span>
+                            <span id="modal-price" class="text-3xl font-black text-gray-900">0원</span>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button onclick="buyNow()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-sky-200 transition-all flex items-center justify-center gap-2">
+                                <span>구매하기</span>
+                            </button>
+                            <button onclick="addToCart(currentProductTitle)" class="w-14 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl flex items-center justify-center transition-colors">
+                                <i class="fa-solid fa-cart-shopping text-lg"></i>
+                            </button>
+                            <button id="modal-heart-btn" class="w-14 bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-red-500 rounded-xl flex items-center justify-center transition-colors">
+                                <i class="fa-regular fa-heart text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Selection Modal -->
+    <div id="payment-modal" class="fixed inset-0 z-[120] hidden" role="dialog">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePaymentModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4 pointer-events-none">
+            <div class="modal-content bg-white w-full max-w-md rounded-2xl shadow-2xl p-0 pointer-events-auto flex flex-col max-h-[90vh]">
+                
+                <!-- Modal Header -->
+                <div class="border-b border-gray-100 p-5 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                    <h3 class="text-lg font-bold text-gray-800">주문/결제</h3>
+                    <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 overflow-y-auto">
+                    <!-- Product Info Summary -->
+                    <div class="flex gap-4 mb-6 pb-6 border-b border-gray-100">
+                        <img id="payment-img" src="" alt="Thumbnail" class="w-20 h-20 object-cover rounded-lg bg-gray-100" onerror="this.onerror=null; this.src='https://placehold.co/600x600/e2e8f0/1e293b?text=No+Image';">
+                        <div>
+                            <p class="text-xs font-bold text-sky-600 mb-1">구매 상품</p>
+                            <h4 id="payment-title" class="text-sm font-bold text-gray-900 mb-1 line-clamp-2">Product Name</h4>
+                            <p id="payment-price" class="text-lg font-black text-gray-900">0원</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <h4 class="text-sm font-bold text-gray-800 mb-3">결제 수단 선택</h4>
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="payment-method selected border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-sky-300 transition flex flex-col items-center gap-2" onclick="selectPaymentMethod(this, '신용/체크카드')">
+                            <i class="fa-regular fa-credit-card text-2xl mb-1"></i>
+                            <span class="text-xs font-bold">신용/체크카드</span>
+                        </div>
+                        <div class="payment-method border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-sky-300 transition flex flex-col items-center gap-2" onclick="selectPaymentMethod(this, '효빈페이')">
+                            <div class="h-6 w-6 bg-sky-600 rounded-full flex items-center justify-center text-white font-black text-[10px] mb-1">HB</div>
+                            <span class="text-xs font-bold">효빈페이</span>
+                        </div>
+                        <div class="payment-method border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-sky-300 transition flex flex-col items-center gap-2" onclick="selectPaymentMethod(this, '간편결제')">
+                            <i class="fa-solid fa-comment-dollar text-2xl mb-1 text-yellow-400"></i>
+                            <span class="text-xs font-bold">간편결제</span>
+                        </div>
+                        <div class="payment-method border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-sky-300 transition flex flex-col items-center gap-2" onclick="selectPaymentMethod(this, '무통장입금')">
+                            <i class="fa-solid fa-money-bill-transfer text-2xl mb-1 text-green-500"></i>
+                            <span class="text-xs font-bold">무통장입금</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Amount -->
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-4">
+                        <span class="text-sm font-bold text-gray-600">총 결제금액</span>
+                        <span id="payment-total" class="text-xl font-black text-sky-600">0원</span>
+                    </div>
+
+                    <button onclick="processPayment()" id="pay-btn" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                        <span>결제하기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Success Modal -->
+    <div id="purchase-modal" class="fixed inset-0 z-[150] hidden" role="dialog">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePurchaseModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4 pointer-events-none">
+            <div class="modal-content bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center pointer-events-auto">
+                <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i class="fa-solid fa-check text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 mb-2">결제가 완료되었습니다!</h3>
+                <p class="text-gray-500 mb-6 text-sm">주문하신 상품이 안전하게 배송될 예정입니다.<br>이용해 주셔서 감사합니다.</p>
+                <div class="bg-gray-50 rounded-lg p-3 mb-6 text-xs text-left">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-500">결제수단</span>
+                        <span id="success-method" class="font-bold text-gray-800">신용/체크카드</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">결제금액</span>
+                        <span id="success-amount" class="font-bold text-sky-600">0원</span>
+                    </div>
+                </div>
+                <button onclick="closePurchaseModal()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-xl transition shadow-md">
+                    쇼핑 계속하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-4">
+                <span class="text-2xl font-black text-sky-600 tracking-tighter mr-2">HB</span>
+                <span class="font-bold text-white">효빈교통공사</span>
+            </div>
+            <p class="mb-2">본 페이지는 효빈교통공사의 가상 굿즈샵 안내 페이지입니다.</p>
+            <p>Copyright 2016. 효빈교통공사 All right reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 상태 관리 ---
+        let cartCount = 0;
+        let wishlist = new Set();
+        let currentProductId = null;
+        let currentProductTitle = "";
+        let currentProductPrice = "";
+        let currentProductImg = "";
+        let selectedPaymentMethod = "신용/체크카드";
+
+        // --- 1. 알림 (Toast) 시스템 ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = type === 'success' ? '<i class="fa-solid fa-check-circle text-green-400"></i>' : 
+                       type === 'error' ? '<i class="fa-solid fa-circle-exclamation text-red-400"></i>' :
+                       '<i class="fa-solid fa-info-circle text-sky-400"></i>';
+
+            toast.className = 'toast';
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- 2. 장바구니 기능 ---
+        function addToCart(productName) {
+            cartCount++;
+            const cartBadge = document.getElementById('cart-count');
+            cartBadge.textContent = cartCount;
+            cartBadge.classList.remove('hidden');
+            cartBadge.classList.add('shake');
+            setTimeout(() => cartBadge.classList.remove('shake'), 500);
+            showToast(`'${productName}' 장바구니에 담김`);
+        }
+
+        // --- 3. 구매 & 결제 시스템 ---
+        
+        // 3-1. 결제창 열기
+        function buyNow() {
+            // 상품 상세 모달 닫기
+            closeModal();
+            
+            // 결제 모달 데이터 채우기
+            document.getElementById('payment-title').textContent = currentProductTitle;
+            document.getElementById('payment-price').textContent = currentProductPrice;
+            document.getElementById('payment-total').textContent = currentProductPrice;
+            document.getElementById('payment-img').src = currentProductImg;
+            
+            // 결제 버튼 텍스트 업데이트
+            document.getElementById('pay-btn').innerHTML = `<span>${currentProductPrice} 결제하기</span>`;
+
+            // 결제 모달 열기
+            const paymentModal = document.getElementById('payment-modal');
+            paymentModal.classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        // 3-2. 결제 수단 선택
+        function selectPaymentMethod(element, method) {
+            // 모든 옵션 선택 해제
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+                el.classList.remove('border-sky-600');
+                el.classList.remove('bg-sky-50');
+            });
+            
+            // 선택된 옵션 활성화
+            element.classList.add('selected');
+            selectedPaymentMethod = method;
+        }
+
+        // 3-3. 결제 진행 (로딩 시뮬레이션)
+        function processPayment() {
+            const payBtn = document.getElementById('pay-btn');
+            const originalText = payBtn.innerHTML;
+            
+            // 로딩 상태 표시
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>결제 진행 중...</span>';
+            payBtn.classList.add('bg-gray-400');
+            payBtn.classList.remove('bg-sky-600', 'hover:bg-sky-700');
+
+            // 1.5초 후 완료 처리
+            setTimeout(() => {
+                closePaymentModal();
+                showSuccessModal();
+                
+                // 버튼 상태 복구 (다음 번을 위해)
+                payBtn.disabled = false;
+                payBtn.innerHTML = originalText;
+                payBtn.classList.remove('bg-gray-400');
+                payBtn.classList.add('bg-sky-600', 'hover:bg-sky-700');
+            }, 1500);
+        }
+
+        // 3-4. 완료창 표시
+        function showSuccessModal() {
+            document.getElementById('success-method').textContent = selectedPaymentMethod;
+            document.getElementById('success-amount').textContent = currentProductPrice;
+            
+            const purchaseModal = document.getElementById('purchase-modal');
+            purchaseModal.classList.remove('hidden');
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchase-modal').classList.add('hidden');
+        }
+
+
+        // --- 4. 위시리스트 (하트) 기능 ---
+        function toggleWishlist(btn, event, id, title) {
+            if(event) event.stopPropagation();
+            const icon = btn.querySelector('i');
+            
+            if (wishlist.has(id)) {
+                wishlist.delete(id);
+                icon.classList.remove('fa-solid', 'text-red-500');
+                icon.classList.add('fa-regular', 'text-gray-300');
+                showToast("찜 목록에서 삭제되었습니다.", "info");
+            } else {
+                wishlist.add(id);
+                icon.classList.remove('fa-regular', 'text-gray-300');
+                icon.classList.add('fa-solid', 'text-red-500');
+                icon.style.transform = "scale(1.2)";
+                setTimeout(() => icon.style.transform = "scale(1)", 200);
+                showToast("찜 목록에 추가되었습니다!", "success");
+            }
+            if (currentProductId === id) updateModalHeartBtn(id);
+        }
+
+        function updateModalHeartBtn(id) {
+            const modalBtnIcon = document.querySelector('#modal-heart-btn i');
+            if (wishlist.has(id)) {
+                modalBtnIcon.classList.remove('fa-regular', 'text-gray-400');
+                modalBtnIcon.classList.add('fa-solid', 'text-red-500');
+            } else {
+                modalBtnIcon.classList.remove('fa-solid', 'text-red-500');
+                modalBtnIcon.classList.add('fa-regular', 'text-gray-400');
+            }
+        }
+
+        // --- 5. 필터링 기능 ---
+        function filterProducts(category) {
+            const cards = document.querySelectorAll('.product-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.classList.add('bg-slate-800', 'text-white', 'shadow-md');
+                    btn.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+                } else {
+                    btn.classList.remove('bg-slate-800', 'text-white', 'shadow-md');
+                    btn.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+                }
+            });
+
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.classList.remove('hidden-card');
+                } else {
+                    card.classList.add('hidden-card');
+                }
+            });
+        }
+
+        // --- 6. 모달 팝업 기능 ---
+        const modal = document.getElementById('product-modal');
+        const body = document.body;
+
+        function openModal(element) {
+            const title = element.dataset.title;
+            const price = element.dataset.price;
+            // Use the current src of the image element inside the card, as it might have been updated by user upload
+            const imgEl = element.querySelector('img');
+            const img = imgEl ? imgEl.src : element.dataset.img;
+            
+            const detail = element.dataset.detail;
+            const badge = element.dataset.badge;
+            const badgeClass = element.dataset.badgeClass;
+            const categoryText = element.querySelector('p') ? element.querySelector('p').textContent : "GOODS";
+            const id = element.dataset.id;
+
+            // 전역 변수에 저장 (결제창 연동용)
+            currentProductId = id;
+            currentProductTitle = title;
+            currentProductPrice = price;
+            currentProductImg = img;
+
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-price').textContent = price;
+            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-desc').innerHTML = detail;
+            document.getElementById('modal-category').textContent = categoryText;
+
+            const badgeEl = document.getElementById('modal-badge');
+            if (badge && badgeClass) {
+                badgeEl.textContent = badge;
+                badgeEl.className = `absolute top-6 left-6 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm ${badgeClass}`;
+                badgeEl.classList.remove('hidden');
+            } else {
+                badgeEl.classList.add('hidden');
+            }
+
+            updateModalHeartBtn(id);
+            const modalHeartBtn = document.getElementById('modal-heart-btn');
+            const newHeartBtn = modalHeartBtn.cloneNode(true);
+            modalHeartBtn.parentNode.replaceChild(newHeartBtn, modalHeartBtn);
+            
+            newHeartBtn.onclick = () => {
+                const listBtn = document.querySelector(`.product-card[data-id="${id}"] .wishlist-btn`);
+                if(listBtn) listBtn.click();
+                else toggleWishlist(newHeartBtn, null, id, title);
+            };
+
+            modal.classList.remove('hidden');
+            body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            body.style.overflow = '';
+        }
+
+        // --- 7. 이미지 업로드 기능 (New!) ---
+        const fileInput = document.getElementById('global-file-input');
+        let currentUploadCard = null;
+
+        function triggerUpload(event, card) {
+            event.stopPropagation(); // 모달 열림 방지
+            currentUploadCard = card;
+            fileInput.click();
+        }
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0] && currentUploadCard) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // 카드 이미지 업데이트
+                    const img = currentUploadCard.querySelector('img');
+                    if(img) img.src = e.target.result;
+                    
+                    // 데이터 속성 업데이트 (모달 열 때 반영됨)
+                    currentUploadCard.dataset.img = e.target.result;
+                    
+                    showToast('상품 이미지가 변경되었습니다.', 'success');
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+            // 초기화 (같은 파일 다시 선택 가능하도록)
+            this.value = '';
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                if(!document.getElementById('purchase-modal').classList.contains('hidden')) closePurchaseModal();
+                else if(!document.getElementById('payment-modal').classList.contains('hidden')) closePaymentModal();
+                else closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

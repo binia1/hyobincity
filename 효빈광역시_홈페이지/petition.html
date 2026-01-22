@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시장에게 바란다 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        /* 모달 스타일 */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.2s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        /* 경고 모달 애니메이션 (진동 효과) */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-effect {
+            animation: shake 0.5s;
+            animation-iteration-count: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative">
+
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold shadow-md">[로고 이미지]</div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 서브 비주얼 -->
+    <div class="w-full bg-slate-700 py-12 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-blue-900 opacity-70"></div>
+        <img src="mayor_bg.jpg" class="absolute inset-0 w-full h-full object-cover -z-10" onerror="this.style.display='none'">
+        <div class="relative z-10">
+            <h1 class="text-4xl font-black mb-3">시장에게 바란다</h1>
+            <p class="text-slate-200 font-medium text-lg">시민 여러분의 소중한 의견을 경청하겠습니다.</p>
+        </div>
+    </div>
+
+    <!-- 컨텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+
+        <!-- 시장 인사말 -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-10 flex flex-col md:flex-row items-center gap-8">
+            <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-slate-100 shadow-lg shrink-0">
+                <img src="mayor.jpg" alt="박효빈 시장" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Mayor'">
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">"시민이 주인인 효빈, 함께 만들어갑시다."</h3>
+                <p class="text-slate-600 leading-relaxed text-sm md:text-base">
+                    안녕하십니까, 효빈시장 박효빈입니다.<br>
+                    이곳은 시정에 대한 건의사항, 불편사항, 정책 제안 등 여러분의 목소리를 자유롭게 들려주는 공간입니다.<br>
+                    작은 의견 하나도 놓치지 않고 꼼꼼히 챙겨, 시민이 행복한 효빈광역시를 만들겠습니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- 글쓰기 버튼 및 검색 -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div class="flex gap-2">
+                <button onclick="openWriteModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition flex items-center shadow-sm">
+                    <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
+                </button>
+                <button onclick="openMyPetitionModal()" class="bg-white text-slate-600 border border-slate-300 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 transition">
+                    나의 민원 확인
+                </button>
+            </div>
+            <div class="flex border border-slate-300 rounded-lg overflow-hidden w-full md:w-auto focus-within:ring-2 focus-within:ring-blue-200 transition">
+                <select class="bg-slate-50 border-r border-slate-300 px-3 py-2 text-sm outline-none text-slate-600">
+                    <option>전체</option>
+                    <option>제목</option>
+                    <option>내용</option>
+                </select>
+                <input type="text" placeholder="검색어를 입력하세요" class="px-4 py-2 w-full md:w-64 outline-none text-sm">
+                <button class="bg-slate-100 hover:bg-slate-200 px-4 py-2 border-l border-slate-300 transition">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-600"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 민원 리스트 -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-500 min-w-[600px]">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 w-16 text-center">번호</th>
+                            <th scope="col" class="px-4 py-3 w-24 text-center">상태</th>
+                            <th scope="col" class="px-4 py-3">제목</th>
+                            <th scope="col" class="px-4 py-3 w-24 text-center">작성자</th>
+                            <th scope="col" class="px-4 py-3 w-28 text-center">작성일</th>
+                        </tr>
+                    </thead>
+                    <tbody id="petition-list">
+                        <!-- JS로 데이터 로드 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div id="pagination-container" class="flex justify-center">
+            <!-- JS로 생성 -->
+        </div>
+
+        <!-- 이용 안내 박스 -->
+        <div class="mt-10 bg-slate-100 p-6 rounded-lg text-sm text-slate-600 border border-slate-200">
+            <h4 class="font-bold text-slate-800 mb-2 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> 이용 안내</h4>
+            <ul class="list-disc list-inside space-y-1">
+                <li>비방, 욕설, 광고성 글 등은 관리자에 의해 예고 없이 삭제될 수 있습니다.</li>
+                <li>민원 처리는 접수일로부터 7일 이내(공휴일 제외) 답변을 원칙으로 합니다.</li>
+                <li>개인정보 보호를 위해 주민등록번호, 연락처 등 민감한 정보는 본문에 포함하지 마십시오.</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <!-- 1. 글쓰기 모달 -->
+    <div id="write-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeWriteModal()"></div>
+        <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]">
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg">민원 신청하기</h3>
+                <button onclick="closeWriteModal()" class="hover:bg-slate-700 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">제목</label>
+                        <input type="text" id="write-title" class="w-full border border-slate-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="제목을 입력하세요">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">작성자</label>
+                        <input type="text" id="write-author" class="w-full border border-slate-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="실명을 입력하세요">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">비밀번호</label>
+                        <input type="password" id="write-pw" class="w-full border border-slate-300 rounded px-3 py-2 outline-none focus:border-blue-500" placeholder="4자리 숫자 (수정/삭제 시 필요)">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">내용</label>
+                        <textarea id="write-content" class="w-full border border-slate-300 rounded px-3 py-2 h-40 outline-none focus:border-blue-500 resize-none" placeholder="민원 내용을 상세히 작성해 주세요."></textarea>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="private-check" class="w-4 h-4 text-blue-600 rounded">
+                        <label for="private-check" class="text-sm text-slate-600">비공개 글로 작성 (작성자와 담당자만 열람 가능)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+                <button onclick="closeWriteModal()" class="px-4 py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-100 font-medium">취소</button>
+                <button onclick="submitPetition()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold">등록하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 상세보기 모달 -->
+    <div id="view-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeViewModal()"></div>
+        <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]">
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg">민원 상세 내용</h3>
+                <button onclick="closeViewModal()" class="hover:bg-slate-700 p-1 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <div class="border-b border-slate-200 pb-4 mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="modal-status" class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">답변완료</span>
+                        <span id="modal-date" class="text-slate-400 text-xs">2025.00.00</span>
+                    </div>
+                    <h4 id="modal-title" class="text-xl font-bold text-slate-800">민원 제목</h4>
+                    <p id="modal-writer" class="text-sm text-slate-500 mt-1">작성자: 홍*동</p>
+                </div>
+                
+                <div class="bg-slate-50 p-4 rounded-lg mb-6 text-slate-700 leading-relaxed min-h-[100px]" id="modal-content">
+                    민원 내용...
+                </div>
+
+                <div id="modal-answer-box" class="bg-blue-50 border border-blue-100 p-5 rounded-lg">
+                    <div class="flex items-center gap-2 mb-3 border-b border-blue-200 pb-2">
+                        <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded font-bold">답변</span>
+                        <span class="font-bold text-blue-800" id="modal-dept">담당 부서</span>
+                    </div>
+                    <div class="text-slate-700 text-sm leading-relaxed" id="modal-answer">
+                        답변 내용...
+                    </div>
+                </div>
+
+                <!-- 경고 박스 (하단 배치) -->
+                <div id="modal-warning-box" class="bg-red-50 border border-red-200 p-5 rounded-lg mt-6 hidden border-l-4 border-l-red-600">
+                    <div class="flex items-center gap-2 mb-2 text-red-700 font-bold">
+                        <i data-lucide="alert-octagon" class="w-6 h-6"></i>
+                        <span class="text-lg">처리 불가 안내</span>
+                    </div>
+                    <p class="text-red-700 text-sm leading-relaxed font-medium">
+                        본 게시글에는 <strong>[다문화가정, 오타쿠 등]</strong> 특정 대상에 대한 비방 및 부적절한 표현이 포함되어 있습니다.<br>
+                        이에 따라 해당 민원은 <strong>정상적인 답변 처리가 불가능함</strong>을 알려드립니다.<br>
+                        지속적인 악성 민원 제기 시, 관련 법령에 의거하여 <strong>작성자에 대한 법적 조치(고발 등)</strong>가 진행될 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onclick="closeViewModal()" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 font-bold text-sm">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 나의 민원 확인 모달 -->
+    <div id="my-petition-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeMyPetitionModal()"></div>
+        <div class="modal-content bg-white w-full max-w-sm rounded-xl shadow-2xl overflow-hidden relative z-10">
+            <div class="bg-slate-800 p-4 text-white flex justify-between items-center">
+                <h3 class="font-bold">나의 민원 조회</h3>
+                <button onclick="closeMyPetitionModal()" class="hover:bg-slate-700 p-1 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-600 mb-4">민원 등록 시 입력한 이름과 비밀번호를 입력하세요.</p>
+                <div class="space-y-3">
+                    <input type="text" id="my-name" placeholder="이름 (예: 홍길동)" class="w-full border border-slate-300 rounded px-3 py-2 outline-none focus:border-blue-500">
+                    <input type="password" id="my-pw" placeholder="비밀번호 (예: 1234)" class="w-full border border-slate-300 rounded px-3 py-2 outline-none focus:border-blue-500">
+                </div>
+                <button onclick="checkMyPetition()" class="w-full mt-6 bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700 transition">조회하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 강력 경고 모달 (윤재훈/오타쿠 비하 시) -->
+    <div id="otaku-alert-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-red-900/90 backdrop-blur-md" onclick="closeOtakuAlertModal()"></div>
+        <div class="modal-content bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative z-10 shake-effect border-4 border-red-600">
+            <div class="bg-red-600 p-5 text-white flex justify-between items-center">
+                <h3 class="font-black text-xl flex items-center gap-2">
+                    <i data-lucide="alert-octagon" class="w-6 h-6"></i> 경고 (WARNING)
+                </h3>
+                <button onclick="closeOtakuAlertModal()" class="hover:bg-red-700 p-1 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="p-8 text-center bg-slate-50">
+                <div class="w-full h-48 mx-auto mb-6 bg-white rounded-lg overflow-hidden border-2 border-red-200 shadow-md flex items-center justify-center relative group">
+                     <!-- 애니메이션 이미지 (경고 짤) -->
+                     <img src="warning_anime.jpg" alt="오타쿠 무시 금지 짤" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                     <div class="hidden flex-col items-center justify-center text-slate-400 w-full h-full bg-slate-100 p-4">
+                        <i data-lucide="frown" class="w-12 h-12 mb-2 text-slate-300"></i>
+                        <span class="text-sm font-bold">"오타쿠를 무시하지 마라!"<br>(이미지 준비중: warning_anime.jpg)</span>
+                     </div>
+                </div>
+                <h4 class="text-3xl font-black text-red-600 mb-4 tracking-tight drop-shadow-sm">"오타쿠를 무시하지 마라!"</h4>
+                <p class="text-slate-700 font-medium mb-6 leading-relaxed bg-white p-4 rounded-lg border border-slate-200 text-sm">
+                    효빈광역시는 <strong>서브컬처 존중 도시</strong>입니다.<br>
+                    특정 취향이나 인물(박효빈 시장 등)에 대한 혐오 발언은<br>
+                    우리 시의 정체성을 부정하는 행위입니다.<br>
+                    <span class="text-red-500 font-bold block mt-2">반성하십시오.</span>
+                </p>
+                <div class="bg-red-100 text-red-800 p-3 rounded text-xs font-bold mb-6 border border-red-200">
+                    ※ 해당 민원은 '차단됨' 상태로 강제 등록되며,<br>IP 추적 등을 통해 불이익을 받을 수 있습니다.
+                </div>
+                <button onclick="closeOtakuAlertModal()" class="w-full bg-red-600 text-white py-3.5 rounded-lg font-black text-lg hover:bg-red-700 shadow-lg transition transform hover:scale-[1.02]">
+                    알겠습니다 (반성하기)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.</div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. 민원 데이터 (기존 데이터 + 추가 데이터) - 15개 이상으로 확장
+        let petitions = [
+            { id: 1543, status: "차단됨", title: "[긴급 항의] 씹덕 정책에 세금 낭비 당장 그만둬라 좆*!", writer: "윤대환", date: "2025.11.28", dept: "관리자 차단", content: "시장 개새끼야, 오타쿠들 빨아주려고 시민들한테 느금마 돈 쓰는 거냐? 윤재훈 의원 말이 병신같이 들려? 당장 씨발 좆같은 애니 축제 집어치우고 창녀짓거리 같은 거 그만해라! 지랄 말고 정책 바꿔라!", answer: null, isBlocked: true },
+            { id: 1542, status: "답변완료", title: "도시철도 3호선 사능역 구간 배차 간격 조정 건의", writer: "김*수", date: "2025.11.28", dept: "도시철도과", content: "출퇴근 시간대 3호선 사능역 구간 혼잡도가 너무 높습니다. 배차 간격을 5분에서 3분으로 단축해주실 것을 건의합니다.", answer: "안녕하십니까, 도시철도과입니다. 귀하께서 건의하신 3호선 배차 간격 조정에 대해 검토한 결과, 출퇴근 시간대 예비 열차 2편성을 추가 투입하여 혼잡도를 완화하기로 결정하였습니다. 12월 1일부터 시행될 예정입니다. 감사합니다." },
+            { id: 1541, status: "접수중", title: "효빈대 앞 횡단보도 가로등 추가 설치 요청", writer: "이*영", date: "2025.11.27", dept: "도로관리과", content: "효빈대학교 정문 앞 횡단보도가 밤에 너무 어둡습니다. 학생들이 많이 다니는 곳인 만큼 안전을 위해 LED 가로등을 추가로 설치해 주세요.", answer: "현재 담당 부서에서 현장 조사를 진행 중입니다. 조속히 검토하여 결과를 알려드리겠습니다." },
+            { id: 1540, status: "답변완료", title: "HAF 행사 기간 중 시청 주차장 개방 문의", writer: "박*호", date: "2025.11.26", dept: "행정자치국", content: "이번 HAF 행사 때 외부 관광객이 많이 올 것 같은데, 시청 주차장을 주말에 무료 개방하나요?", answer: "네, HAF 행사 기간(주말 포함) 동안 시청 부설 주차장을 전면 무료 개방합니다. 다만 혼잡이 예상되오니 가급적 대중교통을 이용해 주시기 바랍니다." },
+            { id: 1539, status: "답변완료", title: "지역화폐(효빈페이) 가맹점 등록 절차 안내 부탁드립니다", writer: "최*민", date: "2025.11.25", dept: "경제일자리과", content: "고송동에서 카페를 운영 중입니다. 효빈페이 가맹점으로 등록하고 싶은데 절차가 어떻게 되나요?", answer: "효빈페이 가맹점 등록은 시청 홈페이지 또는 '효빈페이' 앱을 통해 가능합니다. 사업자등록증 사본과 통장 사본을 준비하시어 신청해 주시면 심사 후 3일 이내 승인됩니다." },
+            { id: 1538, status: "답변완료", title: "안천구 수변공원 운동기구 수리 요청", writer: "정*우", date: "2025.11.24", dept: "공원운영과", content: "안천 수변공원에 있는 허리 돌리기 운동기구가 고장 나서 소리가 심하게 납니다. 수리 부탁드립니다.", answer: "불편을 드려 죄송합니다. 해당 운동기구는 11월 26일 자로 보수 업체에 의뢰하여 수리를 완료하였습니다. 앞으로도 시설물 관리에 만전을 기하겠습니다." },
+            { id: 1537, status: "접수중", title: "불법 주정차 단속 강화 요청 (중구 중앙동)", writer: "강*희", date: "2025.11.23", dept: "교통정책과", content: "중앙동 먹자골목 입구에 불법 주정차 차량 때문에 통행이 너무 어렵습니다. 저녁 시간대 단속 좀 강화해 주세요.", answer: "민원 접수되었습니다. 해당 지역 순찰을 강화하겠습니다." },
+            { id: 1536, status: "답변완료", title: "도서관 희망도서 신청 관련 문의", writer: "윤*진", date: "2025.11.22", dept: "도서관정책과", content: "희망도서 신청 후 입고까지 얼마나 걸리나요? 신청한 지 2주가 지났는데 연락이 없어서요.", answer: "희망도서는 통상적으로 신청 후 심사, 주문, 정리 과정을 거쳐 약 3~4주 소요됩니다. 신청하신 도서는 현재 정리 중이며, 3일 내로 대출 가능 안내 문자를 발송해 드리겠습니다." },
+            { id: 1535, status: "답변완료", title: "여권 발급 야간 민원실 운영 시간 확인", writer: "한*성", date: "2025.11.21", dept: "민원여권과", content: "직장인이라 평일 낮에 가기 힘든데, 야간 민원실은 언제 운영하나요?", answer: "효빈시청 여권 민원실은 매주 화요일 18:00부터 20:00까지 야간 연장 운영을 하고 있습니다. 방문 전 대기 인원 확인을 위해 전화 주시면 더욱 편리합니다." },
+            // 추가 민원 데이터
+            { id: 1534, status: "접수중", title: "고송동 마을버스 노선 신설 건의", writer: "송*아", date: "2025.11.20", dept: "교통행정과", content: "고송동 신규 아파트 단지 입주가 시작되었는데 버스 노선이 부족합니다. 마을버스 노선 신설을 건의합니다.", answer: "현재 운수업체와 노선 신설에 대해 협의 중입니다. 주민 편의를 위해 최선을 다하겠습니다." },
+            { id: 1533, status: "답변완료", title: "쓰레기 무단 투기 CCTV 설치 요청", writer: "박*수", date: "2025.11.19", dept: "자원순환과", content: "우리 집 앞 전봇대에 쓰레기를 몰래 버리고 가는 사람이 너무 많습니다. CCTV 설치해서 단속해주세요.", answer: "귀하의 거주지 인근 현장 확인 후, 무단 투기 취약 지역으로 판단되어 이동식 CCTV를 설치하기로 결정하였습니다. 12월 초 설치 예정입니다." },
+            { id: 1532, status: "답변완료", title: "겨울철 독감 예방접종 무료 대상 문의", writer: "김*자", date: "2025.11.18", dept: "감염병관리과", content: "올해 독감 무료 접종 대상자가 어떻게 되나요? 60세 이상도 무료인가요?", answer: "2025년도 무료 접종 대상은 생후 6개월~13세 어린이, 임신부, 만 65세 이상 어르신입니다. 만 60~64세는 유료 접종 대상이나, 기초생활수급자 등은 보건소에서 무료 접종 가능합니다." },
+            { id: 1531, status: "답변완료", title: "시립미술관 전시 해설 프로그램 예약 방법", writer: "조*현", date: "2025.11.17", dept: "문화예술과", content: "주말에 아이들과 미술관에 가려고 하는데 도슨트 설명을 들으려면 예약을 해야 하나요?", answer: "도슨트 프로그램은 평일/주말 11시, 14시, 16시에 운영되며 별도 예약 없이 현장에서 참여 가능합니다. 단, 20인 이상 단체는 사전 예약이 필요합니다." },
+            { id: 1530, status: "접수중", title: "공사장 소음 및 분진 피해 신고", writer: "류*호", date: "2025.11.16", dept: "환경지도과", content: "집 앞 오피스텔 공사장에서 아침 7시부터 공사를 시작해서 시끄러워 잠을 잘 수가 없습니다. 먼지도 너무 심해요.", answer: "해당 공사장에 대해 현장 점검을 실시하고 소음 규제 기준 준수 여부를 확인하겠습니다." }
+        ];
+
+        // 페이지네이션 관련 변수
+        const itemsPerPage = 7;
+        let currentPage = 1;
+
+        // 리스트 렌더링 함수 (페이지네이션 적용)
+        function renderList() {
+            const listBody = document.getElementById('petition-list');
+            listBody.innerHTML = '';
+
+            // 페이지에 맞는 데이터 슬라이싱
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = petitions.slice(startIndex, endIndex);
+
+            currentItems.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-white border-b hover:bg-slate-50 transition cursor-pointer";
+                tr.onclick = () => openViewModal(item);
+                
+                let statusClass;
+                if (item.status === "답변완료" || item.status === "관리자") {
+                    statusClass = "bg-blue-100 text-blue-700";
+                } else if (item.isBlocked) {
+                    statusClass = "bg-red-100 text-red-700";
+                } else {
+                    statusClass = "bg-slate-100 text-slate-600";
+                }
+                
+                let lockIcon = `<i data-lucide="lock" class="w-3 h-3 mr-2 text-slate-400"></i>`;
+
+                tr.innerHTML = `
+                    <td class="px-4 py-4 text-center">${item.id}</td>
+                    <td class="px-4 py-4 text-center"><span class="${statusClass} px-2 py-1 rounded-full text-xs font-bold">${item.status}</span></td>
+                    <td class="px-4 py-4 font-medium text-slate-800 flex items-center">
+                        ${lockIcon} ${item.title}
+                    </td>
+                    <td class="px-4 py-4 text-center text-sm text-slate-600">${item.writer}</td>
+                    <td class="px-4 py-4 text-center text-sm text-slate-400">${item.date}</td>
+                `;
+                listBody.appendChild(tr);
+            });
+            lucide.createIcons();
+            renderPagination();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(petitions.length / itemsPerPage);
+            
+            const nav = document.createElement('nav');
+            nav.className = "flex items-center gap-2";
+
+            // 이전 버튼
+            const prevBtn = document.createElement('button');
+            prevBtn.className = "w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-500 hover:bg-slate-100";
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderList(); } };
+            nav.appendChild(prevBtn);
+
+            // 숫자 버튼
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `w-8 h-8 flex items-center justify-center rounded-full border ${i === currentPage ? 'bg-blue-600 text-white font-bold border-blue-600' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'}`;
+                btn.textContent = i;
+                btn.onclick = () => { currentPage = i; renderList(); };
+                nav.appendChild(btn);
+            }
+
+            // 다음 버튼
+            const nextBtn = document.createElement('button');
+            nextBtn.className = "w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-500 hover:bg-slate-100";
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderList(); } };
+            nav.appendChild(nextBtn);
+
+            container.appendChild(nav);
+            lucide.createIcons();
+        }
+
+        // 초기 렌더링
+        renderList();
+
+        // --- 글쓰기 기능 구현 ---
+        function openWriteModal() {
+            document.getElementById('write-title').value = '';
+            document.getElementById('write-author').value = '';
+            document.getElementById('write-pw').value = '';
+            document.getElementById('write-content').value = '';
+            document.getElementById('private-check').checked = false;
+
+            const modal = document.getElementById('write-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closeWriteModal() {
+            const modal = document.getElementById('write-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        // 실제 글 등록 로직
+        function submitPetition() {
+            const title = document.getElementById('write-title').value;
+            const author = document.getElementById('write-author').value;
+            const pw = document.getElementById('write-pw').value;
+            const content = document.getElementById('write-content').value;
+
+            // 금칙어 목록 (민감한 내용 및 욕설 필터링 강화)
+            const forbiddenWords = ['윤재훈', '윤대환', '오타쿠', '씹덕', '씹덕후', '애니프사', '씨발', '개새끼', '병신', '지랄', '느금마', '창녀', '좆', '시발', '꺼져'];
+
+            if (!title || !author || !pw || !content) {
+                alert("모든 항목을 입력해주세요.");
+                return;
+            }
+
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+            // 금칙어 검사
+            let isForbidden = false;
+            for (const word of forbiddenWords) {
+                if (title.includes(word) || content.includes(word) || author.includes(word)) {
+                    isForbidden = true;
+                    break;
+                }
+            }
+
+            if (isForbidden) {
+                 // 강력 경고 모달 표시 (윤재훈, 오타쿠 등 비하 발언 시)
+                closeWriteModal();
+                const alertModal = document.getElementById('otaku-alert-modal');
+                alertModal.classList.remove('hidden');
+                setTimeout(() => alertModal.classList.add('active'), 10);
+                
+                // 그럼에도 '차단됨' 상태로 등록은 시킴 (요청 사항 반영)
+                const newPetition = {
+                    id: Math.max(...petitions.map(p => p.id)) + 1,
+                    status: "차단됨",
+                    title: title,
+                    writer: author.substring(0, 1) + "*" + author.substring(2),
+                    date: dateStr,
+                    dept: "관리자 차단",
+                    content: content,
+                    answer: null,
+                    isBlocked: true
+                };
+                petitions.unshift(newPetition);
+                currentPage = 1;
+                renderList();
+            } else {
+                // 정상 등록
+                const newPetition = {
+                    id: Math.max(...petitions.map(p => p.id)) + 1,
+                    status: "접수중",
+                    title: title,
+                    writer: author.substring(0, 1) + "*" + author.substring(2),
+                    date: dateStr,
+                    dept: "담당부서 지정중",
+                    content: content,
+                    answer: null,
+                    isBlocked: false
+                };
+                petitions.unshift(newPetition);
+                alert('민원이 정상적으로 등록되었습니다.');
+                closeWriteModal();
+                currentPage = 1;
+                renderList();
+            }
+        }
+
+        // 강력 경고창 닫기
+        function closeOtakuAlertModal() {
+            const alertModal = document.getElementById('otaku-alert-modal');
+            alertModal.classList.remove('active');
+            setTimeout(() => alertModal.classList.add('hidden'), 200);
+        }
+
+        // --- 나의 민원 조회 기능 ---
+        function openMyPetitionModal() {
+            const modal = document.getElementById('my-petition-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+        function closeMyPetitionModal() {
+            const modal = document.getElementById('my-petition-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+        
+        function checkMyPetition() {
+            const name = document.getElementById('my-name').value;
+            const pw = document.getElementById('my-pw').value;
+            
+            if (name === '홍길동' && pw === '1234') {
+                closeMyPetitionModal();
+                openViewModal({
+                    status: "답변완료",
+                    date: "2025.11.30",
+                    title: "나의 민원 예시: 가로등 수리 요청",
+                    writer: "홍*동",
+                    content: "집 앞 가로등이 깜빡거립니다. 수리해주세요.",
+                    dept: "도로과",
+                    answer: "접수되었습니다. 금일 중으로 수리 완료하겠습니다."
+                });
+            } else if (name === '박효빈' && pw === '0709') {
+                closeMyPetitionModal();
+                openViewModal({
+                    status: "관리자",
+                    date: "1996.07.09",
+                    title: "🔒 [1급 기밀] 박효빈 시장의 시크릿 프로필",
+                    writer: "System",
+                    dept: "시장비서실",
+                    content: `
+                        <div class="text-center mb-4">
+                            <img src="mayor.jpg" alt="시장님" class="w-32 h-32 rounded-full mx-auto border-4 border-blue-500 shadow-lg mb-2" onerror="this.src='https://via.placeholder.com/150?text=Mayor'">
+                            <h3 class="text-2xl font-black text-slate-800">박 효 빈 (Park Hyobin)</h3>
+                            <p class="text-blue-600 font-bold">제8대 효빈광역시장</p>
+                        </div>
+                        <div class="space-y-3 text-sm text-left px-4">
+                            <p><strong>🎂 생년월일:</strong> 1996년 7월 9일</p>
+                            <p><strong>🏆 별명:</strong> 성공한 덕후(성덕), 우치우라의 영주, 효빈 쿤</p>
+                            <p><strong>💼 재산 처분:</strong> 월급의 80%는 굿즈 구매, 나머지는 기부 (관사 거주)</p>
+                            <p><strong>🎤 애창곡:</strong> Snow halation, FIRE BIRD</p>
+                            <p><strong>📜 집무실 TMI:</strong> 한쪽 벽면이 피규어로 가득 차 있음. 결재 도장 찍을 때 "요우소로!"라고 외침.</p>
+                            <div class="bg-yellow-50 p-3 rounded border border-yellow-200 mt-2">
+                                <strong>📢 시장님의 한마디:</strong><br>
+                                "오타쿠라고 놀려도 좋습니다. 하지만 우리 시민들을 혐오하는 건 용서하지 않습니다. 
+                                모두가 좋아하는 것을 당당하게 좋아할 수 있는 도시, 그게 제가 꿈꾸는 효빈입니다. 갤럭시!"
+                            </div>
+                        </div>
+                    `,
+                    answer: "관리자 권한으로 접근승인되었습니다. 오늘도 전속 전진(Yousoro)!"
+                });
+            } else {
+                alert('일치하는 민원 내역이 없습니다.\n(입력하신 정보를 다시 확인해 주세요.)');
+            }
+        }
+
+        // --- 상세보기 모달 ---
+        function openViewModal(item) {
+            document.getElementById('modal-status').innerText = item.status;
+            
+            // 상태 뱃지 색상 처리
+            if (item.status === "답변완료" || item.status === "관리자") {
+                document.getElementById('modal-status').className = "bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold";
+            } else if (item.status === "차단됨") {
+                document.getElementById('modal-status').className = "bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-bold";
+            } else {
+                document.getElementById('modal-status').className = "bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-xs font-bold";
+            }
+
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-writer').innerText = `작성자: ${item.writer}`;
+            
+            if (item.status === "관리자") {
+                document.getElementById('modal-content').innerHTML = item.content;
+            } else {
+                document.getElementById('modal-content').innerText = item.content;
+            }
+
+            const answerBox = document.getElementById('modal-answer-box');
+            const warningBox = document.getElementById('modal-warning-box');
+
+            // 경고 박스 및 답변 박스 제어
+            if (item.isBlocked) {
+                // 차단된 게시물일 경우 하단 경고창 표시
+                warningBox.classList.remove('hidden');
+                answerBox.classList.add('hidden'); // 답변 숨김
+            } else {
+                warningBox.classList.add('hidden');
+                if (item.status === "답변완료" || item.status === "관리자") {
+                    answerBox.classList.remove('hidden');
+                    document.getElementById('modal-dept').innerText = item.dept;
+                    document.getElementById('modal-answer').innerText = item.answer;
+                } else {
+                    // 답변 대기 중일 때
+                    answerBox.classList.remove('hidden');
+                    document.getElementById('modal-dept').innerText = "처리중";
+                    document.getElementById('modal-answer').innerText = "담당 부서에서 내용을 확인하고 있습니다. 빠른 시일 내에 답변드리겠습니다.";
+                }
+            }
+
+            const modal = document.getElementById('view-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closeViewModal() {
+            const modal = document.getElementById('view-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeWriteModal();
+                closeViewModal();
+                closeMyPetitionModal();
+                closeOtakuAlertModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>버스 정보 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        
+        /* 탭 버튼 스타일 */
+        .tab-btn.active { background-color: #01B7ED; color: white; border-color: #01B7ED; }
+        .tab-btn:hover:not(.active) { color: #01B7ED; }
+        
+        /* 버스 뱃지 스타일 */
+        .bus-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: white; display: inline-block; min-width: 50px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* 버스 유형별 도색 */
+        .bg-rapid { background-color: #D81C2F; }   /* 급행 */
+        .bg-seat { background-color: #FF5800; }    /* 좌석 */
+        .bg-main { background-color: #01B7ED; }    /* 간선 */
+        .bg-branch { background-color: #37B484; }  /* 지선 */
+        .bg-town { background-color: #A664A0; }    /* 마을 */
+        .bg-wide { background-color: #485EC6; }    /* 광역 */
+        .bg-circular { background-color: #E7D600; color: #333; } /* 순환 */
+        .bg-airport { background-color: #84C36E; } /* 공항 */
+        .bg-tour { background-color: #7777AA; }    /* 시티투어 */
+        
+        /* 텍스트/테두리 색상 유틸리티 */
+        .border-rapid { border-color: #D81C2F; }
+        .border-seat { border-color: #FF5800; }
+        .border-main { border-color: #01B7ED; }
+        .border-branch { border-color: #37B484; }
+        .border-town { border-color: #A664A0; }
+        .border-wide { border-color: #485EC6; }
+        .border-circular { border-color: #E7D600; }
+        .border-airport { border-color: #84C36E; }
+        .border-tour { border-color: #7777AA; }
+        
+        /* 배경 색상 유틸리티 */
+        .bg-soft-rapid { background-color: #FEE2E2; color: #D81C2F; }
+        .bg-soft-seat { background-color: #FFEDD5; color: #FF5800; }
+        .bg-soft-main { background-color: #E0F2FE; color: #01B7ED; }
+        .bg-soft-branch { background-color: #DCFCE7; color: #37B484; }
+        .bg-soft-town { background-color: #FAE8FF; color: #A664A0; }
+        .bg-soft-wide { background-color: #E0E7FF; color: #485EC6; }
+        .bg-soft-circular { background-color: #FEF9C3; color: #854D0E; }
+        .bg-soft-airport { background-color: #DCFCE7; color: #84C36E; }
+        .bg-soft-tour { background-color: #EEF2FF; color: #7777AA; }
+
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover { background-color: #f8fafc; }
+
+        /* 화면 전환 애니메이션 */
+        .view-section { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="showListView()">
+                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="bus" class="w-6 h-6"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="showListView()" class="hover:text-white flex items-center gap-1" id="nav-home-btn">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold hidden sm:inline">메인으로</span>
+                </button>
+                <button onclick="showListView()" class="hover:text-white flex items-center gap-1 hidden" id="nav-back-btn">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">목록으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="w-full flex-grow relative">
+        
+        <!-- VIEW 1: 목록 화면 -->
+        <div id="list-view" class="view-section">
+            <div class="w-full bg-slate-700 py-16 text-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-[#01B7ED] opacity-70"></div>
+                <div class="absolute inset-0 -z-10 bg-gradient-to-r from-slate-800 to-slate-600"></div>
+                <div class="relative z-10 px-4">
+                    <h1 class="text-4xl md:text-5xl font-black mb-4">효빈 버스정보시스템 (BIS)</h1>
+                    <p class="text-slate-200 font-medium text-lg md:text-xl break-keep">시민과 함께 달리는 행복 버스, 준공영제로 더 안전하고 편리하게</p>
+                </div>
+            </div>
+
+            <div class="max-w-6xl mx-auto px-4 py-12 mb-20">
+                <!-- 검색 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                    <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-md border border-slate-200">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+                            <i data-lucide="search" class="w-6 h-6 mr-2 text-[#01B7ED]"></i> 노선 검색
+                        </h3>
+                        <div class="flex flex-col md:flex-row gap-4 mb-4">
+                            <div class="flex-grow relative">
+                                <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') searchBus()" placeholder="노선번호 (예: 01, A01, T01) 또는 정류장명" class="w-full pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:border-[#01B7ED] focus:outline-none text-lg transition-colors">
+                                <button onclick="searchBus()" class="absolute right-2 top-2 p-1 bg-[#01B7ED] text-white rounded hover:bg-sky-600 transition">
+                                    <i data-lucide="search" class="w-6 h-6"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-50 p-6 rounded-xl border border-sky-100 h-full">
+                        <h4 class="font-bold text-[#01B7ED] mb-2 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> 효빈 BIS 안내</h4>
+                        <p class="text-sm text-slate-700 leading-relaxed mb-3">
+                            효빈광역시의 모든 버스 노선 정보를 통합 제공합니다. 21개 운수업체와 시티투어가 함께합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 탭 및 리스트 -->
+                <section class="mb-16">
+                    <div class="flex border-b border-slate-300 mb-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                        <button onclick="filterBus('all')" class="tab-btn active px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="all">전체 노선</button>
+                        <button onclick="filterBus('airport')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="airport">공항버스</button>
+                        <button onclick="filterBus('fast')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="fast">급행/좌석</button>
+                        <button onclick="filterBus('city')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="city">간선/순환</button>
+                        <button onclick="filterBus('local')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="local">지선/마을</button>
+                        <button onclick="filterBus('wide')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="wide">광역</button>
+                        <button onclick="filterBus('tour')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="tour">시티투어</button>
+                    </div>
+
+                    <div class="overflow-hidden bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                            <table class="w-full text-sm text-left text-slate-600 whitespace-nowrap md:whitespace-normal">
+                                <thead class="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-6 py-4 w-24">유형</th>
+                                        <th class="px-6 py-4 w-24">노선번호</th>
+                                        <th class="px-6 py-4">기점 <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> 종점</th>
+                                        <th class="px-6 py-4 hidden md:table-cell">주요 경유지</th>
+                                        <th class="px-6 py-4 w-32 hidden sm:table-cell">운수업체</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="bus-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 운수업체 리스트 -->
+                <section class="mb-16">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i data-lucide="users" class="w-7 h-7 mr-3 text-[#01B7ED]"></i> 협력 운수업체</h2>
+                    <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                        <div class="flex flex-wrap gap-2 text-sm text-slate-600 leading-relaxed" id="company-list"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- VIEW 2: 상세 화면 -->
+        <div id="detail-view" class="view-section hidden max-w-6xl mx-auto px-4 py-10 mb-20">
+            <!-- 노선 헤더 -->
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8" id="detail-header-card">
+                <div class="flex flex-col md:flex-row justify-between items-start">
+                    <div>
+                        <span id="detail-badge" class="px-2 py-1 rounded text-sm font-bold mb-2 inline-block">버스유형</span>
+                        <div class="flex items-baseline gap-3">
+                            <h1 id="detail-num" class="text-4xl font-black text-slate-800 mb-1">번호</h1>
+                            <span class="text-slate-400 font-medium">↔</span>
+                            <h1 id="detail-num-rev" class="text-2xl font-bold text-slate-500 mb-1">역번호</h1>
+                        </div>
+                        <p id="detail-route" class="text-lg text-slate-600 font-medium mt-2">기점 ↔ 종점</p>
+                        <p id="detail-addr" class="text-sm text-slate-400 mt-1">운행지역 정보</p>
+                    </div>
+                    <div class="text-left md:text-right text-slate-500 text-sm mt-4 md:mt-0 bg-slate-50 p-3 rounded-lg md:bg-transparent md:p-0 w-full md:w-auto">
+                        <p>운수업체: <a href="#" id="detail-comp-link" class="font-bold text-[#01B7ED] hover:underline">정보</a></p>
+                        <p>첫차: <span class="font-bold text-slate-700">05:30</span> / 막차: <span class="font-bold text-slate-700">23:00</span></p>
+                        <button onclick="refreshBusLocation()" class="mt-2 text-sm text-white bg-[#01B7ED] px-3 py-1.5 rounded hover:bg-sky-600 flex items-center justify-center md:justify-end gap-1 w-full md:w-auto transition">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> 위치 새로고침
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 노선도 (2단 그리드 - 상세 정류장 표시) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 상행 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-[#01B7ED] bg-opacity-20 text-[#01B7ED] flex items-center justify-center text-xs mr-2 font-black">상</span>
+                            순방향 (기점 → 종점)
+                        </h3>
+                    </div>
+                    <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-forward"></div>
+                </div>
+                <!-- 하행 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs mr-2 font-black">하</span>
+                            역방향 (종점 → 기점)
+                        </h3>
+                    </div>
+                    <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-reverse"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-500">
+            <span class="font-bold text-slate-700 block mb-1">효빈광역시 버스정보시스템</span>
+            COPYRIGHT © 2025 HYOBIN CITY. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const companies = [
+            { name: '덕빈고속', public: false }, { name: '효빈여객', public: true }, { name: '청엽여객', public: true },
+            { name: '창전여객', public: false }, { name: '안천고속', public: false }, { name: '이자여객', public: false },
+            { name: '임천여객', public: false }, { name: '월주여객', public: false }, { name: '칠양여객', public: true },
+            { name: '입포여객', public: true }, { name: '판주여객', public: false }, { name: '대교여객', public: false },
+            { name: '남주여객', public: false }, { name: '효안교통', public: false }, { name: '청선여객', public: false },
+            { name: '내삼여객', public: false }, { name: '소진여객', public: true }, { name: '탄성여객', public: false },
+            { name: '중성여객', public: false }, { name: '송포여객', public: true }, { name: '오진여객', public: false }
+        ];
+        const semiPublicCompanies = companies.filter(c => c.public).map(c => c.name);
+        const generalCompanies = companies.filter(c => !c.public).map(c => c.name);
+
+        const companyListContainer = document.getElementById('company-list');
+        companies.forEach(comp => {
+            const isPublic = comp.public;
+            const styleClass = isPublic ? 'text-[#01B7ED] font-bold ring-1 ring-sky-100 hover:bg-sky-50' : 'text-slate-600 hover:bg-slate-100';
+            const link = document.createElement('a');
+            link.href = `company.html?name=${encodeURIComponent(comp.name)}`;
+            link.className = `px-3 py-1 bg-white border border-slate-200 rounded-full transition ${styleClass}`;
+            link.innerText = comp.name;
+            companyListContainer.appendChild(link);
+        });
+
+        function assignCompany(routeNum, type, region) {
+            if (type === 'tour') return '효빈시청';
+            const seed = parseInt(routeNum.replace(/[^0-9]/g, '')) || routeNum.length;
+            if (['rapid', 'main', 'airport'].includes(type)) {
+                if (region.includes('청엽')) return '청엽여객';
+                if (region.includes('탄성') || region.includes('소원')) return '송포여객'; 
+                return semiPublicCompanies[seed % semiPublicCompanies.length];
+            }
+            if (['wide', 'seat'].includes(type)) {
+                const expressCompanies = ['덕빈고속', '안천고속', '효안교통'];
+                return expressCompanies[seed % expressCompanies.length];
+            }
+            const allNames = companies.map(c => c.name);
+            return allNames[seed % allNames.length];
+        }
+
+        const rawData = [
+            { t:'rapid', n:'01', s:'팔조역', sa:'효빈광역시 창전구 팔조동', e:'내항역', ea:'효빈광역시 중구 내항동' },
+            { t:'rapid', n:'02', s:'소원면사무소', sa:'효빈광역시 탄성군 소원면 소원리', e:'고송동 종점', ea:'효빈광역시 북구 고송동' },
+            { t:'rapid', n:'03', s:'앵내종점', sa:'효빈광역시 탄성군 도변읍 앵내리', e:'중수여고', ea:'효빈광역시 북구 중수동' },
+            { t:'rapid', n:'04', s:'곽산역', sa:'효빈광역시 남구 곽산동', e:'천본동종점', ea:'효빈광역시 안천구 천본동' },
+            { t:'rapid', n:'05', s:'곽암종점', sa:'효빈광역시 남구 곽산동', e:'정근면사무소', ea:'효빈광역시 탄성군 정근면 층부리' },
+            { t:'rapid', n:'06', s:'고송나루역', sa:'효빈광역시 북구 고송동', e:'탄성과학고', ea:'효빈광역시 탄성군 서목읍 소춘리' },
+            { t:'rapid', n:'07', s:'하미종점', sa:'덕북 선곡군 하미면 하미리', e:'팔조역', ea:'효빈광역시 창전구 팔조동' },
+            { t:'rapid', n:'08', s:'청덕공원역', sa:'효빈광역시 서구 청덕동', e:'엽월대', ea:'효빈광역시 청엽구 등동' },
+            { t:'rapid', n:'09', s:'토모리해수욕장역', sa:'효빈광역시 북구 고송동', e:'효빈해양경찰서', ea:'효빈광역시 남구 항동1가' },
+            { t:'main', n:'11', s:'내항관광지', sa:'중구 내항동', e:'당선선착장', ea:'서구 당선동' },
+            { t:'main', n:'12', s:'장원역', sa:'중구 정동', e:'청덕 세라스아파트', ea:'서구 청덕동' },
+            { t:'main', n:'13', s:'신덕동주민센터', sa:'중구 신덕동', e:'현대조선소', ea:'북구 곡진동' },
+            { t:'main', n:'14', s:'중앙로역', sa:'중구 중앙로3가', e:'앵내종점', ea:'탄성군 도변읍 앵내리' },
+            { t:'main', n:'15', s:'개항지역', sa:'중구 중앙로3가', e:'정근면사무소', ea:'탄성군 정근면 층부리' },
+            { t:'main', n:'16', s:'장원역', sa:'중구 정동', e:'선곡군청', ea:'덕북 선곡군 선곡읍 성륜리' },
+            { t:'main', n:'17', s:'내항역', sa:'중구 내항동', e:'창전상고', ea:'창전구 마시동' },
+            { t:'main', n:'18', s:'효빈대본부', sa:'서구 당선동', e:'우택역', ea:'청엽구 우택동' },
+            { t:'main', n:'19', s:'효빈대본부', sa:'서구 당선동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'main', n:'22', s:'청덕공원역', sa:'서구 청덕동', e:'모리초', ea:'북구 진희동' },
+            { t:'main', n:'23', s:'청덕공원역', sa:'서구 청덕동', e:'현대조선소', ea:'북구 곡진동' },
+            { t:'main', n:'24', s:'청덕공원역', sa:'서구 청덕동', e:'천본동종점', ea:'안천구 천본동' },
+            { t:'main', n:'25', s:'청덕역', sa:'서구 청덕동', e:'정근면사무소', ea:'탄성군 정근면 층부리' },
+            { t:'main', n:'26', s:'고송나루역', sa:'북구 고송동', e:'하미종점', ea:'덕북 선곡군 하미면 하미리' },
+            { t:'main', n:'27', s:'고송나루역', sa:'북구 고송동', e:'창전상고', ea:'창전구 마시동' },
+            { t:'main', n:'28', s:'청덕공원역', sa:'서구 청덕동', e:'엽월대', ea:'청엽구 등동' },
+            { t:'main', n:'29', s:'고송나루역', sa:'북구 고송동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'main', n:'34', s:'중수포산선착장', sa:'북구 포산동', e:'도변역', ea:'탄성군 도변읍 도변리' },
+            { t:'main', n:'35', s:'포산역', sa:'북구 포산동', e:'운전면허시험장', ea:'탄성군 소원면 부우리' },
+            { t:'main', n:'36', s:'포산역', sa:'북구 포산동', e:'선곡군청', ea:'덕북 선곡군 선곡읍 성륜리' },
+            { t:'main', n:'37', s:'포산역', sa:'북구 포산동', e:'평천대', ea:'창전구 생덕동' },
+            { t:'main', n:'38', s:'현대조선소', sa:'북구 곡진동', e:'비마역', ea:'청엽구 우택동' },
+            { t:'main', n:'39', s:'현대조선소', sa:'북구 곡진동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'main', n:'45', s:'도변역', sa:'탄성군 도변읍 도변리', e:'정근면사무소', ea:'탄성군 정근면 층부리' },
+            { t:'main', n:'46', s:'앵내종점', sa:'탄성군 도변읍 앵내리', e:'탄성군청', ea:'탄성군 탄성읍 공리' },
+            { t:'main', n:'47', s:'천본동종점', sa:'안천구 천본동', e:'동곡종점', ea:'창전구 동곡동' },
+            { t:'main', n:'48', s:'천본동종점', sa:'안천구 천본동', e:'엽월대', ea:'청엽구 등동' },
+            { t:'main', n:'49', s:'도변역', sa:'탄성군 도변읍 도변리', e:'항동종점', ea:'남구 항동2가' },
+            { t:'main', n:'56', s:'이자공원역', sa:'안천구 이자동', e:'선곡군청', ea:'덕북 선곡군 선곡읍 성륜리' },
+            { t:'main', n:'57', s:'운전면허시험장', sa:'탄성군 소원면 부우리', e:'동곡역', ea:'창전구 동곡동' },
+            { t:'main', n:'58', s:'운전면허시험장', sa:'탄성군 소원면 부우리', e:'엽월대', ea:'청엽구 등동' },
+            { t:'main', n:'59', s:'운전면허시험장', sa:'탄성군 소원면 부우리', e:'항동종점', ea:'남구 항동2가' },
+            { t:'main', n:'66', s:'하미종점', sa:'덕북 선곡군 하미면 하미리', e:'탄성군청', ea:'탄성군 탄성읍 공리' },
+            { t:'main', n:'67', s:'하미종점', sa:'덕북 선곡군 하미면 하미리', e:'동곡역', ea:'창전구 동곡동' },
+            { t:'main', n:'68', s:'귀총면사무소', sa:'덕북 선곡군 귀총면 낙주리', e:'효빈동신도시역', ea:'청엽구 효빈동2가' },
+            { t:'main', n:'69', s:'귀총면사무소', sa:'덕북 선곡군 귀총면 낙주리', e:'항동종점', ea:'남구 항동2가' },
+            { t:'main', n:'77', s:'팔조역', sa:'창전구 팔조동', e:'창전상고', ea:'창전구 마시동' },
+            { t:'main', n:'78', s:'창전상고', sa:'창전구 마시동', e:'엽월대', ea:'청엽구 등동' },
+            { t:'main', n:'79', s:'창전상고', sa:'창전구 마시동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'main', n:'88', s:'엽월대', sa:'청엽구 등동', e:'우택역', ea:'청엽구 우택동' },
+            { t:'main', n:'89', s:'우택역', sa:'청엽구 우택동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'circular', n:'10', s:'중앙로 효빈은행', sa:'중구 중보로', e:'중앙로 효빈은행', ea:'중구 중보로' },
+            { t:'circular', n:'20', s:'고송교차로역', sa:'북구 고송동', e:'고송교차로역', ea:'북구 고송동' },
+            { t:'circular', n:'30', s:'중수역', sa:'북구 중수동', e:'중수역', ea:'북구 중수동' },
+            { t:'circular', n:'40', s:'안천역', sa:'안천구 안천동', e:'안천역', ea:'안천구 안천동' },
+            { t:'circular', n:'50', s:'이자', sa:'안천구 이자동', e:'이자', ea:'안천구 이자동' },
+            { t:'circular', n:'60', s:'도변역', sa:'탄성군 도변읍', e:'도변역', ea:'탄성군 도변읍' },
+            { t:'circular', n:'70', s:'창전구청역', sa:'창전구 창전동', e:'창전구청역', ea:'창전구 창전동' },
+            { t:'circular', n:'80', s:'청엽구청역', sa:'청엽구 청엽동', e:'청엽구청역', ea:'청엽구 청엽동' },
+            { t:'circular', n:'90', s:'월천역', sa:'남구 월천동', e:'월천역', ea:'남구 월천동' },
+            { t:'branch', n:'111', s:'장원역', sa:'중구 정동', e:'당선역', ea:'서구 당선동' },
+            { t:'branch', n:'112', s:'효빈성북문', sa:'서구 북문동2가', e:'약맥동 행복센터', ea:'중구 약맥동' },
+            { t:'branch', n:'121', s:'신덕역', sa:'중구 신덕동', e:'고송나루역', ea:'북구 고송동' },
+            { t:'branch', n:'123', s:'장원역', sa:'중구 정동', e:'모리초', ea:'북구 진희동' },
+            { t:'branch', n:'131', s:'신덕역', sa:'중구 신덕동', e:'현대연수원', ea:'북구 곡진동' },
+            { t:'branch', n:'132', s:'장원역', sa:'중구 정동', e:'아진아파트', ea:'북구 아진동' },
+            { t:'branch', n:'141', s:'내항해변아파트', sa:'중구 내항동', e:'귀총면사무소', ea:'선곡군 귀총면' },
+            { t:'branch', n:'143', s:'효빈대학교', sa:'서구 당선동', e:'귀총면사무소', ea:'선곡군 귀총면' },
+            { t:'branch', n:'151', s:'내항해변아파트', sa:'중구 내항동', e:'융문차고지', ea:'안천구 융문동' },
+            { t:'branch', n:'154', s:'내항해변아파트', sa:'중구 내항동', e:'정근면사무소', ea:'탄성군 정근면' },
+            { t:'branch', n:'161', s:'중앙로역', sa:'중구 중앙로', e:'선곡군청', ea:'선곡군 선곡읍' },
+            { t:'branch', n:'171', s:'중앙로역', sa:'중구 중앙로', e:'창전상고', ea:'창전구 마시동' },
+            { t:'branch', n:'172', s:'당선역', sa:'서구 당선동', e:'평천대', ea:'창전구 생덕동' },
+            { t:'branch', n:'173', s:'내항해변아파트', sa:'중구 내항동', e:'창전상고', ea:'창전구 마시동' },
+            { t:'branch', n:'181', s:'개항지', sa:'중구 중앙로', e:'우택역', ea:'청엽구 우택동' },
+            { t:'branch', n:'191', s:'효빈대학교', sa:'서구 당선동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'branch', n:'192', s:'효빈역', sa:'동구 사가당동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'193', s:'효빈역', sa:'동구 사가당동', e:'효빈공단', ea:'남구 포장동' },
+            { t:'branch', n:'194', s:'장원역', sa:'중구 정동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'219', s:'청덕공원', sa:'서구 청덕동', e:'장원역', ea:'중구 정동' },
+            { t:'branch', n:'221', s:'청덕공원', sa:'서구 청덕동', e:'효빈종합고', ea:'북구 진희동' },
+            { t:'branch', n:'222', s:'과학기술원', sa:'서구 과진동', e:'진희동 종점', ea:'북구 진희동' },
+            { t:'branch', n:'231', s:'청덕공원', sa:'서구 청덕동', e:'중수포산선착장', ea:'북구 포산동' },
+            { t:'branch', n:'232', s:'과학기술원', sa:'서구 과진동', e:'현대연수원', ea:'북구 곡진동' },
+            { t:'branch', n:'241', s:'청덕공원', sa:'서구 청덕동', e:'천문동종점', ea:'안천구 천문동' },
+            { t:'branch', n:'242', s:'토모리해수욕장', sa:'북구 고송동', e:'귀총면사무소', ea:'선곡군 귀총면' },
+            { t:'branch', n:'251', s:'토모리해수욕장', sa:'북구 고송동', e:'이자공원역', ea:'안천구 이자동' },
+            { t:'branch', n:'258', s:'청덕공원', sa:'서구 청덕동', e:'고해역', ea:'탄성군 고해읍' },
+            { t:'branch', n:'261', s:'토모리해수욕장', sa:'북구 고송동', e:'남소면 사무소', ea:'선곡군 남소면' },
+            { t:'branch', n:'262', s:'진희동 종점', sa:'북구 진희동', e:'남소면 사무소', ea:'선곡군 남소면' },
+            { t:'branch', n:'271', s:'토모리해수욕장', sa:'북구 고송동', e:'창전상고', ea:'창전구 마시동' },
+            { t:'branch', n:'281', s:'청덕공원', sa:'서구 청덕동', e:'엽월대', ea:'청엽구 등동' },
+            { t:'branch', n:'291', s:'고송나루역', sa:'북구 고송동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'branch', n:'292', s:'청덕공원', sa:'서구 청덕동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'branch', n:'331', s:'고속버스터미널', sa:'북구 해서동', e:'등기산', ea:'북구 등기동' },
+            { t:'branch', n:'334', s:'고속버스터미널', sa:'북구 해서동', e:'아진아파트', ea:'북구 아진동' },
+            { t:'branch', n:'341', s:'고속버스터미널', sa:'북구 해서동', e:'천문동종점', ea:'안천구 천문동' },
+            { t:'branch', n:'351', s:'중수포산선착장', sa:'북구 포산동', e:'이자공원역', ea:'안천구 이자동' },
+            { t:'branch', n:'361', s:'고속버스터미널', sa:'북구 해서동', e:'파래리종점', ea:'탄성군 서목읍' },
+            { t:'branch', n:'371', s:'고속버스터미널', sa:'북구 해서동', e:'창전상고', ea:'창전구 마시동' },
+            { t:'branch', n:'381', s:'중수포산선착장', sa:'북구 포산동', e:'비마역', ea:'청엽구 비마동' },
+            { t:'branch', n:'391', s:'현대조선소', sa:'북구 곡진동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'441', s:'루비역', sa:'탄성군 흑택면', e:'천문동종점', ea:'안천구 천문동' },
+            { t:'branch', n:'451', s:'흑택역', sa:'탄성군 흑택면', e:'정근면사무소', ea:'탄성군 정근면' },
+            { t:'branch', n:'461', s:'흑택역', sa:'탄성군 흑택면', e:'파래리종점', ea:'탄성군 서목읍' },
+            { t:'branch', n:'471', s:'천본동종점', sa:'안천구 천본동', e:'동곡역', ea:'창전구 동곡동' },
+            { t:'branch', n:'472', s:'천본동종점', sa:'안천구 천본동', e:'시로역', ea:'창전구 시로동' },
+            { t:'branch', n:'481', s:'도변역', sa:'탄성군 도변읍', e:'엽월대', ea:'청엽구 등동' },
+            { t:'branch', n:'491', s:'도변역', sa:'탄성군 도변읍', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'492', s:'천본동종점', sa:'안천구 천본동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'522', s:'도향면 사무소', sa:'탄성군 도향면', e:'청덕공원', ea:'서구 청덕동' },
+            { t:'branch', n:'551', s:'이자공원역', sa:'안천구 이자동', e:'정근면사무소', ea:'탄성군 정근면' },
+            { t:'branch', n:'552', s:'융문차고지', sa:'안천구 융문동', e:'운전면허시험장', ea:'탄성군 소원면' },
+            { t:'branch', n:'561', s:'이자', sa:'안천구 이자동', e:'선곡군청', ea:'선곡군 선곡읍' },
+            { t:'branch', n:'571', s:'이자', sa:'안천구 이자동', e:'동곡역', ea:'창전구 동곡동' },
+            { t:'branch', n:'581', s:'이자', sa:'안천구 이자동', e:'엽월대', ea:'청엽구 등동' },
+            { t:'branch', n:'582', s:'융문차고지', sa:'안천구 융문동', e:'효빈동신도시역', ea:'청엽구 효빈동' },
+            { t:'branch', n:'591', s:'융문차고지', sa:'안천구 융문동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'592', s:'정근면사무소', sa:'탄성군 정근면', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'612', s:'선곡군청', sa:'선곡군 선곡읍', e:'당선역', ea:'서구 당선동' },
+            { t:'branch', n:'632', s:'선곡군청', sa:'선곡군 선곡읍', e:'북구청역', ea:'북구 중수동' },
+            { t:'branch', n:'661', s:'탄성역', sa:'탄성군 탄성읍', e:'남소면 사무소', ea:'선곡군 남소면' },
+            { t:'branch', n:'671', s:'파래리종점', sa:'탄성군 서목읍', e:'동곡역', ea:'창전구 동곡동' },
+            { t:'branch', n:'672', s:'남소면 사무소', sa:'선곡군 남소면', e:'시로역', ea:'창전구 시로동' },
+            { t:'branch', n:'681', s:'파래리종점', sa:'탄성군 서목읍', e:'엽월대', ea:'청엽구 등동' },
+            { t:'branch', n:'682', s:'남소면 사무소', sa:'선곡군 남소면', e:'효빈동신도시역', ea:'청엽구 효빈동' },
+            { t:'branch', n:'691', s:'파래리종점', sa:'탄성군 서목읍', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'692', s:'남소면 사무소', sa:'선곡군 남소면', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'752', s:'동곡역', sa:'창전구 동곡동', e:'운전면허시험장', ea:'탄성군 소원면' },
+            { t:'branch', n:'753', s:'팔조역', sa:'창전구 팔조동', e:'운전면허시험장', ea:'탄성군 소원면' },
+            { t:'branch', n:'771', s:'팔조역', sa:'창전구 팔조동', e:'진백역', ea:'창전구 진백동' },
+            { t:'branch', n:'781', s:'동곡역', sa:'창전구 동곡동', e:'우택역', ea:'청엽구 우택동' },
+            { t:'branch', n:'791', s:'창전상고', sa:'창전구 마시동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'branch', n:'792', s:'창전상고', sa:'창전구 마시동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'793', s:'시로역', sa:'창전구 시로동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'branch', n:'842', s:'엽월대', sa:'청엽구 등동', e:'천본동종점', ea:'안천구 천본동' },
+            { t:'branch', n:'881', s:'엽월대', sa:'청엽구 등동', e:'우택역', ea:'청엽구 우택동' },
+            { t:'branch', n:'891', s:'우택역', sa:'청엽구 우택동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'branch', n:'892', s:'우택역', sa:'청엽구 우택동', e:'항동종점', ea:'남구 항동2가' },
+            { t:'branch', n:'991', s:'월천역', sa:'남구 월천동', e:'곽암종점', ea:'남구 곽산동' },
+            { t:'town', n:'도향01', s:'도향면 사무소', sa:'탄성군 도향면 분음리', e:'도향면 사무소', ea:'순환' },
+            { t:'town', n:'도향02', s:'도향면 사무소', sa:'탄성군 도향면 분음리', e:'벽천종점', ea:'탄성군 도향면 벽천리' },
+            { t:'town', n:'도향03', s:'도향면 사무소', sa:'탄성군 도향면 분음리', e:'하공리', ea:'탄성군 도향면' },
+            { t:'town', n:'정근01', s:'정근면사무소', sa:'탄성군 정근면 층부리', e:'정근면사무소', ea:'순환' },
+            { t:'town', n:'정근02', s:'정근면사무소', sa:'탄성군 정근면 층부리', e:'정근면사무소', ea:'순환' },
+            { t:'town', n:'소원01', s:'소원면사무소', sa:'탄성군 소원면 소원리', e:'소원면사무소', ea:'순환' },
+            { t:'town', n:'소원02', s:'소원면사무소', sa:'탄성군 소원면 소원리', e:'소원면사무소', ea:'순환' },
+            { t:'town', n:'흑택01', s:'흑택면사무소', sa:'탄성군 흑택면 흑택리', e:'흑택면사무소', ea:'순환' },
+            { t:'town', n:'야진01', s:'야진읍사무소', sa:'탄성군 야진읍 야진리', e:'야진읍사무소', ea:'순환' },
+            { t:'town', n:'야진02', s:'야진읍사무소', sa:'탄성군 야진읍 야진리', e:'야진읍사무소', ea:'순환' },
+            { t:'town', n:'채산01', s:'채산역', sa:'북구 실본동', e:'채산역', ea:'순환' },
+            { t:'town', n:'채산02', s:'평전역', sa:'북구 평전역', e:'평전역', ea:'순환' },
+            { t:'town', n:'내항01', s:'내항역', sa:'중구 내항동', e:'중앙로역', ea:'중구 중앙로3가' },
+            { t:'town', n:'악부01', s:'팔망성역', sa:'안천구 팔망성동', e:'팔망성역', ea:'순환' },
+            { t:'town', n:'탄성01', s:'탄성군청역', sa:'탄성군 탄성읍', e:'탄성군청역', ea:'순환' },
+            { t:'town', n:'탄성02', s:'탄성읍사무소', sa:'탄성군 탄성읍', e:'탄성읍사무소', ea:'순환' },
+            { t:'town', n:'서목01', s:'서목읍사무소', sa:'탄성군 서목읍', e:'서목읍사무소', ea:'순환' },
+            { t:'town', n:'서목02', s:'서목역', sa:'탄성군 서목읍', e:'서목역', ea:'순환' },
+            { t:'town', n:'고해01', s:'고해역', sa:'탄성군 고해읍', e:'고해역', ea:'순환' },
+            { t:'town', n:'고해02', s:'고해읍사무소', sa:'탄성군 고해읍', e:'고해읍사무소', ea:'순환' },
+            { t:'town', n:'뇌전01', s:'뇌전동사무소', sa:'안천구 하가동', e:'뇌전동사무소', ea:'순환' },
+            { t:'town', n:'도변01', s:'도변역', sa:'탄성군 도변읍', e:'도변역', ea:'순환' },
+            { t:'town', n:'칠채01', s:'칠채동사무소', sa:'안천구 능릉동', e:'칠채동사무소', ea:'순환' },
+            { t:'town', n:'광정01', s:'보통역', sa:'창전구 창전동', e:'보통역', ea:'순환' },
+            { t:'town', n:'곽산01', s:'곽산역', sa:'남구 곽산동', e:'곽산역', ea:'순환' },
+            { t:'wide', n:'1000', s:'하미종점', sa:'덕북 선곡군 하미면', e:'효빈역', ea:'동구 사가당동' },
+            { t:'wide', n:'2000', s:'치원군청', sa:'덕북 치원군 치원읍', e:'효빈역', ea:'동구 사가당동' },
+            { t:'wide', n:'3000', s:'고관종점', sa:'덕북 기도군 고관면', e:'효빈역', ea:'동구 사가당동' },
+            { t:'wide', n:'4000', s:'북천동 종점', sa:'덕북 약산시 북천동', e:'안천역', ea:'안천구 안천동' },
+            { t:'wide', n:'5000', s:'성가면사무소', sa:'덕북 약산시 성가면', e:'창전역', ea:'창전구 창전동' },
+            { t:'wide', n:'6000', s:'귀총면사무소', sa:'덕북 선곡군 귀총면', e:'고송나루역', ea:'북구 고송동' },
+            { t:'wide', n:'7000', s:'치원군청', sa:'덕북 치원군 치원읍', e:'안천역', ea:'안천구 안천동' },
+            { t:'wide', n:'8000', s:'원강읍사무소', sa:'덕북 약산시 원강읍', e:'이자공원역', ea:'안천구 이자동' },
+            { t:'wide', n:'9000', s:'치원군청', sa:'덕북 치원군 치원읍', e:'월천역', ea:'남구 월천동' },
+            { t:'seat', n:'1111', s:'선곡군청', sa:'덕북 선곡군 선곡읍', e:'효빈역', ea:'동구 사가당동' },
+            { t:'seat', n:'2222', s:'염곡신도시', sa:'덕북 기도군 염곡면', e:'중앙로역', ea:'중구 중앙로3가' },
+            { t:'seat', n:'3333', s:'염곡신도시', sa:'덕북 기도군 염곡면', e:'중수역', ea:'북구 중수동' },
+            { t:'seat', n:'4004', s:'원강읍사무소', sa:'덕북 약산시 원강읍', e:'안천역', ea:'안천구 안천동' },
+            { t:'seat', n:'5555', s:'홍하면사무소', sa:'덕북 약산시 홍하면', e:'이자공원역', ea:'안천구 이자동' },
+            { t:'seat', n:'6666', s:'선곡군청', sa:'덕북 선곡군 선곡읍', e:'고송나루역', ea:'북구 고송동' },
+            { t:'seat', n:'7777', s:'치원군청', sa:'덕북 치원군 치원읍', e:'시로역', ea:'창전구 시로동' },
+            { t:'seat', n:'8888', s:'원강읍사무소', sa:'덕북 약산시 원강읍', e:'청엽구청역', ea:'청엽구 청엽동' },
+            { t:'seat', n:'9999', s:'염곡신도시', sa:'덕북 기도군 염곡면', e:'월천역', ea:'남구 월천동' },
+            { t:'airport', n:'A01', s:'이자', sa:'안천구 이자동', e:'효빈국제공항', ea:'덕북 기도군 주길면', v:'안천구, 북구 중수지구' },
+            { t:'airport', n:'A02', s:'곽산역', sa:'남구 곽산동', e:'효빈국제공항', ea:'덕북 기도군 주길면', v:'남구, 중구, 북구' },
+            { t:'airport', n:'A03', s:'도변역', sa:'탄성군 도변읍', e:'효빈국제공항', ea:'덕북 기도군 주길면', v:'중구, 서구 경유' },
+            { t:'tour', n:'T01', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'중구,서구,북구 투어' },
+            { t:'tour', n:'T02', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'청엽구, 창전구투어' },
+            { t:'tour', n:'T03', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'애니메이션 성지순례투어' },
+            { t:'tour', n:'T04', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'중구 남구 투어' },
+            { t:'tour', n:'T05', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'북구동부, 안천구투어' },
+            { t:'tour', n:'T06', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'동구, 안천구 투어' },
+            { t:'tour', n:'T07', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'탄성북부투어' },
+            { t:'tour', n:'T08', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'탄성남부투어' },
+            { t:'tour', n:'T09', s:'효빈역', sa:'동구 사가당동', e:'효빈역', ea:'동구 사가당동', v:'해수욕장순례' }
+        ];
+
+        const detailDataStore = {
+            '100': ['고송지구(기점)', '고송역', '고송교차로', '청엽구청', '아논타워', '효빈시청', '효빈역', '중구청', '남구청(종점)'],
+            '5000': ['성가면사무소(기점)', '약산시', '청전공원', '창전역(종점)'],
+            '11-1': ['내항관광지(기점)', '내항역', '중앙로역', '당선역', '당선선착장(종점)'], 
+            'town5': ['효빈역(기점)', '역전시장', '조유공원', '효빈초등학교', '산동네입구', '산동네마을회관(종점)'],
+            'A01': ['이자(기점)', '안천구청', '중수지구', '효빈국제공항(종점)'],
+            'A02': ['곽산역(기점)', '남구청', '중앙로역', '북구청', '효빈국제공항(종점)'],
+            'A03': ['도변역(기점)', '내항', '당선', '효빈국제공항(종점)'],
+            '10': ['중앙로 효빈은행(순환)', '중앙로역', '구도심', '효빈역', '중앙로 효빈은행(순환)'],
+            '20': ['고송교차로역(순환)', '고송동 주민센터', '북구청', '고송나루역', '고송교차로역(순환)']
+        };
+
+        const busData = rawData.map(d => ({
+            type: d.t,
+            num: d.n,
+            start: d.s,
+            end: d.e,
+            via: d.v ? d.v : `${d.sa.replace(/효빈광역시|덕북\s*/g, '').split(' ').slice(0, 3).join(' ').trim()} ↔ ${d.ea.replace(/효빈광역시|덕북\s*/g, '').split(' ').slice(0, 3).join(' ').trim()}`,
+            comp: assignCompany(d.n, d.t, d.sa + d.ea),
+            rawStartAddr: d.sa,
+            rawEndAddr: d.ea
+        }));
+
+        const busColors = {
+            'border-rapid': '#D81C2F',
+            'border-seat': '#FF5800',
+            'border-main': '#01B7ED',
+            'border-branch': '#37B484',
+            'border-town': '#A664A0',
+            'border-wide': '#485EC6',
+            'border-circular': '#E7D600',
+            'border-airport': '#84C36E',
+            'border-tour': '#7777AA'
+        };
+
+        function renderBusList(filterType) {
+            const tbody = document.getElementById('bus-list');
+            tbody.innerHTML = '';
+            const filtered = busData.filter(bus => {
+                if (filterType === 'all') return true;
+                if (filterType === 'fast' && ['rapid', 'seat'].includes(bus.type)) return true;
+                if (filterType === 'airport' && bus.type === 'airport') return true;
+                if (filterType === 'city' && ['main', 'circular'].includes(bus.type)) return true;
+                if (filterType === 'local' && ['branch', 'town'].includes(bus.type)) return true;
+                if (filterType === 'wide' && bus.type === 'wide') return true;
+                if (filterType === 'tour' && bus.type === 'tour') return true;
+                return false;
+            });
+
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400">검색 결과가 없습니다.</td></tr>`; return; }
+
+            filtered.forEach(bus => {
+                let badgeClass = '', typeName = '';
+                switch(bus.type) {
+                    case 'rapid': badgeClass = 'bg-rapid'; typeName = '급행'; break;
+                    case 'seat': badgeClass = 'bg-seat'; typeName = '좌석'; break;
+                    case 'main': badgeClass = 'bg-main'; typeName = '간선'; break;
+                    case 'branch': badgeClass = 'bg-branch'; typeName = '지선'; break;
+                    case 'town': badgeClass = 'bg-town'; typeName = '마을'; break;
+                    case 'wide': badgeClass = 'bg-wide'; typeName = '광역'; break;
+                    case 'circular': badgeClass = 'bg-circular'; typeName = '순환'; break;
+                    case 'airport': badgeClass = 'bg-airport'; typeName = '공항'; break;
+                    case 'tour': badgeClass = 'bg-tour'; typeName = '시티투어'; break;
+                }
+                const row = `
+                    <tr class="clickable-row border-b border-slate-100 hover:bg-slate-50" onclick="showBusDetail('${bus.num}')">
+                        <td class="px-6 py-4"><span class="bus-badge ${badgeClass}">${typeName}</span></td>
+                        <td class="px-6 py-4 font-black text-lg text-slate-800">${bus.num}</td>
+                        <td class="px-6 py-4 font-bold">
+                            <div class="flex items-center gap-2"><span>${bus.start}</span><i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i><span>${bus.end}</span></div>
+                        </td>
+                        <td class="px-6 py-4 text-xs text-slate-500 hidden md:table-cell"><div class="line-clamp-1">${bus.via}</div></td>
+                        <td class="px-6 py-4 font-medium text-slate-600 hidden sm:table-cell">${bus.comp}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            lucide.createIcons();
+        }
+        function filterBus(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.type === type) { btn.classList.add('active', 'border-blue-600', 'text-blue-600'); btn.classList.remove('border-transparent', 'text-slate-600'); } 
+                else { btn.classList.remove('active', 'border-blue-600', 'text-blue-600'); btn.classList.add('border-transparent', 'text-slate-600'); }
+            });
+            renderBusList(type);
+        }
+        function searchBus() {
+            const keyword = document.getElementById('search-input').value.trim();
+            if (!keyword) { renderBusList('all'); return; }
+            const tbody = document.getElementById('bus-list');
+            tbody.innerHTML = '';
+            const filtered = busData.filter(bus => bus.num.includes(keyword) || bus.start.includes(keyword) || bus.end.includes(keyword) || bus.via.includes(keyword));
+            
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'border-blue-600', 'text-blue-600'); b.classList.add('border-transparent', 'text-slate-600'); });
+
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400">"${keyword}"에 대한 검색 결과가 없습니다.</td></tr>`; return; }
+
+            filtered.forEach(bus => {
+                let badgeClass = '', typeName = '';
+                switch(bus.type) { case 'rapid': badgeClass = 'bg-rapid'; typeName = '급행'; break; case 'seat': badgeClass = 'bg-seat'; typeName = '좌석'; break; case 'main': badgeClass = 'bg-main'; typeName = '간선'; break; case 'branch': badgeClass = 'bg-branch'; typeName = '지선'; break; case 'town': badgeClass = 'bg-town'; typeName = '마을'; break; case 'wide': badgeClass = 'bg-wide'; typeName = '광역'; break; case 'circular': badgeClass = 'bg-circular'; typeName = '순환'; break; case 'airport': badgeClass = 'bg-airport'; typeName = '공항'; break; case 'tour': badgeClass = 'bg-tour'; typeName = '시티투어'; break; }
+                const row = `
+                    <tr class="clickable-row border-b border-slate-100 hover:bg-slate-50" onclick="showBusDetail('${bus.num}')">
+                        <td class="px-6 py-4"><span class="bus-badge ${badgeClass}">${typeName}</span></td>
+                        <td class="px-6 py-4 font-black text-lg text-slate-800">${bus.num}</td>
+                        <td class="px-6 py-4 font-bold"> <div class="flex items-center gap-2"> <span>${bus.start}</span> <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i> <span>${bus.end}</span> </div> </td>
+                        <td class="px-6 py-4 text-xs text-slate-500 hidden md:table-cell">${bus.via}</td>
+                        <td class="px-6 py-4 font-medium text-slate-600 hidden sm:table-cell">${bus.comp}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            lucide.createIcons();
+        }
+
+        function setSearch(term) { document.getElementById('search-input').value = term; searchBus(); }
+        function showListView() { document.getElementById('list-view').classList.remove('hidden'); document.getElementById('detail-view').classList.add('hidden'); document.getElementById('nav-home-btn').classList.remove('hidden'); document.getElementById('nav-back-btn').classList.add('hidden'); window.scrollTo(0, 0); }
+
+        function showBusDetail(routeNum) {
+            const bus = busData.find(b => b.num === routeNum);
+            if (!bus) return alert("버스 정보를 찾을 수 없습니다.");
+
+            document.getElementById('list-view').classList.add('hidden');
+            document.getElementById('detail-view').classList.remove('hidden');
+            document.getElementById('nav-home-btn').classList.add('hidden');
+            document.getElementById('nav-back-btn').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            let typeName = '', colorClass = '', badgeBgClass = '';
+            switch(bus.type) {
+                case 'rapid': typeName = '급행버스'; colorClass = 'border-rapid'; badgeBgClass = 'bg-soft-rapid'; break;
+                case 'seat': typeName = '좌석버스'; colorClass = 'border-seat'; badgeBgClass = 'bg-soft-seat'; break;
+                case 'main': typeName = '간선버스'; colorClass = 'border-main'; badgeBgClass = 'bg-soft-main'; break;
+                case 'branch': typeName = '지선버스'; colorClass = 'border-branch'; badgeBgClass = 'bg-soft-branch'; break;
+                case 'town': typeName = '마을버스'; colorClass = 'border-town'; badgeBgClass = 'bg-soft-town'; break;
+                case 'wide': typeName = '광역버스'; colorClass = 'border-wide'; badgeBgClass = 'bg-soft-wide'; break;
+                case 'circular': typeName = '순환버스'; colorClass = 'border-circular'; badgeBgClass = 'bg-soft-circular'; break;
+                case 'airport': typeName = '공항리무진'; colorClass = 'border-airport'; badgeBgClass = 'bg-soft-airport'; break;
+                case 'tour': typeName = '시티투어'; colorClass = 'border-tour'; badgeBgClass = 'bg-soft-tour'; break;
+            }
+
+            document.getElementById('detail-num').innerText = bus.num + '번';
+            if (bus.type === 'tour') {
+                document.getElementById('detail-num-rev').innerText = '';
+            } else {
+                document.getElementById('detail-num-rev').innerText = bus.num + '-1번';
+            }
+            document.getElementById('detail-badge').innerText = typeName;
+            document.getElementById('detail-badge').className = `${badgeBgClass} px-2 py-1 rounded text-sm font-bold mb-2 inline-block`;
+            
+            const detailCompLink = document.getElementById('detail-comp-link');
+            detailCompLink.innerText = bus.comp;
+            detailCompLink.href = `company.html?name=${encodeURIComponent(bus.comp)}`;
+            detailCompLink.className = `font-bold hover:underline`;
+            detailCompLink.style.color = busColors[colorClass] || '#333';
+
+            document.getElementById('detail-route').innerText = `${bus.start} ↔ ${bus.end}`;
+            document.getElementById('detail-addr').innerText = bus.via;
+            
+            const headerCard = document.getElementById('detail-header-card');
+            headerCard.className = `bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8 ${colorClass.replace('border-', 'border-l-')}`;
+
+            // --- 스마트 경로 생성 로직 ---
+            let stopsForward = [];
+            
+            if (detailDataStore[routeNum]) {
+                stopsForward = detailDataStore[routeNum];
+            } 
+            else if (bus.type === 'tour') {
+                const tourStops = bus.via.split(',').map(s => s.trim());
+                stopsForward = [`${bus.start}(출발)`, ...tourStops, `${bus.end}(도착)`];
+            }
+            else if (bus.via && bus.via.includes(',')) {
+                const parts = bus.via.split(',').map(s => s.trim());
+                stopsForward = [`${bus.start}(기점)`, ...parts, `${bus.end}(종점)`];
+            }
+            else {
+                const startNode = bus.start;
+                const endNode = bus.end;
+                
+                const middleStops = [];
+                const fullText = bus.via;
+                const words = fullText.split(' ');
+                
+                words.forEach(w => {
+                    if (w.endsWith('구') || w.endsWith('동') || w.endsWith('읍') || w.endsWith('면')) {
+                        if (!startNode.includes(w) && !endNode.includes(w) && w.length > 1) {
+                            middleStops.push(w + (w.endsWith('구') ? '청' : ' 주민센터'));
+                        }
+                    }
+                });
+                
+                const uniqueStops = [...new Set(middleStops)].slice(0, 5);
+                stopsForward = [`${startNode}(기점)`, ...uniqueStops, `${endNode}(종점)`];
+            }
+
+            let stopsReverse = [...stopsForward].reverse();
+            stopsReverse = stopsReverse.map(s => s.replace('(기점)', '(임시)').replace('(종점)', '(기점)').replace('(임시)', '(종점)').replace('(출발)', '(임시)').replace('(도착)', '(출발)').replace('(임시)', '(도착)'));
+
+            renderTimeline('detail-stops-forward', stopsForward, colorClass);
+            renderTimeline('detail-stops-reverse', stopsReverse, colorClass);
+            
+            window.currentBusColorClass = colorClass;
+            window.currentStopsForward = stopsForward;
+            window.currentStopsReverse = stopsReverse;
+        }
+
+        function renderTimeline(containerId, stops, colorClass) {
+            const stopsContainer = document.getElementById(containerId);
+            stopsContainer.innerHTML = '';
+            stopsContainer.className = `relative pl-4 border-l-4 space-y-8 ${colorClass} ml-2`;
+
+            stops.forEach((stop, index) => {
+                const isTerminus = index === 0 || index === stops.length - 1;
+                const hasBus = Math.random() < 0.15; 
+                
+                let markerHtml;
+                if (hasBus) {
+                    markerHtml = `
+                        <div class="absolute -left-[25px] top-0 w-10 h-10 bg-white border-2 ${colorClass} rounded-full flex items-center justify-center text-slate-700 shadow-md z-10 animate-bounce">
+                            <i data-lucide="bus" class="w-5 h-5"></i>
+                        </div>
+                    `;
+                } else {
+                    markerHtml = `
+                        <div class="absolute -left-[10px] top-2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white shadow-sm ring-1 ring-slate-100"></div>
+                    `;
+                }
+                
+                const textClass = hasBus ? 'font-black text-slate-900' : 'text-slate-700 font-medium';
+                const subText = isTerminus ? (index === 0 ? '출발' : '도착') : '00:00';
+
+                stopsContainer.innerHTML += `
+                    <div class="relative pl-6 group">
+                        ${markerHtml}
+                        <h4 class="${textClass} text-lg transition-colors group-hover:opacity-75 cursor-default leading-none">${stop}</h4>
+                        ${isTerminus ? `<span class="text-xs font-bold text-white bg-slate-400 px-1.5 py-0.5 rounded mt-1 inline-block">${subText}</span>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function refreshBusLocation() {
+            if (window.currentBusColorClass) {
+                renderTimeline('detail-stops-forward', window.currentStopsForward, window.currentBusColorClass);
+                renderTimeline('detail-stops-reverse', window.currentStopsReverse, window.currentBusColorClass);
+            }
+            lucide.createIcons();
+        }
+
+        renderBusList('all');
+    </script>
+</body>
+</html>

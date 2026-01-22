@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>역 이용안내 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
+    <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .hb-logo { font-family: sans-serif; font-weight: 900; letter-spacing: -2px; }
+        
+        /* 노선별 색상 클래스 */
+        .line-1 { background-color: #0077DD; color: white; }
+        .line-2 { background-color: #00CCAA; color: white; }
+        .line-3 { background-color: #FFCC11; color: black; }
+        .line-4 { background-color: #FF5522; color: white; }
+        .line-5 { background-color: #EE0022; color: white; }
+        .line-6 { background-color: #881188; color: white; }
+        .line-7 { background-color: #FF8899; color: white; }
+        .line-8 { background-color: #9856FF; color: white; }
+        .line-bh { background-color: #6677CC; color: white; }
+
+        .station-card { transition: all 0.3s ease; }
+        .station-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        .modal-content { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 워드 뷰어 스타일 조정 */
+        #docx-container {
+            overflow-y: auto;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        .docx-wrapper {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 40px !important;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <img src="images/logo.png" onerror="this.style.display='none'" class="h-8 w-auto">
+                <div class="text-3xl font-black text-sky-600 hb-logo">HB</div>
+                <span class="text-lg font-bold text-gray-800">역 이용안내</span>
+            </a>
+            <a href="index.html" class="text-gray-500 hover:text-black"><i class="fa-solid fa-xmark text-2xl"></i></a>
+        </div>
+    </header>
+
+    <section class="bg-slate-800 text-white py-10 px-4 sticky top-16 z-40">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-2xl font-bold mb-4">워드 파일(.docx) 자동 뷰어</h1>
+            <div class="relative">
+                <input type="text" id="searchInput" onkeyup="filterStations()" placeholder="역 이름 검색..." class="w-full py-3 px-5 rounded-full text-slate-800 focus:outline-none">
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 py-12 flex-grow w-full">
+        <div id="stationGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+    </main>
+
+    <div id="stationModal" class="fixed inset-0 bg-black/70 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeModal(event)">
+        <div class="modal-content bg-white w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden relative flex flex-col" onclick="event.stopPropagation()">
+            
+            <div id="modalHeader" class="p-5 text-white flex justify-between items-center bg-slate-700">
+                <div class="flex items-center gap-3">
+                    <span id="modalLineBadge" class="bg-white/20 backdrop-blur px-2 py-1 rounded text-xs font-bold">1호선</span>
+                    <h2 class="text-xl font-bold" id="modalName">역 이름</h2>
+                </div>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="docx-container" class="flex-grow w-full h-full relative">
+                <div id="loadingSpinner" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
+                    <i class="fa-solid fa-spinner fa-spin text-4xl text-sky-600 mb-4"></i>
+                    <p class="text-slate-500 font-bold">문서를 불러오는 중입니다...</p>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-white border-t border-slate-200 text-right">
+                <a id="downloadLink" href="#" download class="text-sm font-bold text-blue-600 hover:underline">
+                    <i class="fa-solid fa-file-word mr-1"></i> 원본 파일 다운로드
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+     // ============================================================
+    // ★ 데이터 영역: 아래 내용을 복사해서 <script> 태그 안에 넣으세요.
+    // ============================================================
+
+    const stations = [
+        // [1호선 본선]
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '101', name: '곽암해수욕장', address: '효빈광역시 남구 곽산동 220-2', fileUrl: 'docs/곽암해수욕장.pdf', tags: ['기점', '관광지'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '102', name: '곽산', address: '효빈광역시 남구 곽산동 332-2', fileUrl: 'docs/곽산.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '103', name: '회산', address: '효빈광역시 남구 곽산동 785-1', fileUrl: 'docs/회산.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '104', name: '남당', address: '효빈광역시 남구 평당동 482-3', fileUrl: 'docs/남당.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '105', name: '평당', address: '효빈광역시 남구 평당동 567-5', fileUrl: 'docs/평당.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '106', name: '남구청', address: '효빈광역시 남구 평당동 1708', fileUrl: 'docs/남구청.pdf', tags: ['환승역', '행정'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '107', name: '신거', address: '효빈광역시 남구 운양동 2995', fileUrl: 'docs/신거.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '108', name: '효빈항', address: '효빈광역시 남구 항동3가 1213', fileUrl: 'docs/효빈항.pdf', tags: ['환승역', '교통요충지'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '109', name: '효빈항물류지구', address: '효빈광역시 남구 항동1가 239-3', fileUrl: 'docs/효빈항물류지구.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '110', name: '월천', address: '효빈광역시 남구 월천동 929', fileUrl: 'docs/월천.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '111', name: '십덕', address: '효빈광역시 중구 십덕동 10', fileUrl: 'docs/십덕.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '112', name: '약맥', address: '효빈광역시 중구 약맥동 685', fileUrl: 'docs/약맥.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '113', name: '창선', address: '효빈광역시 중구 창선동3가 221-6', fileUrl: 'docs/창선.pdf', desc: '지하 2층에 <b>공식 굿즈샵</b>이 있습니다.', tags: ['환승역', '굿즈샵'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '114', name: '중앙로', address: '효빈광역시 중구 중앙로 5가 7-9', fileUrl: 'docs/중앙로.pdf', tags: ['환승역', '도심'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '115', name: '중구청', address: '효빈광역시 중구 조유동2가 2114', fileUrl: 'docs/중구청.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '116', name: '내조', address: '효빈광역시 중구 내조동 2190', fileUrl: 'docs/내조.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '117', name: '효빈', address: '효빈광역시 동구 사가당동 79', fileUrl: 'docs/효빈.pdf', tags: ['환승역', '중심가'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '118', name: '보몽', address: '효빈광역시 동구 전천동 3-1', fileUrl: 'docs/보몽.pdf', desc: '니지동 <b>우에하라 아유무</b>(歩夢) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '119', name: '전천', address: '효빈광역시 동구 전천동  1-1', fileUrl: 'docs/전천.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '120', name: '천왕사', address: '효빈광역시 북구 천왕사동 11-13', fileUrl: 'docs/천왕사.pdf', desc: '니지동 <b>텐노지 리나</b>(天王寺) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '121', name: '백천', address: '효빈광역시 북구 천왕사동 1840', fileUrl: 'docs/백천.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '122', name: '입희', address: '효빈광역시 북구 입희동 8-9', fileUrl: 'docs/입희.pdf', desc: '마이고 <b>시이나 타키</b>(立希) 성지', tags: ['환승역', '성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '123', name: '추산', address: '효빈광역시 북구 추산동 1-15', fileUrl: 'docs/추산.pdf', desc: '케이온 <b>아키야마 미오</b>(秋山) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '124', name: '서도', address: '효빈광역시 북구 서도동 491-12', fileUrl: 'docs/서도.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '125', name: '북구청', address: '효빈광역시 북구 중수동 79-12', fileUrl: 'docs/북구청.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '126', name: '등기', address: '효빈광역시 북구 중수동 843', fileUrl: 'docs/등기.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '127', name: '평전', address: '효빈광역시 북구 평전동 336', fileUrl: 'docs/평전.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '128', name: '아진', address: '효빈광역시 북구 아진동 667', fileUrl: 'docs/아진.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '129', name: '당안', address: '효빈광역시 안천구 당가동 3133', fileUrl: 'docs/당안.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '130', name: '안천', address: '효빈광역시 안천구 안천동 1031', fileUrl: 'docs/안천.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '131', name: '팔망성', address: '효빈광역시 안천구 팔망성동 927', fileUrl: 'docs/팔망성.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '132', name: '추자', address: '효빈광역시 안천구 추자동 719', fileUrl: 'docs/추자.pdf', desc: '글리터그린 <b>니쥿키 히나코</b>(雛子) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '133', name: '이자출장소', address: '효빈광역시 안천구 이십기동 341', fileUrl: 'docs/이자출장소.pdf', desc: '선샤인 <b>사쿠라우치 리코</b>(莉子) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '134', name: '과남', address: '효빈광역시 안천구 이자동 2-10', fileUrl: 'docs/과남.pdf', desc: '선샤인 <b>마츠우라 카난</b>(果南) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '135', name: '이자공원', address: '효빈광역시 안천구 이자동 1835', fileUrl: 'docs/이자공원.pdf', desc: '선샤인 <b>사쿠라우치 리코</b>(莉子) 성지', tags: ['환승역', '성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '136', name: '정치', address: '효빈광역시 안천구 이자동 256', fileUrl: 'docs/정치.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '137', name: '영색무', address: '효빈광역시 안천구 영색무동 211', fileUrl: 'docs/영색무.pdf', desc: '마이고 노래 <b>실루엣 댄스</b>(影色舞) 성지', tags: ['환승역', '성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '138', name: '능릉', address: '효빈광역시 안천구 능릉동 2042', fileUrl: 'docs/능릉.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '139', name: '고해', address: '효빈광역시 탄성군 고해읍 이와리 81', fileUrl: 'docs/고해.pdf', desc: '선샤인 <b>타카미 치카</b>(高海) 성지', tags: ['환승역', '성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '140', name: '도향', address: '효빈광역시 탄성군 도향면 분음리 12-9', fileUrl: 'docs/도향.pdf', desc: '걸밴크 <b>카와라기 모모카</b>(桃香) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '141', name: '산형', address: '덕빈북도 약산시 매목동 1900', fileUrl: 'docs/산형.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '142', name: '탄미', address: '덕빈북도 약산시 대염동 2834', fileUrl: 'docs/탄미.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '143', name: '약산시청', address: '덕빈북도 약산시 약산동 285', fileUrl: 'docs/약산시청.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '144', name: '수구', address: '덕빈북도 약산시 상수구동 210', fileUrl: 'docs/수구.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '145', name: '하내장', address: '덕빈북도 약산시 화소읍 하내장리 1790', fileUrl: 'docs/하내장.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '146', name: '요곡', address: '덕빈북도 약산시 화소읍 요곡리 137', fileUrl: 'docs/요곡.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '147', name: '화소', address: '덕빈북도 약산시 화소읍 상내리 423', fileUrl: 'docs/화소.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '148', name: '장곡', address: '덕빈북도 약산시 장곡읍 장곡리 268', fileUrl: 'docs/장곡.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '149', name: '마현', address: '덕빈북도 약산시 장곡읍 마현리 595', fileUrl: 'docs/마현.pdf', tags: [] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '150', name: '무기', address: '덕빈북도 약산시 장곡읍 무기리 1456', fileUrl: 'docs/무기.pdf', desc: '케이온 <b>코토부키 츠무기</b>(무기) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선', colorClass: 'line-1', code: '151', name: '장선', address: '덕빈북도 약산시 장곡읍 장선리 3194', fileUrl: 'docs/장선.pdf', tags: [] },
+
+        // [1호선 탄성지선]
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113', name: '창선', address: '효빈광역시 중구 창선동3가 221-6', fileUrl: 'docs/창선.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-1', name: '오석', address: '효빈광역시 중구 오주동 510', fileUrl: 'docs/오석.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-2', name: '장원', address: '효빈광역시 중구 정동 622', fileUrl: 'docs/장원.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-3', name: '동리', address: '효빈광역시 청엽구 동리동 1-7', fileUrl: 'docs/동리.pdf', desc: '애프터글로우 <b>하자와 츠구미</b> 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-4', name: '비마리유적지구', address: '효빈광역시 청엽구 비마동 10-23', fileUrl: 'docs/비마리유적지구.pdf', desc: '애프터글로우 <b>우에하라 히마리</b> 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-5', name: '사노', address: '효빈광역시 청엽구 사노동 697', fileUrl: 'docs/사노.pdf', tags: ['환승역'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-6', name: '청엽구청', address: '효빈광역시 청엽구 청엽동 93', fileUrl: 'docs/청엽구청.pdf', desc: '애프터글로우 <b>아오바 모카</b>(靑葉) 성지', tags: ['환승역', '성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-7', name: '아논타워', address: '효빈광역시 청엽구 청엽동 98', fileUrl: 'docs/아논타워.pdf', desc: '마이고 <b>치하야 아논</b> 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-8', name: '우전', address: '효빈광역시 청엽구 우전동 4-15', fileUrl: 'docs/우전.pdf', desc: '뱅드림 <b>우다가와</b> 자매 성지', tags: ['환승역', '성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-9', name: '창전', address: '효빈광역시 창전구 유류동 388', fileUrl: 'docs/창전.pdf', desc: '모르포니카 <b>쿠라타 마시로</b>(倉田) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-10', name: '창전구청', address: '효빈광역시 창전구 창전동 2-19', fileUrl: 'docs/창전구청.pdf', desc: '지하1층 <b>공식 굿즈샵</b> 보유', tags: ['굿즈샵'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-11', name: '보통', address: '효빈광역시 창전구 창전동 639', fileUrl: 'docs/보통.pdf', desc: '모르포니카 <b>히로마치 나나미</b>(普通) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-12', name: '고무', address: '효빈광역시 탄성군 탄성읍 고무리 366', fileUrl: 'docs/고무.pdf', tags: [] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-13', name: '탄성', address: '효빈광역시 탄성군 탄성읍 탄성리 1085', fileUrl: 'docs/탄성.pdf', tags: [] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-14', name: '탄성군청', address: '효빈광역시 탄성군 탄성읍 공리 642', fileUrl: 'docs/탄성군청.pdf', tags: [] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-15', name: '야진입구', address: '효빈광역시 탄성군 탄성읍 미성리 4', fileUrl: 'docs/야진입구.pdf', desc: '러브라이브 <b>니시키노 마키</b>(野) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-16', name: '서목', address: '효빈광역시 탄성군 서목읍 서목리 753', fileUrl: 'docs/서목.pdf', desc: '러브라이브 <b>니시키노 마키</b>(西木) 성지', tags: ['성지순례'] },
+        { line: '1', lineName: '1호선(탄성)', colorClass: 'line-1', code: '113-17', name: '승남해수욕장', address: '효빈광역시 탄성군 서목읍 승남리 691', fileUrl: 'docs/승남해수욕장.pdf', tags: [] },
+
+        // [2호선]
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '201', name: '월천', address: '효빈광역시 남구 월천동 929', fileUrl: 'docs/월천.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '202', name: '박산', address: '효빈광역시 남구 박산동 62-3', fileUrl: 'docs/박산.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '203', name: '신흥', address: '효빈광역시 남구 신흥동 345', fileUrl: 'docs/신흥.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '204', name: '효빈공단', address: '효빈광역시 남구 신흥동 346', fileUrl: 'docs/효빈공단.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '205', name: '입동', address: '효빈광역시 청엽구 입동1가 413', fileUrl: 'docs/입동.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '206', name: '등동', address: '효빈광역시 청엽구 등동 10', fileUrl: 'docs/등동.pdf', desc: '마이고 <b>타카마츠 토모리</b>(燈) 성지', tags: ['성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '207', name: '헌이송', address: '효빈광역시 청엽구 헌이송동 9', fileUrl: 'docs/헌이송.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '208', name: '마잡', address: '효빈광역시 청엽구 마잡동 3', fileUrl: 'docs/마잡.pdf', desc: '애프터글로우 <b>아오바 모카</b> 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '209', name: '동곡', address: '효빈광역시 창전구 동곡동 16', fileUrl: 'docs/동곡.pdf', desc: '모르포니카 <b>키리가야 토우코</b> 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '210', name: '쌍엽', address: '효빈광역시 창전구 쌍엽동 9', fileUrl: 'docs/쌍엽.pdf', desc: '모르포니카 <b>후타바 츠쿠시</b>(双葉) 성지', tags: ['성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '211', name: '엽천', address: '효빈광역시 창전구 쌍엽동 15', fileUrl: 'docs/엽천.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '212', name: '우전', address: '효빈광역시 청엽구 우전동 4-15', fileUrl: 'docs/우전.pdf', desc: '뱅드림 <b>우다가와</b> 자매 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '213', name: '유류', address: '효빈광역시 창전구 유류동 24', fileUrl: 'docs/유류.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '214', name: '칠심', address: '효빈광역시 창전구 칠심동 616', fileUrl: 'docs/칠심.pdf', desc: '모르포니카 <b>히로마치 나나미</b>(七深) 성지', tags: ['성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '215', name: '시로', address: '효빈광역시 창전구 시로동 46', fileUrl: 'docs/시로.pdf', desc: '모르포니카 <b>쿠라타 마시로</b>(白) 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '216', name: '흑택', address: '효빈광역시 탄성군 흑택면 흑택리 11', fileUrl: 'docs/흑택.pdf', desc: '선샤인 <b>쿠로사와</b> 자매(黒澤) 성지', tags: ['성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '217', name: '상가', address: '효빈광역시 안천구 상가동 526', fileUrl: 'docs/상가.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '218', name: '하가', address: '효빈광역시 안천구 하가동 859', fileUrl: 'docs/하가.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '219', name: '당가', address: '효빈광역시 안천구 당가동 717', fileUrl: 'docs/당가.pdf', desc: '슈퍼스타 <b>탕 쿠쿠</b>(唐可) 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '220', name: '신영', address: '효빈광역시 북구 신영동 412', fileUrl: 'docs/신영.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '221', name: '채산', address: '효빈광역시 북구 실본동 53', fileUrl: 'docs/채산.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '222', name: '남전', address: '효빈광역시 북구 남전동 431', fileUrl: 'docs/남전.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '223', name: '중수', address: '효빈광역시 북구 중수동 1-23', fileUrl: 'docs/중수.pdf', desc: '니지동 <b>나카스 카스미</b>(中須) 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '224', name: '사연', address: '효빈광역시 북구 사연동 352', fileUrl: 'docs/사연.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '225', name: '입희', address: '효빈광역시 북구 입희동 8-9', fileUrl: 'docs/입희.pdf', desc: '마이고 <b>시이나 타키</b>(立希) 성지', tags: ['환승역', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '226', name: '입선', address: '효빈광역시 북구 입선동 65', fileUrl: 'docs/입선.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '227', name: '북효빈', address: '효빈광역시 북구 입선동 642', fileUrl: 'docs/북효빈.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '228', name: '시청', address: '효빈광역시 북구 고송동 79-2', fileUrl: 'docs/시청.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '229', name: '고송교차로', address: '효빈광역시 북구 고송동 112-2', fileUrl: 'docs/고송교차로.pdf', desc: '마이고 <b>타카마츠 토모리</b>(高松) 성지', tags: ['환승역', '굿즈샵', '성지순례'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '230', name: '과송', address: '효빈광역시 북구 고송동 525', fileUrl: 'docs/과송.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '231', name: '청덕', address: '효빈광역시 서구 청덕동 3413', fileUrl: 'docs/청덕.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '232', name: '과진중앙', address: '효빈광역시 서구 과진동 644', fileUrl: 'docs/과진중앙.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '233', name: '사복', address: '효빈광역시 서구 사복동 479', fileUrl: 'docs/사복.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '234', name: '당선', address: '효빈광역시 서구 당선동 281-2', fileUrl: 'docs/당선.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '235', name: '효빈대', address: '효빈광역시 서구 당선동 231-2', fileUrl: 'docs/효빈대.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '236', name: '칠천', address: '효빈광역시 서구 칠천동 7000', fileUrl: 'docs/칠천.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '237', name: '소장', address: '효빈광역시 서구 북문동1가 524', fileUrl: 'docs/소장.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '238', name: '중앙로', address: '효빈광역시 중구 중앙로 5가 7-9', fileUrl: 'docs/중앙로.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '239', name: '심동', address: '효빈광역시 중구 심동1가 775', fileUrl: 'docs/심동.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '240', name: '고도', address: '효빈광역시 중구 고도동 664', fileUrl: 'docs/고도.pdf', tags: [] },
+        { line: '2', lineName: '2호선', colorClass: 'line-2', code: '241', name: '내항', address: '효빈광역시 중구 내항동 929', fileUrl: 'docs/내항.pdf', tags: ['환승역'] },
+
+        // [2호선 어간지선]
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201', name: '월천', address: '효빈광역시 남구 월천동 929', fileUrl: 'docs/월천.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-1', name: '서신포', address: '효빈광역시 남구 항동1가 523', fileUrl: 'docs/서신포.pdf', tags: [] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-2', name: '운양', address: '효빈광역시 남구 항동1가 343', fileUrl: 'docs/운양.pdf', tags: [] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-3', name: '어간항', address: '효빈광역시 남구 어간동 133', fileUrl: 'docs/어간항.pdf', tags: [] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-4', name: '어간수산시장', address: '효빈광역시 남구 어간동 643', fileUrl: 'docs/어간수산시장.pdf', tags: [] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-5', name: '어간중앙', address: '효빈광역시 남구 어간동 3421', fileUrl: 'docs/어간중앙.pdf', tags: ['환승역'] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-6', name: '어간', address: '효빈광역시 남구 어간동 54', fileUrl: 'docs/어간.pdf', tags: [] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-7', name: '항동1가', address: '효빈광역시 남구 항동1가 978', fileUrl: 'docs/항동1가.pdf', tags: [] },
+        { line: '2', lineName: '2호선(어간)', colorClass: 'line-2', code: '201-8', name: '효빈항국제여객터미널', address: '효빈광역시 남구 항동2가 531', fileUrl: 'docs/효빈항국제여객터미널.pdf', tags: [] },
+
+        // [3호선]
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '301', name: '팔조', address: '효빈광역시 창전구 팔조동 220-2', fileUrl: 'docs/팔조.pdf', desc: '모르포니카 <b>야시오 루이</b>(八潮) 성지', tags: ['성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '302', name: '투자', address: '효빈광역시 창전구 투자동 12', fileUrl: 'docs/투자.pdf', desc: '모르포니카 <b>키리가야 토우코</b>(透子) 성지', tags: ['성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '303', name: '동곡', address: '효빈광역시 창전구 동곡동 16', fileUrl: 'docs/동곡.pdf', desc: '모르포니카 <b>키리가야 토우코</b>(桐谷) 성지', tags: ['환승역', '성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '304', name: '효빈남부시외버스터미널', address: '효빈광역시 청엽구 우전동 593', fileUrl: 'docs/효빈남부시외버스터미널.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '305', name: '청엽구청', address: '효빈광역시 청엽구 청엽동 93', fileUrl: 'docs/청엽구청.pdf', desc: '애프터글로우 <b>아오바 모카</b>(靑葉) 성지', tags: ['환승역', '굿즈샵', '성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '306', name: '청엽', address: '효빈광역시 청엽구 청엽동 9-3', fileUrl: 'docs/청엽.pdf', desc: '애프터글로우 <b>아오바 모카</b>(靑葉) 성지', tags: ['성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '307', name: '사가당', address: '효빈광역시 동구 사가당동 462', fileUrl: 'docs/사가당.pdf', tags: ['환승역'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '308', name: '덕현', address: '효빈광역시 동구 덕현동 676', fileUrl: 'docs/덕현.pdf', tags: ['환승역'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '309', name: '효빈', address: '효빈광역시 동구 사가당동 1079-2', fileUrl: 'docs/효빈.pdf', tags: ['환승역'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '310', name: '사능', address: '효빈광역시 북구 사능동3가 432', fileUrl: 'docs/사능.pdf', desc: '포핀파티 <b>야마부키 사아야</b>(沙綾) 성지', tags: ['환승역', '성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '311', name: '고속버스터미널', address: '효빈광역시 북구 해서동 322-2', fileUrl: 'docs/고속버스터미널.pdf', tags: ['환승역'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '312', name: '북효빈', address: '효빈광역시 북구 청능동 642', fileUrl: 'docs/북효빈.pdf', tags: ['환승역'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '313', name: '청능', address: '효빈광역시 북구 청능동  533', fileUrl: 'docs/청능.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '314', name: '효빈복지대', address: '효빈광역시 서구 사복동 97', fileUrl: 'docs/효빈복지대.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '315', name: '과진', address: '효빈광역시 서구 과진동 433', fileUrl: 'docs/과진.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '316', name: '청덕', address: '효빈광역시 서구 청덕동 3413', fileUrl: 'docs/청덕.pdf', tags: ['환승역'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '317', name: '송덕', address: '효빈광역시 서구 청덕동 1335', fileUrl: 'docs/송덕.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '318', name: '고송나루', address: '효빈광역시 북구 고송동 323', fileUrl: 'docs/고송나루.pdf', desc: '마이고 <b>타카마츠 토모리</b>(高松) 성지', tags: ['환승역', '성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '319', name: '토모리해수욕장', address: '효빈광역시 북구 고송동 103', fileUrl: 'docs/토모리해수욕장.pdf', desc: '마이고 <b>타카마츠 토모리</b> 성지', tags: ['성지순례'] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '320', name: '중만도', address: '덕빈북도 기도군 염곡면 중만리 643', fileUrl: 'docs/중만도.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '321', name: '신산', address: '덕빈북도 기도군 염곡면 신산리 544', fileUrl: 'docs/신산.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '322', name: '주양', address: '덕빈북도 기도군 염곡면 주양리 6-35', fileUrl: 'docs/주양.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '323', name: '염곡', address: '덕빈북도 기도군 염곡면 염곡리 34-24', fileUrl: 'docs/염곡.pdf', tags: [] },
+        { line: '3', lineName: '3호선', colorClass: 'line-3', code: '324', name: '효빈국제공항', address: '덕빈북도 기도군 주길면 원청리 798-4', fileUrl: 'docs/효빈국제공항.pdf', tags: [] },
+
+        // [4호선]
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '401', name: '해운산업지구', address: '효빈광역시 남구 평당동 220-2', fileUrl: 'docs/해운산업지구.pdf', tags: [] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '402', name: '이부', address: '효빈광역시 남구 평당동 332-2', fileUrl: 'docs/이부.pdf', desc: '파스텔팔레트 <b>와카미야 이브</b> 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '403', name: '남구청', address: '효빈광역시 남구 평당동 1708', fileUrl: 'docs/남구청.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '404', name: '빙천', address: '효빈광역시 남구 고간동 53', fileUrl: 'docs/빙천.pdf', desc: '뱅드림 <b>히카와</b> 자매(氷川) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '405', name: '고당', address: '효빈광역시 남구 고간동 153', fileUrl: 'docs/고당.pdf', tags: [] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '406', name: '사야', address: '효빈광역시 남구 박산동 51', fileUrl: 'docs/사야.pdf', desc: '로젤리아 <b>히카와 사요</b>(紗夜) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '407', name: '신흥', address: '효빈광역시 남구 신흥동 345', fileUrl: 'docs/신흥.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '408', name: '진월천', address: '효빈광역시 남구 월천동 524', fileUrl: 'docs/진월천.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '409', name: '삼각', address: '효빈광역시 중구 삼각동 3', fileUrl: 'docs/삼각.pdf', desc: '아베무지카 <b>미스미 우이카</b>(三角) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '410', name: '오석', address: '효빈광역시 중구 오석동 54', fileUrl: 'docs/오석.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '411', name: '장원', address: '효빈광역시 중구 정동 542', fileUrl: 'docs/장원.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '412', name: '신덕', address: '효빈광역시 중구 신덕동 563', fileUrl: 'docs/신덕.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '413', name: '가동사거리', address: '효빈광역시 동구 사가당동 654-1', fileUrl: 'docs/가동사거리.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '414', name: '사가당', address: '효빈광역시 동구 사가당동 462', fileUrl: 'docs/사가당.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '415', name: '동덕현', address: '효빈광역시 동구 덕현동 144', fileUrl: 'docs/동덕현.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '416', name: '우택', address: '효빈광역시 청엽구 우택동 19', fileUrl: 'docs/우택.pdf', desc: '애프터글로우 <b>하자와 츠구미</b>(羽澤) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '417', name: '치구', address: '효빈광역시 안천구 하구동 644', fileUrl: 'docs/치구.pdf', tags: [] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '418', name: '뇌전', address: '효빈광역시 안천구 뇌전동 228', fileUrl: 'docs/뇌전.pdf', desc: '헬로해피월드 <b>세타 카오루</b>(瀬田) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '419', name: '하가', address: '효빈광역시 안천구 하가동 859', fileUrl: 'docs/하가.pdf', tags: ['환승역'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '420', name: '백합공원', address: '효빈광역시 안천구 백합동 352', fileUrl: 'docs/백합공원.pdf', desc: '글리터그린 <b>우시고메 유리</b>(百合) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '421', name: '요우', address: '효빈광역시 탄성군 도변읍 요우리 4-17', fileUrl: 'docs/요우.pdf', desc: '선샤인 <b>와타나베 요우</b>(曜) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '422', name: '도변', address: '효빈광역시 탄성군 도변읍 도변리 381-21', fileUrl: 'docs/도변.pdf', desc: '선샤인 <b>와타나베 요우</b>(渡辺) 성지', tags: ['환승역', '성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '423', name: '잠재', address: '효빈광역시 탄성군 도변읍 잠재리 145', fileUrl: 'docs/잠재.pdf', desc: '마이고 노래 <b>잠재표명</b> 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '424', name: '앵내', address: '효빈광역시 탄성군 도변읍 앵내리 919', fileUrl: 'docs/앵내.pdf', desc: '선샤인 <b>사쿠라우치 리코</b>(桜内) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '425', name: '탄자', address: '효빈광역시 안천구 탄자동 532', fileUrl: 'docs/탄자.pdf', tags: [] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '426', name: '이자공원', address: '효빈광역시 안천구 이자동 244', fileUrl: 'docs/이자공원.pdf', desc: '선샤인 <b>사쿠라우치 리코</b>(莉子) 성지', tags: ['환승역', '성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '427', name: '이자', address: '효빈광역시 안천구 이자동 9-19', fileUrl: 'docs/이자.pdf', desc: '선샤인 <b>사쿠라우치 리코</b>(莉子) 성지', tags: ['환승역', '굿즈샵', '성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '428', name: '서수', address: '효빈광역시 안천구 서수동 134-2', fileUrl: 'docs/서수.pdf', desc: '아베무지카 <b>토가와 미즈호</b>(瑞穂) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '429', name: '소원', address: '효빈광역시 탄성군 소원면 소원리 613', fileUrl: 'docs/소원.pdf', desc: '선샤인 <b>오하라 마리</b>(小原) 성지', tags: ['성지순례'] },
+        { line: '4', lineName: '4호선', colorClass: 'line-4', code: '430', name: '천가', address: '효빈광역시 탄성군 고해읍 천가리 1000', fileUrl: 'docs/천가.pdf', desc: '선샤인 <b>타카미 치카</b>(千歌) 성지', tags: ['성지순례'] },
+
+        // [5호선]
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '501', name: '청덕공원', address: '효빈광역시 서구 청덕동 154', fileUrl: 'docs/청덕공원.pdf', tags: [] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '502', name: '화환', address: '효빈광역시 서구 청덕동 1453', fileUrl: 'docs/화환.pdf', desc: '선샤인 <b>쿠니키다 하나마루</b>(花丸) 성지', tags: ['성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '503', name: '효빈과학기술원', address: '효빈광역시 서구 과진동 1132', fileUrl: 'docs/효빈과학기술원.pdf', tags: [] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '504', name: '당선', address: '효빈광역시 서구 당선동 281-2', fileUrl: 'docs/당선.pdf', tags: ['환승역'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '505', name: '소조', address: '효빈광역시 북구 소조동 912', fileUrl: 'docs/소조.pdf', desc: '러브라이브 <b>미나미 코토리</b>(小鳥) 성지', tags: ['굿즈샵', '성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '506', name: '고속버스터미널', address: '효빈광역시 북구 해서동 322-2', fileUrl: 'docs/고속버스터미널.pdf', tags: ['환승역'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '507', name: '전천', address: '효빈광역시 동구 전천동 1-1', fileUrl: 'docs/전천.pdf', tags: ['환승역'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '508', name: '전천중앙', address: '효빈광역시 동구 전천동 886-2', fileUrl: 'docs/전천중앙.pdf', tags: ['환승역'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '510', name: '동덕현', address: '효빈광역시 동구 덕현동 144', fileUrl: 'docs/동덕현.pdf', tags: ['환승역'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '511', name: '청엽국제학교', address: '효빈광역시 청엽구 청엽동 435', fileUrl: 'docs/청엽국제학교.pdf', desc: '애프터글로우 <b>아오바 모카</b>(靑葉) 성지', tags: ['성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '512', name: '남우택', address: '효빈광역시 청엽구 우택동 1465', fileUrl: 'docs/남우택.pdf', desc: '애프터글로우 <b>하자와 츠구미</b>(羽澤) 성지', tags: ['성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '513', name: '진백', address: '효빈광역시 창전구 진백동 1651', fileUrl: 'docs/진백.pdf', desc: '모르포니카 <b>쿠라타 마시로</b>(真白) 성지', tags: ['성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '514', name: '시로', address: '효빈광역시 창전구 시로동 46', fileUrl: 'docs/시로.pdf', desc: '모르포니카 <b>쿠라타 마시로</b>(白) 성지', tags: ['환승역', '성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '515', name: '루비', address: '효빈광역시 탄성군 흑택면 루비리 9-21', fileUrl: 'docs/루비.pdf', desc: '선샤인 <b>쿠로사와 루비</b> 성지', tags: ['성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '516', name: '도변', address: '효빈광역시 탄성군 도변읍 도변리 381-21', fileUrl: 'docs/도변.pdf', desc: '선샤인 <b>와타나베 요우</b>(渡辺) 성지', tags: ['환승역', '성지순례'] },
+        { line: '5', lineName: '5호선', colorClass: 'line-5', code: '517', name: '포성산', address: '효빈광역시 탄성군 도변읍 조일리 7-17', fileUrl: 'docs/포성산.pdf', tags: [] },
+
+        // [6호선]
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '601', name: '마잡', address: '효빈광역시 청엽구 마잡동 3', fileUrl: 'docs/마잡.pdf', desc: '애프터글로우 <b>아오바 모카</b> 성지', tags: ['환승역', '성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '602', name: '비동', address: '효빈광역시 청엽구 마잡동 42', fileUrl: 'docs/비동.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '603', name: '비마', address: '효빈광역시 청엽구 비마동 532', fileUrl: 'docs/비마.pdf', desc: '애프터글로우 <b>우에하라 히마리</b> 성지', tags: ['성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '604', name: '사노', address: '효빈광역시 청엽구 사노동 697', fileUrl: 'docs/사노.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '605', name: '가동사거리', address: '효빈광역시 동구 사가당동 654-1', fileUrl: 'docs/가동사거리.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '606', name: '덕현', address: '효빈광역시 동구 덕현동 676', fileUrl: 'docs/덕현.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '607', name: '전덕', address: '효빈광역시 동구 전천동 134', fileUrl: 'docs/전덕.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '608', name: '전천중앙', address: '효빈광역시 동구 전천동 886-2', fileUrl: 'docs/전천중앙.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '609', name: '오내사거리', address: '효빈광역시 북구 오내동 544', fileUrl: 'docs/오내사거리.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '610', name: '오내', address: '효빈광역시 북구 오내동 54', fileUrl: 'docs/오내.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '611', name: '중수', address: '효빈광역시 북구 중수동 1-23', fileUrl: 'docs/중수.pdf', desc: '니지동 <b>나카스 카스미</b>(中須) 성지', tags: ['환승역', '굿즈샵', '성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '612', name: '북구청', address: '효빈광역시 북구 중수동 79-12', fileUrl: 'docs/북구청.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '613', name: '포산', address: '효빈광역시 북구 포산동 531', fileUrl: 'docs/포산.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '614', name: '장포', address: '효빈광역시 북구 입희동 122', fileUrl: 'docs/장포.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '615', name: '효빈종합고', address: '효빈광역시 북구 진희동 553', fileUrl: 'docs/효빈종합고.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '616', name: '진희', address: '효빈광역시 북구 진희동 221', fileUrl: 'docs/진희.pdf', desc: '러브라이브 <b>니시키노 마키</b>(真姫) 성지', tags: ['성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '617', name: '동고송', address: '효빈광역시 북구 고송동 345', fileUrl: 'docs/동고송.pdf', desc: '마이고 <b>타카마츠 토모리</b>(高松) 성지', tags: ['성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '618', name: '시청', address: '효빈광역시 북구 고송동 79-2', fileUrl: 'docs/시청.pdf', tags: ['환승역'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '619', name: '고송교차로', address: '효빈광역시 북구 고송동 112-2', fileUrl: 'docs/고송교차로.pdf', desc: '마이고 <b>타카마츠 토모리</b>(高松) 성지', tags: ['환승역', '성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '620', name: '고송', address: '효빈광역시 북구 고송동 431', fileUrl: 'docs/고송.pdf', desc: '마이고 <b>타카마츠 토모리</b>(高松) 성지', tags: ['성지순례'] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '621', name: '건강보험공단', address: '효빈광역시 북구 고송동 654', fileUrl: 'docs/건강보험공단.pdf', tags: [] },
+        { line: '6', lineName: '6호선', colorClass: 'line-6', code: '622', name: '고송나루', address: '효빈광역시 북구 고송동 323', fileUrl: 'docs/고송나루.pdf', desc: '마이고 <b>타카마츠 토모리</b>(高松) 성지', tags: ['환승역', '성지순례'] },
+
+        // [7호선]
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '701', name: '어간중앙', address: '효빈광역시 남구 어간동 220-2', fileUrl: 'docs/어간중앙.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '702', name: '어간초', address: '효빈광역시 남구 어간동 332-2', fileUrl: 'docs/어간초.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '703', name: '항동3가', address: '효빈광역시 남구 항동3가 867', fileUrl: 'docs/항동3가.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '704', name: '항만해변', address: '효빈광역시 남구 항동3가 1165', fileUrl: 'docs/항만해변.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '705', name: '산홍', address: '효빈광역시 남구 항동3가 278', fileUrl: 'docs/산홍.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '706', name: '효빈항', address: '효빈광역시 남구 항동3가 1213', fileUrl: 'docs/효빈항.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '707', name: '효빈항동부', address: '효빈광역시 남구 항동1가 444', fileUrl: 'docs/효빈항동부.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '708', name: '분덕', address: '효빈광역시 남구 항동1가 253', fileUrl: 'docs/분덕.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '709', name: '항동문화회관', address: '효빈광역시 남구 항동1가 1079', fileUrl: 'docs/항동문화회관.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '710', name: '월천', address: '효빈광역시 남구 항동1가 1232', fileUrl: 'docs/월천.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '711', name: '갑문', address: '효빈광역시 중구 명일동 547', fileUrl: 'docs/갑문.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '712', name: '명일', address: '효빈광역시 중구 명일동 233', fileUrl: 'docs/명일.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '713', name: '내항', address: '효빈광역시 중구 내항동 929', fileUrl: 'docs/내항.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '714', name: '내항시장', address: '효빈광역시 중구 내항동 902', fileUrl: 'docs/내항시장.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '715', name: '만마루', address: '효빈광역시 중구 내항동 461', fileUrl: 'docs/만마루.pdf', desc: '파스텔팔레트 <b>마루야마 아야</b>(만마루) 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '716', name: '구세관', address: '효빈광역시 중구 고도동 1157', fileUrl: 'docs/구세관.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '717', name: '고도리', address: '효빈광역시 중구 고도동 482', fileUrl: 'docs/고도리.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '718', name: '시북', address: '효빈광역시 중구 시남동 936', fileUrl: 'docs/시북.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '719', name: '시남', address: '효빈광역시 중구 시남동 1108', fileUrl: 'docs/시남.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '720', name: '우이', address: '효빈광역시 중구 우이동 322', fileUrl: 'docs/우이.pdf', desc: '케이온 <b>히라사와 우이</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '721', name: '우이문화촌', address: '효빈광역시 중구 우이동 852', fileUrl: 'docs/우이문화촌.pdf', desc: '케이온 <b>히라사와 우이</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '722', name: '심동1가', address: '효빈광역시 중구 심동1가 508', fileUrl: 'docs/심동1가.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '723', name: '심동2가', address: '효빈광역시 중구 심동2가 182', fileUrl: 'docs/심동2가.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '724', name: '중앙로1가', address: '효빈광역시 중구 중앙로1가 114', fileUrl: 'docs/중앙로1가.pdf', desc: '<b>효빈교통공사 공식 굿즈샵</b> 인근', tags: ['굿즈샵'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '725', name: '개항지', address: '효빈광역시 중구 중앙로1가 1164', fileUrl: 'docs/개항지.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '726', name: '중앙로3가', address: '효빈광역시 중구 중앙로3가 58', fileUrl: 'docs/중앙로3가.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '727', name: '중앙로', address: '효빈광역시 중구 중앙로5가 299', fileUrl: 'docs/중앙로.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '728', name: '원동4가', address: '효빈광역시 중구 원동4가 1085', fileUrl: 'docs/원동4가.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '729', name: '중보로', address: '효빈광역시 중구 중보로 444', fileUrl: 'docs/중보로.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '730', name: '효빈은행', address: '효빈광역시 중구 완동1가 623', fileUrl: 'docs/효빈은행.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '731', name: '구시청앞', address: '효빈광역시 중구 완동3가 957', fileUrl: 'docs/구시청앞.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '732', name: '경동', address: '효빈광역시 중구 경동 627', fileUrl: 'docs/경동.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '733', name: '유내', address: '효빈광역시 중구 유내동 1154', fileUrl: 'docs/유내.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '734', name: '리사', address: '효빈광역시 중구 리사동 559', fileUrl: 'docs/리사.pdf', desc: '로젤리아 <b>이마이 리사</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '735', name: '도람', address: '효빈광역시 중구 도람동 500', fileUrl: 'docs/도람.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '736', name: '궁정', address: '효빈광역시 중구 궁정동 616', fileUrl: 'docs/궁정.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '737', name: '상원초', address: '효빈광역시 중구 만실동 130', fileUrl: 'docs/상원초.pdf', desc: '니지동 <b>우에하라 아유무</b>(上原) 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '738', name: '효빈성앞', address: '효빈광역시 중구 내조동 281', fileUrl: 'docs/효빈성앞.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '739', name: '내조', address: '효빈광역시 중구 내조동 587', fileUrl: 'docs/내조.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '740', name: '중앙고', address: '효빈광역시 중구 내조동 126', fileUrl: 'docs/중앙고.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '741', name: '내조공원', address: '효빈광역시 중구 내조동 104', fileUrl: 'docs/내조공원.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '742', name: '효빈', address: '효빈광역시 동구 사가당동 1079-2', fileUrl: 'docs/효빈.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '743', name: '사가당공원', address: '효빈광역시 동구 사가당동 242', fileUrl: 'docs/사가당공원.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '744', name: '가족센터', address: '효빈광역시 북구 치남동 315', fileUrl: 'docs/가족센터.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '745', name: '치남', address: '효빈광역시 북구 치남동 583', fileUrl: 'docs/치남.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '747', name: '사능동3가', address: '효빈광역시 북구 사능동3가 688', fileUrl: 'docs/사능동3가.pdf', desc: '포핀파티 <b>야마부키 사아야</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '748', name: '유성당', address: '효빈광역시 북구 사능동2가 842', fileUrl: 'docs/유성당.pdf', desc: '포핀파티 <b>이치가야 아리사</b>(유성당) 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '749', name: '사능복지관', address: '효빈광역시 북구 사능동2가 852', fileUrl: 'docs/사능복지관.pdf', desc: '포핀파티 <b>야마부키 사아야</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '750', name: '사능동1가', address: '효빈광역시 북구 사능동1가 753', fileUrl: 'docs/사능동1가.pdf', desc: '포핀파티 <b>야마부키 사아야</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '751', name: '북구서부어린이회관', address: '효빈광역시 북구 사능동1가 1135', fileUrl: 'docs/북구서부어린이회관.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '752', name: '사능삼거리', address: '효빈광역시 북구 사능동1가 220', fileUrl: 'docs/사능삼거리.pdf', desc: '포핀파티 <b>야마부키 사아야</b> 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '753', name: '봇지마을', address: '효빈광역시 북구 내성동2가 868', fileUrl: 'docs/봇지마을.pdf', desc: '봇치 더 락 <b>고토 히토리</b>(봇치) 성지', tags: ['성지순례'] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '754', name: '북문로', address: '효빈광역시 서구 내성동2가 149', fileUrl: 'docs/북문로.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '755', name: '효빈성북문', address: '효빈광역시 서구 내성동2가 219', fileUrl: 'docs/효빈성북문.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '756', name: '구칠천군사기지앞', address: '효빈광역시 서구 칠천동 296', fileUrl: 'docs/구칠천군사기지앞.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '757', name: '당선원마을', address: '효빈광역시 서구 당선동 562', fileUrl: 'docs/당선원마을.pdf', tags: [] },
+        { line: '7', lineName: '7호선', colorClass: 'line-7', code: '758', name: '효빈대입구', address: '효빈광역시 서구 당선동 1132', fileUrl: 'docs/효빈대입구.pdf', tags: ['환승역'] },
+
+        // [7호선 중보지선]
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729', name: '중보로', address: '효빈광역시 중구 중보로 758', fileUrl: 'docs/중보로.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-1', name: '중동3가', address: '효빈광역시 중구 중동3가 556', fileUrl: 'docs/중동3가.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-2', name: '색수시장', address: '효빈광역시 중구 중동1가 351', fileUrl: 'docs/색수시장.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-3', name: '조유동3가', address: '효빈광역시 중구 조유동3가 520', fileUrl: 'docs/조유동3가.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-4', name: '조유동2가', address: '효빈광역시 중구 조유동2가 793', fileUrl: 'docs/조유동2가.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-5', name: '중구청', address: '효빈광역시 중구 조유동2가 830', fileUrl: 'docs/중구청.pdf', tags: ['환승역'] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-6', name: '천석동2가', address: '효빈광역시 중구 천석동2가 1137', fileUrl: 'docs/천석동2가.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-7', name: '천석동3가', address: '효빈광역시 중구 천석동3가 444', fileUrl: 'docs/천석동3가.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-8', name: '서남', address: '효빈광역시 중구 서남동 490', fileUrl: 'docs/서남.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-9', name: '효빈고', address: '효빈광역시 중구 천석동1가 993', fileUrl: 'docs/효빈고.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '729-10', name: '사중', address: '효빈광역시 북구 사능동1가 814', fileUrl: 'docs/사중.pdf', tags: [] },
+        { line: '7', lineName: '7호선(중보)', colorClass: 'line-7', code: '752', name: '사능삼거리', address: '효빈광역시 북구 사능동1가 220', fileUrl: 'docs/사능삼거리.pdf', tags: [] },
+
+        // [8호선]
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '801', name: '곽산', address: '효빈광역시 남구 곽산동 220-2', fileUrl: 'docs/곽산.pdf', tags: ['환승역'] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '802', name: '곽산고', address: '효빈광역시 남구 평당동 429', fileUrl: 'docs/곽산고.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '803', name: '남부소방서', address: '효빈광역시 남구 평당동 763', fileUrl: 'docs/남부소방서.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '804', name: '부한', address: '효빈광역시 남구 평당동 1198', fileUrl: 'docs/부한.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '805', name: '능남', address: '효빈광역시 남구 평당동 355', fileUrl: 'docs/능남.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '806', name: '평당6동주민센터', address: '효빈광역시 남구 평당동 1164', fileUrl: 'docs/평당6동주민센터.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '807', name: '남구선관위', address: '효빈광역시 남구 평당동 511', fileUrl: 'docs/남구선관위.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '808', name: '평곡', address: '효빈광역시 남구 평당동 112', fileUrl: 'docs/평곡.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '810', name: '평당고', address: '효빈광역시 남구 평당동 1117', fileUrl: 'docs/평당고.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '811', name: '사북내', address: '효빈광역시 남구 평당동 887', fileUrl: 'docs/사북내.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '812', name: '남구청', address: '효빈광역시 남구 평당동 489', fileUrl: 'docs/남구청.pdf', tags: ['환승역'] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '813', name: '주오', address: '효빈광역시 남구 평당동 740', fileUrl: 'docs/주오.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '814', name: '평당장애인복지관', address: '효빈광역시 남구 평당동 543', fileUrl: 'docs/평당장애인복지관.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '815', name: '북평단', address: '효빈광역시 남구 평당동 374', fileUrl: 'docs/북평단.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '816', name: '주곡', address: '효빈광역시 남구 평당동 58', fileUrl: 'docs/주곡.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '817', name: '창문공원', address: '효빈광역시 남구 어간동 179', fileUrl: 'docs/창문공원.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '818', name: '세무지구', address: '효빈광역시 남구 어간동 1014', fileUrl: 'docs/세무지구.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '819', name: '배고', address: '효빈광역시 남구 어간동 235', fileUrl: 'docs/배고.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '820', name: '문화회관', address: '효빈광역시 남구 평당동 47', fileUrl: 'docs/문화회관.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '821', name: '신거', address: '효빈광역시 남구 운양동 325', fileUrl: 'docs/신거.pdf', tags: ['환승역'] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '822', name: '평운', address: '효빈광역시 남구 운양동 929', fileUrl: 'docs/평운.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '823', name: '운양중앙', address: '효빈광역시 남구 운양동 450', fileUrl: 'docs/운양중앙.pdf', desc: '지상 2층에 <b>공식 굿즈샵</b>이 있습니다.', tags: ['굿즈샵'] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '824', name: '운촌', address: '효빈광역시 남구 박산동 398', fileUrl: 'docs/운촌.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '825', name: '박산', address: '효빈광역시 남구 박산동 198', fileUrl: 'docs/박산.pdf', tags: ['환승역'] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '826', name: '박산중고등학교', address: '효빈광역시 남구 박산동 960', fileUrl: 'docs/박산중고등학교.pdf', tags: [] },
+        { line: '8', lineName: '8호선', colorClass: 'line-8', code: '827', name: '신흥', address: '효빈광역시 남구 신흥동 598', fileUrl: 'docs/신흥.pdf', tags: ['환승역'] },
+
+        // [빈효선]
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B01', name: '효빈항', address: '효빈광역시 남구 항동3가 1213', fileUrl: 'docs/효빈항.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B02', name: '효빈항물류지구', address: '효빈광역시 남구 항동1가 239-3', fileUrl: 'docs/효빈항물류지구.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B03', name: '동신', address: '효빈광역시 남구 월천동 424', fileUrl: 'docs/동신.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B04', name: '진월천', address: '효빈광역시 남구 월천동 524', fileUrl: 'docs/진월천.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B05', name: '오주', address: '효빈광역시 청엽구 입동3가 510', fileUrl: 'docs/오주.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B06', name: '효빈동신도시', address: '효빈광역시 청엽구 효빈동1가 781', fileUrl: 'docs/효빈동신도시.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B07', name: '장원', address: '효빈광역시 청엽구 효빈동2가 523', fileUrl: 'docs/장원.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B08', name: '신덕', address: '효빈광역시 중구 신덕동 563', fileUrl: 'docs/신덕.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B09', name: '효빈', address: '효빈광역시 동구 사가당동 1079-2', fileUrl: 'docs/효빈.pdf', desc: '빈효선 <b>공식 굿즈샵</b> 보유 역', tags: ['환승역', '굿즈샵'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B10', name: '전덕', address: '효빈광역시 동구 덕현동 134', fileUrl: 'docs/전덕.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B12', name: '하성천', address: '효빈광역시 동구 덕현동 634', fileUrl: 'docs/하성천.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B13', name: '북택', address: '효빈광역시 안천구 북택동 730', fileUrl: 'docs/북택.pdf', desc: '헬로해피월드 <b>키타자와 하구미</b>(北沢) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B14', name: '수포', address: '효빈광역시 안천구 세익동 924', fileUrl: 'docs/수포.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B15', name: '당가', address: '효빈광역시 안천구 당가동 717', fileUrl: 'docs/당가.pdf', desc: '슈퍼스타 <b>탕 쿠쿠</b>(唐可) 성지', tags: ['환승역', '성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B16', name: '안천', address: '효빈광역시 안천구 안천동 1031', fileUrl: 'docs/안천.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B17', name: '타천', address: '효빈광역시 안천구 타천동 79', fileUrl: 'docs/타천.pdf', desc: '선샤인 <b>츠시마 요시코</b>(타천사) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B18', name: '리의', address: '효빈광역시 안천구 리의동 20', fileUrl: 'docs/리의.pdf', desc: '글리터그린 <b>우자와 리이</b> 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B19', name: '이자', address: '효빈광역시 안천구 이자동 9-19', fileUrl: 'docs/이자.pdf', desc: '선샤인 <b>사쿠라우치 리코</b>(莉子) 성지', tags: ['환승역', '성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B20', name: '영색무', address: '효빈광역시 안천구 영색무동 211', fileUrl: 'docs/영색무.pdf', desc: '마이고 노래 <b>실루엣 댄스</b>(影色舞) 성지', tags: ['환승역', '성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B21', name: '고해', address: '효빈광역시 탄성군 고해읍 이와리 81', fileUrl: 'docs/고해.pdf', desc: '선샤인 <b>타카미 치카</b>(高海) 성지', tags: ['환승역', '성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B22', name: '영내', address: '덕빈북도 약산시 후작동 544', fileUrl: 'docs/영내.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B23', name: '약산', address: '덕빈북도 약산시 보녕동 842', fileUrl: 'docs/약산.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B24', name: '홍하', address: '덕빈북도 약산시 홍하면 니지리 529', fileUrl: 'docs/홍하.pdf', desc: '봇치 더 락 <b>이지치 니지카</b>(虹夏) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B25', name: '화소', address: '덕빈북도 약산시 화소읍 상내리 423', fileUrl: 'docs/화소.pdf', tags: ['환승역'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B26', name: '근강', address: '덕빈북도 약산시 근강면 건상리 12-16', fileUrl: 'docs/근강.pdf', desc: '니지동 <b>코노에 카나타</b>(近江) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B27', name: '궁하', address: '덕빈북도 천주시 궁하구 궁하동 530', fileUrl: 'docs/궁하.pdf', desc: '니지동 <b>미야시타 아이</b>(宮下) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B28', name: '아이', address: '덕빈북도 천주시 궁하구 아이동 5', fileUrl: 'docs/아이.pdf', desc: '니지동 <b>미야시타 아이</b>(愛) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B29', name: '서팔', address: '덕빈북도 천주시 궁하구 서팔동 30', fileUrl: 'docs/서팔.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B30', name: '과림', address: '덕빈북도 천주시 궁하구 과림읍 궁하구 조향리 629', fileUrl: 'docs/과림.pdf', desc: '니지동 <b>아사카 카린</b>(果林) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B31', name: '시곡', address: '덕빈북도 천주시 궁하구 시곡면 궁하구 유소리 1027', fileUrl: 'docs/시곡.pdf', desc: '포핀파티 <b>이치가야 아리사</b>(市ヶ谷) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B32', name: '산취', address: '덕빈북도 천주시 궁하구 산취면 궁하구 사야리 519', fileUrl: 'docs/산취.pdf', desc: '포핀파티 <b>야마부키 사아야</b>(山吹) 성지', tags: ['성지순례'] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B33', name: '대뢰', address: '덕빈북도 천주시 천성구 대뢰동 102-7', fileUrl: 'docs/대뢰.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B34', name: '빈전', address: '덕빈북도 천주시 천성구 빈전동 120', fileUrl: 'docs/빈전.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B35', name: '천주중앙', address: '덕빈북도 천주시 천성구 중앙동2가 203', fileUrl: 'docs/천주중앙.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B36', name: '천주시청', address: '덕빈북도 천주시 천성구 평온동 531', fileUrl: 'docs/천주시청.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B37', name: '천주', address: '덕빈북도 천주시 천성구 천성동 463-2', fileUrl: 'docs/천주.pdf', tags: [] },
+        { line: 'bh', lineName: '빈효선', colorClass: 'line-bh', code: 'B38', name: '고남', address: '덕빈북도 낭원군 내덕면 고남리 241', fileUrl: 'docs/고남.pdf', tags: [] },
+    ];
+
+        // 1. 역 리스트 렌더링
+        function renderStations(data) {
+            const grid = document.getElementById('stationGrid');
+            grid.innerHTML = '';
+            data.forEach(st => {
+                const card = document.createElement('div');
+                card.className = 'station-card bg-white rounded-xl border border-slate-200 overflow-hidden cursor-pointer p-5 group';
+                card.onclick = () => openModal(st);
+                card.innerHTML = `
+                    <div class="flex justify-between mb-2">
+                        <span class="${st.colorClass} text-xs font-bold px-2 py-1 rounded">${st.lineName}</span>
+                        <span class="text-slate-400 text-xs">${st.code}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-sky-600">${st.name}</h3>
+                    <p class="text-xs text-slate-500 truncate">${st.address}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 2. 검색
+        function filterStations() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            renderStations(stations.filter(st => st.name.includes(query)));
+        }
+
+        // 3. ★ 핵심: 워드 파일 뷰어 실행 함수
+        async function openModal(st) {
+            const modal = document.getElementById('stationModal');
+            const header = document.getElementById('modalHeader');
+            const container = document.getElementById('docx-container');
+            const spinner = document.getElementById('loadingSpinner');
+            const downloadLink = document.getElementById('downloadLink');
+
+            // UI 초기화
+            header.className = `p-5 text-white flex justify-between items-center ${st.colorClass}`;
+            document.getElementById('modalLineBadge').innerText = st.lineName;
+            document.getElementById('modalName').innerText = st.name + '역';
+            downloadLink.href = st.fileUrl || '#';
+            
+            // 뷰어 컨테이너 비우기 (중요: 이전 내용 삭제)
+            // 단, 스피너는 지우지 않기 위해 while문 사용
+            while (container.firstChild) {
+                if (container.firstChild.id === 'loadingSpinner') break;
+                container.removeChild(container.firstChild);
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // 파일이 없으면 종료
+            if (!st.fileUrl) {
+                container.innerHTML += '<div class="flex items-center justify-center h-full text-slate-400">등록된 문서가 없습니다.</div>';
+                return;
+            }
+
+            // 워드 파일 불러오기 & 렌더링
+            try {
+                spinner.classList.remove('hidden'); // 로딩 시작
+
+                const response = await fetch(st.fileUrl);
+                if (!response.ok) throw new Error("파일을 찾을 수 없습니다.");
+                
+                const blob = await response.blob();
+                
+                // docx-preview 라이브러리 사용
+                await updateAsync(blob, container, container.firstChild); // 컨테이너에 렌더링
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML += `<div class="flex flex-col items-center justify-center h-full text-red-500 font-bold"><i class="fa-solid fa-circle-exclamation text-4xl mb-2"></i>문서를 불러오지 못했습니다.<br><span class="text-xs font-normal text-slate-500">Live Server로 실행했는지 확인해주세요.</span></div>`;
+            } finally {
+                spinner.classList.add('hidden'); // 로딩 끝
+            }
+        }
+
+        // docx-preview 렌더링 옵션
+        function updateAsync(data, target, before) {
+            return docx.renderAsync(data, target, target, {
+                className: "docx-wrapper", // 스타일 클래스
+                inWrapper: true,
+                ignoreWidth: false,
+                ignoreHeight: false,
+                breakPages: true, // 페이지 나누기
+                experimental: false
+            });
+        }
+
+        function closeModal(e) {
+            if (e && e.target !== e.currentTarget && e.target.tagName !== 'BUTTON' && !e.target.classList.contains('fa-xmark')) return;
+            document.getElementById('stationModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 초기 실행
+        renderStations(stations);
+    </script>
+</body>
+</html>

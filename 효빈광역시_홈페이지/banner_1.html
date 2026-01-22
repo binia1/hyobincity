@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시민안전보험 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        /* 아코디언 애니메이션 */
+        .accordion-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-content.active {
+            opacity: 1;
+        }
+        /* 청구서 모달 스크롤바 */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* ★★★ 인쇄 전용 스타일 (중요) ★★★ */
+        @media print {
+            /* 페이지 설정: 여백 제거, A4 사이즈 */
+            @page { margin: 0; size: auto; }
+            
+            /* 배경 그래픽 출력 허용 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 모든 요소 숨김 처리 후 필요한 부분만 노출 */
+            body * { visibility: hidden; }
+            
+            /* 모달 컨테이너와 출력 영역만 보이게 설정 */
+            #claimFormModal, #printableArea, #printableArea * { 
+                visibility: visible; 
+            }
+            
+            /* 모달 배경색 및 위치 재설정 (전체화면 덮기) */
+            #claimFormModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background: white;
+                overflow: visible !important;
+                z-index: 9999;
+                display: block !important;
+            }
+
+            /* 실제 A4 용지 영역 위치 잡기 */
+            #printableArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm; /* A4 너비 */
+                margin: 0 auto;
+                padding: 20mm; /* 출력 시 여백 */
+                border: none;
+                box-shadow: none;
+                transform: scale(1); /* 크기 조절 없음 */
+            }
+
+            /* 화면상의 버튼, 헤더 등 숨김 */
+            .no-print, header, footer, .modal-toolbar { 
+                display: none !important; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-40 shadow-lg no-print">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <div class="w-full bg-emerald-700 py-16 text-center text-white relative overflow-hidden no-print">
+        <div class="absolute inset-0 bg-black/10"></div>
+        <div class="relative z-10 max-w-4xl mx-auto px-4">
+            <div class="inline-flex items-center gap-2 bg-emerald-800/50 px-3 py-1 rounded-full text-emerald-100 text-sm font-medium mb-4 backdrop-blur-sm border border-emerald-500/30">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                2025년도 시민안전보험<br><span class="block text-xs mt-1 text-emerald-100">보장기간: 2025.01.01 ~ 2025.12.31</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black mb-4 leading-tight">효빈 시민이라면 누구나<br><span class="text-emerald-300">자동으로 보장</span>받습니다</h1>
+            <p class="text-slate-100 text-lg md:text-xl opacity-90">예기치 못한 재난과 사고로부터 시민을 지키는 든든한 울타리</p>
+        </div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-4 py-12 w-full mb-20 flex-grow no-print">
+        
+        <!-- 핵심 요약 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 -mt-20 relative z-20">
+            <!-- 가입 대상 카드 -->
+            <div onclick="openInfoModal('target')" class="bg-white p-6 rounded-xl shadow-lg border border-slate-100 flex flex-col items-center text-center hover:-translate-y-1 transition duration-300 cursor-pointer group">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-bold text-lg text-slate-800 mb-2">가입 대상</h3>
+                <p class="text-slate-600 text-sm break-keep">효빈광역시에 주민등록을 둔<br>모든 시민 (등록 외국인 포함)</p>
+                <span class="mt-4 text-xs text-blue-500 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">상세보기 <i data-lucide="chevron-right" class="w-3 h-3"></i></span>
+            </div>
+            <!-- 보험료 부담 카드 -->
+            <div onclick="openInfoModal('cost')" class="bg-white p-6 rounded-xl shadow-lg border border-slate-100 flex flex-col items-center text-center hover:-translate-y-1 transition duration-300 cursor-pointer group">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition">
+                    <i data-lucide="credit-card" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-bold text-lg text-slate-800 mb-2">보험료 부담</h3>
+                <p class="text-slate-600 text-sm break-keep">효빈광역시가 <span class="text-emerald-600 font-bold">전액 부담</span><br>(시민 부담 0원)</p>
+                <span class="mt-4 text-xs text-emerald-500 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">상세보기 <i data-lucide="chevron-right" class="w-3 h-3"></i></span>
+            </div>
+            <!-- 가입 절차 카드 -->
+            <div onclick="openInfoModal('process')" class="bg-white p-6 rounded-xl shadow-lg border border-slate-100 flex flex-col items-center text-center hover:-translate-y-1 transition duration-300 cursor-pointer group">
+                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition">
+                    <i data-lucide="file-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-bold text-lg text-slate-800 mb-2">가입 절차</h3>
+                <p class="text-slate-600 text-sm break-keep">별도 가입신청 없이<br><span class="text-orange-600 font-bold">자동 가입</span></p>
+                <span class="mt-4 text-xs text-orange-500 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">상세보기 <i data-lucide="chevron-right" class="w-3 h-3"></i></span>
+            </div>
+        </div>
+
+        <!-- 보장 내용 상세 -->
+        <section class="mb-16">
+            <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
+                <strong class="text-slate-700">※ 보험 계약 정보</strong><br>
+                보험사: 효빈시 시민안전보험 공동수탁사 ｜ 계약기간: 2025.01.01 ~ 2025.12.31 ｜ 본 보험은 효빈광역시가 계약·운영합니다.
+            </div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-1 h-8 bg-emerald-600 rounded-full"></div>
+                <h2 class="text-2xl font-bold text-slate-800">보장 내용 및 금액</h2>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 w-2/3">보장 항목</th>
+                                <th class="px-6 py-4 w-1/3 text-right">최대 보장 한도</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 mb-1">자연재해 사망</div>
+                                    <div class="text-xs text-slate-500">일사병, 열사병, 저체온증 포함</div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-700">2,000만원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 mb-1">폭발, 화재, 붕괴 상해 사망 / 후유장해</div>
+                                    <div class="text-xs text-slate-500">가스 폭발 등 포함</div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-700">2,000만원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 mb-1">대중교통 이용 중 상해 사망 / 후유장해</div>
+                                    <div class="text-xs text-slate-500">전세버스 포함 (택시, 렌터카 제외)</div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-700">2,000만원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 mb-1">강도 상해 사망 / 후유장해</div>
+                                    <div class="text-xs text-slate-500">의사상자 상해 보상금 포함</div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-700">1,000만원</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 mb-1">스쿨존 교통사고 부상치료비</div>
+                                    <div class="text-xs text-slate-500">만 12세 이하 (부상등급 1~5급)</div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-700">1,000만원</td>
+                            </tr>
+                             <tr class="hover:bg-slate-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 mb-1">개물림 사고 응급실 내원 치료비</div>
+                                    <div class="text-xs text-slate-500">응급실 내원하여 진료받은 경우</div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-emerald-700">30만원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <p class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                상법 제732조에 따라 만 15세 미만자의 사망 담보는 보장하지 않습니다.
+            </p>
+        </section>
+        <div class="mb-12 p-6 bg-white border border-slate-200 rounded-xl shadow-sm">
+            <h3 class="font-bold text-slate-800 mb-2">보험금 청구 시 유의사항</h3>
+            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1">
+                <li>본 시민안전보험은 개인 보험과 관계없이 중복 보장이 가능합니다.</li>
+                <li>사고 발생일로부터 3년 이내에 청구하지 않을 경우 청구권은 소멸됩니다.</li>
+                <li>고의적 사고, 범죄행위, 전쟁·테러, 해외에서 발생한 사고는 보장 대상에서 제외됩니다.</li>
+                <li>보험금 지급 여부는 보험사의 심사 결과에 따라 결정됩니다.</li>
+            </ul>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 청구 절차 -->
+            <section>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-1 h-8 bg-blue-600 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">보험금 청구 절차 및 필요 서류</h2>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="relative pl-8 border-l-2 border-slate-200 space-y-8">
+                        <div class="relative">
+                            <div class="absolute -left-[41px] bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ring-4 ring-white">1</div>
+                            <h4 class="font-bold text-slate-800 mb-1">사고 발생</h4>
+                            <p class="text-sm text-slate-500">재난 및 안전사고 발생</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[41px] bg-slate-100 text-slate-500 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ring-4 ring-white">2</div>
+                            <h4 class="font-bold text-slate-800 mb-1">보험사 접수</h4>
+                            <p class="text-sm text-slate-500">콜센터 문의 및 사고 접수<br><strong class="text-blue-600">1577-5939 (시민안전보험 통합콜센터)</strong></p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[41px] bg-slate-100 text-slate-500 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ring-4 ring-white">3</div>
+                            <h4 class="font-bold text-slate-800 mb-1">서류 심사</h4>
+                            <p class="text-sm text-slate-500">증빙 서류 검토 및 보상 여부 심사</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[41px] bg-emerald-100 text-emerald-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ring-4 ring-white">4</div>
+                            <h4 class="font-bold text-slate-800 mb-1">보험금 지급</h4>
+                            <p class="text-sm text-slate-500">청구서 및 구비서류 접수일로부터 4주 이내 지급</p><p class="text-xs text-slate-400 mt-1">* 필요서류: 보험금 청구서, 신분증 사본, 통장 사본, 진단서·영수증 등 사고 입증 서류</p>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-100">
+                        <button onclick="openClaimFormModal()" class="w-full flex items-center justify-center gap-2 bg-slate-800 text-white py-3 rounded-lg hover:bg-slate-700 transition font-bold">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            보험금 청구서 양식 보기 및 인쇄
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 자주 묻는 질문 (FAQ) -->
+            <section>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-1 h-8 bg-orange-500 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">자주 묻는 질문</h2>
+                </div>
+                <div class="space-y-3">
+                    <!-- FAQ 아이템 1 -->
+                    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                        <button onclick="toggleAccordion(1)" class="w-full px-5 py-4 flex justify-between items-center text-left hover:bg-slate-50 transition">
+                            <span class="font-bold text-slate-700 text-sm">Q. 다른 보험에 가입되어 있어도 중복 보장이 되나요?</span>
+                            <i data-lucide="chevron-down" id="icon-1" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="content-1" class="accordion-content bg-slate-50 text-sm text-slate-600 px-5">
+                            <div class="py-4 border-t border-slate-100">
+                                네, 가능합니다. 개인적으로 가입하신 실손보험이나 생명보험 등과 상관없이 <strong>중복으로 보장</strong>받으실 수 있습니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 아이템 2 -->
+                    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                        <button onclick="toggleAccordion(2)" class="w-full px-5 py-4 flex justify-between items-center text-left hover:bg-slate-50 transition">
+                            <span class="font-bold text-slate-700 text-sm">Q. 효빈시가 아닌 다른 지역에서 다쳐도 보장되나요?</span>
+                            <i data-lucide="chevron-down" id="icon-2" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="content-2" class="accordion-content bg-slate-50 text-sm text-slate-600 px-5">
+                            <div class="py-4 border-t border-slate-100">
+                                네, 사고 발생 장소와 관계없이 <strong>대한민국 어디에서나(해외 제외)</strong> 사고가 발생하더라도 효빈시민이라면 보장받으실 수 있습니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 아이템 3 -->
+                    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                        <button onclick="toggleAccordion(3)" class="w-full px-5 py-4 flex justify-between items-center text-left hover:bg-slate-50 transition">
+                            <span class="font-bold text-slate-700 text-sm">Q. 이사 온 지 얼마 안 되었는데 가입해야 하나요?</span>
+                            <i data-lucide="chevron-down" id="icon-3" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="content-3" class="accordion-content bg-slate-50 text-sm text-slate-600 px-5">
+                            <div class="py-4 border-t border-slate-100">
+                                별도의 가입 절차가 없습니다. 전입신고가 완료되어 효빈시에 주민등록이 된 시점부터 <strong>자동으로 가입</strong>되며, 전출 시 자동 해지됩니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 아이템 4 -->
+                    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                        <button onclick="toggleAccordion(4)" class="w-full px-5 py-4 flex justify-between items-center text-left hover:bg-slate-50 transition">
+                            <span class="font-bold text-slate-700 text-sm">Q. 청구 기간은 언제까지 인가요?</span>
+                            <i data-lucide="chevron-down" id="icon-4" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                        </button>
+                        <div id="content-4" class="accordion-content bg-slate-50 text-sm text-slate-600 px-5">
+                            <div class="py-4 border-t border-slate-100">
+                                사고 발생일로부터 <strong>3년 이내</strong>에 청구하셔야 합니다. 기간이 경과하면 청구권이 소멸됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10 no-print">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">
+            <p class="mb-2">효빈광역시청 안전총괄과 | 문의: 079-281-2382</p>
+            COPYRIGHT © 2025 HYOBIN CITY. ALL RIGHTS RESERVED.
+            <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
+                ※ 본 안내는 효빈광역시 시민안전보험 운영을 위한 설명 자료이며, 보험금 지급에 관한 세부 사항은 보험 약관 및 관계 법령에 따릅니다.
+                보험 보장 내용, 지급 기준 및 절차는 계약 내용에 따라 변경될 수 있으며, 최종 해석 권한은 보험사에 있습니다.
+            </p>
+        </div>
+    </footer>
+
+    <!-- 실제 청구서 양식 모달 -->
+    <div id="claimFormModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto no-print">
+        <div class="bg-white w-full max-w-3xl rounded-lg shadow-2xl my-8 flex flex-col max-h-[90vh] modal-content">
+            <!-- Toolbar -->
+            <div class="bg-slate-800 text-white p-4 rounded-t-lg flex justify-between items-center sticky top-0 z-10 shrink-0 modal-toolbar">
+                <h3 class="font-bold flex items-center gap-2"><i data-lucide="file-text"></i> 보험금 청구서 양식</h3>
+                <div class="flex gap-2">
+                    <!-- window.print() 호출 -->
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm font-bold transition flex items-center gap-1">
+                        <i data-lucide="printer"></i> 인쇄하기
+                    </button>
+                    <button onclick="closeClaimFormModal()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm transition">닫기</button>
+                </div>
+            </div>
+            
+            <!-- Form Paper View -->
+            <div class="p-8 bg-slate-200 overflow-y-auto custom-scrollbar flex-grow">
+                <div id="printableArea" class="bg-white p-10 shadow-lg mx-auto max-w-[210mm] min-h-[297mm] text-slate-800 border border-slate-300 relative">
+                    <!-- Form Header -->
+                    <div class="text-center border-b-4 border-slate-800 pb-4 mb-8">
+                        <h1 class="text-3xl font-black tracking-widest text-slate-900 font-serif">보험금 청구서</h1>
+                        <p class="text-sm mt-2 text-slate-600">※ 접수번호 : <span class="inline-block w-32 border-b border-dotted border-slate-400"></span> (기재하지 않음)</p>
+                    </div>
+
+                    <!-- Section 1: Insured Person -->
+                    <h4 class="font-bold text-lg mb-2 border-l-4 border-slate-800 pl-2 bg-slate-100 py-1">1. 피보험자 (사고 당사자) 정보</h4>
+                    <table class="w-full text-sm border-collapse border border-slate-400 mb-6">
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2 w-24">성 명</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium" placeholder="홍길동"></td>
+                            <th class="border border-slate-400 bg-slate-50 p-2 w-24">주민번호</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium" placeholder="000000-0000000"></td>
+                        </tr>
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2">연 락 처</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium" placeholder="010-0000-0000"></td>
+                            <th class="border border-slate-400 bg-slate-50 p-2">자택전화</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium"></td>
+                        </tr>
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2">주 소</th>
+                            <td colspan="3" class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium" placeholder="효빈광역시 ..."></td>
+                        </tr>
+                    </table>
+
+                    <!-- Section 2: Accident Info -->
+                    <h4 class="font-bold text-lg mb-2 border-l-4 border-slate-800 pl-2 bg-slate-100 py-1">2. 사고 내용</h4>
+                    <table class="w-full text-sm border-collapse border border-slate-400 mb-6">
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2 w-24">사고 일시</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium" placeholder="2025년  월  일  시경"></td>
+                        </tr>
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2">사고 장소</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium" placeholder=""></td>
+                        </tr>
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2">사고 경위</th>
+                            <td class="border border-slate-400 p-2 h-24 align-top"><textarea class="w-full h-full bg-transparent outline-none resize-none font-medium leading-relaxed" placeholder="육하원칙에 따라 상세히 기재해 주세요."></textarea></td>
+                        </tr>
+                    </table>
+
+                    <!-- Section 3: Bank Account -->
+                    <h4 class="font-bold text-lg mb-2 border-l-4 border-slate-800 pl-2 bg-slate-100 py-1">3. 보험금 수령 계좌</h4>
+                    <table class="w-full text-sm border-collapse border border-slate-400 mb-6">
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2 w-24">은 행 명</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium"></td>
+                            <th class="border border-slate-400 bg-slate-50 p-2 w-24">예 금 주</th>
+                            <td class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium"></td>
+                        </tr>
+                        <tr>
+                            <th class="border border-slate-400 bg-slate-50 p-2">계좌번호</th>
+                            <td colspan="3" class="border border-slate-400 p-2"><input type="text" class="w-full bg-transparent outline-none font-medium"></td>
+                        </tr>
+                    </table>
+
+                    <!-- Agreement -->
+                    <div class="text-xs text-slate-600 mb-8 leading-relaxed text-justify p-4 border border-slate-200 bg-slate-50">
+                        본인은 효빈광역시 시민안전보험의 피보험자로서 상기와 같이 보험금을 청구하며, 보험금 심사를 위해 「개인정보 보호법」에 따라 귀사가 본인의 개인(신용)정보를 수집·이용·조회·제공하는 것에 동의합니다.
+                        <br><br>
+                        <div class="flex justify-end gap-6 font-bold text-sm text-slate-800 mt-2">
+                            <label class="flex items-center gap-1 cursor-pointer hover:text-blue-600"><input type="checkbox" class="accent-slate-800"> 개인정보 수집·이용 동의</label>
+                            <label class="flex items-center gap-1 cursor-pointer hover:text-blue-600"><input type="checkbox" class="accent-slate-800"> 고유식별정보 처리 동의</label>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="text-center mt-12 mb-8">
+                        <p class="text-lg mb-8 font-serif">2025년 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;월 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;일</p>
+                        <div class="flex justify-center items-center gap-4 text-lg">
+                            <span>청구인(작성자) : </span>
+                            <input type="text" class="border-b border-slate-400 w-32 text-center outline-none bg-transparent font-serif text-xl" placeholder="서명">
+                            <span class="text-sm text-slate-500">(서명 또는 인)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-4 left-0 w-full text-center text-xs text-slate-400">
+                        HYOBIN CITY CITIZEN SAFETY INSURANCE CLAIM FORM
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 정보 안내 모달 -->
+    <div id="infoModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm no-print">
+        <div class="bg-white rounded-xl w-full max-w-md p-8 shadow-2xl transform transition-all scale-100">
+            <div class="flex justify-between items-start mb-4">
+                <div id="infoModalIcon" class="w-12 h-12 rounded-full flex items-center justify-center mb-2">
+                    <!-- 아이콘 JS로 주입 -->
+                </div>
+                <button onclick="closeInfoModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-800 mb-4" id="infoModalTitle">제목</h3>
+            <div class="text-slate-600 text-sm leading-relaxed space-y-4" id="infoModalContent">
+                <!-- 내용 JS로 주입 -->
+            </div>
+            <button onclick="closeInfoModal()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-900 transition mt-8">확인</button>
+        </div>
+    </div>
+
+    <script>
+        // 아이콘 초기화
+        lucide.createIcons();
+
+        // 아코디언 토글 함수
+        function toggleAccordion(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                content.classList.remove('active');
+                icon.style.transform = 'rotate(0deg)';
+                content.style.paddingBottom = '0px'; 
+            } else {
+                content.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.style.transform = 'rotate(180deg)';
+                content.style.paddingBottom = '16px'; 
+            }
+        }
+
+        // 청구서 모달 열기/닫기
+        function openClaimFormModal() {
+            document.getElementById('claimFormModal').classList.remove('hidden');
+        }
+
+        function closeClaimFormModal() {
+            document.getElementById('claimFormModal').classList.add('hidden');
+        }
+
+        // 상세 정보 모달 데이터
+        const infoData = {
+            target: {
+                title: "가입 대상 상세 안내",
+                iconClass: "bg-blue-100 text-blue-600",
+                iconName: "users",
+                content: `
+                    <p>효빈광역시에 주민등록이 되어 있는 <strong>모든 시민</strong>은 별도의 가입 절차 없이 피보험자가 됩니다.</p>
+                    <ul class="list-disc pl-5 space-y-1 bg-slate-50 p-3 rounded-lg mt-2">
+                        <li>효빈시 주민등록자 전체</li>
+                        <li>등록 외국인 (거소등록 동포 포함)</li>
+                    </ul>
+                    <p class="text-xs text-slate-500 mt-2">* 전입 시 자동 가입되며, 타 지역으로 전출 시 자동 해지됩니다.</p>
+                `
+            },
+            cost: {
+                title: "보험료 납부 안내",
+                iconClass: "bg-emerald-100 text-emerald-600",
+                iconName: "credit-card",
+                content: `
+                    <p>시민안전보험의 보험료는 <strong>효빈광역시청에서 전액 부담</strong>하고 보험사에 일괄 납부합니다.</p>
+                    <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100 mt-3 text-center">
+                        <span class="block text-sm text-slate-500 mb-1">시민 부담금</span>
+                        <span class="block text-2xl font-bold text-emerald-600">0원</span>
+                    </div>
+                    <p class="mt-3">사고 발생 시 보험금 청구 절차만 진행하시면 되며, 가입비용은 전혀 발생하지 않습니다.</p>
+                `
+            },
+            process: {
+                title: "가입 절차 안내",
+                iconClass: "bg-orange-100 text-orange-600",
+                iconName: "file-check",
+                content: `
+                    <p>효빈시민안전보험은 <strong>'자동 가입'</strong> 제도입니다.</p>
+                    <p class="mt-2">보험사나 시청에 방문하여 가입 신청서를 작성하실 필요가 없습니다. 효빈시민이라는 자격만 충족되면 365일 24시간 자동으로 보장 혜택이 적용됩니다.</p>
+                    <div class="flex items-center gap-2 mt-4 text-orange-600 font-bold bg-orange-50 p-3 rounded">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        별도 가입 신청 불필요
+                    </div>
+                `
+            }
+        };
+
+        function openInfoModal(type) {
+            const data = infoData[type];
+            if(!data) return;
+
+            document.getElementById('infoModalTitle').innerText = data.title;
+            document.getElementById('infoModalContent').innerHTML = data.content;
+            
+            const iconContainer = document.getElementById('infoModalIcon');
+            iconContainer.className = `w-12 h-12 rounded-full flex items-center justify-center mb-2 ${data.iconClass}`;
+            iconContainer.innerHTML = `<i data-lucide="${data.iconName}" class="w-6 h-6"></i>`;
+
+            document.getElementById('infoModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeInfoModal() {
+            document.getElementById('infoModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

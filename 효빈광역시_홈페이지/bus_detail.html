@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>버스 상세정보 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Noto Sans KR', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <header class="bg-[#1e293b] text-white"><div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center"><div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'"><img src="logo.png" alt="로고" class="h-10 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold">[로고 이미지]</div><span class="text-2xl font-bold tracking-wider">효빈광역시</span></div><div class="flex items-center space-x-5 text-gray-300"><button onclick="location.href='bus.html'" class="hover:text-white flex items-center gap-1"><i data-lucide="arrow-left" class="w-5 h-5"></i><span class="text-sm font-bold">목록으로</span></button></div></div></header>
+
+    <main class="max-w-4xl mx-auto px-4 py-10 w-full mb-20">
+        <!-- 노선 헤더 -->
+        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8 border-blue-600" id="bus-header">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span id="bus-type" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-sm font-bold mb-2 inline-block">간선버스</span>
+                    <h1 id="bus-num" class="text-4xl font-black text-slate-800 mb-1">100번</h1>
+                    <p id="bus-route" class="text-lg text-slate-600 font-medium">고송지구 ↔ 효빈시청 ↔ 남구청</p>
+                </div>
+                <div class="text-right text-slate-500 text-sm">
+                    <p>배차간격: <span id="bus-interval" class="font-bold text-slate-700">8분</span></p>
+                    <p>첫차: <span id="bus-first" class="font-bold text-slate-700">05:30</span></p>
+                    <p>막차: <span id="bus-last" class="font-bold text-slate-700">23:00</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 노선도 (수직 타임라인 형태) -->
+        <div class="bg-white p-8 rounded-xl shadow-md border border-slate-200">
+            <h3 class="text-xl font-bold text-slate-800 mb-6">실시간 운행 정보</h3>
+            <div class="relative pl-4 border-l-4 border-slate-200 space-y-8" id="bus-stops">
+                <!-- JS로 정류장 생성 -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10"><div class="max-w-6xl mx-auto px-4 text-center text-slate-400">COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.</div></footer>
+    
+    <script>
+        lucide.createIcons();
+        const urlParams = new URLSearchParams(window.location.search);
+        const routeId = urlParams.get('route') || '100';
+
+        const routes = {
+            '100': { type: '간선', color: 'border-blue-600', badge: 'bg-blue-100 text-blue-600', stops: ['고송지구(기점)', '고송역', '고송교차로', '청엽구청', '아논타워', '효빈시청', '효빈역', '중구청', '남구청(종점)'] },
+            '5000': { type: '급행', color: 'border-red-500', badge: 'bg-red-100 text-red-600', stops: ['효빈국제공항(기점)', '공항신도시', '효빈대학교', '고속버스터미널', '효빈시청', '효빈역(종점)'] },
+            '11-1': { type: '지선', color: 'border-green-600', badge: 'bg-green-100 text-green-600', stops: ['탄성군청(기점)', '고해읍사무소', '고해역', '도변읍', '도변항', '송난면사무소', '가난리(종점)'] },
+            'town5': { type: '마을', color: 'border-yellow-500', badge: 'bg-yellow-100 text-yellow-600', stops: ['효빈역(기점)', '역전시장', '조유공원', '효빈초등학교', '산동네입구', '산동네마을회관(종점)'] }
+        };
+
+        const data = routes[routeId] || routes['100'];
+
+        document.getElementById('bus-num').innerText = routeId + '번';
+        document.getElementById('bus-type').innerText = data.type;
+        document.getElementById('bus-type').className = `${data.badge} px-2 py-1 rounded text-sm font-bold mb-2 inline-block`;
+        document.getElementById('bus-header').className = `bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8 ${data.color.replace('border-', 'border-l-')}`;
+        document.getElementById('bus-route').innerText = `${data.stops[0]} ↔ ${data.stops[data.stops.length-1]}`;
+
+        const stopsContainer = document.getElementById('bus-stops');
+        data.stops.forEach((stop, index) => {
+            // 랜덤으로 버스 아이콘 배치
+            const hasBus = Math.random() < 0.3; 
+            const busIcon = hasBus ? `<div class="absolute -left-[26px] top-0 w-10 h-10 bg-white border-2 ${data.color} rounded-full flex items-center justify-center text-slate-700 shadow-md z-10"><i data-lucide="bus" class="w-5 h-5"></i></div>` : `<div class="absolute -left-[11px] top-2 w-4 h-4 rounded-full bg-slate-300 border-2 border-white"></div>`;
+            
+            stopsContainer.innerHTML += `
+                <div class="relative pl-6">
+                    ${busIcon}
+                    <h4 class="font-bold text-lg text-slate-800 ${hasBus ? 'text-blue-600' : ''}">${stop}</h4>
+                    <p class="text-xs text-slate-400">000${index+1}</p>
+                </div>
+            `;
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>

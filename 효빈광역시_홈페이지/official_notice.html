@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고시&공고 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        /* 모달 오버레이 스타일 (1차 모달) */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+        }
+        /* 2차 모달을 위한 스타일 */
+        .sub-modal-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(1px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 영역 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 제목 및 설명 -->
+    <div class="w-full bg-slate-700 py-12 text-center text-white">
+        <h1 class="text-4xl font-black mb-3">고시 & 공고</h1>
+        <p class="text-slate-300">효빈시의 주요 행정 소식을 알려드립니다.</p>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+        <!-- 네비게이션 탭 -->
+        <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap">
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='news.html'">새소식</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='construction.html'">공사알림</button>
+            <!-- 현재 선택된 탭 -->
+            <button class="px-6 py-3 text-lg text-slate-900 font-black border-b-4 border-slate-900 -mb-[4px]" onclick="location.href='notice.html'">고시&공고</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='recruit.html'">시험채용</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='press.html'">보도자료</button>
+        </div>
+
+        <!-- 고시/공고 목록 테이블 -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full min-w-max text-sm text-left text-slate-500">
+                <!-- 테이블 헤더 -->
+                <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3 w-20 text-center">번호</th>
+                        <th class="px-6 py-3 w-32 text-center">담당부서</th>
+                        <th class="px-6 py-3 min-w-[300px]">제목</th>
+                        <th class="px-6 py-3 w-24 text-center">첨부</th>
+                        <th class="px-6 py-3 w-32 text-center">공고일</th>
+                    </tr>
+                </thead>
+                <!-- 테이블 본문 (JavaScript로 채워짐) -->
+                <tbody id="notice-list">
+                    <!-- 데이터가 여기에 삽입됩니다 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 페이징 영역 (단순 예시) -->
+        <div class="flex justify-center mt-8">
+            <button class="px-4 py-2 text-slate-600 font-bold bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-100 transition duration-150">1</button>
+        </div>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">
+            COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+    
+    <!-- 1차 모달: 고시/공고 상세 정보 -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-800" id="modal-title">고시/공고 상세</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-500" id="modal-sub-info"></p>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium">제목</p>
+                    <p class="text-xl font-bold text-slate-800" id="modal-name"></p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div><p class="text-xs text-slate-500 font-medium">담당 부서</p><p class="font-semibold text-slate-700" id="modal-department"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">공고일</p><p class="font-semibold text-slate-700" id="modal-date"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">조회수</p><p class="font-semibold text-slate-700" id="modal-views"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">담당자 연락처</p><p class="font-semibold text-slate-700" id="modal-contact"></p></div>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-2">상세 내용</p>
+                    <div class="p-4 bg-slate-50 rounded-lg text-slate-700 h-60 overflow-y-auto leading-relaxed text-base" id="modal-detail-content">
+                        <!-- 상세 내용이 여기에 들어갑니다 -->
+                    </div>
+                </div>
+                <div id="modal-attachments" class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-2">첨부 파일 (클릭 시 팝업)</p>
+                    <ul class="space-y-2 text-sm" id="attachment-list">
+                        <!-- 첨부 파일 목록이 여기에 들어갑니다 -->
+                    </ul>
+                </div>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-6 border-t flex justify-end">
+                <button onclick="closeModal()" class="bg-slate-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-slate-600 transition duration-150">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2차 모달: 첨부파일 다운로드 팝업 -->
+    <div id="attachment-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center sub-modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 transform transition-all duration-300 scale-95 opacity-0" id="attachment-modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-4 border-b flex justify-between items-center bg-blue-50 rounded-t-xl">
+                <h2 class="text-lg font-bold text-blue-700">첨부 파일 다운로드</h2>
+                <button onclick="closeAttachmentModal()" class="text-blue-400 hover:text-blue-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4 text-center">
+                <i data-lucide="file-check" class="w-10 h-10 mx-auto text-green-500"></i>
+                <p class="text-base text-slate-700">다음 파일을 다운로드하시겠습니까?</p>
+                <p class="font-bold text-lg text-slate-900 break-all" id="attachment-file-name"></p>
+                <p class="text-sm text-slate-500" id="attachment-file-size"></p>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-4 border-t flex justify-center space-x-3">
+                <button onclick="closeAttachmentModal()" class="bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-semibold hover:bg-slate-400 transition duration-150">취소</button>
+                <button onclick="simulateDownload()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-150">다운로드</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript 스크립트 -->
+    <script>
+        lucide.createIcons();
+
+        // 헬퍼 함수
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateRandomDate(start, end) {
+            const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+            return new Date(randomTime);
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}.${m}.${d}`;
+        }
+
+        function getRandomFourDigits() {
+            return String(Math.floor(1000 + Math.random() * 9000));
+        }
+
+        function getRandomPhoneNumber() {
+            const middle = getRandomFourDigits();
+            const last = getRandomFourDigits();
+            return `079-${middle}-${last}`;
+        }
+        
+        // 배열을 섞는 함수 (Fisher-Yates 알고리즘)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 1. 고시/공고 데이터 정의
+        const departments = [
+            "도시계획과", "교통행정과", "보건정책과", "재무과", "환경정책과", 
+            "주택과", "복지정책과", "문화예술과", "경제정책과", "일자리창출과"
+        ];
+        
+        const noticeTypes = ["고시", "공고"];
+        
+        // 제목 중복을 피하기 위해 충분히 많은 고유한 제목 목록을 정의
+        const uniqueTitlesPool = [
+            "효빈 도시관리계획(지구단위계획: 고송지구) 결정(변경) 및 지형도면 고시",
+            "2026년도 효빈광역시 개인택시 운송사업 면허 양수 자격요건 공고",
+            "동절기 코로나19 및 인플루엔자 예방접종 위탁의료기관 지정 현황 공고",
+            "공시송달공고(지방세 체납고지서 반송분) 알림",
+            "2026년 효빈시 주택 공급계획 확정 고시",
+            "폐기물처리시설 설치계획 및 입지 선정계획 결정 고시",
+            "문화재 보호구역 지정 및 지형도면 고시",
+            "소상공인 정책자금 지원 공고 및 접수 안내",
+            "지역 일자리 창출을 위한 민간위탁사업자 공모 공고",
+            "도시재생 뉴딜사업지구 지정 및 사업계획 승인 고시",
+            "공공기관 청렴도 향상을 위한 시민 감사단 모집 공고",
+            "효빈시 일반회계 및 특별회계 제1회 추가경정예산 고시",
+            "2026년도 효빈시 소규모 공동주택 관리 지원 공고",
+            "재난 및 안전관리 기본 조례 일부 개정 조례 공포",
+            "미세먼지 저감 및 관리 종합계획 수립 연구 용역 공고",
+            "효빈광역시 벤처기업 육성 촉진지구 지정 및 관리 지침 고시",
+            "제11회 효빈시 공공디자인 공모전 개최 공고",
+            "효빈시 환경친화적 자동차 보급 목표 고시",
+            "불법 옥외광고물 정비계획 수립 및 단속 강화 공고",
+            "2026년 효빈광역시 시정 발전 유공 시민 표창 계획 공고",
+            "공공청사 에너지 사용 합리화 방안에 대한 고시",
+            "도시철도 5호선 연장 사업에 따른 보상계획 공고",
+            "농촌지역 개발사업 기본계획 변경 승인 고시",
+        ];
+        
+        // 2. 더미 데이터 생성
+        const noticeData = [];
+        const today = new Date();
+        const startSeq = 3000; 
+        const numberOfPosts = 20;
+
+        // 중복 방지를 위해 제목 풀을 섞고 필요한 만큼만 자릅니다.
+        const titles = [...uniqueTitlesPool];
+        shuffleArray(titles);
+        const uniqueTitles = titles.slice(0, numberOfPosts);
+
+        for (let i = 0; i < numberOfPosts; i++) {
+            const postDate = generateRandomDate(new Date(2025, 10, 1), today);
+            const noticeType = getRandomItem(noticeTypes);
+            const hasAttachment = Math.random() > 0.3; // 70% 확률로 첨부파일 있음
+            const department = getRandomItem(departments);
+            const title = uniqueTitles[i]; // 중복 없는 고유 제목 사용
+            const views = getRandomInt(150, 5000);
+            const contact = getRandomPhoneNumber();
+            
+            let detailContent = `
+                <p class="mb-3"><strong>[${noticeType}]</strong> 본 고시/공고는 시민 여러분의 알권리를 충족시키고 행정의 투명성을 제고하기 위해 작성되었습니다. 상세 내용은 아래와 같습니다.</p>
+                <p class="mb-3">${department}에서 추진하는 주요 사업의 계획 확정 및 변경 사항에 대한 행정 고시입니다. 관련 법규 및 지침에 따라 공정하게 처리되었으며, 시민의 의견을 충분히 수렴하였습니다.</p>
+                <p class="mb-3">본 고시/공고에 이의가 있거나 추가 문의사항이 있는 경우, 반드시 공고일로부터 14일 이내에 ${department}로 문의하시기 바랍니다. 기한 내에 이의 제기가 없을 시 본 고시/공고 내용에 동의하는 것으로 간주됩니다.</p>
+                <p>관련 자료는 ${department}에 비치되어 있으며, 열람 가능합니다.</p>
+            `;
+            
+            const attachments = [];
+            if (hasAttachment) {
+                const count = getRandomInt(1, 3);
+                for(let j = 1; j <= count; j++) {
+                    attachments.push({ name: `${department}_고시공고_${startSeq - i}_첨부파일_${j}.pdf`, size: `${getRandomInt(500, 5000)} KB` });
+                }
+            }
+
+            noticeData.push({
+                id: startSeq - i,
+                department: department,
+                title: title,
+                postDate: formatDate(postDate),
+                hasAttachment: hasAttachment,
+                noticeType: noticeType,
+                views: views,
+                contact: contact,
+                detailContent: detailContent,
+                attachments: attachments
+            });
+        }
+        
+        // 3. 테이블 렌더링 함수
+        function renderNoticeList() {
+            const tbody = document.getElementById('notice-list');
+            tbody.innerHTML = ''; // 기존 목록 초기화
+
+            noticeData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 border-b cursor-pointer';
+                row.setAttribute('onclick', `showDetails(${item.id})`);
+                
+                const attachmentIcon = item.hasAttachment 
+                    ? `<i data-lucide="file-text" class="w-4 h-4 mx-auto text-slate-500"></i>`
+                    : ``;
+                
+                // 번호, 담당부서, 제목, 첨부, 공고일 순서
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-center text-slate-500">${item.id}</td>
+                    <td class="px-6 py-4 text-center text-slate-600 font-medium">${item.department}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800 hover:underline">${item.title}</td>
+                    <td class="px-6 py-4 text-center">${attachmentIcon}</td>
+                    <td class="px-6 py-4 text-center text-slate-600">${item.postDate}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            // Lucide 아이콘 다시 렌더링
+            lucide.createIcons();
+        }
+
+        // 4. 모달 제어 함수 (1차 모달: 상세 정보)
+        const modal = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        function showDetails(id) {
+            const item = noticeData.find(d => d.id === id);
+            if (!item) return;
+
+            // 모달 내용 채우기
+            document.getElementById('modal-name').textContent = item.title;
+            document.getElementById('modal-department').textContent = item.department;
+            document.getElementById('modal-date').textContent = item.postDate;
+            document.getElementById('modal-views').textContent = item.views.toLocaleString();
+            document.getElementById('modal-contact').textContent = item.contact;
+            document.getElementById('modal-sub-info').textContent = `효빈광역시 ${item.department} | 공고번호: 제${item.id}호`;
+            document.getElementById('modal-detail-content').innerHTML = item.detailContent;
+
+            // 첨부 파일 목록 렌더링 (클릭 시 2차 모달 호출)
+            const attachmentList = document.getElementById('attachment-list');
+            attachmentList.innerHTML = '';
+            const modalAttachmentsDiv = document.getElementById('modal-attachments');
+            
+            if (item.attachments && item.attachments.length > 0) {
+                modalAttachmentsDiv.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-center justify-between p-2 bg-white border border-slate-200 rounded-md hover:bg-slate-100 transition duration-150 cursor-pointer';
+                    // 첨부파일 클릭 시 showAttachmentModal 호출
+                    li.setAttribute('onclick', `showAttachmentModal('${file.name}', '${file.size}')`);
+                    
+                    li.innerHTML = `
+                        <span class="flex items-center">
+                            <i data-lucide="download" class="w-4 h-4 mr-2 text-blue-500"></i>
+                            ${file.name}
+                        </span>
+                        <span class="text-xs text-slate-400">${file.size}</span>
+                    `;
+                    attachmentList.appendChild(li);
+                });
+            } else {
+                modalAttachmentsDiv.classList.add('hidden');
+            }
+            
+            // 모달 아이콘 다시 렌더링
+            lucide.createIcons();
+
+            // 모달 표시
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                document.getElementById('modal-detail-content').scrollTop = 0;
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.remove('opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // 5. 2차 모달 제어 함수 (첨부파일 팝업)
+        const attachModal = document.getElementById('attachment-modal');
+        const attachModalContent = document.getElementById('attachment-modal-content');
+        
+        function showAttachmentModal(fileName, fileSize) {
+            document.getElementById('attachment-file-name').textContent = fileName;
+            document.getElementById('attachment-file-size').textContent = `파일 크기: ${fileSize}`;
+
+            // 2차 모달 표시
+            attachModal.classList.remove('hidden');
+            setTimeout(() => {
+                attachModal.classList.add('opacity-100');
+                attachModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeAttachmentModal() {
+            attachModal.classList.remove('opacity-100');
+            attachModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                attachModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function simulateDownload() {
+            // 실제 다운로드는 구현하지 않고, 알림 메시지로 대체
+            const fileName = document.getElementById('attachment-file-name').textContent;
+            console.log(`${fileName} 다운로드를 시뮬레이션했습니다.`);
+            // 다운로드 알림 후 팝업 닫기
+            closeAttachmentModal();
+
+            // 사용자에게 가상의 알림을 보여주는 함수 (alert() 대신)
+            showTemporaryMessage(`'${fileName}' 다운로드가 시작되었습니다.`, 'green');
+        }
+
+        // 임시 메시지 표시 (alert() 대체)
+        function showTemporaryMessage(message, color) {
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = message;
+            tempDiv.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-xl text-white font-bold transition-all duration-300 z-[70] 
+                ${color === 'green' ? 'bg-green-600' : 'bg-blue-600'}`;
+            
+            document.body.appendChild(tempDiv);
+            
+            // 2초 후 사라지게 함
+            setTimeout(() => {
+                tempDiv.classList.add('opacity-0', 'scale-90');
+                setTimeout(() => tempDiv.remove(), 300);
+            }, 2000);
+        }
+
+        // 2차 모달 외부 클릭 시 닫기
+        attachModal.addEventListener('click', (e) => {
+            if (e.target === attachModal) {
+                closeAttachmentModal();
+            }
+        });
+
+        // 6. 페이지 로드 시 목록 렌더링
+        window.onload = renderNoticeList;
+    </script>
+</body>
+</html>

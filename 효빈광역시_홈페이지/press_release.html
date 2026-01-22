@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보도자료 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        /* 모달 오버레이 스타일 (1차 모달) */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+        }
+        /* 2차 모달을 위한 스타일 */
+        .sub-modal-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(1px);
+        }
+        /* 라인 클램프를 위한 유틸리티 */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ★★★ 인쇄 전용 스타일 (중요) ★★★ */
+        @media print {
+            @page { margin: 15mm; size: A4; }
+            
+            /* 기본적으로 모든 요소 숨김 */
+            body * { visibility: hidden; }
+            
+            /* 상세 모달과 그 내부 콘텐츠만 표시 */
+            #detail-modal, #detail-modal * { 
+                visibility: visible; 
+            }
+
+            /* 모달 위치 및 스타일 재설정 (전체화면 덮기) */
+            #detail-modal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                background: white;
+                display: block !important;
+                z-index: 9999;
+                padding: 0;
+                margin: 0;
+                overflow: visible !important;
+            }
+
+            #modal-content {
+                box-shadow: none !important;
+                transform: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                opacity: 1 !important;
+                scale: 1 !important;
+            }
+
+            /* 스크롤 영역 해제하여 긴 본문도 짤리지 않고 출력되게 함 */
+            #modal-detail-content {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                padding: 0 !important;
+            }
+
+            /* 숨길 요소들 (헤더, 푸터, 버튼, 닫기 아이콘 등) */
+            header, footer, .no-print, 
+            button, .modal-close-btn, #attachment-modal,
+            .modal-footer {
+                display: none !important;
+            }
+
+            /* 인쇄 시 가독성 조정 */
+            h2#modal-title {
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 영역 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 제목 및 설명 -->
+    <div class="w-full bg-slate-700 py-12 text-center text-white">
+        <h1 class="text-4xl font-black mb-3">보도자료</h1>
+        <p class="text-slate-300">언론에 비친 효빈시의 다양한 활동을 소개합니다.</p>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+        <!-- 네비게이션 탭 -->
+        <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap">
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='news.html'">새소식</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='construction.html'">공사알림</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='notice.html'">고시&공고</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='recruit.html'">시험채용</button>
+            <!-- 현재 선택된 탭 -->
+            <button class="px-6 py-3 text-lg text-slate-900 font-black border-b-4 border-slate-900 -mb-[4px]" onclick="location.href='press.html'">보도자료</button>
+        </div>
+
+        <!-- 검색바 -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="text-slate-600 font-bold">총 <span id="total-posts" class="text-blue-600">0</span>건의 보도자료가 있습니다.</div>
+            <div class="flex border border-slate-300 rounded-lg overflow-hidden">
+                <input type="text" placeholder="보도자료 검색" class="px-4 py-2 w-64 outline-none text-sm">
+                <button class="bg-slate-100 hover:bg-slate-200 px-4 py-2 border-l border-slate-300"><i data-lucide="search" class="w-4 h-4 text-slate-600"></i></button>
+            </div>
+        </div>
+
+        <!-- 보도자료 목록 (그리드 카드 형식) -->
+        <div id="press-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 데이터가 여기에 삽입됩니다 -->
+        </div>
+        
+        <!-- 페이징 영역 (단순 예시) -->
+        <div class="flex justify-center mt-8">
+            <button class="px-4 py-2 text-slate-600 font-bold bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-100 transition duration-150">1</button>
+        </div>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-6">
+                <div class="flex flex-wrap gap-x-6 gap-y-2 font-medium text-slate-600">
+                    <a href="#" class="text-[#2563eb] font-bold hover:underline">개인정보처리방침</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline">저작권정책</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline">영상정보처리기기 운영방침</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline">뷰어내려받기</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline">누리집 오류신고</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline">오시는 길</a>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <select id="family-site" class="border border-slate-300 rounded px-3 py-1.5 text-slate-600 outline-none hover:border-slate-400 transition bg-white w-48">
+                        <option value="">유관기관 바로가기</option>
+                        <optgroup label="산하기관">
+                            <option value="subway.html">효빈교통공사</option>
+                            <option value="culture.html">효빈문화공단</option>
+                        </optgroup>
+                        <!-- (생략된 옵션들...) -->
+                    </select>
+                    <button onclick="goFamilySite()" class="bg-slate-700 text-white px-3 py-1.5 rounded hover:bg-slate-800 transition font-bold whitespace-nowrap">이동</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-start gap-8">
+                <div class="text-slate-500 space-y-2 leading-relaxed flex-grow">
+                    <p class="text-slate-600"><span class="mr-2">(우) 79791</span><span>효빈광역시 북구 효빈로 79(고송8동)</span></p>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1"><span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">대표전화</strong>079-591-2548</span><span class="text-slate-400">월~금 : 08:30~18:30 (시간외는 당직실로 연결)</span></div>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1"><span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">팩스</strong>079-591-2547</span><span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">당직실</strong>079-591-2546<span class="text-slate-400 ml-2">(야간, 공휴일)</span></span></div>
+                    <p class="text-slate-400 mt-6 font-light font-sans">COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- 1차 모달: 보도자료 상세 정보 -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-800" id="modal-title">보도자료 상세</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 modal-close-btn">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm border-b pb-4">
+                    <div><p class="text-xs text-slate-500 font-medium">배포 부서</p><p class="font-semibold text-slate-700" id="modal-agency"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">배포일</p><p class="font-semibold text-slate-700" id="modal-date"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">조회수</p><p class="font-semibold text-slate-700" id="modal-views"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">문의처</p><p class="font-semibold text-slate-700" id="modal-contact"></p></div>
+                </div>
+                <div class="pt-2">
+                    <p class="text-xl font-bold text-slate-800" id="modal-name"></p>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-2 no-print">본문</p>
+                    <div class="p-4 bg-slate-50 rounded-lg text-slate-700 h-80 overflow-y-auto leading-relaxed text-base" id="modal-detail-content">
+                        <!-- 상세 내용이 여기에 들어갑니다 -->
+                    </div>
+                </div>
+                <div id="modal-attachments" class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-2">첨부 파일</p>
+                    <ul class="space-y-2 text-sm" id="attachment-list">
+                        <!-- 첨부 파일 목록이 여기에 들어갑니다 -->
+                    </ul>
+                </div>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-6 border-t flex justify-end modal-footer">
+                <button onclick="window.print()" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-150 flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    인쇄 / 다운로드
+                </button>
+                <button onclick="closeModal()" class="bg-slate-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-slate-600 transition duration-150 ml-3">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2차 모달: 첨부파일 다운로드 팝업 (재활용) -->
+    <div id="attachment-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center sub-modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 transform transition-all duration-300 scale-95 opacity-0" id="attachment-modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-4 border-b flex justify-between items-center bg-blue-50 rounded-t-xl">
+                <h2 class="text-lg font-bold text-blue-700">첨부 파일 다운로드</h2>
+                <button onclick="closeAttachmentModal()" class="text-blue-400 hover:text-blue-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4 text-center">
+                <i data-lucide="file-check" class="w-10 h-10 mx-auto text-green-500"></i>
+                <p class="text-base text-slate-700">다음 파일을 다운로드하시겠습니까?</p>
+                <p class="font-bold text-lg text-slate-900 break-all" id="attachment-file-name"></p>
+                <p class="text-sm text-slate-500" id="attachment-file-size"></p>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-4 border-t flex justify-center space-x-3">
+                <button onclick="closeAttachmentModal()" class="bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-semibold hover:bg-slate-400 transition duration-150">취소</button>
+                <button onclick="simulateDownload()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-150">다운로드</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript 스크립트 -->
+    <script>
+        lucide.createIcons();
+
+        // 헬퍼 함수
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateRandomDate(start, end) {
+            const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+            return new Date(randomTime);
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}.${m}.${d}`;
+        }
+        
+        function getRandomFourDigits() {
+            return String(Math.floor(1000 + Math.random() * 9000));
+        }
+
+        function getRandomPhoneNumber() {
+            const middle = getRandomFourDigits();
+            const last = getRandomFourDigits();
+            return `079-${middle}-${last}`;
+        }
+        
+        // 배열을 섞는 함수 (Fisher-Yates 알고리즘)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 1. 보도자료 데이터 정의
+        const agencies = [
+            "대변인실", "도시계획과", "교통행정과", "보건정책과", "환경정책과", 
+            "주택과", "문화예술과", "경제정책과", "시립미술관", "효빈경제진흥원"
+        ];
+        
+        // 제목 중복을 피하기 위해 충분히 많은 고유한 제목 목록을 정의
+        const uniqueTitlesPool = [
+            '박효빈 시장, "HAF 2025 성공 개최로 글로벌 문화도시 도약" 선언',
+            '효빈 도시철도 8호선, 개통 1년 만에 이용객 10만 명 돌파 쾌거',
+            "효빈시, 도심 속 녹지공간 확충 '그린 인프라 프로젝트' 가속화 발표",
+            "청년 일자리 미스매치 해소! 효빈시, 맞춤형 인재 양성 프로그램 운영",
+            "겨울철 재난 대비, 효빈시 제설 비상근무체제 돌입",
+            "AI 기반 교통 시스템 도입으로 출퇴근 시간 단축 효과 확인",
+            "효빈시, 시민과 함께하는 '쓰레기 제로' 캠페인 대대적 전개",
+            "지역 경제 활성화를 위한 소상공인 지원 패키지 공개",
+            "효빈시립미술관, 세계적인 현대미술 거장 초대전 개최",
+            "도시재생 뉴딜사업, '구도심 활성화'의 성공적 모델 제시",
+            "효빈시-대학, 산학협력 강화로 지역 특화 산업 육성 박차",
+            "공공 데이터 전면 개방! 시민 중심의 스마트 도시 구현",
+            "효빈시, '임산부 우대' 문화 확산 위해 공공 시설 개선",
+            "첨단 기술 활용한 상수도 스마트 관리 시스템 구축 완료",
+            "지역 청년 작가 발굴 및 지원을 위한 창작 공간 확대",
+            "효빈시, 탄소 중립 실현을 위한 신재생 에너지 보급 확대",
+            "시민 불편 해소! '민원 원스톱 서비스' 만족도 95% 달성",
+            "효빈시 교육 혁신, 초중고 무상 교육 및 디지털 교육 강화",
+            "보건정책과, 동절기 감염병 예방수칙 준수 당부",
+            "효빈시 국제 관광객 유치를 위한 테마 상품 개발 완료",
+            "미래 모빌리티 산업 선도를 위한 테스트베드 구축 계획 발표",
+            "시민 안전을 최우선, 노후 교량 및 터널 정밀 안전 진단 실시",
+            "효빈시, '착한 가격 업소' 확대로 물가 안정에 기여",
+        ];
+        
+        // 2. 더미 데이터 생성
+        const pressData = [];
+        const today = new Date();
+        const startSeq = 100; 
+        const numberOfPosts = 18; 
+
+        // 중복 방지를 위해 제목 풀을 섞고 필요한 만큼만 자릅니다.
+        const titles = [...uniqueTitlesPool];
+        shuffleArray(titles);
+        const uniqueTitles = titles.slice(0, numberOfPosts);
+
+        for (let i = 0; i < numberOfPosts; i++) {
+            const postDate = generateRandomDate(new Date(2025, 10, 1), today);
+            const agency = getRandomItem(agencies);
+            const title = uniqueTitles[i]; 
+            const contact = getRandomPhoneNumber();
+            const views = getRandomInt(500, 3000);
+            const attachments = [];
+            const hasAttachment = Math.random() > 0.6; 
+
+            if (hasAttachment) {
+                const count = getRandomInt(1, 2);
+                for(let j = 1; j <= count; j++) {
+                    attachments.push({ name: `보도자료_${startSeq - i}_사진_${j}.jpg`, size: `${getRandomInt(500, 5000)} KB` });
+                }
+            }
+            
+            const summary = title.length > 50 ? title.substring(0, 50) + "..." : title;
+
+            const detailContent = `
+                <p class="mb-4"><strong>${agency} (보도자료 배포)</strong></p>
+                <p class="mb-4">${formatDate(postDate)}</p>
+
+                <h3 class="text-xl font-bold mb-4">"${title}"</h3>
+
+                <p class="mb-4 text-justify">
+                    효빈광역시 ${agency}은(는) 금일( ${formatDate(postDate)}), 주요 정책 추진 현황을 담은 보도자료를 배포했습니다. 이번 보도자료는 ${agency}에서 추진하는 핵심 사업의 성과와 향후 계획을 상세히 담고 있으며, 시민들의 이해도를 높이고 적극적인 참여를 유도하기 위해 작성되었습니다.
+                </p>
+                <p class="mb-4 text-justify">
+                    주요 내용은 다음과 같습니다. 첫째, ${title.split(' ')[0]} 관련하여 ${agency}의 구체적인 목표와 추진 방법이 제시되었습니다. 둘째, 시민 생활과 직결된 주요 서비스의 개선 사항 및 이용 편의 증진 방안이 포함되어 있습니다. 셋째, 미래 성장 동력 확보를 위한 투자 계획 및 협력 방안에 대한 내용도 비중 있게 다루어졌습니다.
+                </p>
+                <p class="mb-4 text-justify">
+                    ${agency} 관계자는 "시민과의 소통을 강화하고 투명한 행정을 구현하기 위해 앞으로도 정기적인 보도자료 배포를 통해 주요 시정 정보를 신속하게 전달할 것"이라고 밝혔습니다. 
+                </p>
+                <p class="mb-4 text-justify">
+                    본 보도자료의 원문 및 첨부 자료는 효빈광역시 홈페이지에서 확인할 수 있습니다.
+                </p>
+                <div class="mt-6 p-3 bg-blue-50 border-l-4 border-blue-400 text-blue-800 text-sm">
+                    ※ 본 보도자료는 언론의 취재를 돕기 위한 참고 자료이며, 보도 시 효빈광역시 대변인실(${getRandomPhoneNumber()})로 문의 바랍니다.
+                </div>
+            `;
+
+
+            pressData.push({
+                id: startSeq - i,
+                agency: agency,
+                title: title,
+                summary: summary,
+                postDate: formatDate(postDate),
+                views: views,
+                contact: contact,
+                detailContent: detailContent,
+                attachments: attachments
+            });
+        }
+        
+        // 3. 목록 렌더링 함수
+        function renderPressList() {
+            const listContainer = document.getElementById('press-list');
+            listContainer.innerHTML = ''; 
+
+            pressData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-lg transition cursor-pointer group';
+                card.setAttribute('onclick', `showDetails(${item.id})`);
+                
+                card.innerHTML = `
+                    <div class="text-xs text-blue-600 font-bold mb-2">${item.agency} | ${item.postDate}</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3 group-hover:text-blue-700 line-clamp-2">${item.title}</h3>
+                    <p class="text-slate-500 text-sm line-clamp-3 mb-4">${item.summary}...</p>
+                    <div class="flex items-center text-slate-400 text-xs mt-auto">
+                        <i data-lucide="eye" class="w-3 h-3 mr-1"></i> ${item.views.toLocaleString()}회 조회
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+            document.getElementById('total-posts').textContent = pressData.length;
+            lucide.createIcons();
+        }
+
+        // 4. 모달 제어 함수 (1차 모달: 상세 정보)
+        const modal = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        function goFamilySite() {
+            const select = document.getElementById('family-site');
+            const url = select.value;
+            if (url) {
+                if (url.startsWith('http')) {
+                    window.open(url, '_blank');
+                } else {
+                    window.location.href = url;
+                }
+            } else {
+                showTemporaryMessage('이동할 기관을 선택해주세요.', 'red');
+            }
+        }
+
+        function showDetails(id) {
+            const item = pressData.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById('modal-name').textContent = item.title;
+            document.getElementById('modal-agency').textContent = item.agency;
+            document.getElementById('modal-date').textContent = item.postDate;
+            document.getElementById('modal-views').textContent = item.views.toLocaleString();
+            document.getElementById('modal-contact').textContent = item.contact;
+            document.getElementById('modal-detail-content').innerHTML = item.detailContent;
+
+            const attachmentList = document.getElementById('attachment-list');
+            attachmentList.innerHTML = '';
+            const modalAttachmentsDiv = document.getElementById('modal-attachments');
+            
+            if (item.attachments && item.attachments.length > 0) {
+                modalAttachmentsDiv.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-center justify-between p-2 bg-white border border-slate-200 rounded-md hover:bg-slate-100 transition duration-150 cursor-pointer';
+                    li.setAttribute('onclick', `showAttachmentModal('${file.name}', '${file.size}')`);
+                    
+                    li.innerHTML = `
+                        <span class="flex items-center">
+                            <i data-lucide="download" class="w-4 h-4 mr-2 text-blue-500"></i>
+                            ${file.name}
+                        </span>
+                        <span class="text-xs text-slate-400">${file.size}</span>
+                    `;
+                    attachmentList.appendChild(li);
+                });
+            } else {
+                modalAttachmentsDiv.classList.add('hidden');
+            }
+            
+            lucide.createIcons();
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                document.getElementById('modal-detail-content').scrollTop = 0;
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.remove('opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // 5. 2차 모달 제어 함수 (첨부파일 팝업)
+        const attachModal = document.getElementById('attachment-modal');
+        const attachModalContent = document.getElementById('attachment-modal-content');
+        
+        function showAttachmentModal(fileName, fileSize) {
+            document.getElementById('attachment-file-name').textContent = fileName;
+            document.getElementById('attachment-file-size').textContent = `파일 크기: ${fileSize}`;
+
+            attachModal.classList.remove('hidden');
+            setTimeout(() => {
+                attachModal.classList.add('opacity-100');
+                attachModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeAttachmentModal() {
+            attachModal.classList.remove('opacity-100');
+            attachModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                attachModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function simulateDownload() {
+            const fileName = document.getElementById('attachment-file-name').textContent;
+            console.log(`${fileName} 다운로드를 시뮬레이션했습니다.`);
+            closeAttachmentModal();
+            showTemporaryMessage(`'${fileName}' 다운로드가 시작되었습니다.`, 'green');
+        }
+
+        function showTemporaryMessage(message, color) {
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = message;
+            tempDiv.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-xl text-white font-bold transition-all duration-300 z-[70] 
+                ${color === 'green' ? 'bg-green-600' : 'bg-blue-600'}`;
+            
+            document.body.appendChild(tempDiv);
+            
+            setTimeout(() => {
+                tempDiv.classList.add('opacity-0', 'scale-90');
+                setTimeout(() => tempDiv.remove(), 300);
+            }, 2000);
+        }
+
+        attachModal.addEventListener('click', (e) => {
+            if (e.target === attachModal) {
+                closeAttachmentModal();
+            }
+        });
+
+        window.onload = renderPressList;
+    </script>
+</body>
+</html>

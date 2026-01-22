@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새소식 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        .tab-btn.active {
+            color: #0f172a; /* slate-900 */
+            border-bottom-width: 4px;
+            border-color: #0f172a;
+            font-weight: 900;
+        }
+        /* 모달 애니메이션 */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.98);
+            transition: transform 0.2s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="로고" class="h-10 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold">[로고 이미지]</div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 타이틀 영역 -->
+    <div class="w-full bg-slate-700 py-12 text-center text-white">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="text-4xl font-black mb-3">행정소식</h1>
+            <p class="text-slate-300">효빈의 새로운 소식을 가장 빠르게 전해드립니다.</p>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+        <!-- 탭 네비게이션 -->
+        <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap">
+            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors active" onclick="switchCategory('news', this)">새소식</button>
+            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('construction', this)">공사알림</button>
+            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('notice', this)">고시&공고</button>
+            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('recruit', this)">시험채용</button>
+            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('press', this)">보도자료</button>
+        </div>
+
+        <!-- 게시판 목록 -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
+            <div class="overflow-x-auto flex-grow">
+                <table class="w-full text-sm text-left text-slate-500 min-w-[600px]">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-3 w-20 text-center">번호</th>
+                            <th class="px-6 py-3 w-32 text-center">부서</th>
+                            <th class="px-6 py-3">제목</th>
+                            <th class="px-6 py-3 w-32 text-center">작성일</th>
+                            <th class="px-6 py-3 w-20 text-center">조회</th>
+                        </tr>
+                    </thead>
+                    <tbody id="news-table-body">
+                        <!-- 자바스크립트로 데이터가 로드됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 데이터 없을 경우 표시 (숨김 처리됨) -->
+            <div id="no-data" class="hidden py-20 text-center text-slate-400 border-t border-slate-100">
+                해당하는 게시글이 없습니다.
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div id="pagination-container" class="flex justify-center py-6 gap-2 border-t border-slate-100 bg-white">
+                <!-- 자바스크립트로 버튼 생성 -->
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.</div>
+    </footer>
+
+    <!-- 게시글 상세 모달 -->
+    <div id="news-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeNewsModal()"></div>
+        <div class="modal-content bg-white w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative z-10">
+            <!-- 모달 헤더 -->
+            <div class="px-8 py-6 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
+                <div class="pr-8">
+                    <div id="modal-dept" class="text-blue-600 font-bold text-sm mb-1">부서명</div>
+                    <h3 id="modal-title" class="font-black text-2xl text-slate-800 leading-snug">게시글 제목</h3>
+                    <div class="text-slate-400 text-sm mt-2 flex gap-3">
+                        <span id="modal-date">2025.00.00</span>
+                        <span class="text-slate-300">|</span>
+                        <span>조회수 <span id="modal-views">0</span></span>
+                    </div>
+                </div>
+                <button onclick="closeNewsModal()" class="p-2 hover:bg-slate-200 rounded-full transition flex-shrink-0">
+                    <i data-lucide="x" class="w-6 h-6 text-slate-500"></i>
+                </button>
+            </div>
+            <!-- 모달 바디 (본문) -->
+            <div id="modal-body" class="p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed min-h-[300px]">
+                <!-- 본문 내용 -->
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="px-8 py-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+                <div class="text-xs text-slate-400">
+                    <i data-lucide="paperclip" class="w-3 h-3 inline mr-1"></i>첨부파일은 PC버전에서 확인 가능합니다.
+                </div>
+                <button onclick="closeNewsModal()" class="px-6 py-2.5 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. 카테고리별 고유 콘텐츠 풀 (Pool) - 중복 방지를 위한 고유 데이터
+        const contentPool = {
+            'news': [
+                { dept: "기획조정실", t: "2026년도 효빈시 본예산안 의회 제출", c: "2026년도 효빈시 본예산안을 시의회에 제출했습니다. 총 규모는 전년 대비 5.2% 증가한 15조 6천억 원입니다. 이번 예산안은 민생 경제 회복, 청년 일자리 창출, 그리고 사회적 약자 보호를 위한 복지 예산 확충에 중점을 두어 편성되었습니다." },
+                { dept: "사회복지과", t: "동절기 복지 사각지대 집중 발굴 기간 운영", c: "겨울철 한파에 대비하여 도움이 필요한 이웃을 집중 발굴합니다. 단전·단수 가구, 쪽방 거주자 등 주거 취약 계층을 중심으로 현장 조사를 강화하며, 위기 가구 발견 시 긴급 복지 지원과 민간 자원을 연계할 예정입니다." },
+                { dept: "관광진흥과", t: "효빈 시티투어 2층 버스 신규 도입 기념 이벤트", c: "최신형 오픈탑 2층 버스 도입을 기념하여 12월 한 달간 탑승객 전원에게 기념품을 증정합니다. 새로운 시티투어버스는 좌석 간격이 넓어지고 한국어, 영어, 일본어 등 다국어 음성 안내 시스템이 대폭 개선되었습니다." },
+                { dept: "청년정책과", t: "청년 월세 한시 특별 지원 사업 신청 안내", c: "경제적 어려움을 겪는 청년들의 주거비 부담 경감을 위해 월세를 한시적으로 지원합니다. 소득 및 재산 요건을 충족하는 무주택 청년에게 월 최대 20만 원씩 12개월간 지원되니 기한 내 신청 바랍니다." },
+                { dept: "시민건강국", t: "야간·휴일 소아 응급 진료 병원 확대 지정", c: "아이들이 아플 때 안심하고 진료받을 수 있도록 야간 및 휴일 진료가 가능한 달빛어린이병원을 3개소 추가 지정했습니다. 이로써 효빈시 내 달빛어린이병원은 총 7개소로 늘어나 의료 접근성이 향상되었습니다." },
+                { dept: "문화산업과", t: "찾아가는 거리 예술 공연 '효빈 버스킹' 참가팀 모집", c: "시민들의 일상 속 문화 향유 기회 확대를 위해 거리 공연을 펼칠 예술가를 모집합니다. 음악, 무용, 마술 등 장르 불문이며 선발된 팀에게는 공연 장소 제공과 소정의 활동비가 지원됩니다." },
+                { dept: "경제일자리과", t: "소상공인 경영 안정을 위한 특례 보증 지원 확대", c: "고금리·고물가로 어려움을 겪는 소상공인을 위해 특례 보증 규모를 500억 원 증액합니다. 신용 등급이 낮아 대출이 어려운 영세 소상공인도 저금리로 자금을 융통할 수 있도록 지원합니다." },
+                { dept: "교통국", t: "시내버스 노선 개편 시민 설명회 개최 결과 알림", c: "지난주 개최된 시내버스 노선 개편 시민 설명회 결과를 공유합니다. 접수된 시민 의견 350건 중 210건을 반영하여 배차 간격 단축 및 신규 택지 지구 노선 확충 등 최종 노선안을 확정할 계획입니다." },
+                { dept: "소통담당관", t: "제5기 효빈시 소셜미디어 시민 서포터즈 모집", c: "효빈시의 매력을 널리 알릴 SNS 서포터즈를 모집합니다. 블로그, 인스타그램, 유튜브 등 다양한 채널을 통해 주요 시정 소식과 축제, 관광 명소를 홍보할 열정적인 분들의 많은 참여 바랍니다." },
+                { dept: "행정자치국", t: "지방세 체납액 일제 정리 기간 운영 안내", c: "건전한 납세 풍토 조성을 위해 12월 말까지 지방세 체납액 일제 정리를 실시합니다. 고액·상습 체납자에 대해서는 명단 공개, 출국 금지 등 강력한 행정 제재를 가할 예정입니다." },
+                { dept: "환경정책과", t: "1회용품 사용 줄이기 캠페인 '바이바이 플라스틱'", c: "일상 속 불필요한 플라스틱 사용을 줄이기 위한 범시민 실천 운동을 전개합니다. 텀블러 사용, 장바구니 이용 등 탄소 중립을 위한 시민 여러분의 작은 실천이 필요합니다." },
+                { dept: "도시계획과", t: "2040 효빈 도시기본계획 시민 기획단 위촉식", c: "효빈의 미래상을 함께 그려나갈 시민 기획단 위촉식이 열렸습니다. 도시, 환경, 교통 등 분과별로 시민들이 직접 참여하여 도시 계획 수립 과정에 다양한 아이디어를 제안하게 됩니다." },
+                { dept: "여성가족과", t: "공동육아나눔터 5호점 안천구 개소식 개최", c: "부모들이 모여 양육 정보를 공유하고 자녀를 함께 돌보는 공간인 공동육아나눔터가 안천구에 새로 문을 열었습니다. 장난감 및 도서 대여, 품앗이 돌봄 활동 등 다양한 프로그램이 운영됩니다." },
+                { dept: "체육진흥과", t: "제12회 효빈시장배 생활체육 배드민턴 대회", c: "생활체육 동호인들의 화합의 장인 시장배 배드민턴 대회가 이번 주말 시민체육관에서 열립니다. 약 1,000여 명의 동호인이 참가하여 그동안 갈고닦은 실력을 겨룰 예정입니다." },
+                { dept: "농축산유통과", t: "로컬푸드 직매장 설맞이 특판 행사 안내", c: "설 명절을 앞두고 지역 농산물 소비 촉진을 위한 특판 행사를 진행합니다. 사과, 배, 한우 등 제수용품과 선물 세트를 시중보다 최대 30% 저렴한 가격에 만나보실 수 있습니다." },
+                { dept: "스마트도시과", t: "무료 공공 와이파이존 50개소 추가 구축 완료", c: "시민들의 통신비 절감을 위해 주요 공원, 전통시장, 버스정류장 등 유동 인구가 많은 50개소에 무료 공공 와이파이를 추가 설치했습니다." },
+                { dept: "도서관정책과", t: "상호대차 서비스 '책이음' 운영 개시 안내", c: "관내 어느 도서관에서나 책을 빌리고 가까운 도서관에 반납할 수 있는 상호대차 서비스를 시작합니다. 도서관 홈페이지 또는 모바일 앱을 통해 간편하게 신청할 수 있습니다." },
+                { dept: "노인복지과", t: "어르신 품위유지비 지원 사업 시행 안내", c: "만 75세 이상 어르신에게 목욕 및 이발 비용을 지원하는 바우처 카드를 발급합니다. 반기별 6만 원씩 충전되며, 관내 지정 업소에서 자유롭게 사용 가능합니다." }
+            ],
+            'construction': [
+                { dept: "도시철도과", t: "도시철도 3호선 야간 선로 유지보수 작업 안내", c: "안전한 열차 운행을 위해 심야 시간대 선로 유지보수 작업을 시행합니다. 작업 중 소음이 발생할 수 있으니 인근 주민 여러분의 양해 부탁드립니다.<br><strong>기간:</strong> 12.01 ~ 12.15 (01:00~04:30)" },
+                { dept: "도로계획과", t: "효빈대로(남구청~법원) 노후 아스팔트 재포장 공사", c: "노후된 도로 포장면을 정비하여 쾌적한 주행 환경을 조성합니다. 교통 혼잡 최소화를 위해 야간에 작업을 진행합니다.<br><strong>기간:</strong> 2025.12.05 ~ 12.08 (22:00 ~ 06:00)" },
+                { dept: "상수도본부", t: "동구 덕현동 일원 노후 상수도관 갱생 공사", c: "녹물 발생 예방 및 유수율 제고를 위해 노후 상수관로 정비 공사를 진행합니다. 공사 중 일시적인 단수가 발생할 수 있습니다.<br><strong>단수 일시:</strong> 2025.12.10 (13:00 ~ 17:00)" },
+                { dept: "건설본부", t: "탄성대교 신축이음장치 교체 공사 교통 통제", c: "교량의 내구성 증진을 위해 신축이음장치 교체 공사를 시행합니다. 공사 기간 중 편도 1차선이 통제되오니 우회 도로를 이용해 주시기 바랍니다.<br><strong>기간:</strong> 2025.12.01 ~ 12.10" },
+                { dept: "공원운영과", t: "효빈중앙공원 산책로 정비 및 가로등 교체 공사", c: "시민들의 안전한 공원 이용을 위해 파손된 데크를 보수하고 LED 가로등으로 교체합니다. 공사 구간별로 순차적 통제가 이루어질 예정입니다.<br><strong>기간:</strong> 2025.11.25 ~ 12.15" },
+                { dept: "도시정비과", t: "구도심 도시가스 배관 매설 공사 안내", c: "도시가스 미공급 지역 해소를 위해 배관 매설 공사를 진행합니다. 굴착 작업으로 인한 소음 및 통행 불편에 대해 양해 바랍니다.<br><strong>위치:</strong> 중구 중앙동 골목길 일원" },
+                { dept: "하수도과", t: "장마철 대비 하수관로 준설 작업 시행", c: "침수 피해 예방을 위해 주요 도로변 하수관로 준설 작업을 실시합니다. 원활한 작업을 위해 작업 구간 내 불법 주정차를 금지합니다.<br><strong>기간:</strong> 2025.12.01 ~ 12.20" },
+                { dept: "건설본부", t: "북구 문화센터 건립 공사 기공식 개최", c: "북구 주민들의 숙원 사업인 문화센터 건립 공사가 시작됩니다. 기공식 당일 행사장 주변 교통 혼잡이 예상되오니 대중교통 이용을 권장합니다." },
+                { dept: "도로관리사업소", t: "동절기 대비 지하차도 신축이음 보수 공사", c: "지하차도 주행 안전성을 확보하기 위해 신축이음 보수 공사를 야간에 실시합니다.<br><strong>기간:</strong> 2025.12.02 ~ 12.04 (23:00 ~ 05:00)" },
+                { dept: "교통시설과", t: "어린이보호구역 노란 횡단보도 설치 공사", c: "스쿨존 내 시인성 확보를 위해 횡단보도를 노란색으로 도색합니다. 공사 중 부분적인 차량 통제가 있을 수 있습니다.<br><strong>대상:</strong> 관내 초등학교 10개소 주변" },
+                { dept: "체육시설관리소", t: "시민종합운동장 육상 트랙 전면 교체 공사", c: "노후된 우레탄 트랙을 친환경 소재로 전면 교체합니다. 공사 기간 동안 운동장 이용이 전면 제한됩니다.<br><strong>기간:</strong> 2025.12.01 ~ 2026.03.31" },
+                { dept: "상수도본부", t: "배수지 물탱크 청소에 따른 일시 단수 안내", c: "깨끗한 수돗물 공급을 위해 배수지 청소를 실시합니다. 일부 고지대 지역에 수압 저하 및 단수가 예상됩니다.<br><strong>일시:</strong> 2025.12.08 23:00 ~ 익일 04:00" },
+                { dept: "공원녹지과", t: "가로수 가지치기(전정) 작업 안내", c: "가로수 생육 환경 개선과 안전 사고 예방을 위해 주요 도로변 가로수 전정 작업을 실시합니다. 작업 차량으로 인한 서행 운전을 부탁드립니다." },
+                { dept: "도시재생과", t: "안천구 벽화마을 보수 공사 착공", c: "노후된 벽화를 보수하고 포토존을 정비하여 관광 명소로서의 가치를 높입니다. 공사 중 마을 안길 통행이 다소 불편할 수 있습니다." },
+                { dept: "하천관리과", t: "효빈천 산책로 자전거도로 분리 공사", c: "보행자 안전 확보를 위해 산책로와 자전거도로를 화단으로 분리하는 공사를 진행합니다.<br><strong>기간:</strong> 2025.12.01 ~ 2026.02.28" }
+            ],
+            'notice': [
+                { dept: "세정담당관", t: "2026년도 개별주택가격 산정을 위한 주택 특성 조사", c: "정확한 개별주택가격 산정을 위해 조사요원이 현장 방문 조사를 실시합니다. 조사원 방문 시 협조 부탁드립니다.<br><strong>기간:</strong> 2025.12.01 ~ 2026.01.15" },
+                { dept: "도시계획과", t: "고송지구 지구단위계획 결정(변경)(안) 재열람 공고", c: "주민 의견 수렴 결과 등을 반영한 변경안에 대해 재열람을 실시합니다. 의견이 있으신 분은 열람 기간 내에 서면으로 제출해 주시기 바랍니다.<br><strong>열람 기간:</strong> 공고일로부터 14일간" },
+                { dept: "환경정책과", t: "대기오염물질 배출시설 자가측정 결과 보고 안내", c: "대기환경보전법에 의거하여 하반기 자가측정 결과를 기한 내 보고하여 주시기 바랍니다. 기한 내 미보고 시 과태료가 부과될 수 있습니다.<br><strong>제출 기한:</strong> 2026.01.31까지" },
+                { dept: "자치행정과", t: "2026년 상반기 주민자치센터 프로그램 수강생 모집", c: "주민들의 건전한 여가 선용을 위한 다양한 프로그램을 운영합니다. 인기 강좌는 조기 마감될 수 있습니다.<br><strong>접수 기간:</strong> 2025.12.15 ~ 12.24" },
+                { dept: "차량등록사업소", t: "건설기계 정기검사 명령 공시송달 공고", c: "정기검사 기간이 도래하였으나 수취인 불명 등의 사유로 통지서 반송된 건에 대해 행정절차법에 따라 공시송달합니다.<br><strong>대상:</strong> 덤프트럭 등 15대" },
+                { dept: "법무담당관", t: "효빈광역시 수도 조례 일부개정조례안 입법예고", c: "수도 요금 감면 대상 확대 등을 주요 내용으로 하는 조례 개정안을 입법예고합니다. 개정안에 대해 의견이 있는 단체 또는 개인은 의견서를 제출해 주시기 바랍니다." },
+                { dept: "토지정보과", t: "개별공시지가 이의신청 가격 검증 결과 공고", c: "2025년 7월 1일 기준 개별공시지가 이의신청에 대한 부동산가격공시위원회 심의 결과를 공고합니다. 결과는 토지소유자에게 개별 통지됩니다." },
+                { dept: "보건소", t: "방역소독 용역업체 선정 입찰 공고", c: "감염병 예방을 위한 2026년도 방역소독 위탁 용역업체를 공개 입찰합니다. 참가 자격 및 일정은 조달청 나라장터를 확인하시기 바랍니다." },
+                { dept: "자원순환과", t: "2026년 생활폐기물 수집·운반 대행업체 모집 공고", c: "효빈시 생활폐기물의 안정적 처리를 위한 대행업체를 모집합니다. 적격 심사를 통해 선정하며, 상세 내용은 시 홈페이지 고시공고란을 참조하세요." },
+                { dept: "지역경제과", t: "전통시장 시설현대화 사업 지원 대상 선정 결과 공고", c: "2026년도 전통시장 시설현대화 사업 지원 대상으로 선정된 시장 명단을 공고합니다. 선정된 시장은 개별 통보 및 사업 설명회를 진행할 예정입니다." },
+                { dept: "도시재생과", t: "도시재생 주민공모사업 보조금 교부 신청 공고", c: "주민 주도 도시재생 사업 활성화를 위해 선정된 단체에 대한 보조금 교부 신청을 받습니다. 기한 내 관련 서류를 구비하여 신청하시기 바랍니다." },
+                { dept: "식품위생과", t: "모범음식점 지정 및 재지정 결과 공고", c: "위생 상태와 서비스 수준이 우수한 음식점을 모범음식점으로 지정하고 그 결과를 알립니다. 지정된 업소에는 표지판 부착 및 상수도 요금 감면 혜택이 제공됩니다." },
+                { dept: "공원녹지과", t: "기간제근로자(산불전문예방진화대) 합격자 명단 공고", c: "산불 예방 및 진화 업무를 수행할 기간제 근로자 최종 합격자 명단을 공고합니다. 합격자는 등록일에 맞춰 관련 서류를 제출해 주시기 바랍니다." },
+                { dept: "재난안전과", t: "재난관리기금 운용심의위원회 위원 위촉 공모", c: "재난관리기금의 효율적 운용을 위해 전문 지식을 갖춘 심의위원을 공개 모집합니다. 방재, 토목, 건축 등 관련 분야 전문가들의 많은 지원 바랍니다." },
+                { dept: "여성가족과", t: "양성평등기금 지원 사업 공모", c: "양성평등 문화 확산과 여성 권익 증진을 위한 사업을 수행할 비영리 법인 및 단체를 모집합니다. 선정된 단체에는 사업비가 지원됩니다." }
+            ],
+            'recruit': [
+                { dept: "인사과", t: "2025년 제4회 지방임기제공무원 임용시험 시행계획 공고", c: "전문 지식과 경험이 필요한 분야에 임기제 공무원을 채용합니다. 채용 분야는 변호사, 노무사, 기록연구사 등 5명입니다.<br><strong>접수 기간:</strong> 2025.12.10 ~ 12.12" },
+                { dept: "총무과", t: "2026년 청원경찰 신규 채용 체력시험 합격자 발표", c: "청원경찰 채용 체력시험 합격자 명단 및 면접시험 일정을 공고합니다. 합격자는 응시표와 신분증을 지참하여 지정된 시간에 면접 장소로 오시기 바랍니다." },
+                { dept: "애니메이션과", t: "L-Project 콘텐츠 기획자(기간제) 채용 공고", c: "효빈시만의 특색 있는 서브컬처 콘텐츠를 기획할 창의적인 인재를 모십니다. 관련 분야 경력 3년 이상 또는 포트폴리오 제출이 필수이며, 일본어 능통자를 우대합니다." },
+                { dept: "도서관정책과", t: "시립도서관 야간 연장 운영 지원인력 채용", c: "도서관 개관 시간 연장에 따른 야간 근무 지원 인력을 모집합니다. 근무 시간은 평일 18:00 ~ 22:00이며, 사서 자격증 소지자를 우대합니다." },
+                { dept: "일자리정책과", t: "2026년 공공근로사업 참여자 모집 공고", c: "취약계층에게 일자리를 제공하여 생계 안정을 도모하기 위한 공공근로 참여자를 모집합니다. 모집 인원은 150명이며, 행정 보조 및 환경 정비 업무를 수행합니다." },
+                { dept: "보건소", t: "간호사 및 물리치료사(기간제) 채용 공고", c: "지역 보건 사업을 수행할 전문 인력을 모집합니다. 간호사 면허 및 물리치료사 면허 소지자만 지원 가능하며, 방문 건강 관리 사업 등에 배치됩니다." },
+                { dept: "문화예술회관", t: "무대 기계 및 조명 감독 전문인력 채용", c: "문화예술회관의 공연 시설을 운영·관리할 전문 감독을 모집합니다. 무대예술전문인 자격증 소지자로서 실무 경력이 풍부한 분을 찾습니다." },
+                { dept: "체육시설관리소", t: "수영강사 및 안전요원 수시 채용 안내", c: "시민들의 안전하고 즐거운 체육 활동을 위해 수영강사 및 안전요원을 상시 모집합니다. 관련 자격증 소지자는 우대하며, 근무 시간은 협의 가능합니다." },
+                { dept: "농업기술센터", t: "농기계 임대 사업소 운영 인력 채용", c: "농기계 수리 및 임대 관리 업무를 담당할 기간제 근로자를 모집합니다. 농기계 정비 기능사 이상 자격 소지자 또는 농기계 운전 가능자를 선발합니다." },
+                { dept: "아동청소년과", t: "청소년 방과후 아카데미 담임 강사 채용", c: "청소년들의 학습 지도 및 생활 관리를 담당할 열정 있는 선생님을 모십니다. 청소년 지도사 자격증 소지자 또는 관련 학과 전공자를 우대합니다." },
+                { dept: "상수도본부", t: "검침원(무기계약직) 신규 채용 공고", c: "수도 계량기 검침 및 고지서 송달 업무를 수행할 검침원을 공개 채용합니다. 운전면허 소지자로서 현장 활동에 지장이 없는 분이어야 합니다." },
+                { dept: "자원순환과", t: "환경미화원 신규 채용 체력검정 일정 안내", c: "2026년도 환경미화원 공개 채용을 위한 체력검정 일시 및 장소를 안내합니다. 응시자는 체육복과 운동화를 착용하고 신분증을 지참하여 참석하시기 바랍니다." },
+                { dept: "교통정책과", t: "주정차 단속 보조원(기간제) 모집", c: "불법 주정차 단속 및 계도 활동을 보조할 기간제 근로자를 모집합니다. 현장 근무가 가능하고 스마트폰 활용이 능숙한 분을 찾습니다." },
+                { dept: "시립박물관", t: "전시 해설사(도슨트) 자원봉사자 모집", c: "박물관 관람객들에게 전시 내용을 알기 쉽게 설명해 줄 자원봉사자를 모집합니다. 역사 및 문화에 관심 있는 시민 누구나 지원 가능하며, 소정의 활동비가 지급됩니다." },
+                { dept: "정보화담당관", t: "CCTV 통합관제센터 관제 요원 채용", c: "시민 안전을 위해 24시간 CCTV 모니터링을 담당할 관제 요원을 채용합니다. 4조 3교대 근무가 가능해야 하며, 정보통신 관련 자격증 소지자를 우대합니다." }
+            ],
+            'press': [
+                { dept: "대변인실", t: "[보도] 박효빈 시장, CES 2026 참가... '스마트 덕후 시티' 비전 발표", c: "박효빈 시장이 미국 라스베이거스에서 열리는 CES 2026에 참가해 메타버스와 서브컬처를 결합한 미래 도시 비전을 발표할 예정입니다. 전 세계의 이목이 집중되고 있습니다." },
+                { dept: "대변인실", t: "[보도] 효빈시, '국제 만화 애니메이션 페스티벌' 유치 성공", c: "프랑스 앙굴렘, 미국 샌디에이고와 어깨를 나란히 할 국제 행사를 효빈시에 유치했습니다. 2027년 개최를 목표로 조직위원회가 출범합니다." },
+                { dept: "기업지원과", t: "[설명] 효빈형 일자리 '굿즈 제조 클러스터' 본격 가동", c: "캐릭터 굿즈 기획부터 생산, 유통까지 원스톱으로 처리하는 클러스터가 고송산단에 문을 열었습니다. 청년 창업가들의 입주 문의가 쇄도하고 있습니다." },
+                { dept: "청년정책과", t: "[보도] 청년이 살고 싶은 도시 1위, 효빈시 선정", c: "국토연구원이 발표한 '청년 거주 만족도 조사'에서 효빈시가 전국 1위를 차지했습니다. 파격적인 주거 지원과 풍부한 문화 인프라가 높은 평가를 받았습니다." },
+                { dept: "대변인실", t: "[동정] 박효빈 시장, 독거노인 도시락 배달 봉사 참여", c: "연말을 맞아 박효빈 시장이 직접 사랑의 도시락 배달 봉사에 나섰습니다. 어르신들의 안부를 묻고 따뜻한 겨울나기를 위한 지원을 약속했습니다." },
+                { dept: "문화산업과", t: "[보도] 'L-Project' 경제 효과 3조원 돌파... 지역 경제 효자 노릇", c: "효빈시의 대표적인 서브컬처 육성 정책인 L-Project가 시행 3년 만에 경제 유발 효과 3조 원을 달성했습니다. 관광객 증가와 관련 기업 유치가 주효했습니다." },
+                { dept: "교통국", t: "[보도] 효빈 도시철도 무임승차 제로(Zero) 도시 선언", c: "AI 기반의 부정 승차 단속 시스템 도입 이후 무임승차 적발 건수가 90% 이상 감소했습니다. 건전한 대중교통 이용 문화 정착에 앞장서겠습니다." },
+                { dept: "환경정책과", t: "[보도] 탄소중립 선도 도시 효빈, '그린 시티' 대통령상 수상", c: "효빈시가 환경부가 주관하는 '그린 시티' 선정 공모에서 영예의 대통령상을 수상했습니다. 자원 순환과 신재생 에너지 보급 정책이 높은 점수를 받았습니다." },
+                { dept: "관광진흥과", t: "[보도] 효빈 야경 투어 버스, 예매 오픈 5분 만에 매진 행렬", c: "겨울 밤바다와 도심 야경을 즐길 수 있는 야경 투어 버스가 큰 인기를 끌고 있습니다. 시는 운행 횟수를 2배로 증편하기로 결정했습니다." },
+                { dept: "자치행정과", t: "[보도] '찾아가는 민원실', 도서 벽지 주민들에게 큰 호응", c: "행정기관 방문이 어려운 주민들을 위해 운영 중인 찾아가는 민원실이 올해 5천 건의 민원을 처리하며 주민들의 손발이 되어주고 있습니다." },
+                { dept: "복지정책과", t: "[보도] 효빈시, 전국 최초 '1인 가구 병원 동행 서비스' 전면 시행", c: "아파도 병원에 가기 힘든 1인 가구를 위해 매니저가 병원까지 동행하고 진료 접수 등을 돕는 서비스를 전국 최초로 전면 시행합니다." },
+                { dept: "대변인실", t: "[해명] 시청사 앞 조형물 예산 낭비 논란에 대한 입장", c: "일각에서 제기된 시청 앞 '한바다' 조형물 설치 비용 과다 지적에 대해, 해당 조형물은 전액 민간 기업의 기부 채납으로 제작되었음을 알려드립니다." },
+                { dept: "교육협력과", t: "[보도] 효빈시-교육청, '미래 교육 지구' 업무 협약 체결", c: "학교와 마을이 함께 아이들을 키우는 교육 생태계 조성을 위해 시와 교육청이 손을 맞잡았습니다. 방과 후 돌봄 확대 등이 추진됩니다." },
+                { dept: "농축산유통과", t: "[보도] 효빈 쌀 '효미', 미국 수출길 올랐다", c: "효빈시 대표 농산물 브랜드인 '효미'가 까다로운 검역을 통과하고 미국 수출을 시작했습니다. K-푸드 열풍을 타고 세계인의 식탁에 오릅니다." },
+                { dept: "정보화담당관", t: "[보도] 공공 와이파이 확대 구축 완료... 시내버스 전 차량 무료 이용", c: "관내 모든 시내버스와 주요 공원에 공공 와이파이 설치를 완료했습니다. 시민들의 통신비 절감과 정보 격차 해소에 기여할 것으로 기대됩니다." },
+                { dept: "감사관", t: "[보도] 효빈시, 청렴도 평가 3년 연속 1등급 달성 쾌거", c: "국민권익위원회 주관 공공기관 청렴도 평가에서 효빈시가 최우수 등급인 1등급을 받았습니다. 투명하고 공정한 행정 구현을 위한 노력이 인정받았습니다." },
+                { dept: "투자유치과", t: "[보도] 글로벌 데이터센터 유치 협약 체결... 5천억 투자", c: "효빈시가 글로벌 IT 기업과 5천억 원 규모의 데이터센터 건립 투자 협약을 맺었습니다. 양질의 일자리 창출과 지역 경제 활성화가 기대됩니다." },
+                { dept: "재난안전과", t: "[보도] '안전한국훈련' 우수 기관 표창 수상", c: "재난 대응 역량 강화를 위한 안전한국훈련에서 효빈시가 행정안전부 장관 표창을 수상했습니다. 실전 같은 훈련으로 시민 안전을 지키겠습니다." },
+                { dept: "보건소", t: "[보도] 치매안심센터 운영 성과 발표회 개최", c: "치매 조기 검진 및 예방 프로그램 운영 성과를 공유하는 자리를 가졌습니다. 치매 걱정 없는 효빈시를 만들기 위해 더욱 노력하겠습니다." },
+                { dept: "여성가족과", t: "[보도] 여성친화도시 재지정 심사 통과", c: "여성의 역량 강화와 돌봄 안전 구현을 위한 노력을 인정받아 여성친화도시로 재지정되었습니다. 모두가 평등하고 행복한 도시를 만들어가겠습니다." }
+            ]
+        };
+
+        // 2. 핵심 데이터 정의 (상세 내용 포함된 주요 공지 - 상단 고정용)
+        const coreData = {
+            'news': [
+                { 
+                    id: 600, dept: "교통복지과", title: "2026 취약계층 교통비 지원사업 최종 계획안 공개", date: "2025.11.28", views: 1024,
+                    content: `<p class="mb-4">효빈광역시 교통복지과입니다.</p><p class="mb-4">박효빈 시장의 핵심 공약인 <strong>'이동권 보장'</strong> 정책의 일환으로, 2026년도 취약계층 교통비 지원사업 최종 계획안을 공고합니다.</p><hr class="my-6 border-slate-200"><h4 class="font-bold text-lg mb-2 text-slate-800">1. 주요 지원 대상</h4><ul class="list-disc list-inside mb-4 pl-2 text-slate-700"><li>효빈시에 주민등록을 둔 만 65세 이상 어르신</li><li>만 13세 ~ 24세 청소년 및 청년 (소득 무관)</li><li>장애인 및 국가유공자</li></ul><h4 class="font-bold text-lg mb-2 text-slate-800">2. 지원 내용</h4><ul class="list-disc list-inside mb-4 pl-2 text-slate-700"><li><strong>효빈패스(Hyobin Pass)</strong> 지급: 월 5만원 한도 내 대중교통 이용 실비 자동 환급</li><li>시티투어버스 및 마을버스 환승 횟수 제한 해제</li><li>심야 안심 귀가 택시 바우처 연 12회 제공</li></ul><div class="bg-blue-50 p-4 rounded border border-blue-100"><p class="text-blue-800 text-sm font-bold">※ 재원 안내</p><p class="text-blue-700 text-xs mt-1">본 사업의 재원은 HAF(효빈 애니메이션 페스티벌) 수익금 및 시 직영 굿즈 판매 수익으로 전액 충당됩니다. 시민 여러분의 덕질이 복지가 됩니다.</p></div>`
+                },
+                { 
+                    id: 599, dept: "문화산업과", title: "2026 HAF (Hyobin Animation Festival) 기본 계획 발표", date: "2025.11.28", views: 982,
+                    content: `<p class="mb-4">2026년 효빈 애니메이션 페스티벌(HAF)의 기본 계획을 알려드립니다.</p><p class="mb-4">올해는 역대 최대 규모로, 도시 전체를 4개 테마 구역(Zone)으로 나누어 진행할 예정입니다. 단순한 관람을 넘어 도시 전체가 거대한 축제의 장으로 변모합니다.</p><div class="bg-slate-50 p-6 rounded-lg border border-slate-200 mb-6"><h5 class="font-bold mb-3 text-lg">🎮 4대 테마 구역 안내</h5><ul class="space-y-3 text-sm"><li><span class="font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded">ZONE A (시청 광장)</span><br>글로벌 성우 초청 토크쇼, 핸드프린팅 행사, 공식 개막식</li><li><span class="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">ZONE B (효빈항 & 해안도로)</span><br>선상 코스프레 파티, 대규모 이타샤 모터쇼, 야간 불꽃놀이</li><li><span class="font-bold text-green-600 bg-green-50 px-2 py-1 rounded">ZONE C (고송대로)</span><br>캐릭터 퍼레이드 (교통 통제 예정), 거리 버스킹</li><li><span class="font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded">ZONE D (효빈대 캠퍼스)</span><br>아마추어 창작 동아리 부스, 인디 게임 시연, 동인 행사</li></ul></div><p>상세 타임테이블 및 1차 초청 게스트 명단은 12월 중 2차 공고를 통해 발표됩니다.</p>`
+                }
+            ]
+        };
+
+        // 3. 데이터 생성 로직
+        function generateData(category, count, startId) {
+            const data = [];
+            const pool = contentPool[category] || contentPool['news'];
+            
+            // pool의 내용을 순차적으로 가져와 중복을 피함 (요청 수 count만큼)
+            // 만약 pool 크기보다 요청 수가 많으면 처음으로 돌아가지만, 현재 pool을 충분히 확보함
+            
+            for (let i = 0; i < count; i++) {
+                const item = pool[i % pool.length];
+                
+                // 날짜 생성 (최근 60일 이내 랜덤)
+                const date = new Date(2025, 10, 28); 
+                date.setDate(date.getDate() - Math.floor(Math.random() * 60) - 1); 
+                const dateStr = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+                
+                const views = Math.floor(Math.random() * 1500) + 50;
+
+                data.push({
+                    id: startId - i,
+                    dept: item.dept,
+                    title: item.t,
+                    date: dateStr,
+                    views: views,
+                    content: `<p class="text-lg font-bold mb-4 text-blue-600">[${category === 'press' ? '보도자료' : '상세 내용'}]</p>
+                              <div class="bg-slate-50 p-4 rounded border border-slate-100 mb-4">
+                                <strong>${item.t}</strong>
+                              </div>
+                              <div class="text-slate-700 leading-relaxed min-h-[100px]">
+                                ${item.c}
+                              </div>
+                              <hr class="my-6 border-slate-100">
+                              <p class="text-slate-400 text-sm flex justify-between">
+                                <span>담당 부서: ${item.dept}</span>
+                                <span>작성일: ${dateStr}</span>
+                              </p>`
+                });
+            }
+            
+            // 날짜 최신순 정렬 (ID는 그대로 두고 내용만 날짜순 정렬 시 ID 순서가 꼬일 수 있으므로
+            // ID 기준 내림차순을 우선으로 하되, 여기선 ID가 높은게 최신글로 보이게 순차 생성했으므로 그대로 둠)
+            return data;
+        }
+
+        // 전체 데이터베이스 구성
+        // 각 카테고리별 데이터 개수를 Pool 사이즈와 비슷하게 맞춰 중복을 원천 차단
+        const db = {
+            'news': [...coreData.news, ...generateData('news', 30, 598)], 
+            'construction': generateData('construction', 20, 220),
+            'notice': generateData('notice', 15, 915),
+            'recruit': generateData('recruit', 15, 120),
+            'press': generateData('press', 20, 360)
+        };
+
+        let currentCategory = 'news';
+        let currentPage = 1;
+        const itemsPerPage = 10; 
+
+        const tableBody = document.getElementById('news-table-body');
+        const noData = document.getElementById('no-data');
+        const paginationContainer = document.getElementById('pagination-container');
+        const modal = document.getElementById('news-modal');
+
+        window.onload = function() {
+            renderTable();
+        };
+
+        function switchCategory(category, btnElement) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+            
+            currentCategory = category;
+            currentPage = 1; 
+            renderTable();
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        function renderTable() {
+            const data = db[currentCategory];
+            const totalItems = data.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentData = data.slice(startIndex, endIndex);
+
+            tableBody.innerHTML = '';
+
+            if (totalItems === 0) {
+                noData.classList.remove('hidden');
+                paginationContainer.innerHTML = '';
+                return;
+            } else {
+                noData.classList.add('hidden');
+            }
+
+            currentData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b cursor-pointer transition-colors';
+                tr.onclick = function() { openNewsModal(item); };
+
+                let deptColor = "text-slate-600";
+                if(currentCategory === 'news') deptColor = "text-blue-600";
+                if(currentCategory === 'construction') deptColor = "text-orange-600";
+                if(currentCategory === 'recruit') deptColor = "text-red-600";
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-center text-slate-400 font-light">${item.id}</td>
+                    <td class="px-6 py-4 text-center ${deptColor} font-bold text-xs md:text-sm">${item.dept}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800 text-sm md:text-base break-keep text-left">
+                        ${item.title}
+                        ${isNew(item.date) ? '<span class="ml-2 inline-block w-1.5 h-1.5 bg-red-500 rounded-full align-middle"></span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 text-center text-slate-500 text-xs">${item.date}</td>
+                    <td class="px-6 py-4 text-center text-slate-400 text-xs">${item.views.toLocaleString()}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            paginationContainer.innerHTML = '';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'hover:bg-slate-50 text-slate-600'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) changePage(currentPage - 1); };
+            paginationContainer.appendChild(prevBtn);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            if (startPage < 1) startPage = 1;
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                if (i === currentPage) {
+                    btn.className = 'w-8 h-8 rounded bg-slate-800 text-white font-bold flex items-center justify-center';
+                } else {
+                    btn.className = 'w-8 h-8 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600';
+                }
+                btn.innerText = i;
+                btn.onclick = () => changePage(i);
+                paginationContainer.appendChild(btn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'hover:bg-slate-50 text-slate-600'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) changePage(currentPage + 1); };
+            paginationContainer.appendChild(nextBtn);
+            
+            lucide.createIcons();
+        }
+
+        function openNewsModal(item) {
+            document.getElementById('modal-dept').innerText = item.dept;
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-views').innerText = item.views.toLocaleString();
+            document.getElementById('modal-body').innerHTML = item.content;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNewsModal() {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');고송
+                document.body.style.overflow = '';
+            }, 200);
+        }
+
+        function isNew(dateString) {
+            const today = new Date('2025-11-28');
+            const dateParts = dateString.split('.');
+            const postDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            const diffTime = Math.abs(today - postDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            return diffDays <= 7;
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") closeNewsModal();
+        });
+    </script>
+</body>
+</html>

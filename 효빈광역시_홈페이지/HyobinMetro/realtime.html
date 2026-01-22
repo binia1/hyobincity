@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>실시간 열차운행정보 - 효빈교통공사</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome (icons) -->
+  <script src="https://kit.fontawesome.com/a2d9d6a64b.js" crossorigin="anonymous"></script>
+
+  <!-- Local station data (OFFLINE OK) -->
+  <script src="hyobin_station_data.js"></script>
+
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; }
+    .metro-gradient { background: linear-gradient(180deg, #E0F2FE 0%, #FFFFFF 100%); }
+
+    /* line badge */
+    .line-badge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;color:#fff;font-weight:800;font-size:.75rem;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+    .line-1{background:#0077DD}
+    .line-2{background:#00CCAA}
+    .line-3{background:#FFCC11;color:#111827}
+    .line-4{background:#FF5522}
+    .line-5{background:#EE0022}
+    .line-6{background:#881188}
+    .line-7{background:#FF8899}
+    .line-8{background:#9856FF}
+    .line-bh{background:#6677CC}
+
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#0f172a;color:#e2e8f0;font-weight:700;font-size:.85rem}
+    .pill small{font-weight:600;color:#94a3b8}
+
+    /* autocomplete */
+    .ac-wrap{position:relative}
+    .ac-items{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:50;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(2,6,23,.12);max-height:260px;overflow-y:auto}
+    .ac-items button{display:block;width:100%;text-align:left;padding:10px 12px;font-weight:700;color:#0f172a}
+    .ac-items button:hover{background:#f1f5f9}
+    .hl{color:#0284c7}
+
+    /* always readable on gradients */
+    .card{background:rgba(255,255,255,.92);backdrop-filter: blur(10px);}
+
+    /* table */
+    table{border-collapse:separate;border-spacing:0}
+    thead th{position:sticky;top:0;background:#0f172a;color:#e2e8f0;z-index:10}
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-white">
+  <!-- header -->
+  <header class="border-b border-gray-200 bg-white sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <a href="index.html" class="flex items-center gap-3">
+          <img src="logo.png" alt="효빈교통공사" class="h-9 w-auto object-contain">
+          <div class="hidden sm:block">
+            <div class="text-sm font-extrabold text-slate-900 leading-tight">효빈교통공사</div>
+            <div class="text-xs font-bold text-slate-500 leading-tight">HYOBIN METRO</div>
+          </div>
+        </a>
+
+        <div class="flex items-center gap-3">
+          <a href="index.html#search-section" class="text-sm font-extrabold text-slate-700 hover:text-sky-600 transition">
+            <i class="fa-solid fa-arrow-left mr-1"></i>메인으로
+          </a>
+          <span class="hidden sm:inline text-slate-300">|</span>
+          <a href="exit_facilities_offline_v2.html" class="hidden sm:inline text-sm font-extrabold text-slate-700 hover:text-sky-600 transition">
+            <i class="fa-solid fa-door-open mr-1"></i>역 출구 주변시설
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- hero -->
+  <section class="metro-gradient border-b border-sky-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            실시간 열차운행정보
+          </h1>
+          <p class="text-slate-600 font-bold mt-2">
+            현재 시각 기준 운행 현황 · 노선/역 검색 자동완성 · 지연 사유 표시
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <span class="pill"><i class="fa-regular fa-clock"></i>현재 시각 <small id="nowTs">-</small></span>
+          <span class="pill"><i class="fa-solid fa-rotate"></i>마지막 갱신 <small id="lastTs">-</small></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+      <!-- Search -->
+      <section class="card rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-black text-slate-700 mb-1">역 검색 (자동완성)</label>
+            <div class="ac-wrap">
+              <input id="stationInput" type="text" class="w-full rounded-xl border border-slate-300 px-4 py-3 font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                     placeholder="예: 효빈 / 시청 / 남구청 …" autocomplete="off" />
+              <div id="acBox" class="ac-items hidden"></div>
+            </div>
+            <p class="text-xs font-bold text-slate-500 mt-2">선택 시 해당 역 상세(현재 운행/다음역/출구 주변시설 링크)로 이동합니다.</p>
+          </div>
+
+          <div class="w-full lg:w-72">
+            <label class="block text-sm font-black text-slate-700 mb-1">노선 선택</label>
+            <select id="lineSelect" class="w-full rounded-xl border border-slate-300 px-4 py-3 font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+              <option value="ALL">전체 노선</option>
+            </select>
+          </div>
+
+          <button id="refreshBtn" class="w-full lg:w-auto bg-sky-600 hover:bg-sky-500 text-white font-black px-6 py-3 rounded-xl shadow-sm transition">
+            <i class="fa-solid fa-rotate mr-2"></i>지금 갱신
+          </button>
+        </div>
+
+        <div id="stationDetail" class="hidden mt-6 border-t border-slate-200 pt-6">
+          <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <div id="stationBadges" class="flex flex-wrap gap-2"></div>
+                <span id="stationName" class="text-2xl font-black text-slate-900"></span>
+              </div>
+              <div class="mt-2 text-sm font-bold text-slate-600">
+                <span id="stationMeta"></span>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <a id="exitLink" href="#" class="bg-slate-900 hover:bg-slate-800 text-white font-black px-5 py-3 rounded-xl transition text-center">
+                <i class="fa-solid fa-door-open mr-2"></i>출구 주변시설 보기
+              </a>
+              <button id="shareBtn" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-900 font-black px-5 py-3 rounded-xl transition">
+                <i class="fa-solid fa-link mr-2"></i>고유 URL 복사
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-slate-200 p-4">
+              <div class="text-xs font-black text-slate-500">현재 상태</div>
+              <div id="stationStatus" class="mt-1 text-lg font-black text-slate-900">-</div>
+              <div id="stationDelay" class="mt-1 text-sm font-extrabold text-rose-600 hidden"></div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 p-4">
+              <div class="text-xs font-black text-slate-500">다음 역(예상)</div>
+              <div id="stationNext" class="mt-1 text-lg font-black text-slate-900">-</div>
+              <div class="mt-1 text-xs font-bold text-slate-500">※ 역 순서는 각 노선의 km(누적) 기준 정렬</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 p-4">
+              <div class="text-xs font-black text-slate-500">마지막 갱신</div>
+              <div id="stationLast" class="mt-1 text-lg font-black text-slate-900">-</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Line cards -->
+      <section>
+        <div class="flex items-end justify-between mb-3">
+          <h2 class="text-xl font-black text-slate-900">노선별 운행 현황</h2>
+          <p class="text-sm font-extrabold text-slate-500">노선을 클릭하면 해당 노선 상세(필터)로 전환됩니다.</p>
+        </div>
+
+        <div id="lineCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+      </section>
+
+      <!-- Table -->
+      <section class="card rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h3 class="text-lg font-black text-slate-900">실시간 열차 상태 표</h3>
+          <div class="text-sm font-extrabold text-slate-500">
+            표시 항목: 상태 / 지연(분) / 지연 사유 / 다음역
+          </div>
+        </div>
+
+        <div class="overflow-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left font-black">노선</th>
+                <th class="px-4 py-3 text-left font-black">열차</th>
+                <th class="px-4 py-3 text-left font-black">현재 역</th>
+                <th class="px-4 py-3 text-left font-black">다음 역</th>
+                <th class="px-4 py-3 text-left font-black">상태</th>
+                <th class="px-4 py-3 text-left font-black">지연</th>
+                <th class="px-4 py-3 text-left font-black">사유</th>
+                <th class="px-4 py-3 text-left font-black">갱신</th>
+              </tr>
+            </thead>
+            <tbody id="rows" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Data load help -->
+      <section id="dataHelp" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xl mt-0.5"></i>
+          <div>
+            <div class="font-black text-amber-900">역 데이터가 로드되지 않았습니다.</div>
+            <div class="text-sm font-bold text-amber-800 mt-1">
+              같은 폴더에 <code class="px-2 py-0.5 bg-white border border-amber-200 rounded">hyobin_station_data.js</code> 파일이 있어야 합니다.
+              (파일명이 다르면 <code>realtime.html</code>의 script src를 맞춰주세요.)
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="bg-slate-900 text-slate-300 text-xs py-6 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-4">
+        <div class="bg-white p-2 rounded">
+          <img src="logo.png" alt="효빈교통공사" class="h-7 w-auto">
+        </div>
+        <div class="font-bold">
+          04806 효빈광역시 북구 고송대로 32(고송8동) | 대표전화 079-281-2382<br/>
+          Copyright 2016. 효빈교통공사 All right reserved.
+        </div>
+      </div>
+      <div class="font-bold text-slate-400">
+        청렴으로 신뢰받고, 안전으로 보답하는 효빈교통공사
+      </div>
+    </div>
+  </footer>
+
+<script>
+(() => {
+  // ---------- helpers ----------
+  const $ = (id) => document.getElementById(id);
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const fmtTs = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  const safeText = (v, fallback='-') => (v === undefined || v === null || v === '' ? fallback : String(v));
+
+  const DELAY_REASONS = [
+    {key:'차량 점검', icon:'fa-screwdriver-wrench'},
+    {key:'신호 장애', icon:'fa-tower-broadcast'},
+    {key:'기상 영향', icon:'fa-cloud-bolt'},
+    {key:'승객 안전조치', icon:'fa-person-circle-check'},
+    {key:'선로 점검', icon:'fa-road'},
+    {key:'혼잡도 증가', icon:'fa-people-group'},
+  ];
+
+  const LINE_META = [
+    {key:'1', name:'1호선', cls:'line-1'},
+    {key:'2', name:'2호선', cls:'line-2'},
+    {key:'3', name:'3호선', cls:'line-3'},
+    {key:'4', name:'4호선', cls:'line-4'},
+    {key:'5', name:'5호선', cls:'line-5'},
+    {key:'6', name:'6호선', cls:'line-6'},
+    {key:'7', name:'7호선', cls:'line-7'},
+    {key:'8', name:'8호선', cls:'line-8'},
+    {key:'BH', name:'빈효선', cls:'line-bh'},
+  ];
+  const lineBadge = (key) => {
+    const m = LINE_META.find(x => x.key === key);
+    if (!m) return '';
+    return `<span class="line-badge ${m.cls}"><span>${m.name}</span></span>`;
+  };
+
+  const detectLines = (station) => {
+    const s = (station.line || '').toString();
+    const out = [];
+    const m = s.match(/([1-8])호선/g);
+    if (m) m.forEach(x => out.push(x.replace('호선','')));
+    if (s.includes('빈효선') || s.includes('빈효') || s.includes('광역전철')) out.push('BH');
+    // uniq preserve order
+    return [...new Set(out)];
+  };
+
+  const getLineKeyFromSelect = (val) => val;
+
+  // ---------- data load ----------
+  const STATIONS = (window.HYOBIN_STATION_DATA && Array.isArray(window.HYOBIN_STATION_DATA)) ? window.HYOBIN_STATION_DATA : null;
+  if (!STATIONS) {
+    $('dataHelp').classList.remove('hidden');
+    // Still show timestamps
+    const now = new Date();
+    $('nowTs').textContent = fmtTs(now);
+    $('lastTs').textContent = fmtTs(now);
+    return;
+  }
+
+  // Build station name list
+  const STATION_NAMES = STATIONS.map(s => s.name).filter(Boolean);
+
+  // Build line->stations map (by km asc)
+  const lineStations = {};
+  LINE_META.forEach(l => lineStations[l.key] = []);
+  for (const st of STATIONS) {
+    const keys = detectLines(st);
+    for (const k of keys) {
+      if (!lineStations[k]) lineStations[k] = [];
+      lineStations[k].push(st);
+    }
+  }
+  // NOTE: 역 순서는 원본 데이터(입력 순서)를 그대로 사용합니다.
+
+  // ---------- UI: line select ----------
+  const select = $('lineSelect');
+  for (const meta of LINE_META) {
+    if (!lineStations[meta.key] || lineStations[meta.key].length === 0) continue;
+    const opt = document.createElement('option');
+    opt.value = meta.key;
+    opt.textContent = `${meta.name} (${lineStations[meta.key].length}개 역)`;
+    select.appendChild(opt);
+  }
+
+  // ---------- URL params ----------
+  const url = new URL(location.href);
+  const initialLine = url.searchParams.get('line');
+  const initialStation = url.searchParams.get('station');
+
+  if (initialLine && [...select.options].some(o => o.value === initialLine)) {
+    select.value = initialLine;
+  }
+
+  // ---------- autocomplete ----------
+  const input = $('stationInput');
+  const acBox = $('acBox');
+
+  function renderSuggestions(q) {
+    const query = q.trim();
+    if (!query) { acBox.classList.add('hidden'); acBox.innerHTML=''; return; }
+
+    const lineKey = getLineKeyFromSelect(select.value);
+    const pool = (lineKey === 'ALL') ? STATIONS : (lineStations[lineKey] || []);
+    const names = pool.map(s => s.name).filter(Boolean);
+
+    const filtered = names
+      .filter(n => n.includes(query))
+      .slice(0, 20);
+
+    if (!filtered.length) { acBox.classList.add('hidden'); acBox.innerHTML=''; return; }
+
+    acBox.innerHTML = filtered.map(n => {
+      const safe = n.replaceAll('"','&quot;');
+      const h = n.split(query).join(`<span class="hl">${query}</span>`);
+      return `<button type="button" data-name="${safe}">${h}</button>`;
+    }).join('');
+    acBox.classList.remove('hidden');
+  }
+
+  input.addEventListener('input', (e) => renderSuggestions(e.target.value));
+  input.addEventListener('focus', (e) => renderSuggestions(e.target.value));
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.ac-wrap')) acBox.classList.add('hidden');
+  });
+
+  acBox.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-name]');
+    if (!btn) return;
+    const name = btn.getAttribute('data-name');
+    input.value = name;
+    acBox.classList.add('hidden');
+    showStationDetail(name);
+  });
+
+  // ---------- realtime mock engine ----------
+  let lastRefresh = new Date();
+
+  function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function buildTrains(lineKey) {
+    const pool = (lineKey === 'ALL') ? Object.keys(lineStations).filter(k => k !== 'ALL') : [lineKey];
+    const trains = [];
+    for (const k of pool) {
+      const sts = lineStations[k] || [];
+      if (!sts.length) continue;
+
+      // trains count heuristic
+      const count = Math.min(8, Math.max(3, Math.round(sts.length/10)));
+      for (let i=1;i<=count;i++) {
+        const idx = Math.floor(Math.random() * sts.length);
+        const st = sts[idx];
+        const next = sts[Math.min(idx+1, sts.length-1)];
+        const isDelay = Math.random() < 0.22;
+        const delayMin = isDelay ? (1 + Math.floor(Math.random()*9)) : 0;
+        const reason = isDelay ? pick(DELAY_REASONS).key : '정상';
+        const status = isDelay ? '지연' : (Math.random()<0.15 ? '서행' : '정상');
+        trains.push({
+          line: k,
+          trainNo: `${k === 'BH' ? 'BH' : k}${pad2(10+i)}-${pad2(1+Math.floor(Math.random()*98))}`,
+          station: st.name,
+          next: next ? next.name : '-',
+          status,
+          delayMin,
+          reason: isDelay ? reason : (status === '서행' ? '혼잡도 증가' : '정상'),
+          updated: new Date(lastRefresh.getTime() - Math.floor(Math.random()*20)*1000)
+        });
+      }
+    }
+    return trains;
+  }
+
+  function renderLineCards(trains) {
+    const wrap = $('lineCards');
+    const lineKey = select.value;
+
+    // aggregate by line
+    const by = {};
+    for (const t of trains) {
+      if (!by[t.line]) by[t.line] = {total:0, delay:0, slow:0, normal:0, maxDelay:0, topReason:null};
+      const a = by[t.line];
+      a.total++;
+      if (t.status === '지연') { a.delay++; a.maxDelay = Math.max(a.maxDelay, t.delayMin); a.topReason = t.reason; }
+      else if (t.status === '서행') a.slow++;
+      else a.normal++;
+    }
+
+    const keys = (lineKey === 'ALL') ? Object.keys(by) : [lineKey];
+    wrap.innerHTML = keys.map(k => {
+      const meta = LINE_META.find(x => x.key === k);
+      if (!meta) return '';
+      const a = by[k] || {total:0, delay:0, slow:0, normal:0, maxDelay:0};
+      const headline = a.delay ? `지연 ${a.delay}편 (최대 ${a.maxDelay}분)` : (a.slow ? `서행 ${a.slow}편` : '정상 운행');
+      const sub = a.delay ? `사유: ${a.topReason}` : '안전운행 중';
+      return `
+        <button class="text-left rounded-2xl border border-slate-200 bg-white/90 hover:bg-white shadow-sm p-5 transition"
+                onclick="location.href='realtime.html?line=${encodeURIComponent(k)}'">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              ${lineBadge(k)}
+              <span class="text-sm font-black text-slate-700">${meta.name} 운행</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-400"></i>
+          </div>
+          <div class="mt-4">
+            <div class="text-xl font-black text-slate-900">${headline}</div>
+            <div class="mt-1 text-sm font-extrabold text-slate-500">${sub}</div>
+          </div>
+          <div class="mt-4 text-xs font-bold text-slate-500">표시 열차 수: ${a.total}편</div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function renderTable(trains) {
+    const tbody = $('rows');
+    tbody.innerHTML = trains.map(t => {
+      const delayTxt = t.delayMin ? `${t.delayMin}분` : '-';
+      const reasonTxt = t.reason || '-';
+      const statusCls = t.status === '지연' ? 'text-rose-600' : (t.status === '서행' ? 'text-amber-600' : 'text-emerald-700');
+      const reasonCls = t.status === '지연' ? 'text-rose-700' : 'text-slate-600';
+      return `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 whitespace-nowrap">${lineBadge(t.line)}</td>
+          <td class="px-4 py-3 font-black text-slate-900 whitespace-nowrap">${t.trainNo}</td>
+          <td class="px-4 py-3 font-extrabold text-slate-800 whitespace-nowrap">${t.station}</td>
+          <td class="px-4 py-3 font-extrabold text-slate-800 whitespace-nowrap">${t.next}</td>
+          <td class="px-4 py-3 font-black ${statusCls} whitespace-nowrap">${t.status}</td>
+          <td class="px-4 py-3 font-black text-slate-900 whitespace-nowrap">${delayTxt}</td>
+          <td class="px-4 py-3 font-extrabold ${reasonCls} whitespace-nowrap">${reasonTxt}</td>
+          <td class="px-4 py-3 font-bold text-slate-500 whitespace-nowrap">${fmtTs(t.updated)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function refresh() {
+    const now = new Date();
+    $('nowTs').textContent = fmtTs(now);
+
+    lastRefresh = now;
+    $('lastTs').textContent = fmtTs(lastRefresh);
+
+    const lineKey = getLineKeyFromSelect(select.value);
+    const trains = buildTrains(lineKey);
+    renderLineCards(trains);
+    renderTable(trains);
+
+    // If station detail open, refresh its cards too
+    const currentStation = $('stationDetail').classList.contains('hidden') ? null : $('stationName').textContent;
+    if (currentStation) showStationDetail(currentStation, {silent:true});
+  }
+
+  $('refreshBtn').addEventListener('click', refresh);
+  select.addEventListener('change', () => {
+    // update URL for shareability
+    const u = new URL(location.href);
+    if (select.value === 'ALL') u.searchParams.delete('line');
+    else u.searchParams.set('line', select.value);
+    u.searchParams.delete('station');
+    history.replaceState({}, '', u.toString());
+
+    // clear station search to avoid confusing pool
+    input.value = '';
+    $('stationDetail').classList.add('hidden');
+    refresh();
+  });
+
+  // ---------- station detail ----------
+  function findStationByName(name) {
+    return STATIONS.find(s => s.name === name);
+  }
+
+  function computeNextStation(st) {
+    const keys = detectLines(st);
+    // prefer current selected line if applicable
+    let lineKey = select.value;
+    if (lineKey !== 'ALL' && keys.includes(lineKey)) {
+      // ok
+    } else {
+      lineKey = keys[0] || 'ALL';
+    }
+    const list = lineStations[lineKey] || [];
+    const idx = list.findIndex(x => x.name === st.name);
+    if (idx < 0) return { lineKey, nextName: '-' };
+    const next = list[Math.min(idx+1, list.length-1)];
+    return { lineKey, nextName: next ? next.name : '-' };
+  }
+
+  function makeStationStatus() {
+    const r = Math.random();
+    if (r < 0.18) return {status:'지연', delay: 1 + Math.floor(Math.random()*12), reason: pick(DELAY_REASONS).key};
+    if (r < 0.32) return {status:'서행', delay: 0, reason:'혼잡도 증가'};
+    return {status:'정상', delay: 0, reason:'정상'};
+  }
+
+  function showStationDetail(name, opts={}) {
+    const st = findStationByName(name);
+    if (!st) return;
+
+    const keys = detectLines(st);
+
+    $('stationBadges').innerHTML = keys.map(k => lineBadge(k)).join('');
+    $('stationName').textContent = st.name;
+
+    const addr = st.address ? `· ${st.address}` : '';
+    const id = st.id ? `역번호 ${st.id}` : '';
+    const exits = (st.exits !== undefined) ? `출구 ${st.exits}개` : '';
+    const riders = (st.riders !== undefined) ? `이용객 ${Number(st.riders).toLocaleString()}명/일` : '';
+    const metaParts = [id, exits, riders].filter(Boolean).join(' · ');
+    $('stationMeta').textContent = [metaParts, addr].filter(Boolean).join(' ');
+
+    const { lineKey, nextName } = computeNextStation(st);
+    $('stationNext').textContent = nextName;
+
+    const statusObj = makeStationStatus();
+    $('stationStatus').textContent = statusObj.status;
+
+    if (statusObj.status === '지연') {
+      $('stationDelay').textContent = `지연 ${statusObj.delay}분 · 사유: ${statusObj.reason}`;
+      $('stationDelay').classList.remove('hidden');
+    } else {
+      $('stationDelay').classList.add('hidden');
+    }
+
+    $('stationLast').textContent = fmtTs(new Date());
+
+    // Build shareable URL: realtime.html?station=효빈 (+line if selected)
+    const u = new URL(location.href);
+    u.searchParams.set('station', st.name);
+    if (select.value !== 'ALL') u.searchParams.set('line', select.value);
+    history.replaceState({}, '', u.toString());
+
+    // Exit facilities link
+    $('exitLink').href = `exit_view_offline.html?station=${encodeURIComponent(st.name)}`;
+
+    $('stationDetail').classList.remove('hidden');
+
+    if (!opts.silent) window.scrollTo({ top: $('stationDetail').getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' });
+  }
+
+  $('shareBtn').addEventListener('click', async () => {
+    const u = new URL(location.href);
+    const link = u.toString();
+    try {
+      await navigator.clipboard.writeText(link);
+      alert('고유 URL을 클립보드에 복사했습니다!');
+    } catch (e) {
+      prompt('복사가 막혀있어요. 아래 링크를 수동으로 복사하세요:', link);
+    }
+  });
+
+  // Enter to open first match
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const name = input.value.trim();
+    if (!name) return;
+    const st = findStationByName(name);
+    if (st) showStationDetail(name);
+    else {
+      // best effort: contains match
+      const pool = (select.value === 'ALL') ? STATIONS : (lineStations[select.value] || []);
+      const hit = pool.find(s => (s.name || '').includes(name));
+      if (hit) { input.value = hit.name; showStationDetail(hit.name); }
+    }
+  });
+
+  // ---------- init ----------
+  // If station param exists, show it.
+  if (initialStation) {
+    const decoded = initialStation;
+    // If a line param exists, keep selection already set.
+    input.value = decoded;
+    showStationDetail(decoded, {silent:true});
+  }
+
+  // initial refresh
+  refresh();
+
+  // auto refresh every 30 sec
+  setInterval(refresh, 30000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>전체 노선도 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 스크롤바 스타일 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        /* 노선별 배경색 스타일 (지선도 본선과 같은 색상 적용됨) */
+        .line-1 { background-color: #0077DD !important; border-color: #0077DD !important; }
+        .line-2 { background-color: #00CCAA !important; border-color: #00CCAA !important; }
+        .line-3 { background-color: #FFCC11 !important; border-color: #FFCC11 !important; color: black !important; }
+        .line-4 { background-color: #FF5522 !important; border-color: #FF5522 !important; }
+        .line-5 { background-color: #EE0022 !important; border-color: #EE0022 !important; }
+        .line-6 { background-color: #881188 !important; border-color: #881188 !important; }
+        .line-7 { background-color: #FF8899 !important; border-color: #FF8899 !important; }
+        .line-8 { background-color: #9856FF !important; border-color: #9856FF !important; }
+        .line-bh { background-color: #6677CC !important; border-color: #6677CC !important; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <img src="images/logo.png" onerror="this.style.display='none'" class="h-8 w-auto">
+                <div class="text-3xl font-black text-sky-600 hb-logo">HB</div>
+                <span class="text-lg font-bold text-gray-800">전체 노선도</span>
+            </a>
+            <a href="index.html" class="text-gray-500 hover:text-black transition"><i class="fa-solid fa-xmark text-2xl"></i></a>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <div id="map-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+    </div>
+
+    <script>
+        // 1. 역 데이터 (지선 포함)
+        const stationData = [
+            // 1호선
+            {line:"효빈1호선", name:"곽암해수욕장", express:"", transfer:[]},
+            {line:"효빈1호선", name:"곽산", express:"급", transfer:["8호선"]},
+            {line:"효빈1호선", name:"회산", express:"", transfer:[]},
+            {line:"효빈1호선", name:"남당", express:"", transfer:[]},
+            {line:"효빈1호선", name:"평당", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"남구청", express:"급", transfer:["4호선","8호선"]},
+            {line:"효빈1호선", name:"신거", express:"", transfer:["8호선"]},
+            {line:"효빈1호선", name:"효빈항", express:"급", transfer:["빈효선광역철도","7호선"]},
+            {line:"효빈1호선", name:"효빈항물류지구", express:"", transfer:["빈효선광역철도"]},
+            {line:"효빈1호선", name:"월천", express:"급", transfer:["2호선","7호선"]},
+            {line:"효빈1호선", name:"십덕", express:"", transfer:[]},
+            {line:"효빈1호선", name:"약맥", express:"", transfer:[]},
+            {line:"효빈1호선", name:"창선", express:"급", transfer:["1호선 탄성지선"]},
+            {line:"효빈1호선", name:"중앙로", express:"급", transfer:["2호선","7호선"]},
+            {line:"효빈1호선", name:"중구청", express:"", transfer:["7호선"]},
+            {line:"효빈1호선", name:"내조", express:"", transfer:["7호선"]},
+            {line:"효빈1호선", name:"효빈", express:"급", transfer:["3호선","빈효선","7호선"]},
+            {line:"효빈1호선", name:"보몽", express:"", transfer:[]},
+            {line:"효빈1호선", name:"전천", express:"급", transfer:["5호선"]},
+            {line:"효빈1호선", name:"천왕사", express:"", transfer:[]},
+            {line:"효빈1호선", name:"백천", express:"", transfer:[]},
+            {line:"효빈1호선", name:"입희", express:"급", transfer:["2호선"]},
+            {line:"효빈1호선", name:"추산", express:"", transfer:[]},
+            {line:"효빈1호선", name:"서도", express:"", transfer:[]},
+            {line:"효빈1호선", name:"북구청", express:"급", transfer:["6호선"]},
+            {line:"효빈1호선", name:"등기", express:"", transfer:[]},
+            {line:"효빈1호선", name:"평전", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"아진", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"당안", express:"", transfer:[]},
+            {line:"효빈1호선", name:"안천", express:"급", transfer:["빈효선광역철도"]},
+            {line:"효빈1호선", name:"팔망성", express:"", transfer:[]},
+            {line:"효빈1호선", name:"추자", express:"", transfer:[]},
+            {line:"효빈1호선", name:"이자출장소", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"과남", express:"", transfer:[]},
+            {line:"효빈1호선", name:"이자공원", express:"급", transfer:["4호선"]},
+            {line:"효빈1호선", name:"정치", express:"", transfer:[]},
+            {line:"효빈1호선", name:"영색무", express:"급", transfer:["빈효선광역철도"]},
+            {line:"효빈1호선", name:"능릉", express:"", transfer:[]},
+            {line:"효빈1호선", name:"고해", express:"급", transfer:["빈효선광역철도"]},
+            {line:"효빈1호선", name:"도향", express:"", transfer:[]},
+            {line:"효빈1호선", name:"산형", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"탄미", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"약산시청", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"수구", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"하내장", express:"", transfer:[]},
+            {line:"효빈1호선", name:"요곡", express:"", transfer:[]},
+            {line:"효빈1호선", name:"화소", express:"급", transfer:["빈효선광역철도"]},
+            {line:"효빈1호선", name:"장곡", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"마현", express:"", transfer:[]},
+            {line:"효빈1호선", name:"무기", express:"급", transfer:[]},
+            {line:"효빈1호선", name:"장선", express:"급", transfer:[]},
+
+            // 1호선 탄성지선 (추가됨)
+            {line:"효빈 1호선 탄성지선", name:"창선", express:"급", transfer:["1호선 본선"]},
+            {line:"효빈 1호선 탄성지선", name:"오석", express:"급", transfer:["4호선"]},
+            {line:"효빈 1호선 탄성지선", name:"장원", express:"급", transfer:["4호선","빈효선"]},
+            {line:"효빈 1호선 탄성지선", name:"동리", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"비마리유적지구", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"사노", express:"급", transfer:["6호선"]},
+            {line:"효빈 1호선 탄성지선", name:"청엽구청", express:"급", transfer:["3호선"]},
+            {line:"효빈 1호선 탄성지선", name:"아논타워", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"우전", express:"급", transfer:["2호선"]},
+            {line:"효빈 1호선 탄성지선", name:"창전", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"창전구청", express:"급", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"보통", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"고무", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"탄성", express:"급", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"탄성군청", express:"급", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"야진입구", express:"", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"서목", express:"급", transfer:[]},
+            {line:"효빈 1호선 탄성지선", name:"승남해수욕장", express:"", transfer:[]},
+
+            // 2호선
+            {line:"효빈 2호선", name:"월천", express:"급", transfer:["1호선","7호선"]},
+            {line:"효빈 2호선", name:"박산", express:"", transfer:["8호선"]},
+            {line:"효빈 2호선", name:"신흥", express:"급", transfer:["4호선","8호선"]},
+            {line:"효빈 2호선", name:"효빈공단", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"입동", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"등동", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"헌이송", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"마잡", express:"급", transfer:["6호선"]},
+            {line:"효빈 2호선", name:"동곡", express:"급", transfer:["3호선"]},
+            {line:"효빈 2호선", name:"쌍엽", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"엽천", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"우전", express:"급", transfer:["1호선"]},
+            {line:"효빈 2호선", name:"유류", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"칠심", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"시로", express:"급", transfer:["5호선"]},
+            {line:"효빈 2호선", name:"흑택", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"상가", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"하가", express:"급", transfer:["4호선"]},
+            {line:"효빈 2호선", name:"당가", express:"급", transfer:["빈효선"]},
+            {line:"효빈 2호선", name:"신영", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"채산", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"남전", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"중수", express:"급", transfer:["6호선"]},
+            {line:"효빈 2호선", name:"사연", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"입희", express:"급", transfer:["1호선"]},
+            {line:"효빈 2호선", name:"입선", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"북효빈", express:"급", transfer:["3호선"]},
+            {line:"효빈 2호선", name:"시청", express:"급", transfer:["6호선"]},
+            {line:"효빈 2호선", name:"고송교차로", express:"급", transfer:["6호선"]},
+            {line:"효빈 2호선", name:"과송", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"청덕", express:"급", transfer:["3호선"]},
+            {line:"효빈 2호선", name:"과진중앙", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"사복", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"당선", express:"급", transfer:["5호선"]},
+            {line:"효빈 2호선", name:"효빈대", express:"급", transfer:["7호선"]},
+            {line:"효빈 2호선", name:"칠천", express:"", transfer:["7호선"]},
+            {line:"효빈 2호선", name:"소장", express:"급", transfer:[]},
+            {line:"효빈 2호선", name:"중앙로", express:"급", transfer:["1호선","7호선"]},
+            {line:"효빈 2호선", name:"심동", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"고도", express:"", transfer:[]},
+            {line:"효빈 2호선", name:"내항", express:"급", transfer:["7호선"]},
+
+            // 2호선 어간지선 (추가됨)
+            {line:"효빈 2호선 어간지선", name:"월천", express:"급", transfer:["2호선 본선"]},
+            {line:"효빈 2호선 어간지선", name:"서신포", express:"", transfer:[]},
+            {line:"효빈 2호선 어간지선", name:"운양", express:"", transfer:[]},
+            {line:"효빈 2호선 어간지선", name:"어간항", express:"", transfer:[]},
+            {line:"효빈 2호선 어간지선", name:"어간수산시장", express:"", transfer:[]},
+            {line:"효빈 2호선 어간지선", name:"어간중앙", express:"", transfer:["7호선"]},
+            {line:"효빈 2호선 어간지선", name:"어간", express:"", transfer:[]},
+            {line:"효빈 2호선 어간지선", name:"항동1가", express:"", transfer:[]},
+            {line:"효빈 2호선 어간지선", name:"효빈항국제여객터미널", express:"", transfer:[]},
+
+            // 3호선
+            {line:"효빈 3호선", name:"팔조", express:"급", transfer:[]},
+            {line:"효빈 3호선", name:"투자", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"동곡", express:"급", transfer:["2호선"]},
+            {line:"효빈 3호선", name:"효빈남부시외버스터미널", express:"급", transfer:[]},
+            {line:"효빈 3호선", name:"청엽구청", express:"급", transfer:["1호선"]},
+            {line:"효빈 3호선", name:"청엽", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"사가당", express:"", transfer:["4호선"]},
+            {line:"효빈 3호선", name:"덕현", express:"급", transfer:["6호선"]},
+            {line:"효빈 3호선", name:"효빈", express:"급", transfer:["1호선","7호선","빈효선"]},
+            {line:"효빈 3호선", name:"사능", express:"", transfer:["7호선"]},
+            {line:"효빈 3호선", name:"고속버스터미널", express:"급", transfer:["5호선"]},
+            {line:"효빈 3호선", name:"북효빈", express:"급", transfer:["2호선"]},
+            {line:"효빈 3호선", name:"청능", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"효빈복지대", express:"급", transfer:[]},
+            {line:"효빈 3호선", name:"과진", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"청덕", express:"급", transfer:["2호선"]},
+            {line:"효빈 3호선", name:"송덕", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"고송나루", express:"급", transfer:["6호선"]},
+            {line:"효빈 3호선", name:"토모리해수욕장", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"중만도", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"신산", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"주양", express:"", transfer:[]},
+            {line:"효빈 3호선", name:"염곡", express:"급", transfer:[]},
+            {line:"효빈 3호선", name:"효빈국제공항", express:"급", transfer:[]},
+
+            // 4호선
+            {line:"효빈 4호선", name:"해운산업지구", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"이부", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"남구청", express:"급", transfer:["1호선","8호선"]},
+            {line:"효빈 4호선", name:"빙천", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"고당", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"사야", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"신흥", express:"급", transfer:["2호선","8호선"]},
+            {line:"효빈 4호선", name:"진월천", express:"급", transfer:["빈효선"]},
+            {line:"효빈 4호선", name:"삼각", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"오석", express:"급", transfer:["1호선"]},
+            {line:"효빈 4호선", name:"장원", express:"급", transfer:["1호선","빈효선"]},
+            {line:"효빈 4호선", name:"신덕", express:"급", transfer:["빈효선"]},
+            {line:"효빈 4호선", name:"가동사거리", express:"급", transfer:["6호선"]},
+            {line:"효빈 4호선", name:"사가당", express:"급", transfer:["3호선"]},
+            {line:"효빈 4호선", name:"동덕현", express:"급", transfer:["5호선"]},
+            {line:"효빈 4호선", name:"우택", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"치구", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"뇌전", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"하가", express:"급", transfer:["2호선"]},
+            {line:"효빈 4호선", name:"백합공원", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"요우", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"도변", express:"급", transfer:["5호선"]},
+            {line:"효빈 4호선", name:"잠재", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"앵내", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"탄자", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"이자공원", express:"급", transfer:["1호선"]},
+            {line:"효빈 4호선", name:"이자", express:"급", transfer:["빈효선"]},
+            {line:"효빈 4호선", name:"서수", express:"", transfer:[]},
+            {line:"효빈 4호선", name:"소원", express:"급", transfer:[]},
+            {line:"효빈 4호선", name:"천가", express:"급", transfer:[]},
+
+            // 5호선
+            {line:"효빈 5호선", name:"청덕공원", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"화환", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"효빈과학기술원", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"당선", express:"", transfer:["2호선"]},
+            {line:"효빈 5호선", name:"소조", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"고속버스터미널", express:"", transfer:["3호선"]},
+            {line:"효빈 5호선", name:"전천", express:"", transfer:["1호선"]},
+            {line:"효빈 5호선", name:"전천중앙", express:"", transfer:["6호선"]},
+            {line:"효빈 5호선", name:"동덕현", express:"", transfer:["4호선"]},
+            {line:"효빈 5호선", name:"청엽국제학교", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"남우택", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"진백", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"시로", express:"", transfer:["2호선"]},
+            {line:"효빈 5호선", name:"루비", express:"", transfer:[]},
+            {line:"효빈 5호선", name:"도변", express:"", transfer:["4호선"]},
+            {line:"효빈 5호선", name:"포성산", express:"", transfer:[]},
+
+            // 6호선
+            {line:"효빈 6호선", name:"마잡", express:"", transfer:["2호선"]},
+            {line:"효빈 6호선", name:"비동", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"비마", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"사노", express:"", transfer:["1호선"]},
+            {line:"효빈 6호선", name:"가동사거리", express:"", transfer:["4호선"]},
+            {line:"효빈 6호선", name:"덕현", express:"", transfer:["3호선"]},
+            {line:"효빈 6호선", name:"전덕", express:"", transfer:["빈효선"]},
+            {line:"효빈 6호선", name:"전천중앙", express:"", transfer:["5호선"]},
+            {line:"효빈 6호선", name:"오내사거리", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"오내", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"중수", express:"", transfer:["2호선"]},
+            {line:"효빈 6호선", name:"북구청", express:"", transfer:["1호선"]},
+            {line:"효빈 6호선", name:"포산", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"장포", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"효빈종합고", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"진희", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"동고송", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"시청", express:"", transfer:["2호선"]},
+            {line:"효빈 6호선", name:"고송교차로", express:"", transfer:["2호선"]},
+            {line:"효빈 6호선", name:"고송", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"건강보험공단", express:"", transfer:[]},
+            {line:"효빈 6호선", name:"고송나루", express:"", transfer:["3호선"]},
+
+            // 7호선 (트램)
+            {line:"효빈 7호선", name:"어간중앙", express:"", transfer:["2호선"]},
+            {line:"효빈 7호선", name:"어간초", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"항동3가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"항만해변", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"산홍", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"효빈항", express:"", transfer:["1호선"]},
+            {line:"효빈 7호선", name:"효빈항동부", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"분덕", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"항동문화회관", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"월천", express:"", transfer:["1호선","2호선"]},
+            {line:"효빈 7호선", name:"갑문", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"명일", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"내항", express:"", transfer:["2호선"]},
+            {line:"효빈 7호선", name:"내항시장", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"만마루", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"구세관", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"고도리", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"시북", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"시남", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"우이", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"우이문화촌", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"심동1가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"심동2가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"중앙로1가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"개항지", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"중앙로3가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"중앙로", express:"", transfer:["1호선","2호선"]},
+            {line:"효빈 7호선", name:"원동4가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"중보로", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"효빈은행", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"구시청앞", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"경동", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"유내", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"리사", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"도람", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"궁정", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"상원초", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"효빈성앞", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"내조", express:"", transfer:["1호선"]},
+            {line:"효빈 7호선", name:"중앙고", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"내조공원", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"효빈", express:"", transfer:["1호선","3호선"]},
+            {line:"효빈 7호선", name:"사가당공원", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"가족센터", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"치남", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"사능동3가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"유성당", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"사능복지관", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"사능동1가", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"북구서부어린이회관", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"사능삼거리", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"봇지마을", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"북문로", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"효빈성북문", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"구칠천군사기지앞", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"당선원마을", express:"", transfer:[]},
+            {line:"효빈 7호선", name:"효빈대입구", express:"", transfer:["2호선"]},
+
+            // 7호선 중보지선 (추가됨)
+            {line:"효빈 7호선 중보지선", name:"중보로", express:"", transfer:["7호선 본선"]},
+            {line:"효빈 7호선 중보지선", name:"중동3가", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"색수시장", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"조유동3가", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"조유동2가", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"중구청", express:"", transfer:["1호선"]},
+            {line:"효빈 7호선 중보지선", name:"천석동2가", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"천석동3가", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"서남", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"효빈고", express:"", transfer:[]},
+            {line:"효빈 7호선 중보지선", name:"사중", express:"", transfer:[]},
+
+            // 8호선
+            {line:"효빈 8호선", name:"곽산", express:"", transfer:["1호선"]},
+            {line:"효빈 8호선", name:"곽산고", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"남부소방서", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"부한", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"능남", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"평당6동주민센터", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"남구선관위", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"평곡", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"평당고", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"사북내", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"남구청", express:"", transfer:["1호선","4호선"]},
+            {line:"효빈 8호선", name:"주오", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"평당장애인복지관", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"북평단", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"주곡", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"창문공원", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"세무지구", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"배고", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"문화회관", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"신거", express:"", transfer:["1호선"]},
+            {line:"효빈 8호선", name:"평운", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"운양중앙", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"운촌", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"박산", express:"", transfer:["2호선"]},
+            {line:"효빈 8호선", name:"박산중고등학교", express:"", transfer:[]},
+            {line:"효빈 8호선", name:"신흥", express:"", transfer:["2호선","4호선"]},
+
+            // 빈효선
+            {line:"빈효선 광역전철", name:"효빈항", express:"급", transfer:["1호선","7호선"]},
+            {line:"빈효선 광역전철", name:"효빈항물류지구", express:"급", transfer:["1호선"]},
+            {line:"빈효선 광역전철", name:"동신", express:"", transfer:[]},
+            {line:"빈효선 광역전철", name:"진월천", express:"급", transfer:["4호선"]},
+            {line:"빈효선 광역전철", name:"오주", express:"", transfer:[]},
+            {line:"빈효선 광역전철", name:"효빈동신도시", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"장원", express:"급", transfer:["1호선","4호선"]},
+            {line:"빈효선 광역전철", name:"신덕", express:"급", transfer:["4호선"]},
+            {line:"빈효선 광역전철", name:"효빈", express:"급", transfer:["1호선","3호선","7호선"]},
+            {line:"빈효선 광역전철", name:"전덕", express:"급", transfer:["6호선"]},
+            {line:"빈효선 광역전철", name:"하성천", express:"", transfer:[]},
+            {line:"빈효선 광역전철", name:"북택", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"수포", express:"", transfer:[]},
+            {line:"빈효선 광역전철", name:"당가", express:"", transfer:["2호선"]},
+            {line:"빈효선 광역전철", name:"안천", express:"급", transfer:["1호선"]},
+            {line:"빈효선 광역전철", name:"타천", express:"", transfer:[]},
+            {line:"빈효선 광역전철", name:"리의", express:"", transfer:[]},
+            {line:"빈효선 광역전철", name:"이자", express:"급", transfer:["4호선"]},
+            {line:"빈효선 광역전철", name:"영색무", express:"급", transfer:["1호선"]},
+            {line:"빈효선 광역전철", name:"고해", express:"급", transfer:["1호선"]},
+            {line:"빈효선 광역전철", name:"영내", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"약산", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"홍하", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"화소", express:"급", transfer:["1호선"]},
+            {line:"빈효선 광역전철", name:"근강", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"궁하", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"아이", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"서팔", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"과림", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"시곡", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"산취", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"대뢰", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"빈전", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"천주중앙", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"천주시청", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"천주", express:"급", transfer:[]},
+            {line:"빈효선 광역전철", name:"고남", express:"급", transfer:[]}
+        ];
+
+        // 2. 색상 클래스 가져오기 (지선 포함 처리)
+        function getLineColorClass(lineName) {
+            if (!lineName) return 'bg-gray-500';
+            if (lineName.includes('1호선')) return 'line-1';
+            if (lineName.includes('2호선')) return 'line-2';
+            if (lineName.includes('3호선')) return 'line-3';
+            if (lineName.includes('4호선')) return 'line-4';
+            if (lineName.includes('5호선')) return 'line-5';
+            if (lineName.includes('6호선')) return 'line-6';
+            if (lineName.includes('7호선')) return 'line-7';
+            if (lineName.includes('8호선')) return 'line-8';
+            if (lineName.includes('빈효선')) return 'line-bh';
+            return 'bg-gray-500';
+        }
+
+        // 3. 노선도 생성 로직
+        window.onload = function() {
+            const container = document.getElementById('map-container');
+            const lines = {};
+            
+            // 데이터 그룹화
+            stationData.forEach(station => {
+                if (!lines[station.line]) lines[station.line] = [];
+                lines[station.line].push(station);
+            });
+
+            // 노선별 렌더링
+            for (const [lineName, stations] of Object.entries(lines)) {
+                const lineColorClass = getLineColorClass(lineName);
+                const textColorClass = lineName.includes('3호선') ? 'text-black' : 'text-white';
+                
+                let html = `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
+                        <div class="p-4 ${lineColorClass} ${textColorClass} font-bold flex justify-between items-center">
+                            <span>${lineName}</span>
+                            <span class="text-xs bg-white/20 px-2 py-1 rounded">${stations.length}개 역</span>
+                        </div>
+                        <div class="p-4 h-64 overflow-y-auto custom-scrollbar">
+                            <div class="relative pl-4 border-l-2 border-gray-100 space-y-4">
+                `;
+
+                stations.forEach(st => {
+                    const isTransfer = st.transfer && st.transfer.length > 0;
+                    const isExpress = st.express && st.express !== "";
+                    html += `
+                        <div class="relative group">
+                            <div class="absolute -left-[21px] top-1 w-3 h-3 rounded-full border-2 border-white ${lineColorClass} shadow-sm group-hover:scale-125 transition"></div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-gray-800 text-sm group-hover:text-sky-600 transition">${st.name}</span>
+                                <div class="flex gap-1">
+                                    ${isExpress ? `<span class="text-[10px] bg-red-100 text-red-600 px-1 rounded font-bold border border-red-200">급행</span>` : ''}
+                                    ${isTransfer ? `<span class="text-[10px] bg-gray-100 text-gray-600 px-1 rounded border border-gray-200">환승</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div></div></div>`;
+                container.innerHTML += html;
+            }
+        };
+    </script>
+</body>
+</html>

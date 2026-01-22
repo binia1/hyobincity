@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험채용 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        /* 모달 오버레이 스타일 (1차 모달) */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+        }
+        /* 2차 모달을 위한 스타일 */
+        .sub-modal-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(1px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- 헤더 영역 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <!-- 로고 대체 텍스트 -->
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 제목 및 설명 -->
+    <div class="w-full bg-slate-700 py-12 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-blue-800 opacity-60"></div>
+        <div class="relative z-10">
+            <h1 class="text-4xl font-black mb-3">시험정보 & 채용</h1>
+            <p class="text-slate-300 font-medium text-lg">효빈의 미래를 함께할 인재를 기다립니다.</p>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+        
+        <!-- 네비게이션 탭 -->
+        <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap">
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='news.html'">새소식</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='construction.html'">공사알림</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='notice.html'">고시&공고</button>
+            <!-- 현재 선택된 탭 -->
+            <button class="px-6 py-3 text-lg text-slate-900 font-black border-b-4 border-slate-900 -mb-[4px]" onclick="location.href='recruit.html'">시험채용</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition" onclick="location.href='press.html'">보도자료</button>
+        </div>
+
+        <!-- 검색바 -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="text-slate-600 font-bold">총 <span id="total-posts" class="text-blue-600">0</span>건의 공고가 있습니다.</div>
+            <div class="flex border border-slate-300 rounded-lg overflow-hidden">
+                <input type="text" placeholder="채용공고 검색" class="px-4 py-2 w-64 outline-none text-sm">
+                <button class="bg-slate-100 hover:bg-slate-200 px-4 py-2 border-l border-slate-300"><i data-lucide="search" class="w-4 h-4 text-slate-600"></i></button>
+            </div>
+        </div>
+
+        <!-- 채용 목록 테이블 -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full min-w-max text-sm text-left text-slate-500">
+                <!-- 테이블 헤더 -->
+                <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3 w-20 text-center">번호</th>
+                        <th class="px-6 py-3 w-32 text-center">구분</th>
+                        <th class="px-6 py-3 min-w-[300px]">공고명</th>
+                        <th class="px-6 py-3 w-40 text-center">채용기관</th>
+                        <th class="px-6 py-3 w-32 text-center">마감일</th>
+                        <th class="px-6 py-3 w-24 text-center">상태</th>
+                    </tr>
+                </thead>
+                <!-- 테이블 본문 (JavaScript로 채워짐) -->
+                <tbody id="recruit-list">
+                    <!-- 데이터가 여기에 삽입됩니다 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 페이징 영역 (단순 예시) -->
+        <div class="flex justify-center mt-8">
+            <button class="px-4 py-2 text-slate-600 font-bold bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-100 transition duration-150">1</button>
+        </div>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">
+            COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+    
+    <!-- 1차 모달: 채용 상세 정보 -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-800" id="modal-title">채용 상세 정보</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-500" id="modal-sub-info"></p>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium">공고명</p>
+                    <p class="text-xl font-bold text-slate-800" id="modal-name"></p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div><p class="text-xs text-slate-500 font-medium">구분</p><p class="font-semibold text-slate-700" id="modal-type"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">채용기관</p><p class="font-semibold text-slate-700" id="modal-agency"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">마감일</p><p class="font-semibold text-red-600" id="modal-deadline"></p></div>
+                    <div><p class="text-xs text-slate-500 font-medium">문의처</p><p class="font-semibold text-slate-700" id="modal-contact"></p></div>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-2">상세 직무 및 요건</p>
+                    <div class="p-4 bg-slate-50 rounded-lg text-slate-700 h-60 overflow-y-auto leading-relaxed text-base" id="modal-detail-content">
+                        <!-- 상세 내용이 여기에 들어갑니다 -->
+                    </div>
+                </div>
+                <div id="modal-attachments" class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-2">첨부 파일 (클릭 시 팝업)</p>
+                    <ul class="space-y-2 text-sm" id="attachment-list">
+                        <!-- 첨부 파일 목록이 여기에 들어갑니다 -->
+                    </ul>
+                </div>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-6 border-t flex justify-end">
+                <button onclick="closeModal()" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-150">접수 페이지 이동</button>
+                <button onclick="closeModal()" class="bg-slate-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-slate-600 transition duration-150 ml-3">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2차 모달: 첨부파일 다운로드 팝업 (notice.html에서 재사용) -->
+    <div id="attachment-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center sub-modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 transform transition-all duration-300 scale-95 opacity-0" id="attachment-modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-4 border-b flex justify-between items-center bg-blue-50 rounded-t-xl">
+                <h2 class="text-lg font-bold text-blue-700">첨부 파일 다운로드</h2>
+                <button onclick="closeAttachmentModal()" class="text-blue-400 hover:text-blue-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4 text-center">
+                <i data-lucide="file-check" class="w-10 h-10 mx-auto text-green-500"></i>
+                <p class="text-base text-slate-700">다음 파일을 다운로드하시겠습니까?</p>
+                <p class="font-bold text-lg text-slate-900 break-all" id="attachment-file-name"></p>
+                <p class="text-sm text-slate-500" id="attachment-file-size"></p>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-4 border-t flex justify-center space-x-3">
+                <button onclick="closeAttachmentModal()" class="bg-slate-300 text-slate-800 px-4 py-2 rounded-lg font-semibold hover:bg-slate-400 transition duration-150">취소</button>
+                <button onclick="simulateDownload()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-150">다운로드</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript 스크립트 -->
+    <script>
+        lucide.createIcons();
+
+        // 헬퍼 함수
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateRandomDate(start, end) {
+            const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+            return new Date(randomTime);
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}.${m}.${d}`;
+        }
+        
+        function getDaysUntil(dateString) {
+            const deadline = new Date(dateString);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); 
+            const diffTime = deadline.getTime() - today.getTime();
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function getRandomFourDigits() {
+            return String(Math.floor(1000 + Math.random() * 9000));
+        }
+
+        function getRandomPhoneNumber() {
+            const middle = getRandomFourDigits();
+            const last = getRandomFourDigits();
+            return `079-${middle}-${last}`;
+        }
+        
+        // 배열을 섞는 함수 (Fisher-Yates 알고리즘)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 1. 채용 데이터 정의
+        const recruitTypes = [
+            { name: "공무직", tag: "blue", color: "blue-700", bg: "blue-100" },
+            { name: "공공기관", tag: "green", color: "green-700", bg: "green-100" },
+            { name: "기간제", tag: "purple", color: "purple-700", bg: "purple-100" },
+            { name: "임기제", tag: "yellow", color: "yellow-700", bg: "yellow-100" },
+            { name: "공무원", tag: "sky", color: "sky-700", bg: "sky-100" },
+        ];
+        
+        const agencies = [
+            "인사과", "효빈교통공사", "효빈문화공단", "청년정책과", "효빈도시공사", 
+            "환경관리공단", "보건환경연구원", "시립미술관", "효빈경제진흥원", "농업기술센터"
+        ];
+        
+        // 제목 중복을 피하기 위해 충분히 많은 고유한 제목 목록을 정의
+        const uniqueTitlesPool = [
+            "2026년도 제1회 효빈광역시 공무직 근로자 통합채용 공고",
+            "효빈교통공사 2026년 상반기 신입사원(승무/기술) 채용",
+            "2026 HAF(효빈 애니메이션 페스티벌) 운영 코디네이터 모집",
+            "효빈시 청년정책 자문관(시간선택제임기제) 채용 공고",
+            "효빈도시공사 시설관리직 경력경쟁 채용",
+            "효빈시 일반직 공무원 임용시험 계획 공고 (7급, 9급)",
+            "환경관리공단 미화원 및 환경정비직 채용 공고",
+            "보건환경연구원 연구사 경력경쟁 채용",
+            "시립미술관 학예연구사(임기제) 공개 채용",
+            "효빈경제진흥원 경제분석 전문직 채용",
+            "농업기술센터 농촌지도사 및 연구사 채용",
+            "효빈시 장애인 공무직 특별 채용 공고",
+            "시간선택제 공무원 경력경쟁 임용시험 계획 공고",
+            "국제회의 기획 및 운영 전문인력(기간제) 채용",
+            "2026년도 효빈시 인구정책과 통계 조사원 모집",
+            "효빈소방본부 소방공무원 경력경쟁 채용 (구급, 구조)",
+            "효빈시립병원 간호사 및 의료기술직 공개 채용",
+            "공공건축물 건축직(임기제) 채용 공고",
+            "효빈문화재단 문화예술 코디네이터 채용",
+            "2026년도 효빈시 육아휴직 대체 인력 채용 공고",
+            "효빈시 빅데이터 분석 전문관 채용 (시간선택제)",
+            "청년 일자리 창출을 위한 공공인턴 모집 공고",
+            "효빈시 교통약자 이동지원센터 운전직 채용",
+        ];
+        
+        // 2. 더미 데이터 생성
+        const recruitData = [];
+        const today = new Date();
+        const startSeq = 500; 
+        const numberOfPosts = 20;
+
+        // 중복 방지를 위해 제목 풀을 섞고 필요한 만큼만 자릅니다.
+        const titles = [...uniqueTitlesPool];
+        shuffleArray(titles);
+        const uniqueTitles = titles.slice(0, numberOfPosts);
+        
+        // 마감일 생성 기준 (현재 시점 기준)
+        const deadlineNumber = 10; // 접수중인 공고 개수
+        let deadlineDates = [];
+        
+        // 접수중이거나 D-day인 공고 마감일 (오늘 이후 1일 ~ 30일 이내)
+        for (let i = 0; i < deadlineNumber; i++) {
+            let futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + getRandomInt(1, 30));
+            deadlineDates.push(formatDate(futureDate));
+        }
+        
+        // 마감된 공고 마감일 (오늘 이전 1일 ~ 90일 이내)
+        for (let i = deadlineNumber; i < numberOfPosts; i++) {
+            let pastDate = new Date(today);
+            pastDate.setDate(today.getDate() - getRandomInt(1, 90));
+            deadlineDates.push(formatDate(pastDate));
+        }
+
+        shuffleArray(deadlineDates); // 마감일을 섞어서 무작위로 배치
+
+        for (let i = 0; i < numberOfPosts; i++) {
+            const recruitType = getRandomItem(recruitTypes);
+            const agency = getRandomItem(agencies);
+            const title = uniqueTitles[i]; // 중복 없는 고유 제목 사용
+            const deadline = deadlineDates[i];
+            const contact = getRandomPhoneNumber();
+            const attachments = [];
+            const hasAttachment = Math.random() > 0.4; // 60% 확률로 첨부파일 있음
+
+            if (hasAttachment) {
+                const count = getRandomInt(1, 2);
+                for(let j = 1; j <= count; j++) {
+                    attachments.push({ name: `${recruitType.name}_${agency}_${startSeq - i}_공고문_${j}.pdf`, size: `${getRandomInt(500, 5000)} KB` });
+                }
+            }
+            
+            // 상태 계산
+            const daysLeft = getDaysUntil(deadline);
+            let statusText, statusClass;
+
+            if (daysLeft > 0) {
+                statusText = `D-${daysLeft}`;
+                statusClass = "bg-red-100 text-red-600";
+            } else if (daysLeft === 0) {
+                 statusText = "D-DAY";
+                 statusClass = "bg-red-100 text-red-600";
+            } else {
+                statusText = "마감";
+                statusClass = "bg-slate-200 text-slate-500";
+            }
+            
+            if (daysLeft > 10) {
+                statusText = "접수중";
+                statusClass = "bg-red-100 text-red-600";
+            }
+            if (daysLeft < -7) {
+                 statusText = "완료";
+                 statusClass = "bg-gray-100 text-gray-500";
+            }
+
+            const detailContent = `
+                <p class="mb-3"><strong>1. 채용 분야 및 인원:</strong></p>
+                <ul class="list-disc ml-6 mb-4">
+                    <li>${recruitType.name}직 (일반 행정): 1명</li>
+                    <li>${recruitType.name}직 (특정 기술): 1명</li>
+                </ul>
+                <p class="mb-3"><strong>2. 주요 업무:</strong> ${agency} 소관 행정 업무 및 시설 관리 보조, ${recruitType.name}별 지정 직무 수행.</p>
+                <p class="mb-3"><strong>3. 응시 자격:</strong> 만 18세 이상이며, 공고일 현재 ${recruitType.name} 채용에 결격 사유가 없는 자. 자세한 자격 요건은 첨부된 공고문을 확인해 주십시오.</p>
+                <p class="mb-3"><strong>4. 시험 방법:</strong> 1차 서류 심사, 2차 필기/실기 시험 (직무별 상이), 3차 면접 시험.</p>
+                <p><strong>5. 접수 기간:</strong> 공고 마감일 전까지 온라인 또는 방문 접수 가능합니다.</p>
+            `;
+
+
+            recruitData.push({
+                id: startSeq - i,
+                type: recruitType.name,
+                typeBg: recruitType.bg,
+                typeColor: recruitType.color,
+                title: title,
+                agency: agency,
+                deadline: deadline,
+                statusText: statusText,
+                statusClass: statusClass,
+                contact: contact,
+                detailContent: detailContent,
+                attachments: attachments
+            });
+        }
+        
+        // 3. 테이블 렌더링 함수
+        function renderRecruitList() {
+            const tbody = document.getElementById('recruit-list');
+            tbody.innerHTML = ''; // 기존 목록 초기화
+
+            recruitData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 border-b cursor-pointer';
+                row.setAttribute('onclick', `showDetails(${item.id})`);
+                
+                // 구분 태그 HTML
+                const typeHtml = `<span class="bg-${item.typeBg} text-${item.typeColor} px-2 py-1 rounded text-xs font-semibold">${item.type}</span>`;
+                
+                // 상태 태그 HTML
+                const statusHtml = `<span class="${item.statusClass} px-3 py-1 rounded-full text-xs font-bold">${item.statusText}</span>`;
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-center text-slate-500">${item.id}</td>
+                    <td class="px-6 py-4 text-center">${typeHtml}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800 cursor-pointer hover:underline">${item.title}</td>
+                    <td class="px-6 py-4 text-center text-slate-600">${item.agency}</td>
+                    <td class="px-6 py-4 text-center text-red-500 font-bold">${item.deadline}</td>
+                    <td class="px-6 py-4 text-center">${statusHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            document.getElementById('total-posts').textContent = recruitData.length;
+            // Lucide 아이콘 다시 렌더링
+            lucide.createIcons();
+        }
+
+        // 4. 모달 제어 함수 (1차 모달: 상세 정보)
+        const modal = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        function showDetails(id) {
+            const item = recruitData.find(d => d.id === id);
+            if (!item) return;
+
+            // 모달 내용 채우기
+            document.getElementById('modal-name').textContent = item.title;
+            document.getElementById('modal-type').textContent = item.type;
+            document.getElementById('modal-agency').textContent = item.agency;
+            document.getElementById('modal-deadline').textContent = item.deadline;
+            document.getElementById('modal-contact').textContent = item.contact;
+            document.getElementById('modal-sub-info').textContent = `${item.agency} | 공고번호: 제${item.id}호`;
+            document.getElementById('modal-detail-content').innerHTML = item.detailContent;
+
+            // 첨부 파일 목록 렌더링 (클릭 시 2차 모달 호출)
+            const attachmentList = document.getElementById('attachment-list');
+            attachmentList.innerHTML = '';
+            const modalAttachmentsDiv = document.getElementById('modal-attachments');
+            
+            if (item.attachments && item.attachments.length > 0) {
+                modalAttachmentsDiv.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-center justify-between p-2 bg-white border border-slate-200 rounded-md hover:bg-slate-100 transition duration-150 cursor-pointer';
+                    // 첨부파일 클릭 시 showAttachmentModal 호출
+                    li.setAttribute('onclick', `showAttachmentModal('${file.name}', '${file.size}')`);
+                    
+                    li.innerHTML = `
+                        <span class="flex items-center">
+                            <i data-lucide="download" class="w-4 h-4 mr-2 text-blue-500"></i>
+                            ${file.name}
+                        </span>
+                        <span class="text-xs text-slate-400">${file.size}</span>
+                    `;
+                    attachmentList.appendChild(li);
+                });
+            } else {
+                modalAttachmentsDiv.classList.add('hidden');
+            }
+            
+            // 모달 아이콘 다시 렌더링
+            lucide.createIcons();
+
+            // 모달 표시
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                document.getElementById('modal-detail-content').scrollTop = 0;
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.remove('opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // 5. 2차 모달 제어 함수 (첨부파일 팝업 - notice.html에서 복사)
+        const attachModal = document.getElementById('attachment-modal');
+        const attachModalContent = document.getElementById('attachment-modal-content');
+        
+        function showAttachmentModal(fileName, fileSize) {
+            document.getElementById('attachment-file-name').textContent = fileName;
+            document.getElementById('attachment-file-size').textContent = `파일 크기: ${fileSize}`;
+
+            // 2차 모달 표시
+            attachModal.classList.remove('hidden');
+            setTimeout(() => {
+                attachModal.classList.add('opacity-100');
+                attachModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeAttachmentModal() {
+            attachModal.classList.remove('opacity-100');
+            attachModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                attachModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function simulateDownload() {
+            const fileName = document.getElementById('attachment-file-name').textContent;
+            console.log(`${fileName} 다운로드를 시뮬레이션했습니다.`);
+            closeAttachmentModal();
+            showTemporaryMessage(`'${fileName}' 다운로드가 시작되었습니다.`, 'green');
+        }
+
+        // 임시 메시지 표시 (alert() 대체)
+        function showTemporaryMessage(message, color) {
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = message;
+            tempDiv.className = `fixed bottom-5 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-xl text-white font-bold transition-all duration-300 z-[70] 
+                ${color === 'green' ? 'bg-green-600' : 'bg-blue-600'}`;
+            
+            document.body.appendChild(tempDiv);
+            
+            // 2초 후 사라지게 함
+            setTimeout(() => {
+                tempDiv.classList.add('opacity-0', 'scale-90');
+                setTimeout(() => tempDiv.remove(), 300);
+            }, 2000);
+        }
+
+        // 2차 모달 외부 클릭 시 닫기
+        attachModal.addEventListener('click', (e) => {
+            if (e.target === attachModal) {
+                closeAttachmentModal();
+            }
+        });
+
+        // 6. 페이지 로드 시 목록 렌더링
+        window.onload = renderRecruitList;
+    </script>
+</body>
+</html>
