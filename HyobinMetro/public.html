@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보공개 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .hb-logo { font-family: sans-serif; font-weight: 900; letter-spacing: -2px; }
+        
+        /* 테이블 스타일 */
+        .info-table th { background-color: #f1f5f9; color: #334155; font-weight: 700; border-bottom: 2px solid #e2e8f0; text-align: left; }
+        .info-table td { border-bottom: 1px solid #e2e8f0; color: #475569; }
+        .info-table tr:last-child td { border-bottom: none; }
+        
+        /* 탭 스타일 */
+        .tab-btn { transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-color: #0ea5e9; color: #0ea5e9; font-weight: bold; }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <img src="images/logo.png" onerror="this.onerror=null; this.src='logo.png';" class="h-8 w-auto">
+                <div class="text-3xl font-black text-sky-600 hb-logo">HB</div>
+                <span class="text-lg font-bold text-gray-800">정보공개</span>
+            </a>
+            <a href="index.html" class="text-gray-500 hover:text-black"><i class="fa-solid fa-xmark text-2xl"></i></a>
+        </div>
+    </header>
+
+    <section class="bg-slate-800 text-white py-20 px-4 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://placehold.co/1920x600/1e293b/ffffff?text=Open+Data')] bg-cover bg-center"></div>
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <h1 class="text-3xl md:text-5xl font-black mb-4">투명한 경영, 열린 정보</h1>
+            <p class="text-slate-300 text-lg">효빈교통공사는 시민의 알 권리를 보장하고 경영 투명성을 높이기 위해<br>주요 경영 정보를 적극적으로 공개하고 있습니다.</p>
+        </div>
+    </section>
+
+    <div class="bg-white border-b border-gray-200 shadow-sm sticky top-16 z-40">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex space-x-8 overflow-x-auto whitespace-nowrap">
+                <button onclick="switchTab('general')" class="tab-btn active py-4 px-2 text-slate-500 hover:text-sky-600" id="btn-general">일반 현황</button>
+                <button onclick="switchTab('finance')" class="tab-btn py-4 px-2 text-slate-500 hover:text-sky-600" id="btn-finance">재무 정보</button>
+                <button onclick="switchTab('project')" class="tab-btn py-4 px-2 text-slate-500 hover:text-sky-600" id="btn-project">사업 계획</button>
+                <button onclick="switchTab('data')" class="tab-btn py-4 px-2 text-slate-500 hover:text-sky-600" id="btn-data">공공 데이터</button>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Utility Bar (검색/공유/초기화) -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex items-center gap-2 text-slate-700 font-bold">
+                    <i class="fa-solid fa-magnifying-glass text-sky-600"></i>
+                    <span>빠른 검색</span>
+                    <span class="text-xs text-slate-400 font-black hidden md:inline">· 탭별 표/목록을 즉시 필터링</span>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input id="globalSearch" type="text" placeholder="예) 6호선, 2027, CSV, 연장…" class="w-full sm:w-[360px] border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                    <div class="flex gap-2">
+                        <button id="resetSearchBtn" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-black transition">
+                            <i class="fa-solid fa-rotate-left mr-2"></i>초기화
+                        </button>
+                        <button id="copyLinkBtn" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-black text-white font-black transition">
+                            <i class="fa-solid fa-link mr-2"></i>링크 복사
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <p id="searchHint" class="mt-2 text-xs text-slate-400 hidden">
+                검색 결과가 없습니다. 다른 키워드를 시도해보세요.
+            </p>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 py-16 flex-grow w-full">
+        
+        <div id="tab-general" class="tab-content active space-y-10">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i class="fa-solid fa-building text-sky-600 mr-3"></i>기관 개요</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                    <div class="flex border-b border-slate-100 pb-2">
+                        <span class="w-32 font-bold text-slate-600">기관명</span>
+                        <span class="text-slate-800">효빈교통공사 (HYOBIN METRO)</span>
+                    </div>
+                    <div class="flex border-b border-slate-100 pb-2">
+                        <span class="w-32 font-bold text-slate-600">대표자</span>
+                        <span class="text-slate-800">최대현</span>
+                    </div>
+                    <div class="flex border-b border-slate-100 pb-2">
+                        <span class="w-32 font-bold text-slate-600">설립일</span>
+                        <span class="text-slate-800">2016년 7월 9일 (전신: 효빈도시공사 도시철도본부)</span>
+                    </div>
+                    <div class="flex border-b border-slate-100 pb-2">
+                        <span class="w-32 font-bold text-slate-600">주무부처</span>
+                        <span class="text-slate-800">효빈광역시 (지분율 100%)</span>
+                    </div>
+                    <div class="flex border-b border-slate-100 pb-2">
+                        <span class="w-32 font-bold text-slate-600">임직원 수</span>
+                        <span class="text-slate-800">13,937명 (2022년 말 기준)</span>
+                    </div>
+                    <div class="flex border-b border-slate-100 pb-2">
+                        <span class="w-32 font-bold text-slate-600">본사 소재지</span>
+                        <span class="text-slate-800">효빈광역시 북구 효빈로 79</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i class="fa-solid fa-train-subway text-sky-600 mr-3"></i>운영 현황</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-8">
+                    <div class="bg-slate-50 p-4 rounded-xl">
+                        <p class="text-slate-500 text-xs font-bold mb-1">운영 노선</p>
+                        <p class="text-2xl font-black text-slate-800">9개 <span class="text-xs font-normal text-slate-400">노선</span></p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl">
+                        <p class="text-slate-500 text-xs font-bold mb-1">총 연장</p>
+                        <p class="text-2xl font-black text-slate-800">409.09 <span class="text-xs font-normal text-slate-400">km</span></p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl">
+                        <p class="text-slate-500 text-xs font-bold mb-1">운영 역수</p>
+                        <p class="text-2xl font-black text-slate-800">282 <span class="text-xs font-normal text-slate-400">개역</span></p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl">
+                        <p class="text-slate-500 text-xs font-bold mb-1">일평균 수송</p>
+                        <p class="text-2xl font-black text-slate-800">386 <span class="text-xs font-normal text-slate-400">만명</span></p>
+                    </div>
+                </div>
+                <table id="opsTable" class="w-full text-sm text-left info-table">
+                    <thead>
+                        <tr>
+                            <th class="p-3">노선명</th>
+                            <th class="p-3">기점-종점</th>
+                            <th class="p-3">거리(km)</th>
+                            <th class="p-3">개통일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="p-3 font-bold text-[#0077DD]">1호선</td><td class="p-3">곽암해수욕장 ↔ 장선</td><td class="p-3">107.7</td><td class="p-3">1984.12.02</td></tr>
+                        <tr><td class="p-3 font-bold text-[#00CCAA]">2호선</td><td class="p-3">중앙로 순환</td><td class="p-3">57.21</td><td class="p-3">1989.02.03</td></tr>
+                        <tr><td class="p-3 font-bold text-[#FFCC11]">3호선</td><td class="p-3">팔조 ↔ 효빈국제공항</td><td class="p-3">32.61</td><td class="p-3">1994.02.09</td></tr>
+                        <tr><td class="p-3 font-bold text-[#FF5522]">4호선</td><td class="p-3">해운산업지구 ↔ 천가</td><td class="p-3">40.46</td><td class="p-3">2003.03.05</td></tr>
+                        <tr><td class="p-3 font-bold text-[#EE0022]">5호선</td><td class="p-3">청덕공원 ↔ 포성산</td><td class="p-3">22.81</td><td class="p-3">2011.05.08</td></tr>
+                        <tr><td class="p-3 font-bold text-[#881188]">6호선</td><td class="p-3">마잡 ↔ 고송나루</td><td class="p-3">21.61</td><td class="p-3">2016.04.03</td></tr>
+                        <tr><td class="p-3 font-bold text-[#FF8899]">7호선</td><td class="p-3">어간중앙 ↔ 효빈대입구</td><td class="p-3">23.59</td><td class="p-3">1931.04.05</td></tr>
+                        <tr><td class="p-3 font-bold text-[#9856FF]">8호선</td><td class="p-3">곽산 ↔ 신흥</td><td class="p-3">15.17</td><td class="p-3">2024.03.04</td></tr>
+                        <tr><td class="p-3 font-bold text-[#6677CC]">빈효선</td><td class="p-3">효빈항 ↔ 고남</td><td class="p-3">87.89</td><td class="p-3">2017.05.02</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-finance" class="tab-content space-y-10">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i class="fa-solid fa-chart-line text-sky-600 mr-3"></i>2024년도 주요 재무 현황</h2>
+                <div class="overflow-x-auto">
+                    <table id="financeTable" class="w-full text-sm text-right info-table">
+                        <thead class="text-center">
+                            <tr>
+                                <th class="p-4 w-1/4">구분</th>
+                                <th class="p-4 w-3/4">금액 (단위: 원)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-4 text-center font-bold bg-slate-50">자산 총액</td>
+                                <td class="p-4 text-slate-800 font-bold text-lg">20,183,383,362,684</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-center font-bold bg-slate-50">부채 총액</td>
+                                <td class="p-4 text-red-600">400,016,806,518</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-center font-bold bg-slate-50">자본금</td>
+                                <td class="p-4 text-slate-800">22,764,328,965,891</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-center font-bold bg-slate-50">매출액</td>
+                                <td class="p-4 text-slate-800">3,068,192,612,476</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-center font-bold bg-slate-50">영업 이익</td>
+                                <td class="p-4 text-blue-600 font-bold">+1,282,472,720</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 text-center font-bold bg-slate-50">당기 순이익</td>
+                                <td class="p-4 text-blue-600 font-bold text-lg">+537,485,082,026</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-slate-400 mt-4 text-right">* 2024년 결산 기준 (단위: 원)</p>
+            </div>
+        </div>
+
+        <div id="tab-project" class="tab-content space-y-10">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i class="fa-solid fa-helmet-safety text-sky-600 mr-3"></i>건설 및 추진 사업</h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-slate-700 mb-3 border-l-4 border-sky-500 pl-3">🚧 건설 중인 노선 (개통 예정)</h3>
+                    <table id="buildTable" class="w-full text-sm text-left info-table">
+                        <thead>
+                            <tr>
+                                <th class="p-3">노선명</th>
+                                <th class="p-3">구간</th>
+                                <th class="p-3">규모</th>
+                                <th class="p-3">개통예정</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3 font-bold"><span class="text-[#33aaff]">●</span> 창전선</td>
+                                <td class="p-3">팔조 ↔ 하성천</td>
+                                <td class="p-3">12.68km (14개역)</td>
+                                <td class="p-3 font-bold text-sky-600">2027.09.29</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold"><span class="text-[#EE0022]">●</span> 5호선 연장</td>
+                                <td class="p-3">포성산 ↔ 하미</td>
+                                <td class="p-3">21.1km (5개역)</td>
+                                <td class="p-3 font-bold text-sky-600">2032.05.11</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold"><span class="text-[#0054A6]">●</span> 빈효선 연장</td>
+                                <td class="p-3">고남 ↔ 부진</td>
+                                <td class="p-3">3.22km (1개역)</td>
+                                <td class="p-3 font-bold text-sky-600">2030.04.30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-3 border-l-4 border-green-500 pl-3">📋 계획 및 추진 노선</h3>
+                    <table id="planTable" class="w-full text-sm text-left info-table">
+                        <thead>
+                            <tr>
+                                <th class="p-3">노선명</th>
+                                <th class="p-3">구간</th>
+                                <th class="p-3">비고</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-700">청엽선</td>
+                                <td class="p-3">엽월대 ↔ 청엽국제학교 (약 15.3km)</td>
+                                <td class="p-3">2036년 목표</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-700">안천선</td>
+                                <td class="p-3">안천중앙 ↔ 이자중앙 (약 20.3km)</td>
+                                <td class="p-3">타당성 조사 중</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-700">9호선</td>
+                                <td class="p-3">북고송 ↔ 흑택 (약 30km)</td>
+                                <td class="p-3">장기 계획</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-data" class="tab-content space-y-10">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i class="fa-solid fa-database text-sky-600 mr-3"></i>공공 데이터 개방</h2>
+                <p class="text-slate-500 mb-6 text-sm">효빈교통공사가 보유한 데이터를 파일 형태로 다운로드하실 수 있습니다.</p>
+                
+                \1
+
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition group">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-black text-slate-500">공공데이터</p>
+                                <h4 class="mt-1 text-lg font-black text-slate-900">역별 출구 주변 시설</h4>
+                                <p class="mt-2 text-sm font-bold text-slate-600 leading-relaxed">
+                                    역/출구번호별로 주변 시설 정보를 제공합니다. (상세 페이지 제공)
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600 text-xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-door-open"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="exit_facilities.html" class="px-4 py-2 rounded-lg bg-slate-900 text-white font-black hover:bg-black transition text-sm">
+                                <i class="fa-solid fa-magnifying-glass-location mr-2"></i>상세보기
+                            </a>
+                            <a href="#" data-title="역별 출구 주변 시설" data-desc="역/출구번호별 주변 시설 목록 (CSV/JSON 제공)" onclick="openDataModal(this); return false;" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-800 font-black hover:bg-slate-200 transition text-sm">
+                                <i class="fa-solid fa-download mr-2"></i>다운로드
+                            </a>
+                        </div>
+                    </div>
+
+
+                    <a href="#" data-title="2024년도 역별 승하차 인원 통계" data-date="2025-01-10" data-format="CSV" class="block p-5 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-sky-300 transition group" onclick="openDataModal(this); return false;">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 group-hover:text-sky-600 mb-1">2024년도 역별 승하차 인원 통계</h3>
+                                <p class="text-xs text-slate-400">갱신일: 2025-01-10 | 형식: CSV</p>
+                            </div>
+                            
+
+            <!-- 편의시설 현황 (실제 데이터 표시) -->
+            <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-restroom text-sky-600"></i>역사 내 편의시설 현황 (공공데이터)
+                        </h3>
+                        <p class="text-sm text-slate-500 font-bold mt-1">
+                            line/구/환승/이용객수 기준 필터 + 검색 지원 · 데이터: <span class="text-slate-700">public_data/hyobin_station_facilities.json</span>
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="public_data/hyobin_station_facilities.csv" download class="px-4 py-2 rounded-lg bg-slate-900 text-white font-black hover:bg-black transition text-sm">
+                            <i class="fa-solid fa-file-csv mr-2"></i>CSV 다운로드
+                        </a>
+                        <a href="public_data/hyobin_station_facilities.json" download class="px-4 py-2 rounded-lg bg-slate-100 text-slate-800 font-black hover:bg-slate-200 transition text-sm">
+                            <i class="fa-solid fa-code mr-2"></i>JSON 다운로드
+                        </a>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-slate-50 border-b border-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                        <div class="md:col-span-3">
+                            <label class="text-xs font-black text-slate-700">노선</label>
+                            <select id="facLine" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                                <option value="">전체</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="text-xs font-black text-slate-700">구/군</label>
+                            <select id="facDistrict" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                                <option value="">전체</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-black text-slate-700">환승역</label>
+                            <select id="facTransfer" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                                <option value="">전체</option>
+                                <option value="Y">환승역만</option>
+                                <option value="N">일반역만</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-black text-slate-700">이용객수(일)</label>
+                            <input id="facRidersMin" type="number" min="0" placeholder="최소" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-xs font-black text-slate-700">&nbsp;</label>
+                            <input id="facRidersMax" type="number" min="0" placeholder="최대" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                        </div>
+
+                        <div class="md:col-span-8">
+                            <label class="text-xs font-black text-slate-700">검색</label>
+                            <input id="facSearch" type="text" placeholder="역명/영문/한자/주소/시설 키워드…" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                        </div>
+                        <div class="md:col-span-4 flex gap-2">
+                            <button id="facReset" class="w-full px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-800 font-black hover:bg-slate-100 transition">
+                                <i class="fa-solid fa-rotate-left mr-2"></i>필터 초기화
+                            </button>
+                            <button id="facExportView" class="w-full px-4 py-2 rounded-lg bg-sky-600 text-white font-black hover:bg-sky-500 transition">
+                                <i class="fa-solid fa-file-export mr-2"></i>현재 보기 CSV
+                            </button>
+                        </div>
+                    </div>
+                    <p id="facCount" class="mt-3 text-xs font-black text-slate-500">불러오는 중…</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left">
+                        <thead class="bg-white border-b border-slate-200">
+                            <tr class="text-slate-600">
+                                <th class="px-4 py-3 font-black">역명</th>
+                                <th class="px-4 py-3 font-black">노선</th>
+                                <th class="px-4 py-3 font-black">구/군</th>
+                                <th class="px-4 py-3 font-black">환승</th>
+                                <th class="px-4 py-3 font-black">일 이용객</th>
+                                <th class="px-4 py-3 font-black">엘리베이터</th>
+                                <th class="px-4 py-3 font-black">에스컬레이터</th>
+                                <th class="px-4 py-3 font-black">무장애화장실</th>
+                                <th class="px-4 py-3 font-black">AED</th>
+                                <th class="px-4 py-3 font-black">운영시간</th>
+                                <th class="px-4 py-3 font-black">점검일</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facTbody" class="bg-white"></tbody>
+                    </table>
+                </div>
+
+                <div class="p-4 bg-white border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div class="text-xs text-slate-500 font-bold">
+                        ※ 수치는 설정/데모 데이터일 수 있으며, 실제 운영 데이터로 교체 가능
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="facPrev" class="px-3 py-2 rounded-lg bg-slate-100 text-slate-800 font-black hover:bg-slate-200 transition text-sm">이전</button>
+                        <div id="facPage" class="px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-800 font-black text-sm">1</div>
+                        <button id="facNext" class="px-3 py-2 rounded-lg bg-slate-100 text-slate-800 font-black hover:bg-slate-200 transition text-sm">다음</button>
+                    </div>
+                </div>
+            </div>
+
+<i class="fa-solid fa-file-csv text-2xl text-green-500"></i>
+                        </div>
+                    </a>
+                    <a href="#" data-title="전동차 시간표 데이터 (전 노선)" data-date="2025-03-01" data-format="XLSX" class="block p-5 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-sky-300 transition group" onclick="openDataModal(this); return false;">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 group-hover:text-sky-600 mb-1">전동차 시간표 데이터 (전 노선)</h3>
+                                <p class="text-xs text-slate-400">갱신일: 2025-03-01 | 형식: XLSX</p>
+                            </div>
+                            <i class="fa-solid fa-file-excel text-2xl text-green-600"></i>
+                        </div>
+                    </a>
+                    <a href="#" data-title="역사 내 편의시설 현황 (엘리베이터 등)" data-date="2024-12-31" data-format="JSON" class="block p-5 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-sky-300 transition group" onclick="openDataModal(this); return false;">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 group-hover:text-sky-600 mb-1">역사 내 편의시설 현황 (엘리베이터 등)</h3>
+                                <p class="text-xs text-slate-400">갱신일: 2024-12-31 | 형식: JSON</p>
+                            </div>
+                            <i class="fa-solid fa-file-code text-2xl text-yellow-500"></i>
+                        </div>
+                    </a>
+                    <a href="#" data-title="효빈 도시철도 노선도 벡터 이미지" data-date="2024-03-04" data-format="AI/PDF" class="block p-5 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-sky-300 transition group" onclick="openDataModal(this); return false;">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 group-hover:text-sky-600 mb-1">효빈 도시철도 노선도 벡터 이미지</h3>
+                                <p class="text-xs text-slate-400">갱신일: 2024-03-04 | 형식: AI/PDF</p>
+                            </div>
+                            <i class="fa-solid fa-file-pdf text-2xl text-red-500"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-4">
+                <span class="text-2xl font-black text-sky-600 tracking-tighter mr-2">HB</span>
+                <span class="font-bold text-white">효빈교통공사</span>
+            </div>
+            <p>Copyright 2016. 효빈교통공사 All right reserved.</p>
+        </div>
+    </footer>
+
+    
+    <script>
+        // -------------------------------
+        // Tabs (hash + localStorage 지원)
+        // -------------------------------
+        function switchTab(tabName, pushHash = true) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const btn = document.getElementById('btn-' + tabName);
+            const tab = document.getElementById('tab-' + tabName);
+            if (!btn || !tab) return;
+
+            btn.classList.add('active');
+            tab.classList.add('active');
+
+            if (pushHash) history.replaceState(null, '', '#' + tabName);
+            localStorage.setItem('hb_public_lastTab', tabName);
+
+            document.getElementById('searchHint')?.classList.add('hidden');
+            applySearch(document.getElementById('globalSearch')?.value || '');
+        }
+
+        function initTab() {
+            const hash = (location.hash || '').replace('#','').trim();
+            const saved = localStorage.getItem('hb_public_lastTab');
+            const initial =
+                (hash && document.getElementById('tab-' + hash)) ? hash :
+                (saved && document.getElementById('tab-' + saved)) ? saved :
+                'general';
+            switchTab(initial, false);
+        }
+
+        window.addEventListener('hashchange', () => {
+            const hash = (location.hash || '').replace('#','').trim();
+            if (hash) switchTab(hash, false);
+        });
+
+        // -------------------------------
+        // Global Search (현재 탭만 필터)
+        // -------------------------------
+        const searchInput = document.getElementById('globalSearch');
+        const resetBtn = document.getElementById('resetSearchBtn');
+        const hint = document.getElementById('searchHint');
+
+        function getActiveTabName() {
+            const active = document.querySelector('.tab-content.active');
+            return active ? active.id.replace('tab-','') : 'general';
+        }
+
+        function applySearch(query) {
+            const q = (query || '').trim().toLowerCase();
+            const tab = getActiveTabName();
+            let anyVisible = true;
+
+            function filterTable(tableId) {
+                const table = document.getElementById(tableId);
+                if (!table) return true;
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+                let visCount = 0;
+                rows.forEach(r => {
+                    const text = r.innerText.toLowerCase();
+                    const ok = !q || text.includes(q);
+                    r.style.display = ok ? '' : 'none';
+                    if (ok) visCount++;
+                });
+                return visCount > 0;
+            }
+
+            function filterDataCards() {
+                const cards = Array.from(document.querySelectorAll('#tab-data a[data-title]'));
+                let vis = 0;
+                cards.forEach(c => {
+                    const text = (c.dataset.title + ' ' + (c.dataset.format||'') + ' ' + (c.dataset.date||'')).toLowerCase();
+                    const ok = !q || text.includes(q);
+                    c.style.display = ok ? '' : 'none';
+                    if (ok) vis++;
+                });
+                return vis > 0;
+            }
+
+            if (tab === 'general') anyVisible = filterTable('opsTable');
+            if (tab === 'finance') anyVisible = filterTable('financeTable');
+            if (tab === 'project') anyVisible = (filterTable('buildTable') || filterTable('planTable'));
+            if (tab === 'data') anyVisible = filterDataCards();
+
+            if (hint) {
+                if (!anyVisible && q) hint.classList.remove('hidden');
+                else hint.classList.add('hidden');
+            }
+        }
+
+        searchInput?.addEventListener('input', () => applySearch(searchInput.value));
+        resetBtn?.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            applySearch('');
+            loadFacilities();
+            showToast('검색을 초기화했어요');
+        });
+
+        document.getElementById('copyLinkBtn')?.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(location.href);
+                showToast('현재 탭 링크를 복사했어요');
+            } catch(e) {
+                showToast('복사 실패 (브라우저 권한 확인)');
+            }
+        });
+
+        // -------------------------------
+        // Sortable Tables (헤더 클릭 정렬)
+        // -------------------------------
+        function makeSortable(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const headers = Array.from(table.querySelectorAll('thead th'));
+            headers.forEach((th, idx) => {
+                th.classList.add('cursor-pointer');
+                th.title = '클릭하여 정렬';
+                th.addEventListener('click', () => sortTable(table, idx));
+            });
+        }
+
+        function parseCellValue(cellText) {
+            const t = (cellText || '').trim().replace(/[,원]/g,'');
+            if (/^-?\d+(\.\d+)?$/.test(t)) return parseFloat(t);
+            const dm = t.match(/^(\d{4})\.(\d{2})\.(\d{2})$/);
+            if (dm) return new Date(dm[1] + '-' + dm[2] + '-' + dm[3]).getTime();
+            return (cellText || '').trim().toLowerCase();
+        }
+
+        const sortState = {};
+        function sortTable(table, colIndex) {
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.style.display !== 'none');
+            const key = table.id + ':' + colIndex;
+            sortState[key] = !sortState[key];
+            const asc = sortState[key];
+
+            rows.sort((a,b) => {
+                const av = parseCellValue(a.children[colIndex]?.innerText || '');
+                const bv = parseCellValue(b.children[colIndex]?.innerText || '');
+                if (av < bv) return asc ? -1 : 1;
+                if (av > bv) return asc ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(r => tbody.appendChild(r));
+            showToast('정렬 적용');
+        }
+
+        // -------------------------------
+        // Data Modal
+        // -------------------------------
+        const dataModal = document.getElementById('dataModal');
+        const dataModalTitle = document.getElementById('dataModalTitle');
+        const dataModalMeta = document.getElementById('dataModalMeta');
+        const copyDatasetBtn = document.getElementById('copyDatasetBtn');
+
+        window.openDataModal = function(anchor) {
+            if (!anchor) return;
+            const title = anchor.dataset.title || '데이터셋';
+            const date = anchor.dataset.date || '-';
+            const format = anchor.dataset.format || '-';
+            dataModalTitle.textContent = title;
+            dataModalMeta.textContent = `갱신일: ${date} · 형식: ${format}`;
+            copyDatasetBtn.dataset.clip = `${title}\n갱신일: ${date}\n형식: ${format}\n(다운로드: 준비중)`;
+
+            dataModal.classList.remove('hidden');
+            dataModal.classList.add('flex');
+        }
+
+        function closeDataModal() {
+            dataModal.classList.add('hidden');
+            dataModal.classList.remove('flex');
+        }
+        document.getElementById('closeDataModalBtn')?.addEventListener('click', closeDataModal);
+        document.getElementById('closeDataModalBtn2')?.addEventListener('click', closeDataModal);
+        dataModal?.addEventListener('click', (e) => { if (e.target === dataModal) closeDataModal(); });
+
+        copyDatasetBtn?.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(copyDatasetBtn.dataset.clip || '');
+                showToast('정보를 복사했어요');
+            } catch(e) {
+                showToast('복사 실패 (브라우저 권한 확인)');
+            }
+        });
+
+        // -------------------------------
+        // Toast + ToTop
+        // -------------------------------
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        let toastTimer = null;
+        function showToast(msg) {
+            toastMsg.textContent = msg || '완료';
+            toast.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.add('hidden'), 1500);
+        }
+        window.showToast = showToast;
+
+        const toTopBtn = document.getElementById('toTopBtn');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 600) toTopBtn?.classList.remove('hidden');
+            else toTopBtn?.classList.add('hidden');
+        });
+        toTopBtn?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+
+        // -------------------------------
+        // Dataset download mapping
+        // -------------------------------
+        const datasetFiles = {
+            "역사 내 편의시설 현황": "public_data/hyobin_station_facilities.csv",
+            "역별 출구 주변 시설": "public_data/hyobin_station_exit_facilities_v2.csv",
+            "2024 역별 승하차 인원 통계": "public_data/hyobin_riders_2024.csv",
+            "전동차 시간표 데이터 (전 노선)": "public_data/hyobin_timetable_all_lines.csv",
+            "효빈 도시철도 노선도 벡터 이미지 (SVG)": "public_data/hyobin_metro_map.svg"
+        };
+
+        // when data modal opens, set download link
+        const downloadDatasetBtn = document.getElementById('downloadDatasetBtn');
+        const _openDataModal = window.openDataModal;
+        window.openDataModal = function(anchor) {
+            _openDataModal(anchor);
+            const title = anchor?.dataset?.title || '';
+            const file = datasetFiles[title] || '';
+            if (downloadDatasetBtn) {
+                if (file) {
+                    downloadDatasetBtn.href = file;
+                    downloadDatasetBtn.classList.remove('opacity-50','pointer-events-none');
+                } else {
+                    downloadDatasetBtn.href = '#';
+                    downloadDatasetBtn.classList.add('opacity-50','pointer-events-none');
+                }
+            }
+        }
+
+        // -------------------------------
+        // Facilities table (filter/search/paging/export)
+        // -------------------------------
+        let facilities = [];
+        let facPage = 1;
+        const facPageSize = 25;
+
+        const facLine = document.getElementById('facLine');
+        const facDistrict = document.getElementById('facDistrict');
+        const facTransfer = document.getElementById('facTransfer');
+        const facRidersMin = document.getElementById('facRidersMin');
+        const facRidersMax = document.getElementById('facRidersMax');
+        const facSearch = document.getElementById('facSearch');
+        const facTbody = document.getElementById('facTbody');
+        const facCount = document.getElementById('facCount');
+        const facPrev = document.getElementById('facPrev');
+        const facNext = document.getElementById('facNext');
+        const facPageBadge = document.getElementById('facPage');
+        const facReset = document.getElementById('facReset');
+        const facExportView = document.getElementById('facExportView');
+
+        function uniq(arr) { return Array.from(new Set(arr)).sort((a,b)=>a.localeCompare(b,'ko')); }
+
+        function populateFacOptions() {
+            if (!facilities.length) return;
+            const lines = uniq(facilities.map(x => x.line_short || x.line));
+            const dists = uniq(facilities.map(x => x.district || ''));
+            lines.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; facLine.appendChild(o); });
+            dists.filter(Boolean).forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; facDistrict.appendChild(o); });
+        }
+
+        function facMatches(item) {
+            const lineV = facLine?.value || '';
+            const distV = facDistrict?.value || '';
+            const trV = facTransfer?.value || '';
+            const minV = parseInt(facRidersMin?.value || '0', 10);
+            const maxRaw = facRidersMax?.value || '';
+            const maxV = maxRaw ? parseInt(maxRaw, 10) : null;
+            const q = (facSearch?.value || '').trim().toLowerCase();
+
+            if (lineV && (item.line_short || item.line) !== lineV) return false;
+            if (distV && (item.district || '') !== distV) return false;
+            if (trV && (item.is_transfer || '') !== trV) return false;
+
+            const riders = parseInt(item.daily_riders || 0, 10);
+            if (riders < minV) return false;
+            if (maxV !== null && riders > maxV) return false;
+
+            if (q) {
+                const blob = [
+                    item.station_name_ko, item.station_name_hanja, item.station_name_en,
+                    item.address, item.line, item.line_short, item.district,
+                    '엘리베이터 ' + item.elevators_count,
+                    '에스컬레이터 ' + item.escalators_count,
+                    'AED ' + item.aed_count,
+                    item.transfer_lines
+                ].join(' ').toLowerCase();
+                if (!blob.includes(q)) return false;
+            }
+            return true;
+        }
+
+        function facFiltered() {
+            return facilities.filter(facMatches);
+        }
+
+        function renderFacilities() {
+            if (!facTbody) return;
+            const list = facFiltered();
+            const total = list.length;
+            const pages = Math.max(1, Math.ceil(total / facPageSize));
+            facPage = Math.min(Math.max(1, facPage), pages);
+
+            const start = (facPage - 1) * facPageSize;
+            const slice = list.slice(start, start + facPageSize);
+
+            facTbody.innerHTML = '';
+            slice.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-black text-slate-900 whitespace-nowrap">${item.station_name_ko}</td>
+                    <td class="px-4 py-3 font-bold text-slate-700 whitespace-nowrap">${item.line_short || item.line}</td>
+                    <td class="px-4 py-3 font-bold text-slate-700 whitespace-nowrap">${item.district || '-'}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-black ${item.is_transfer==='Y'?'bg-yellow-100 text-yellow-800':'bg-slate-100 text-slate-700'}">
+                            ${item.is_transfer==='Y'?'환승':'일반'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">${Number(item.daily_riders||0).toLocaleString()}</td>
+                    <td class="px-4 py-3 font-bold text-slate-800">${item.elevators_count}</td>
+                    <td class="px-4 py-3 font-bold text-slate-800">${item.escalators_count}</td>
+                    <td class="px-4 py-3 font-black ${item.accessible_toilet==='Y'?'text-green-700':'text-slate-400'}">${item.accessible_toilet==='Y'?'Y':'N'}</td>
+                    <td class="px-4 py-3 font-bold text-slate-800">${item.aed_count}</td>
+                    <td class="px-4 py-3 font-bold text-slate-700 whitespace-nowrap">${item.station_open_time}~${item.station_close_time}</td>
+                    <td class="px-4 py-3 font-bold text-slate-700 whitespace-nowrap">${item.last_inspection_date}</td>
+                `;
+                facTbody.appendChild(tr);
+            });
+
+            if (facCount) facCount.textContent = `총 ${total.toLocaleString()}개 역 · ${facPage}/${pages}페이지 (페이지당 ${facPageSize}개)`;
+            if (facPageBadge) facPageBadge.textContent = `${facPage}`;
+            if (facPrev) facPrev.disabled = facPage <= 1;
+            if (facNext) facNext.disabled = facPage >= pages;
+        }
+
+        function bindFacEvents() {
+            [facLine, facDistrict, facTransfer, facRidersMin, facRidersMax, facSearch].forEach(el => {
+                el?.addEventListener('input', () => { facPage = 1; renderFacilities(); });
+                el?.addEventListener('change', () => { facPage = 1; renderFacilities(); });
+            });
+
+            facPrev?.addEventListener('click', () => { facPage = Math.max(1, facPage-1); renderFacilities(); });
+            facNext?.addEventListener('click', () => { facPage = facPage+1; renderFacilities(); });
+
+            facReset?.addEventListener('click', () => {
+                if (facLine) facLine.value = '';
+                if (facDistrict) facDistrict.value = '';
+                if (facTransfer) facTransfer.value = '';
+                if (facRidersMin) facRidersMin.value = '';
+                if (facRidersMax) facRidersMax.value = '';
+                if (facSearch) facSearch.value = '';
+                facPage = 1;
+                renderFacilities();
+                showToast('필터를 초기화했어요');
+            });
+
+            facExportView?.addEventListener('click', () => {
+                const list = facFiltered();
+                const headers = ['station_id','station_name_ko','line_short','district','is_transfer','daily_riders','exits','elevators_count','escalators_count','accessible_toilet','aed_count','station_open_time','station_close_time','last_inspection_date'];
+                const csv = [headers.join(',')].concat(list.map(x => headers.map(h => {
+                    const v = (x[h] ?? '').toString().replace(/"/g,'""');
+                    return `"${v}"`;
+                }).join(','))).join('\\n');
+
+                const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'hyobin_station_facilities_view.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showToast('현재 보기 CSV를 저장했어요');
+            });
+        }
+
+        async function loadFacilities() {
+            try {
+                const res = await fetch('public_data/hyobin_station_facilities.json', {cache:'no-store'});
+                facilities = await res.json();
+                populateFacOptions();
+                bindFacEvents();
+                renderFacilities();
+            } catch(e) {
+                if (facCount) facCount.textContent = '데이터를 불러오지 못했습니다. (로컬 file:// 실행 시 fetch 제한이 있을 수 있어요)';
+                console.error(e);
+            }
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            initTab();
+            makeSortable('opsTable');
+            makeSortable('buildTable');
+            makeSortable('planTable');
+            makeSortable('financeTable');
+            applySearch('');
+        });
+    </script>
+
+
+
+    <!-- Data Modal -->
+    <div id="dataModal" class="fixed inset-0 z-[80] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.55);">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                <div class="font-black text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-database text-sky-400"></i>
+                    데이터셋 상세
+                </div>
+                <button id="closeDataModalBtn" class="text-white/80 hover:text-white" aria-label="닫기">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <p id="dataModalTitle" class="text-xl font-black text-slate-900">데이터셋</p>
+                    <p id="dataModalMeta" class="text-sm text-slate-500 font-bold mt-1">갱신일 · 형식</p>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 leading-relaxed">
+                    <p class="font-black mb-1">안내</p>
+                    <p>현재는 <span class="font-black text-sky-700">다운로드 제공 준비 중</span>입니다.</p>
+                    <p class="mt-2">원하면 이 모달을 “실제 파일 다운로드”로 연결(예: /data/*.csv)까지 바로 구현해줄게.</p>
+                </div>
+                <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                    <div class="flex flex-wrap gap-2">
+                        <button id="copyDatasetBtn" class="px-4 py-2 rounded-lg bg-slate-900 text-white font-black hover:bg-black transition text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>정보 복사
+                        </button>
+                        <a id="downloadDatasetBtn" href="#" download class="px-4 py-2 rounded-lg bg-sky-600 text-white font-black hover:bg-sky-500 transition text-sm">
+                            <i class="fa-solid fa-download mr-2"></i>다운로드
+                        </button>
+                    </div>
+                    <button id="closeDataModalBtn2" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-800 font-black hover:bg-slate-200 transition text-sm">
+                        닫기
+                    </button>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    ※ 본 페이지는 설정/팬메이드 프로젝트일 수 있으며, 공공데이터 개방 정책 문구는 필요 시 공문체로 정비 가능.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating ToTop -->
+    <div class="fixed bottom-5 right-5 z-[60]">
+        <button id="toTopBtn" class="hidden w-12 h-12 rounded-full bg-white border border-slate-200 shadow-lg hover:shadow-xl transition flex items-center justify-center text-slate-700" aria-label="맨 위로">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[90] hidden">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-full shadow-xl text-sm font-black flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-green-400"></i>
+            <span id="toastMsg">완료</span>
+        </div>
+    </div>
+
+</body>
+</html>

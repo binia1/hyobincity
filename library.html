@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈시 통합도서관</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        .clickable-card { cursor: pointer; transition: all 0.2s; }
+        .clickable-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-color: #059669; }
+        .tab-btn.active { background-color: #059669; color: white; border-color: #059669; }
+        .hidden-lib { display: none; }
+        /* 스크롤바 커스텀 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 애니메이션 특화 뱃지 */
+        .ani-badge { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="로고.png" alt="로고" class="h-10 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-9 h-9 bg-white rounded hidden items-center justify-center text-slate-800 font-black text-lg">H</div>
+                <span class="text-xl md:text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-4 md:space-x-6 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1 transition-colors">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold hidden md:inline">메인으로</span>
+                </button>
+                <button onclick="location.href='로그인.html'" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-full text-sm font-bold transition-colors">
+                    로그인
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <div class="w-full bg-slate-700 py-12 md:py-16 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-emerald-900 to-slate-900 opacity-70"></div>
+        <img src="도서관배경.jpg" class="absolute inset-0 w-full h-full object-cover -z-10" onerror="this.style.display='none'">
+        <div class="relative z-10 px-4">
+            <h1 class="text-3xl md:text-5xl font-black mb-3 md:mb-4 tracking-tight">효빈 통합 전자도서관</h1>
+            <p class="text-emerald-100 text-sm md:text-lg font-medium">책 읽는 도시 효빈, 300만 시민의 지식 쉼터</p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 md:py-12 w-full mb-20 flex-grow">
+        <!-- 검색창 -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-100 mb-10 -mt-20 relative z-20">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 text-center">소장자료 검색</h3>
+            <div class="flex justify-center">
+                <div class="flex flex-col md:flex-row border-2 border-emerald-600 rounded-lg md:rounded-full overflow-hidden w-full max-w-3xl md:h-14 shadow-sm">
+                    <select class="h-12 md:h-auto pl-4 md:pl-6 pr-8 bg-slate-50 text-slate-700 outline-none border-b md:border-b-0 md:border-r border-slate-200 font-bold appearance-none cursor-pointer">
+                        <option>전체 소장도서</option>
+                        <option>도서명</option>
+                        <option>저자</option>
+                        <option>출판사</option>
+                        <option>만화/애니메이션</option>
+                    </select>
+                    <input type="text" placeholder="관심있는 책의 제목이나 키워드를 입력해보세요" class="h-12 md:h-auto flex-grow px-4 outline-none text-base md:text-lg placeholder-slate-400">
+                    <button class="h-12 md:h-auto bg-emerald-600 text-white px-8 hover:bg-emerald-700 font-bold flex items-center justify-center transition-colors">
+                        <i data-lucide="search" class="w-5 h-5 md:mr-2"></i> <span class="hidden md:inline">검색</span>
+                    </button>
+                </div>
+            </div>
+            <!-- 인기 검색어 -->
+            <div class="mt-4 text-center text-sm text-slate-500 flex justify-center gap-3 flex-wrap">
+                <span class="font-bold text-slate-700">인기검색어:</span>
+                <span class="cursor-pointer hover:text-emerald-600">#봇치더락</span>
+                <span class="cursor-pointer hover:text-emerald-600">#뱅드림</span>
+                <span class="cursor-pointer hover:text-emerald-600">#한강</span>
+                <span class="cursor-pointer hover:text-emerald-600">#트렌드코리아</span>
+                <span class="cursor-pointer hover:text-emerald-600">#효빈시역사</span>
+            </div>
+        </div>
+
+        <!-- 도서관 필터 -->
+        <div class="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
+            <button class="tab-btn active px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterLib('all', this)">전체보기</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterLib('special', this)">특화도서관</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterLib('public', this)">공공도서관</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterLib('small', this)">작은도서관</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterLib('univ', this)">대학도서관</button>
+        </div>
+
+        <!-- 도서관 목록 그리드 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="libraryGrid">
+            
+            <!-- ============ 특화 도서관 (9개 구/군 전체 배치) ============ -->
+            
+            <!-- 1. 서구 (아이돌/스테이지 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_seo'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 당선동 (대학로)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">서구 아이돌 & 스테이지 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">러브라이브, 아이돌마스터 등 아이돌 애니메이션 전문</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#러브라이브</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#아이마스</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#최애의아이</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 북구 (SF/메카닉 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_buk'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 진희동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">북구 메카닉스 애니도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">건담, 에반게리온 등 SF/로봇물 프라모델 전시 및 자료</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#건담</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#에반게리온</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#사이버펑크</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 중구 (웹툰/고전만화 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_jung'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">중구 명일동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">중구 만화역사 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">한국 만화의 역사부터 최신 웹툰 단행본까지</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#웹툰</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#나혼렙</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#고전명작</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 남구 (캐릭터/아동 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_nam'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 곽산동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">남구 캐릭터 꿈 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">지브리, 포켓몬, 산리오 등 전연령 캐릭터 아트북</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#지브리</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#포켓몬</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#디즈니</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 동구 (판타지 & 열혈 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_dong'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">동구 사가당동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">동구 판타지아 & 열혈 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">원피스, 나루토 및 슬램덩크 등 소년/스포츠 만화 집대성</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#소년점프</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#슬램덩크</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#원피스</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 청엽구 (밴드/음악 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_cheong'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 마잡동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">청엽 밴드 & 뮤직 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">뱅드림, 케이온! 전문 소장 및 밴드 연습실 운영</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#뱅드림</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#케이온</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#걸즈밴드</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. 창전구 (로맨스/순정 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_chang'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">창전구 진백동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">창전 로맨스 그래픽 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">순정만화, 로맨스 판타지, 감성 일러스트북 중심</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#순정</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#로판</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#너에게닿기를</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. 안천구 (게임/일러스트 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_an'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 성저동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">안천 게임&애니 도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">게임 원작 애니메이션, 설정집, 게임 아트북 전문</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#아케인</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#원신</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#페이트</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. 탄성군 남부 (탄성읍 탄성리 - 힐링 특화 겸 남부 거점) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ani_tan'">
+                <div class="h-2 ani-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">탄성군 탄성읍 탄성리</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-pink-500 transition-colors">탄성 힐링 숲 만화도서관</h4>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded font-bold">남부/특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">나츠메 우인장 등 힐링 테마 & 남부 지역 거점</p>
+                    <div class="flex gap-1 flex-wrap">
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#치유물</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#일상</span>
+                        <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">#유루캠</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탄성군 북부 (고해읍 고해리) -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=tan_bukbu'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">탄성군 고해읍 고해리</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">고해 읍립도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">북부</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>일반자료실</span><span class="font-bold text-emerald-600">30 / 80석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: 37%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 탄성군 중부 (도변읍 앵내리) -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=tanseong'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">탄성군 도변읍 앵내리</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">탄성 군립도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">중부/거점</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>종합자료실</span><span class="font-bold text-emerald-600">120 / 250석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: 48%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 안천구 안천동 (과학 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ancheon'">
+                <div class="h-2 bg-purple-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 안천동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-purple-600 transition-colors">안천 과학도서관</h4>
+                        </div>
+                        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                     <p class="text-xs text-slate-500 mb-4 line-clamp-1">과학 특화 도서 및 실험실 보유</p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>종합자료실</span><span class="font-bold text-emerald-600">80 / 220석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: 36%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 북구 고송동 (디지털 특화) -->
+            <div class="lib-item special bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=gosong'">
+                <div class="h-2 bg-blue-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 고송동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-blue-600 transition-colors">고송 디지털도서관</h4>
+                        </div>
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">특화</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">국내 최대 규모 미디어 월과 메이커 스페이스 구비</p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>종합열람실</span><span class="font-bold text-red-500">412 / 500석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width: 82%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ 주요 공공 도서관 ============ -->
+            <!-- 1. 중구 (중심) -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=central'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">중구 중앙로</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">효빈 중앙도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>제1열람실</span><span class="font-bold text-emerald-600">45 / 120석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: 37%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 남구 (평당동) -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=namgu'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 평당동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">남구 평당도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>일반열람실</span><span class="font-bold text-yellow-600">280 / 350석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-yellow-500 h-2 rounded-full" style="width: 80%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 청엽구 -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=cheongyeop'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 청엽동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">청엽 구립도서관</h4>
+                        </div>
+                        <span class="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded font-bold">휴관일</span>
+                    </div>
+                    <div class="space-y-4 opacity-60">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>일반열람실</span><span class="font-bold text-slate-500">- / 200석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-slate-300 h-2 rounded-full" style="width: 0%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 창전구 -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=changjeon'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">창전구 창전동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">창전 미래도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">24시간</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>24시 열람실</span><span class="font-bold text-emerald-600">45 / 150석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: 30%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 5. 서구 -->
+             <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=gwajin'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 과진동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">서구 과진도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>노트북실</span><span class="font-bold text-yellow-600">85 / 100석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-yellow-500 h-2 rounded-full" style="width: 85%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 동구 -->
+            <div class="lib-item public bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=deokhyeon'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">동구 덕현동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">동구 덕현도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>일반열람실</span><span class="font-bold text-emerald-600">50 / 180석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" style="width: 27%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ 작은도서관 대폭 추가 (인구 5천 이상 지역) ============ -->
+            
+            <!-- 북구 중수동 (13만) -->
+            <div class="lib-item small bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=jungsu'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 중수동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">중수 꿈자람 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">중수주민센터 2층</p>
+                    <div class="space-y-2">
+                         <div class="flex justify-between text-sm mb-1 text-slate-600"><span>열람석</span><span class="font-bold text-slate-600">12 / 30석</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 남구 어간동 (5.2만) -->
+            <div class="lib-item small bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=eogan'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 어간동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">어간 푸른숲 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">센트럴파크 커뮤니티센터</p>
+                </div>
+            </div>
+
+             <!-- 창전구 쌍엽동 (5.1만) -->
+             <div class="lib-item small bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ssangeop'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">창전구 쌍엽동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">쌍엽 마을문고</h4>
+                        </div>
+                        <span class="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded font-bold">준비중</span>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 안천구 이자동 (11.8만) -->
+             <div class="lib-item small bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ija'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 이자동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">이자 스마트도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">24시간</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">이자역 3번출구</p>
+                </div>
+            </div>
+
+            <!-- [추가] 남구 곽산동 (3.8만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=gwaksan'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 곽산동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">곽산 솔향기 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">곽산공원 내</p>
+                </div>
+            </div>
+
+            <!-- [추가] 남구 항동 (2.1만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=hangdong2'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 항동2가</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">항동 갈매기 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [추가] 북구 진희동 (2.1만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=jinhui'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 진희동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">진희 어린이 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">진희초등학교 옆</p>
+                </div>
+            </div>
+
+            <!-- [추가] 북구 소조동 (1.8만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=sojo'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 소조동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">소조 쌈지 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [추가] 동구 전천동 (1.7만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=jeoncheon'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">동구 전천동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">전천 강변 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [추가] 안천구 당가동 (3.7만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=dangga'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 당가동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">당가 문화마당 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [추가] 안천구 탄자동 (3.2만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=tanja'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 탄자동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">탄자 북카페</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [추가] 청엽구 마잡동 (3만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=majab'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 마잡동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">마잡 독서사랑방</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [추가] 청엽구 우택동 (3만) -->
+            <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=utaek'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 우택동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">우택 마을작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+             <!-- [추가] 창전구 진백동 (2만) -->
+             <div class="lib-item small hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=jinbaek'">
+                <div class="h-2 bg-orange-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">창전구 진백동</span>
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-orange-500 transition-colors">진백 솔숲 작은도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ 대학/중형 도서관 (숨김 처리) ============ -->
+             <!-- 청엽구 우전동 (9.9만) -->
+             <div class="lib-item public hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=ujeon'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 우전동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">우전 해오름 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 창전구 칠심동 (8.3만) -->
+            <div class="lib-item public hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=chilsim'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">창전구 칠심동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">칠심 열린 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 서구 청덕동 (6.4만) -->
+            <div class="lib-item public hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=cheongdeok'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 청덕동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">청덕 에코 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 북구 오내동 (5.2만) -->
+             <div class="lib-item public hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=onae'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 오내동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">오내 지혜마루 도서관</h4>
+                        </div>
+                        <span class="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded font-bold">휴관일</span>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 동구 사가당동 (4.9만) -->
+             <div class="lib-item public hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=sagadang'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">동구 사가당동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">사가당 문화 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 남구 항동1가 (4.4만) -->
+             <div class="lib-item public hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=hangdong'">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 항동1가</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">항동 항구 도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 효빈대학교 (서구 당선동 6.8만) -->
+            <div class="lib-item univ bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=hyobin_univ'">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 당선동 (북구 소조동 접경)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-indigo-600 transition-colors">효빈대학교 중앙도서관</h4>
+                        </div>
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">시민개방</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">주소는 당선동이나 캠퍼스가 넓어 사실상 소조동 생활권</p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>제2열람실</span><span class="font-bold text-red-500">280 / 300석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width: 93%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 대학도서관 (방도 - 수정) -->
+             <div class="lib-item univ bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=bangdo'">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 소조동 (효빈대 본캠퍼스)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-indigo-600 transition-colors">효빈대 방도도서관</h4>
+                        </div>
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">시민개방</span>
+                    </div>
+                     <p class="text-xs text-slate-500 mb-4 line-clamp-1">서구(중앙도서관)와 북구(방도도서관)에 걸친 대규모 캠퍼스</p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 text-slate-600"><span>중앙열람실</span><span class="font-bold text-emerald-600">120 / 300석</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-indigo-500 h-2 rounded-full" style="width: 40%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 효빈복지대학교 (서구 사복동 4.1만) -->
+            <div class="lib-item univ hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=welfare_univ'">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 사복동 (복지대)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-indigo-600 transition-colors">효빈복지대 사회과학정보센터</h4>
+                        </div>
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">제한적개방</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 효빈교육대학교 (북구 천왕사동) -->
+            <div class="lib-item univ hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=edu_univ'">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 천왕사동 (교대)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-indigo-600 transition-colors">효빈교대 교육정보관</h4>
+                        </div>
+                        <span class="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded font-bold">시험기간 통제</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 삼선대 (북구 등기동) -->
+            <div class="lib-item univ hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=samseon_univ'">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 등기동 (삼선대)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-indigo-600 transition-colors">삼선대학교 학술정보관</h4>
+                        </div>
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">시민개방</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 엽월대 (청엽구 등동) -->
+            <div class="lib-item univ hidden-lib bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group" onclick="location.href='도서관상세.html?id=yeopwol_univ'">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 등동 (엽월대)</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-indigo-600 transition-colors">엽월대학교 백년도서관</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">운영중</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- 더보기 버튼 -->
+        <div class="mt-10 text-center">
+            <button id="loadMoreBtn" class="bg-white border border-slate-300 text-slate-600 px-8 py-3 rounded-full font-bold hover:bg-slate-50 hover:text-emerald-600 transition-colors shadow-sm" onclick="showMoreLibraries()">
+                도서관 더보기 +
+            </button>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 pt-12 pb-14 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div class="flex items-center gap-2 grayscale opacity-50 hover:opacity-100 transition-opacity">
+                    <img src="로고.png" class="h-8" alt="효빈시 로고">
+                    <span class="font-bold text-lg">효빈광역시</span>
+                </div>
+                <div class="flex gap-6 text-slate-500 font-medium">
+                    <a href="이용약관.html" class="hover:text-emerald-600">이용약관</a>
+                    <a href="개인정보처리방침.html" class="hover:text-emerald-600">개인정보처리방침</a>
+                    <a href="사이트맵.html" class="hover:text-emerald-600">사이트맵</a>
+                </div>
+            </div>
+            <div class="text-center text-slate-400 space-y-1">
+                <p>효빈광역시 중구 중앙로 1 (경동)</p>
+                <p>COPYRIGHT © 2026 HYOBIN CITY. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script> 
+        lucide.createIcons(); 
+
+        function filterLib(type, btn) {
+            // 버튼 스타일 초기화 및 활성화
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-emerald-600', 'text-white', 'border-emerald-600');
+                b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+            });
+            
+            btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            btn.classList.add('active', 'bg-emerald-600', 'text-white', 'border-emerald-600');
+
+            // 그리드 필터링
+            const items = document.querySelectorAll('.lib-item');
+            items.forEach(item => {
+                if (item.classList.contains('hidden-lib')) {
+                    item.style.display = 'none'; // 숨겨진 건 계속 숨김
+                    return;
+                }
+
+                if (type === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    if (item.classList.contains(type)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function showMoreLibraries() {
+            const hiddenLibs = document.querySelectorAll('.hidden-lib');
+            hiddenLibs.forEach(lib => {
+                lib.classList.remove('hidden-lib');
+                lib.style.display = 'block'; // 즉시 표시
+            });
+            
+            // 더보기 버튼 숨기기
+            document.getElementById('loadMoreBtn').style.display = 'none';
+            
+            // 현재 활성화된 탭 필터 다시 적용
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if(activeBtn) {
+                let type = 'all';
+                if(activeBtn.innerText.includes('공공')) type = 'public';
+                else if(activeBtn.innerText.includes('작은')) type = 'small';
+                else if(activeBtn.innerText.includes('대학')) type = 'univ';
+                else if(activeBtn.innerText.includes('특화')) type = 'special';
+                
+                filterLib(type, activeBtn);
+            }
+        }
+    </script>
+</body>
+</html>

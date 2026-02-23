@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행정구역 검색 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Noto Sans KR', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold shadow-md">[로고 이미지]</div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="w-full bg-slate-700 py-12 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-slate-800 opacity-60"></div>
+        <div class="relative z-10">
+            <h1 class="text-4xl font-black mb-3">행정구역 안내</h1>
+            <p class="text-slate-300 font-medium text-lg">효빈광역시의 행정구역 현황과 유래를 검색해보세요.</p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-10 w-full mb-20">
+        
+        <!-- 검색창 -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+                <div class="relative w-full md:w-2/3">
+                    <input type="text" id="searchInput" placeholder="동 이름, 법정동, 또는 관련 키워드(예: 뱅드림)를 입력하세요" 
+                           class="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                           onkeyup="filterTable()">
+                    <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                </div>
+                <button onclick="filterTable()" class="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">검색</button>
+            </div>
+            <div class="mt-3 text-center">
+                <p class="text-xs text-slate-500 flex justify-center items-center gap-1">
+                    <i data-lucide="info" class="w-3 h-3"></i> 
+                    팁: '러브라이브', '뱅드림' 등으로 검색하시면 숨겨진 지명 유래를 찾을 수 있습니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- 결과 테이블 -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600 min-w-[1000px]">
+                    <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 uppercase">
+                        <tr>
+                            <th class="px-4 py-3 w-28">법정동코드</th>
+                            <th class="px-4 py-3 w-20">구/군</th>
+                            <th class="px-4 py-3 w-24">행정동/읍면</th>
+                            <th class="px-4 py-3 w-24">법정리/동</th>
+                            <th class="px-4 py-3 w-24 text-right">인구</th>
+                            <th class="px-4 py-3">비고 (지명 유래 및 특징)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="districtTableBody" class="divide-y divide-slate-100">
+                        <!-- JS로 데이터 로드 -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="noResult" class="hidden py-12 text-center text-slate-400">
+                검색 결과가 없습니다.
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.</div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // 데이터셋
+        const districtData = [
+            { code: "7912010100", gu: "남구", admin: "고당동", legal: "고간동", pop: "9,991", note: "" },
+            { code: "7912010708", gu: "남구", admin: "고당동", legal: "평당동", pop: "9,904", note: "" },
+            { code: "7912010200", gu: "남구", admin: "곽산1동", legal: "곽산동", pop: "10,503", note: "" },
+            { code: "7912010201", gu: "남구", admin: "곽산2동", legal: "곽산동", pop: "27,784", note: "" },
+            { code: "7912010501", gu: "남구", admin: "어간1동", legal: "어간동", pop: "12,818", note: "" },
+            { code: "7912010502", gu: "남구", admin: "어간2동", legal: "어간동", pop: "25,326", note: "" },
+            { code: "7912010503", gu: "남구", admin: "어간3동", legal: "어간동", pop: "14,681", note: "" },
+            { code: "7912010600", gu: "남구", admin: "어간3동", legal: "운양동", pop: "12,711", note: "" },
+            { code: "7912010300", gu: "남구", admin: "월천동", legal: "박산동", pop: "6,481", note: "" },
+            { code: "7912010400", gu: "남구", admin: "월천동", legal: "신흥동", pop: "8,321", note: "" },
+            { code: "7912010700", gu: "남구", admin: "월천동", legal: "월천동", pop: "9,199", note: "" },
+            { code: "7912010900", gu: "남구", admin: "월천동", legal: "포장동", pop: "109", note: "" },
+            { code: "7912010701", gu: "남구", admin: "평당1동", legal: "평당동", pop: "15,040", note: "" },
+            { code: "7912010702", gu: "남구", admin: "평당2동", legal: "평당동", pop: "20,447", note: "" },
+            { code: "7912010703", gu: "남구", admin: "평당3동", legal: "평당동", pop: "13,247", note: "" },
+            { code: "7912010704", gu: "남구", admin: "평당4동", legal: "평당동", pop: "6,954", note: "" },
+            { code: "7912010705", gu: "남구", admin: "평당5동", legal: "평당동", pop: "21,046", note: "" },
+            { code: "7912010706", gu: "남구", admin: "평당6동", legal: "평당동", pop: "17,436", note: "" },
+            { code: "7912010707", gu: "남구", admin: "평당7동", legal: "평당동", pop: "60,193", note: "" },
+            { code: "7912011001", gu: "남구", admin: "항1동", legal: "항동1가", pop: "4,222", note: "" },
+            { code: "7912011002", gu: "남구", admin: "항2동", legal: "항동1가", pop: "17,922", note: "" },
+            { code: "7912011005", gu: "남구", admin: "항2동", legal: "항동2가", pop: "12,100", note: "" },
+            { code: "7912011003", gu: "남구", admin: "항3동", legal: "항동1가", pop: "13,480", note: "" },
+            { code: "7912011006", gu: "남구", admin: "항3동", legal: "항동2가", pop: "9,211", note: "" },
+            { code: "7912011007", gu: "남구", admin: "항3동", legal: "항동3가", pop: "431", note: "" },
+            { code: "7912011004", gu: "남구", admin: "항4동", legal: "항동1가", pop: "8,467", note: "" },
+            { code: "7912011008", gu: "남구", admin: "항4동", legal: "항동3가", pop: "4,365", note: "" },
+            { code: "7913010200", gu: "동구", admin: "덕현11동", legal: "덕현동", pop: "13,907", note: "" },
+            { code: "7913010201", gu: "동구", admin: "덕현1동", legal: "덕현동", pop: "12,550", note: "" },
+            { code: "7913010202", gu: "동구", admin: "덕현2동", legal: "덕현동", pop: "19,898", note: "" },
+            { code: "7913010203", gu: "동구", admin: "덕현3동", legal: "덕현동", pop: "10,494", note: "" },
+            { code: "7913010204", gu: "동구", admin: "덕현4동", legal: "덕현동", pop: "9,632", note: "" },
+            { code: "7913010205", gu: "동구", admin: "덕현5동", legal: "덕현동", pop: "10,622", note: "" },
+            { code: "7913010206", gu: "동구", admin: "덕현6동", legal: "덕현동", pop: "14,845", note: "" },
+            { code: "7913010207", gu: "동구", admin: "덕현7동", legal: "덕현동", pop: "8,494", note: "" },
+            { code: "7913010208", gu: "동구", admin: "덕현9동", legal: "덕현동", pop: "4,464", note: "" },
+            { code: "7913010100", gu: "동구", admin: "사가당1동", legal: "사가당동", pop: "15,910", note: "" },
+            { code: "7913010101", gu: "동구", admin: "사가당2동", legal: "사가당동", pop: "8,337", note: "" },
+            { code: "7913010102", gu: "동구", admin: "사가당3동", legal: "사가당동", pop: "13,934", note: "" },
+            { code: "7913010103", gu: "동구", admin: "사가당4동", legal: "사가당동", pop: "11,734", note: "" },
+            { code: "7913010300", gu: "동구", admin: "전천동", legal: "전천동", pop: "17,191", note: "" },
+            { code: "7914010101", gu: "북구", admin: "고송1동", legal: "고송동", pop: "46,225", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010102", gu: "북구", admin: "고송2동", legal: "고송동", pop: "11,651", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010103", gu: "북구", admin: "고송3동", legal: "고송동", pop: "7,923", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010104", gu: "북구", admin: "고송4동", legal: "고송동", pop: "30,900", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010105", gu: "북구", admin: "고송5동", legal: "고송동", pop: "18,374", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010106", gu: "북구", admin: "고송6동", legal: "고송동", pop: "52,540", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010107", gu: "북구", admin: "고송7동", legal: "고송동", pop: "44,232", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010108", gu: "북구", admin: "고송8동", legal: "고송동", pop: "18,954", note: "뱅드림 타카마츠 토모리 성씨 한자" },
+            { code: "7914010300", gu: "북구", admin: "남전동", legal: "남전동", pop: "13,244", note: "러브라이브 토죠 노조미 성우(쿠스다 아이나) 성씨 한자" },
+            { code: "7914010500", gu: "북구", admin: "사능2동", legal: "사능동2가", pop: "10,321", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { code: "7914010400", gu: "북구", admin: "사능동", legal: "사능동1가", pop: "2,155", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { code: "7914010401", gu: "북구", admin: "사능동", legal: "사능동2가", pop: "811", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { code: "7914010600", gu: "북구", admin: "사능동", legal: "사능동3가", pop: "2,553", note: "뱅드림 야마부키 사아야 이름 한자" },
+            { code: "7914010800", gu: "북구", admin: "사능동", legal: "생곡동", pop: "2,223", note: "" },
+            { code: "7914012600", gu: "북구", admin: "사능동", legal: "치남동", pop: "890", note: "" },
+            { code: "7914010700", gu: "북구", admin: "산고동", legal: "사연동", pop: "3,800", note: "" },
+            { code: "7914010900", gu: "북구", admin: "산고동", legal: "서도동", pop: "2,010", note: "" },
+            { code: "7914012500", gu: "북구", admin: "산고동", legal: "추산동", pop: "2,000", note: "케이온 아키야마 미오의 성씨 한자" },
+            { code: "7914011000", gu: "북구", admin: "소조동", legal: "소조동", pop: "18,493", note: "러브라이브 미나미 코토리 중 코토리의 한자로 만들때 나오는 조합" },
+            { code: "7914011700", gu: "북구", admin: "오내1동", legal: "오내동", pop: "25,828", note: "" },
+            { code: "7914011701", gu: "북구", admin: "오내2동", legal: "오내동", pop: "26,566", note: "" },
+            { code: "7914012000", gu: "북구", admin: "중수1동", legal: "중수동", pop: "30,258", note: "러브라이브 니지동 나카스 카스미 성씨 한자" },
+            { code: "7914012001", gu: "북구", admin: "중수2동", legal: "중수동", pop: "26,785", note: "" },
+            { code: "7914012002", gu: "북구", admin: "중수3동", legal: "중수동", pop: "33,325", note: "" },
+            { code: "7914012003", gu: "북구", admin: "중수4동", legal: "중수동", pop: "40,690", note: "" },
+            { code: "7914011901", gu: "북구", admin: "진희동", legal: "입희동", pop: "3,097", note: "뱅드림 시이나 타키 이름 한자" },
+            { code: "7914012100", gu: "북구", admin: "진희동", legal: "진희동", pop: "21,013", note: "러브라이브 니시키노 마키, 뱅드림 시이나 타키의 언니 시이나 마키" },
+            { code: "7914010200", gu: "북구", admin: "채산동", legal: "곡진동", pop: "431", note: "" },
+            { code: "7914012900", gu: "북구", admin: "채산동", legal: "등기동", pop: "2,710", note: "" },
+            { code: "7914011100", gu: "북구", admin: "채산동", legal: "수포동", pop: "321", note: "" },
+            { code: "7914011200", gu: "북구", admin: "채산동", legal: "습지동", pop: "410", note: "" },
+            { code: "7914011300", gu: "북구", admin: "채산동", legal: "신영동", pop: "1,911", note: "" },
+            { code: "7914011400", gu: "북구", admin: "채산동", legal: "실본동", pop: "111", note: "" },
+            { code: "7914011500", gu: "북구", admin: "채산동", legal: "아자동", pop: "631", note: "뱅드림 우다가와 아코 이름 한자" },
+            { code: "7914011600", gu: "북구", admin: "채산동", legal: "아진동", pop: "521", note: "" },
+            { code: "7914012200", gu: "북구", admin: "채산동", legal: "채산동", pop: "2,453", note: "" },
+            { code: "7914012700", gu: "북구", admin: "채산동", legal: "평전동", pop: "2,011", note: "" },
+            { code: "7914012300", gu: "북구", admin: "천왕사동", legal: "천왕사동", pop: "10,853", note: "러브라이브 니지동 텐노지 리나 성씨 한자" },
+            { code: "7914012900", gu: "북구", admin: "천왕사동", legal: "해서동", pop: "2,232", note: "" },
+            { code: "7914011800", gu: "북구", admin: "청능동", legal: "입선동", pop: "1,891", note: "" },
+            { code: "7914011900", gu: "북구", admin: "청능동", legal: "입희동", pop: "2,056", note: "뱅드림 시이나 타키 이름 한자" },
+            { code: "7914012400", gu: "북구", admin: "청능동", legal: "청능동", pop: "8,901", note: "" },
+            { code: "7914012800", gu: "북구", admin: "포산동", legal: "포산동", pop: "14,233", note: "" },
+            { code: "7915010100", gu: "서구", admin: "과진1동", legal: "과진동", pop: "5,135", note: "" },
+            { code: "7915010101", gu: "서구", admin: "과진2동", legal: "과진동", pop: "13,419", note: "" },
+            { code: "7915010102", gu: "서구", admin: "과진3동", legal: "과진동", pop: "14,039", note: "" },
+            { code: "7915010103", gu: "서구", admin: "과진4동", legal: "과진동", pop: "10,115", note: "" },
+            { code: "7915010104", gu: "서구", admin: "과진5동", legal: "과진동", pop: "11,815", note: "" },
+            { code: "7915010105", gu: "서구", admin: "과진6동", legal: "과진동", pop: "28,435", note: "" },
+            { code: "7915010106", gu: "서구", admin: "과진7동", legal: "과진동", pop: "7,771", note: "" },
+            { code: "7915010500", gu: "서구", admin: "당선1동", legal: "당선동", pop: "14,285", note: "" },
+            { code: "7915010501", gu: "서구", admin: "당선2동", legal: "당선동", pop: "15,461", note: "" },
+            { code: "7915010502", gu: "서구", admin: "당선3동", legal: "당선동", pop: "23,689", note: "" },
+            { code: "7915010503", gu: "서구", admin: "당선4동", legal: "당선동", pop: "14,580", note: "" },
+            { code: "7915011000", gu: "서구", admin: "당선4동", legal: "칠천동", pop: "1,475", note: "" },
+            { code: "7915010200", gu: "서구", admin: "북성동", legal: "내성동1가", pop: "1,290", note: "" },
+            { code: "7915010300", gu: "서구", admin: "북성동", legal: "내성동2가", pop: "768", note: "" },
+            { code: "7915010400", gu: "서구", admin: "북성동", legal: "내성동3가", pop: "1,222", note: "" },
+            { code: "7915010600", gu: "서구", admin: "북성동", legal: "북문동1가", pop: "491", note: "" },
+            { code: "7915010700", gu: "서구", admin: "북성동", legal: "북문동2가", pop: "551", note: "" },
+            { code: "7915010800", gu: "서구", admin: "사복1동", legal: "사복동", pop: "17,481", note: "" },
+            { code: "7915010801", gu: "서구", admin: "사복2동", legal: "사복동", pop: "23,782", note: "" },
+            { code: "7915010900", gu: "서구", admin: "청덕1동", legal: "청덕동", pop: "24,997", note: "" },
+            { code: "7915010901", gu: "서구", admin: "청덕2동", legal: "청덕동", pop: "7,656", note: "" },
+            { code: "7915010902", gu: "서구", admin: "청덕3동", legal: "청덕동", pop: "31,931", note: "" },
+            { code: "7916010400", gu: "안천구", admin: "뇌전동", legal: "뇌전동", pop: "1,221", note: "뱅드림 세타 카오루의 성씨 한자" },
+            { code: "7916011100", gu: "안천구", admin: "뇌전동", legal: "상가동", pop: "2,112", note: "" },
+            { code: "7916011500", gu: "안천구", admin: "뇌전동", legal: "세익동", pop: "1,034", note: "" },
+            { code: "7916013300", gu: "안천구", admin: "뇌전동", legal: "치장동", pop: "722", note: "" },
+            { code: "7916013800", gu: "안천구", admin: "뇌전동", legal: "팔월동", pop: "781", note: "" },
+            { code: "7916013900", gu: "안천구", admin: "뇌전동", legal: "하가동", pop: "7,616", note: "" },
+            { code: "7916010600", gu: "안천구", admin: "당가1동", legal: "당가동", pop: "20,522", note: "러브라이브 슈퍼스타 탕 쿠쿠 이름 일부(唐可) 한자" },
+            { code: "7916010601", gu: "안천구", admin: "당가2동", legal: "당가동", pop: "17,051", note: "러브라이브 슈퍼스타 탕 쿠쿠 이름 일부(唐可) 한자" },
+            { code: "7916010900", gu: "안천구", admin: "백합동", legal: "백합동", pop: "4,322", note: "뱅드림 우시고메 리미의 언니 우시고메 유리의 이름 한자" },
+            { code: "7916011200", gu: "안천구", admin: "백합동", legal: "상점동", pop: "1,111", note: "" },
+            { code: "7916011000", gu: "안천구", admin: "북택동", legal: "북택동", pop: "18,171", note: "뱅드림 키타자와 하구미 성씨 한자" },
+            { code: "7916014000", gu: "안천구", admin: "북택동", legal: "하구동", pop: "13,537", note: "뱅드림 키타자와 하구미 이름 일부 그대로 사용" },
+            { code: "7916011400", gu: "안천구", admin: "성저동", legal: "성저동", pop: "15,111", note: "" },
+            { code: "7916010100", gu: "안천구", admin: "악부동", legal: "광상동", pop: "138", note: "뱅드림 애프터 글로우의 곡 헤이데이 광상곡의 이름 일부" },
+            { code: "7916010200", gu: "안천구", admin: "악부동", legal: "군청동", pop: "0", note: "" },
+            { code: "7916010800", gu: "안천구", admin: "악부동", legal: "무로동", pop: "2,002", note: "" },
+            { code: "7916011800", gu: "안천구", admin: "악부동", legal: "악부동", pop: "3,417", note: "" },
+            { code: "7916012500", gu: "안천구", admin: "악부동", legal: "일화동", pop: "77", note: "" },
+            { code: "7916012700", gu: "안천구", admin: "악부동", legal: "제택동", pop: "8,511", note: "" },
+            { code: "7916012900", gu: "안천구", admin: "악부동", legal: "천문동", pop: "31", note: "" },
+            { code: "7916013000", gu: "안천구", admin: "악부동", legal: "천본동", pop: "2", note: "" },
+            { code: "7916013100", gu: "안천구", admin: "악부동", legal: "초음동", pop: "222", note: "뱅드림 미스미 우이카 본명(미스미 하츠네)의 이름 한자" },
+            { code: "7916013500", gu: "안천구", admin: "악부동", legal: "타천동", pop: "122", note: "러브라이브 선샤인 츠시마 요시코의 '타천'" },
+            { code: "7916013700", gu: "안천구", admin: "악부동", legal: "팔망성동", pop: "13,023", note: "" },
+            { code: "7916011901", gu: "안천구", admin: "안천1동", legal: "안천동", pop: "5,856", note: "" },
+            { code: "7916011902", gu: "안천구", admin: "안천2동", legal: "안천동", pop: "20,863", note: "" },
+            { code: "7916011903", gu: "안천구", admin: "안천3동", legal: "안천동", pop: "15,270", note: "" },
+            { code: "7916011904", gu: "안천구", admin: "안천4동", legal: "안천동", pop: "25,376", note: "" },
+            { code: "7916011905", gu: "안천구", admin: "안천5동", legal: "안천동", pop: "12,604", note: "" },
+            { code: "7916011906", gu: "안천구", admin: "안천6동", legal: "안천동", pop: "23,448", note: "" },
+            { code: "7916011907", gu: "안천구", admin: "안천7동", legal: "안천동", pop: "15,208", note: "" },
+            { code: "7916010700", gu: "안천구", admin: "이십기동", legal: "리의동", pop: "5,112", note: "뱅드림 우자와 리이 이름 한자" },
+            { code: "7916011700", gu: "안천구", admin: "이십기동", legal: "심회동", pop: "71", note: "" },
+            { code: "7916012300", gu: "안천구", admin: "이십기동", legal: "이십기동", pop: "5,711", note: "뱅드림 니쥿키 히나코의 이름 한자" },
+            { code: "7916013200", gu: "안천구", admin: "이십기동", legal: "추자동", pop: "2,012", note: "뱅드림 니쥿키 히나코의 이름 한자" },
+            { code: "7916011600", gu: "안천구", admin: "이자1동", legal: "신동", pop: "4,912", note: "" },
+            { code: "7916012401", gu: "안천구", admin: "이자1동", legal: "이자동", pop: "33,976", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { code: "7916012402", gu: "안천구", admin: "이자2동", legal: "이자동", pop: "11,929", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { code: "7916012403", gu: "안천구", admin: "이자3동", legal: "이자동", pop: "50,488", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { code: "7916013600", gu: "안천구", admin: "이자3동", legal: "탄자동", pop: "32,911", note: "" },
+            { code: "7916012404", gu: "안천구", admin: "이자4동", legal: "이자동", pop: "22,148", note: "러브라이브 선샤인 사쿠라우치 리코 이름 한자" },
+            { code: "7916012800", gu: "안천구", admin: "창건동", legal: "창건동", pop: "20,202", note: "" },
+            { code: "7916010300", gu: "안천구", admin: "칠채동", legal: "남동", pop: "561", note: "러브라이브 미나미 코토리 성씨 한자" },
+            { code: "7916010500", gu: "안천구", admin: "칠채동", legal: "능릉동", pop: "1,012", note: "" },
+            { code: "7916011300", gu: "안천구", admin: "칠채동", legal: "서수동", pop: "3,211", note: "뱅드림 토가와 사키코의 어머니 토가와 미즈호의 이름 한자" },
+            { code: "7916012000", gu: "안천구", admin: "칠채동", legal: "영색무동", pop: "5,311", note: "뱅드림 마이고 노래중 실루엣댄스(영색무)의 한자표기명 사용" },
+            { code: "7916012100", gu: "안천구", admin: "칠채동", legal: "월삼동", pop: "533", note: "뱅드림 학교중 츠키노모리 여학교 한자와 유사" },
+            { code: "7916012200", gu: "안천구", admin: "칠채동", legal: "융문동", pop: "81", note: "" },
+            { code: "7916012600", gu: "안천구", admin: "칠채동", legal: "정치동", pop: "211", note: "" },
+            { code: "7916013400", gu: "안천구", admin: "칠채동", legal: "칠채동", pop: "413", note: "러브라이브 니지동 유키 세츠나의 이름 한자" },
+            { code: "7911010200", gu: "중구", admin: "고도동", legal: "고도동", pop: "765", note: "" },
+            { code: "7911011100", gu: "중구", admin: "고도동", legal: "서남동", pop: "922", note: "" },
+            { code: "7911011400", gu: "중구", admin: "고도동", legal: "시남동", pop: "3,456", note: "" },
+            { code: "7911011500", gu: "중구", admin: "고도동", legal: "시북동", pop: "1,680", note: "" },
+            { code: "7911011900", gu: "중구", admin: "고도동", legal: "십덕동", pop: "768", note: "" },
+            { code: "7911012800", gu: "중구", admin: "고도동", legal: "우이동", pop: "1,665", note: "케이온 히라사와 우이 이름 그대로 사용" },
+            { code: "7911010300", gu: "중구", admin: "궁영동", legal: "궁정동", pop: "11", note: "" },
+            { code: "7911010600", gu: "중구", admin: "궁영동", legal: "도람동", pop: "21", note: "" },
+            { code: "7911010800", gu: "중구", admin: "궁영동", legal: "만실동", pop: "0", note: "" },
+            { code: "7911012100", gu: "중구", admin: "궁영동", legal: "영동1가", pop: "889", note: "" },
+            { code: "7911012200", gu: "중구", admin: "궁영동", legal: "영동2가", pop: "1,412", note: "" },
+            { code: "7911010400", gu: "중구", admin: "내조1동", legal: "내조동", pop: "9,522", note: "" },
+            { code: "7911010401", gu: "중구", admin: "내조2동", legal: "내조동", pop: "10,022", note: "" },
+            { code: "7911010500", gu: "중구", admin: "내항동", legal: "내항동", pop: "2,202", note: "" },
+            { code: "7911010900", gu: "중구", admin: "내항동", legal: "명일동", pop: "3,000", note: "" },
+            { code: "7911011600", gu: "중구", admin: "신덕동", legal: "신덕동", pop: "5,690", note: "" },
+            { code: "7911011000", gu: "중구", admin: "약맥동", legal: "목동", pop: "2,530", note: "뱅드림 와카바 무츠미 이름 한자" },
+            { code: "7911014100", gu: "중구", admin: "약맥동", legal: "삼각동", pop: "554", note: "뱅드림 미스미 우이카의 성씨 한자" },
+            { code: "7911012000", gu: "중구", admin: "약맥동", legal: "약맥동", pop: "1,033", note: "" },
+            { code: "7911012400", gu: "중구", admin: "약맥동", legal: "오주동", pop: "4,546", note: "" },
+            { code: "7911013400", gu: "중구", admin: "약맥동", legal: "일향동", pop: "321", note: "뱅드림 토야마 아스카의 이름 한자" },
+            { code: "7911010100", gu: "중구", admin: "유내동", legal: "경동", pop: "4,887", note: "" },
+            { code: "7911010700", gu: "중구", admin: "유내동", legal: "리사동", pop: "1,766", note: "뱅드림 이마이 리사의 이름 그대로" },
+            { code: "7911013300", gu: "중구", admin: "유내동", legal: "유내동", pop: "1,778", note: "" },
+            { code: "7911013500", gu: "중구", admin: "유내동", legal: "정동", pop: "1,857", note: "" },
+            { code: "7911013600", gu: "중구", admin: "조유동", legal: "조유동1가", pop: "1,222", note: "" },
+            { code: "7911013700", gu: "중구", admin: "조유동", legal: "조유동2가", pop: "112", note: "" },
+            { code: "7911013800", gu: "중구", admin: "조유동", legal: "조유동3가", pop: "332", note: "" },
+            { code: "7911013900", gu: "중구", admin: "조유동", legal: "조유동4가", pop: "1,232", note: "" },
+            { code: "7911014000", gu: "중구", admin: "조유동", legal: "조유동5가", pop: "2,322", note: "" },
+            { code: "7911015700", gu: "중구", admin: "조유동", legal: "천석동1가", pop: "1,723", note: "" },
+            { code: "7911015800", gu: "중구", admin: "조유동", legal: "천석동2가", pop: "322", note: "" },
+            { code: "7911015900", gu: "중구", admin: "조유동", legal: "천석동3가", pop: "124", note: "" },
+            { code: "7911011200", gu: "중구", admin: "중앙동", legal: "소장동1가", pop: "0", note: "" },
+            { code: "7911011300", gu: "중구", admin: "중앙동", legal: "소장동2가", pop: "569", note: "" },
+            { code: "7911011700", gu: "중구", admin: "중앙동", legal: "심동1가", pop: "1,217", note: "" },
+            { code: "7911011800", gu: "중구", admin: "중앙동", legal: "심동2가", pop: "2,024", note: "" },
+            { code: "7911012900", gu: "중구", admin: "중앙동", legal: "원동1가", pop: "421", note: "" },
+            { code: "7911013000", gu: "중구", admin: "중앙동", legal: "원동2가", pop: "12", note: "" },
+            { code: "7911013100", gu: "중구", admin: "중앙동", legal: "원동3가", pop: "23", note: "" },
+            { code: "7911013200", gu: "중구", admin: "중앙동", legal: "원동4가", pop: "3", note: "" },
+            { code: "7911014600", gu: "중구", admin: "중앙동", legal: "중앙로1가", pop: "78", note: "" },
+            { code: "7911014700", gu: "중구", admin: "중앙동", legal: "중앙로2가", pop: "90", note: "" },
+            { code: "7911014800", gu: "중구", admin: "중앙동", legal: "중앙로3가", pop: "2", note: "" },
+            { code: "7911014900", gu: "중구", admin: "중앙동", legal: "중앙로4가", pop: "277", note: "" },
+            { code: "7911015000", gu: "중구", admin: "중앙동", legal: "중앙로5가", pop: "123", note: "" },
+            { code: "7911015100", gu: "중구", admin: "중앙동", legal: "중앙로6가", pop: "321", note: "" },
+            { code: "7911015200", gu: "중구", admin: "중앙동", legal: "지유동1가", pop: "20", note: "뱅드림 츄츄(타마데 치유)의 이름 중국어 번안 한자" },
+            { code: "7911015300", gu: "중구", admin: "중앙동", legal: "지유동2가", pop: "30", note: "뱅드림 츄츄(타마데 치유)의 이름 중국어 번안 한자" },
+            { code: "7911015400", gu: "중구", admin: "중앙동", legal: "창선동1가", pop: "15", note: "" },
+            { code: "7911015500", gu: "중구", admin: "중앙동", legal: "창선동2가", pop: "33", note: "" },
+            { code: "7911015600", gu: "중구", admin: "중앙동", legal: "창선동3가", pop: "8", note: "" },
+            { code: "7911016000", gu: "중구", admin: "중앙동", legal: "훈동", pop: "2", note: "뱅드림 세타 카오루 이름 한자" },
+            { code: "7911012300", gu: "중구", admin: "중정동", legal: "오석동", pop: "2,302", note: "" },
+            { code: "7911012500", gu: "중구", admin: "중정동", legal: "완동1가", pop: "55", note: "" },
+            { code: "7911012600", gu: "중구", admin: "중정동", legal: "완동2가", pop: "22", note: "" },
+            { code: "7911012700", gu: "중구", admin: "중정동", legal: "완동3가", pop: "178", note: "" },
+            { code: "7911014200", gu: "중구", admin: "중정동", legal: "중동1가", pop: "2,068", note: "" },
+            { code: "7911014300", gu: "중구", admin: "중정동", legal: "중동2가", pop: "12", note: "" },
+            { code: "7911014400", gu: "중구", admin: "중정동", legal: "중동3가", pop: "312", note: "" },
+            { code: "7911014500", gu: "중구", admin: "중정동", legal: "중보로", pop: "898", note: "" },
+            { code: "7917010100", gu: "창전구", admin: "광정동", legal: "광정동", pop: "1,161", note: "뱅드림 히로마치 나나미의 성씨 한자" },
+            { code: "7917010300", gu: "창전구", admin: "광정동", legal: "마시동", pop: "1,528", note: "뱅드림 쿠라타 \"마시\"로" },
+            { code: "7917010400", gu: "창전구", admin: "광정동", legal: "보통동", pop: "7,412", note: "뱅드림 히로마치 나나미의 평소 말버릇중 \"보통\"" },
+            { code: "7917010500", gu: "창전구", admin: "광정동", legal: "생덕동", pop: "121", note: "" },
+            { code: "7917010200", gu: "창전구", admin: "동곡동", legal: "동곡동", pop: "17,931", note: "뱅드림 키리가야 토우코 성씨 한자와 유사" },
+            { code: "7917011200", gu: "창전구", admin: "동곡동", legal: "투자동", pop: "7,818", note: "뱅드림 키리가야 토우코 이름 한자" },
+            { code: "7917010700", gu: "창전구", admin: "쌍엽1동", legal: "쌍엽동", pop: "38,406", note: "뱅드림 후타바 츠쿠시 성씨와 유사한 뜻" },
+            { code: "7917010701", gu: "창전구", admin: "쌍엽2동", legal: "쌍엽동", pop: "13,309", note: "뱅드림 후타바 츠쿠시 성씨와 유사한 뜻" },
+            { code: "7917010800", gu: "창전구", admin: "유류동", legal: "유류동", pop: "7,223", note: "뱅드림 야시오 루이 이름 한자" },
+            { code: "7917010600", gu: "창전구", admin: "진백동", legal: "시로동", pop: "11,112", note: "뱅드림 쿠라타 마\"시로\"" },
+            { code: "7917010900", gu: "창전구", admin: "진백동", legal: "진백동", pop: "20,802", note: "뱅드림 쿠라타 마시로 이름 중국 번안 한자" },
+            { code: "7917011000", gu: "창전구", admin: "창전1동", legal: "창전동", pop: "19,815", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { code: "7917011001", gu: "창전구", admin: "창전2동", legal: "창전동", pop: "15,821", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { code: "7917011002", gu: "창전구", admin: "창전3동", legal: "창전동", pop: "46,316", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { code: "7917011003", gu: "창전구", admin: "창전4동", legal: "창전동", pop: "27,881", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { code: "7917011004", gu: "창전구", admin: "창전5동", legal: "창전동", pop: "13,961", note: "뱅드림 쿠라타 마시로 성씨 한자" },
+            { code: "7917011100", gu: "창전구", admin: "칠심1동", legal: "칠심동", pop: "32,486", note: "뱅드림 히로마치 나나미 이름 한자" },
+            { code: "7917011101", gu: "창전구", admin: "칠심2동", legal: "칠심동", pop: "30,735", note: "뱅드림 히로마치 나나미 이름 한자" },
+            { code: "7917011102", gu: "창전구", admin: "칠심3동", legal: "칠심동", pop: "20,050", note: "뱅드림 히로마치 나나미 이름 한자" },
+            { code: "7917011300", gu: "창전구", admin: "팔조동", legal: "팔조동", pop: "16,460", note: "뱅드림 야시오 루이 성씨 한자" },
+            { code: "7918010100", gu: "청엽구", admin: "동리동", legal: "동리동", pop: "16,139", note: "뱅드림 하자와 츠구미 이름 중국번안 한자" },
+            { code: "7918010200", gu: "청엽구", admin: "등동", legal: "등동", pop: "21,208", note: "뱅드림 타카마츠 토모리 이름 한자+동" },
+            { code: "7918010300", gu: "청엽구", admin: "마잡1동", legal: "마잡동", pop: "1,659", note: "뱅드림 아오바 모카 이름 중국어 번안 한자" },
+            { code: "7918010600", gu: "청엽구", admin: "마잡1동", legal: "서증동", pop: "2,111", note: "" },
+            { code: "7918011300", gu: "청엽구", admin: "마잡1동", legal: "헌이송동", pop: "14,291", note: "" },
+            { code: "7918010301", gu: "청엽구", admin: "마잡2동", legal: "마잡동", pop: "29,233", note: "뱅드림 아오바 모카 이름 중국어 번안 한자" },
+            { code: "7918010400", gu: "청엽구", admin: "비마리동", legal: "비마동", pop: "27,642", note: "뱅드림 우에하라 히마리 이름을 중국 번안 한자중 일부" },
+            { code: "7918010500", gu: "청엽구", admin: "비마리동", legal: "사노동", pop: "17,432", note: "" },
+            { code: "7918010700", gu: "청엽구", admin: "우전1동", legal: "우전동", pop: "45,929", note: "뱅드림 우다가와 아코, 우다가와 토모에 성씨 한자" },
+            { code: "7918010701", gu: "청엽구", admin: "우전2동", legal: "우전동", pop: "28,009", note: "" },
+            { code: "7918010702", gu: "청엽구", admin: "우전3동", legal: "우전동", pop: "25,803", note: "" },
+            { code: "7918010800", gu: "청엽구", admin: "우택동", legal: "우택동", pop: "30,464", note: "뱅드림 하자와 츠구미 성씨 한자" },
+            { code: "7918010900", gu: "청엽구", admin: "입빈동", legal: "입동1가", pop: "1,398", note: "" },
+            { code: "7918011000", gu: "청엽구", admin: "입빈동", legal: "입동2가", pop: "1,892", note: "" },
+            { code: "7918011100", gu: "청엽구", admin: "입빈동", legal: "입동3가", pop: "4,181", note: "" },
+            { code: "7918011500", gu: "청엽구", admin: "입빈동", legal: "효빈동1가", pop: "25,156", note: "" },
+            { code: "7918011400", gu: "청엽구", admin: "입빈동", legal: "효빈동2가", pop: "6,431", note: "" },
+            { code: "7918011200", gu: "청엽구", admin: "청엽1동", legal: "청엽동", pop: "49,575", note: "뱅드림 아오바 모카 성씨 한자" },
+            { code: "7918011201", gu: "청엽구", admin: "청엽2동", legal: "청엽동", pop: "22,194", note: "뱅드림 아오바 모카 성씨 한자" },
+            { code: "7918011202", gu: "청엽구", admin: "청엽3동", legal: "청엽동", pop: "8,689", note: "뱅드림 아오바 모카 성씨 한자" },
+            { code: "7918011203", gu: "청엽구", admin: "청엽4동", legal: "청엽동", pop: "26,728", note: "뱅드림 아오바 모카 성씨 한자" },
+            { code: "7918011204", gu: "청엽구", admin: "청엽5동", legal: "청엽동", pop: "33,830", note: "뱅드림 아오바 모카 성씨 한자" },
+            { code: "7918011205", gu: "청엽구", admin: "청엽6동", legal: "청엽동", pop: "30,049", note: "뱅드림 아오바 모카 성씨 한자" },
+            { code: "7971010100", gu: "탄성군", admin: "고해읍", legal: "고해리", pop: "7,190", note: "러브라이브 선샤인 타카미 치카 성씨 한자" },
+            { code: "7971010200", gu: "탄성군", admin: "고해읍", legal: "율일리", pop: "545", note: "" },
+            { code: "7971010300", gu: "탄성군", admin: "고해읍", legal: "은진원리", pop: "23", note: "" },
+            { code: "7971010400", gu: "탄성군", admin: "고해읍", legal: "이식리", pop: "525", note: "" },
+            { code: "7971010500", gu: "탄성군", admin: "고해읍", legal: "이와리", pop: "7,778", note: "" },
+            { code: "7971010600", gu: "탄성군", admin: "고해읍", legal: "장심리", pop: "224", note: "" },
+            { code: "7971010700", gu: "탄성군", admin: "고해읍", legal: "전추리", pop: "233", note: "" },
+            { code: "7971010800", gu: "탄성군", admin: "고해읍", legal: "정명리", pop: "525", note: "" },
+            { code: "7971010900", gu: "탄성군", admin: "고해읍", legal: "천가리", pop: "6,578", note: "러브라이브 선샤인 타카미 치카 이름 한자" },
+            { code: "7971011000", gu: "탄성군", admin: "도변읍", legal: "계층리", pop: "3,442", note: "" },
+            { code: "7971011100", gu: "탄성군", admin: "도변읍", legal: "도변리", pop: "21,342", note: "러브라이브 선샤인 와타나베 요우 성씨 한자" },
+            { code: "7971011300", gu: "탄성군", admin: "도변읍", legal: "요우리", pop: "22,211", note: "러브라이브 선샤인 와타나베 요우 이름 그대로" },
+            { code: "7971011600", gu: "탄성군", admin: "도변읍", legal: "잠재리", pop: "2,311", note: "뱅드림 마이고의 노래 잠재표명중 잠재" },
+            { code: "7971011500", gu: "탄성군", admin: "도변읍", legal: "조일리", pop: "289", note: "뱅드림 아사히 롯카의 성씨 한자" },
+            { code: "7971011400", gu: "탄성군", admin: "도변읍", legal: "표명리", pop: "1,122", note: "뱅드림 마이고의 노래 잠재표명중 표명" },
+            { code: "7971011200", gu: "탄성군", admin: "도변읍(앵내출장소)", legal: "앵내리", pop: "39,521", note: "러브라이브 선샤인 사쿠라우치 리코 성씨 한자" },
+            { code: "7971011700", gu: "탄성군", admin: "도향면", legal: "미로리", pop: "442", note: "뱅드림 마이고 노래 일일 미로중 미로" },
+            { code: "7971011800", gu: "탄성군", admin: "도향면", legal: "반주리", pop: "32", note: "뱅드림 마이고 노래 벽천반주 중 반주" },
+            { code: "7971011900", gu: "탄성군", admin: "도향면", legal: "벽천리", pop: "213", note: "뱅드림 마이고 노래 벽천반주 중 벽천" },
+            { code: "7971012000", gu: "탄성군", admin: "도향면", legal: "분음리", pop: "3,432", note: "도향면: 걸즈 밴드크라이 카와라기 모모카의 이름 한자" },
+            { code: "7971012100", gu: "탄성군", admin: "도향면", legal: "시초리", pop: "1,324", note: "뱅드림 마이고 노래 시초반 중 시초" },
+            { code: "7971012200", gu: "탄성군", admin: "도향면", legal: "영왕리", pop: "322", note: "" },
+            { code: "7971012300", gu: "탄성군", admin: "도향면", legal: "일일리", pop: "112", note: "뱅드림 마이고 노래 일일 미로중 일일" },
+            { code: "7971012400", gu: "탄성군", admin: "도향면", legal: "일하리", pop: "232", note: "" },
+            { code: "7971012500", gu: "탄성군", admin: "도향면", legal: "초반리", pop: "342", note: "뱅드림 마이고 노래 시초반 중 초반" },
+            { code: "7971012600", gu: "탄성군", admin: "도향면", legal: "춘일경리", pop: "537", note: "뱅드림 마이고 노래 춘일경(하루히카게) 중 춘일경" },
+            { code: "7971012700", gu: "탄성군", admin: "도향면", legal: "하공리", pop: "344", note: "" },
+            { code: "7971012800", gu: "탄성군", admin: "서목읍", legal: "록구리", pop: "2,122", note: "뱅드림 아사히 롯카의 별명 관련(LOCK)" },
+            { code: "7971012900", gu: "탄성군", admin: "서목읍", legal: "마희리", pop: "232", note: "" },
+            { code: "7971013000", gu: "탄성군", admin: "서목읍", legal: "서목리", pop: "12,145", note: "러브라이브 니시키노 마키의 성씨 한자중 일부" },
+            { code: "7971013100", gu: "탄성군", admin: "서목읍", legal: "소춘리", pop: "1,720", note: "" },
+            { code: "7971013200", gu: "탄성군", admin: "서목읍", legal: "승남리", pop: "7,244", note: "" },
+            { code: "7971013300", gu: "탄성군", admin: "서목읍", legal: "음일리", pop: "233", note: "뱅드림 마이고 노래 음일회 중 음일" },
+            { code: "7971013400", gu: "탄성군", admin: "서목읍", legal: "일회리", pop: "1,232", note: "뱅드림 마이고 노래 음일회 중 일회" },
+            { code: "7971013500", gu: "탄성군", admin: "서목읍", legal: "입리", pop: "4,454", note: "" },
+            { code: "7971013600", gu: "탄성군", admin: "서목읍", legal: "잠금리", pop: "1,233", note: "뱅드림 아사히 롯카의 별명 한국어 관련(LOCK)" },
+            { code: "7971013700", gu: "탄성군", admin: "서목읍", legal: "조산리", pop: "232", note: "" },
+            { code: "7971013800", gu: "탄성군", admin: "서목읍", legal: "파래리", pop: "4,535", note: "뱅드림 파레오의 이름 변형" },
+            { code: "7971013900", gu: "탄성군", admin: "소원면", legal: "라면리", pop: "2,023", note: "" },
+            { code: "7971014000", gu: "탄성군", admin: "소원면", legal: "부우리", pop: "634", note: "" },
+            { code: "7971014100", gu: "탄성군", admin: "소원면", legal: "소원리", pop: "8,444", note: "러브라이브 선샤인 오하라 마리 성씨 한자" },
+            { code: "7971014200", gu: "탄성군", admin: "소원면", legal: "윤부리", pop: "5,321", note: "" },
+            { code: "7971014300", gu: "탄성군", admin: "야진읍", legal: "미우리", pop: "2,325", note: "" },
+            { code: "7971014400", gu: "탄성군", admin: "야진읍", legal: "신리", pop: "426", note: "" },
+            { code: "7971014500", gu: "탄성군", admin: "야진읍", legal: "아득리", pop: "133", note: "" },
+            { code: "7971014600", gu: "탄성군", admin: "야진읍", legal: "야진리", pop: "3,933", note: "러브라이브 니시키노 마키의 성씨 이름 한자 일부 인용" },
+            { code: "7971014700", gu: "탄성군", admin: "야진읍", legal: "원심리", pop: "422", note: "" },
+            { code: "7971014800", gu: "탄성군", admin: "정근면", legal: "구생리", pop: "232", note: "정근면: 걸즈 밴드크라이 이세리 니나의 성씨 한자" },
+            { code: "7971014900", gu: "탄성군", admin: "정근면", legal: "사촌리", pop: "347", note: "" },
+            { code: "7971015000", gu: "탄성군", admin: "정근면", legal: "안경리", pop: "422", note: "" },
+            { code: "7971015100", gu: "탄성군", admin: "정근면", legal: "익목리", pop: "132", note: "" },
+            { code: "7971015200", gu: "탄성군", admin: "정근면", legal: "처구리", pop: "44", note: "" },
+            { code: "7971015300", gu: "탄성군", admin: "정근면", legal: "촌주리", pop: "353", note: "" },
+            { code: "7971015400", gu: "탄성군", admin: "정근면", legal: "층부리", pop: "1,211", note: "" },
+            { code: "7971015500", gu: "탄성군", admin: "정근면", legal: "회층리", pop: "192", note: "" },
+            { code: "7971015600", gu: "탄성군", admin: "탄성읍", legal: "고무리", pop: "12,344", note: "" },
+            { code: "7971015700", gu: "탄성군", admin: "탄성읍", legal: "공리", pop: "11,233", note: "" },
+            { code: "7971015800", gu: "탄성군", admin: "탄성읍", legal: "명무리", pop: "323", note: "" },
+            { code: "7971015900", gu: "탄성군", admin: "탄성읍", legal: "무성리", pop: "453", note: "" },
+            { code: "7971016000", gu: "탄성군", admin: "탄성읍", legal: "미성리", pop: "5,982", note: "" },
+            { code: "7971016100", gu: "탄성군", admin: "탄성읍", legal: "성규리", pop: "2,111", note: "" },
+            { code: "7971016200", gu: "탄성군", admin: "탄성읍", legal: "탄성리", pop: "17,552", note: "" },
+            { code: "7971016300", gu: "탄성군", admin: "흑택면", legal: "루비리", pop: "10,553", note: "러브라이브 선샤인 쿠로사와 루비 이름 그대로" },
+            { code: "7971016400", gu: "탄성군", admin: "흑택면", legal: "명현리", pop: "543", note: "" },
+            { code: "7971016500", gu: "탄성군", admin: "흑택면", legal: "보습리", pop: "899", note: "" },
+            { code: "7971016600", gu: "탄성군", admin: "흑택면", legal: "은염리", pop: "1,233", note: "" },
+            { code: "7971016700", gu: "탄성군", admin: "흑택면", legal: "흑택리", pop: "8,709", note: "러브라이브 선샤인 쿠로사와 루비, 쿠로사와 다이아의 성씨 한자" }
+        ];
+
+        function renderTable(data) {
+            const tbody = document.getElementById('districtTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                document.getElementById('noResult').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('noResult').classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 last:border-b-0';
+                
+                let noteHtml = item.note;
+                // 비고란에 특정 키워드가 있으면 강조
+                if (item.note) {
+                    noteHtml = `<span class="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-bold mr-1">트리비아</span> ${item.note}`;
+                }
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-500">${item.code}</td>
+                    <td class="px-4 py-3 font-bold text-slate-700">${item.gu}</td>
+                    <td class="px-4 py-3">${item.admin}</td>
+                    <td class="px-4 py-3 text-slate-600">${item.legal}</td>
+                    <td class="px-4 py-3 text-right font-medium">${item.pop}</td>
+                    <td class="px-4 py-3 text-xs text-slate-500 leading-relaxed">${noteHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = districtData.filter(item => {
+                return item.admin.includes(input) || 
+                       item.legal.includes(input) || 
+                       item.note.includes(input) ||
+                       item.gu.includes(input);
+            });
+            renderTable(filteredData);
+        }
+
+        // 초기 렌더링
+        window.onload = () => {
+            renderTable(districtData);
+        };
+    </script>
+</body>
+</html>

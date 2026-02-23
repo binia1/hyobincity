@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈사랑상품권 가맹점 찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 모달 애니메이션 */
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 0.2s, transform 0.2s; }
+        .modal-exit { opacity: 1; transform: scale(1); }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 0.2s, transform 0.2s; }
+
+        /* 커스텀 스크롤바 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold">[로고 이미지]</div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='economy.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">금융/경제 홈</span>
+                </button>
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 상단 타이틀 -->
+    <div class="bg-blue-600 py-10 text-center text-white">
+        <h1 class="text-3xl font-black mb-2">효빈사랑상품권 가맹점 찾기</h1>
+        <p class="text-blue-100">우리 동네 사용처를 쉽고 간편하게 검색하세요.</p>
+    </div>
+
+    <!-- 검색 컨테이너 -->
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full mb-20">
+        <!-- 검색 필터 -->
+        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">지역(구/군)</label>
+                    <select id="areaSelect" class="w-full h-11 border border-slate-300 rounded px-3 focus:outline-none focus:border-blue-500">
+                        <option value="">전체</option>
+                        <!-- 자바스크립트로 자동 생성 -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">업종</label>
+                    <select id="categorySelect" class="w-full h-11 border border-slate-300 rounded px-3 focus:outline-none focus:border-blue-500">
+                        <option value="">전체</option>
+                        <option value="한식">한식</option>
+                        <option value="중식">중식</option>
+                        <option value="일식">일식</option>
+                        <option value="양식">양식</option>
+                        <option value="치킨">치킨</option>
+                        <option value="패스트푸드">패스트푸드/햄버거</option>
+                        <option value="아시아음식">아시아/세계음식</option>
+                        <option value="카페">카페/제과/빵집</option>
+                        <option value="편의점">마트/편의점</option>
+                        <option value="학원">학원/교육</option>
+                        <option value="미용">미용/뷰티</option>
+                        <option value="병원">병원/의원</option>
+                        <option value="약국">약국</option>
+                        <option value="안경">안경점</option>
+                        <option value="서점">서점/문구</option>
+                        <option value="헬스">헬스/스포츠</option>
+                        <option value="꽃집">꽃집/화원</option>
+                        <option value="세탁">세탁소</option>
+                        <option value="정육">정육점</option>
+                        <option value="반찬">반찬가게</option>
+                        <option value="시장">전통시장</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">가맹점명</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="storeNameInput" placeholder="가맹점 이름을 입력하세요" class="w-full h-11 border border-slate-300 rounded px-3 focus:outline-none focus:border-blue-500" onkeyup="if(window.event.keyCode==13){searchStore()}">
+                        <button onclick="searchStore()" class="w-32 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition flex items-center justify-center gap-1">
+                            <i data-lucide="search" class="w-4 h-4"></i> 검색
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색 결과 -->
+        <div class="mb-4 flex justify-between items-end">
+            <h2 class="text-xl font-bold text-slate-800">검색 결과 <span id="resultCount" class="text-blue-600">0</span>건</h2>
+            <div class="text-sm text-slate-500">※ 가맹점 사정에 따라 이용이 제한될 수 있습니다.</div>
+        </div>
+
+        <div id="resultList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- 자바스크립트로 리스트 생성 -->
+            <div class="col-span-full py-20 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                검색 조건을 입력하고 검색 버튼을 눌러주세요.
+            </div>
+        </div>
+    </main>
+
+    <!-- 가맹점 상세 모달 -->
+    <div id="storeModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeStoreModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 pointer-events-none">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all pointer-events-auto flex flex-col max-h-[90vh]">
+                <!-- 헤더 -->
+                <div class="bg-blue-600 p-5 flex justify-between items-start text-white">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="modalCategory" class="bg-blue-800 text-blue-100 text-[11px] px-2 py-0.5 rounded font-bold">음식점</span>
+                        </div>
+                        <h2 id="modalName" class="text-xl font-bold tracking-tight">가맹점 이름</h2>
+                    </div>
+                    <button onclick="closeStoreModal()" class="text-blue-200 hover:text-white transition p-1">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- 바디 -->
+                <div class="p-6 overflow-y-auto custom-scrollbar">
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 flex justify-center mt-1"><i data-lucide="map-pin" class="w-5 h-5 text-blue-600"></i></div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 mb-0.5">주소</h4>
+                                <p id="modalAddress" class="text-slate-800 font-medium">주소 정보</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 flex justify-center mt-1"><i data-lucide="phone" class="w-5 h-5 text-blue-600"></i></div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 mb-0.5">전화번호</h4>
+                                <p id="modalPhone" class="text-slate-800 font-medium">079-000-0000</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-slate-100 pt-5">
+                            <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4 text-slate-400"></i> 매장 정보
+                            </h4>
+                            <div class="bg-slate-50 rounded-lg p-4 space-y-2 text-sm text-slate-600">
+                                <div class="flex justify-between">
+                                    <span>영업시간</span>
+                                    <span class="font-bold text-slate-800" id="modalHours">09:00 ~ 22:00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>휴무일</span>
+                                    <span class="font-bold text-slate-800" id="modalClosed">연중무휴</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>주차</span>
+                                    <span class="font-bold text-blue-600" id="modalParking">가능</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>주요 서비스</span>
+                                    <span class="font-medium text-slate-800 text-right w-1/2 break-words" id="modalService">와이파이, 포장 가능</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-start gap-2">
+                            <i data-lucide="credit-card" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="text-blue-800 font-bold text-sm">효빈사랑상품권 사용 가능</p>
+                                <p class="text-blue-600 text-xs mt-0.5">결제 시 상시 7% 캐시백 적립</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 푸터 -->
+                <div class="p-4 border-t border-slate-100 bg-slate-50 flex gap-2">
+                    <button class="flex-1 bg-white border border-slate-300 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition" onclick="alert('지도 앱으로 연결합니다.')">
+                        지도보기
+                    </button>
+                    <button class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200" onclick="alert('전화 연결합니다.')">
+                        전화걸기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">
+            COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // -------------------------------------------------------------
+        // 1. 행정구역 데이터 (인구수 포함)
+        // -------------------------------------------------------------
+        const cityData = {
+            "남구": [
+                { name: "고간동", pop: 9991 }, { name: "곽산동", pop: 38287 }, { name: "어간동", pop: 52825 }, { name: "운양동", pop: 12711 },
+                { name: "박산동", pop: 6481 }, { name: "신흥동", pop: 8321 }, { name: "월천동", pop: 9399 }, { name: "포장동", pop: 109 },
+                { name: "평당동", pop: 164267 }, { name: "항동1가", pop: 44091 }, { name: "항동2가", pop: 21311 }, { name: "항동3가", pop: 4796 }
+            ],
+            "동구": [
+                { name: "덕현동", pop: 103906 }, { name: "사가당동", pop: 49915 }, { name: "전천동", pop: 17191 }
+            ],
+            "북구": [
+                { name: "고송동", pop: 230799 }, { name: "남전동", pop: 13244 }, { name: "사능동1가", pop: 2155 }, { name: "사능동3가", pop: 2553 },
+                { name: "생곡동", pop: 2223 }, { name: "치남동", pop: 890 }, { name: "사능동2가", pop: 11132 }, { name: "사연동", pop: 3800 },
+                { name: "서도동", pop: 2010 }, { name: "추산동", pop: 2000 }, { name: "소조동", pop: 18493 }, { name: "오내동", pop: 52394 },
+                { name: "중수동", pop: 131058 }, { name: "입희동", pop: 5153 }, { name: "진희동", pop: 21013 }, { name: "곡진동", pop: 431 },
+                { name: "수포동", pop: 321 }, { name: "습지동", pop: 410 }, { name: "신영동", pop: 1911 }, { name: "실본동", pop: 111 },
+                { name: "아자동", pop: 631 }, { name: "아진동", pop: 521 }, { name: "채산동", pop: 2453 }, { name: "평전동", pop: 2011 },
+                { name: "등기동", pop: 2710 }, { name: "천왕사동", pop: 10853 }, { name: "해서동", pop: 2232 }, { name: "입선동", pop: 1891 },
+                { name: "청능동", pop: 8901 }, { name: "포산동", pop: 14233 }
+            ],
+            "서구": [
+                { name: "과진동", pop: 90729 }, { name: "당선동", pop: 68015 }, { name: "칠천동", pop: 1475 }, { name: "내성동1가", pop: 1290 },
+                { name: "내성동2가", pop: 768 }, { name: "내성동3가", pop: 1222 }, { name: "북문동1가", pop: 491 }, { name: "북문동2가", pop: 551 },
+                { name: "사복동", pop: 41263 }, { name: "청덕동", pop: 64584 }
+            ],
+            "안천구": [
+                { name: "뇌전동", pop: 1221 }, { name: "상가동", pop: 2112 }, { name: "세익동", pop: 1034 }, { name: "치장동", pop: 722 },
+                { name: "팔월동", pop: 781 }, { name: "하가동", pop: 7616 }, { name: "당가동", pop: 37573 }, { name: "백합동", pop: 4322 },
+                { name: "상점동", pop: 1111 }, { name: "북택동", pop: 18171 }, { name: "하구동", pop: 13537 }, { name: "성저동", pop: 15111 },
+                { name: "광상동", pop: 138 }, { name: "군청동", pop: 0 }, { name: "무로동", pop: 2002 }, { name: "악부동", pop: 3417 },
+                { name: "일화동", pop: 77 }, { name: "제택동", pop: 8511 }, { name: "천문동", pop: 31 }, { name: "천본동", pop: 2 },
+                { name: "초음동", pop: 222 }, { name: "타천동", pop: 122 }, { name: "팔망성동", pop: 13023 }, { name: "안천동", pop: 118625 },
+                { name: "리의동", pop: 5112 }, { name: "심회동", pop: 71 }, { name: "이십기동", pop: 5711 }, { name: "추자동", pop: 2012 },
+                { name: "이자동", pop: 118541 }, { name: "신동", pop: 4912 }, { name: "탄자동", pop: 32911 }, { name: "창건동", pop: 20202 },
+                { name: "남동", pop: 561 }, { name: "능릉동", pop: 1012 }, { name: "서수동", pop: 3211 }, { name: "영색무동", pop: 5311 },
+                { name: "월삼동", pop: 533 }, { name: "융문동", pop: 81 }, { name: "정치동", pop: 211 }, { name: "칠채동", pop: 413 }
+            ],
+            "중구": [
+                { name: "고도동", pop: 765 }, { name: "서남동", pop: 922 }, { name: "시남동", pop: 3456 }, { name: "시북동", pop: 1680 },
+                { name: "십덕동", pop: 768 }, { name: "우이동", pop: 1665 }, { name: "궁정동", pop: 11 }, { name: "도람동", pop: 21 },
+                { name: "만실동", pop: 0 }, { name: "영동1가", pop: 889 }, { name: "영동2가", pop: 1412 }, { name: "내조동", pop: 19544 },
+                { name: "내항동", pop: 2202 }, { name: "명일동", pop: 3000 }, { name: "신덕동", pop: 5690 }, { name: "목동", pop: 2530 },
+                { name: "약맥동", pop: 1033 }, { name: "오주동", pop: 4546 }, { name: "일향동", pop: 321 }, { name: "삼각동", pop: 554 },
+                { name: "경동", pop: 4887 }, { name: "리사동", pop: 1766 }, { name: "유내동", pop: 1778 }, { name: "정동", pop: 1857 },
+                { name: "조유동1가", pop: 1222 }, { name: "조유동2가", pop: 112 }, { name: "조유동3가", pop: 332 }, { name: "조유동4가", pop: 1232 },
+                { name: "조유동5가", pop: 2322 }, { name: "천석동1가", pop: 1723 }, { name: "천석동2가", pop: 322 }, { name: "천석동3가", pop: 124 },
+                { name: "소장동1가", pop: 0 }, { name: "소장동2가", pop: 569 }, { name: "심동1가", pop: 1217 }, { name: "심동2가", pop: 2024 },
+                { name: "원동1가", pop: 421 }, { name: "원동2가", pop: 12 }, { name: "원동3가", pop: 23 }, { name: "원동4가", pop: 3 },
+                { name: "중앙로1가", pop: 78 }, { name: "중앙로2가", pop: 90 }, { name: "중앙로3가", pop: 2 }, { name: "중앙로4가", pop: 277 },
+                { name: "중앙로5가", pop: 123 }, { name: "중앙로6가", pop: 321 }, { name: "지유동1가", pop: 20 }, { name: "지유동2가", pop: 30 },
+                { name: "창선동1가", pop: 15 }, { name: "창선동2가", pop: 33 }, { name: "창선동3가", pop: 8 }, { name: "훈동", pop: 2 },
+                { name: "오석동", pop: 2302 }, { name: "완동1가", pop: 55 }, { name: "완동2가", pop: 22 }, { name: "완동3가", pop: 178 },
+                { name: "중동1가", pop: 2068 }, { name: "중동2가", pop: 12 }, { name: "중동3가", pop: 312 }, { name: "중보로", pop: 898 }
+            ],
+            "창전구": [
+                { name: "광정동", pop: 1161 }, { name: "마시동", pop: 1528 }, { name: "보통동", pop: 7412 }, { name: "생덕동", pop: 121 },
+                { name: "동곡동", pop: 17931 }, { name: "투자동", pop: 7818 }, { name: "쌍엽동", pop: 51715 }, { name: "유류동", pop: 7223 },
+                { name: "시로동", pop: 11112 }, { name: "진백동", pop: 20802 }, { name: "창전동", pop: 123794 }, { name: "칠심동", pop: 83271 },
+                { name: "팔조동", pop: 16460 }
+            ],
+            "청엽구": [
+                { name: "동리동", pop: 16139 }, { name: "등동", pop: 21208 }, { name: "마잡동", pop: 30892 }, { name: "서증동", pop: 2111 },
+                { name: "헌이송동", pop: 14291 }, { name: "비마동", pop: 27642 }, { name: "사노동", pop: 17432 }, { name: "우전동", pop: 99741 },
+                { name: "우택동", pop: 30464 }, { name: "입동1가", pop: 1398 }, { name: "입동2가", pop: 1892 }, { name: "입동3가", pop: 4181 },
+                { name: "효빈동2가", pop: 6431 }, { name: "효빈동1가", pop: 25156 }, { name: "청엽동", pop: 171065 }
+            ],
+            "탄성군": [
+                { name: "고해읍 고해리", pop: 7190 }, { name: "고해읍 율일리", pop: 545 }, { name: "고해읍 은진원리", pop: 23 },
+                { name: "고해읍 이식리", pop: 525 }, { name: "고해읍 이와리", pop: 7778 }, { name: "고해읍 장심리", pop: 224 },
+                { name: "고해읍 전추리", pop: 233 }, { name: "고해읍 정명리", pop: 525 }, { name: "고해읍 천가리", pop: 6578 },
+                { name: "도변읍 계층리", pop: 3442 }, { name: "도변읍 도변리", pop: 21342 }, { name: "도변읍 요우리", pop: 22211 },
+                { name: "도변읍 표명리", pop: 1122 }, { name: "도변읍 조일리", pop: 289 }, { name: "도변읍 잠재리", pop: 2311 },
+                { name: "도변읍 앵내리", pop: 39521 }, { name: "도향면 미로리", pop: 442 }, { name: "도향면 반주리", pop: 32 },
+                { name: "도향면 벽천리", pop: 213 }, { name: "도향면 분음리", pop: 3432 }, { name: "도향면 시초리", pop: 1324 },
+                { name: "도향면 영왕리", pop: 322 }, { name: "도향면 일일리", pop: 112 }, { name: "도향면 일하리", pop: 232 },
+                { name: "도향면 초반리", pop: 342 }, { name: "도향면 춘일경리", pop: 537 }, { name: "도향면 하공리", pop: 344 },
+                { name: "서목읍 록구리", pop: 2122 }, { name: "서목읍 마희리", pop: 232 }, { name: "서목읍 서목리", pop: 12145 },
+                { name: "서목읍 소춘리", pop: 1720 }, { name: "서목읍 승남리", pop: 7244 }, { name: "서목읍 음일리", pop: 233 },
+                { name: "서목읍 일회리", pop: 1232 }, { name: "서목읍 입리", pop: 4454 }, { name: "서목읍 잠금리", pop: 1233 },
+                { name: "서목읍 조산리", pop: 232 }, { name: "서목읍 파래리", pop: 4535 }, { name: "소원면 라면리", pop: 2023 },
+                { name: "소원면 부우리", pop: 634 }, { name: "소원면 소원리", pop: 8444 }, { name: "소원면 윤부리", pop: 5321 },
+                { name: "야진읍 미우리", pop: 2325 }, { name: "야진읍 신리", pop: 426 }, { name: "야진읍 아득리", pop: 133 },
+                { name: "야진읍 야진리", pop: 3933 }, { name: "야진읍 원심리", pop: 422 }, { name: "정근면 구생리", pop: 232 },
+                { name: "정근면 사촌리", pop: 347 }, { name: "정근면 안경리", pop: 422 }, { name: "정근면 익목리", pop: 132 },
+                { name: "정근면 처구리", pop: 44 }, { name: "정근면 촌주리", pop: 353 }, { name: "정근면 층부리", pop: 1211 },
+                { name: "정근면 회층리", pop: 192 }, { name: "탄성읍 고무리", pop: 12344 }, { name: "탄성읍 공리", pop: 11233 },
+                { name: "탄성읍 명무리", pop: 323 }, { name: "탄성읍 무성리", pop: 453 }, { name: "탄성읍 미성리", pop: 5982 },
+                { name: "탄성읍 성규리", pop: 2111 }, { name: "탄성읍 탄성리", pop: 17552 }, { name: "흑택면 루비리", pop: 10553 },
+                { name: "흑택면 명현리", pop: 543 }, { name: "흑택면 보습리", pop: 899 }, { name: "흑택면 은염리", pop: 1233 },
+                { name: "흑택면 흑택리", pop: 8709 }
+            ]
+        };
+
+        // -------------------------------------------------------------
+        // 2. 덕질 데이터베이스 (가나 문자 제거, 한자/영문/한글만 허용 + 한국어 독음)
+        // -------------------------------------------------------------
+        const animeData = [
+            // Aqours (아쿠아)
+            { kr: "치카", kanji: "千歌", sino: "천가", en: "Chika", type: "mikan" },
+            { kr: "리코", kanji: "梨子", sino: "이자", en: "Riko", type: "art" },
+            { kr: "카난", kanji: "果南", sino: "과남", en: "Kanan", type: "swim" },
+            { kr: "다이아", kanji: "ダイヤ", sino: "다이아", en: "Dia", type: "rich" },
+            { kr: "요우", kanji: "曜", sino: "요", en: "You", type: "swim" },
+            { kr: "요시코", kanji: "善子", sino: "선자", en: "Yoshiko", type: "fallen" },
+            { kr: "하나마루", kanji: "花丸", sino: "화환", en: "Hanamaru", type: "book" },
+            { kr: "마리", kanji: "鞠莉", sino: "국리", en: "Mari", type: "shiny" },
+            { kr: "루비", kanji: "ルビィ", sino: "루비", en: "Ruby", type: "sister" },
+
+            // A-RISE
+            { kr: "안쥬", kanji: "優木", sino: "우목", en: "Anju", type: "idol" },
+            { kr: "츠바사", kanji: "綺羅", sino: "기라", en: "Tsubasa", type: "idol" },
+            { kr: "에레나", kanji: "英玲奈", sino: "영령나", en: "Erena", type: "idol" },
+
+            // Liella!
+            { kr: "카논", kanji: "花音", sino: "화음", en: "Kanon", type: "sing" },
+            { kr: "쿠쿠", kanji: "可可", sino: "가가", en: "Keke", type: "china" },
+            { kr: "치사토", kanji: "千砂都", sino: "천사도", en: "Chisato", type: "dance" },
+            { kr: "스미레", kanji: "すみれ", sino: "평안명", en: "Sumire", type: "show" },
+            { kr: "렌", kanji: "恋", sino: "련", en: "Ren", type: "tea" },
+            { kr: "키나코", kanji: "きな子", sino: "희나", en: "Kinako", type: "animal" },
+            { kr: "메이", kanji: "メイ", sino: "맹의", en: "Mei", type: "cat" },
+            { kr: "시키", kanji: "四季", sino: "사계", en: "Shiki", type: "science" },
+            { kr: "나츠미", kanji: "夏美", sino: "하미", en: "Natsumi", type: "money" },
+            { kr: "빈", kanji: "マルガレーテ", sino: "빈", en: "Wien", type: "sing" },
+            { kr: "토마리", kanji: "冬毬", sino: "동구", en: "Tomari", type: "sister" },
+
+            // Saint Snow
+            { kr: "세이라", kanji: "聖良", sino: "성량", en: "Sarah", type: "sister" },
+            { kr: "리아", kanji: "聖亞", sino: "성아", en: "Leah", type: "sister" },
+
+            // Sunny Passion
+            { kr: "마오", kanji: "摩央", sino: "마앙", en: "Mao", type: "sunny" },
+            { kr: "유나", kanji: "悠奈", sino: "유나", en: "Yuna", type: "sunny" },
+
+            // μ’ｓ (뮤즈)
+            { kr: "호노카", kanji: "穂乃果", sino: "수내과", en: "Honoka", type: "bread" },
+            { kr: "에리", kanji: "絵里", sino: "회리", en: "Eli", type: "smart" },
+            { kr: "코토리", kanji: "ことり", sino: "남소조", en: "Kotori", type: "fashion" },
+            { kr: "우미", kanji: "海未", sino: "해미", en: "Umi", type: "strict" },
+            { kr: "린", kanji: "凛", sino: "름", en: "Rin", type: "active" },
+            { kr: "마키", kanji: "真姫", sino: "진희", en: "Maki", type: "rich" },
+            { kr: "노조미", kanji: "希", sino: "희", en: "Nozomi", type: "spiritual" },
+            { kr: "하나요", kanji: "花陽", sino: "화양", en: "Hanayo", type: "rice" },
+            { kr: "니코", kanji: "にこ", sino: "소심", en: "Nico", type: "idol" },
+
+            // Hasunosora (하스노소라)
+            { kr: "카호", kanji: "花帆", sino: "화범", en: "Kaho", type: "flower" },
+            { kr: "사야카", kanji: "さやか", sino: "채화", en: "Sayaka", type: "ice" },
+            { kr: "코즈에", kanji: "梢", sino: "초", en: "Kozue", type: "dance" },
+            { kr: "츠즈리", kanji: "綴理", sino: "철리", en: "Tsuzuri", type: "cool" },
+            { kr: "루리노", kanji: "瑠璃乃", sino: "류리내", en: "Rurino", type: "battery" },
+            { kr: "메구미", kanji: "慈", sino: "자", en: "Megumi", type: "stream" },
+            { kr: "긴코", kanji: "吟子", sino: "음자", en: "Ginko", type: "tradition" },
+            { kr: "코스즈", kanji: "小鈴", sino: "소령", en: "Kosuzu", type: "cute" },
+            { kr: "히메", kanji: "姫芽", sino: "희아", en: "Hime", type: "game" },
+            { kr: "세라스", kanji: "セラス", sino: "세라스", en: "Seras", type: "rich" },
+            { kr: "이즈미", kanji: "泉", sino: "천", en: "Izumi", type: "teacher" },
+
+            // Nijigasaki (니지가사키)
+            { kr: "아유무", kanji: "歩夢", sino: "보몽", en: "Ayumu", type: "rabbit" },
+            { kr: "카스미", kanji: "かすみ", sino: "화징", en: "Kasumi", type: "cute" },
+            { kr: "시즈쿠", kanji: "しずく", sino: "령", en: "Shizuku", type: "act" },
+            { kr: "카린", kanji: "果林", sino: "과림", en: "Karin", type: "sexy" },
+            { kr: "아이", kanji: "愛", sino: "애", en: "Ai", type: "fun" },
+            { kr: "카나타", kanji: "彼方", sino: "피방", en: "Kanata", type: "sleep" },
+            { kr: "세츠나", kanji: "せつ菜", sino: "설채", en: "Setsuna", type: "fire" },
+            { kr: "엠마", kanji: "エマ", sino: "에마", en: "Emma", type: "bread" },
+            { kr: "리나", kanji: "璃奈", sino: "리나", en: "Rina", type: "tech" },
+            { kr: "시오리코", kanji: "栞子", sino: "간자", en: "Shioriko", type: "strict" },
+            { kr: "미아", kanji: "ミア", sino: "미아", en: "Mia", type: "burger" },
+            { kr: "란쥬", kanji: "嵐珠", sino: "람주", en: "Lanzhu", type: "queen" },
+            { kr: "유우", kanji: "侑", sino: "유", en: "Yu", type: "manager" },
+
+            // Poppin'Party
+            { kr: "카스미", kanji: "香澄", sino: "향징", en: "Kasumi", type: "star" },
+            { kr: "타에", kanji: "たえ", sino: "타에", en: "Tae", type: "rabbit" },
+            { kr: "리미", kanji: "りみ", sino: "리미", en: "Rimi", type: "choco" },
+            { kr: "사아야", kanji: "沙綾", sino: "사릉", en: "Saaya", type: "bread" },
+            { kr: "아리사", kanji: "有咲", sino: "유소", en: "Arisa", type: "bonsai" },
+
+            // Afterglow
+            { kr: "란", kanji: "蘭", sino: "란", en: "Ran", type: "rock" },
+            { kr: "모카", kanji: "モカ", sino: "모카", en: "Moca", type: "bread" },
+            { kr: "히마리", kanji: "ひまり", sino: "히마리", en: "Himari", type: "leader" },
+            { kr: "토모에", kanji: "巴", sino: "파", en: "Tomoe", type: "drum" },
+            { kr: "츠구미", kanji: "つぐみ", sino: "츠구미", en: "Tsugumi", type: "coffee" },
+
+            // Pastel*Palettes
+            { kr: "아야", kanji: "彩", sino: "채", en: "Aya", type: "idol" },
+            { kr: "히나", kanji: "日菜", sino: "일채", en: "Hina", type: "genius" },
+            { kr: "치사토", kanji: "千聖", sino: "천성", en: "Chisato", type: "actress" },
+            { kr: "마야", kanji: "麻弥", sino: "마미", en: "Maya", type: "tech" },
+            { kr: "이브", kanji: "イヴ", sino: "이브", en: "Eve", type: "samurai" },
+
+            // Roselia
+            { kr: "유키나", kanji: "友希那", sino: "우희나", en: "Yukina", type: "diva" },
+            { kr: "사요", kanji: "紗夜", sino: "사야", en: "Sayo", type: "guitar" },
+            { kr: "리사", kanji: "リサ", sino: "리사", en: "Lisa", type: "cookie" },
+            { kr: "아코", kanji: "あこ", sino: "아코", en: "Ako", type: "demon" },
+            { kr: "린코", kanji: "燐子", sino: "린자", en: "Rinko", type: "game" },
+
+            // Hello, Happy World!
+            { kr: "코코로", kanji: "こころ", sino: "심", en: "Kokoro", type: "happy" },
+            { kr: "카오루", kanji: "薫", sino: "훈", en: "Kaoru", type: "prince" },
+            { kr: "하구미", kanji: "はぐみ", sino: "하구미", en: "Hagumi", type: "sport" },
+            { kr: "카논", kanji: "花音", sino: "화음", en: "Kanon", type: "jellyfish" },
+            { kr: "미사키", kanji: "美咲", sino: "미소", en: "Misaki", type: "bear" },
+
+            // Morfonica
+            { kr: "마시로", kanji: "ましろ", sino: "마시로", en: "Mashiro", type: "shy" },
+            { kr: "토우코", kanji: "透子", sino: "투자", en: "Touko", type: "fashion" },
+            { kr: "나나미", kanji: "七深", sino: "칠심", en: "Nanami", type: "normal" },
+            { kr: "츠쿠시", kanji: "つくし", sino: "츠쿠시", en: "Tsukushi", type: "leader" },
+            { kr: "루이", kanji: "瑠唯", sino: "류유", en: "Rui", type: "violin" },
+
+            // RAISE A SUILEN
+            { kr: "레이야", kanji: "レイ", sino: "레이", en: "Layer", type: "sing" },
+            { kr: "록", kanji: "六花", sino: "육화", en: "Lock", type: "guitar" },
+            { kr: "마스킹", kanji: "ますき", sino: "마스킹", en: "Masking", type: "drum" },
+            { kr: "파레오", kanji: "れおな", sino: "레오나", en: "Pareo", type: "keyboard" },
+            { kr: "츄츄", kanji: "ちゆ", sino: "치유", en: "Chu2", type: "producer" },
+
+            // MyGO!!!!!
+            { kr: "토모리", kanji: "燈", sino: "등", en: "Tomori", type: "penguin" },
+            { kr: "아논", kanji: "愛音", sino: "애음", en: "Anon", type: "guitar" },
+            { kr: "라나", kanji: "楽奈", sino: "락나", en: "Rana", type: "cat" },
+            { kr: "소요", kanji: "そよ", sino: "소요", en: "Soyo", type: "bass" },
+            { kr: "타키", kanji: "立希", sino: "입희", en: "Taki", type: "drum" },
+
+            // Ave Mujica
+            { kr: "우이카", kanji: "初華", sino: "초화", en: "Uika", type: "idol" },
+            { kr: "무츠미", kanji: "睦", sino: "목", en: "Mutsumi", type: "cucumber" },
+            { kr: "우미리", kanji: "海鈴", sino: "해령", en: "Umiri", type: "bass" },
+            { kr: "냐무", kanji: "にゃむ", sino: "냐무", en: "Nyamu", type: "influencer" },
+            { kr: "사키코", kanji: "祥子", sino: "상자", en: "Sakiko", type: "piano" },
+
+            // Kessoku Band (봇치더락)
+            { kr: "니지카", kanji: "虹夏", sino: "홍하", en: "Nijika", type: "angel" },
+            { kr: "히토리", kanji: "ひとり", sino: "일인", en: "Hitori", type: "bocchi" },
+            { kr: "료", kanji: "リョウ", sino: "료", en: "Ryo", type: "bass" },
+            { kr: "이쿠요", kanji: "郁代", sino: "욱대", en: "Ikuyo", type: "kita" },
+            { kr: "세이카", kanji: "星歌", sino: "성가", en: "Seika", type: "manager" },
+
+            // Glitter Green
+            { kr: "유리", kanji: "ゆり", sino: "유리", en: "Yuri", type: "sing" },
+            { kr: "히나코", kanji: "ひなこ", sino: "히나코", en: "Hinako", type: "drum" },
+            { kr: "리이", kanji: "リイ", sino: "리이", en: "Rii", type: "bass" },
+            { kr: "나나나", kanji: "七菜", sino: "칠채", en: "Nanana", type: "key" },
+
+            // CHISPA
+            { kr: "나츠키", kanji: "夏樹", sino: "하수", en: "Natsuki", type: "guitar" },
+            { kr: "마유", kanji: "真由", sino: "진유", en: "Mayu", type: "bass" },
+            { kr: "후미카", kanji: "文香", sino: "문향", en: "Fumika", type: "drum" },
+            { kr: "사토미", kanji: "里見", sino: "리견", en: "Satomi", type: "keyboard" },
+
+            // Mugendai Mytype
+            { kr: "아라레", kanji: "アラレ", sino: "아라레", en: "Arare", type: "sing" },
+            { kr: "노노카", kanji: "乃乃香", sino: "내내향", en: "Nonoka", type: "guitar" },
+            { kr: "리츠", kanji: "律樹", sino: "율수", en: "Ritsu", type: "bass" },
+            { kr: "미야코", kanji: "宮古", sino: "궁고", en: "Miyako", type: "drum" },
+            { kr: "유노", kanji: "ユノ", sino: "유노", en: "Yuno", type: "dj" }
+        ];
+
+        const groupNames = [
+            { kr: "뮤즈", en: "Muse" }, { kr: "아쿠아", en: "Aqours" }, 
+            { kr: "포피파", en: "Poppin'Party" }, { kr: "로젤리아", en: "Roselia" },
+            { kr: "파스파레", en: "Pastel*Palettes" }, { kr: "결속", en: "Kessoku" }, 
+            { kr: "방과후 티타임", en: "HTT" }, { kr: "STARRY", en: "STARRY" },
+            { kr: "라스", en: "RAS" }, { kr: "마이고", en: "MyGO" }, { kr: "아베무지카", en: "Ave Mujica" },
+            { kr: "니지가사키", en: "Nijigasaki" }, { kr: "리엘라", en: "Liella" }, { kr: "하스노소라", en: "Hasunosora" }
+        ];
+
+        const schoolNames = ["오토노키자카", "우라노호시", "니지가사키", "하나사키가와", "하네오카", "츠키노모리", "사쿠라고", "슈카", "유이가오카", "하스노소라"];
+
+        // 확장된 업종 목록 (주유소 제외, 음식점 세분화)
+        const categories = [
+            "한식", "중식", "일식", "양식", "치킨", "패스트푸드", "아시아음식",
+            "카페", "편의점", "학원", "미용", "병원",
+            "약국", "안경", "서점", "헬스", "꽃집", "세탁", "정육", "반찬", "시장"
+        ];
+        
+        // 프랜차이즈 데이터 추가
+        const franchises = {
+            "치킨": ["BBQ", "BHC", "교촌치킨", "굽네치킨", "네네치킨", "페리카나", "멕시카나", "처갓집양념치킨", "호식이두마리치킨", "자담치킨", "60계치킨", "지코바", "푸라닭"],
+            "편의점": ["CU", "GS25", "세븐일레븐", "이마트24"],
+            "카페": ["이디야커피", "메가MGC커피", "컴포즈커피", "빽다방", "투썸플레이스", "파스쿠찌", "할리스", "더벤티", "파리바게뜨", "뚜레쥬르", "던킨"],
+            "패스트푸드": ["롯데리아", "맘스터치", "버거킹", "프랭크버거", "이삭토스트"]
+        };
+        
+        const commonPrefixes = ["행복", "우리", "대박", "효빈", "시민", "중앙", "제일", "미래", "희망", "사랑", "나눔", "드림", "미소", "건강", "튼튼"];
+
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // -------------------------------------------------------------
+        // 3. 이름 생성 로직 (한자 + 독음 표기)
+        // -------------------------------------------------------------
+        const generatedNames = new Set(); // 중복 체크용 Set
+
+        function generateStoreName(category, dongName) {
+            const rand = Math.random();
+            const char = getRandomItem(animeData);
+            const group = getRandomItem(groupNames);
+            const school = getRandomItem(schoolNames);
+            
+            const shortDong = dongName.replace(/[0-9]가|동|읍|면|리/g, "").trim();
+
+            const safeName = char.sino ? `${char.sino}` : char.kr;
+            const signageName = (char.kanji && char.sino && char.kanji !== char.sino) ? `${char.kanji}(${char.sino})` : safeName;
+
+            let name = "";
+            
+            // 0) 프랜차이즈 (높은 확률) - 치킨, 편의점, 카페/빵집, 패스트푸드
+            if (franchises[category] && rand < 0.7) {
+                const brand = getRandomItem(franchises[category]);
+                name = `${brand} ${shortDong}점`;
+            }
+            // 1) 25% 확률로 지명 활용 (프랜차이즈 아닌 경우)
+            else if (rand < 0.25) {
+                if (category === "한식") name = `${shortDong} 식당`;
+                else if (category === "중식") name = `${shortDong} 반점`;
+                else if (category === "일식") name = `${shortDong} 스시`;
+                else if (category === "양식") name = `${shortDong} 레스토랑`;
+                else if (category === "치킨") name = `${shortDong} 통닭`;
+                else if (category === "패스트푸드") name = `${shortDong} 버거`;
+                else if (category === "아시아음식") name = `${shortDong} 아시아`;
+                else if (category === "카페") name = `${shortDong} 다방`;
+                else if (category === "편의점") name = `${shortDong} 마트`;
+                else if (category === "학원") name = `${shortDong} 학원`;
+                else if (category === "미용") name = `${shortDong} 헤어샵`;
+                else if (category === "병원") name = `${shortDong} 의원`;
+                else if (category === "약국") name = `${shortDong} 약국`;
+                else if (category === "안경") name = `${shortDong} 안경점`;
+                else if (category === "서점") name = `${shortDong} 문구`;
+                else if (category === "헬스") name = `${shortDong} 헬스`;
+                else if (category === "꽃집") name = `${shortDong} 화원`;
+                else if (category === "세탁") name = `${shortDong} 세탁`;
+                else if (category === "정육") name = `${shortDong} 정육점`;
+                else if (category === "반찬") name = `${shortDong} 반찬`;
+                else if (category === "시장") name = `${shortDong} 상회`;
+            } 
+            // 2) 15% 확률로 일반 명사 활용
+            else if (rand < 0.4) {
+                const common = getRandomItem(commonPrefixes);
+                if (category === "한식") name = `${common} 밥상`;
+                else if (category === "중식") name = `${common} 짬뽕`;
+                else if (category === "일식") name = `${common} 초밥`;
+                else if (category === "양식") name = `${common} 파스타`;
+                else if (category === "치킨") name = `${common} 치킨`;
+                else if (category === "패스트푸드") name = `${common} 버거`;
+                else if (category === "아시아음식") name = `${common} 푸드`;
+                else if (category === "카페") name = `${common} 커피`;
+                else if (category === "편의점") name = `${common} 편의점`;
+                else if (category === "학원") name = `${common} 아카데미`;
+                else if (category === "미용") name = `${common} 뷰티`;
+                else if (category === "병원") name = `${common} 내과`;
+                else if (category === "약국") name = `${common} 약국`;
+                else if (category === "안경") name = `${common} 안경`;
+                else if (category === "서점") name = `${common} 서점`;
+                else if (category === "헬스") name = `${common} 피트니스`;
+                else if (category === "꽃집") name = `${common} 플라워`;
+                else if (category === "세탁") name = `${common} 크리닝`;
+                else if (category === "정육") name = `${common} 축산`;
+                else if (category === "반찬") name = `${common} 찬`;
+                else if (category === "시장") name = `${common} 청과`;
+            } 
+            // 3) 나머지 확률로 덕후 감성 활용 (한글 위주)
+            else {
+                if (category === "패스트푸드") {
+                    // 패스트푸드는 위에서 걸러지지 않은 경우 (30% 확률) 롯데리아/맘스터치/기타 버거집
+                    if (Math.random() < 0.5) name = "롯데리아"; 
+                    else name = "맘스터치";
+                }
+                else if (category === "한식") {
+                    if (Math.random() < 0.3) name = `${char.kr} 식당`;
+                    else if (Math.random() < 0.6) name = `${char.kr}네 밥집`; 
+                    else name = `${char.kr} 한정식`;
+                }
+                else if (category === "중식") {
+                    if (Math.random() < 0.5) name = `${char.kr} 반점`;
+                    else name = `${char.kr}성`;
+                }
+                else if (category === "일식") {
+                    if (Math.random() < 0.5 && char.kanji && !char.kanji.match(/[ぁ-んァ-ン]/)) name = `${char.kanji} 스시`;
+                    else name = `${char.kr} 일식`;
+                }
+                else if (category === "양식") {
+                    if (Math.random() < 0.5) name = `${char.en} Kitchen`;
+                    else name = `${char.kr} 레스토랑`;
+                }
+                else if (category === "치킨") {
+                    if (Math.random() < 0.3) name = `${char.en} Chicken`;
+                    else if (Math.random() < 0.6) name = `${char.kr} 통닭`;
+                    else name = `${char.kr} 치킨`;
+                }
+                else if (category === "아시아음식") {
+                    if (Math.random() < 0.3) name = `${char.en} Asia`;
+                    else if (Math.random() < 0.6) name = `${char.kr} 쌀국수`;
+                    else name = `${char.kr} 마라탕`;
+                }
+                else if (category === "카페") {
+                    if (Math.random() < 0.3) name = `Cafe ${char.en}`;
+                    else if (Math.random() < 0.6) name = `${group.en} Coffee`;
+                    else name = `${char.kr} 베이커리`;
+                }
+                else if (category === "편의점") {
+                    if (Math.random() < 0.4) name = `${group.kr} 마트`;
+                    else if (Math.random() < 0.7) name = `${char.kr} 편의점`;
+                    else name = `${char.en} Mart`;
+                }
+                else if (category === "학원") {
+                    if (Math.random() < 0.4) name = `${school} 학원`;
+                    else if (Math.random() < 0.7) name = `${school} 아카데미`;
+                    else name = `${char.kr} 음악학원`;
+                }
+                else if (category === "미용") {
+                    if (Math.random() < 0.4) name = `${char.en} Hair`;
+                    else if (Math.random() < 0.7) name = `${char.kr} 헤어샵`;
+                    else name = `Salon de ${char.en}`;
+                }
+                else if (category === "병원") {
+                    if (char.type === "rich") name = `${char.kr} 의원`;
+                    else if (Math.random() < 0.4) name = `${char.kr} 내과`;
+                    else if (Math.random() < 0.7) name = `${char.kr} 치과`;
+                    else name = `Dr. ${char.en}`;
+                }
+                else if (category === "약국") {
+                    if (Math.random() < 0.5) name = `${char.kr} 약국`;
+                    else name = `${char.kr} 온누리약국`;
+                }
+                else if (category === "안경") {
+                    if (Math.random() < 0.5) name = `${char.kr} 안경`;
+                    else name = `Glass ${char.en}`;
+                }
+                else if (category === "서점") {
+                    if (Math.random() < 0.4) name = `${group.en} 문구`;
+                    else name = `${char.kr} 서점`;
+                }
+                else if (category === "헬스") {
+                    if (Math.random() < 0.5) name = `Starry 헬스장`;
+                    else name = `${char.en} Gym`;
+                }
+                else if (category === "꽃집") {
+                    if (Math.random() < 0.5) name = `${char.en} Flower`;
+                    else name = `${char.kr} 꽃집`;
+                }
+                else if (category === "세탁") {
+                    if (Math.random() < 0.5) name = `${char.kr} 세탁소`;
+                    else name = `${char.kr} 크리닝`;
+                }
+                else if (category === "정육") {
+                    if (Math.random() < 0.5) name = `${char.kr} 정육점`;
+                    else name = `${char.kr} 축산`;
+                }
+                else if (category === "반찬") {
+                    if (Math.random() < 0.5) name = `${char.kr}네 반찬`;
+                    else name = `${char.kr} 찬`;
+                }
+                else if (category === "시장") {
+                    if (Math.random() < 0.5) name = `${char.kr} 상회`;
+                    else name = `${char.kr} 유통`;
+                }
+            }
+            return name;
+        }
+
+        // -------------------------------------------------------------
+        // 4. 가맹점 더미 데이터 생성 (인구 비례 적용)
+        // -------------------------------------------------------------
+        const dummyStores = [];
+        const totalStores = 1875; 
+
+        let totalPop = 0;
+        Object.values(cityData).forEach(dongs => {
+            dongs.forEach(d => totalPop += d.pop);
+        });
+
+        Object.entries(cityData).forEach(([gu, dongs]) => {
+            dongs.forEach(dong => {
+                // 인구 100명 이하 지역은 업종 생성 안 함 (단, 중구는 상업지구라 예외 허용)
+                if (dong.pop <= 100 && gu !== "중구") return;
+                
+                // 중구는 인구가 적어도 유동인구가 많으므로 기본 가맹점 수 보정 (최소 5개 이상 보장)
+                let baseCount = Math.ceil((dong.pop / totalPop) * totalStores * (Math.random() * 0.4 + 0.8));
+                if (gu === "중구" && baseCount < 5) baseCount = 5;
+                
+                let count = Math.max(1, baseCount);
+
+                for(let i=0; i<count; i++) {
+                    const cat = getRandomItem(categories);
+                    let name;
+                    let maxRetries = 10;
+                    
+                    do {
+                        name = generateStoreName(cat, dong.name);
+                        maxRetries--;
+                    } while (generatedNames.has(name) && maxRetries > 0);
+                    
+                    // 프랜차이즈 상호는 중복 가능
+                    if (!franchises[cat]) {
+                        generatedNames.add(name);
+                    }
+                    
+                    const services = [];
+                    if(Math.random() > 0.3) services.push("주차가능");
+                    if(Math.random() > 0.3) services.push("와이파이");
+                    if(Math.random() > 0.5) services.push("예약가능");
+                    if(Math.random() > 0.7) services.push("반려동물 동반");
+                    if(services.length === 0) services.push("기본 서비스");
+
+                    const address = `효빈광역시 ${gu} ${dong.name} ${Math.floor(Math.random()*500)+1}번지`;
+
+                    dummyStores.push({
+                        name: name,
+                        area: gu,
+                        category: cat,
+                        address: address,
+                        phone: `079-${Math.floor(Math.random()*900)+100}-${Math.floor(Math.random()*9000)+1000}`,
+                        hours: `${Math.floor(Math.random()*3)+9}:00 ~ ${Math.floor(Math.random()*5)+18}:00`,
+                        closed: Math.random() > 0.8 ? "매주 월요일" : (Math.random() > 0.8 ? "매주 일요일" : "연중무휴"),
+                        parking: Math.random() > 0.4 ? "가능 (무료)" : "불가 (인근 공영주차장 이용)",
+                        services: services.join(", ")
+                    });
+                }
+            });
+        });
+        
+        dummyStores.sort(() => Math.random() - 0.5);
+
+        // -------------------------------------------------------------
+        // 5. 검색 및 렌더링 로직
+        // -------------------------------------------------------------
+        
+        const areaSelect = document.getElementById('areaSelect');
+        areaSelect.innerHTML = '<option value="">전체</option>'; 
+        Object.keys(cityData).forEach(gu => {
+            const option = document.createElement('option');
+            option.value = gu;
+            option.textContent = gu;
+            areaSelect.appendChild(option);
+        });
+
+        function searchStore() {
+            const areaFilter = document.getElementById('areaSelect').value;
+            const catFilter = document.getElementById('categorySelect').value;
+            const nameFilter = document.getElementById('storeNameInput').value;
+            const container = document.getElementById('resultList');
+            const countSpan = document.getElementById('resultCount');
+
+            const filtered = dummyStores.filter(store => {
+                if(areaFilter && store.area !== areaFilter) return false;
+                if(catFilter && store.category !== catFilter) return false;
+                if(nameFilter && !store.name.toLowerCase().includes(nameFilter.toLowerCase())) return false;
+                return true;
+            });
+
+            countSpan.innerText = filtered.length;
+            container.innerHTML = "";
+
+            if(filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-20 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                        검색 결과가 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            const displayList = filtered.slice(0, 100);
+
+            displayList.forEach((store) => {
+                const el = document.createElement('div');
+                const storeData = encodeURIComponent(JSON.stringify(store));
+                
+                el.className = "bg-white p-5 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition hover:border-blue-300 cursor-pointer active:scale-95 duration-200 group";
+                el.onclick = function() { openStoreModal(storeData); };
+                
+                let iconClass = "store";
+                let colorClass = "text-blue-500 bg-blue-50";
+                
+                if(store.category === "한식" || store.category === "중식" || store.category === "일식" || store.category === "양식" || store.category === "아시아음식") { 
+                    iconClass = "utensils"; colorClass = "text-orange-500 bg-orange-50"; 
+                }
+                else if(store.category === "치킨" || store.category === "패스트푸드") {
+                    iconClass = "drumstick"; colorClass = "text-red-500 bg-red-50";
+                }
+                else if(store.category === "카페") { iconClass = "coffee"; colorClass = "text-brown-500 bg-yellow-50"; }
+                else if(store.category === "미용") { iconClass = "scissors"; colorClass = "text-pink-500 bg-pink-50"; }
+                else if(store.category === "병원" || store.category === "약국") { iconClass = "stethoscope"; colorClass = "text-emerald-500 bg-emerald-50"; }
+                else if(store.category === "학원") { iconClass = "graduation-cap"; colorClass = "text-indigo-500 bg-indigo-50"; }
+                else if(store.category === "헬스") { iconClass = "dumbbell"; colorClass = "text-red-500 bg-red-50"; }
+                else if(store.category === "서점") { iconClass = "book"; colorClass = "text-amber-700 bg-amber-50"; }
+                else if(store.category === "꽃집") { iconClass = "flower"; colorClass = "text-rose-500 bg-rose-50"; }
+                else if(store.category === "안경") { iconClass = "glasses"; colorClass = "text-cyan-600 bg-cyan-50"; }
+                else if(store.category === "세탁") { iconClass = "shirt"; colorClass = "text-sky-500 bg-sky-50"; }
+                else if(store.category === "정육" || store.category === "반찬" || store.category === "시장" || store.category === "편의점") { 
+                    iconClass = "shopping-basket"; colorClass = "text-green-600 bg-green-50"; 
+                }
+                
+                el.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <span class="text-xs font-bold ${colorClass} px-2 py-1 rounded inline-flex items-center gap-1 mb-2">
+                                <i data-lucide="${iconClass}" class="w-3 h-3"></i> ${store.category}
+                            </span>
+                            <h3 class="font-bold text-lg text-slate-800 group-hover:text-blue-600 transition">${store.name}</h3>
+                        </div>
+                        <span class="text-xs text-slate-400 border border-slate-200 px-2 py-1 rounded">${store.area}</span>
+                    </div>
+                    <div class="space-y-1 text-sm text-slate-500">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> ${store.address}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="phone" class="w-3.5 h-3.5"></i> ${store.phone}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        function openStoreModal(encodedData) {
+            const store = JSON.parse(decodeURIComponent(encodedData));
+            const modal = document.getElementById('storeModal');
+            
+            document.getElementById('modalName').textContent = store.name;
+            document.getElementById('modalCategory').textContent = store.category;
+            document.getElementById('modalAddress').textContent = store.address;
+            document.getElementById('modalPhone').textContent = store.phone;
+            document.getElementById('modalHours').textContent = store.hours;
+            document.getElementById('modalClosed').textContent = store.closed;
+            document.getElementById('modalParking').textContent = store.parking;
+            document.getElementById('modalService').textContent = store.services;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('div.bg-slate-900\\/60').classList.remove('opacity-0');
+                modal.querySelector('div.transform').classList.remove('scale-95', 'opacity-0');
+                modal.querySelector('div.transform').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeStoreModal() {
+            const modal = document.getElementById('storeModal');
+            modal.querySelector('div.bg-slate-900\\/60').classList.add('opacity-0');
+            modal.querySelector('div.transform').classList.remove('scale-100', 'opacity-100');
+            modal.querySelector('div.transform').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        window.onload = function() {
+            lucide.createIcons();
+            searchStore();
+        }
+    </script>
+</body>
+</html>

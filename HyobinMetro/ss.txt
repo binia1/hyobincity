@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈교통공사 (HYOBIN METRO)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ================================================================== */
+        /* CSS 스타일 (원본 디자인 복원 및 노선 아이콘 스타일 추가)            */
+        /* ================================================================== */
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        .metro-gradient { background: linear-gradient(180deg, #E0F2FE 0%, #FFFFFF 100%); }
+        
+        .hb-logo { font-family: sans-serif; font-weight: 900; color: #0ea5e9; line-height: 0.8; letter-spacing: -2px; position: relative; }
+        .hb-logo::after { content: ''; display: block; width: 100%; height: 4px; background-color: #0369a1; margin-top: 5px; }
+
+        /* Autocomplete */
+        .autocomplete-wrapper { position: relative; }
+        .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background-color: white; max-height: 200px; overflow-y: auto; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid #d4d4d4; color: #333; font-size: 0.9rem; }
+        .autocomplete-items div:hover { background-color: #e9e9e9; }
+        .highlight { color: #0ea5e9; font-weight: bold; }
+
+        /* Scrollbar & Animation */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        /* Timeline & Badge Styles */
+        .route-timeline { position: relative; padding-left: 24px; border-left: 2px solid #e5e7eb; margin-left: 10px; }
+        .route-point { position: absolute; left: -31px; top: 0; width: 16px; height: 16px; background: white; border-radius: 50%; border: 4px solid #94a3b8; z-index: 10; }
+        .route-segment { margin-bottom: 24px; position: relative; }
+        
+        .line-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; color: white; font-size: 0.75rem; font-weight: bold; margin-right: 6px; vertical-align: middle; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .express-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; background-color: #dc2626; color: white; font-size: 0.7rem; font-weight: bold; margin-left: 6px; vertical-align: middle; }
+
+        /* Line Colors (필수) */
+        .line-1 { background-color: #0077DD !important; }
+        .line-2 { background-color: #00CCAA !important; }
+        .line-3 { background-color: #FFCC11 !important; color: black !important; }
+        .line-4 { background-color: #FF5522 !important; }
+        .line-5 { background-color: #EE0022 !important; }
+        .line-6 { background-color: #881188 !important; }
+        .line-7 { background-color: #FF8899 !important; }
+        .line-8 { background-color: #9856FF !important; }
+        .line-bh { background-color: #6677CC !important; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+
+    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center">
+                    <img src="logo.png" alt="효빈교통공사" class="h-10 w-auto object-contain">
+                </a>
+                
+                <nav class="hidden md:flex space-x-8 text-sm font-bold text-gray-800">
+                    <a href="info.html" class="border-b-2 border-sky-500 text-gray-900 px-1 pt-1">이용정보</a>
+                    <a href="safety.html" class="hover:text-sky-500 px-1 pt-1 transition">안전환경</a>
+                    <a href="participation.html" class="hover:text-sky-500 px-1 pt-1 transition">시민 참여</a>
+                    <a href="notice.html" class="hover:text-sky-500 px-1 pt-1 transition">알림마당</a>
+                    <a href="public.html" class="hover:text-sky-500 px-1 pt-1 transition">정보공개</a>
+                    <a href="esg.html" class="hover:text-sky-500 px-1 pt-1 transition">ESG경영</a>
+                    <a href="about.html" class="hover:text-sky-500 px-1 pt-1 transition">공사 소개</a>
+               <a href="QA.html" class="hover:text-sky-500 px-1 pt-1 transition">고객센터</a>
+               <a href="noseon.html" class="hover:text-sky-500 px-1 pt-1 transition">각 노선 소개</a>
+                </nav>
+
+                <div class="flex items-center space-x-4 text-gray-500 text-sm">
+                    <span class="font-medium">KOR / ENG</span>
+                    <button class="md:hidden"><i class="fa-solid fa-bars text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="metro-gradient relative overflow-hidden flex-grow min-h-[500px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col md:flex-row relative">
+            <div class="md:w-1/2 pt-20 z-10">
+                <div class="flex flex-col items-start mb-10">
+                    <div class="mb-4">
+                        <div class="text-8xl hb-logo tracking-tighter">HB</div>
+                        <div class="w-24 h-1 bg-sky-700 mt-2 mx-auto"></div>
+                        <div class="w-16 h-1 bg-sky-700 mt-1 mx-auto"></div>
+                    </div>
+                    <h1 class="text-4xl font-bold text-slate-800 tracking-tight mb-1">효빈교통공사</h1>
+                    <p class="text-xl text-slate-600 font-medium tracking-widest">HYOBIN METRO</p>
+                </div>
+                <div class="space-y-2">
+                    <a href="#search-section" class="block text-blue-600 font-semibold hover:underline" onclick="document.getElementById('startStation').focus(); return false;">실시간 열차운행정보보기</a>
+                    <a href="goods.html" class="block text-blue-600 font-semibold hover:underline">공식 온라인 굿즈샵 바로가기</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 relative h-[500px] flex justify-end items-end">
+                <div class="relative z-20 mr-10 md:mr-20">
+                    <div class="absolute -top-16 -left-20 bg-sky-100 border border-sky-300 rounded-xl p-3 shadow-lg animate-bounce text-center">
+                        <p class="text-sm font-bold text-slate-800">이번달 배너 주인공!</p>
+                        <p class="text-base font-extrabold text-blue-600">6호선 라세나</p>
+                    </div>
+                    <img src="lasena.jpg" onerror="this.onerror=null; this.src='https://placehold.co/300x500/transparent/3b82f6?text=Image+Not+Found';" alt="6호선 라세나" class="h-[450px] object-contain drop-shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="search-section" class="bg-slate-800 text-white relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12">
+                
+                <div class="lg:col-span-4 p-6 border-r border-slate-700 flex flex-col gap-4">
+                    <div class="flex gap-4 items-center group cursor-pointer" onclick="alert('준비중입니다.')">
+                        <div class="w-24 h-16 bg-slate-600 rounded overflow-hidden flex-shrink-0">
+                            <img src="https://placehold.co/100x60/2563eb/white?text=LoveLive" class="w-full h-full object-cover group-hover:scale-110 transition">
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold leading-tight group-hover:text-sky-300">자매도시 누마즈&효빈<br>러브라이브 선샤인<br>콜라보 기획 발표!</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-center mt-2 group cursor-pointer" onclick="alert('준비중입니다.')">
+                        <div class="w-24 h-16 bg-slate-600 rounded overflow-hidden flex-shrink-0">
+                             <img src="https://placehold.co/100x60/f97316/white?text=Figure" class="w-full h-full object-cover group-hover:scale-110 transition">
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold leading-tight group-hover:text-sky-300">SEGA 7호선 임세하<br>스케일 피규어 재판매<br>결정!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 p-6 relative">
+<div class="flex flex-wrap justify-between items-center mb-6 text-sm font-bold text-gray-300 border-b border-slate-600 pb-4">
+                        <a href="map.html" class="hover:text-white text-center leading-tight">노선도<br>안내</a>
+                        <a href="lost_found.html" class="hover:text-white text-center leading-tight">유실물<br>찾기</a>
+                        <a href="fare.html" class="hover:text-white text-center leading-tight">운임<br>안내</a>
+                        <a href="accessible.html" class="hover:text-white text-center leading-tight">교통약자<br>서비스</a>
+                        <a href="delay_proof.html" class="hover:text-white text-center leading-tight">간편지연<br>증명서</a>
+                        
+                        <div class="flex items-center bg-slate-700 rounded px-3 py-1 ml-4 cursor-pointer hover:bg-slate-600">
+                            <i class="fa-regular fa-user mr-2 text-gray-400"></i>
+                            <span class="text-sky-400 font-bold mr-2">Login Line</span>
+                            <div class="bg-sky-500 p-1 rounded-sm"><i class="fa-solid fa-arrow-down text-white text-xs"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-700/50 rounded-lg p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                        <div class="text-left w-full lg:w-1/3">
+                            <h3 class="text-lg font-bold text-white mb-1">경로찾기 / 역정보</h3>
+                            <p class="text-sm text-gray-400">원하는 역을 입력하여<br>운행정보와 성지 정보를 확인하세요.</p>
+                        </div>
+                        
+                        <div class="flex-grow flex flex-col md:flex-row gap-4 w-full lg:w-2/3 items-end">
+                            <div class="flex flex-col relative w-full md:w-1/2 autocomplete-wrapper">
+                                <label class="font-bold text-sm mb-1 text-sky-300">출발 / 검색</label>
+                                <input type="text" id="startStation" placeholder="역 이름 입력" class="w-full p-2 rounded text-black font-bold focus:outline-none focus:ring-2 focus:ring-sky-500" autocomplete="off">
+                                <div id="startAutocomplete" class="autocomplete-items hidden"></div>
+                            </div>
+                            <div class="flex flex-col relative w-full md:w-1/2 autocomplete-wrapper">
+                                <label class="font-bold text-sm mb-1 text-sky-300">도착 (선택)</label>
+                                <input type="text" id="endStation" placeholder="역 이름 입력" class="w-full p-2 rounded text-black font-bold focus:outline-none focus:ring-2 focus:ring-sky-500" autocomplete="off">
+                                <div id="endAutocomplete" class="autocomplete-items hidden"></div>
+                            </div>
+                            <button onclick="findRoute()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-6 rounded shadow-lg transition w-full md:w-auto h-[42px] whitespace-nowrap">
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i>검색
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="searchResult" class="hidden mt-4 bg-slate-900 rounded-lg p-6 border border-slate-600 shadow-xl animate-fade-in relative max-h-[600px] overflow-y-auto">
+                        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white sticky float-right z-50"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        <h4 class="text-xl font-bold text-sky-400 mb-4 pb-2 border-b border-slate-700 flex items-center">
+                            <i class="fa-solid fa-train-subway mr-2"></i>검색 결과
+                        </h4>
+                        <div id="resultContent" class="space-y-4 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700 px-6 py-8">
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
+                    <a href="chatbot.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-300 group-hover:text-white transition">
+                            <img src="https://placehold.co/50x50/transparent/white?text=Chat" class="rounded-full border border-gray-500 p-1">
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300">챗봇상담</p>
+                    </a>
+                    <a href="organization.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 border-2 border-gray-500 rounded-full flex items-center justify-center group-hover:border-white transition">
+                             <i class="fa-solid fa-plus text-2xl text-gray-400 group-hover:text-white"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300">조직도</p>
+                    </a>
+                    <a href="station_guide.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-white transition">
+                             <i class="fa-solid fa-flask text-3xl"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300">역이용안내</p>
+                    </a>
+                    <a href="goods.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-white transition">
+                             <i class="fa-solid fa-trophy text-3xl"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300">효빈교통공사<br>굿즈샵 안내</p>
+                    </a>
+                    <a href="anime_tour.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-white transition">
+                             <i class="fa-solid fa-file-contract text-3xl"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300">애니메이션 성지순례<br>가이드</p>
+                    </a>
+                    <a href="mascot.html" class="group cursor-pointer relative">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-300 group-hover:text-white transition">
+                             <img src="https://placehold.co/50x50/transparent/white?text=Mascot" class="rounded-full">
+                        </div>
+                        <div class="absolute top-0 right-4 w-3 h-3 bg-red-500 rounded-full border border-slate-800"></div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300">마스코트 캐릭터<br>정보</p>
+                    </a>
+                </div>
+            </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-6">
+                <div class="bg-white p-2 rounded">
+                    <img src="logo.png" alt="효빈교통공사" class="h-8 w-auto">
+                </div>
+                <p>Copyright 2016. 효빈교통공사 All right reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="customAlertOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100 animate-fade-in">
+            <div class="bg-sky-600 p-3 flex items-center justify-between">
+                <h3 class="text-white font-bold flex items-center"><i class="fa-solid fa-circle-info mr-2"></i>알림</h3>
+                <button onclick="document.getElementById('customAlertOverlay').classList.add('hidden')" class="text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6">
+                <p id="customAlertMessage" class="text-gray-700 font-medium text-center">메시지</p>
+            </div>
+            <div class="bg-gray-50 p-3 flex justify-center border-t border-gray-200">
+                <button onclick="document.getElementById('customAlertOverlay').classList.add('hidden')" class="bg-sky-600 text-white font-bold py-2 px-6 rounded">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================================================================
+        // 1. 역 데이터 (stationData) - 외부 파일 의존성 제거를 위해 직접 삽입
+        // ==================================================================
+        const stationData = [
+            // [1호선]
+               {line:"효빈1호선", date:"1994년 12월 29일", id:"101", km:0, dist:0, exits:1, name:"곽암해수욕장", hanjaName:"郭岩海水浴場", engName:"Gwakam Beach", address:"효빈광역시 남구 곽산동 220-2", express:"", transfer:[], riders:5011, trivia:"", time:{prev:"출발", cum:"출발"}},
+           
+            // [중요] 사용자가 가진 원본 데이터가 모두 포함되도록 수정하세요.
+            // 위 예시는 일부만 보여드린 것입니다.
+            []
+        );
+
+        // ==================================================================
+        // 2. 핵심 로직 (색상, 한자, 영문 복원)
+        // ==================================================================
+        function parseTime(timeStr) {
+            if (!timeStr || typeof timeStr !== 'string' || timeStr.includes("출발")) return 0;
+            let min = 0, sec = 0;
+            const minMatch = timeStr.match(/(\d+)분/); if (minMatch) min = parseInt(minMatch[1], 10);
+            const secMatch = timeStr.match(/(\d+)초/); if (secMatch) sec = parseInt(secMatch[1], 10);
+            return min + (sec / 60);
+        }
+
+        // 노선 색상 클래스 매핑
+        function getLineColorClass(lineName) {
+            if (!lineName) return 'bg-gray-500';
+            if (lineName.includes('1호선')) return 'line-1';
+            if (lineName.includes('2호선')) return 'line-2';
+            if (lineName.includes('3호선')) return 'line-3';
+            if (lineName.includes('4호선')) return 'line-4';
+            if (lineName.includes('5호선')) return 'line-5';
+            if (lineName.includes('6호선')) return 'line-6';
+            if (lineName.includes('7호선')) return 'line-7';
+            if (lineName.includes('8호선')) return 'line-8';
+            if (lineName.includes('빈효선')) return 'line-bh';
+            return 'bg-gray-500';
+        }
+
+        // 그래프 생성
+        let adjList = [];
+        let nameToIndices = {};
+
+        function buildGraph() {
+            adjList = new Array(stationData.length).fill(null).map(() => []);
+            nameToIndices = {};
+            stationData.forEach((station, index) => {
+                if (!nameToIndices[station.name]) nameToIndices[station.name] = [];
+                nameToIndices[station.name].push(index);
+            });
+
+            // 일반 연결
+            for (let i = 0; i < stationData.length - 1; i++) {
+                const current = stationData[i];
+                const next = stationData[i + 1];
+                if (current.line === next.line) {
+                    let timeWeight = 2;
+                    if (next.time && next.time.prev) timeWeight = parseTime(next.time.prev);
+                    else if (current.km !== undefined && next.km !== undefined) timeWeight = Math.abs(current.km - next.km) * 2.5;
+                    adjList[i].push({ to: i + 1, weight: timeWeight, type: 'move' });
+                    adjList[i + 1].push({ to: i, weight: timeWeight, type: 'move' });
+                }
+            }
+            // 급행 및 환승
+            let lastExpressIdx = -1; let currentLine = "";
+            stationData.forEach((station, index) => {
+                if (station.line !== currentLine) { currentLine = station.line; lastExpressIdx = -1; }
+                if (station.express && station.express.trim() !== "") {
+                    if (lastExpressIdx !== -1) {
+                        let weight = 0;
+                        if (station.expTime && station.expTime.prev) weight = parseTime(station.expTime.prev);
+                        if(weight<=0) weight = 3; 
+                        adjList[lastExpressIdx].push({ to: index, weight: weight, type: 'express' });
+                        adjList[index].push({ to: lastExpressIdx, weight: weight, type: 'express' });
+                    }
+                    lastExpressIdx = index;
+                }
+            });
+            for (const name in nameToIndices) {
+                const indices = nameToIndices[name];
+                if (indices.length > 1) {
+                    for (let i = 0; i < indices.length; i++) {
+                        for (let j = i + 1; j < indices.length; j++) {
+                            adjList[indices[i]].push({ to: indices[j], weight: 5, type: 'transfer' });
+                            adjList[indices[j]].push({ to: indices[i], weight: 5, type: 'transfer' });
+                        }
+                    }
+                }
+            }
+        }
+
+        // Dijkstra
+        class PriorityQueue {
+            constructor() { this.values = []; }
+            enqueue(element, priority) { this.values.push({ element, priority }); this.sort(); }
+            dequeue() { return this.values.shift(); }
+            sort() { this.values.sort((a, b) => a.priority - b.priority); }
+            isEmpty() { return this.values.length === 0; }
+        }
+
+        function findPathDijkstra(startName, endName, options = {}) {
+            if(!nameToIndices[startName] || !nameToIndices[endName]) return null;
+            const startNodes = nameToIndices[startName];
+            const endNodes = nameToIndices[endName];
+            const distances = new Array(stationData.length).fill(Infinity);
+            const previous = new Array(stationData.length).fill(null);
+            const pq = new PriorityQueue();
+
+            startNodes.forEach(index => { distances[index] = 0; pq.enqueue(index, 0); });
+
+            while (!pq.isEmpty()) {
+                const { element: u, priority: distU } = pq.dequeue();
+                if (distU > distances[u]) continue;
+                for (const edge of adjList[u]) {
+                    if (options.ignoreExpress && edge.type === 'express') continue;
+                    const v = edge.to;
+                    if (distances[u] + edge.weight < distances[v]) {
+                        distances[v] = distances[u] + edge.weight;
+                        previous[v] = u;
+                        pq.enqueue(v, distances[v]);
+                    }
+                }
+            }
+            let bestEndNode = -1; let minDist = Infinity;
+            endNodes.forEach(index => { if (distances[index] < minDist) { minDist = distances[index]; bestEndNode = index; } });
+            if (bestEndNode === -1 || minDist === Infinity) return null;
+            const path = []; let curr = bestEndNode;
+            while (curr !== null && distances[curr] !== 0) { path.unshift(curr); curr = previous[curr]; }
+            if(curr !== null) path.unshift(curr);
+            return { path, totalTime: minDist };
+        }
+
+        function findRoute() {
+            const start = document.getElementById('startStation').value.trim();
+            const end = document.getElementById('endStation').value.trim();
+            if (!start) { showAlert("출발역을 입력해주세요."); return; }
+            if (start && !end) { showStationInfo(start); return; }
+            if (adjList.length === 0) buildGraph();
+
+            try {
+                const fastestResult = findPathDijkstra(start, end);
+                const normalResult = findPathDijkstra(start, end, { ignoreExpress: true });
+                if (!fastestResult) { showAlert("경로를 찾을 수 없습니다."); return; }
+                document.getElementById('searchResult').classList.remove('hidden');
+                renderRouteResult(fastestResult, normalResult, start, end);
+            } catch(e) { console.error(e); showAlert("경로 검색 오류"); }
+        }
+
+        function closeModal() { document.getElementById('searchResult').classList.add('hidden'); }
+
+        // ==================================================================
+        // 3. 화면 렌더링 (디자인 100% 복원 + 색상 아이콘 추가)
+        // ==================================================================
+        
+        // 경로 결과 렌더링
+        function renderRouteResult(fastest, normal, startName, endName) {
+            const contentDiv = document.getElementById('resultContent');
+            contentDiv.innerHTML = '';
+            
+            const pathIndices = fastest.path;
+            const totalTime = fastest.totalTime;
+            let timeSaved = 0; let isExpressUsed = false;
+            if (normal && normal.totalTime > totalTime + 1) { isExpressUsed = true; timeSaved = normal.totalTime - totalTime; }
+
+            let totalKm = 0;
+            for(let i=0; i<pathIndices.length-1; i++) {
+                const u = stationData[pathIndices[i]]; const v = stationData[pathIndices[i+1]];
+                if(u.line === v.line && u.km !== undefined && v.km !== undefined) totalKm += Math.abs(u.km - v.km);
+            }
+            const fare = 1400 + Math.ceil(Math.max(0, totalKm - 10) / 5) * 100;
+
+            let html = `
+                <div class="bg-slate-800 p-4 rounded-lg mb-6 border border-slate-600">
+                    <div class="flex justify-between items-center text-white mb-2">
+                        <span class="text-xl font-bold">${startName}</span>
+                        <i class="fa-solid fa-arrow-right text-gray-400"></i>
+                        <span class="text-xl font-bold">${endName}</span>
+                    </div>
+                    <div class="flex justify-between items-end text-white border-t border-gray-600 pt-3 mt-2">
+                        <div>
+                            <p class="text-xs text-gray-400 mb-1"><i class="fa-regular fa-clock mr-1"></i>소요시간</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-sky-400">약 ${Math.ceil(totalTime)}분</span>
+                                ${isExpressUsed ? `<span class="text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-700/50">급행 (${Math.floor(timeSaved)}분 단축)</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400 mb-1"><i class="fa-solid fa-coins mr-1"></i>운임</p>
+                            <span class="text-xl font-bold">${fare.toLocaleString()}원</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="route-timeline space-y-0">
+            `;
+
+            let currentLine = stationData[pathIndices[0]].line;
+            let segmentStartIdx = 0;
+
+            for (let i = 1; i <= pathIndices.length; i++) {
+                let isTransfer = false;
+                let nextLine = null;
+                if (i < pathIndices.length) {
+                    const u = stationData[pathIndices[i-1]]; const v = stationData[pathIndices[i]];
+                    if (u.line !== v.line) { isTransfer = true; nextLine = v.line; }
+                }
+
+                if (isTransfer || i === pathIndices.length) {
+                    const startNode = stationData[pathIndices[segmentStartIdx]];
+                    const endNode = stationData[pathIndices[i-1]];
+                    let physicalStops = 0; let isExpressSegment = false;
+                    for (let k = segmentStartIdx + 1; k < i; k++) {
+                        const currIdx = pathIndices[k]; const prevIdx = pathIndices[k-1];
+                        if (Math.abs(currIdx - prevIdx) > 1) isExpressSegment = true;
+                        physicalStops += 1; 
+                    }
+                    const lineColor = getLineColorClass(currentLine);
+
+                    html += `
+                        <div class="route-segment">
+                            <div class="route-point border-white ${lineColor}"></div>
+                            <div class="mb-1">
+                                <span class="line-badge ${lineColor}">${currentLine}</span>
+                                ${isExpressSegment ? `<span class="express-badge">급행 이용</span>` : ''}
+                                <span class="font-bold text-lg text-slate-800">${startNode.name}</span>
+                            </div>
+                            ${physicalStops > 0 ? `<div class="pl-2 border-l-2 border-dotted border-gray-300 ml-[-23px] my-2 py-2"><p class="text-xs text-gray-500 ml-4">${physicalStops}개 역 이동</p></div>` : ''}
+                        </div>
+                    `;
+
+                    if (isTransfer) {
+                        html += `
+                            <div class="route-segment">
+                                <div class="route-point bg-white border-gray-400"></div>
+                                <div class="bg-gray-100 p-2 rounded text-xs text-gray-600 font-bold inline-block border border-gray-300">
+                                    <i class="fa-solid fa-person-walking mr-1"></i>환승 (5분)
+                                </div>
+                            </div>
+                        `;
+                        currentLine = nextLine;
+                        segmentStartIdx = i; 
+                    } else {
+                         html += `
+                            <div class="route-segment">
+                                <div class="route-point border-white ${lineColor}"></div>
+                                <div class="mb-1">
+                                    <span class="font-bold text-lg text-slate-800">${endNode.name}</span>
+                                    <span class="text-xs text-white bg-slate-800 px-2 py-0.5 rounded ml-2">도착</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            html += `</div>`;
+            contentDiv.innerHTML = html;
+            const pathStations = pathIndices.map(idx => stationData[idx]);
+            appendTrivia(contentDiv, pathStations, "경유역 성지정보");
+        }
+
+        // ★ 수정: 역 정보 조회 (한자/영문명 + 노선 색상 아이콘) ★
+        function showStationInfo(name) {
+            const resultDiv = document.getElementById('searchResult');
+            const contentDiv = document.getElementById('resultContent');
+            resultDiv.classList.remove('hidden');
+            
+            const infos = stationData.filter(s => s.name === name);
+            if (infos.length === 0) { contentDiv.innerHTML = '<p class="text-gray-400 p-4">존재하지 않는 역입니다.</p>'; return; }
+
+            // 1. 헤더 (한자/영문 추가됨)
+            const rep = infos[0];
+            let html = `
+                <div class="flex flex-col gap-1 mb-6 pb-4 border-b border-gray-700">
+                    <div class="flex items-baseline gap-3">
+                        <span class="text-3xl font-bold text-white">${rep.name}</span>
+                        <span class="text-xl font-medium text-gray-400">${rep.hanjaName || ''}</span>
+                    </div>
+                    <span class="text-lg text-gray-500 font-medium">${rep.engName || ''}</span>
+                </div>
+            `;
+
+            // 2. 노선 카드 (노선 색상 뱃지 추가됨)
+            infos.forEach(info => {
+                const lineColor = getLineColorClass(info.line);
+                html += `
+                    <div class="bg-slate-800 p-4 rounded-lg mb-4 border border-slate-700 hover:border-slate-500 transition shadow-md">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="line-badge ${lineColor} shadow">${info.line}</span>
+                            <span class="text-xs text-gray-400 bg-slate-900 px-2 py-1 rounded">누적 ${info.km || 0}km</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                            <div class="bg-slate-900/60 p-3 rounded border border-slate-700/50">
+                                <p class="text-gray-400 text-xs mb-1">일일 이용객</p>
+                                <p class="text-white font-bold text-lg">${info.riders ? info.riders.toLocaleString() : '-'}명</p>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded border border-slate-700/50">
+                                <p class="text-gray-400 text-xs mb-1">환승 정보</p>
+                                <p class="text-yellow-400 font-bold text-sm truncate">${info.transfer && info.transfer.length > 0 ? info.transfer.join(', ') : '없음'}</p>
+                            </div>
+                        </div>
+                        ${info.address ? `<div class="flex items-start text-xs text-gray-500 mt-2"><i class="fa-solid fa-location-dot mr-2 mt-0.5"></i>${info.address}</div>` : ''}
+                    </div>
+                `;
+            });
+            contentDiv.innerHTML = html;
+            appendTrivia(contentDiv, infos, "성지순례 / 캐릭터 정보");
+        }
+
+        function appendTrivia(container, stations, title) {
+            const trivias = [...new Set(stations.map(s => s.trivia).filter(t => t))];
+            if (trivias.length > 0) {
+                let html = `
+                    <div class="mt-6 pt-4 border-t border-slate-700 animate-fade-in">
+                        <p class="text-indigo-300 font-bold text-sm mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-yellow-400 mr-2"></i>${title || '성지순례 정보'}
+                        </p>
+                `;
+                trivias.forEach(t => {
+                    html += `
+                        <div class="bg-indigo-900/40 p-4 rounded-lg text-sm text-indigo-100 mb-2 border border-indigo-500/30 flex items-start shadow-sm">
+                            <i class="fa-solid fa-quote-left text-indigo-400 mr-2 mt-1 text-xs"></i>
+                            <span class="leading-relaxed">${t}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                container.appendChild(temp);
+            }
+        }
+
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const uniqueStationNames = [...new Set(stationData.map(s => s.name))].sort();
+
+            input.addEventListener('input', function() {
+                const val = this.value;
+                list.innerHTML = '';
+                if (!val) { list.classList.add('hidden'); return; }
+                const matches = uniqueStationNames.filter(name => name.includes(val));
+                if (matches.length > 0) {
+                    list.classList.remove('hidden');
+                    matches.forEach(name => {
+                        const div = document.createElement('div');
+                        div.innerHTML = name.replace(new RegExp(`(${val})`, 'gi'), '<span class="highlight">$1</span>');
+                        div.onclick = () => { input.value = name; list.classList.add('hidden'); };
+                        list.appendChild(div);
+                    });
+                }
+            });
+            document.addEventListener('click', e => { if (e.target !== input && e.target !== list) list.classList.add('hidden'); });
+        }
+
+        window.onload = function() {
+            buildGraph();
+            setupAutocomplete('startStation', 'startAutocomplete');
+            setupAutocomplete('endStation', 'endAutocomplete');
+        };
+    </script>
+</body>
+</html>

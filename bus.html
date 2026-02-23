@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>버스 정보 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        
+        /* 탭 버튼 스타일 */
+        .tab-btn.active { background-color: #01B7ED; color: white; border-color: #01B7ED; }
+        .tab-btn:hover:not(.active) { color: #01B7ED; }
+        
+        /* 버스 뱃지 스타일 */
+        .bus-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: white; display: inline-block; min-width: 50px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* 버스 유형별 도색 - 2026-01-22 업데이트 반영 */
+        .bg-rapid { background-color: #D81C2F; }   /* 급행 */
+        .bg-seat { background-color: #FF5800; }    /* 좌석 */
+        .bg-main { background-color: #01B7ED; }    /* 간선 */
+        .bg-branch { background-color: #37B484; }  /* 지선 */
+        .bg-town { background-color: #A664A0; }    /* 마을 */
+        .bg-wide { background-color: #485EC6; }    /* 광역 */
+        .bg-circular { background-color: #E7D600; color: #333; } /* 순환 */
+        .bg-airport { background-color: #84C36E; } /* 공항 */
+        .bg-tour { background-color: #7777AA; }    /* 시티투어 */
+        
+        /* 텍스트/테두리 색상 유틸리티 */
+        .border-rapid { border-color: #D81C2F; }
+        .border-seat { border-color: #FF5800; }
+        .border-main { border-color: #01B7ED; }
+        .border-branch { border-color: #37B484; }
+        .border-town { border-color: #A664A0; }
+        .border-wide { border-color: #485EC6; }
+        .border-circular { border-color: #E7D600; }
+        .border-airport { border-color: #84C36E; }
+        .border-tour { border-color: #7777AA; }
+        
+        /* 배경 색상 유틸리티 */
+        .bg-soft-rapid { background-color: #FEE2E2; color: #D81C2F; }
+        .bg-soft-seat { background-color: #FFEDD5; color: #FF5800; }
+        .bg-soft-main { background-color: #E0F2FE; color: #01B7ED; }
+        .bg-soft-branch { background-color: #DCFCE7; color: #37B484; }
+        .bg-soft-town { background-color: #FAE8FF; color: #A664A0; }
+        .bg-soft-wide { background-color: #E0E7FF; color: #485EC6; }
+        .bg-soft-circular { background-color: #FEF9C3; color: #854D0E; }
+        .bg-soft-airport { background-color: #DCFCE7; color: #84C36E; }
+        .bg-soft-tour { background-color: #EEF2FF; color: #7777AA; }
+
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover { background-color: #f8fafc; }
+
+        /* 화면 전환 애니메이션 */
+        .view-section { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="showListView()">
+                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="bus" class="w-6 h-6"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="showListView()" class="hover:text-white flex items-center gap-1" id="nav-home-btn">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold hidden sm:inline">메인으로</span>
+                </button>
+                <button onclick="showListView()" class="hover:text-white flex items-center gap-1 hidden" id="nav-back-btn">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">목록으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="w-full flex-grow relative">
+        
+        <!-- VIEW 1: 목록 화면 -->
+        <div id="list-view" class="view-section">
+            <div class="w-full bg-slate-700 py-16 text-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-[#01B7ED] opacity-70"></div>
+                <div class="absolute inset-0 -z-10 bg-gradient-to-r from-slate-800 to-slate-600"></div>
+                <div class="relative z-10 px-4">
+                    <h1 class="text-4xl md:text-5xl font-black mb-4">효빈 버스정보시스템 (BIS)</h1>
+                    <p class="text-slate-200 font-medium text-lg md:text-xl break-keep">시민과 함께 달리는 행복 버스, 준공영제로 더 안전하고 편리하게</p>
+                </div>
+            </div>
+
+            <div class="max-w-6xl mx-auto px-4 py-12 mb-20">
+                <!-- 검색 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                    <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-md border border-slate-200">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+                            <i data-lucide="search" class="w-6 h-6 mr-2 text-[#01B7ED]"></i> 노선 검색
+                        </h3>
+                        <div class="flex flex-col md:flex-row gap-4 mb-4">
+                            <div class="flex-grow relative">
+                                <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') searchBus()" placeholder="노선번호 (예: 01, A01) 또는 정류장명" class="w-full pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:border-[#01B7ED] focus:outline-none text-lg transition-colors">
+                                <button onclick="searchBus()" class="absolute right-2 top-2 p-1 bg-[#01B7ED] text-white rounded hover:bg-sky-600 transition">
+                                    <i data-lucide="search" class="w-6 h-6"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-50 p-6 rounded-xl border border-sky-100 h-full">
+                        <h4 class="font-bold text-[#01B7ED] mb-2 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> 효빈 BIS 안내</h4>
+                        <p class="text-sm text-slate-700 leading-relaxed mb-3">
+                            효빈광역시의 모든 버스 노선 정보를 통합 제공합니다. 21개 운수업체와 시티투어가 함께합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 탭 및 리스트 -->
+                <section class="mb-16">
+                    <div class="flex border-b border-slate-300 mb-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                        <button onclick="filterBus('all')" class="tab-btn active px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="all">전체 노선</button>
+                        <button onclick="filterBus('airport')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="airport">공항버스</button>
+                        <button onclick="filterBus('fast')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="fast">급행/좌석</button>
+                        <button onclick="filterBus('city')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="city">간선/순환</button>
+                        <button onclick="filterBus('local')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="local">지선/마을</button>
+                        <button onclick="filterBus('wide')" class="tab-btn px-4 py-3 font-bold text-slate-600 hover:bg-slate-50 border-b-2 border-transparent transition" data-type="wide">광역</button>
+                    </div>
+
+                    <div class="overflow-hidden bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                            <table class="w-full text-sm text-left text-slate-600 whitespace-nowrap md:whitespace-normal">
+                                <thead class="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-6 py-4 w-24">유형</th>
+                                        <th class="px-6 py-4 w-24">노선번호</th>
+                                        <th class="px-6 py-4">기점 <i data-lucide="arrow-right" class="w-3 h-3 inline"></i> 종점</th>
+                                        <th class="px-6 py-4 hidden md:table-cell">주요 경유지</th>
+                                        <th class="px-6 py-4 w-32 hidden sm:table-cell">운수업체</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="bus-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 운수업체 리스트 -->
+                <section class="mb-16">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i data-lucide="users" class="w-7 h-7 mr-3 text-[#01B7ED]"></i> 협력 운수업체</h2>
+                    <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                        <div class="flex flex-wrap gap-2 text-sm text-slate-600 leading-relaxed" id="company-list"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- VIEW 2: 상세 화면 -->
+        <div id="detail-view" class="view-section hidden max-w-6xl mx-auto px-4 py-10 mb-20">
+            <!-- 노선 헤더 -->
+            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8" id="detail-header-card">
+                <div class="flex flex-col md:flex-row justify-between items-start">
+                    <div>
+                        <span id="detail-badge" class="px-2 py-1 rounded text-sm font-bold mb-2 inline-block">버스유형</span>
+                        <div class="flex items-baseline gap-3">
+                            <h1 id="detail-num" class="text-4xl font-black text-slate-800 mb-1">번호</h1>
+                            <span class="text-slate-400 font-medium">↔</span>
+                            <h1 id="detail-num-rev" class="text-2xl font-bold text-slate-500 mb-1">역번호</h1>
+                        </div>
+                        <p id="detail-route" class="text-lg text-slate-600 font-medium mt-2">기점 ↔ 종점</p>
+                        <p id="detail-addr" class="text-sm text-slate-400 mt-1">운행지역 정보</p>
+                    </div>
+                    <div class="text-left md:text-right text-slate-500 text-sm mt-4 md:mt-0 bg-slate-50 p-3 rounded-lg md:bg-transparent md:p-0 w-full md:w-auto">
+                        <p>운수업체: <a href="#" id="detail-comp-link" class="font-bold text-[#01B7ED] hover:underline">정보</a></p>
+                        <p>첫차: <span id="detail-first-time" class="font-bold text-slate-700">05:30</span> / 막차: <span id="detail-last-time" class="font-bold text-slate-700">23:00</span></p>
+                        <button onclick="refreshBusLocation()" class="mt-2 text-sm text-white bg-[#01B7ED] px-3 py-1.5 rounded hover:bg-sky-600 flex items-center justify-center md:justify-end gap-1 w-full md:w-auto transition">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> 위치 새로고침
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 노선도 (2단 그리드 - 상세 정류장 표시) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 상행 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-[#01B7ED] bg-opacity-20 text-[#01B7ED] flex items-center justify-center text-xs mr-2 font-black">상</span>
+                            순방향 (기점 → 종점)
+                        </h3>
+                    </div>
+                    <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-forward"></div>
+                </div>
+                <!-- 하행 -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs mr-2 font-black">하</span>
+                            역방향 (종점 → 기점)
+                        </h3>
+                    </div>
+                    <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-reverse"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-500">
+            <span class="font-bold text-slate-700 block mb-1">효빈광역시 버스정보시스템</span>
+            COPYRIGHT © 2025 HYOBIN CITY. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // 기존 운수업체 목록 유지 (공공/민영 구분용)
+        const companies = [
+            { name: '덕빈고속', public: false }, { name: '효빈여객', public: true }, { name: '청엽여객', public: true },
+            { name: '창전여객', public: false }, { name: '안천고속', public: false }, { name: '이자여객', public: false },
+            { name: '임천여객', public: false }, { name: '월주여객', public: false }, { name: '칠양여객', public: true },
+            { name: '입포여객', public: true }, { name: '판주여객', public: false }, { name: '대교여객', public: false },
+            { name: '남주여객', public: false }, { name: '효안교통', public: false }, { name: '청선여객', public: false },
+            { name: '내삼여객', public: false }, { name: '소진여객', public: true }, { name: '탄성여객', public: false },
+            { name: '중성여객', public: false }, { name: '송포여객', public: true }, { name: '오진여객', public: false }
+        ];
+
+        const companyListContainer = document.getElementById('company-list');
+        companies.forEach(comp => {
+            const isPublic = comp.public;
+            const styleClass = isPublic ? 'text-[#01B7ED] font-bold ring-1 ring-sky-100 hover:bg-sky-50' : 'text-slate-600 hover:bg-slate-100';
+            const link = document.createElement('a');
+            link.href = `company.html?name=${encodeURIComponent(comp.name)}`;
+            link.className = `px-3 py-1 bg-white border border-slate-200 rounded-full transition ${styleClass}`;
+            link.innerText = comp.name;
+            companyListContainer.appendChild(link);
+        });
+
+        // 데이터 교체
+        const rawData = [
+            { t: 'rapid', n: '1', s: '팔조역', sa: '효빈광역시 창전구 팔조동', e: '내항역', ea: '효빈광역시 중구 내항동', v: '팔조 - 창전 - 유류 - 중앙로 - 중구청 - 내항', c: '입포여객', ft: '5:30', lt: '23:20' },
+            { t: 'rapid', n: '2', s: '소원면사무소', sa: '효빈광역시 탄성군 소원면 소원리', e: '고송동', ea: '효빈광역시 북구 고송동', v: '소원 - 이자 - 안천 - 평전 - 북구청 - 고송', c: '소진여객', ft: '5:10', lt: '23:45' },
+            { t: 'rapid', n: '3', s: '앵내종점', sa: '효빈광역시 탄성군 도변읍 앵내리', e: '중수여고', ea: '효빈광역시 북구 중수동', v: '앵내 - 타천 - 이자 - 팔망성 - 남전 - 중수', c: '효빈여객', ft: '5:15', lt: '23:50' },
+            { t: 'rapid', n: '4', s: '곽산역', sa: '효빈광역시 남구 곽산동', e: '천본동', ea: '효빈광역시 안천구 천본동', v: '곽산 - 평당고 - 신흥 - 동리 - 사노 - 천본', c: '칠양여객', ft: '5:30', lt: '22:45' },
+            { t: 'rapid', n: '5', s: '곽암종점', sa: '효빈광역시 남구 곽산동', e: '정근면사무소', ea: '효빈광역시 탄성군 정근면 층부리', v: '곽산 - 남당 - 평당 - 남구청 - 정근면', c: '입포여객', ft: '5:30', lt: '23:30' },
+            { t: 'rapid', n: '6', s: '고송나루역', sa: '효빈광역시 북구 고송동', e: '탄성과학고', ea: '효빈광역시 탄성군 서목읍 소춘리', v: '고송 - 칠천 - 효빈대 - 청엽구청 - 창전 - 서목', c: '칠양여객', ft: '5:10', lt: '23:25' },
+            { t: 'rapid', n: '7', s: '하미종점', sa: '덕북 선곡군 하미면 하미리', e: '팔조역', ea: '효빈광역시 창전구 팔조동', v: '하미 - 서목 - 탄성군청 - 루비 - 칠심 - 팔조', c: '송포여객', ft: '5:30', lt: '22:40' },
+            { t: 'rapid', n: '8', s: '청덕공원역', sa: '효빈광역시 서구 청덕동', e: '엽월대', ea: '효빈광역시 청엽구 등동', v: '청덕 - 효빈대 - 중구청 - 구시청 - 효빈동신도시 - 엽월대', c: '청엽여객', ft: '5:22', lt: '23:54' },
+            { t: 'rapid', n: '9', s: '토모리해수욕장', sa: '효빈광역시 북구 고송동', e: '효빈해양경찰서', ea: '효빈광역시 남구 항동1가', v: '토모리 - 고송 - 소장 - 중앙로 - 오석 - 동신 - 어간항', c: '청엽여객', ft: '5:30', lt: '22:59' },
+            { t: 'main', n: '11', s: '내항관광지', sa: '중구 내항동', e: '당선선착장', ea: '서구 당선동', v: '내항, 중앙로, 중구청', c: '효빈여객', ft: '4:55', lt: '23:40' },
+            { t: 'main', n: '12', s: '장원역', sa: '중구 정동', e: '청덕세라스', ea: '서구 청덕동', v: '장원, 중구청, 소장', c: '청선여객', ft: '5:15', lt: '23:10' },
+            { t: 'main', n: '13', s: '신덕동', sa: '중구 신덕동', e: '현대조선소', ea: '북구 곡진동', v: '신덕, 효빈, 보몽', c: '효빈여객', ft: '5:00', lt: '23:00' },
+            { t: 'main', n: '14', s: '중앙로역', sa: '중구 중앙로3가', e: '앵내종점', ea: '탄성군 도변읍 앵내리', v: '중앙로, 신덕, 청엽', c: '효빈여객', ft: '5:00', lt: '23:20' },
+            { t: 'main', n: '15', s: '개항지역', sa: '중구 중앙로3가', e: '정근면', ea: '탄성군 정근면 층부리', v: '장원, 효빈, 전천', c: '월주여객', ft: '5:00', lt: '22:40' },
+            { t: 'main', n: '16', s: '장원역', sa: '중구 정동', e: '선곡군청', ea: '덕북 선곡군 선곡읍 성륜리', v: '동리, 청엽, 칠심', c: '덕빈고속', ft: '4:45', lt: '23:21' },
+            { t: 'main', n: '17', s: '내항역', sa: '중구 내항동', e: '창전상고', ea: '창전구 마시동', v: '내항, 십덕, 진월천', c: '임천여객', ft: '4:32', lt: '23:12' },
+            { t: 'main', n: '18', s: '효빈대', sa: '서구 당선동', e: '우택역', ea: '청엽구 우택동', v: '효빈대, 고터, 효빈', c: '송포여객', ft: '4:28', lt: '23:00' },
+            { t: 'main', n: '19', s: '효빈대', sa: '서구 당선동', e: '곽암종점', ea: '남구 곽산동', v: '소조, 내조, 신덕', c: '입포여객', ft: '5:05', lt: '23:10' },
+            { t: 'main', n: '22', s: '청덕공원', sa: '서구 청덕동', e: '모리초', ea: '북구 진희동', v: '청덕, 과진, 고송', c: '소진여객', ft: '4:53', lt: '23:40' },
+            { t: 'main', n: '23', s: '청덕공원', sa: '서구 청덕동', e: '현대조선소', ea: '북구 곡진동', v: '청덕, 과진, 고송', c: '내삼여객', ft: '4:59', lt: '23:00' },
+            { t: 'main', n: '24', s: '청덕공원', sa: '서구 청덕동', e: '천본동', ea: '효빈광역시 안천구 천본동', v: '타천, 하가, 남전', c: '내삼여객', ft: '5:02', lt: '22:54' },
+            { t: 'main', n: '25', s: '청덕역', sa: '서구 청덕동', e: '정근면', ea: '효빈광역시 탄성군 정근면 층부리', v: '천가, 이자, 안천', c: '이자여객', ft: '5:32', lt: '22:33' },
+            { t: 'main', n: '26', s: '고송나루', sa: '북구 고송동', e: '하미종점', ea: '덕북 선곡군 하미면 하미리', v: '고송, 과송, 소조', c: '소진여객', ft: '5:34', lt: '22:31' },
+            { t: 'main', n: '27', s: '고송나루', sa: '북구 고송동', e: '창전상고', ea: '창전구 마시동', v: '사복, 당선, 효빈대', c: '임천여객', ft: '4:22', lt: '23:54' },
+            { t: 'main', n: '28', s: '청덕공원', sa: '서구 청덕동', e: '엽월대', ea: '청엽구 등동', v: '창선, 개항, 중앙로', c: '임천여객', ft: '5:11', lt: '22:59' },
+            { t: 'main', n: '29', s: '고송나루', sa: '북구 고송동', e: '곽암종점', ea: '남구 곽산동', v: '고송, 효빈과기, 소장', c: '소진여객', ft: '5:01', lt: '23:01' },
+            { t: 'main', n: '33', s: '중수포산선착장', sa: '북구 포산동', e: '청덕공원', ea: '서구 청덕동', v: '중수포산선착장 - 포산역 - 서도 - 오내사거리 - 중수 - 입희 - 효빈 - 과진중앙 - 청덕공원', c: '대교여객', ft: '5:04', lt: '23:01' },
+            { t: 'main', n: '34', s: '중수포산', sa: '북구 포산동', e: '도변역', ea: '탄성군 도변읍 도변리', v: '북구청, 등기, 채산', c: '칠양여객', ft: '4:53', lt: '23:10' },
+            { t: 'main', n: '35', s: '포산역', sa: '북구 포산동', e: '면허시험장', ea: '탄성군 소원면 부우리', v: '포산, 평전, 당가', c: '월주여객', ft: '5:45', lt: '22:21' },
+            { t: 'main', n: '36', s: '포산역', sa: '북구 포산동', e: '선곡군청', ea: '덕북 선곡군 선곡읍 성륜리', v: '탄성군청, 루비, 상가', c: '중성여객', ft: '5:59', lt: '22:01' },
+            { t: 'main', n: '37', s: '포산역', sa: '북구 포산동', e: '평천대', ea: '창전구 생덕동', v: '포산, 서도, 오내', c: '청선여객', ft: '4:54', lt: '23:55' },
+            { t: 'main', n: '38', s: '현대조선소', sa: '북구 곡진동', e: '비마역', ea: '청엽구 우택동', v: '비마, 우전, 유류', c: '청선여객', ft: '5:20', lt: '21:21' },
+            { t: 'main', n: '39', s: '현대조선소', sa: '북구 곡진동', e: '항동종점', ea: '남구 항동2가', v: '효빈항, 어간, 운양', c: '청선여객', ft: '5:19', lt: '21:30' },
+            { t: 'main', n: '45', s: '도변역', sa: '탄성군 도변읍 도변리', e: '정근면', ea: '효빈광역시 탄성군 정근면 층부리', v: '도변, 앵내, 이자', c: '임천여객', ft: '5:58', lt: '22:10' },
+            { t: 'main', n: '46', s: '앵내종점', sa: '탄성군 도변읍 앵내리', e: '탄성군청', ea: '탄성군 탄성읍 공리', v: '도변, 루비, 탄성', c: '덕빈고속', ft: '5:20', lt: '22:32' },
+            { t: 'main', n: '47', s: '천본동', sa: '효빈광역시 안천구 천본동', e: '동곡종점', ea: '창전구 동곡동', v: '안천, 하가, 수포', c: '임천여객', ft: '5:40', lt: '22:31' },
+            { t: 'main', n: '48', s: '천본동', sa: '효빈광역시 안천구 천본동', e: '엽월대', ea: '청엽구 등동', v: '타천, 안천, 하가', c: '남주여객', ft: '5:43', lt: '23:11' },
+            { t: 'main', n: '49', s: '도변역', sa: '탄성군 도변읍 도변리', e: '항동종점', ea: '남구 항동2가', v: '항동, 어간, 운양', c: '이자여객', ft: '5:33', lt: '22:54' },
+            { t: 'main', n: '56', s: '이자공원', sa: '안천구 이자동', e: '선곡군청', ea: '덕북 선곡군 선곡읍 성륜리', v: '이자, 탄자, 도변', c: '이자여객', ft: '6:10', lt: '22:30' },
+            { t: 'main', n: '57', s: '면허시험장', sa: '탄성군 소원면 부우리', e: '동곡역', ea: '창전구 동곡동', v: '이자공원, 이자, 요우', c: '효안교통', ft: '6:20', lt: '21:10' },
+            { t: 'main', n: '58', s: '면허시험장', sa: '탄성군 소원면 부우리', e: '엽월대', ea: '청엽구 등동', v: '소원, 이자, 이자출장소', c: '남주여객', ft: '5:42', lt: '22:43' },
+            { t: 'main', n: '59', s: '면허시험장', sa: '탄성군 소원면 부우리', e: '항동종점', ea: '남구 항동2가', v: '효빈항, 항동, 산홍', c: '중성여객', ft: '5:59', lt: '22:33' },
+            { t: 'main', n: '66', s: '하미종점', sa: '덕북 선곡군 하미면 하미리', e: '탄성군청', ea: '탄성군 탄성읍 공리', v: '서목, 탄성', c: '탄성여객', ft: '5:25', lt: '21:30' },
+            { t: 'main', n: '67', s: '하미종점', sa: '덕북 선곡군 하미면 하미리', e: '동곡역', ea: '창전구 동곡동', v: '승남, 무기, 보통', c: '중성여객', ft: '5:10', lt: '23:21' },
+            { t: 'main', n: '68', s: '귀총면', sa: '덕북 선곡군 귀총면 낙주리', e: '효빈동신도시', ea: '청엽구 효빈동2가', v: '도변, 우전, 동곡', c: '월주여객', ft: '5:59', lt: '22:10' },
+            { t: 'main', n: '69', s: '귀총면', sa: '덕북 선곡군 귀총면 낙주리', e: '항동종점', ea: '남구 항동2가', v: '탄성군청, 창전구청', c: '월주여객', ft: '6:30', lt: '22:31' },
+            { t: 'main', n: '77', s: '팔조역', sa: '창전구 팔조동', e: '창전상고', ea: '창전구 마시동', v: '시로, 칠심, 창전', c: '창전여객,월주여객', ft: '4:20', lt: '0:33' },
+            { t: 'main', n: '78', s: '창전상고', sa: '창전구 마시동', e: '엽월대', ea: '청엽구 등동', v: '보통, 동곡, 비동', c: '남주여객', ft: '5:12', lt: '22:23' },
+            { t: 'main', n: '79', s: '창전상고', sa: '창전구 마시동', e: '항동종점', ea: '남구 항동2가', v: '창전구청, 유류, 엽천', c: '판주여객', ft: '5:53', lt: '22:45' },
+            { t: 'main', n: '88', s: '엽월대', sa: '청엽구 등동', e: '우택역', ea: '청엽구 우택동', v: '헌이송, 비마, 청엽', c: '청엽여객,창전여객,효안교통', ft: '4:00', lt: '1:00' },
+            { t: 'main', n: '89', s: '우택역', sa: '청엽구 우택동', e: '곽암종점', ea: '남구 곽산동', v: '우택, 청엽국제, 청엽구청', c: '판주여객', ft: '5:21', lt: '22:21' },
+            { t: 'seat', n: '1111', s: '선곡군청', sa: '덕북 선곡군 선곡읍 성륜리', e: '효빈역', ea: '동구 사가당동', v: '서목 - 탄성 - 시로 - 청엽국제 - 사가당', c: '송포여객', ft: '5:30', lt: '23:43' },
+            { t: 'seat', n: '2222', s: '염곡신도시', sa: '덕북 기도군 염곡면 염곡리', e: '중앙로역', ea: '중구 중앙로3가', v: '주양 - 토모리 - 청덕 - 효빈과기 - 효빈대', c: '칠양여객', ft: '5:20', lt: '23:51' },
+            { t: 'seat', n: '3333', s: '염곡신도시', sa: '덕북 기도군 염곡면 염곡리', e: '중수역', ea: '북구 중수동', v: '주양 - 토모리 - 고송교차로 - 시청', c: '칠양여객', ft: '5:05', lt: '23:41' },
+            { t: 'seat', n: '4004', s: '원강읍', sa: '덕북 약산시 원강읍 개산리', e: '안천역', ea: '안천구 안천동', v: '근강 - 약산시청 - 탄자 - 추자', c: '청엽여객', ft: '5:15', lt: '23:55' },
+            { t: 'seat', n: '5555', s: '홍하면', sa: '덕북 약산시 홍하면 니지리', e: '이자공원', ea: '안천구 이자동', v: '홍하 - 하수구 - 북천 - 해로 - 이자', c: '청엽여객', ft: '5:10', lt: '23:36' },
+            { t: 'seat', n: '6666', s: '선곡군청', sa: '덕북 선곡군 선곡읍 성륜리', e: '고송나루', ea: '북구 고송동', v: '탄성 - 시로 - 동덕현 - 전덕 - 고터 - 소조', c: '송포여객', ft: '5:12', lt: '23:52' },
+            { t: 'seat', n: '7777', s: '치원군청', sa: '덕북 치원군 치원읍 치원리', e: '시로역', ea: '창전구 시로동', v: '안천 - 상가 - 흑택 - 시로', c: '임천여객', ft: '5:08', lt: '23:44' },
+            { t: 'seat', n: '8888', s: '원강읍', sa: '덕북 약산시 원강읍 개산리', e: '청엽구청', ea: '청엽구 청엽동', v: '하내장 - 약산 - 산형 - 보통 - 칠심 - 우전', c: '효빈여객', ft: '5:02', lt: '23:44' },
+            { t: 'seat', n: '9999', s: '염곡신도시', sa: '덕북 기도군 염곡면 염곡리', e: '월천역', ea: '남구 월천동', v: '과진 - 당선 - 중구청 - 장원 - 오석 - 삼각', c: '효빈여객', ft: '4:55', lt: '23:55' },
+            { t: 'wide', n: '1000', s: '하미종점', sa: '', e: '효빈역', ea: '', v: '서목-탄성군청-루비-유류-우전-아논타워-청엽구청-사가당', c: '청엽여객', ft: '5:30', lt: '23:45' },
+            { t: 'wide', n: '2000', s: '치원군청', sa: '', e: '효빈역', ea: '', v: '북구청-사연-전천중앙-전덕', c: '소진여객', ft: '5:40', lt: '22:30' },
+            { t: 'wide', n: '3000', s: '고관종점', sa: '', e: '효빈역', ea: '', v: '공항(토모리)-고송교차로-시청-북효빈-고터-전천', c: '칠양여객', ft: '5:30', lt: '23:40' },
+            { t: 'wide', n: '4000', s: '북천동', sa: '', e: '안천역', ea: '', v: '탄미-도변-안천구청', c: '소진여객', ft: '5:40', lt: '23:55' },
+            { t: 'wide', n: '5000', s: '성가면', sa: '', e: '창전역', ea: '', v: '루비-요우-이자공원-도향', c: '청엽여객', ft: '5:30', lt: '23:50' },
+            { t: 'wide', n: '6000', s: '귀총면', sa: '', e: '고송나루', ea: '', v: '도변-루비-창전-남부시터-청엽구청-효빈역-소조-시청-고송', c: '송포여객', ft: '5:30', lt: '23:45' },
+            { t: 'wide', n: '7000', s: '치원군청', sa: '', e: '안천역', ea: '', v: '약산-산형-도향-이자공원-과남', c: '임천여객', ft: '5:30', lt: '23:45' },
+            { t: 'wide', n: '8000', s: '원강읍', sa: '', e: '이자공원', ea: '', v: '이자-영색무-고해', c: '송포여객', ft: '5:40', lt: '23:35' },
+            { t: 'wide', n: '9000', s: '치원군청', sa: '', e: '월천동', ea: '', v: '하내장-약산시청-탄미-앵내-도변-창전구청-동곡-마잡-오주-진월천', c: '효빈여객', ft: '5:30', lt: '23:42' },
+            { t: 'branch', n: '111', s: '장원역', sa: '중구 정동', e: '당선역', ea: '서구 당선동', v: '장원,중구청,효빈성', c: '입포여객', ft: '5:20', lt: '23:13' },
+            { t: 'branch', n: '112', s: '효빈성북문', sa: '서구 북문동2가', e: '약맥동', ea: '중구 약맥동', v: '효빈성,소장,조유동', c: '칠양여객', ft: '5:24', lt: '23:22' },
+            { t: 'branch', n: '121', s: '신덕역', sa: '중구 신덕동', e: '고송나루', ea: '북구 고송동', v: '고송,청덕,소장', c: '입포여객', ft: '4:56', lt: '22:48' },
+            { t: 'branch', n: '123', s: '장원역', sa: '중구 정동', e: '모리초', ea: '북구 진희동', v: '시청,청능,소조', c: '판주여객', ft: '5:12', lt: '22:34' },
+            { t: 'branch', n: '131', s: '신덕역', sa: '중구 신덕동', e: '현대연수원', ea: '북구 곡진동', v: '효빈,보몽,중수', c: '효안교통', ft: '5:31', lt: '23:24' },
+            { t: 'branch', n: '132', s: '장원역', sa: '중구 정동', e: '아진아파트', ea: '북구 아진동', v: '리사,효빈,사능', c: '소진여객', ft: '5:28', lt: '23:16' },
+            { t: 'branch', n: '141', s: '내항해변', sa: '중구 내항동', e: '귀총면', ea: '덕북 선곡군 귀총면 낙주리', v: '고무,창전,칠심', c: '입포여객', ft: '5:26', lt: '23:19' },
+            { t: 'branch', n: '143', s: '효빈대', sa: '서구 당선동', e: '귀총면', ea: '덕북 선곡군 귀총면 낙주리', v: '당선,소조,북효빈', c: '입포여객', ft: '5:09', lt: '22:37' },
+            { t: 'branch', n: '151', s: '내항해변', sa: '중구 내항동', e: '융문차고지', ea: '안천구 융문동', v: '정치,탄자,이자출', c: '효안교통', ft: '5:28', lt: '23:15' },
+            { t: 'branch', n: '154', s: '내항해변', sa: '중구 내항동', e: '정근면', ea: '탄성군 정근면 층부리', v: '안천,당가,남우택', c: '입포여객', ft: '4:47', lt: '21:55' },
+            { t: 'branch', n: '161', s: '중앙로역', sa: '중구 중앙로3가', e: '선곡군청', ea: '덕북 선곡군 선곡읍 성륜리', v: '중앙로,신덕,사노', c: '입포여객', ft: '5:52', lt: '21:02' },
+            { t: 'branch', n: '171', s: '중앙로역', sa: '중구 중앙로3가', e: '창전상고', ea: '창전구 마시동', v: '창전구청,창전,쌍엽', c: '칠양여객', ft: '5:02', lt: '22:45' },
+            { t: 'branch', n: '172', s: '당선역', sa: '서구 당선동', e: '평천대', ea: '창전구 생덕동', v: '당선,효빈대,소장', c: '효안교통', ft: '5:10', lt: '22:14' },
+            { t: 'branch', n: '173', s: '내항해변', sa: '중구 내항동', e: '창전상고', ea: '창전구 마시동', v: '창전,우전,남부시터', c: '입포여객', ft: '5:06', lt: '22:28' },
+            { t: 'branch', n: '181', s: '개항지', sa: '중구 중앙로1가', e: '우택역', ea: '청엽구 우택동', v: '개항지,창선,효빈동', c: '중성여객', ft: '5:15', lt: '23:12' },
+            { t: 'branch', n: '191', s: '효빈대', sa: '서구 당선동', e: '곽암종점', ea: '남구 곽산동', v: '효빈대,소장,개항지', c: '대교여객', ft: '5:05', lt: '22:08' },
+            { t: 'branch', n: '192', s: '효빈역', sa: '동구 사가당동', e: '항동종점', ea: '남구 항동2가', v: '효빈항,항동,어간', c: '대교여객', ft: '5:10', lt: '22:36' },
+            { t: 'branch', n: '193', s: '효빈역', sa: '동구 사가당동', e: '효빈공단', ea: '남구 포장동', v: '효빈,덕현,가동', c: '남주여객', ft: '6:10', lt: '22:25' },
+            { t: 'branch', n: '194', s: '장원역', sa: '중구 정동', e: '항동종점', ea: '남구 항동2가', v: '항동,어간항,어간', c: '남주여객', ft: '5:29', lt: '23:14' },
+            { t: 'branch', n: '219', s: '청덕공원', sa: '서구 청덕동', e: '장원역', ea: '중구 정동', v: '청덕,과진,당선', c: '남주여객', ft: '5:23', lt: '23:01' },
+            { t: 'branch', n: '221', s: '청덕공원', sa: '서구 청덕동', e: '효빈종합고', ea: '북구 진희동', v: '청덕,과진,고송', c: '안천고속', ft: '4:54', lt: '22:49' },
+            { t: 'branch', n: '222', s: '과기원', sa: '서구 과진동', e: '진희동', ea: '북구 진희동', v: '효빈과기,과진,과송', c: '송포여객,효안교통', ft: '4:45', lt: '22:27' },
+            { t: 'branch', n: '231', s: '청덕공원', sa: '서구 청덕동', e: '중수포산', ea: '북구 포산동', v: '청덕,과진,과송', c: '중성여객', ft: '5:34', lt: '23:17' },
+            { t: 'branch', n: '232', s: '과기원', sa: '서구 과진동', e: '현대연수원', ea: '북구 곡진동', v: '효빈과기,사복,시청', c: '임천여객', ft: '5:42', lt: '22:57' },
+            { t: 'branch', n: '241', s: '청덕공원', sa: '서구 청덕동', e: '천문동', ea: '안천구 천문동', v: '청덕,과송,고송', c: '효빈여객', ft: '5:34', lt: '23:13' },
+            { t: 'branch', n: '242', s: '토모리해수욕장', sa: '북구 고송동', e: '귀총면', ea: '덕북 선곡군 귀총면 낙주리', v: '토모리해수욕장,과송,북효빈', c: '탄성여객', ft: '5:22', lt: '23:00' },
+            { t: 'branch', n: '251', s: '토모리해수욕장', sa: '북구 고송동', e: '이자공원', ea: '안천구 이자동', v: '토모리해수욕장,고송,과송', c: '이자여객', ft: '5:26', lt: '22:28' },
+            { t: 'branch', n: '258', s: '청덕공원', sa: '서구 청덕동', e: '고해역', ea: '탄성군 고해읍 이와리', v: '청덕,효빈과기,당선', c: '효빈여객', ft: '5:16', lt: '22:41' },
+            { t: 'branch', n: '261', s: '토모리해수욕장', sa: '북구 고송동', e: '남소면', ea: '덕북 선곡군 남소면 남소리', v: '토모리해수욕장,과송,과진', c: '탄성여객', ft: '6:10', lt: '22:29' },
+            { t: 'branch', n: '262', s: '진희동', sa: '북구 진희동', e: '남소면', ea: '덕북 선곡군 남소면 남소리', v: '서목,탄성,루비', c: '판주여객', ft: '5:29', lt: '21:42' },
+            { t: 'branch', n: '271', s: '토모리해수욕장', sa: '북구 고송동', e: '창전상고', ea: '창전구 마시동', v: '창전,유류,진백', c: '창전여객', ft: '5:11', lt: '22:21' },
+            { t: 'branch', n: '281', s: '청덕공원', sa: '서구 청덕동', e: '엽월대', ea: '청엽구 등동', v: '청덕,소장,중구청', c: '송포여객', ft: '5:29', lt: '23:08' },
+            { t: 'branch', n: '291', s: '고송나루', sa: '북구 고송동', e: '곽암종점', ea: '남구 곽산동', v: '곽암,회산,평당', c: '대교여객', ft: '4:52', lt: '22:39' },
+            { t: 'branch', n: '292', s: '청덕공원', sa: '서구 청덕동', e: '곽암종점', ea: '남구 곽산동', v: '청덕,사복,청능', c: '판주여객', ft: '5:54', lt: '22:45' },
+            { t: 'branch', n: '331', s: '고속터미널', sa: '북구 해서동', e: '등기산', ea: '북구 등기동', v: '고터,천왕사,사연', c: '소진여객', ft: '4:51', lt: '22:39' },
+            { t: 'branch', n: '334', s: '고속터미널', sa: '북구 해서동', e: '아진아파트', ea: '북구 아진동', v: '고터,전천,오내', c: '월주여객', ft: '6:08', lt: '21:21' },
+            { t: 'branch', n: '341', s: '고속터미널', sa: '북구 해서동', e: '천문동', ea: '안천구 천문동', v: '고터,전천,오내', c: '내삼여객', ft: '5:09', lt: '22:14' },
+            { t: 'branch', n: '351', s: '중수포산', sa: '북구 포산동', e: '이자공원', ea: '안천구 이자동', v: '포산,평전,당가', c: '효안교통', ft: '5:02', lt: '23:02' },
+            { t: 'branch', n: '361', s: '고속터미널', sa: '북구 해서동', e: '파래리', ea: '탄성군 서목읍 파래리', v: '서목,탄성,루비', c: '오진여객', ft: '5:52', lt: '21:32' },
+            { t: 'branch', n: '371', s: '고속터미널', sa: '북구 해서동', e: '창전상고', ea: '창전구 마시동', v: '고무,창전,쌍엽', c: '중성여객', ft: '5:32', lt: '23:24' },
+            { t: 'branch', n: '381', s: '중수포산', sa: '북구 포산동', e: '비마역', ea: '청엽구 비마동', v: '비마,우전,유류', c: '덕빈고속', ft: '5:48', lt: '21:46' },
+            { t: 'branch', n: '391', s: '현대조선소', sa: '북구 곡진동', e: '항동종점', ea: '남구 항동2가', v: '효빈항,어간항,운양', c: '안천고속', ft: '6:00', lt: '22:32' },
+            { t: 'branch', n: '441', s: '루비역', sa: '탄성군 흑택면 루비리', e: '천문동', ea: '안천구 천문동', v: '하가,상가,루비', c: '안천고속', ft: '6:25', lt: '20:48' },
+            { t: 'branch', n: '451', s: '흑택역', sa: '탄성군 흑택면 흑택리', e: '정근면', ea: '탄성군 정근면 층부리', v: '흑택,도변,앵내', c: '이자여객', ft: '5:45', lt: '23:33' },
+            { t: 'branch', n: '461', s: '흑택역', sa: '탄성군 흑택면 흑택리', e: '파래리', ea: '탄성군 서목읍 파래리', v: '흑택,루비,도변', c: '오진여객', ft: '6:13', lt: '19:46' },
+            { t: 'branch', n: '471', s: '천본동', sa: '효빈광역시 안천구 천본동', e: '동곡역', ea: '창전구 동곡동', v: '안천,하가,수포', c: '안천고속', ft: '6:08', lt: '23:04' },
+            { t: 'branch', n: '472', s: '천본동', sa: '효빈광역시 안천구 천본동', e: '시로역', ea: '창전구 시로동', v: '안천,하가,수포', c: '창전여객', ft: '6:00', lt: '23:32' },
+            { t: 'branch', n: '481', s: '도변역', sa: '탄성군 도변읍 도변리', e: '엽월대', ea: '청엽구 등동', v: '안천,하가,수포', c: '청선여객', ft: '5:37', lt: '23:33' },
+            { t: 'branch', n: '491', s: '도변역', sa: '탄성군 도변읍 도변리', e: '항동종점', ea: '남구 항동2가', v: '항동,어간,운양', c: '대교여객', ft: '5:53', lt: '22:44' },
+            { t: 'branch', n: '492', s: '천본동', sa: '효빈광역시 안천구 천본동', e: '항동종점', ea: '남구 항동2가', v: '효빈항,어간,어간수산', c: '남주여객', ft: '5:27', lt: '22:15' },
+            { t: 'branch', n: '522', s: '도향면', sa: '탄성군 도향면 분음리', e: '청덕공원', ea: '서구 청덕동', v: '도향,천가,이자공원', c: '오진여객', ft: '5:42', lt: '22:12' },
+            { t: 'branch', n: '551', s: '이자공원', sa: '안천구 이자동', e: '정근면', ea: '탄성군 정근면 층부리', v: '이자공원,고해', c: '이자여객', ft: '5:18', lt: '22:46' },
+            { t: 'branch', n: '552', s: '융문차고지', sa: '안천구 융문동', e: '면허시험장', ea: '탄성군 소원면 부우리', v: '소원,이자공원', c: '안천고속', ft: '6:16', lt: '21:44' },
+            { t: 'branch', n: '561', s: '이자역', sa: '안천구 이자동', e: '선곡군청', ea: '덕북 선곡군 선곡읍 성륜리', v: '이자공원,탄자,도변', c: '이자여객', ft: '6:27', lt: '19:55' },
+            { t: 'branch', n: '571', s: '이자역', sa: '안천구 이자동', e: '동곡역', ea: '창전구 동곡동', v: '이자공원,이자,요우', c: '이자여객', ft: '5:27', lt: '22:31' },
+            { t: 'branch', n: '581', s: '이자역', sa: '안천구 이자동', e: '엽월대', ea: '청엽구 등동', v: '이자,이자출,창전구청', c: '월주여객', ft: '5:11', lt: '22:03' },
+            { t: 'branch', n: '582', s: '융문차고지', sa: '안천구 융문동', e: '효빈동', ea: '청엽구 효빈동2가', v: '효빈동,비마,우전', c: '내삼여객', ft: '6:46', lt: '20:41' },
+            { t: 'branch', n: '591', s: '융문차고지', sa: '안천구 융문동', e: '항동종점', ea: '남구 항동2가', v: '효빈항,항동,산홍', c: '송포여객', ft: '5:39', lt: '22:02' },
+            { t: 'branch', n: '592', s: '정근면', sa: '탄성군 정근면 층부리', e: '항동종점', ea: '남구 항동2가', v: '효빈항,항동,산홍', c: '탄성여객', ft: '5:31', lt: '21:40' },
+            { t: 'branch', n: '612', s: '선곡군청', sa: '덕북 선곡군 선곡읍 성륜리', e: '당선역', ea: '서구 당선동', v: '당선,소장,효빈성', c: '오진여객', ft: '6:30', lt: '21:53' },
+            { t: 'branch', n: '632', s: '선곡군청', sa: '덕북 선곡군 선곡읍 성륜리', e: '북구청', ea: '북구 중수동', v: '서목,탄성,칠심', c: '남주여객', ft: '6:31', lt: '19:59' },
+            { t: 'branch', n: '661', s: '탄성역', sa: '탄성군 탄성읍 탄성리', e: '남소면', ea: '덕북 선곡군 남소면 남소리', v: '탄성,탄성군청', c: '탄성여객', ft: '7:00', lt: '19:00' },
+            { t: 'branch', n: '671', s: '파래리', sa: '탄성군 서목읍 파래리', e: '동곡역', ea: '창전구 동곡동', v: '승남,무기,보통', c: '탄성여객', ft: '5:32', lt: '21:36' },
+            { t: 'branch', n: '672', s: '남소면', sa: '덕북 선곡군 남소면 남소리', e: '시로역', ea: '창전구 시로동', v: '서목,고무,우전', c: '이자여객', ft: '6:51', lt: '20:01' },
+            { t: 'branch', n: '681', s: '파래리', sa: '탄성군 서목읍 파래리', e: '엽월대', ea: '청엽구 등동', v: '서목,고무,시로', c: '덕빈고속', ft: '5:49', lt: '22:14' },
+            { t: 'branch', n: '682', s: '남소면', sa: '덕북 선곡군 남소면 남소리', e: '효빈동', ea: '청엽구 효빈동2가', v: '도변,우전,동곡', c: '청엽여객', ft: '6:46', lt: '20:16' },
+            { t: 'branch', n: '691', s: '파래리', sa: '탄성군 서목읍 파래리', e: '항동종점', ea: '남구 항동2가', v: '서목,탄성군청', c: '오진여객', ft: '7:30', lt: '18:30' },
+            { t: 'branch', n: '692', s: '남소면', sa: '덕북 선곡군 남소면 남소리', e: '항동종점', ea: '남구 항동2가', v: '포성산,도변,창전', c: '오진여객', ft: '5:26', lt: '22:04' },
+            { t: 'branch', n: '752', s: '동곡역', sa: '창전구 동곡동', e: '면허시험장', ea: '탄성군 소원면 부우리', v: '이자공원,이자,요우', c: '칠양여객', ft: '5:53', lt: '22:09' },
+            { t: 'branch', n: '753', s: '팔조역', sa: '창전구 팔조동', e: '면허시험장', ea: '탄성군 소원면 부우리', v: '도변,요우,시로', c: '오진여객', ft: '5:34', lt: '22:15' },
+            { t: 'branch', n: '771', s: '팔조역', sa: '창전구 팔조동', e: '진백역', ea: '창전구 진백동', v: '진백,칠심', c: '창전여객', ft: '4:52', lt: '23:57' },
+            { t: 'branch', n: '781', s: '동곡역', sa: '창전구 동곡동', e: '우택역', ea: '청엽구 우택동', v: '보통,동곡,비동', c: '청엽여객', ft: '5:30', lt: '23:36' },
+            { t: 'branch', n: '791', s: '창전상고', sa: '창전구 마시동', e: '곽암종점', ea: '남구 곽산동', v: '창전구청,유류,엽천', c: '대교여객', ft: '6:30', lt: '21:15' },
+            { t: 'branch', n: '792', s: '창전상고', sa: '창전구 마시동', e: '항동종점', ea: '남구 항동2가', v: '창전구청,유류,엽천', c: '내삼여객', ft: '6:00', lt: '21:50' },
+            { t: 'branch', n: '793', s: '시로역', sa: '창전구 시로동', e: '곽암종점', ea: '남구 곽산동', v: '남부소방,이부', c: '내삼여객', ft: '6:10', lt: '21:45' },
+            { t: 'branch', n: '842', s: '엽월대', sa: '청엽구 등동', e: '천본동', ea: '효빈광역시 안천구 천본동', v: '타천,안천,하가', c: '안천고속', ft: '6:15', lt: '22:36' },
+            { t: 'branch', n: '881', s: '엽월대', sa: '청엽구 등동', e: '우택역', ea: '청엽구 우택동', v: '헌이송,비마,청엽', c: '8개회사(칠양여객,소진여객,청엽여객,송포여객,입포여객,효안교통,효빈여객,이자여객,덕빈고속)', ft: '4:20', lt: '0:30' },
+            { t: 'branch', n: '891', s: '우택역', sa: '청엽구 우택동', e: '곽암종점', ea: '남구 곽산동', v: '우택,청엽국제,청엽구청', c: '오진여객', ft: '5:38', lt: '22:10' },
+            { t: 'branch', n: '892', s: '우택역', sa: '청엽구 우택동', e: '항동종점', ea: '남구 항동2가', v: '우택,청엽국제,청엽구청', c: '내삼여객', ft: '5:46', lt: '22:03' },
+            { t: 'branch', n: '991', s: '월천역', sa: '남구 월천동', e: '곽암종점', ea: '남구 곽산동', v: '남부소방,남당', c: '판주여객', ft: '5:59', lt: '23:01' },
+            { t: 'town', n: '도향01', s: '도향면사무소', sa: '탄성군 도향면 분음리', e: '도향면사무소', ea: '탄성군 도향면 분음리', v: '시초리,영왕리,미로리,분음리,1호선도향', c: '효안교통', ft: '6:30', lt: '20:30' },
+            { t: 'town', n: '도향02', s: '도향면사무소', sa: '탄성군 도향면 분음리', e: '벽천종점', ea: '탄성군 도향면 벽천리', v: '분음리,미로리,일일리,벽천리,1호선도향', c: '효안교통', ft: '6:50', lt: '19:50' },
+            { t: 'town', n: '도향03', s: '도향면사무소', sa: '탄성군 도향면 분음리', e: '하공리', ea: '탄성군 도향면 분음리', v: '일일리,초반리,하공리,춘일경리,1호선도향', c: '효안교통', ft: '7:00', lt: '20:10' },
+            { t: 'town', n: '정근01', s: '정근면사무소', sa: '탄성군 정근면 층부리', e: '정근면사무소', ea: '탄성군 정근면 층부리', v: '익목리,처구리,층부리,촌주리', c: '탄성여객', ft: '6:45', lt: '20:15' },
+            { t: 'town', n: '정근02', s: '정근면사무소', sa: '탄성군 정근면 층부리', e: '정근면사무소', ea: '탄성군 정근면 층부리', v: '층부리,안경리,회층리,사촌리', c: '탄성여객', ft: '6:40', lt: '20:20' },
+            { t: 'town', n: '소원01', s: '소원면사무소', sa: '탄성군 소원면 소원리', e: '소원면사무소', ea: '탄성군 소원면 소원리', v: '윤부리,소원리,라면리,4호선소원', c: '탄성여객', ft: '6:20', lt: '20:40' },
+            { t: 'town', n: '소원02', s: '소원면사무소', sa: '탄성군 소원면 소원리', e: '소원면사무소', ea: '탄성군 소원면 소원리', v: '부우리,라면리,소원리,4호선소원', c: '탄성여객', ft: '6:35', lt: '20:50' },
+            { t: 'town', n: '흑택01', s: '흑택면사무소', sa: '탄성군 흑택면 흑택리', e: '흑택면사무소', ea: '탄성군 흑택면 흑택리', v: '흑택면전역순환,2호선흑택, 5호선루비', c: '오진여객', ft: '6:50', lt: '22:52' },
+            { t: 'town', n: '야진01', s: '야진읍사무소', sa: '탄성군 야진읍 야진리', e: '야진읍사무소', ea: '탄성군 야진읍 야진리', v: '야진리,신리,미우리', c: '오진여객', ft: '7:00', lt: '21:30' },
+            { t: 'town', n: '야진02', s: '야진읍사무소', sa: '탄성군 야진읍 야진리', e: '야진읍사무소', ea: '탄성군 야진읍 야진리', v: '아득리,원심리,야진리', c: '오진여객', ft: '7:20', lt: '19:10' },
+            { t: 'town', n: '탄성01', s: '탄성군청역', sa: '탄성군 탄성읍 공리', e: '탄성군청역', ea: '탄성군 탄성읍 공리', v: '무성리,명무리,탄성리,1호선탄성군청', c: '오진여객', ft: '5:50', lt: '22:40' },
+            { t: 'town', n: '탄성02', s: '탄성읍사무소', sa: '탄성군 탄성읍 탄성리', e: '탄성읍사무소', ea: '탄성군 탄성읍 탄성리', v: '성규리,미성리,공리,1호선탄성', c: '오진여객', ft: '5:55', lt: '22:35' },
+            { t: 'town', n: '서목01', s: '서목읍사무소', sa: '탄성군 서목읍 서목리', e: '서목읍사무소', ea: '탄성군 서목읍 서목리', v: '서목리,조산리,소춘리,잠금,1호선서목, 1호선승남리', c: '오진여객', ft: '6:00', lt: '22:10' },
+            { t: 'town', n: '서목02', s: '서목역', sa: '탄성군 서목읍 서목리', e: '서목역', ea: '탄성군 서목읍 서목리', v: '파래리,음일리,록구리,마희리,1호선서목', c: '오진여객', ft: '6:10', lt: '21:50' },
+            { t: 'town', n: '고해01', s: '고해역', sa: '탄성군 고해읍 이와리', e: '고해역', ea: '탄성군 고해읍 이와리', v: '장심리,이와리,은진원리,1호선/빈효선고해', c: '탄성여객', ft: '5:44', lt: '22:30' },
+            { t: 'town', n: '고해02', s: '고해읍사무소', sa: '탄성군 고해읍 고해리', e: '고해읍사무소', ea: '탄성군 고해읍 고해리', v: '천가리,고해리,율일리,이식리,1호선/빈효선고해, 4호선천가', c: '탄성여객', ft: '6:00', lt: '22:10' },
+            { t: 'town', n: '도변01', s: '도변역', sa: '탄성군 도변읍 도변리', e: '도변역', ea: '탄성군 도변읍 도변리', v: '계층리,표명리,도변리,4/5호선도변', c: '탄성여객', ft: '5:40', lt: '23:10' },
+            { t: 'town', n: '채산01', s: '채산역', sa: '북구 실본동', e: '채산역', ea: '북구 실본동', v: '채산동,실본동,수포동,신영동,2호선채산, 빈효선수포', c: '청선여객', ft: '6:00', lt: '23:00' },
+            { t: 'town', n: '채산02', s: '평전역', sa: '북구 평전역', e: '평전역', ea: '북구 평전역', v: '평전동,습지동,곡진동,아자동,1호선평전', c: '청선여객', ft: '5:50', lt: '22:45' },
+            { t: 'town', n: '내항01', s: '내항역', sa: '중구 내항동', e: '내항역', ea: '중구 내항동', v: '내항동,약맥동,고도동,2/7호선내항, 1호선약맥, 1호선십덕', c: '청선여객', ft: '6:00', lt: '22:50' },
+            { t: 'town', n: '악부01', s: '팔망성역', sa: '안천구 팔망성동', e: '팔망성역', ea: '안천구 팔망성동', v: '악부동전역,1호선팔망성, 빈효선타천', c: '안천고속', ft: '6:05', lt: '22:40' },
+            { t: 'town', n: '뇌전01', s: '뇌전동사무소', sa: '안천구 하가동', e: '뇌전동사무소', ea: '안천구 하가동', v: '뇌전동전역,4호선뇌전, 빈효선수포', c: '월주여객', ft: '6:15', lt: '22:30' },
+            { t: 'town', n: '칠채01', s: '칠채동사무소', sa: '안천구 능릉동', e: '칠채동사무소', ea: '안천구 능릉동', v: '칠채동전역,1호선능릉', c: '임천여객', ft: '6:00', lt: '22:45' },
+            { t: 'town', n: '광정01', s: '보통역', sa: '창전구 창전동', e: '보통역', ea: '창전구 창전동', v: '광정동전역,창전동,1호선보통', c: '창전여객', ft: '6:00', lt: '22:30' },
+            { t: 'town', n: '곽산01', s: '곽산역', sa: '남구 곽산동', e: '곽산역', ea: '남구 곽산동', v: '곽산동전역,곽암동,1/8호선곽산, 1호선곽암', c: '판주여객', ft: '6:00', lt: '22:40' },
+            { t: 'circular', n: '10', s: '중앙로효빈은행', sa: '중구 중보로', e: '중앙로효빈은행', ea: '중구 중보로', v: '중앙로역, 소장역, 효빈대역, 소조역, 고속버스터미널, 전천중앙역, 효빈역, 신덕역, 장원역', c: '효빈여객', ft: '5:27', lt: '23:11' },
+            { t: 'circular', n: '20', s: '고송교차로역', sa: '북구 고송동', e: '고송교차로역', ea: '북구 고송동', v: '고송교차로역, 청덕역, 북효빈역, 입선역, 효빈종합고역, 장포역, 포산역', c: '소진여객', ft: '5:05', lt: '23:50' },
+            { t: 'circular', n: '30', s: '중수역', sa: '북구 중수동', e: '중수역', ea: '북구 중수동', v: '중수역, 서도역, 포산역, 등기역, 채산역, 전천중앙역, 오내역', c: '덕빈고속', ft: '5:10', lt: '23:59' },
+            { t: 'circular', n: '40', s: '안천역', sa: '안천구 안천동', e: '안천역', ea: '안천구 안천동', v: '안천역, 하가역, 뇌전역, 루비역, 도변역, 잠재역, 앵내역, 타천역', c: '안천고속', ft: '5:00', lt: '23:45' },
+            { t: 'circular', n: '50', s: '이자역', sa: '안천구 이자동', e: '이자역', ea: '안천구 이자동', v: '이자역, 리의역, 이자출장소역, 앵내역, 정치역, 영색무역', c: '이자여객', ft: '5:13', lt: '23:22' },
+            { t: 'circular', n: '60', s: '도변역', sa: '탄성군 도변읍 도변리', e: '도변역', ea: '탄성군 도변읍 도변리', v: '도변역, 탄성역, 루비역', c: '탄성여객', ft: '5:30', lt: '22:50' },
+            { t: 'circular', n: '70', s: '창전구청역', sa: '창전구 창전동', e: '창전구청역', ea: '창전구 창전동', v: '창전구청역, 투자역, 동곡역, 쌍엽역, 효빈남부시외버스터미널, 아논타워', c: '창전여객', ft: '5:01', lt: '23:55' },
+            { t: 'circular', n: '80', s: '청엽구청역', sa: '청엽구 청엽동', e: '청엽구청역', ea: '청엽구 청엽동', v: '청엽구청역, 효빈남부시외버스터미널역, 비동역, 마잡역, 헌이송역, 등동역, 효빈동신도시역, 장원역, 사노역', c: '청엽여객', ft: '4:58', lt: '0:10' },
+            { t: 'circular', n: '90', s: '월천역', sa: '남구 월천동', e: '월천역', ea: '남구 월천동', v: '월천역, 분덕역, 효빈항물류지구역, 서신포역, 효빈항역, 산홍역, 효빈항국제터미널역, 항동1가역, 어간수산시장역, 주곡역, 빙천역, 고당역, 진월천역', c: '판주여객', ft: '5:30', lt: '23:21' },
+            { t: 'airport', n: 'A01', s: '이자역', sa: '안천구 이자동', e: '효빈국제공항', ea: '덕빈북도 기도군 주길면 원청리', v: '안천구, 북구 중수지구,고송지구', c: '이자여객', ft: '2:50', lt: '23:20' },
+            { t: 'airport', n: 'A02', s: '곽산역', sa: '남구 곽산동', e: '효빈국제공항', ea: '덕빈북도 기도군 주길면 원청리', v: '남구, 중구,북구', c: '소진여객', ft: '2:40', lt: '23:10' },
+            { t: 'airport', n: 'A03', s: '도변역', sa: '탄성군 도변읍 도변리', e: '효빈국제공항', ea: '덕빈북도 기도군 주길면 원청리', v: '중구, 서구', c: '덕빈고속', ft: '2:30', lt: '23:30' }
+        ];
+        
+        const detailDataStore = {
+            '1': ['내항역', '내항초', '다판고', '우이문화촌', '중부경찰서', '중앙로역', '중구청역', '효빈대병원 중구분관', '도람역', '신덕초등학교', '신덕역', '효빈역(남부광장)', '덕현3아파트', '전덕역', '동덕현역', '나공중', '우택덕현아파트', '우택동주민센터', '코스트코', '남우택역', '칠심3동주민센터', '유류역', '창전역', '유류초', '쌍엽역', '쌍엽세라스 아파트', '팔조초', '팔조동주민센터', '팔조역'],
+            '2': ['소원면사무소', '윤부초', '윤부에리아파트', '이자중', '이자역', '이자 우리아파트', '이자출장소', '팔망성고', '백합공원역', '시택초', '안천역', '당가중', '당가역', '평전고', '회주공업 평전공장', '등기산', '등기초', '등기역', '중수3동 주민센터', '북구청.북구의회', '중수역.고등법원', '북부경찰서', '평안명대 후문', '청남초', '백천역', '천왕사아파트', '효빈교대', '청능초', '당선역', '이마트 사복점', '효빈복지대', '고송교차로역', '고송아파트', '고송수협', '고송현대아파트', '고송 휴먼빌', '고송다이버아파트'],
+            '3': ['앵내종점', '엥내포르투아파트', '앵내출장소', '앵내역', '인재개발원', '이자고', '안천과학고', '이십기사거리', '이자출장소', '타천역', '팔망성 더샵', '팔망성역', '안천구청', '시택초', '하가금호', '안천경찰서', '군남중', '삼성반도체.현대로템', '채산동사무소', '효빈정부청사.국토관리사무소', '신영중', '남전역', '중수SK뷰', '원산초', '효빈일보', '중수주공2차', '코페아파트', '중수여고'],
+            '4': ['곽산역', '평당회산시장', '회산역', '신내중', '평당흥한웰가', '평당양우내안에2차', '평당자이1단지', '평당자이3단지', '간자초', '평당중앙공원', '주택금융공사', '효빈과학대', '평당고', '빙천역', '애마초', '평당주공2단지', '씨파라디아', '남재마을', '한화솔루션', '신흥역', '이마트 월천점', '입동삼거리', '입동초', '효빈 대방아이유쉘', '장애인고용공단', '신도시사거리', '동리고', '배선병원', '이사중학교', '비마베르데 아파트', '비마오거리', '사노역', '송엽상업고', '홈플러스 메가푸드마켓 청엽구', '사가당푸르지오 2단지', '사가당1단지', '사가당역', '덕현고', '덕현주공사거리', '효빈정보고', '전천고', '북택 하구타운', '대령병원', '삼성반도체 남문', '수포역.현대로템공장', '당가고', '당가1동 주민센터', '시택초', '안천주공1단지', '안천구청사거리', 'NC 백화점', '안천 휴먼시아', '효빈외대', '안천병원', '성택대', '천본동종점(공군기지앞)'],
+            '5': ['곽암종점', '평안중', '곽산 한양수자인', '곽산기계산단입구', '곽산하브아파트', '곽산고', '평당하브0', '남당역', '삼선초', '평당 롯데마트', '남효빈우체국', '평당중앙사거리', '소진아파트', '남부경찰서', '평당2동주민센터', '애마초', '고당동 주민센터', '효빈남고', '사야역.기아자동차', '한화솔루션 후문', '신흥역 사거리', '월천초', '월서오거리', '월천페리체', '약맥공단', '와이아파트', '빈선초', '구보공원', '효빈동신도시역', '효빈더샵1차', '심녕초', '동리동주민센터', '동리역', '비마유적사거리', '단남초', '신덕역5번출구', '효빈역 홈플러스', '사가당공원 후문', '사능역.치남역', '사능새마을금고', '덕현자이사거리', '보몽역', '전천역', '수문상가', '오내주공1단지', '오내주공2단지', '오내사거리역.오내2동주민센터', '북구초.오내주공4단지', '채산식품산단사거리', '남전휴먼시아', '남전역', '중수SK뷰.중수래미안1차', '중수스위첸.중수래미안2차', '북구구영아파트', '삼선대학교', '미원상사 효빈공장', '당가역북부사거리', '당안아파트', '소유초.안천역7번출구', '안천1동사무소', '안천구청', '팔망성역', '악부아파트', '이십기농협', '이십기동사무소', '안천과학고', '이자3동주민센터', '이자공원역', '이자역', '포성초', '서수초', '이와이편한세상', '이와초', '고해고등학교.고해더블듀크', '미로교차로', '도향면사무소', '춘일경리', '정근면사무소'],
+            '6': ['고송나루역', '고송SK뷰2차', '효빈북고등학교', '과청사거리', '과진아이보시티.청덕푸르지오', '과송역', '과진자이1차.하내초', '과진데시앙.과진이아르', '효빈서중.사복역센트럴시티아파트', '사복빛여울채', '당선 중흥S클래스.당선애듀타운아파트', '효빈대 사대부중', '태이초', '서구청', '당선농협', '효빈대 기숙사', '효빈대입구역', '칠천역', '효빈대 보건대', '효빈성북문역', '교육청입구', '사능타운', '사능1동사무소', '사능역', '사가당공원', '동부경찰서', '사가당1동사무소.효빈역10번출구', '가동사거리역', '사가당고', '홈플러스 사노점', '송엽상업고', '청엽구청역', '청엽아쿠아2단지', '애천초', '청엽홈플러스', '우전고', '우전주공아파트', '엽천역', '시곡초', '월삼초', '창전대우.창전포레나', '창전고', '창전구청', '창전 홈플러스', '창전경찰서', '창전세무서', '고무역', '고무초', '고무베르디안아파트', '탄성고', '탄성경찰서', '탄성경남아너스빌', '탄성 홈플러스', '미성리', '야진입구역', '서목고', '서목역', '삽곡대입구', '서목초', '서목푸르지오', '탄성과학고'],
+            '7': ['하미종점', '하미면사무소', '하미공단', '파래리', '마희리', '입리', '승남초', '승남더 센트럴', '서목역', '서목고', '성규초', '성규문화마을', '탄성상업고', '미성초', '탄성아이파크', '탄성여중', '탄성군청', '좌목산', '루비역', '은염초', '흑택주공1단지', '베르당아파트', '광정사거리', '칠심역', '오양초', '칠심대명루첸', '칠심대단지', '창전구청역', '창전고', '창전주공1치', '월삼초', '쌍엽고등학교', '팔조초', '팔조더샵', '팔조중', '팔조역'],
+            '8': ['청덕공원역', '청덕1동행정복지센터', '나살리고등학교', '해총대정문', '효빈과기원', '운진중', '효빈사회서비스원', '과진고', '사복역', '사복대라수.이마트 사복점', '당선역', '효빈대복지타운', '효빈대역', '효빈대입구역', '효빈대 치대', '효빈대수의대', '사능동1가역', '효빈고등학교역', '중구청', '효빈대병원 중구분관', '구시청앞', '오석역 사거리', '효빈동신도시역 5번출구', '장애인고용공단', '효빈푸르지오2단지사거리', '등동역', '청엽외고', '엽월대', '헌이송공고.석유관리원', '산업단지공단', '헌이송고등학교', '이마트 마잡점', '마잡역'],
+            '9': ['토모리해수욕장역', '고송나루역 마이고아파트', '인서고', '건강보험공단역', '고송3동주민센터', '청덕고', '청과사거리', '과진역', '과진고', '과진주공2단지', '당선 중흥S클래스.당선애듀타운아파트', '효빈대 사대부중', '태이초', '서구청', '칠천마을', '소장역', '중구선착장', '개항지역', '중앙로1가역', '효빈중부경찰서', '롯데백화점 효빈점', '효빈중소벤처기업청', '한국은행 효빈지점', '오석역4번출가', '공무원연금공단', '입빈고', '오주역', '진월천공단', '박월고', '월천지웰아파트', '동신역', '박산역', '운촌역', '박산정광플러스원', '북평당사거리', '남구민광장', '평당우미린.평당스위첸', '평당1동주민센터', '세무지구', '어간대라수아파트', '어간3동사무소', '브링아파트', '어간수산시장입구', '효빈해양대 제1캠퍼스', '어간수산시장역', '어간벨리아파트', '어간중앙역', '어간디아채 아파트', '어간주공단지', '토장병원', '종람초등학교', '항동주공단지', '항동공구단지', '서남지방헤양경찰청', '효빈해양경찰서'],
+            '11': ['7 명일', '2.7 내항', '1 약맥', '1 창선', '7 구시청', '7 경동', '1.7 중구청', '7 조유동2가', '7 사능삼거리', '7 당선원마을'],
+            '12': ['2 과진중앙', '2 소장', '1.7 중구청', '7 유내', '빈.1.4 장원'],
+            '13': ['빈.4 신덕', '1.3.7.빈 효빈', '1 보몽', '6 오내사거리', '2.6 중수', '1 등기'],
+            '14': ['1.2.7 중앙로', '7 색수시장', '7 상원초', '7 궁정', '빈.4 신덕', '3 청엽', '5 청엽국제학교', '2 유류', '1 창전구청', '1 고무', '1 탄성', '1 탄성군청', '5 루비', '4 요우', '4 앵내'],
+            '15': ['7 개항지', '7 중앙로1가', '빈.1.4 장원', '빈.4 신덕', '7 내조공원', '1.3.7.빈 효빈', '5.6 전천중앙', '빈 수포', '1 팔망성', '1 추자'],
+            '16': ['빈.1.4 장원', '1 동리', '1.3 청엽구청', '5 남우택', '2 칠심', '1 창전구청', '1 서목'],
+            '17': ['2.7 내항', '1 십덕', '빈.4 진월천', '빈 오주', '1.3 청엽구청', '1 아논타워', '2 칠심', '1 창전구청'],
+            '18': ['2 효빈대', '7 효빈대입구', '3.5 고속버스터미널', '1.3.7.빈 효빈', '3.4 사가당', '5 남우택', '4 우택'],
+            '19': ['5 소조', '7 사능동1가', '1.7 내조', '빈.4 신덕', '1 동리', '2 등동', '2 입동', '2 효빈공단', '2.4.8 신흥', '4 빙천', '8 평당고', '4 이부', '1 회산', '1 곽암'],
+            '22': ['5 청덕공원', '2 과진중앙', '3 과진', '2 과송', '6 고송', '6 진희'],
+            '23': ['5 청덕공원', '3 과진', '2 과송', '6 고송', '1.6 북구청'],
+            '24': ['빈 타천', '2.4 하가', '빈 수포', '2 남전', '2.6 중수', '1.2 입희', '2 입선', '2.3 북효빈', '2.5 당선', '5 효빈과학기술원', '5 청덕공원'],
+            '25': ['4 천가', '1.4 이자공원', '빈 타천', '빈.1 안천', '1 당안', '1 평전', '2 신영', '1.6 북구청', '1.2 입희', '2.3 북효빈', '2.6 시청', '2.6 고송교차로', '2.3 청덕역'],
+            '26': ['3.6 고송나루', '2 과송', '3 과진', '5 소조', '3 사능', '7 치남', '1.3.7.빈 효빈', '4.6 가동사거리', '1.6 사노', '3 남부시외버스터미널', '2.3 동곡', '1 창전', '1 탄성', '1 서목'],
+            '27': ['3.6 고송나루', '2 사복', '2.5 당선', '2 효빈대', '7 효빈대 입구', '7 효빈성 북문', '2 칠천', '1.7 중구청', '1.7 내조', '빈.4 신덕', '1.6 사노', '3 남부시외버스터미널', '2 쌍엽', '2 칠심', '2.5 시로'],
+            '28': ['1 창선', '7 개항지', '7 중앙로1가', '7 효빈성 북문', '5 효빈과학기술원', '2 과진중앙', '5 청덕공원'],
+            '29': ['3.6 고송나루', '5 효빈과학기술원', '2 소장', '7 개항지', '7 중앙로1가', '1 십덕', '1.2.7 월천', '8 운촌', '4 이부', '1 회산', '1 곽암'],
+            '33': ['1.6 북구청', '1 서도', '6 진희', '6 동고송', '2.6 시청', '3 청능', '2 사복', '5 청덕공원'],
+            '34': ['1.6 북구청', '1 등기', '2 채산', '빈.1 안천', '1 당안', '4 요우', '4.5 도변'],
+            '35': ['6 포산', '1 평전', '빈.2 당가', '2.4 하가', '1 팔망성', '1.4 이자공원', '1 정치', '4 소원'],
+            '36': ['1 탄성군청', '5 루비', '2 상가', '4 치구', '빈 북택', '6 오내사거리', '1 서도', '6 포산'],
+            '37': ['6 포산', '1 서도', '6 오내', '5.6 전천중앙', '빈.6 전덕', '1 아논타워', '2 유류', '1 창전구청'],
+            '38': ['6 비마', '1.2 우전', '2 유류', '5 남우택', '4 우택', '빈 하성천', '2 남전', '1 등기'],
+            '39': ['2. 효빈항국제여객터미널', '2 어간항', '2 운양', '1.8 신거', '2.8 박산', '빈 동신', '빈.4 진월천', '7 궁정', '1.3.7.빈 효빈', '3 사능', '7 치남', '3.5 고속버스터미널', '1 천왕사', '1.2 입희'],
+            '45': ['4.5 도변', '4 앵내', '1.4 이자공원'],
+            '46': ['4.5 도변', '5 루비', '1 탄성', '1 탄성군청'],
+            '47': ['빈.1 안천', '2.4 하가', '빈 수포', '빈 하성천', '5 청엽국제학교고', '1 아논타워', '2 쌍엽', '3 투자'],
+            '48': ['빈 타천', '빈.1 안천', '2.4 하가', '빈 수포', '4 치구', '5 남우택', '1 아논타워', '3 남부시외버스터미널', '2.6 마잡'],
+            '49': ['2 항동1가', '7 어간초', '7 항동3가', '2 어간항', '2 운양', '빈 동신', '빈.4 진월천', '1 창선', '빈.1.4 장원', '1 동리', '6 비동', '3 남부시외버스터미널', '2 쌍엽', '1 창전'],
+            '56': ['1.4 이자공원', '4 탄자', '4.5 도변', '1 탄성군청', '1 야진입구'],
+            '57': ['1.4 이자공원', '빈.4 이자', '4 요우', '2.5 시로', '2.3 동곡'],
+            '58': ['4 소원', '빈.4 이자', '1 이자출장소', '1 창전구청', '3 투자'],
+            '59': ['2 효빈항국제', '2 항동1가', '7 산홍', '빈.1.7 효빈항', '7 효빈항동부', '빈.1 효빈항물류', '7 분덕', '1.2.7 월천', '빈 오주', '2 헌이송', '2.3 동곡', '1 창전구청', '2 칠심', '5 루비'],
+            '66': ['1 탄성군청', '1 서목'],
+            '67': ['1 승남', '1 고무', '1 보통', '1 창전구청', '2 쌍엽', '2.3 동곡'],
+            '68': ['4.5 도변', '1.2 우전', '2.3 동곡', '2 헌이송', '빈 효빈동신도시'],
+            '69': ['1 탄성군청', '1 창전구청', '2.3 동곡', '6 비동', '빈.1.7 효빈항', '2 항동1가', '7 어간초'],
+            '77': ['2.5 시로', '2 칠심', '1 창전구청', '3 팔조'],
+            '78': ['1 보통', '2.3 동곡', '6 비동'],
+            '79': ['1 창전구청', '2 유류', '2 엽천', '3 남부시외버스터미널', '6 비동', '2.4.8 신흥', '1.8 신거', '8 세무지구', '2 어간 수산시장', '2.7 어간중앙', '2 항동1가', '2. 효빈항국제여객터미널'],
+            '88': ['2 헌이송', '7 비마', '1.3 청엽구청', '5 청엽국제학교', '4 우택'],
+            '89': ['4 우택', '5 청엽국제학교', '1.3 청엽구청', '3 남부시외버스터미널', '2.6 마잡', '2 헌이송', '2 등동', '빈.4 진월천', '1.8 신거', '2 어간수산', '7 어간초', '2 어간항', '2 효빈항국제'],
+            '1111': ['선곡군청', '선곡읍사무소', '선곡뉴타운', '원전수력발전단지', '원전리', '탄성과학고', '삽곡대', '서목역', '탄성홈플러스', '탄성중삼거리', '탄성역', '마시말목장', '창전상업고', '시로역', '칠심주공', '청엽국제학교', '덕현여고', '사가당역', '동구청', '효빈역'],
+            '2222': ['염곡신도시종점', '염곡베르디움아파트', '염곡소금공원', '주양역', '신산데시앙아파트', '신산역', '토모리해수욕장', '고송대방디엠시티', '고청사거리', '청덕역', '중촌대', '해총대', '효빈과기원', '효빈서부경찰서', '효빈대 북부기숙사', '효빈대역', '효빈대 공대지구', '효빈대병원내부', '효빈성 북문남부', '중앙로역'],
+            '3333': ['염곡신도시종점', '염곡베르디움아파트', '염곡소금공원', '주양역', '신산데시앙아파트', '신산역', '토모리해수욕장', '고송골든체시움', '고송홈플러스', '북효빈세무서', '고송교차로역', '효빈광역시청', '시청역', '청능도매시장', '삼선대병원', '효빈종합운동장 북부', '평안명대', '한국농수산식품유통공사', 'hj몰 서문', '중수역'],
+            '4004': ['원강읍사무소', '원강푸르지오아파트', '원강고등학교', '약산한약단지', '근강역', '근강면사무소', '홍하직물산업단지', '홍하산', '광정버스환승장', '우부동', '상수구동', '약산시청', '고곡동', '대염동', '산형동', '해로산업단지', '전추리', '효빈가정법원', '성저동삼거리', '탄자역', '동효빈세무서.안천과학고', '이십기사거리', '추자역', '이마트안천점', '안천병원.효빈외대', '안천역'],
+            '5555': ['홍하면 사무소', '홍하역', '홍하산', '광정면사무소', '하수구동', '북천동', '염원동', '고곡동', '대염동', '해로산업지구', '우목면사무소', '이자병원', '이자공원역'],
+            '6666': ['선곡군청', '선곡읍사무소', '선곡뉴타운', '남소면사무소', '남소시장', '아득리', '야진읍사무소', '공리택지지구', '탄성군보건소', '탄성군청역', '효빈cc', '마시말목장', '창전상업고', '베르당아파트', '시로역', '진백산업단지', '코스트코 효빈점', '동덕현역', '덕현주공', '전덕역', '효빈역 동부', '효빈역.ak플라자', '북구가족센터', '고속버스터미널', '천왕사 행복주택', '소조역', '청능역', '효빈덕북지방우정청', '부동산원', '고송교차로역', '북효빈세무서', '고송나루역'],
+            '7777': ['치원군청', '근해면사무소', '후등면사무소', '후등산업단지', '산전면사무소', '성가면사무소', '정근면사무소', '효빈운전면허시험장', '천본동 공군기지', '성택대', '안천병원.효빈외대', '안천역', 'nc백화점', '안천구청', '효빈농생명고', '상가역', '흑택역', '광연대입구', '시로역'],
+            '8888': ['원강읍사무소', '원강푸르지오아파트', '원강고등학교', '약산한약단지', '화소역', '하내장역', '요곡공단예정지', '약산 유한양행공장', '역성지구', '약산역', '후작동', '산형역', '도향면사무소', '공리택지지구', '탄성군청역', '탄성소방서', '탄성우체국', '고무중학교', '평천대학교', '창전세무서', '보통역', '해천대', '창전 홈플러스', '칠심w아파트', '칠심역', '칠심주공', '우전역', '효빈남부시외버스 터미널', '롯데백화점 청엽점.승강기안전공단', '청엽구청역'],
+            '9999': ['염곡신도시종점', '염곡베르디움아파트', '염곡소금공원', '주양역', '신산데시앙아파트', '신산역', '토모리해수욕장', '고송1동행정복지센터', '건보사거리', '고송우체국', '과송역', '과진역.롯데마트 과진점', '과진중앙역.중촌대', '효빈과기원', '갤러리아효빈점.당선역', '효빈대 기숙사', '효빈대 사대부고', '효빈대 본부', '사능동1가역', '중구청', '효빈대병원 중구분관', '이마트효빈점', '장원역', '오석역', '삼각역', '약맥경공업단지.약맥역', '언어중', '동신역', '월천역'],
+            '1000': ['하미종점', '하미면사무소', '원전면사무소', '삽곡대학교', '서목읍사무소', '서목역', '공리택지지구', '탄성군청역', '루비역', '흑택주공', '시로역', '유류역', '칠심주공단지', '우전역', '아논타워역', '청엽구청역', '사가당역', '효빈역'],
+            '2000': ['치원군청', '근해면사무소', '후등면사무소', '후등산업단지', '산전면사무소', '곡진ic', '평전공단ic', '회주공업 평전공장', '미원상사', '삼선대학교', '남중사거리', '북구청역', '효빈북부정류장 입구', '사연역', '평안명대', '전천중앙역', '전덕역', '동구청', '효빈역'],
+            '3000': ['고관종점', '기도군청', '기도읍사무소', '기도역', '주길면사무소', '효빈국제공항', '염곡신도시중앙', '고송현대아파트', '고송교차로역', '현대백화점', '효빈광역시청', '시청역', '북효빈역', '천왕사', '효빈고속버스터미널.신세계백화점', '전천역', '효빈역'],
+            '4000': ['북천동 종점', '수구대로', '염원동', '삼미동', '탄미역', '대염동', '해로면사무소', '해로광야산단', '우목면 사무소', '도변역', '안천병원', '안천세이플아파트', '안천구청', 'nc백화점', '안천역'],
+            '5000': ['성가면사무소', '화소산단', '역성지구', '약산역', '보녕고등학교', '약산미디어단지', '약산제약단지', '도향역', '이자더샵아파트', '이자공원역', '동효빈세무서', '이자고', '효빈광역시 인재개발원', '치고대.효빈예술대', '요우중학교', '요우역', '루비역', '도로교통공단', '가스기술공사', '창전홈플러스(북)', '칠심대단지', '창전역'],
+            '6000': ['귀총면사무소', '갑부화력발전소', '송빈해양단지', '도변역', '루비역', '도로교통공단', '창전역', '효빈남부시외버스터미널', '청엽홈플러스', '청엽구청역', '효빈역.ak플라자', '효빈광역시교육청', '효빈대병원 치과병원입구', '효빈대 사범대', '소조역', '효빈교육대학교', '청능역', '시청역', '효빈덕북지방우정청', '현대백화점(북)', '고송대로.고송교차로역', '고송나루역'],
+            '7000': ['치원군청', '채화면사무소', '봉월면사무소', '후등면사무소', '후등산업단지', '산전면사무소', '화소리', '역성지구', '약산역', '채신동', '산형역', '도향면사무소', '도향역', '도향탄소사업단지', '이자공원역', '해천대.과남역', '이자출장소', '성택대사거리', '이마트안천점', '효빈외대', 'nc백화점(남)', '안천역'],
+            '8000': ['원강읍사무소', '원강푸르지오아파트', '원강고등학교', '약산한약단지', '화소리', '정근면사무소', '고해지구', '고해역', '이와지구(남)', '영색무역', '이자공원역'],
+            '9000': ['치원군청', '후등산업지구', '하내장역', '유한양행약산공장', '역성지구', '약산역', '약산시청', '탄미역', '앵내역', '도변역', '창전구청', '동곡', '마잡', '헌이송공업단지', '엽월대', '덕북대효빈캠퍼스', '오주', '진월천공단', '진월천역', '월천역'],
+            '111': ['2.5 당선', '2 소장', '7 봇지마을', '7 북문로', '7 효빈성북문', '1.7 중구청', '7 조유동2가', '7 유내', '7 리사', '빈.1.4 장원'],
+            '112': ['2 소장', '7 조유동3가', '7 원동4가', '1.4 오석', '빈 효빈동신도시', '2 고도', '7 고도리', '7 시남', '7 우이', '1 약맥', '4 삼각'],
+            '121': ['3.6 고송나루', '2.3 청덕', '2 소장', '7 봇지마을', '7 북문로', '7 효빈성북문', '7 천석동3가', '7 내조공원', '빈.4 신덕'],
+            '123': ['2.6 시청', '3 청능', '5 소조', '7 사능동1가', '7 사능복지관', '1.7 내조', '빈.4 신덕', '빈.1.4 장원'],
+            '131': ['빈.4 신덕', '빈.1.3.7 효빈', '1 보몽', '2.6 중수', '1 등기'],
+            '132': ['빈.1.4 장원', '7 리사', '빈.1.3.7 효빈', '3 사능', '7 치남', '1 보몽', '5.6 전천중앙', '빈 수포', '1 당안', '1 아진'],
+            '141': ['1 고무', '1 창전', '2 칠심', '5 진백', '5 청엽국제학교', '1.3 청엽구청', '1.6 사노', '빈.4 신덕', '빈.1.4 장원', '4 삼각', '1 약맥', '2.7 내항'],
+            '143': ['2.5 당선', '5 소조', '2.3 북효빈', '1.5 전천', '5.6 전천중앙', '4 치구', '2 흑택', '5 루비', '1 탄성군청'],
+            '151': ['1 정치', '4 탄자', '1 이자출장소', '빈 타천', '빈.1 안천', '2.4 하가', '4 치구', '3.4 사가당', '4.6 가동사거리', '1 동리', '4 삼각', '1 약맥', '2.7 내항'],
+            '154': ['빈.1 안천', '빈.2 당가', '5 남우택', '1.3 청엽구청', '6 비마', '빈 오주', '4 삼각', '1 약맥', '2.7 내항'],
+            '161': ['1.2.7 중앙로', '빈.4 신덕', '1.6 사노', '6 비마', '3 남부시외버스터미널', '2.3 동곡', '1 창전', '1 탄성', '1 탄성군청'],
+            '171': ['1 창전구청', '1 창전', '2 쌍엽', '3 남부시외버스터미널', '6 비마', '1.2.7 중앙로'],
+            '172': ['2.5 당선', '2 효빈대', '7 효빈대입구', '2 소장', '7 북문로', '3 사능', '1 보몽', '3.6 덕현', '빈.6 전덕', '1 아논타워', '2 엽천', '1 창전구청'],
+            '173': ['1 창전', '1.2 우전', '3 남부시외버스터미널', '6 비마', '빈 오주', '1 십덕', '2.7 내항', '7 명일'],
+            '181': ['7 개항지', '1 창선', '빈 효빈동신도시', '2.6 마잡', '1.3 청엽구청', '5 청엽국제학교', '4 우택'],
+            '191': ['2 효빈대', '7 효빈대입구', '2 소장', '7 개항지', '1 창선', '4 삼각', '빈 오주', '빈.4 진월천', '4 사야', '4 빙천', '1.4.8 남구청', '4 이부', '1 남당', '8 곽산고'],
+            '192': ['2. 효빈항국제여객터미널', '2 항동1가', '2.7 어간중앙', '8 세무지구', '1.8 신거', '8 운촌', '2.8 박산', '빈 동신', '1 십덕', '빈 오주', '1.4 오석', '7 경동', '7 구시청앞', '7 궁정', '7 효빈성앞', '7 상원초', '빈.1.3.7 효빈'],
+            '193': ['빈.1.3.7 효빈', '3.6 덕현', '4.6 가동사거리', '1 비마리유적지구', '2 등동', '2 입동', '2 효빈공단'],
+            '194': ['2 항동1가', '2 어간항', '2 어간', '1.2.7 월천', '1 십덕', '7 만마루', '7 시남', '2 심동', '7 심동2가', '1 창선', '빈.1.4 장원'],
+            '219': ['5 청덕공원', '2 과진중앙', '3 과진', '2.5 당선', '2 효빈대', '7 효빈대입구', '7 사능동1가', '7 사능삼거리', '7 치남', '3 사능', '빈.1.3.7 효빈', '빈.1.4 장원'],
+            '221': ['5 청덕공원', '2 과진중앙', '3 과진', '6 고송', '6 효빈종합고'],
+            '222': ['5 효빈과학기술원', '2 과진중앙', '3 과진', '2 과송', '6 고송', '3 토모리해수욕장'],
+            '231': ['5 청덕공원', '3 과진', '2 과송', '6 고송', '1.2 입희', '1 추산', '1. 서도', '1.6 북구청'],
+            '232': ['5 효빈과학기술원', '2 사복', '3 효빈복지대', '2.6 시청', '6 진희', '6 포산', '1.6 북구청', '2 남전', '2 채산'],
+            '241': ['5 청덕공원', '2.3 청덕', '2 과송', '6 고송', '2.6 고송교차로', '6 동고송', '6 진희', '1 서도', '1.6 북구청', '1 등기', '1 당안', '빈.2 당가', '1 팔망성', '빈 타천'],
+            '242': ['3 토모리해수욕장', '2 과송', '2.3 북효빈', '3 사능', '7 치남', '빈.1.3.7 효빈', '빈.4 신덕', '1.6 사노', '2 쌍엽', '1 창전', '1 탄성군청'],
+            '251': ['3 토모리해수욕장', '6 고송', '2 과송', '2.6 고송교차로', '6 효빈종합고', '1.2 입희', '2.6 중수', '1 평전', '1 당안', '빈.2 당가', '4 백합공원', '빈 타천', '빈 리의', '1 정치', '1.4 이자공원'],
+            '258': ['5 청덕공원', '5 효빈과학기술원', '2.5 당선', '6 동고송', '6 진희', '1.2 입희', '2 사연', '6 오내', '빈 수포', '4 뇌전', '2.4 하가', '4 탄자', '1.4 이자공원', '1 정치', '빈.1 영색무', '4 천가', '빈.1 고해'],
+            '261': ['3 토모리해수욕장', '2 과송', '3 과진', '2 과진중앙', '5 효빈과학기술원대', '2 효빈대', '5소조', '1 천왕사', '6 오내사거리', '빈 하성천', '4 치구', '5 남우택', '2 칠심', '1 야진입구'],
+            '262': ['1 서목', '1 탄성', '5 루비', '2 상가', '4 치구', '빈 북택', '6 오내', '1 백천', '2 입선', '6 동고송'],
+            '271': ['1 창전구청', '2 유류', '5 진백', '4.5 동덕현', '빈.6 전덕', '1.5 전천', '1 천왕사', '2 입선', '6 동고송', '3 청능', '2 사복', '3 과진', '2 과송', '6 고송', '3 토모리해수욕장'],
+            '281': ['5 청덕공원', '2 소장', '1.7 중구청', '7 경동', '1.4 오석', '빈 효빈동신도시'],
+            '291': ['1 곽암', '1회산', '1평당', '8 남구선관위', '4 고당', '8 운촌', '2.8 박산', '빈 동신', '빈.4 진월천', '빈 효빈동신도시', '1.4 오석', '1.7 중구청', '7 경동', '1.2.7 중앙로', '2 소장', '2 사복', '3 효빈복지대', '6 고송', '3.6 고송나루'],
+            '292': ['5 청덕공원', '2 사복', '3 청능', '5 소조', '7 효빈성북문', '1.2.7 중앙로', '1 창선', '4 삼각', '빈.4 진월천', '2.4.8 신흥', '4 사야', '4 빙천', '8 평당고', '8 남구선관위', '8 부한', '8 남부소방', '8 곽산고'],
+            '331': ['3.5 고속버스터미널', '1 천왕사', '2 사연', '1.6 북구청', '1 등기'],
+            '334': ['3.5 고속버스터미널', '1.5 전천', '6 오내사거리', '2 남전', '1 등기', '1 아진'],
+            '341': ['3.5 고속버스터미널', '1.5 전천', '6 오내사거리', '2 남전', '빈.2 당가', '2.4 하가', '1 팔망성', '1 추자', '빈 타천'],
+            '351': ['6 포산', '1 평전', '빈.2 당가', '2.4 하가', '1 팔망성', '1.4 이자공원'],
+            '361': ['1 서목', '1 탄성군청', '5 루비', '2 상가', '4 치구', '빈 북택', '6 오내사거리', '1 서도', '3.5 고속버스터미널'],
+            '371': ['1 고무', '1 창전', '2 쌍엽', '3 남부시외버스터미널', '6 비마', '1.6 사노', '3 청엽', '3.4 사가당', '4.6 가동사거리', '빈.1.3.7 효빈', '3.5 고속버스터미널'],
+            '381': ['6 비마', '1.2 우전', '2 유류', '5 남우택', '4 우택', '빈 하성천', '2 남전', '1 등기', '6 포산'],
+            '391': ['2 효빈항국제여객터미널', '2 어간항', '2 운양', '1.8 신거', '2.8 박산', '빈 동신', '빈.4 진월천', '7 궁정', '1.3.7.빈 효빈', '3 사능', '7 치남', '3.5 고속버스터미널', '1 천왕사', '1.2 입희', '2 사연', '2.6 중수'],
+            '441': ['2.4 하가', '2 상가', '5 루비'],
+            '451': ['2 흑택', '4.5 도변', '4 앵내', '1.4 이자공원'],
+            '461': ['2 흑택', '5 루비', '4.5 도변', '1 탄성', '1 탄성군청', '1 서목'],
+            '471': ['빈.1 안천', '2.4 하가', '빈 수포', '빈 하성천', '5 청엽국제학교', '1 아논타워', '2 쌍엽', '3 투자'],
+            '472': ['빈.1 안천', '2.4 하가', '빈 수포', '빈 하성천', '5 청엽국제학교', '1 아논타워', '2 쌍엽', '1 창전', '2 유류', '2 칠심', '2.5 시로'],
+            '481': ['빈.1 안천', '2.4 하가', '빈 수포', '빈 하성천', '5 청엽국제학교', '1 아논타워', '2 쌍엽', '3 투자', '2.3 동곡'],
+            '491': ['2 항동1가', '7 어간초', '7 항동3가', '2 어간항', '2 운양', '빈 동신', '빈.4 진월천', '1 창선', '빈.1.4 장원', '1 동리', '6 비동', '3 남부시외버스터미널', '2 쌍엽', '1 창전', '2 유류', '2 칠심', '2.5 시로', '4.5 도변'],
+            '492': ['2 효빈항국제여객터미널', '7 어간초', '2 어간수산', '2 어간항', '빈.1.7 효빈항', '7 효빈항동부', '빈.1 효빈항물류', '7 분덕', '1.2.7 월천'],
+            '522': ['1 도향', '4 천가', '1.4 이자공원', '빈 타천', '빈.1 안천', '1 당안', '1 평전', '2 신영', '1.6 북구청', '1.2 입희', '2.3 북효빈', '2.6 시청', '2.6 고송교차로', '2.3 청덕역', '5 청덕공원'],
+            '551': ['1.4 이자공원', '빈.1 고해'],
+            '552': ['4 소원', '1.4 이자공원'],
+            '561': ['1.4 이자공원', '4 탄자', '4.5 도변', '1 탄성군청', '1 야진입구'],
+            '571': ['1.4 이자공원', '빈.4 이자', '4 요우', '2.5 시로', '2.3 동곡'],
+            '581': ['빈.4 이자', '1 이자출장소', '1 창전구청', '3 투자', '2 헌이송'],
+            '582': ['빈 효빈동신도시', '1 비마리유적지구', '6 비마', '1.2 우전', '2 유류', '2 칠심', '5 진백', '2.4 하가', '1 능릉'],
+            '591': ['2 효빈항국제여객터미널', '2 항동1가', '7 산홍', '빈.1.7 효빈항', '7 효빈항동부', '빈.1 효빈항물류', '7 분덕', '1.2.7 월천', '빈 오주', '2 헌이송', '2.3 동곡', '1 창전구청', '2 칠심', '5 루비', '4 요우', '1 과남', '빈.4 이자', '1 능릉'],
+            '592': ['2 효빈항국제여객터미널', '2 항동1가', '7 산홍', '빈.1.7 효빈항', '7 효빈항동부', '빈.1 효빈항물류', '7 분덕', '1.2.7 월천', '빈 오주', '2 헌이송', '2.3 동곡', '1 창전구청', '2 칠심', '5 루비', '4 요우', '1 과남', '빈.4 이자', '1 능릉', '빈.1 고해', '1 도향'],
+            '612': ['2.5 당선', '2 소장', '7 봇지마을', '7 북문로', '7 효빈성북문', '1.7 중구청', '7 조유동2가', '7 유내', '7 리사', '빈.1.4 장원', '1 동리', '1.3 청엽구청', '5 남우택', '2 칠심', '1 창전구청', '1 서목'],
+            '632': ['1 서목', '1 탄성', '2 칠심', '5 남우택', '4 치구', '빈 북택', '2 채산', '1.6 북구청'],
+            '661': ['1 탄성', '1 탄성군청', '1 서목'],
+            '671': ['1 승남', '1 고무', '1 보통', '1 창전구청', '2 쌍엽', '2.3 동곡'],
+            '672': ['1 서목', '1 고무', '1.2 우전', '2 칠심', '2.5 시로'],
+            '681': ['1 서목', '1 고무', '2.5 시로', '1 창전', '2.3 동곡', '2 헌이송'],
+            '682': ['4.5 도변', '1.2 우전', '2.3 동곡', '2 헌이송', '빈 효빈동신도시'],
+            '691': ['1 서목', '1 탄성군청', '1 창전구청', '2.3 동곡', '6 비동', '빈.1.7 효빈항', '2 항동1가', '7 어간초'],
+            '692': ['5 포성산', '4.5 도변', '1 창전구청', '2.3 동곡', '1.3 청엽구청', '1.6 사노', '1 동리', '4 삼각', '1.2.7 월천', '7 분덕', '빈.1 효빈항물류', '7 효빈항동부', '빈.1.7 효빈항', '7 산홍', '2 항동1가', '2 효빈항국제여객터미널'],
+            '752': ['1.4 이자공원', '빈.4 이자', '4 요우', '2.5 시로', '2.3 동곡'],
+            '753': ['4.5 도변', '4 요우', '2.5 시로', '1 창전', '2 쌍엽', '3 투자', '3 팔조'],
+            '771': ['5 진백', '2 칠심', '1 창전', '2 쌍엽', '2.3 동곡'],
+            '781': ['1 보통', '2.3 동곡', '6 비동', '4 우택'],
+            '791': ['1 창전구청', '2 유류', '2 엽천', '3 남부시외버스터미널', '6 비동', '2.4.8 신흥', '4 빙천', '8 평당고', '4 이부', '1 회산', '1 곽암'],
+            '792': ['1 창전구청', '2 유류', '2 엽천', '3 남부시외버스터미널', '6 비동', '2.4.8 신흥', '1.8 신거', '8 세무지구', '2 어간 수산시장', '2.7 어간중앙', '2 항동1가', '2. 효빈항국제여객터미널'],
+            '793': ['8 남부소방', '4 이부', '8 평당장애인복지관', '8 주오', '1.4.8 남구청', '2.8 박산', '빈.4 진월천', '빈 오주', '1 비마리유적지구', '1.6 사노', '5 청엽국제학교', '2 유류', '2 칠심', '2.5 시로'],
+            '842': ['빈 타천', '빈.1 안천', '2.4 하가', '빈 수포', '4 치구', '5 남우택', '1 아논타워', '3 남부시외버스터미널', '2.6 마잡'],
+            '881': ['2 헌이송', '7 비마', '1.3 청엽구청', '5 청엽국제학교', '4 우택'],
+            '891': ['4 우택', '5 청엽국제학교', '1.3 청엽구청', '3 남부시외버스터미널', '2.6 마잡', '2 헌이송', '2 등동', '빈.4 진월천', '1.8 신거', '2.8 남구청', '8 남부소방', '4 이부', '1 곽암'],
+            '892': ['4 우택', '5 청엽국제학교', '1.3 청엽구청', '3 남부시외버스터미널', '2.6 마잡', '2 헌이송', '2 등동', '빈.4 진월천', '1.8 신거', '2 어간수산', '7 어간초', '2 어간항', '2 효빈항국제여객터미널'],
+            '991': ['8 남부소방', '1 남당', '4 해운산업', '8 평곡', '4 고당', '8 운촌', '2.8 박산', '1.2.7 월천'],
+            '도향01': ['시초리', '영왕리', '미로리', '분음리', '1호선도향'],
+            '도향02': ['분음리', '미로리', '일일리', '벽천리', '1호선도향'],
+            '도향03': ['일일리', '초반리', '하공리', '춘일경리', '1호선도향'],
+            '정근01': ['익목리', '처구리', '층부리', '촌주리'],
+            '정근02': ['층부리', '안경리', '회층리', '사촌리'],
+            '소원01': ['윤부리', '소원리', '라면리', '4호선소원'],
+            '소원02': ['부우리', '라면리', '소원리', '4호선소원'],
+            '흑택01': ['흑택면전역순환', '2호선흑택', '5호선루비'],
+            '야진01': ['야진리', '신리', '미우리'],
+            '야진02': ['아득리', '원심리', '야진리'],
+            '탄성01': ['무성리', '명무리', '탄성리', '1호선탄성군청'],
+            '탄성02': ['성규리', '미성리', '공리', '1호선탄성'],
+            '서목01': ['서목리', '조산리', '소춘리', '잠금', '1호선서목', '1호선승남리'],
+            '서목02': ['파래리', '음일리', '록구리', '마희리', '1호선서목'],
+            '고해01': ['장심리', '이와리', '은진원리', '1호선/빈효선고해'],
+            '고해02': ['천가리', '고해리', '율일리', '이식리', '1호선/빈효선고해', '4호선천가'],
+            '도변01': ['계층리', '표명리', '도변리', '4/5호선도변'],
+            '채산01': ['채산동', '실본동', '수포동', '신영동', '2호선채산', '빈효선수포'],
+            '채산02': ['평전동', '습지동', '곡진동', '아자동', '1호선평전'],
+            '내항01': ['내항동', '약맥동', '고도동', '2/7호선내항', '1호선약맥', '1호선십덕'],
+            '악부01': ['악부동전역', '1호선팔망성', '빈효선타천'],
+            '뇌전01': ['뇌전동전역', '4호선뇌전', '빈효선수포'],
+            '칠채01': ['칠채동전역', '1호선능릉'],
+            '광정01': ['광정동전역', '창전동', '1호선보통'],
+            '곽산01': ['곽산동전역', '곽암동', '1/8호선곽산', '1호선곽암'],
+            '10': ['중앙로 효빈은행(순환시점)', '중앙로역 6번출구', '효빈초등학교', '소장해변공원', '조유동입구', '소장역3번출구', '내성고등학교', '당선4동우체국', '당선신협', '서구 구영아파트', '서부소방서', '당선 중앙하이츠', '당선4동 주민센터', '서구청', '태이초', '소금아파트', '당선여고', '효빈대 니나관', '효빈대역', '효빈대 상과대학', '효빈대 사회복지학대학', '소조역', '소조 남산아파트', '소조빛여울채', '생곡초', '고속버스터미널역 사거리', '시외버스터미널입구', '개포초 사거리', '전천마을', '전천역입구', '보몽역', '덕현 서희스타힐스', '전천주공1단지', '전천중', '전천중앙역', '신분초', '덕현주공7단지', '동덕현역 북부', '동덕현역남부', '덕현6동 행정복지센터', '덕현여고', '덕현고', '전덕지구', '덕현주공2단지.덕현역아파트2단지', '덕현역 사거리', '덕현중', '동구청', '효빈동고등학교', '효빈역 10번출구', '사가당1동 사무소', '사가당병원', '신덕역', '신덕삼거리', '효빈중부소방서', '신덕주공', '사니파신호텔', '이마트 효빈점', '리사초', '장원역 북부', '경동아파트', '오석행복주택', '타이니스타 호텔', '복산병원', '효빈지방 중소벤처기업청', '단산사', '롯데백화점 효빈점', '금융감독원 효빈지사', '중부경찰서', '조능병원', '중앙로 국민은행', '운중거리', '효빈은행중앙로지점(순환종점)'],
+            '20': ['고송교차로역(순환시점)', '효빈애니메이션 본부', '고송sk뷰 1차', '고송아이파크1차.양우내안에', '북효빈세무서', '고송경찰서', '고송수협', '고송 홈플러스', '고송 중흥s클래스', '아좌초', '고송대라수 아파트', '고송현대', '고송 휴먼빌', '곽소초', '건보삼거리', '고송sk뷰 2차 아파트', '서효빈병원', '효빈북고등학교', '청덕푸르지오', '과청사거리', '청덕역동부', '청덕역 서부', '효빈보훈공단', '효빈서여자고등학교', '효빈체육고', '중촌대서문', '아니르아파트', '해총대 사거리', '주산초', '과진 헤링턴 플레이스', '과진아쿠아1단지', '과진사이언스시티아파트', '과진시영아파트', '서부경찰서', '효빈서초', '사복역 센트럴시티아파트', '사복2동 행정복지센터', '이마트 사복점', '사복 행복주택', '효빈북부교육지원청', '소조중', '청능 홈플러스', '효빈교대', '북효빈역', '청능도매시장', '입선역', '이남고', '블라인아파트', '삼선대병원', '입희중', '스타시티아파트', '롯데마트 진희점', '진희신협', '입희아파트사거리', '효빈종합고역', '효빈종합고', '대금초', '장포역', '추산주공', '추산헬퍼스', '포산역', '포산초', '중수포산선착장', '포산스리아아파트', '포산주공', '진산아파트', '진희아파트', '진희더샵비발디', '진희공원', '진희동주민센터', '진희트레이더스', '진희주공2차', '효빈북여자고등학교', '빌리브 고송아파트', '우미린 고송아파트1차', '고송 부영1차', '부동산원', '소요중학교', '아논초등학교', '고송교차로역(순환종점)'],
+            '30': ['중수역', '중수오거리', '북부경찰서입구', '평안명대사거리', '산고동사무소', '서도역', '서문마을', '기산공업', '포산에리아파트', '포산역', '포산우미린', '포산 루이스빌', '빌리브 중수아파트', '중수 세영리첼 1차', '중수 세영리첼 2차', '중수상업지구', '중수농협', '중수두산위브아파트', '중수여고', '이지더원 중수아파트', '등기초등학교', '중수 힐스테이트 아파트', '중수2동행정복지센터', '등기역', '북구구영아파트', '삼선사거리', '중수래미안2차', '채산역', '국가기록원 효빈센터', '채산동사무소', '채산중학교', '채산 식품산단 북부', '남산사거리', '남전신협', '남전공업사', '우구사', '남전사거리', '사녹중', '서신고', '전천고', '덕현마래마을', '효빈정보고', '상방사거리', '우곡마을', '전천중앙역', '전천중앙역 스타리아 아파트', '오내동사거리', '오내주공2단지', '소옥삼거리', '오내주공1단지', '오내센트럴시티아파트1차', '소창고', '오내역', '중수애버그린아파트', '중수앵판아파트', '효빈고등법원입구', '중수역'],
+            '40': ['안천역', '안천역아파트', '당가중', '당가시영아파트', '당가1동행정복지센터', '안천소방서', '하가초', '하가역', '안천중', '하가입구', '뇌전공업단지북부', '뇌전역', '뇌전공단 서부', '하전사거리', '구말마을', '아조마을', '괴천', '고건', '시로고등학교', '다이아공원', '흑택중학교', '흑택초', '루비초', '흑택아쿠아아파트', '루비중', '루비역동부사거리', '은염리입구', '고곡교', '계층리', '계층초', '도변아쿠아아파트', '수안초', '도변고', '도변읍사무소', '도변역', '도변롯데마트동부', '도변초', '잠재공단', '잠재공단동부', '잠재역', '잠재초', '앵내더샵센트럴', '앵내역', '앵내푸르지오', '개월마을', '구구마을', '각고마을', '치고대', '효빈예대', '요우주공2단지', '도변여고', '요우호반베르디움', '요우중', '천옥마을', '어거사거리', '악부동행정복지센터', '브리밍아파트', '팔망성뎌샵아파트', '안천도사관', '성택대서문', '안천병원', '효빈외대', '안천휴먼시아', '안천장미아파트', '유우초', '안천우체국', '당가초', '당가 레인보우아파트', '안천역'],
+            '50': ['이자역', '이자주공', '이자아쿠아아파트', '이자중', '이자초', '안천교육지원청', '효빈대 이자캠퍼스 입구', '이자대라수아파트', '이자경남아너스빌', '리의역', '고선마을', '북십사거리', '이자출장소', '이십기동사무소', '이십기주공', '창건대우', '이자고', '소안아파트', '창건고', '남탄자사거리', '성저동사무소', '성저아파트', '성저천', '앵내솔천아파트', '앵내푸르지오', '앵내역', '앵내고', '효빈가정법원', '앵내출장소', '앵내더블리안아파트', '노개학교', '앵내포르투아파트', '오교로', '앵내앵두아파트', '앵산사거리', '안천정보고', '성저중', '군선초', '이자병원', '효빈이자경찰서', '탄자초', '이자공원푸름아파트', '이자더샵', '능천중', '이자월산아파트', '정치역사거리', '이자푸르마아파트', '영색무역', '이자4동행정복지센터', '이자자이아파트', '이자 월드가드아파트', '이자역'],
+            '60': ['도변역', '수안초', '도변아쿠아아파트', '도변중', '계층초', '계층리마을회관', '좌목산 북부입구', '탄성산거삼거리', '탄성소방서 후문', '주강', '변영', '탄성역', '탄성읍사무소', '탄성고', '탄성경찰서', '탄성우체국', '탄서마을', '탄성경남아너스빌', '탄성아이파크', '탄성중', '탄성여중', '미성주공', '공리초', '공리에브리아파트', '공리사거리', '공리아파트', '공리두산위브', '표명리', '과라', '지암사', '구구변', '독선', '도변파라디아아파트', '도변오투그란데아파트', '도변상업지구', '삼기산업', '주천', '도변주공', '도변제일풍경채', '요우 sk뷰 아파트', '도변롯데캐슬아파트', '도변롯데마트', '도변역'],
+            '70': ['창전구청역', '창전 라포르테 아파트', '한국안전관리원', '창전디아채', '월삼여고', '미소지움 창전', '창전아쿠아아파트3단지', '창전4동 행정복지센터', '창전아쿠아아파트2단지', '더리브 창전아파트', '창전제일아파트', '창전아쿠아아파트1차', '마시초', '소선초', '우미린 창전아파트', '쌍엽1동 주민센터', '쌍엽래미안아파트', '쌍엽고등학교', '팔조초', '쌍엽호반베르디움', '롯데마트 맥스 창전', '팔조초', '오나아파트', '팔조아이르아파트', '투자모르포니카 아파트', '투자베르데아파트', '투자역', '투자초', '이엽초', '동곡역', '두상마을', '쌍엽센트럴시티아파트', '쌍엽푸르지오 1차', '쌍엽역', '쌍엽2동 행정복지센터', '우전아파트', '우전1동행정복지센터', '효빈남부시외버스터미널역', '효빈남부시외버스터미널', '청엽홈플러스', '유안', '우전아쿠아아파트', '우전고', '아논아파트', '아논타워역', '서승중학교', '청엽동국애버리지아파트', '청엽주공1단지', '청엽3동행정복지센터', '칠심주공2단지', '칠심주공1단지', '유류역', '동곡여고', '칠심사거리', '파밀리에 칠심아파트', '은내중학교', '칠심대단지아파트', '금광베네스타 창전아파트', '창전보건소', '창전구청역'],
+            '80': ['청엽구청역', '청엽헤링턴플레이스', '빈동고등학교', '청엽홈플러스', '효빈남부시외버스터미널', '효빈남부시외버스터미널역', '우전포핀아파트', '우전영무예다음', '서증중', '청엽종합고', '마잡루비아파트', '비동역', '색수초', '마잡주공2단지', '마잡역', '마잡레인보우아파트', '마잡모카아파트', '헌산마을', '헌이송역', '효빈 국가산단 헌이송지구', '덕북대효빈캠퍼스 사거리', '청빈초', '등동역', '청선사거리', '입빈사거리', '효빈푸르지오1단지', '입빈초', '효빈푸르지오2단지', '공무원연금공단', '효빈동신도시역', '효수사거리', '경동아파트', '장원역북부', '장원역 동부', '심녕초', '문성아파트', '동리고', '동리뮤즈아파트', '비마리유적공원사거리', '이사중학교', '비마베르데아파트', '비마동사무소', '효빈소방본부', '사노역', '송엽상업고', '청엽경찰서', '청엽구청역'],
+            '90': ['월천역', '분덕역', '효빈항물류지구역', '서신포역', '서안', '벨라치오아파트', '효빈항역행복주택', '효빈항역', '항4동 행정복지센터', '산홍역', '항만공업지구', '항만해변전망대', '어류산업지구', '위강', '공업사거리', '항산사거리', '어선사거리', '어간신영아파트', '항동주성아파트', '항북사거리', '항동남서아파트', '어간삼성아파트', '어간현대아파트', '어간신원리브웰아파트', '어성사거리', '주언사거리', '만지공업사', '궐산산업', '기랑공원', '제일제당 효빈공장', '항동아쿠아아파트', '허람공장입구', '대한통운남효빈지역센터', '회주공업사원아파트', '봉전공원', '소여아파트', '효빈항국제터미널역', '국목공원', '해양아파트', '항동축구장', '효빈출입국관리사무소', '항동푸르지오', '현대조선소 효빈공장', '효빈해양산업고둥학교', '효빈해양경찰서', '서남지방해양경찰청', '향만사거리', '우신사거리', '월기산업', '제중산업', '항동주공2단지', '항동1가역', '항동아파트', '항동주공1단지', '항동고등학교', '어간양우내안에', '어간블렌하임아파트', '어간주공2단지', '어간주공4단지', '효빈해양대2캠사거리', '폴리텍8대학', '엽월대학교 병원', '효빈보건대학교', '어간아파트', '어간여자고등학교', '어간수협', '어간수산시장역', '명주공원', '브링아파트', '항동엘리아아파트', '어간대라수아파트', '어간에버빌아파트', '창문공원사거리', '주곡역', '평당 트루엘 아파트', '평당라바다 아파트', '평당2동주민센터', '평당빌리브아파트', '애마초', '빙천역', '빙천공단', '고당사거리', '고당역', '강변공원', '이파공원', '기아자동차 효빈공장', '현대중공업 효빈공장', '금호타이어효빈공장', '신흥아파트', '이마트 월천점', '월천동행정복지센터', '진월천역', '진월천공업사거리', '언어중', '월천주공', '내항주공1단지', '월천역'],
+            'A01': ['이자역', '안천구청', '하가역', '효빈정부청사', '중수역', '북구청역', '고송교차로역', '효빈국제공항'],
+            'A02': ['곽산역', '남구청역', '신흥역', '중앙로역', '중구청', '소조역.효빈대학교 사회대', '고송역', '효빈국제공항'],
+            'A03': ['도변역', '탄성군청', '창전구청', '칠심동', '청엽국제학교', '청엽구청', '전천중앙역', '고속버스터미널', '당선역', '효빈국제공항']
+        };
+
+        const busData = rawData.map(d => ({
+            type: d.t,
+            num: d.n,
+            start: d.s,
+            end: d.e,
+            via: d.v,
+            comp: d.c,
+            firstTime: d.ft,
+            lastTime: d.lt
+        }));
+
+        const busColors = {
+            'border-rapid': '#D81C2F',
+            'border-seat': '#FF5800',
+            'border-main': '#01B7ED',
+            'border-branch': '#37B484',
+            'border-town': '#A664A0',
+            'border-wide': '#485EC6',
+            'border-circular': '#E7D600',
+            'border-airport': '#84C36E',
+            'border-tour': '#7777AA'
+        };
+
+        function renderBusList(filterType) {
+            const tbody = document.getElementById('bus-list');
+            tbody.innerHTML = '';
+            const filtered = busData.filter(bus => {
+                if (filterType === 'all') return true;
+                if (filterType === 'fast' && ['rapid', 'seat'].includes(bus.type)) return true;
+                if (filterType === 'airport' && bus.type === 'airport') return true;
+                if (filterType === 'city' && ['main', 'circular'].includes(bus.type)) return true;
+                if (filterType === 'local' && ['branch', 'town'].includes(bus.type)) return true;
+                if (filterType === 'wide' && bus.type === 'wide') return true;
+                if (filterType === 'tour' && bus.type === 'tour') return true;
+                return false;
+            });
+
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400">검색 결과가 없습니다.</td></tr>`; return; }
+
+            filtered.forEach(bus => {
+                let badgeClass = '', typeName = '';
+                switch(bus.type) {
+                    case 'rapid': badgeClass = 'bg-rapid'; typeName = '급행'; break;
+                    case 'seat': badgeClass = 'bg-seat'; typeName = '좌석'; break;
+                    case 'main': badgeClass = 'bg-main'; typeName = '간선'; break;
+                    case 'branch': badgeClass = 'bg-branch'; typeName = '지선'; break;
+                    case 'town': badgeClass = 'bg-town'; typeName = '마을'; break;
+                    case 'wide': badgeClass = 'bg-wide'; typeName = '광역'; break;
+                    case 'circular': badgeClass = 'bg-circular'; typeName = '순환'; break;
+                    case 'airport': badgeClass = 'bg-airport'; typeName = '공항'; break;
+                    case 'tour': badgeClass = 'bg-tour'; typeName = '시티투어'; break;
+                }
+                const row = `
+                    <tr class="clickable-row border-b border-slate-100 hover:bg-slate-50" onclick="showBusDetail('${bus.num}')">
+                        <td class="px-6 py-4"><span class="bus-badge ${badgeClass}">${typeName}</span></td>
+                        <td class="px-6 py-4 font-black text-lg text-slate-800">${bus.num}</td>
+                        <td class="px-6 py-4 font-bold">
+                            <div class="flex items-center gap-2"><span>${bus.start}</span><i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i><span>${bus.end}</span></div>
+                        </td>
+                        <td class="px-6 py-4 text-xs text-slate-500 hidden md:table-cell"><div class="line-clamp-1">${bus.via}</div></td>
+                        <td class="px-6 py-4 font-medium text-slate-600 hidden sm:table-cell">${bus.comp}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            lucide.createIcons();
+        }
+        function filterBus(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.type === type) { btn.classList.add('active', 'border-blue-600', 'text-blue-600'); btn.classList.remove('border-transparent', 'text-slate-600'); } 
+                else { btn.classList.remove('active', 'border-blue-600', 'text-blue-600'); btn.classList.add('border-transparent', 'text-slate-600'); }
+            });
+            renderBusList(type);
+        }
+        function searchBus() {
+            const keyword = document.getElementById('search-input').value.trim();
+            if (!keyword) { renderBusList('all'); return; }
+            const tbody = document.getElementById('bus-list');
+            tbody.innerHTML = '';
+            const filtered = busData.filter(bus => bus.num.includes(keyword) || bus.start.includes(keyword) || bus.end.includes(keyword) || bus.via.includes(keyword));
+            
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'border-blue-600', 'text-blue-600'); b.classList.add('border-transparent', 'text-slate-600'); });
+
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400">"${keyword}"에 대한 검색 결과가 없습니다.</td></tr>`; return; }
+
+            filtered.forEach(bus => {
+                let badgeClass = '', typeName = '';
+                switch(bus.type) { case 'rapid': badgeClass = 'bg-rapid'; typeName = '급행'; break; case 'seat': badgeClass = 'bg-seat'; typeName = '좌석'; break; case 'main': badgeClass = 'bg-main'; typeName = '간선'; break; case 'branch': badgeClass = 'bg-branch'; typeName = '지선'; break; case 'town': badgeClass = 'bg-town'; typeName = '마을'; break; case 'wide': badgeClass = 'bg-wide'; typeName = '광역'; break; case 'circular': badgeClass = 'bg-circular'; typeName = '순환'; break; case 'airport': badgeClass = 'bg-airport'; typeName = '공항'; break; case 'tour': badgeClass = 'bg-tour'; typeName = '시티투어'; break; }
+                const row = `
+                    <tr class="clickable-row border-b border-slate-100 hover:bg-slate-50" onclick="showBusDetail('${bus.num}')">
+                        <td class="px-6 py-4"><span class="bus-badge ${badgeClass}">${typeName}</span></td>
+                        <td class="px-6 py-4 font-black text-lg text-slate-800">${bus.num}</td>
+                        <td class="px-6 py-4 font-bold"> <div class="flex items-center gap-2"> <span>${bus.start}</span> <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i> <span>${bus.end}</span> </div> </td>
+                        <td class="px-6 py-4 text-xs text-slate-500 hidden md:table-cell">${bus.via}</td>
+                        <td class="px-6 py-4 font-medium text-slate-600 hidden sm:table-cell">${bus.comp}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+            lucide.createIcons();
+        }
+
+        function setSearch(term) { document.getElementById('search-input').value = term; searchBus(); }
+        function showListView() { document.getElementById('list-view').classList.remove('hidden'); document.getElementById('detail-view').classList.add('hidden'); document.getElementById('nav-home-btn').classList.remove('hidden'); document.getElementById('nav-back-btn').classList.add('hidden'); window.scrollTo(0, 0); }
+
+        function showBusDetail(routeNum) {
+            const bus = busData.find(b => b.num === routeNum);
+            if (!bus) return alert("버스 정보를 찾을 수 없습니다.");
+
+            document.getElementById('list-view').classList.add('hidden');
+            document.getElementById('detail-view').classList.remove('hidden');
+            document.getElementById('nav-home-btn').classList.add('hidden');
+            document.getElementById('nav-back-btn').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            let typeName = '', colorClass = '', badgeBgClass = '';
+            switch(bus.type) {
+                case 'rapid': typeName = '급행버스'; colorClass = 'border-rapid'; badgeBgClass = 'bg-soft-rapid'; break;
+                case 'seat': typeName = '좌석버스'; colorClass = 'border-seat'; badgeBgClass = 'bg-soft-seat'; break;
+                case 'main': typeName = '간선버스'; colorClass = 'border-main'; badgeBgClass = 'bg-soft-main'; break;
+                case 'branch': typeName = '지선버스'; colorClass = 'border-branch'; badgeBgClass = 'bg-soft-branch'; break;
+                case 'town': typeName = '마을버스'; colorClass = 'border-town'; badgeBgClass = 'bg-soft-town'; break;
+                case 'wide': typeName = '광역버스'; colorClass = 'border-wide'; badgeBgClass = 'bg-soft-wide'; break;
+                case 'circular': typeName = '순환버스'; colorClass = 'border-circular'; badgeBgClass = 'bg-soft-circular'; break;
+                case 'airport': typeName = '공항리무진'; colorClass = 'border-airport'; badgeBgClass = 'bg-soft-airport'; break;
+                case 'tour': typeName = '시티투어'; colorClass = 'border-tour'; badgeBgClass = 'bg-soft-tour'; break;
+            }
+
+            document.getElementById('detail-num').innerText = bus.num + '번';
+            if (bus.type === 'tour') {
+                document.getElementById('detail-num-rev').innerText = '';
+            } else {
+                document.getElementById('detail-num-rev').innerText = bus.num + '-1번';
+            }
+            document.getElementById('detail-badge').innerText = typeName;
+            document.getElementById('detail-badge').className = `${badgeBgClass} px-2 py-1 rounded text-sm font-bold mb-2 inline-block`;
+            
+            const detailCompLink = document.getElementById('detail-comp-link');
+            detailCompLink.innerText = bus.comp;
+            detailCompLink.href = `company.html?name=${encodeURIComponent(bus.comp)}`;
+            detailCompLink.className = `font-bold hover:underline`;
+            detailCompLink.style.color = busColors[colorClass] || '#333';
+
+            document.getElementById('detail-first-time').innerText = bus.firstTime || '05:30';
+            document.getElementById('detail-last-time').innerText = bus.lastTime || '23:00';
+
+            document.getElementById('detail-route').innerText = `${bus.start} ↔ ${bus.end}`;
+            document.getElementById('detail-addr').innerText = bus.via;
+            
+            const headerCard = document.getElementById('detail-header-card');
+            headerCard.className = `bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8 ${colorClass.replace('border-', 'border-l-')}`;
+
+            // --- 스마트 경로 생성 로직 (데이터 우선 사용) ---
+            let stopsForward = [];
+            
+            if (detailDataStore[routeNum]) {
+                stopsForward = detailDataStore[routeNum];
+            } 
+            else if (bus.type === 'tour') {
+                const tourStops = bus.via.split(',').map(s => s.trim());
+                stopsForward = [`${bus.start}(출발)`, ...tourStops, `${bus.end}(도착)`];
+            }
+            else if (bus.via && bus.via.includes(',')) {
+                const parts = bus.via.split(',').map(s => s.trim());
+                stopsForward = [`${bus.start}(기점)`, ...parts, `${bus.end}(종점)`];
+            }
+            else {
+                // 데이터 없을 시 비상 생성 로직
+                stopsForward = [`${bus.start}(기점)`, `${bus.end}(종점)`];
+            }
+
+            let stopsReverse = [...stopsForward].reverse();
+            // 역방향 텍스트 처리 개선
+            stopsReverse = stopsReverse.map(s => s.replace('(기점)', '').replace('(종점)', '').replace('(출발)', '').replace('(도착)', '').replace('(순환시점)', '').replace('(순환종점)', '').trim());
+            
+            // 순환버스의 경우 역방향이 의미가 다를 수 있으나, 단순 역순으로 표시 (필요 시 데이터 추가)
+            if(bus.type === 'circular') {
+                 // 순환은 시작/끝 점이 같으므로 역순 표시도 시작/끝 점 처리
+                 stopsReverse[0] += '(종점)';
+                 stopsReverse[stopsReverse.length-1] += '(기점)';
+            } else {
+                 stopsReverse[0] += '(기점)';
+                 stopsReverse[stopsReverse.length-1] += '(종점)';
+            }
+
+            renderTimeline('detail-stops-forward', stopsForward, colorClass);
+            renderTimeline('detail-stops-reverse', stopsReverse, colorClass);
+            
+            window.currentBusColorClass = colorClass;
+            window.currentStopsForward = stopsForward;
+            window.currentStopsReverse = stopsReverse;
+        }
+
+        function renderTimeline(containerId, stops, colorClass) {
+            const stopsContainer = document.getElementById(containerId);
+            stopsContainer.innerHTML = '';
+            stopsContainer.className = `relative pl-4 border-l-4 space-y-8 ${colorClass} ml-2`;
+
+            stops.forEach((stop, index) => {
+                const isTerminus = index === 0 || index === stops.length - 1;
+                const hasBus = Math.random() < 0.15; 
+                
+                let markerHtml;
+                if (hasBus) {
+                    markerHtml = `
+                        <div class="absolute -left-[25px] top-0 w-10 h-10 bg-white border-2 ${colorClass} rounded-full flex items-center justify-center text-slate-700 shadow-md z-10 animate-bounce">
+                            <i data-lucide="bus" class="w-5 h-5"></i>
+                        </div>
+                    `;
+                } else {
+                    markerHtml = `
+                        <div class="absolute -left-[10px] top-2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white shadow-sm ring-1 ring-slate-100"></div>
+                    `;
+                }
+                
+                const textClass = hasBus ? 'font-black text-slate-900' : 'text-slate-700 font-medium';
+                // 순환 노선 등 괄호 텍스트 처리
+                let displayName = stop;
+                let subText = '';
+                
+                if (stop.includes('(')) {
+                    const parts = stop.split('(');
+                    displayName = parts[0];
+                    subText = parts[1].replace(')', '');
+                } else if (isTerminus) {
+                    subText = index === 0 ? '출발' : '도착';
+                } else {
+                    subText = '00:00';
+                }
+
+                stopsContainer.innerHTML += `
+                    <div class="relative pl-6 group">
+                        ${markerHtml}
+                        <h4 class="${textClass} text-lg transition-colors group-hover:opacity-75 cursor-default leading-none">${displayName}</h4>
+                        ${subText ? `<span class="text-xs font-bold text-white bg-slate-400 px-1.5 py-0.5 rounded mt-1 inline-block">${subText}</span>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function refreshBusLocation() {
+            if (window.currentBusColorClass) {
+                renderTimeline('detail-stops-forward', window.currentStopsForward, window.currentBusColorClass);
+                renderTimeline('detail-stops-reverse', window.currentStopsReverse, window.currentBusColorClass);
+            }
+            lucide.createIcons();
+        }
+
+        renderBusList('all');
+    </script>
+</body>
+</html>

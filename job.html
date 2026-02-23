@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일자리 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        .clickable-row { cursor: pointer; transition: all 0.2s; }
+        .clickable-row:hover { background-color: #f8fafc; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 10; position: relative; }
+        
+        /* 모달 애니메이션 */
+        .modal { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .modal-visible { opacity: 1; visibility: visible; pointer-events: auto; }
+        
+        /* 브랜드 로고 뱃지 스타일 */
+        .brand-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 6px; font-weight: bold; color: white; display: inline-block; }
+        .bg-mc { background-color: #DA291C; } /* 맥도날드 레드 */
+        .bg-sb { background-color: #00704A; } /* 스타벅스 그린 */
+        .bg-lt { background-color: #E31F2B; } /* 롯데 레드 */
+        .bg-bk { background-color: #EC1C24; } /* 버거킹 레드 */
+        .bg-kfc { background-color: #A3080C; } /* KFC 레드 */
+        .bg-em { background-color: #FFB81C; color: black; } /* 이마트 옐로우 */
+        .bg-hp { background-color: #005EB8; } /* 홈플러스 블루 */
+        .bg-ani { background-color: #0095D5; } /* 애니 블루 */
+
+        /* 스크롤바 커스텀 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="로고" class="h-10 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold">[로고 이미지]</div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 비주얼 영역 -->
+    <div class="w-full bg-slate-700 py-16 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 to-blue-900 opacity-80"></div>
+        <img src="job_bg.jpg" class="absolute inset-0 w-full h-full object-cover -z-10" onerror="this.style.display='none'">
+        <div class="relative z-10 px-4">
+            <h1 class="text-4xl md:text-5xl font-black mb-4 drop-shadow-md">일자리센터</h1>
+            <p class="text-slate-200 font-medium text-lg md:text-xl max-w-2xl mx-auto">맞춤형 인재 매칭<br>당신의 능력에 딱 맞는 일자리를 찾아드립니다.</p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-12 w-full mb-20 flex-grow">
+        
+        <!-- 주요 메뉴 바로가기 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+            <!-- 구직자 버튼 -->
+            <div onclick="scrollToJobs()" class="group bg-white p-8 rounded-2xl shadow-lg border border-slate-100 text-center hover:-translate-y-2 transition duration-300 cursor-pointer relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-blue-500 transform -translate-x-full group-hover:translate-x-0 transition duration-300"></div>
+                <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition duration-300">
+                    <i data-lucide="search" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-3">구직자 (일자리 찾기)</h3>
+                <p class="text-slate-500 mb-6">지역별, 직종별 상세 검색으로<br>나에게 맞는 일자리를 찾아보세요.</p>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition w-full md:w-auto shadow-md">
+                    채용정보 검색 바로가기
+                </button>
+            </div>
+
+            <!-- 구인기업 버튼 -->
+            <div onclick="openCompanyModal()" class="group bg-white p-8 rounded-2xl shadow-lg border border-slate-100 text-center hover:-translate-y-2 transition duration-300 cursor-pointer relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-orange-500 transform -translate-x-full group-hover:translate-x-0 transition duration-300"></div>
+                <div class="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition duration-300">
+                    <i data-lucide="briefcase" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-3">구인기업 (인재 찾기)</h3>
+                <p class="text-slate-500 mb-6">우리 기업에 딱 맞는 우수 인재를 찾으시나요?<br>쉽고 빠르게 공고를 등록하세요.</p>
+                <button class="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-700 transition w-full md:w-auto shadow-md">
+                    기업회원 로그인 / 공고등록
+                </button>
+            </div>
+        </div>
+
+        <!-- 검색 및 필터 영역 -->
+        <div id="jobSection" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 md:p-8 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="list-filter" class="text-blue-600"></i>
+                        실시간 채용 정보
+                    </h3>
+                    <p class="text-slate-500 text-sm mt-1">총 <span id="totalCount" class="text-blue-600 font-bold">0</span>건의 채용정보가 있습니다.</p>
+                </div>
+                <div class="flex gap-2 w-full md:w-auto">
+                     <button onclick="initJobs()" class="flex items-center gap-2 px-4 py-2 text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-sm font-medium whitespace-nowrap">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> 목록 새로고침
+                    </button>
+                </div>
+            </div>
+
+            <!-- 검색바 -->
+            <div class="flex flex-col md:flex-row gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div class="relative flex-grow min-w-[150px]">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="map" class="text-slate-400 w-5 h-5"></i>
+                    </div>
+                    <!-- 업데이트된 지역 목록 반영 -->
+                    <select id="districtSelect" onchange="filterJobs()" class="pl-10 w-full h-12 rounded-lg border-slate-300 border focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white text-slate-700">
+                        <option value="">전체 지역 (구/군)</option>
+                        <option value="남구">남구</option>
+                        <option value="동구">동구</option>
+                        <option value="북구">북구</option>
+                        <option value="서구">서구</option>
+                        <option value="안천구">안천구</option>
+                        <option value="중구">중구</option>
+                        <option value="창전구">창전구</option>
+                        <option value="청엽구">청엽구</option>
+                        <option value="탄성군">탄성군</option>
+                    </select>
+                </div>
+                <div class="relative flex-grow-[2]">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="text-slate-400 w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="searchInput" onkeyup="filterJobs()" placeholder="동 이름, 기업명, 업무 내용 검색" class="pl-10 w-full h-12 rounded-lg border-slate-300 border focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <button onclick="filterJobs()" class="bg-blue-600 text-white px-8 h-12 rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md whitespace-nowrap">
+                    검색
+                </button>
+            </div>
+        </div>
+
+        <!-- 리스트 테이블 -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-500 min-w-[1000px]">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 w-40">지역(구/군)</th>
+                            <th class="px-6 py-4 w-52">업체명</th>
+                            <th class="px-6 py-4">채용내용 (제목 / 상세주소)</th>
+                            <th class="px-6 py-4 w-40 text-center">급여</th>
+                            <th class="px-6 py-4 w-32 text-center">마감일</th>
+                            <th class="px-6 py-4 w-28 text-center">상세보기</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobListBody" class="divide-y divide-slate-100">
+                        <!-- 자바스크립트로 데이터가 로드됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- 검색 결과 없음 표시 -->
+            <div id="noResult" class="hidden py-12 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
+                    <i data-lucide="file-question" class="w-8 h-8 text-slate-400"></i>
+                </div>
+                <p class="text-lg text-slate-600 font-bold">조건에 맞는 채용 정보가 없습니다.</p>
+                <p class="text-slate-400">다른 동 이름이나 검색어를 입력해보세요.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">
+            <div class="mb-4 flex justify-center space-x-4">
+                <span class="cursor-pointer hover:text-slate-600">이용약관</span>
+                <span class="w-px h-3 bg-slate-300 inline-block mt-1"></span>
+                <span class="cursor-pointer hover:text-slate-600 font-bold text-slate-600">개인정보처리방침</span>
+                <span class="w-px h-3 bg-slate-300 inline-block mt-1"></span>
+                <span class="cursor-pointer hover:text-slate-600">찾아오시는길</span>
+            </div>
+            <p>효빈광역시 일자리센터 | 대표전화 : 053-123-4567 | 팩스 : 053-123-4568</p>
+            <p class="mt-2">COPYRIGHT © 2025 HYOBIN CITY JOB CENTER. ALL RIGHTS RESERVED.</p>
+        </div>
+    </footer>
+
+    <!-- 기업 회원 모달 (팝업) -->
+    <div id="companyModal" class="modal modal-hidden fixed inset-0 z-[60] flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCompanyModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10 transform transition-all scale-100">
+            <button onclick="closeCompanyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600">
+                    <i data-lucide="building-2" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">기업회원 서비스</h2>
+                <p class="text-slate-500 mt-2 text-sm">로그인 후 공고 등록 및 인재 열람이 가능합니다.</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); alert('데모 버전입니다. 로그인이 완료되었습니다.'); closeCompanyModal();" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">사업자등록번호</label>
+                    <input type="text" placeholder="'-' 없이 입력" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">비밀번호</label>
+                    <input type="password" placeholder="비밀번호 입력" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition">
+                </div>
+                <button type="submit" class="w-full bg-orange-600 text-white py-3.5 rounded-lg font-bold hover:bg-orange-700 shadow-lg shadow-orange-200 transition">
+                    로그인
+                </button>
+            </form>
+            <div class="mt-6 text-center text-sm text-slate-400">
+                <a href="#" class="hover:text-orange-600 underline">사업자 회원가입</a> | 
+                <a href="#" class="hover:text-slate-600">아이디/비번 찾기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 채용 상세정보 모달 -->
+    <div id="jobDetailModal" class="modal modal-hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeJobDetail()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[90vh] md:h-auto md:max-h-[85vh] relative z-10 flex flex-col overflow-hidden transform transition-all scale-100">
+            
+            <!-- 모달 헤더 -->
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-start bg-slate-50">
+                <div class="pr-8">
+                    <div id="modalCompany" class="text-lg font-bold text-slate-500 mb-1">기업명</div>
+                    <h2 id="modalTitle" class="text-2xl font-black text-slate-900 leading-tight">채용 공고 제목</h2>
+                </div>
+                <button onclick="closeJobDetail()" class="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-200 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- 모달 내용 (스크롤 가능) -->
+            <div class="p-8 overflow-y-auto custom-scroll flex-grow">
+                <!-- 핵심 요약 정보 -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="text-xs text-slate-500 font-bold mb-1">급여</div>
+                        <div id="modalPay" class="text-slate-800 font-bold text-lg">월급 300만원</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="text-xs text-slate-500 font-bold mb-1">마감일</div>
+                        <div id="modalDeadline" class="text-red-600 font-bold text-lg">2025-12-31</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 col-span-2">
+                        <div class="text-xs text-slate-500 font-bold mb-1">근무지</div>
+                        <div id="modalAddress" class="text-slate-800 font-medium flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 주소
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상세 모집 내용 -->
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-blue-600"></i>모집 요강
+                        </h4>
+                        <ul class="text-slate-600 text-sm space-y-2 list-disc pl-5">
+                            <li><strong>경력여부:</strong> 신입/경력 무관</li>
+                            <li><strong>고용형태:</strong> 정규직 (수습기간 3개월)</li>
+                            <li><strong>학력:</strong> 학력 무관</li>
+                            <li><strong>근무요일:</strong> 주 5일 (월~금)</li>
+                            <li><strong>근무시간:</strong> 09:00 ~ 18:00 (휴게시간 1시간)</li>
+                        </ul>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>상세 내용
+                        </h4>
+                        <div class="bg-slate-50 rounded-xl p-5 text-sm text-slate-600 leading-relaxed border border-slate-100">
+                            <p id="modalDesc">효빈광역시의 우수 기업에서 열정적인 인재를 모집합니다.</p>
+                            <p class="mt-4 text-xs text-slate-400">* 본 공고는 효빈광역시 일자리센터를 통해 등록되었습니다.</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="phone" class="w-5 h-5 text-blue-600"></i>접수 및 문의
+                        </h4>
+                        <p class="text-sm text-slate-600">
+                            <strong>담당자:</strong> 인사채용팀<br>
+                            <strong>연락처:</strong> <span id="modalPhone">0507-0000-0000</span> (문자 지원 가능)<br>
+                            <strong>접수방법:</strong> 하단 '지원하기' 버튼 클릭 또는 전화 문의
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="p-6 border-t border-slate-100 flex gap-3 bg-white">
+                <button onclick="closeJobDetail()" class="flex-1 py-3.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition">
+                    닫기
+                </button>
+                <button onclick="applyJob()" class="flex-[2] py-3.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5"></i> 지원하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 데이터 스크립트 -->
+    <script>
+        // 제공해주신 실제 행정구역 데이터
+        const districtData = [
+            { gu: "남구", admin: "고당동", legal: "고간동" }, { gu: "남구", admin: "고당동", legal: "평당동" },
+            { gu: "남구", admin: "곽산1동", legal: "곽산동" }, { gu: "남구", admin: "곽산2동", legal: "곽산동" },
+            { gu: "남구", admin: "어간1동", legal: "어간동" }, { gu: "남구", admin: "어간2동", legal: "어간동" },
+            { gu: "남구", admin: "어간3동", legal: "어간동" }, { gu: "남구", admin: "어간3동", legal: "운양동" },
+            { gu: "남구", admin: "월천동", legal: "박산동" }, { gu: "남구", admin: "월천동", legal: "신흥동" },
+            { gu: "남구", admin: "월천동", legal: "월천동" }, { gu: "남구", admin: "월천동", legal: "포장동" },
+            { gu: "남구", admin: "평당1동", legal: "평당동" }, { gu: "남구", admin: "평당2동", legal: "평당동" },
+            { gu: "남구", admin: "평당3동", legal: "평당동" }, { gu: "남구", admin: "평당4동", legal: "평당동" },
+            { gu: "남구", admin: "평당5동", legal: "평당동" }, { gu: "남구", admin: "평당6동", legal: "평당동" },
+            { gu: "남구", admin: "평당7동", legal: "평당동" }, { gu: "남구", admin: "항1동", legal: "항동1가" },
+            { gu: "남구", admin: "항2동", legal: "항동1가" }, { gu: "남구", admin: "항2동", legal: "항동2가" },
+            { gu: "남구", admin: "항3동", legal: "항동1가" }, { gu: "남구", admin: "항3동", legal: "항동2가" },
+            { gu: "남구", admin: "항3동", legal: "항동3가" }, { gu: "남구", admin: "항4동", legal: "항동1가" },
+            { gu: "남구", admin: "항4동", legal: "항동3가" }, { gu: "동구", admin: "덕현11동", legal: "덕현동" },
+            { gu: "동구", admin: "덕현1동", legal: "덕현동" }, { gu: "동구", admin: "덕현2동", legal: "덕현동" },
+            { gu: "동구", admin: "덕현3동", legal: "덕현동" }, { gu: "동구", admin: "덕현4동", legal: "덕현동" },
+            { gu: "동구", admin: "덕현5동", legal: "덕현동" }, { gu: "동구", admin: "덕현6동", legal: "덕현동" },
+            { gu: "동구", admin: "덕현7동", legal: "덕현동" }, { gu: "동구", admin: "덕현9동", legal: "덕현동" },
+            { gu: "동구", admin: "사가당1동", legal: "사가당동" }, { gu: "동구", admin: "사가당2동", legal: "사가당동" },
+            { gu: "동구", admin: "사가당3동", legal: "사가당동" }, { gu: "동구", admin: "사가당4동", legal: "사가당동" },
+            { gu: "동구", admin: "전천동", legal: "전천동" }, { gu: "북구", admin: "고송1동", legal: "고송동" },
+            { gu: "북구", admin: "고송2동", legal: "고송동" }, { gu: "북구", admin: "고송3동", legal: "고송동" },
+            { gu: "북구", admin: "고송4동", legal: "고송동" }, { gu: "북구", admin: "고송5동", legal: "고송동" },
+            { gu: "북구", admin: "고송6동", legal: "고송동" }, { gu: "북구", admin: "고송7동", legal: "고송동" },
+            { gu: "북구", admin: "고송8동", legal: "고송동" }, { gu: "북구", admin: "남전동", legal: "남전동" },
+            { gu: "북구", admin: "사능2동", legal: "사능동2가" }, { gu: "북구", admin: "사능동", legal: "사능동1가" },
+            { gu: "북구", admin: "사능동", legal: "사능동2가" }, { gu: "북구", admin: "사능동", legal: "사능동3가" },
+            { gu: "북구", admin: "사능동", legal: "생곡동" }, { gu: "북구", admin: "사능동", legal: "치남동" },
+            { gu: "북구", admin: "산고동", legal: "사연동" }, { gu: "북구", admin: "산고동", legal: "서도동" },
+            { gu: "북구", admin: "산고동", legal: "추산동" }, { gu: "북구", admin: "소조동", legal: "소조동" },
+            { gu: "북구", admin: "오내1동", legal: "오내동" }, { gu: "북구", admin: "오내2동", legal: "오내동" },
+            { gu: "북구", admin: "중수1동", legal: "중수동" }, { gu: "북구", admin: "중수2동", legal: "중수동" },
+            { gu: "북구", admin: "중수3동", legal: "중수동" }, { gu: "북구", admin: "중수4동", legal: "중수동" },
+            { gu: "북구", admin: "진희동", legal: "입희동" }, { gu: "북구", admin: "진희동", legal: "진희동" },
+            { gu: "북구", admin: "채산동", legal: "곡진동" }, { gu: "북구", admin: "채산동", legal: "등기동" },
+            { gu: "북구", admin: "채산동", legal: "수포동" }, { gu: "북구", admin: "채산동", legal: "습지동" },
+            { gu: "북구", admin: "채산동", legal: "신영동" }, { gu: "북구", admin: "채산동", legal: "실본동" },
+            { gu: "북구", admin: "채산동", legal: "아자동" }, { gu: "북구", admin: "채산동", legal: "아진동" },
+            { gu: "북구", admin: "채산동", legal: "채산동" }, { gu: "북구", admin: "채산동", legal: "평전동" },
+            { gu: "북구", admin: "천왕사동", legal: "천왕사동" }, { gu: "북구", admin: "천왕사동", legal: "해서동" },
+            { gu: "북구", admin: "청능동", legal: "입선동" }, { gu: "북구", admin: "청능동", legal: "입희동" },
+            { gu: "북구", admin: "청능동", legal: "청능동" }, { gu: "북구", admin: "포산동", legal: "포산동" },
+            { gu: "서구", admin: "과진1동", legal: "과진동" }, { gu: "서구", admin: "과진2동", legal: "과진동" },
+            { gu: "서구", admin: "과진3동", legal: "과진동" }, { gu: "서구", admin: "과진4동", legal: "과진동" },
+            { gu: "서구", admin: "과진5동", legal: "과진동" }, { gu: "서구", admin: "과진6동", legal: "과진동" },
+            { gu: "서구", admin: "과진7동", legal: "과진동" }, { gu: "서구", admin: "당선1동", legal: "당선동" },
+            { gu: "서구", admin: "당선2동", legal: "당선동" }, { gu: "서구", admin: "당선3동", legal: "당선동" },
+            { gu: "서구", admin: "당선4동", legal: "당선동" }, { gu: "서구", admin: "당선4동", legal: "칠천동" },
+            { gu: "서구", admin: "북성동", legal: "내성동1가" }, { gu: "서구", admin: "북성동", legal: "내성동2가" },
+            { gu: "서구", admin: "북성동", legal: "내성동3가" }, { gu: "서구", admin: "북성동", legal: "북문동1가" },
+            { gu: "서구", admin: "북성동", legal: "북문동2가" }, { gu: "서구", admin: "사복1동", legal: "사복동" },
+            { gu: "서구", admin: "사복2동", legal: "사복동" }, { gu: "서구", admin: "청덕1동", legal: "청덕동" },
+            { gu: "서구", admin: "청덕2동", legal: "청덕동" }, { gu: "서구", admin: "청덕3동", legal: "청덕동" },
+            { gu: "안천구", admin: "뇌전동", legal: "뇌전동" }, { gu: "안천구", admin: "뇌전동", legal: "상가동" },
+            { gu: "안천구", admin: "뇌전동", legal: "세익동" }, { gu: "안천구", admin: "뇌전동", legal: "치장동" },
+            { gu: "안천구", admin: "뇌전동", legal: "팔월동" }, { gu: "안천구", admin: "뇌전동", legal: "하가동" },
+            { gu: "안천구", admin: "당가1동", legal: "당가동" }, { gu: "안천구", admin: "당가2동", legal: "당가동" },
+            { gu: "안천구", admin: "백합동", legal: "백합동" }, { gu: "안천구", admin: "백합동", legal: "상점동" },
+            { gu: "안천구", admin: "북택동", legal: "북택동" }, { gu: "안천구", admin: "북택동", legal: "하구동" },
+            { gu: "안천구", admin: "성저동", legal: "성저동" }, { gu: "안천구", admin: "악부동", legal: "광상동" },
+            { gu: "안천구", admin: "악부동", legal: "군청동" }, { gu: "안천구", admin: "악부동", legal: "무로동" },
+            { gu: "안천구", admin: "악부동", legal: "악부동" }, { gu: "안천구", admin: "악부동", legal: "일화동" },
+            { gu: "안천구", admin: "악부동", legal: "제택동" }, { gu: "안천구", admin: "악부동", legal: "천문동" },
+            { gu: "안천구", admin: "악부동", legal: "천본동" }, { gu: "안천구", admin: "악부동", legal: "초음동" },
+            { gu: "안천구", admin: "악부동", legal: "타천동" }, { gu: "안천구", admin: "악부동", legal: "팔망성동" },
+            { gu: "안천구", admin: "안천1동", legal: "안천동" }, { gu: "안천구", admin: "안천2동", legal: "안천동" },
+            { gu: "안천구", admin: "안천3동", legal: "안천동" }, { gu: "안천구", admin: "안천4동", legal: "안천동" },
+            { gu: "안천구", admin: "안천5동", legal: "안천동" }, { gu: "안천구", admin: "안천6동", legal: "안천동" },
+            { gu: "안천구", admin: "안천7동", legal: "안천동" }, { gu: "안천구", admin: "이십기동", legal: "리의동" },
+            { gu: "안천구", admin: "이십기동", legal: "심회동" }, { gu: "안천구", admin: "이십기동", legal: "이십기동" },
+            { gu: "안천구", admin: "이십기동", legal: "추자동" }, { gu: "안천구", admin: "이자1동", legal: "신동" },
+            { gu: "안천구", admin: "이자1동", legal: "이자동" }, { gu: "안천구", admin: "이자2동", legal: "이자동" },
+            { gu: "안천구", admin: "이자3동", legal: "이자동" }, { gu: "안천구", admin: "이자3동", legal: "탄자동" },
+            { gu: "안천구", admin: "이자4동", legal: "이자동" }, { gu: "안천구", admin: "창건동", legal: "창건동" },
+            { gu: "안천구", admin: "칠채동", legal: "남동" }, { gu: "안천구", admin: "칠채동", legal: "능릉동" },
+            { gu: "안천구", admin: "칠채동", legal: "서수동" }, { gu: "안천구", admin: "칠채동", legal: "영색무동" },
+            { gu: "안천구", admin: "칠채동", legal: "월삼동" }, { gu: "안천구", admin: "칠채동", legal: "융문동" },
+            { gu: "안천구", admin: "칠채동", legal: "정치동" }, { gu: "안천구", admin: "칠채동", legal: "칠채동" },
+            { gu: "중구", admin: "고도동", legal: "고도동" }, { gu: "중구", admin: "고도동", legal: "서남동" },
+            { gu: "중구", admin: "고도동", legal: "시남동" }, { gu: "중구", admin: "고도동", legal: "시북동" },
+            { gu: "중구", admin: "고도동", legal: "십덕동" }, { gu: "중구", admin: "고도동", legal: "우이동" },
+            { gu: "중구", admin: "궁영동", legal: "궁정동" }, { gu: "중구", admin: "궁영동", legal: "도람동" },
+            { gu: "중구", admin: "궁영동", legal: "만실동" }, { gu: "중구", admin: "궁영동", legal: "영동1가" },
+            { gu: "중구", admin: "궁영동", legal: "영동2가" }, { gu: "중구", admin: "내조1동", legal: "내조동" },
+            { gu: "중구", admin: "내조2동", legal: "내조동" }, { gu: "중구", admin: "내항동", legal: "내항동" },
+            { gu: "중구", admin: "내항동", legal: "명일동" }, { gu: "중구", admin: "신덕동", legal: "신덕동" },
+            { gu: "중구", admin: "약맥동", legal: "목동" }, { gu: "중구", admin: "약맥동", legal: "삼각동" },
+            { gu: "중구", admin: "약맥동", legal: "약맥동" }, { gu: "중구", admin: "약맥동", legal: "오주동" },
+            { gu: "중구", admin: "약맥동", legal: "일향동" }, { gu: "중구", admin: "유내동", legal: "경동" },
+            { gu: "중구", admin: "유내동", legal: "리사동" }, { gu: "중구", admin: "유내동", legal: "유내동" },
+            { gu: "중구", admin: "유내동", legal: "정동" }, { gu: "중구", admin: "조유동", legal: "조유동1가" },
+            { gu: "중구", admin: "조유동", legal: "조유동2가" }, { gu: "중구", admin: "조유동", legal: "조유동3가" },
+            { gu: "중구", admin: "조유동", legal: "조유동4가" }, { gu: "중구", admin: "조유동", legal: "조유동5가" },
+            { gu: "중구", admin: "조유동", legal: "천석동1가" }, { gu: "중구", admin: "조유동", legal: "천석동2가" },
+            { gu: "중구", admin: "조유동", legal: "천석동3가" }, { gu: "중구", admin: "중앙동", legal: "소장동1가" },
+            { gu: "중구", admin: "중앙동", legal: "소장동2가" }, { gu: "중구", admin: "중앙동", legal: "심동1가" },
+            { gu: "중구", admin: "중앙동", legal: "심동2가" }, { gu: "중구", admin: "중앙동", legal: "원동1가" },
+            { gu: "중구", admin: "중앙동", legal: "원동2가" }, { gu: "중구", admin: "중앙동", legal: "원동3가" },
+            { gu: "중구", admin: "중앙동", legal: "원동4가" }, { gu: "중구", admin: "중앙동", legal: "중앙로1가" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로2가" }, { gu: "중구", admin: "중앙동", legal: "중앙로3가" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로4가" }, { gu: "중구", admin: "중앙동", legal: "중앙로5가" },
+            { gu: "중구", admin: "중앙동", legal: "중앙로6가" }, { gu: "중구", admin: "중앙동", legal: "지유동1가" },
+            { gu: "중구", admin: "중앙동", legal: "지유동2가" }, { gu: "중구", admin: "중앙동", legal: "창선동1가" },
+            { gu: "중구", admin: "중앙동", legal: "창선동2가" }, { gu: "중구", admin: "중앙동", legal: "창선동3가" },
+            { gu: "중구", admin: "중앙동", legal: "훈동" }, { gu: "중구", admin: "중정동", legal: "오석동" },
+            { gu: "중구", admin: "중정동", legal: "완동1가" }, { gu: "중구", admin: "중정동", legal: "완동2가" },
+            { gu: "중구", admin: "중정동", legal: "완동3가" }, { gu: "중구", admin: "중정동", legal: "중동1가" },
+            { gu: "중구", admin: "중정동", legal: "중동2가" }, { gu: "중구", admin: "중정동", legal: "중동3가" },
+            { gu: "중구", admin: "중정동", legal: "중보로" }, { gu: "창전구", admin: "광정동", legal: "광정동" },
+            { gu: "창전구", admin: "광정동", legal: "마시동" }, { gu: "창전구", admin: "광정동", legal: "보통동" },
+            { gu: "창전구", admin: "광정동", legal: "생덕동" }, { gu: "창전구", admin: "동곡동", legal: "동곡동" },
+            { gu: "창전구", admin: "동곡동", legal: "투자동" }, { gu: "창전구", admin: "쌍엽1동", legal: "쌍엽동" },
+            { gu: "창전구", admin: "쌍엽2동", legal: "쌍엽동" }, { gu: "창전구", admin: "유류동", legal: "유류동" },
+            { gu: "창전구", admin: "진백동", legal: "시로동" }, { gu: "창전구", admin: "진백동", legal: "진백동" },
+            { gu: "창전구", admin: "창전1동", legal: "창전동" }, { gu: "창전구", admin: "창전2동", legal: "창전동" },
+            { gu: "창전구", admin: "창전3동", legal: "창전동" }, { gu: "창전구", admin: "창전4동", legal: "창전동" },
+            { gu: "창전구", admin: "창전5동", legal: "창전동" }, { gu: "창전구", admin: "칠심1동", legal: "칠심동" },
+            { gu: "창전구", admin: "칠심2동", legal: "칠심동" }, { gu: "창전구", admin: "칠심3동", legal: "칠심동" },
+            { gu: "창전구", admin: "팔조동", legal: "팔조동" }, { gu: "청엽구", admin: "동리동", legal: "동리동" },
+            { gu: "청엽구", admin: "등동", legal: "등동" }, { gu: "청엽구", admin: "마잡1동", legal: "마잡동" },
+            { gu: "청엽구", admin: "마잡1동", legal: "서증동" }, { gu: "청엽구", admin: "마잡1동", legal: "헌이송동" },
+            { gu: "청엽구", admin: "마잡2동", legal: "마잡동" }, { gu: "청엽구", admin: "비마리동", legal: "비마동" },
+            { gu: "청엽구", admin: "비마리동", legal: "사노동" }, { gu: "청엽구", admin: "우전1동", legal: "우전동" },
+            { gu: "청엽구", admin: "우전2동", legal: "우전동" }, { gu: "청엽구", admin: "우전3동", legal: "우전동" },
+            { gu: "청엽구", admin: "우택동", legal: "우택동" }, { gu: "청엽구", admin: "입빈동", legal: "입동1가" },
+            { gu: "청엽구", admin: "입빈동", legal: "입동2가" }, { gu: "청엽구", admin: "입빈동", legal: "입동3가" },
+            { gu: "청엽구", admin: "입빈동", legal: "효빈동1가" }, { gu: "청엽구", admin: "입빈동", legal: "효빈동2가" },
+            { gu: "청엽구", admin: "청엽1동", legal: "청엽동" }, { gu: "청엽구", admin: "청엽2동", legal: "청엽동" },
+            { gu: "청엽구", admin: "청엽3동", legal: "청엽동" }, { gu: "청엽구", admin: "청엽4동", legal: "청엽동" },
+            { gu: "청엽구", admin: "청엽5동", legal: "청엽동" }, { gu: "청엽구", admin: "청엽6동", legal: "청엽동" },
+            { gu: "탄성군", admin: "고해읍", legal: "고해리" }, { gu: "탄성군", admin: "고해읍", legal: "율일리" },
+            { gu: "탄성군", admin: "고해읍", legal: "은진원리" }, { gu: "탄성군", admin: "고해읍", legal: "이식리" },
+            { gu: "탄성군", admin: "고해읍", legal: "이와리" }, { gu: "탄성군", admin: "고해읍", legal: "장심리" },
+            { gu: "탄성군", admin: "고해읍", legal: "전추리" }, { gu: "탄성군", admin: "고해읍", legal: "정명리" },
+            { gu: "탄성군", admin: "고해읍", legal: "천가리" }, { gu: "탄성군", admin: "도변읍", legal: "계층리" },
+            { gu: "탄성군", admin: "도변읍", legal: "도변리" }, { gu: "탄성군", admin: "도변읍", legal: "요우리" },
+            { gu: "탄성군", admin: "도변읍", legal: "잠재리" }, { gu: "탄성군", admin: "도변읍", legal: "조일리" },
+            { gu: "탄성군", admin: "도변읍", legal: "표명리" }, { gu: "탄성군", admin: "도변읍(앵내출장소)", legal: "앵내리" },
+            { gu: "탄성군", admin: "도향면", legal: "미로리" }, { gu: "탄성군", admin: "도향면", legal: "반주리" },
+            { gu: "탄성군", admin: "도향면", legal: "벽천리" }, { gu: "탄성군", admin: "도향면", legal: "분음리" },
+            { gu: "탄성군", admin: "도향면", legal: "시초리" }, { gu: "탄성군", admin: "도향면", legal: "영왕리" },
+            { gu: "탄성군", admin: "도향면", legal: "일일리" }, { gu: "탄성군", admin: "도향면", legal: "일하리" },
+            { gu: "탄성군", admin: "도향면", legal: "초반리" }, { gu: "탄성군", admin: "도향면", legal: "춘일경리" },
+            { gu: "탄성군", admin: "도향면", legal: "하공리" }, { gu: "탄성군", admin: "서목읍", legal: "록구리" },
+            { gu: "탄성군", admin: "서목읍", legal: "마희리" }, { gu: "탄성군", admin: "서목읍", legal: "서목리" },
+            { gu: "탄성군", admin: "서목읍", legal: "소춘리" }, { gu: "탄성군", admin: "서목읍", legal: "승남리" },
+            { gu: "탄성군", admin: "서목읍", legal: "음일리" }, { gu: "탄성군", admin: "서목읍", legal: "일회리" },
+            { gu: "탄성군", admin: "서목읍", legal: "입리" }, { gu: "탄성군", admin: "서목읍", legal: "잠금리" },
+            { gu: "탄성군", admin: "서목읍", legal: "조산리" }, { gu: "탄성군", admin: "서목읍", legal: "파래리" },
+            { gu: "탄성군", admin: "소원면", legal: "라면리" }, { gu: "탄성군", admin: "소원면", legal: "부우리" },
+            { gu: "탄성군", admin: "소원면", legal: "소원리" }, { gu: "탄성군", admin: "소원면", legal: "윤부리" },
+            { gu: "탄성군", admin: "야진읍", legal: "미우리" }, { gu: "탄성군", admin: "야진읍", legal: "신리" },
+            { gu: "탄성군", admin: "야진읍", legal: "아득리" }, { gu: "탄성군", admin: "야진읍", legal: "야진리" },
+            { gu: "탄성군", admin: "야진읍", legal: "원심리" }, { gu: "탄성군", admin: "정근면", legal: "구생리" },
+            { gu: "탄성군", admin: "정근면", legal: "사촌리" }, { gu: "탄성군", admin: "정근면", legal: "안경리" },
+            { gu: "탄성군", admin: "정근면", legal: "익목리" }, { gu: "탄성군", admin: "정근면", legal: "처구리" },
+            { gu: "탄성군", admin: "정근면", legal: "촌주리" }, { gu: "탄성군", admin: "정근면", legal: "층부리" },
+            { gu: "탄성군", admin: "정근면", legal: "회층리" }, { gu: "탄성군", admin: "탄성읍", legal: "고무리" },
+            { gu: "탄성군", admin: "탄성읍", legal: "공리" }, { gu: "탄성군", admin: "탄성읍", legal: "명무리" },
+            { gu: "탄성군", admin: "탄성읍", legal: "무성리" }, { gu: "탄성군", admin: "탄성읍", legal: "미성리" },
+            { gu: "탄성군", admin: "탄성읍", legal: "성규리" }, { gu: "탄성군", admin: "탄성읍", legal: "탄성리" },
+            { gu: "탄성군", admin: "흑택면", legal: "루비리" }, { gu: "탄성군", admin: "흑택면", legal: "명현리" },
+            { gu: "탄성군", admin: "흑택면", legal: "보습리" }, { gu: "탄성군", admin: "흑택면", legal: "은염리" },
+            { gu: "탄성군", admin: "흑택면", legal: "흑택리" }
+        ];
+
+        // 특수 채용 정보 리스트 (요청사항 반영) - 이 부분은 고정
+        const specialList = [
+            { company: "맥도날드 (당선점)", title: "[박효빈 시장 알바하던 곳] 크루 모집 (주말/평일)", gu: "서구", admin: "당선1동", legal: "당선동", address: "효빈광역시 서구 당선로 123 (당선동)", badge: "bg-mc" },
+            { company: "맥도날드 (고송점)", title: "오프닝/마감 크루 모집", gu: "북구", admin: "고송1동", legal: "고송동", address: "효빈광역시 북구 고송로 45 (고송동)", badge: "bg-mc" },
+            { company: "맥도날드 (중수점)", title: "라이더 모집 (건당 지급)", gu: "북구", admin: "중수2동", legal: "중수동", address: "효빈광역시 북구 중수로 88 (중수동)", badge: "bg-mc" },
+            { company: "스타벅스 (효빈역점)", title: "바리스타 공채 (신입/경력)", gu: "동구", admin: "사가당1동", legal: "사가당동", address: "효빈광역시 동구 효빈역길 1 (사가당동, 효빈역 1층)", badge: "bg-sb" },
+            { company: "스타벅스 (시외터미널점)", title: "오픈 매니저 모집", gu: "북구", admin: "천왕사동", legal: "해서동", address: "효빈광역시 북구 해서동 322-2 (시외버스터미널 내)", badge: "bg-sb" }, 
+            { company: "롯데리아 (효빈점)", title: "파트타이머 모집", gu: "중구", admin: "성내1동", legal: "동성로1가", address: "효빈광역시 중구 중앙대로 300", badge: "bg-lt" },
+            { company: "롯데리아 (서목점)", title: "주방/카운터 아르바이트", gu: "탄성군", admin: "서목읍", legal: "서목리", address: "효빈광역시 탄성군 서목읍 서목중앙로 12", badge: "bg-lt" },
+            { company: "버거킹 (오내점)", title: "매니저 모집", gu: "북구", admin: "오내1동", legal: "오내동", address: "효빈광역시 북구 오내로 23", badge: "bg-bk" },
+            { company: "버거킹 (효빈동신도시점)", title: "신규오픈 크루 모집", gu: "청엽구", admin: "입빈동", legal: "효빈동2가", address: "효빈광역시 청엽구 효빈로 99 (효빈동2가)", badge: "bg-bk" },
+            { company: "KFC (고송점)", title: "저녁 파트타임 구함", gu: "북구", admin: "고송2동", legal: "고송동", address: "효빈광역시 북구 고송로 101", badge: "bg-kfc" },
+            { company: "KFC (중수점)", title: "주말 알바 모집", gu: "북구", admin: "중수1동", legal: "중수동", address: "효빈광역시 북구 대학로 45 (중수동)", badge: "bg-kfc" },
+            { company: "KFC (평당점)", title: "평일 런치타임 근무자", gu: "남구", admin: "평당1동", legal: "평당동", address: "효빈광역시 남구 평당로 12", badge: "bg-kfc" },
+            { company: "애니메이트 (효빈역점)", title: "매장관리 및 굿즈 판매 (덕후 환영)", gu: "동구", admin: "사가당1동", legal: "사가당동", address: "효빈광역시 동구 효빈역사 내 2층", badge: "bg-ani" },
+            { company: "애니플러스샵", title: "카페 및 스토어 관리", gu: "북구", admin: "고송3동", legal: "고송동", address: "효빈광역시 북구 고송로 15", badge: "bg-ani" },
+            { company: "메가박스 (도람점)", title: "미소지기/크루 채용", gu: "중구", admin: "궁영동", legal: "도람동", address: "효빈광역시 중구 도람길 77 메가박스 건물" },
+            { company: "홈플러스 (고송점)", title: "캐셔 및 진열 사원", gu: "북구", admin: "고송5동", legal: "고송동", address: "효빈광역시 북구 고송대로 200", badge: "bg-hp" },
+            { company: "홈플러스 (탄성점)", title: "보안/주차요원 모집", gu: "탄성군", admin: "탄성읍", legal: "탄성리", address: "효빈광역시 탄성군 탄성읍 탄성로 50", badge: "bg-hp" },
+            { company: "이마트 (중수점)", title: "물류 및 배송기사", gu: "북구", admin: "중수3동", legal: "중수동", address: "효빈광역시 북구 중수로 120", badge: "bg-em" },
+            { company: "이마트 (효빈점)", title: "계산원 모집 (주부사원 환영)", gu: "중구", admin: "중앙동", legal: "원동1가", address: "효빈광역시 중구 중앙대로 100", badge: "bg-em" }, 
+            { company: "이마트 (사복점)", title: "농산코너 담당자", gu: "서구", admin: "사복1동", legal: "사복동", address: "효빈광역시 서구 사복로 88", badge: "bg-em" },
+            { company: "롯데시네마", title: "드리미 모집 (롯데백화점 진희점)", gu: "북구", admin: "진희동", legal: "진희동", address: "효빈광역시 북구 진희로 30 롯데백화점 8층", badge: "bg-lt" },
+            { company: "롯데백화점 (창선점)", title: "시설관리/보안 채용", gu: "중구", admin: "중앙동", legal: "창선동1가", address: "효빈광역시 중구 창선로 5", badge: "bg-lt" },
+            { company: "현대백화점 (효빈본점)", title: "식품관 판매사원 (단기/장기)", gu: "북구", admin: "고송1동", legal: "고송동", address: "효빈광역시 북구 달구벌대로 200 (고송교차로역 3번출구)" },
+            { company: "효빈교통공사 (효빈역)", title: "역무원 및 환경미화", gu: "동구", admin: "사가당2동", legal: "사가당동", address: "효빈광역시 동구 효빈역길 1" },
+            { company: "효빈교통공사 (청엽역)", title: "시설관리원 모집", gu: "청엽구", admin: "청엽1동", legal: "청엽동", address: "효빈광역시 청엽구 청엽로 55" },
+            { company: "효빈교통공사 (과진역)", title: "안전관리원 채용", gu: "서구", admin: "과진1동", legal: "과진동", address: "효빈광역시 서구 과진로 33" }
+        ];
+
+        // [NEW] 카테고리별 회사 및 직무 매칭 데이터
+        // 무작위 조합이 아닌, 업종에 맞는 직무만 생성되도록 구조화함
+        const categoryData = {
+            medical: {
+                companies: ["굿모닝병원", "제일요양병원", "튼튼정형외과", "효빈복지관", "사랑요양원"],
+                jobs: ["간호조무사 및 원무과 직원 채용", "물리치료사 모십니다", "요양보호사 구인 (가족같은 분위기)", "병원 조리사 및 영양사", "야간 당직 의료진 모집"]
+            },
+            food: {
+                companies: ["스타커피 효빈점", "맛있는식당", "행복한빵집", "청년다방 효빈점", "아침도시락"],
+                jobs: ["바리스타 매니저급 구함", "주방보조 및 설거지 (오전)", "제과제빵사 채용 (경력자 우대)", "홀서빙 아르바이트 (주말)", "조리 보조원 모집"]
+            },
+            office: {
+                companies: ["나이스세무법인", "효빈회계법인", "법무법인 정의", "효빈건축사사무소"],
+                jobs: ["경리 및 회계사무원 모집", "총무팀 신입/경력 채용", "법률사무 보조원 구함", "CAD 설계직 모집", "일반사무 및 문서작성 아르바이트"]
+            },
+            it: {
+                companies: ["드림IT솔루션", "(주)효빈테크", "(주)신화엔지니어링"],
+                jobs: ["웹개발자 (SI/SM) 신입/경력", "앱 디자이너 채용", "서버 관리자 모집", "전산 유지보수 담당자", "QA 및 테스터 구인"]
+            },
+            construction: {
+                companies: ["(주)대박건설", "푸른조경", "(주)효빈정밀", "미래건축"],
+                jobs: ["현장 안전관리자 및 보조", "건설 현장직 모집 (초보 가능)", "조경 관리사 구함", "용접 및 제관사 채용", "현장 소장 경력직 모집"]
+            },
+            logistics: {
+                companies: ["성실운수", "스피드물류", "효빈여객", "싱싱마트", "드림마트"],
+                jobs: ["1톤 납품기사 모집", "물류센터 단순 포장", "마트 배송기사 구함", "매장 관리 및 캐셔", "버스 승무사원 모집"]
+            },
+            education: {
+                companies: ["미래에듀학원", "효빈영수학원", "튼튼체육관", "예술피아노"],
+                jobs: ["초중고 수학 강사 모십니다", "영어 강사 채용 (전임)", "태권도 사범님 구합니다", "학원 차량 기사 모집", "피아노 강사 (오후 파트)"]
+            },
+            service: {
+                companies: ["효빈호텔", "클린환경", "효빈주유소"],
+                jobs: ["프론트 데스크 및 식음료부", "건물 미화원 모집", "주유원 및 세차원 구함", "시설관리 기사님 (전기/소방)", "호텔 객실 정비원"]
+            }
+        };
+
+        const payTypes = ["연봉", "월급", "시급"];
+
+        // 랜덤 유틸리티
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generatePhone() {
+            return `0507-${getRandomInt(1000, 9999)}-${getRandomInt(1000, 9999)}`;
+        }
+
+        // 일자리 데이터 생성 (로직 개선됨)
+        function generateJobs(randomCount) {
+            const jobs = [];
+            
+            // 1. 특수 채용 정보 추가
+            specialList.forEach((item, index) => {
+                const today = new Date();
+                const deadline = new Date(today);
+                deadline.setDate(today.getDate() + getRandomInt(0, 30));
+                const dateStr = deadline.toISOString().split('T')[0];
+                const isUrgent = getRandomInt(0, 4) === 0;
+
+                const pType = payTypes[getRandomInt(0, 2)];
+                let payVal = "";
+                if(pType === "연봉") payVal = `${getRandomInt(2800, 4500)}만원`;
+                else if(pType === "월급") payVal = `${getRandomInt(230, 320)}만원`;
+                else payVal = `${getRandomInt(10030, 11500)}원`;
+
+                jobs.push({
+                    id: `s-${index}`,
+                    company: item.company,
+                    title: item.title,
+                    gu: item.gu,
+                    admin: item.admin,
+                    legal: item.legal,
+                    address: item.address,
+                    phone: generatePhone(),
+                    pay: `${pType} ${payVal}`,
+                    deadline: isUrgent ? "채용시" : dateStr,
+                    isUrgent: isUrgent,
+                    badge: item.badge || null,
+                    desc: "본사 직영점 채용 공고입니다."
+                });
+            });
+
+            // 2. 랜덤 채용 정보 추가 (카테고리 기반 생성)
+            const categories = Object.keys(categoryData);
+            
+            for (let i = 0; i < randomCount; i++) {
+                // 랜덤 카테고리 선택 (예: medical)
+                const catKey = categories[getRandomInt(0, categories.length - 1)];
+                const catObj = categoryData[catKey];
+
+                // 해당 카테고리 내에서 회사와 직무 선택 (이제 논리적으로 맞음)
+                const company = catObj.companies[getRandomInt(0, catObj.companies.length - 1)];
+                const title = catObj.jobs[getRandomInt(0, catObj.jobs.length - 1)];
+                
+                // 지역은 랜덤 배정
+                const region = districtData[getRandomInt(0, districtData.length - 1)];
+                const detailAddress = `효빈광역시 ${region.gu} ${region.admin} ${getRandomInt(1, 500)}번지`;
+                
+                const today = new Date();
+                const deadline = new Date(today);
+                deadline.setDate(today.getDate() + getRandomInt(0, 30));
+                const dateStr = deadline.toISOString().split('T')[0];
+                const isUrgent = getRandomInt(0, 4) === 0;
+
+                const pType = payTypes[getRandomInt(0, 2)];
+                let payVal = "";
+                if(pType === "연봉") payVal = `${getRandomInt(3000, 5000)}만원`;
+                else if(pType === "월급") payVal = `${getRandomInt(250, 350)}만원`;
+                else payVal = `${getRandomInt(10030, 12000)}원`;
+
+                jobs.push({
+                    id: `r-${i}`,
+                    company: company,
+                    title: title,
+                    gu: region.gu,
+                    admin: region.admin,
+                    legal: region.legal,
+                    address: detailAddress,
+                    phone: generatePhone(),
+                    pay: `${pType} ${payVal}`,
+                    deadline: isUrgent ? "채용시" : dateStr,
+                    isUrgent: isUrgent,
+                    badge: null,
+                    desc: `${company}에서 역량있는 인재를 모집합니다. (분야: ${catKey})`
+                });
+            }
+            return jobs.sort(() => Math.random() - 0.5);
+        }
+
+        let currentJobs = [];
+        let selectedJob = null; // 현재 보고 있는 공고
+
+        // 테이블 렌더링
+        function renderTable(data) {
+            const tbody = document.getElementById('jobListBody');
+            const noResult = document.getElementById('noResult');
+            const totalCount = document.getElementById('totalCount');
+            
+            tbody.innerHTML = '';
+            totalCount.textContent = data.length;
+
+            if (data.length === 0) {
+                noResult.classList.remove('hidden');
+                return;
+            } else {
+                noResult.classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row border-b hover:bg-blue-50 transition group';
+                tr.onclick = () => openJobDetail(item.id);
+                
+                const deadlineClass = item.deadline === "채용시" ? "text-red-500 font-extrabold" : "text-slate-600";
+                
+                // 뱃지 표시 로직
+                let companyDisplay = item.company;
+                if(item.badge) {
+                    let badgeText = "BRAND";
+                    if(item.badge.includes('mc')) badgeText = "McD";
+                    else if(item.badge.includes('sb')) badgeText = "STARBUCKS";
+                    else if(item.badge.includes('lt')) badgeText = "LOTTE";
+                    else if(item.badge.includes('bk')) badgeText = "BURGERKING";
+                    else if(item.badge.includes('kfc')) badgeText = "KFC";
+                    else if(item.badge.includes('em')) badgeText = "EMART";
+                    else if(item.badge.includes('hp')) badgeText = "Homeplus";
+                    else if(item.badge.includes('ani')) badgeText = "Ani";
+                    companyDisplay = `<span class="brand-badge ${item.badge}">${badgeText}</span> ${item.company}`;
+                }
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-slate-700 text-sm">${item.gu}</div>
+                        <div class="text-xs text-slate-500 mt-1">${item.admin}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-slate-800 text-base flex items-center">${companyDisplay}</div>
+                        ${item.isUrgent ? '<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 mt-1">긴급채용</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-slate-800 font-medium text-base mb-1 group-hover:text-blue-600 transition">${item.title}</div>
+                        <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2">
+                            <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> ${item.address}</span>
+                            <span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[11px]">법정동: ${item.legal}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm font-medium text-slate-600">
+                        ${item.pay}
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm ${deadlineClass}">
+                        ${item.deadline}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <button class="bg-white border border-slate-300 text-slate-600 px-3 py-1 rounded text-xs font-bold hover:bg-slate-100 transition whitespace-nowrap">
+                            상세보기
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // 필터링
+        function filterJobs() {
+            const districtVal = document.getElementById('districtSelect').value;
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().replace(/\s/g, '');
+
+            const filtered = currentJobs.filter(job => {
+                const matchDistrict = districtVal === "" || job.gu === districtVal;
+                const targetString = `${job.company}${job.title}${job.address}${job.admin}${job.legal}`.toLowerCase().replace(/\s/g, '');
+                const matchSearch = targetString.includes(searchVal);
+                return matchDistrict && matchSearch;
+            });
+            renderTable(filtered);
+        }
+
+        function initJobs() {
+            currentJobs = generateJobs(40);
+            document.getElementById('districtSelect').value = '';
+            document.getElementById('searchInput').value = '';
+            renderTable(currentJobs);
+        }
+
+        function scrollToJobs() {
+            document.getElementById('jobSection').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => document.getElementById('searchInput').focus(), 500);
+        }
+
+        // --- 모달 기능 ---
+        
+        // 기업회원 로그인 모달
+        function openCompanyModal() {
+            const modal = document.getElementById('companyModal');
+            modal.classList.remove('modal-hidden');
+            modal.classList.add('modal-visible');
+        }
+
+        function closeCompanyModal() {
+            const modal = document.getElementById('companyModal');
+            modal.classList.remove('modal-visible');
+            modal.classList.add('modal-hidden');
+        }
+
+        // 채용 상세정보 모달
+        function openJobDetail(id) {
+            // ID로 해당 job 찾기
+            selectedJob = currentJobs.find(job => job.id === id);
+            if(!selectedJob) return;
+
+            // 데이터 바인딩
+            document.getElementById('modalCompany').textContent = selectedJob.company;
+            document.getElementById('modalTitle').textContent = selectedJob.title;
+            document.getElementById('modalPay').textContent = selectedJob.pay;
+            document.getElementById('modalDeadline').textContent = selectedJob.deadline;
+            document.getElementById('modalAddress').innerHTML = `<i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> ${selectedJob.address}`;
+            document.getElementById('modalPhone').textContent = selectedJob.phone;
+            
+            // 상세 설명 업데이트 (desc가 있으면 그것을, 없으면 기본 텍스트)
+            const descEl = document.getElementById('modalDesc');
+            if(selectedJob.desc) {
+                descEl.textContent = selectedJob.desc;
+            } else {
+                descEl.textContent = "효빈광역시의 우수 기업에서 열정적인 인재를 모집합니다.";
+            }
+
+            // 모달 표시
+            const modal = document.getElementById('jobDetailModal');
+            modal.classList.remove('modal-hidden');
+            modal.classList.add('modal-visible');
+            
+            // 아이콘 리로드 (모달 내부)
+            lucide.createIcons();
+        }
+
+        function closeJobDetail() {
+            const modal = document.getElementById('jobDetailModal');
+            modal.classList.remove('modal-visible');
+            modal.classList.add('modal-hidden');
+            selectedJob = null;
+        }
+
+        function applyJob() {
+            if(!selectedJob) return;
+            // 실제 백엔드가 없으므로 알림으로 대체
+            alert(`[${selectedJob.company}]에 성공적으로 지원했습니다!\n\n담당자가 확인 후 ${selectedJob.phone} 번호로 연락드릴 예정입니다.`);
+            closeJobDetail();
+        }
+
+        window.onload = function() {
+            initJobs();
+            lucide.createIcons();
+        };
+
+    </script>
+</body>
+</html>

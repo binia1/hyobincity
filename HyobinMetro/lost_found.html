@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유실물 센터 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .hb-logo { font-family: sans-serif; font-weight: 900; letter-spacing: -2px; }
+        
+        /* 테이블 반응형 스타일 */
+        @media (max-width: 768px) {
+            .mobile-hide { display: none; }
+            .mobile-col-stack { display: flex; flex-direction: column; }
+        }
+        
+        /* 페이지네이션 버튼 스타일 */
+        .page-btn.active {
+            background-color: #0284c7; /* sky-600 */
+            color: white;
+            font-weight: bold;
+            border-color: #0284c7;
+        }
+
+        /* 유실물 센터 노선 뱃지 색상 */
+        .badge-1 { background-color: #0077DD; }
+        .badge-2 { background-color: #00CCAA; }
+        .badge-3 { background-color: #FFCC11; color: black; }
+        .badge-4 { background-color: #FF5522; }
+        .badge-5 { background-color: #EE0022; }
+        .badge-6 { background-color: #881188; }
+        .badge-7 { background-color: #FF8899; }
+        .badge-8 { background-color: #9856FF; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- 헤더 -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <img src="images/logo.png" onerror="this.style.display='none'" class="h-8 w-auto">
+                <div class="text-3xl font-black text-sky-600 hb-logo">HB</div>
+                <span class="text-lg font-bold text-gray-800">유실물 센터</span>
+            </a>
+            <a href="index.html" class="text-gray-500 hover:text-black"><i class="fa-solid fa-xmark text-2xl"></i></a>
+        </div>
+    </header>
+
+    <!-- 검색 섹션 -->
+    <section class="bg-slate-800 text-white py-12 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-6">잃어버린 물건을 찾아가세요</h1>
+            <div class="bg-white p-4 rounded-xl flex flex-col md:flex-row gap-2 shadow-lg">
+                <select id="searchCategory" class="text-slate-700 p-3 rounded-lg border border-slate-300 focus:outline-none focus:border-sky-500 md:w-40" onchange="filterItems()">
+                    <option value="all">전체 분류</option>
+                    <option value="electronic">전자기기</option>
+                    <option value="wallet">지갑/카드</option>
+                    <option value="bag">가방/쇼핑백</option>
+                    <option value="clothing">의류/잡화</option>
+                    <option value="etc">기타</option>
+                </select>
+                <div class="flex-grow relative">
+                    <input type="text" id="keyword" placeholder="물품명 또는 습득 장소 검색 (예: 아이폰, 고송역)" class="w-full text-slate-700 p-3 rounded-lg border border-slate-300 focus:outline-none focus:border-sky-500" onkeyup="filterItems()">
+                </div>
+                <button onclick="filterItems()" class="bg-sky-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-700 transition">
+                    <i class="fa-solid fa-magnifying-glass mr-2"></i>검색
+                </button>
+            </div>
+            <p class="text-slate-400 text-sm mt-4 text-left md:text-center px-2">
+                <i class="fa-solid fa-circle-info mr-1"></i> 습득일로부터 7일간 보관하며, 이후에는 관할 경찰서로 이관됩니다.
+            </p>
+        </div>
+    </section>
+
+    <!-- 유실물 리스트 -->
+    <main class="max-w-7xl mx-auto px-4 py-12 flex-grow w-full">
+        
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-slate-800">최근 습득물 현황</h2>
+            <span class="text-sm text-slate-500" id="currentDate"></span>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[600px]">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-100 text-slate-600 text-sm uppercase">
+                    <tr>
+                        <th class="p-4 border-b border-slate-200 w-24 mobile-hide">관리번호</th>
+                        <th class="p-4 border-b border-slate-200 w-32 mobile-hide">분류</th>
+                        <th class="p-4 border-b border-slate-200">습득물명 / 특징</th>
+                        <th class="p-4 border-b border-slate-200 w-40">습득장소</th>
+                        <th class="p-4 border-b border-slate-200 w-32 mobile-hide">습득일</th>
+                        <th class="p-4 border-b border-slate-200 w-24 text-center">상태</th>
+                    </tr>
+                </thead>
+                <tbody id="lostList" class="text-slate-700 text-sm">
+                    <!-- 자바스크립트로 데이터가 생성됩니다 -->
+                </tbody>
+            </table>
+            
+            <!-- 검색 결과 없음 메시지 -->
+            <div id="noResult" class="hidden py-20 text-center text-slate-400">
+                <i class="fa-solid fa-box-open text-4xl mb-4"></i>
+                <p>검색된 유실물이 없습니다.</p>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="flex justify-center mt-8 gap-2" id="pagination">
+            <button onclick="changePage('prev')" class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-chevron-left"></i></button>
+            
+            <button onclick="changePage(1)" class="page-btn active w-8 h-8 flex items-center justify-center rounded border border-slate-300 transition">1</button>
+            <button onclick="changePage(2)" class="page-btn w-8 h-8 flex items-center justify-center rounded border border-slate-300 hover:bg-slate-50 transition text-slate-500">2</button>
+            <button onclick="changePage(3)" class="page-btn w-8 h-8 flex items-center justify-center rounded border border-slate-300 hover:bg-slate-50 transition text-slate-500">3</button>
+            
+            <button onclick="changePage('next')" class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-500 hover:bg-slate-50 transition"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+    </main>
+
+    <!-- ★ 유실물 센터 안내 (5개 센터 정보 추가됨) ★ -->
+    <section class="bg-amber-50 py-12 border-t border-amber-100">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-2xl font-bold text-amber-900 mb-6 text-center"><i class="fa-solid fa-phone-volume mr-2"></i>유실물 센터 연락처 안내</h2>
+            <p class="text-amber-800 text-sm text-center mb-8">분실한 위치(노선)를 확인하신 후 해당 센터로 문의해 주시기 바랍니다.<br>운영시간: 09:00 ~ 18:00 (평일)</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- 1. 중앙로역 센터 -->
+                <div class="bg-white p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md transition">
+                    <div class="flex gap-1 mb-3">
+                        <span class="badge-1 text-white text-[10px] px-2 py-0.5 rounded font-bold">1호선</span>
+                        <span class="badge-2 text-white text-[10px] px-2 py-0.5 rounded font-bold">2호선</span>
+                        <span class="badge-7 text-white text-[10px] px-2 py-0.5 rounded font-bold">7호선</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">중앙로역 유실물센터</h3>
+                    <p class="text-slate-500 text-sm mb-3">위치: 1, 2, 7호선 중앙로역 구내</p>
+                    <a href="tel:079-604-8554" class="block w-full bg-amber-100 text-amber-800 text-center py-2 rounded-lg font-bold hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-phone mr-2"></i>079-604-8554
+                    </a>
+                </div>
+
+                <!-- 2. 사가당역 센터 -->
+                <div class="bg-white p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md transition">
+                    <div class="flex gap-1 mb-3">
+                        <span class="badge-3 text-black text-[10px] px-2 py-0.5 rounded font-bold">3호선</span>
+                        <span class="badge-4 text-white text-[10px] px-2 py-0.5 rounded font-bold">4호선</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">사가당역 유실물센터</h3>
+                    <p class="text-slate-500 text-sm mb-3">위치: 3, 4호선 사가당역 구내</p>
+                    <a href="tel:079-273-2322" class="block w-full bg-amber-100 text-amber-800 text-center py-2 rounded-lg font-bold hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-phone mr-2"></i>079-273-2322
+                    </a>
+                </div>
+
+                <!-- 3. 곽산역 센터 -->
+                <div class="bg-white p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md transition">
+                    <div class="flex gap-1 mb-3">
+                        <span class="badge-1 text-white text-[10px] px-2 py-0.5 rounded font-bold">1호선</span>
+                        <span class="badge-8 text-white text-[10px] px-2 py-0.5 rounded font-bold">8호선</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">곽산역 유실물센터</h3>
+                    <p class="text-slate-500 text-sm mb-3">위치: 1, 8호선 곽산역 구내</p>
+                    <a href="tel:079-123-3211" class="block w-full bg-amber-100 text-amber-800 text-center py-2 rounded-lg font-bold hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-phone mr-2"></i>079-123-3211
+                    </a>
+                </div>
+
+                <!-- 4. 중수역 센터 -->
+                <div class="bg-white p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md transition">
+                    <div class="flex gap-1 mb-3">
+                        <span class="badge-2 text-white text-[10px] px-2 py-0.5 rounded font-bold">2호선</span>
+                        <span class="badge-6 text-white text-[10px] px-2 py-0.5 rounded font-bold">6호선</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">중수역 유실물센터</h3>
+                    <p class="text-slate-500 text-sm mb-3">위치: 2, 6호선 중수역 구내</p>
+                    <a href="tel:079-431-4722" class="block w-full bg-amber-100 text-amber-800 text-center py-2 rounded-lg font-bold hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-phone mr-2"></i>079-431-4722
+                    </a>
+                </div>
+
+                <!-- 5. 도변역 센터 -->
+                <div class="bg-white p-6 rounded-xl border border-amber-200 shadow-sm hover:shadow-md transition">
+                    <div class="flex gap-1 mb-3">
+                        <span class="badge-4 text-white text-[10px] px-2 py-0.5 rounded font-bold">4호선</span>
+                        <span class="badge-5 text-white text-[10px] px-2 py-0.5 rounded font-bold">5호선</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800">도변역 유실물센터</h3>
+                    <p class="text-slate-500 text-sm mb-3">위치: 4, 5호선 도변역 구내</p>
+                    <a href="tel:079-729-3711" class="block w-full bg-amber-100 text-amber-800 text-center py-2 rounded-lg font-bold hover:bg-amber-200 transition">
+                        <i class="fa-solid fa-phone mr-2"></i>079-729-3711
+                    </a>
+                </div>
+
+            </div>
+            
+            <div class="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800 flex items-start gap-3">
+                <i class="fa-solid fa-circle-info mt-1 text-blue-600"></i>
+                <div>
+                    <strong>수령 시 필요 서류:</strong><br>
+                    - 본인 수령: 신분증<br>
+                    - 대리인 수령: 본인 신분증, 대리인 신분증, 위임장<br>
+                    <span class="text-xs text-blue-600">* 습득일로부터 7일 경과 시 관할 경찰서로 이관됩니다.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-4">
+                <span class="text-2xl font-black text-sky-600 tracking-tighter mr-2">HB</span>
+                <span class="font-bold text-white">효빈교통공사</span>
+            </div>
+            <p>Copyright 2016. 효빈교통공사 All right reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ★ 자바스크립트: 랜덤 데이터 생성 및 페이지네이션 로직 -->
+    <script>
+        // 1. 데이터 소스 (랜덤 생성을 위한 기초 데이터)
+        const itemTypes = [
+            { cat: 'electronic', catName: '전자기기', items: ['갤럭시 버즈2 프로 (화이트)', '에어팟 프로 2세대', '아이폰 15 (블랙)', '갤럭시 S24 울트라', '소니 헤드폰 (블랙)', '아이패드 에어', '닌텐도 스위치', '보조배터리 10000mAh'] },
+            { cat: 'wallet', catName: '지갑/카드', items: ['검정색 가죽지갑 (구찌)', '신한 체크카드 (분홍색)', '갈색 머니클립', '루이비통 장지갑', '교통카드 (티머니)', '카드지갑 (프라다)', '동전지갑 (캐릭터)'] },
+            { cat: 'bag', catName: '가방', items: ['검정색 백팩 (나이키)', '에코백 (아이보리색)', '쇼핑백 (롯데백화점)', '여성용 핸드백 (베이지)', '노트북 가방 (샘소나이트)', '크로스백 (검정)'] },
+            { cat: 'clothing', catName: '의류', items: ['검정색 롱패딩', '회색 목도리', '베이지색 모자', '우산 (투명)', '장갑 (검정)', '가디건 (네이비)', '청자켓'] },
+            { cat: 'etc', catName: '기타', items: ['도서 (소설책)', '텀블러 (스타벅스)', '차키 (현대 스마트키)', '서류봉투 (갈색)', '안경 (검정 뿔테)', '선글라스', '다이어리'] }
+        ];
+
+        const locations = [
+            '1호선 곽산역', '1호선 남구청역', '1호선 효빈항역', '1호선 창선역', '1호선 중앙로역',
+            '2호선 월천역', '2호선 고송교차로', '2호선 중수역', '2호선 입희역',
+            '3호선 청엽구청', '3호선 고송나루', '3호선 효빈국제공항',
+            '4호선 이자역', '4호선 이자공원', '4호선 남구청역',
+            '5호선 소조역', '5호선 전천역', '6호선 진희역', '6호선 마잡역',
+            '7호선 중앙로1가', '7호선 어간중앙', '8호선 운양중앙', '8호선 신흥역',
+            '빈효선 효빈역', '빈효선 안천역', '1호선 열차 내', '2호선 열차 내'
+        ];
+
+        // 전역 변수
+        let allItems = []; // 전체 생성된 데이터
+        let filteredItems = []; // 검색 필터링된 데이터
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        const totalItemsCount = 45; // 총 생성할 아이템 수
+
+        // 랜덤 함수
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 초기 데이터 생성 함수 (페이지 로드 시 1회 실행)
+        function generateData() {
+            const today = new Date();
+            document.getElementById('currentDate').innerText = `기준일: ${today.getFullYear()}.${today.getMonth()+1}.${today.getDate()} ${today.getHours()}:00`;
+            
+            allItems = [];
+            for (let i = 0; i < totalItemsCount; i++) {
+                const typeData = itemTypes[getRandomInt(0, itemTypes.length - 1)];
+                const itemName = typeData.items[getRandomInt(0, typeData.items.length - 1)];
+                const location = locations[getRandomInt(0, locations.length - 1)];
+                
+                // 날짜 랜덤 (최근 7일)
+                const d = new Date();
+                d.setDate(today.getDate() - getRandomInt(0, 7));
+                const dateStr = d.toISOString().split('T')[0];
+                
+                // 상태 랜덤
+                const status = Math.random() < 0.8 ? 'stored' : 'police';
+                
+                // 관리번호
+                const manageId = `2025-${dateStr.substring(5,7)}${dateStr.substring(8,10)}-${1000 + i}`;
+
+                allItems.push({
+                    id: manageId,
+                    cat: typeData.cat,
+                    catName: typeData.catName,
+                    name: itemName,
+                    location: location,
+                    date: dateStr,
+                    status: status
+                });
+            }
+            
+            // 날짜 내림차순 정렬
+            allItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+            filteredItems = [...allItems]; // 초기엔 전체 데이터
+        }
+
+        // 리스트 렌더링 함수 (페이지네이션 적용)
+        function renderTable() {
+            const listBody = document.getElementById('lostList');
+            const noResult = document.getElementById('noResult');
+            listBody.innerHTML = '';
+
+            if (filteredItems.length === 0) {
+                noResult.classList.remove('hidden');
+                return;
+            } else {
+                noResult.classList.add('hidden');
+            }
+
+            // 현재 페이지 데이터 슬라이싱
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredItems.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                // 뱃지 스타일
+                let catBadgeClass = "bg-slate-100 text-slate-600";
+                if(item.cat === 'electronic') catBadgeClass = "bg-blue-100 text-blue-600";
+                if(item.cat === 'wallet') catBadgeClass = "bg-red-100 text-red-600";
+                if(item.cat === 'bag') catBadgeClass = "bg-orange-100 text-orange-600";
+
+                let statusBadge = "";
+                if(item.status === 'stored') {
+                    statusBadge = `<span class="inline-block px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">보관중</span>`;
+                } else {
+                    statusBadge = `<span class="inline-block px-2 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">경찰이관</span>`;
+                }
+
+                const row = document.createElement('tr');
+                row.className = "border-b border-slate-100 hover:bg-slate-50 transition item-row cursor-pointer";
+                row.onclick = () => alert(`[${item.name}] 상세 정보\n\n습득장소: ${item.location}\n습득일: ${item.date}\n\n※ 해당 노선 유실물센터로 문의해주세요.`);
+
+                row.innerHTML = `
+                    <td class="p-4 text-slate-400 font-mono text-xs mobile-hide">${item.id}</td>
+                    <td class="p-4 mobile-hide"><span class="px-2 py-1 rounded text-xs font-bold ${catBadgeClass}">${item.catName}</span></td>
+                    <td class="p-4">
+                        <div class="font-bold text-slate-700">${item.name}</div>
+                        <div class="md:hidden text-xs text-slate-400 mt-1">
+                            <span class="mr-2">${item.catName}</span> | <span class="ml-2">${item.date}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-slate-600 font-medium text-sm"><i class="fa-solid fa-location-dot text-slate-300 mr-1"></i>${item.location}</td>
+                    <td class="p-4 text-slate-500 mobile-hide text-sm">${item.date}</td>
+                    <td class="p-4 text-center">${statusBadge}</td>
+                `;
+                listBody.appendChild(row);
+            });
+
+            updatePaginationButtons();
+        }
+
+        // 검색 필터링 함수
+        function filterItems() {
+            const category = document.getElementById('searchCategory').value;
+            const keyword = document.getElementById('keyword').value.toLowerCase();
+
+            filteredItems = allItems.filter(item => {
+                const catMatch = (category === 'all') || (item.cat === category);
+                const textMatch = item.name.toLowerCase().includes(keyword) || item.location.toLowerCase().includes(keyword);
+                return catMatch && textMatch;
+            });
+
+            currentPage = 1; // 검색 시 1페이지로 리셋
+            renderTable();
+        }
+
+        // 페이지 변경 함수
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+            
+            if (page === 'prev') {
+                if (currentPage > 1) currentPage--;
+            } else if (page === 'next') {
+                if (currentPage < totalPages) currentPage++;
+            } else {
+                currentPage = page;
+            }
+            renderTable();
+        }
+
+        // 페이지네이션 버튼 UI 업데이트
+        function updatePaginationButtons() {
+            const btns = document.querySelectorAll('.page-btn');
+            btns.forEach(btn => {
+                // 숫자 버튼 스타일 초기화
+                btn.className = "page-btn w-8 h-8 flex items-center justify-center rounded border border-slate-300 text-slate-500 hover:bg-slate-50 transition";
+                
+                // 현재 페이지 활성화
+                if (parseInt(btn.innerText) === currentPage) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // 엔터키 검색 이벤트
+        document.getElementById('keyword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') filterItems();
+        });
+
+        // 초기 실행
+        window.onload = function() {
+            generateData(); // 데이터 생성
+            renderTable();  // 테이블 그리기
+        };
+    </script>
+</body>
+</html>

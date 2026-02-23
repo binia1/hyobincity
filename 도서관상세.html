@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도서관 상세정보 - 효빈시 통합도서관</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .feature-tag { @apply px-3 py-1 rounded-full text-xs font-bold mr-2 mb-2 inline-block; }
+        .facility-item { @apply flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100; }
+        
+        /* 모달 스타일 */
+        .modal-overlay { display: none; }
+        .modal-overlay.active { display: flex; }
+        
+        /* 좌석 스타일 */
+        .seat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .seat { 
+            height: 40px; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .seat.available { background-color: white; border: 1px solid #cbd5e1; color: #64748b; }
+        .seat.available:hover { border-color: #059669; color: #059669; }
+        .seat.selected { background-color: #059669; border: 1px solid #059669; color: white; transform: scale(1.05); box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); }
+        .seat.occupied { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; border: 1px solid transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='library.html'">
+                <img src="로고.png" alt="로고" class="h-10 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-9 h-9 bg-white rounded hidden items-center justify-center text-slate-800 font-black text-lg">H</div>
+                <span class="text-xl md:text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="location.href='library.html'" class="hover:text-emerald-400 flex items-center gap-1 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold hidden md:inline">목록으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 상세 컨텐츠 -->
+    <main class="max-w-5xl mx-auto px-4 py-8 w-full flex-grow">
+        <!-- 상단 정보 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+            <div class="h-48 md:h-64 bg-slate-200 relative">
+                <img id="libImage" src="도서관기본.png" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/1200x400/e2e8f0/94a3b8?text=HYOBIN+LIBRARY'">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-6 left-6 text-white">
+                    <div id="libBadge" class="inline-block px-3 py-1 rounded bg-emerald-600 text-xs font-bold mb-2">공공도서관</div>
+                    <h1 id="libName" class="text-3xl md:text-4xl font-black mb-1">도서관 이름 로딩중...</h1>
+                    <p id="libDesc" class="text-slate-200 text-sm md:text-base opacity-90">도서관 설명이 들어갑니다.</p>
+                </div>
+            </div>
+            
+            <div class="p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- 왼쪽: 기본 정보 -->
+                    <div class="md:col-span-2 space-y-6">
+                        
+                        <!-- 공지사항 (동적 표시) -->
+                        <div id="libNoticeContainer" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-4 shadow-sm animate-pulse">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="megaphone" class="w-5 h-5 text-emerald-600 mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-bold text-emerald-800 text-sm mb-1">도서관 알림</h4>
+                                    <p id="libNotice" class="text-emerald-700 text-sm leading-snug">공지사항 내용</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="map-pin" class="w-5 h-5 text-emerald-600"></i> 위치 및 정보
+                            </h3>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex gap-3"><span class="w-20 font-bold text-slate-400">주소</span> <span id="libAddr">-</span></li>
+                                <li class="flex gap-3"><span class="w-20 font-bold text-slate-400">전화</span> <span id="libTel">079-000-0000</span></li>
+                                <li class="flex gap-3"><span class="w-20 font-bold text-slate-400">운영시간</span> <span id="libTime">09:00 ~ 22:00</span></li>
+                                <li class="flex gap-3"><span class="w-20 font-bold text-slate-400">휴관일</span> <span id="libClosed" class="text-red-500 font-medium">매주 월요일</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-6">
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-yellow-500"></i> 주요 특징 및 설명
+                            </h3>
+                            <div id="libFeatures" class="flex flex-wrap gap-2 mb-4">
+                                <!-- 자바스크립트로 태그 생성 -->
+                            </div>
+                            <p id="libDetailDesc" class="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                상세 설명이 여기에 표시됩니다.
+                            </p>
+                        </div>
+
+                        <!-- 편의시설 (동적 추가) -->
+                        <div class="border-t border-slate-100 pt-6">
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="armchair" class="w-5 h-5 text-blue-500"></i> 편의 시설
+                            </h3>
+                            <div id="libFacilities" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <!-- 자바스크립트로 편의시설 생성 -->
+                                <span class="text-sm text-slate-400">등록된 편의시설 정보가 없습니다.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽: 좌석 현황 -->
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 h-fit sticky top-24">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
+                            <span>실시간 좌석 현황</span>
+                            <span class="text-xs font-normal text-slate-500 flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-emerald-500"></div>운영중</span>
+                        </h3>
+                        <div id="seatStatus" class="space-y-4">
+                            <!-- 자바스크립트로 좌석바 생성 -->
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-200">
+                            <!-- 예약 버튼에 onclick 이벤트 수정 -->
+                            <button onclick="openReservationModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors shadow-sm mb-2">
+                                좌석 예약하기
+                            </button>
+                            <button onclick="window.open('https://binia1.github.io/mymap/', '_blank')" class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-600 font-bold py-3 rounded-lg transition-colors">
+                                길찾기
+                            </button>
+                        </div>
+                        
+                        <!-- 작은 지도 이미지 -->
+                        <div class="mt-4 rounded-lg overflow-hidden border border-slate-200 cursor-pointer group" onclick="window.open('https://binia1.github.io/mymap/', '_blank')">
+                            <img src="지도예시.png" class="w-full h-32 object-cover opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'">
+                            <div class="hidden group-hover:flex absolute inset-0 bg-black/10 items-center justify-center text-white font-bold text-sm pointer-events-none">지도 크게 보기</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 예약 모달 (New) -->
+    <div id="reservationModal" class="modal-overlay fixed inset-0 bg-black/60 z-[100] justify-center items-center backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all scale-100">
+            <!-- 모달 헤더 -->
+            <div class="bg-slate-800 p-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i data-lucide="calendar-check" class="w-5 h-5 text-emerald-400"></i> 좌석 예약
+                </h3>
+                <button onclick="closeReservationModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 모달 바디 -->
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <h4 id="modalLibName" class="font-bold text-slate-800 text-lg mb-1">도서관 이름</h4>
+                    <p class="text-sm text-slate-500">원하시는 좌석을 선택해주세요.</p>
+                </div>
+
+                <!-- 열람실 선택 -->
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-slate-500 mb-2">열람실 선택</label>
+                    <select id="roomSelect" class="w-full p-2 border border-slate-300 rounded-lg text-sm outline-none focus:border-emerald-500" onchange="generateSeats()">
+                        <!-- JS로 채움 -->
+                    </select>
+                </div>
+
+                <!-- 범례 -->
+                <div class="flex justify-center gap-4 mb-4 text-xs">
+                    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-white border border-slate-300"></span>가능</div>
+                    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-600"></span>선택</div>
+                    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-slate-200"></span>사용중</div>
+                </div>
+
+                <!-- 좌석 그리드 -->
+                <div id="modalSeatGrid" class="seat-grid bg-slate-50 p-4 rounded-xl border border-slate-100 h-64 overflow-y-auto mb-6 custom-scrollbar">
+                    <!-- JS로 생성 -->
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="flex gap-3">
+                    <button onclick="closeReservationModal()" class="flex-1 py-3 rounded-lg border border-slate-300 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">취소</button>
+                    <button onclick="confirmReservation()" id="confirmBtn" class="flex-1 py-3 rounded-lg bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>예약 확정</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 pt-8 pb-10 text-center text-slate-400 text-xs relative z-10">
+        <p>효빈광역시 중구 중앙로 1 (경동)</p>
+        <p class="mt-1">COPYRIGHT © 2026 HYOBIN CITY. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <script>
+        // DOM 로드 즉시 실행되도록 변경
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadLibraryData();
+        });
+
+        // 현재 선택된 도서관 데이터
+        let currentLibData = null;
+        let selectedSeat = null;
+
+        function loadLibraryData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const libId = urlParams.get('id');
+            currentLibData = libraryData[libId];
+
+            if (currentLibData) {
+                // 텍스트 정보 바인딩
+                document.getElementById('libName').innerText = currentLibData.name;
+                document.getElementById('libAddr').innerText = currentLibData.addr;
+                
+                // 뱃지 스타일
+                const badge = document.getElementById('libBadge');
+                badge.innerText = currentLibData.type;
+                let badgeColor = 'bg-emerald-600';
+                if(currentLibData.type.includes('특화')) badgeColor = 'bg-pink-500';
+                else if(currentLibData.type.includes('대학')) badgeColor = 'bg-indigo-500';
+                else if(currentLibData.type.includes('작은')) badgeColor = 'bg-orange-400';
+                badge.className = `inline-block px-3 py-1 rounded text-white text-xs font-bold mb-2 ${badgeColor}`;
+                
+                document.getElementById('libDesc').innerText = currentLibData.desc || currentLibData.name + '입니다.';
+                document.getElementById('libDetailDesc').innerText = currentLibData.detail || `${currentLibData.addr}에 위치한 ${currentLibData.name}입니다. 시민들을 위한 다양한 도서와 학습 공간을 제공합니다.`;
+                
+                if(currentLibData.tel) document.getElementById('libTel').innerText = currentLibData.tel;
+                if(currentLibData.time) document.getElementById('libTime').innerText = currentLibData.time;
+                if(currentLibData.closed) document.getElementById('libClosed').innerText = currentLibData.closed;
+
+                // 알림 처리
+                if(currentLibData.notice) {
+                    document.getElementById('libNoticeContainer').classList.remove('hidden');
+                    document.getElementById('libNotice').innerText = currentLibData.notice;
+                } else {
+                    document.getElementById('libNoticeContainer').classList.add('hidden');
+                }
+
+                // 태그 생성
+                const tagContainer = document.getElementById('libFeatures');
+                tagContainer.innerHTML = ''; 
+                if(currentLibData.tags) {
+                    currentLibData.tags.forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = 'feature-tag bg-slate-100 text-slate-600';
+                        span.innerText = tag;
+                        tagContainer.appendChild(span);
+                    });
+                }
+
+                // 편의시설 생성
+                const facilityContainer = document.getElementById('libFacilities');
+                facilityContainer.innerHTML = '';
+                if(currentLibData.facilities && currentLibData.facilities.length > 0) {
+                    currentLibData.facilities.forEach(fac => {
+                        const div = document.createElement('div');
+                        div.className = 'facility-item';
+                        div.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> ${fac}`;
+                        facilityContainer.appendChild(div);
+                    });
+                } else {
+                    facilityContainer.innerHTML = '<span class="text-sm text-slate-400 col-span-2">등록된 편의시설 정보가 없습니다.</span>';
+                }
+
+                renderSeatBars(); // 좌석바 렌더링 함수 분리
+            } else {
+                document.getElementById('libName').innerText = "도서관 정보를 찾을 수 없습니다.";
+                document.getElementById('libDesc').innerText = "올바르지 않은 접근이거나 데이터가 없습니다.";
+                document.getElementById('libNoticeContainer').classList.add('hidden');
+            }
+        }
+
+        // 좌석 현황 바 렌더링
+        function renderSeatBars() {
+            const seatContainer = document.getElementById('seatStatus');
+            seatContainer.innerHTML = '';
+            if(currentLibData.seats) {
+                currentLibData.seats.forEach((seat, index) => {
+                    const percent = Math.round((seat.current / seat.total) * 100);
+                    const div = document.createElement('div');
+                    div.id = `seat-row-${index}`; // 업데이트를 위한 ID
+                    div.innerHTML = `
+                        <div class="flex justify-between text-sm mb-1 text-slate-700">
+                            <span class="font-bold">${seat.name}</span>
+                            <span class="font-bold text-emerald-600 status-text">${seat.current} / ${seat.total}석 (${percent}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                            <div class="${seat.color || 'bg-emerald-500'} h-3 rounded-full transition-all duration-1000 bar-fill" style="width: ${percent}%"></div>
+                        </div>
+                    `;
+                    seatContainer.appendChild(div);
+                });
+            }
+        }
+
+        // === 예약 모달 관련 함수 ===
+
+        function openReservationModal() {
+            if(!currentLibData) return;
+            
+            document.getElementById('modalLibName').innerText = currentLibData.name;
+            const modal = document.getElementById('reservationModal');
+            
+            // 열람실 select 박스 채우기
+            const select = document.getElementById('roomSelect');
+            select.innerHTML = '';
+            currentLibData.seats.forEach((seat, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = seat.name;
+                select.appendChild(option);
+            });
+
+            // 초기 좌석 생성
+            generateSeats();
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+        }
+
+        function closeReservationModal() {
+            document.getElementById('reservationModal').classList.remove('active');
+            document.body.style.overflow = '';
+            selectedSeat = null;
+            document.getElementById('confirmBtn').disabled = true;
+        }
+
+        function generateSeats() {
+            const grid = document.getElementById('modalSeatGrid');
+            grid.innerHTML = '';
+            selectedSeat = null;
+            document.getElementById('confirmBtn').disabled = true;
+
+            // 랜덤하게 30개 좌석 생성 시뮬레이션
+            for(let i=1; i<=30; i++) {
+                const seatDiv = document.createElement('div');
+                const isOccupied = Math.random() < 0.4; // 40% 확률로 사용중
+                
+                seatDiv.className = `seat ${isOccupied ? 'occupied' : 'available'}`;
+                seatDiv.innerText = i;
+                
+                if(!isOccupied) {
+                    seatDiv.onclick = function() {
+                        // 기존 선택 해제
+                        const prev = grid.querySelector('.selected');
+                        if(prev) prev.classList.remove('selected');
+                        
+                        // 새 선택
+                        this.classList.add('selected');
+                        selectedSeat = i;
+                        document.getElementById('confirmBtn').disabled = false;
+                        document.getElementById('confirmBtn').innerText = `${i}번 좌석 예약 확정`;
+                    };
+                }
+                
+                grid.appendChild(seatDiv);
+            }
+        }
+
+        function confirmReservation() {
+            if(!selectedSeat) return;
+            
+            // UI 업데이트 시뮬레이션
+            alert(`${selectedSeat}번 좌석 예약이 완료되었습니다.\n입실 처리는 키오스크에서 진행해주세요.`);
+            closeReservationModal();
+
+            // 메인 화면 좌석 수 -1 감소 효과
+            const roomIndex = document.getElementById('roomSelect').value;
+            const targetSeatData = currentLibData.seats[roomIndex];
+            
+            if(targetSeatData.current > 0) {
+                targetSeatData.current -= 1; // 데이터 감소
+                renderSeatBars(); // 바 다시 그리기
+            }
+        }
+
+        // 도서관 데이터베이스 (전화번호 079 국번으로 업데이트)
+        const libraryData = {
+            // === 특화 도서관 ===
+            'ani_seo': {
+                name: '서구 아이돌 & 스테이지 도서관',
+                type: '특화도서관',
+                addr: '서구 당선동 (대학로)',
+                desc: '러브라이브, 아이마스 등 아이돌물 전문 및 라이브 뷰잉룸 완비',
+                detail: '효빈대학교 인근 대학로에 위치하여 젊은 층의 방문이 많습니다. 아이돌 애니메이션 전용 상영관과 굿즈 전시관을 운영하며, 정기적인 동호회 모임 장소를 대관해줍니다. 최신 음향 시설을 갖춘 청음 부스도 인기입니다.',
+                tel: '079-251-2222',
+                time: '10:00 ~ 22:00',
+                closed: '매주 월요일',
+                tags: ['#러브라이브', '#아이마스', '#최애의아이', '#라이브뷰잉'],
+                facilities: ['라이브뷰잉룸', '굿즈전시대', '코인노래방(이벤트)', '카페테리아', '와이파이'],
+                notice: '📢 3층 라이브 뷰잉룸 주말 예약이 마감되었습니다.',
+                seats: [
+                    { name: '스테이지 열람석', total: 150, current: 145, color: 'bg-pink-500' },
+                    { name: '청음부스', total: 20, current: 18, color: 'bg-purple-500' }
+                ]
+            },
+            'ani_buk': {
+                name: '북구 메카닉스 애니도서관',
+                type: '특화도서관',
+                addr: '북구 진희동',
+                desc: '건담, 에반게리온 등 SF/로봇물 및 프라모델 공방 운영',
+                detail: 'SF와 메카닉 장르를 전문으로 다루는 도서관입니다. 희귀 프라모델 전시실과 직접 조립 및 도색이 가능한 공방(예약제)을 함께 운영하고 있습니다. 매월 프라모델 조립 강좌가 열립니다.',
+                tel: '079-421-3333',
+                tags: ['#건담', '#에반게리온', '#프라모델', '#SF'],
+                facilities: ['프라모델 공방', '도색 부스', '전시실', '매점', '사물함'],
+                notice: '🔧 이번 달 프라모델 도색 강좌 수강생 모집 중!',
+                seats: [
+                    { name: '메카닉 자료실', total: 100, current: 45, color: 'bg-blue-500' },
+                    { name: '공방 테이블', total: 30, current: 28, color: 'bg-slate-600' }
+                ]
+            },
+            'ani_cheong': {
+                name: '청엽 밴드 & 뮤직 도서관',
+                type: '특화도서관',
+                addr: '청엽구 마잡동',
+                desc: '뱅드림, 케이온! 등 밴드물 전문 및 합주실 운영',
+                detail: '음악과 밴드를 주제로 한 애니메이션 자료를 총망라했습니다. 방음 시설이 완비된 합주실과 고음질 청음실을 무료로 이용할 수 있습니다. 1층 로비에서는 비정기 버스킹 공연도 열립니다.',
+                tel: '079-822-4444',
+                tags: ['#뱅드림', '#케이온', '#봇치더락', '#합주실'],
+                facilities: ['방음 합주실', 'LP 청음존', '악기 보관소', '공연장', '와이파이'],
+                notice: '🎸 제3회 청엽 밴드 경연대회 예선 접수 시작 안내',
+                seats: [
+                    { name: '뮤직 라운지', total: 120, current: 90, color: 'bg-pink-500' },
+                    { name: '합주실(예약)', total: 5, current: 5, color: 'bg-red-500' }
+                ]
+            },
+            'ani_jung': {
+                name: '중구 만화역사 도서관',
+                type: '특화도서관',
+                addr: '중구 명일동',
+                desc: '한국 만화의 역사와 웹툰 아카이브',
+                detail: '1960년대 희귀 만화본부터 최신 인기 웹툰 단행본까지 한국 만화의 모든 것을 담았습니다. 태블릿 PC를 대여해 웹툰을 편하게 감상할 수 있는 전용 좌석이 마련되어 있습니다.',
+                tel: '079-110-5555',
+                tags: ['#웹툰', '#고전만화', '#만화박물관'],
+                facilities: ['웹툰 창작실', '태블릿 대여', '만화 수장고', '휴게실'],
+                notice: '✨ 유명 웹툰 작가 초청 토크콘서트 (1/25) 신청 안내',
+                seats: [{ name: '웹툰 태블릿석', total: 80, current: 60, color: 'bg-emerald-500' }]
+            },
+            'ani_nam': {
+                name: '남구 캐릭터 꿈 도서관',
+                type: '특화도서관',
+                addr: '남구 곽산동',
+                desc: '지브리, 포켓몬 등 전연령 캐릭터 아트북 소장',
+                detail: '지브리 스튜디오, 디즈니, 포켓몬 등 전 세계 유명 캐릭터 아트북과 설정집을 소장하고 있습니다. 아이들과 함께 즐길 수 있는 키즈존과 수유실이 잘 갖춰져 있어 가족 단위 방문객에게 인기가 높습니다.',
+                tel: '079-223-7777',
+                tags: ['#지브리', '#포켓몬', '#산리오', '#키즈존'],
+                facilities: ['유아 놀이방', '수유실', '캐릭터 포토존', '유모차 보관소'],
+                notice: '🎨 어린이 포켓몬 그리기 대회 수상작 1층 로비 전시',
+                seats: [{ name: '가족 열람실', total: 200, current: 150, color: 'bg-yellow-400' }]
+            },
+            'ani_dong': {
+                name: '동구 판타지아 & 열혈 도서관',
+                type: '특화도서관',
+                addr: '동구 사가당동',
+                desc: '소년만화, 판타지, 스포츠 장르 집대성',
+                detail: '가슴 뜨거워지는 소년 만화와 판타지 대작들을 한곳에 모았습니다. 대형 피규어 전시관과 만화 카페처럼 편안하게 누워서 볼 수 있는 빈백 좌석이 특징입니다.',
+                tel: '079-331-8888',
+                tags: ['#원피스', '#슬램덩크', '#점프', '#열혈'],
+                facilities: ['피규어 전시관', '만화카페형 좌석', '코스프레 탈의실', '와이파이'],
+                notice: '📚 신간 점프 코믹스 50권 대량 입고 완료!',
+                seats: [{ name: '만화 열람석', total: 180, current: 160, color: 'bg-orange-500' }]
+            },
+            'ani_chang': {
+                name: '창전 로맨스 그래픽 도서관',
+                type: '특화도서관',
+                addr: '창전구 진백동',
+                desc: '순정만화, 로맨스 판타지 전문',
+                detail: '순정 만화와 로맨스 판타지 소설/만화를 전문으로 합니다. 핑크빛 인테리어의 카페형 열람실에서 달콤한 독서 시간을 즐겨보세요. 커플을 위한 2인석도 준비되어 있습니다.',
+                tel: '079-772-9999',
+                tags: ['#순정', '#로판', '#너에게닿기를'],
+                facilities: ['로맨스 테마 카페', '커플석', '엽서 쓰기 코너', '와이파이'],
+                notice: '💕 발렌타인데이 특집: 로맨스 명작 큐레이션 전시',
+                seats: [{ name: '로맨스 카페석', total: 100, current: 40, color: 'bg-pink-400' }]
+            },
+            'ani_an': {
+                name: '안천 게임&애니 도서관',
+                type: '특화도서관',
+                addr: '안천구 성저동',
+                desc: '게임 원작 애니메이션 및 설정집 전문',
+                detail: '게임 원작 애니메이션(아케인, 사이버펑크 등)과 방대한 게임 설정집, 아트북을 전문으로 다룹니다. 고사양 게이밍 PC존에서는 관련 게임을 직접 체험해볼 수도 있습니다.',
+                tel: '079-661-0000',
+                tags: ['#롤', '#원신', '#페이트', '#설정집'],
+                facilities: ['게이밍 PC존', '보드게임실', '일러스트 갤러리', '휴게실'],
+                notice: '🏆 LOL 월드 챔피언십 결승전 단체 관람 행사 (사전접수)',
+                seats: [{ name: '게임 미디어실', total: 60, current: 58, color: 'bg-purple-600' }]
+            },
+            'ani_tan': {
+                name: '탄성 힐링 숲 만화도서관',
+                type: '특화/지역거점',
+                addr: '탄성군 탄성읍 탄성리',
+                desc: '자연 속에서 즐기는 치유계 애니메이션 및 남부 거점 도서관',
+                detail: '탄성군의 숲 속에 위치하여 자연과 함께하는 힐링 도서관입니다. 나츠메 우인장, 유루캠 등 치유계 작품을 주력으로 하며, 야외 테라스와 해먹에서 독서를 즐길 수 있습니다.',
+                tel: '079-711-1212',
+                tags: ['#나츠메우인장', '#유루캠', '#힐링', '#숲속도서관'],
+                facilities: ['해먹존', '캠핑 의자석', '야외 테라스', '산책로'],
+                notice: '🌲 가을 맞이 숲속 독서 캠프 참가자 모집 (선착순)',
+                seats: [{ name: '숲속 테라스', total: 50, current: 10, color: 'bg-emerald-600' }]
+            },
+            
+            // === 공공 도서관 ===
+            'central': {
+                name: '효빈 중앙도서관',
+                type: '공공도서관',
+                addr: '중구 중앙로 1',
+                desc: '효빈시를 대표하는 1호 도서관',
+                detail: '효빈시의 지식 정보 허브 역할을 하는 중앙도서관입니다. 방대한 장서와 디지털 아카이브를 보유하고 있으며, 시민들을 위한 다양한 인문학 강좌가 열립니다.',
+                tel: '079-100-1111',
+                tags: ['#대표도서관', '#역사', '#보존서고'],
+                facilities: ['대강당', '식당', '매점', '보존서고', '장애인석'],
+                notice: '🎉 개관 10주년 기념 시민 작가 초대전',
+                seats: [
+                    { name: '제1열람실', total: 120, current: 45, color: 'bg-emerald-500' },
+                    { name: '디지털자료실', total: 40, current: 10, color: 'bg-blue-500' }
+                ]
+            },
+            'gosong': {
+                name: '고송 디지털도서관',
+                type: '특화도서관',
+                addr: '북구 고송동',
+                desc: '최첨단 ICT 기술이 접목된 미래형 도서관',
+                detail: 'VR/AR 체험관, 메타버스 창작실 등 최신 ICT 기술을 체험할 수 있습니다. 태블릿과 노트북 대여가 가능하며 전 좌석 스마트 충전 시스템을 갖추고 있습니다.',
+                tel: '079-400-2222',
+                tags: ['#메타버스', '#코딩교육', '#미디어월'],
+                facilities: ['VR체험관', '미디어월', '스마트라운지', '노트북 대여'],
+                seats: [{ name: '종합열람실', total: 500, current: 412, color: 'bg-red-500' }]
+            },
+            'namgu': {
+                name: '남구 평당도서관',
+                type: '공공도서관',
+                addr: '남구 평당동',
+                desc: '주거밀집지역의 독서 문화 중심지',
+                tel: '079-200-3333',
+                facilities: ['어린이 자료실', '수유실', '문화교실', '주차장'],
+                tags: ['#가족', '#어린이', '#문화강좌'],
+                seats: [
+                    { name: '일반열람실', total: 350, current: 280, color: 'bg-yellow-500' },
+                    { name: '어린이실', total: 80, current: 20, color: 'bg-emerald-500' }
+                ]
+            },
+            'tan_bukbu': {
+                name: '고해 읍립도서관',
+                type: '공공도서관',
+                addr: '탄성군 고해읍 고해리',
+                desc: '탄성군 북부 주민을 위한 문화 공간',
+                tel: '079-712-4444',
+                facilities: ['마을 사랑방', '주차장', 'PC 코너'],
+                tags: ['#북부거점', '#마을공동체'],
+                seats: [{ name: '일반자료실', total: 80, current: 30, color: 'bg-emerald-500' }]
+            },
+            'tanseong': {
+                name: '탄성 군립도서관',
+                type: '공공도서관',
+                addr: '탄성군 도변읍 앵내리',
+                desc: '탄성군 중부 거점 도서관',
+                tel: '079-710-5555',
+                facilities: ['향토 자료실', '시청각실', '매점', '주차장'],
+                tags: ['#군립', '#중부거점', '#향토자료'],
+                seats: [{ name: '종합자료실', total: 250, current: 120, color: 'bg-emerald-500' }]
+            },
+            'cheongyeop': { 
+                name: '청엽 구립도서관', 
+                addr: '청엽구 청엽동', 
+                type: '공공도서관', 
+                tel: '079-800-6666',
+                closed: '휴관일', 
+                tags: ['#휴관'], 
+                facilities: ['식당', '휴게실', '주차장'],
+                notice: '⛔ [긴급] 시설 보수 공사로 인한 임시 휴관 (~1/30)',
+                seats: [{ name: '일반열람실', total: 200, current: 0, color: 'bg-slate-300' }] 
+            },
+            'changjeon': { name: '창전 미래도서관', addr: '창전구 창전동', tel: '079-700-7777', type: '공공도서관', tags: ['#24시간', '#스마트'], facilities: ['24시 무인반납기', '스마트 사물함'], seats: [{ name: '24시 열람실', total: 150, current: 45, color: 'bg-emerald-500' }] },
+            'ancheon': { name: '안천 과학도서관', addr: '안천구 안천동', tel: '079-600-8888', type: '특화도서관', tags: ['#과학', '#실험'], facilities: ['과학실험실', '천체투영실', '3D 프린터'], seats: [{ name: '종합자료실', total: 220, current: 80, color: 'bg-emerald-500' }] },
+            'gwajin': { name: '서구 과진도서관', addr: '서구 과진동', tel: '079-500-9999', type: '공공도서관', tags: ['#노트북', '#카페형'], facilities: ['노트북 전용석', '카페', '테라스'], seats: [{ name: '노트북실', total: 100, current: 85, color: 'bg-yellow-500' }] },
+            'deokhyeon': { name: '동구 덕현도서관', addr: '동구 덕현동', tel: '079-300-1234', type: '공공도서관', tags: ['#전통', '#인문학'], facilities: ['전통 다실', '한옥 열람실'], seats: [{ name: '일반열람실', total: 180, current: 50, color: 'bg-emerald-500' }] },
+            'cheongdeok': { name: '청덕 에코 도서관', addr: '서구 청덕동', tel: '079-501-5678', type: '공공도서관', tags: ['#환경', '#친환경'], facilities: ['태양광 충전소', '식물 정원'], seats: [{ name: '숲속열람실', total: 100, current: 40, color: 'bg-emerald-500' }] },
+            'chilsim': { name: '칠심 열린 도서관', addr: '창전구 칠심동', tel: '079-701-9012', type: '공공도서관', tags: ['#개방형', '#커뮤니티'], facilities: ['커뮤니티룸', '북카페'], seats: [{ name: '가족열람실', total: 150, current: 50, color: 'bg-emerald-500' }] },
+            'ujeon': { name: '우전 해오름 도서관', addr: '청엽구 우전동', tel: '079-801-3456', type: '공공도서관', tags: ['#전망', '#학습'], facilities: ['옥상 정원', '학습실'], seats: [{ name: '종합자료실', total: 200, current: 140, color: 'bg-yellow-500' }] },
+            'onae': { name: '오내 지혜마루 도서관', addr: '북구 오내동', tel: '079-401-7890', type: '공공도서관', closed: '휴관일', tags: ['#휴관'], seats: [{ name: '종합자료실', total: 120, current: 0, color: 'bg-slate-300' }] },
+            'sagadang': { name: '사가당 문화 도서관', addr: '동구 사가당동', tel: '079-301-1122', type: '공공도서관', tags: ['#예술', '#공연'], facilities: ['소극장', '악기 연습실'], seats: [{ name: '문헌정보실', total: 100, current: 60, color: 'bg-emerald-500' }] },
+            'hangdong': { name: '항동 항구 도서관', addr: '남구 항동1가', tel: '079-201-3344', type: '공공도서관', tags: ['#오션뷰', '#항구'], facilities: ['바다 전망대', '해양 자료실'], seats: [{ name: '오션뷰열람실', total: 120, current: 110, color: 'bg-red-500' }] },
+
+            // === 대학 도서관 ===
+            'hyobin_univ': {
+                name: '효빈대학교 중앙도서관',
+                type: '대학도서관',
+                addr: '서구 당선동 (북구 소조동 접경)',
+                desc: '효빈대 본캠퍼스 중앙도서관 (시민 개방)',
+                detail: '주소는 서구 당선동이나 캠퍼스가 워낙 넓어 북구 소조동과 맞닿아 있어 사실상 소조동 생활권입니다. 300만 장서 규모를 자랑하며 시민들에게 일부 열람실을 개방합니다.',
+                tel: '079-500-0001',
+                tags: ['#대학', '#시민개방', '#대규모'],
+                facilities: ['대형 열람실', '세미나실', '대학 박물관', '구내식당', '편의점'],
+                notice: '🎓 중간고사 기간 일반인 출입 제한 안내 (10/20 ~ 10/26)',
+                seats: [{ name: '제2열람실', total: 300, current: 280, color: 'bg-red-500' }]
+            },
+            'bangdo': {
+                name: '효빈대 방도도서관',
+                type: '대학도서관',
+                addr: '북구 소조동 (효빈대 본캠퍼스)',
+                desc: '효빈대 본캠퍼스 북측 위치 (시민 개방)',
+                detail: '효빈대 중앙도서관(서구)과 같은 캠퍼스 내에 있으나 북구 소조동 구역에 위치합니다. 이공계열 전문 자료가 많으며 24시간 연구 열람실을 운영합니다.',
+                tel: '079-400-0002',
+                tags: ['#대학', '#북구캠퍼스', '#이공계'],
+                facilities: ['이공계 자료실', '그룹 스터디룸', '수면실', '카페'],
+                seats: [{ name: '중앙열람실', total: 300, current: 120, color: 'bg-indigo-500' }]
+            },
+            'welfare_univ': { name: '효빈복지대 사회과학정보센터', addr: '서구 사복동', tel: '079-502-1234', type: '대학도서관', tags: ['#복지', '#사회과학'], facilities: ['장애인 보조기구', '점자 도서'], seats: [{ name: '일반열람실', total: 120, current: 40, color: 'bg-emerald-500' }] },
+            'edu_univ': { name: '효빈교대 교육정보관', addr: '북구 천왕사동', tel: '079-402-5678', type: '대학도서관', tags: ['#교육', '#임용'], facilities: ['교과서 박물관', '수업 실연실'], seats: [{ name: '임용고시실', total: 100, current: 100, color: 'bg-red-600' }] },
+            'samseon_univ': { name: '삼선대학교 학술정보관', addr: '북구 등기동', tel: '079-403-9012', type: '대학도서관', tags: ['#학술', '#논문'], facilities: ['논문 검색 PC', '대학원 열람실'], seats: [{ name: '자료열람실', total: 80, current: 60, color: 'bg-yellow-500' }] },
+            'yeopwol_univ': { name: '엽월대학교 백년도서관', addr: '청엽구 등동', tel: '079-802-3456', type: '대학도서관', tags: ['#창의', '#스타트업'], facilities: ['메이커 스페이스', '창업 보육실'], seats: [{ name: '창의학습실', total: 150, current: 30, color: 'bg-emerald-500' }] },
+
+            // === 작은 도서관 ===
+            'jungsu': { name: '중수 꿈자람 작은도서관', addr: '북구 중수동', tel: '079-404-1111', type: '작은도서관', tags: ['#주민센터'], facilities: ['주민센터 주차장', '복사기'], seats: [{ name: '열람석', total: 30, current: 12, color: 'bg-orange-400' }] },
+            'eogan': { name: '어간 푸른숲 작은도서관', addr: '남구 어간동', tel: '079-202-2222', type: '작은도서관', tags: ['#아파트'], facilities: ['아파트 주차장', '유아방'], seats: [{ name: '열람석', total: 30, current: 28, color: 'bg-red-500' }] },
+            'ssangeop': { name: '쌍엽 마을문고', addr: '창전구 쌍엽동', tel: '079-702-3333', type: '작은도서관', tags: ['#자원봉사'], facilities: ['동네 사랑방'], seats: [{ name: '열람석', total: 20, current: 0, color: 'bg-slate-400' }] },
+            'ija': { name: '이자 스마트도서관', addr: '안천구 이자동', tel: '079-601-4444', type: '작은도서관', tags: ['#지하철', '#무인'], facilities: ['무인 대출반납기', '지하철역'], seats: [{ name: '보유도서', total: 500, current: 450, color: 'bg-blue-400' }] },
+            'gwaksan': { name: '곽산 솔향기 작은도서관', addr: '남구 곽산동', tel: '079-203-5555', type: '작은도서관', tags: ['#공원'], facilities: ['공원 벤치', '식수대'], seats: [{ name: '열람석', total: 20, current: 8, color: 'bg-orange-400' }] },
+            'hangdong2': { name: '항동 갈매기 작은도서관', addr: '남구 항동2가', tel: '079-204-6666', type: '작은도서관', tags: ['#항구'], facilities: ['쉼터'], seats: [{ name: '열람석', total: 15, current: 5, color: 'bg-orange-400' }] },
+            'jinhui': { name: '진희 어린이 작은도서관', addr: '북구 진희동', tel: '079-405-7777', type: '작은도서관', tags: ['#초등학교옆'], facilities: ['어린이 책상'], seats: [{ name: '어린이석', total: 25, current: 20, color: 'bg-orange-400' }] },
+            'sojo': { name: '소조 쌈지 도서관', addr: '북구 소조동', tel: '079-406-8888', type: '작은도서관', tags: ['#마을'], facilities: ['마을 회관'], seats: [{ name: '열람석', total: 10, current: 3, color: 'bg-orange-400' }] },
+            'jeoncheon': { name: '전천 강변 작은도서관', addr: '동구 전천동', tel: '079-302-9999', type: '작은도서관', tags: ['#강변'], facilities: ['자전거 거치대'], seats: [{ name: '테라스석', total: 15, current: 10, color: 'bg-orange-400' }] },
+            'dangga': { name: '당가 문화마당 도서관', addr: '안천구 당가동', tel: '079-602-1234', type: '작은도서관', tags: ['#문화'], facilities: ['공연 연습실'], seats: [{ name: '열람석', total: 20, current: 15, color: 'bg-orange-400' }] },
+            'tanja': { name: '탄자 북카페', addr: '안천구 탄자동', tel: '079-603-5678', type: '작은도서관', tags: ['#카페'], facilities: ['커피 머신'], seats: [{ name: '카페석', total: 30, current: 25, color: 'bg-orange-400' }] },
+            'majab': { name: '마잡 독서사랑방', addr: '청엽구 마잡동', tel: '079-803-9012', type: '작은도서관', tags: ['#사랑방'], facilities: ['온돌방'], seats: [{ name: '좌식열람', total: 15, current: 5, color: 'bg-orange-400' }] },
+            'utaek': { name: '우택 마을작은도서관', addr: '청엽구 우택동', tel: '079-804-3456', type: '작은도서관', tags: ['#마을'], facilities: ['경로당 옆'], seats: [{ name: '열람석', total: 20, current: 8, color: 'bg-orange-400' }] },
+            'jinbaek': { name: '진백 솔숲 작은도서관', addr: '창전구 진백동', tel: '079-703-7890', type: '작은도서관', tags: ['#숲속'], facilities: ['산책로 입구'], seats: [{ name: '열람석', total: 20, current: 12, color: 'bg-orange-400' }] }
+        };
+    </script>
+</body>
+</html>

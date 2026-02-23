@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈교통공사 (HYOBIN METRO)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ================================================================== */
+        /* CSS 스타일 (원본 디자인 유지)                                       */
+        /* ================================================================== */
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .metro-gradient { background: linear-gradient(180deg, #E0F2FE 0%, #FFFFFF 100%); }
+        .hb-logo { font-family: sans-serif; font-weight: 900; color: #0ea5e9; line-height: 0.8; letter-spacing: -2px; position: relative; }
+        .hb-logo::after { content: ''; display: block; width: 100%; height: 4px; background-color: #0369a1; margin-top: 5px; }
+
+        /* Autocomplete */
+        .autocomplete-wrapper { position: relative; }
+        .autocomplete-items { position: absolute; border: 1px solid #d4d4d4; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background-color: white; max-height: 200px; overflow-y: auto; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .autocomplete-items div { padding: 10px; cursor: pointer; border-bottom: 1px solid #d4d4d4; color: #333; font-size: 0.9rem; }
+        .autocomplete-items div:hover { background-color: #e9e9e9; }
+        .highlight { color: #0ea5e9; font-weight: bold; }
+
+        /* Scrollbar & Animation */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        /* Timeline & Badge Styles */
+        .route-timeline { position: relative; padding-left: 24px; border-left: 2px solid #e5e7eb; margin-left: 10px; }
+        .route-point { position: absolute; left: -31px; top: 0; width: 16px; height: 16px; background: white; border-radius: 50%; border: 4px solid #94a3b8; z-index: 10; }
+        .route-segment { margin-bottom: 24px; position: relative; }
+        .line-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; color: white; font-size: 0.75rem; font-weight: bold; margin-right: 6px; vertical-align: middle; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .express-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; background-color: #dc2626; color: white; font-size: 0.7rem; font-weight: bold; margin-left: 6px; vertical-align: middle; }
+
+        /* Line Colors */
+        .line-1 { background-color: #0077DD !important; }
+        .line-2 { background-color: #00CCAA !important; }
+        .line-3 { background-color: #FFCC11 !important; color: black !important; }
+        .line-4 { background-color: #FF5522 !important; }
+        .line-5 { background-color: #EE0022 !important; }
+        .line-6 { background-color: #881188 !important; }
+        .line-7 { background-color: #FF8899 !important; }
+        .line-8 { background-color: #9856FF !important; }
+        .line-bh { background-color: #6677CC !important; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+
+    <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center">
+                    <img src="logo.png" alt="효빈교통공사" class="h-10 w-auto object-contain">
+                </a>
+                
+                <nav class="hidden md:flex space-x-8 text-sm font-bold text-gray-800">
+                    <a href="info.html" class="border-b-2 border-sky-500 text-gray-900 px-1 pt-1" data-i18n="nav-info">이용정보</a>
+                    <a href="safety.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-safety">안전환경</a>
+                    <a href="participation.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-participation">시민 참여</a>
+                    <a href="notice.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-notice">알림마당</a>
+                    <a href="public.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-public">정보공개</a>
+                    <a href="esg.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-esg">ESG경영</a>
+                    <a href="about.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-about">공사 소개</a>
+                    <a href="QA.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-qa">고객센터</a>
+                    <a href="noseon.html" class="hover:text-sky-500 px-1 pt-1 transition" data-i18n="nav-noseon">각 노선 소개</a>
+                </nav>
+
+                <div class="flex items-center space-x-4 text-gray-500 text-sm">
+                    <button onclick="toggleLanguage()" class="font-medium hover:text-sky-600 transition focus:outline-none">
+                        <span id="lang-text">KOR / ENG</span>
+                    </button>
+                    <button class="md:hidden"><i class="fa-solid fa-bars text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="metro-gradient relative overflow-hidden flex-grow min-h-[500px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col md:flex-row relative">
+            <div class="md:w-1/2 pt-20 z-10">
+                <div class="flex flex-col items-start mb-10">
+                    <div class="mb-4">
+                        <div class="text-8xl hb-logo tracking-tighter">HB</div>
+                        <div class="w-24 h-1 bg-sky-700 mt-2 mx-auto"></div>
+                        <div class="w-16 h-1 bg-sky-700 mt-1 mx-auto"></div>
+                    </div>
+                    <h1 class="text-4xl font-bold text-slate-800 tracking-tight mb-1" data-i18n="main-title">효빈교통공사</h1>
+                    <p class="text-xl text-slate-600 font-medium tracking-widest" data-i18n="sub-title">HYOBIN METRO</p>
+                </div>
+                <div class="space-y-2">
+                    <a href="#search-section" class="block text-blue-600 font-semibold hover:underline" onclick="document.getElementById('startStation').focus(); return false;" data-i18n="link-realtime">실시간 열차운행정보보기</a>
+                    <a href="goods.html" class="block text-blue-600 font-semibold hover:underline" data-i18n="link-goods">공식 온라인 굿즈샵 바로가기</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 relative h-[500px] flex justify-end items-end">
+                <div class="relative z-20 mr-10 md:mr-20">
+                    <div class="absolute -top-16 -left-20 bg-sky-100 border border-sky-300 rounded-xl p-3 shadow-lg animate-bounce text-center">
+                        <p class="text-sm font-bold text-slate-800" data-i18n="banner-badge">이번달 배너 주인공!</p>
+                        <p class="text-base font-extrabold text-blue-600" data-i18n="banner-name">6호선 라세나</p>
+                    </div>
+                    <img src="lasena.jpg" onerror="this.onerror=null; this.src='https://placehold.co/300x500/transparent/3b82f6?text=Image+Not+Found';" alt="6호선 라세나" class="h-[450px] object-contain drop-shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="search-section" class="bg-slate-800 text-white relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12">
+                
+                <div class="lg:col-span-4 p-6 border-r border-slate-700 flex flex-col gap-4">
+                    <div class="flex gap-4 items-center group cursor-pointer" onclick="showAlert('ready')">
+                        <div class="w-24 h-16 bg-slate-600 rounded overflow-hidden flex-shrink-0">
+                            <img src="https://placehold.co/100x60/2563eb/white?text=LoveLive" class="w-full h-full object-cover group-hover:scale-110 transition">
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold leading-tight group-hover:text-sky-300">자매도시 누마즈&효빈<br>러브라이브 선샤인<br>콜라보 기획 발표!</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-center mt-2 group cursor-pointer" onclick="showAlert('ready')">
+                        <div class="w-24 h-16 bg-slate-600 rounded overflow-hidden flex-shrink-0">
+                             <img src="https://placehold.co/100x60/f97316/white?text=Figure" class="w-full h-full object-cover group-hover:scale-110 transition">
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold leading-tight group-hover:text-sky-300">SEGA 7호선 임세하<br>스케일 피규어 재판매<br>결정!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 p-6 relative">
+                    <div class="flex flex-wrap justify-between items-center mb-6 text-sm font-bold text-gray-300 border-b border-slate-600 pb-4">
+                        <a href="map.html" class="hover:text-white text-center leading-tight" data-i18n="menu-map">노선도<br>안내</a>
+                        <a href="lost_found.html" class="hover:text-white text-center leading-tight" data-i18n="menu-lost">유실물<br>찾기</a>
+                        <a href="fare.html" class="hover:text-white text-center leading-tight" data-i18n="menu-fare">운임<br>안내</a>
+                        <a href="accessible.html" class="hover:text-white text-center leading-tight" data-i18n="menu-weak">교통약자<br>서비스</a>
+                        <a href="delay_proof.html" class="hover:text-white text-center leading-tight" data-i18n="menu-delay">간편지연<br>증명서</a>
+                        
+                        <div class="flex items-center bg-slate-700 rounded px-3 py-1 ml-4 cursor-pointer hover:bg-slate-600 transition" onclick="openLoginModal()">
+                            <i class="fa-regular fa-user mr-2 text-gray-400"></i>
+                            <span class="text-sky-400 font-bold mr-2">Login Line</span>
+                            <div class="bg-sky-500 p-1 rounded-sm"><i class="fa-solid fa-arrow-down text-white text-xs"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-700/50 rounded-lg p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                        <div class="text-left w-full lg:w-1/3">
+                            <h3 class="text-lg font-bold text-white mb-1" data-i18n="search-title">경로찾기 / 역정보</h3>
+                            <p class="text-sm text-gray-400" data-i18n="search-desc">원하는 역을 입력하여<br>운행정보와 성지 정보를 확인하세요.</p>
+                        </div>
+                        
+                        <div class="flex-grow flex flex-col md:flex-row gap-4 w-full lg:w-2/3 items-end">
+                            <div class="flex flex-col relative w-full md:w-1/2 autocomplete-wrapper">
+                                <label class="font-bold text-sm mb-1 text-sky-300" data-i18n="label-start">출발 / 검색</label>
+                                <input type="text" id="startStation" placeholder="역 이름 입력" class="w-full p-2 rounded text-black font-bold focus:outline-none focus:ring-2 focus:ring-sky-500" autocomplete="off">
+                                <div id="startAutocomplete" class="autocomplete-items hidden"></div>
+                            </div>
+                            <div class="flex flex-col relative w-full md:w-1/2 autocomplete-wrapper">
+                                <label class="font-bold text-sm mb-1 text-sky-300" data-i18n="label-end">도착 (선택)</label>
+                                <input type="text" id="endStation" placeholder="역 이름 입력" class="w-full p-2 rounded text-black font-bold focus:outline-none focus:ring-2 focus:ring-sky-500" autocomplete="off">
+                                <div id="endAutocomplete" class="autocomplete-items hidden"></div>
+                            </div>
+                            <button onclick="findRoute()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-6 rounded shadow-lg transition w-full md:w-auto h-[42px] whitespace-nowrap">
+                                <i class="fa-solid fa-magnifying-glass mr-1"></i><span data-i18n="btn-search">검색</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="searchResult" class="hidden mt-4 bg-slate-900 rounded-lg p-6 border border-slate-600 shadow-xl animate-fade-in relative max-h-[600px] overflow-y-auto">
+                        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white sticky float-right z-50"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        <h4 class="text-xl font-bold text-sky-400 mb-4 pb-2 border-b border-slate-700 flex items-center">
+                            <i class="fa-solid fa-train-subway mr-2"></i><span data-i18n="result-title">검색 결과</span>
+                        </h4>
+                        <div id="resultContent" class="space-y-4 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700 px-6 py-8">
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
+                    <a href="chatbot.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-300 group-hover:text-white transition">
+                            <img src="https://placehold.co/50x50/transparent/white?text=Chat" class="rounded-full border border-gray-500 p-1">
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300" data-i18n="icon-chat">챗봇상담</p>
+                    </a>
+                    <a href="organization.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 border-2 border-gray-500 rounded-full flex items-center justify-center group-hover:border-white transition">
+                             <i class="fa-solid fa-plus text-2xl text-gray-400 group-hover:text-white"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300" data-i18n="icon-org">조직도</p>
+                    </a>
+                    <a href="station_guide.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-white transition">
+                             <i class="fa-solid fa-flask text-3xl"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300" data-i18n="icon-guide">역이용안내</p>
+                    </a>
+                    <a href="goods.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-white transition">
+                             <i class="fa-solid fa-trophy text-3xl"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300" data-i18n="icon-shop">굿즈샵 안내</p>
+                    </a>
+                    <a href="anime_tour.html" class="group cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-white transition">
+                             <i class="fa-solid fa-file-contract text-3xl"></i>
+                        </div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300" data-i18n="icon-tour">성지순례 가이드</p>
+                    </a>
+                    <a href="mascot.html" class="group cursor-pointer relative">
+                        <div class="w-12 h-12 mx-auto mb-2 text-gray-300 group-hover:text-white transition">
+                             <img src="https://placehold.co/50x50/transparent/white?text=Mascot" class="rounded-full">
+                        </div>
+                        <div class="absolute top-0 right-4 w-3 h-3 bg-red-500 rounded-full border border-slate-800"></div>
+                        <p class="text-sm font-bold group-hover:text-sky-300 text-gray-300" data-i18n="icon-mascot">마스코트 정보</p>
+                    </a>
+                </div>
+            </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-6">
+                <div class="bg-white p-2 rounded">
+                    <img src="logo.png" alt="효빈교통공사" class="h-8 w-auto">
+                </div>
+                <p>Copyright 2016. 효빈교통공사 All right reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="customAlertOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100 animate-fade-in">
+            <div class="bg-sky-600 p-3 flex items-center justify-between">
+                <h3 class="text-white font-bold flex items-center"><i class="fa-solid fa-circle-info mr-2"></i><span id="alertTitle">알림</span></h3>
+                <button onclick="document.getElementById('customAlertOverlay').classList.add('hidden')" class="text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6">
+                <p id="customAlertMessage" class="text-gray-700 font-medium text-center">메시지</p>
+            </div>
+            <div class="bg-gray-50 p-3 flex justify-center border-t border-gray-200">
+                <button onclick="document.getElementById('customAlertOverlay').classList.add('hidden')" class="bg-sky-600 text-white font-bold py-2 px-6 rounded" data-i18n="btn-confirm">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModalOverlay" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 transition-opacity duration-300" style="background: rgba(0,0,0,0.7);">
+        <div id="loginModal" class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-95 opacity-0 duration-300">
+            <div class="bg-sky-600 p-4 flex items-center justify-between">
+                <h3 class="text-white font-bold text-xl flex items-center">
+                    <i class="fa-solid fa-user-lock mr-2"></i><span data-i18n="login-title">로그인</span>
+                </h3>
+                <button onclick="closeLoginModal()" class="text-white hover:text-gray-200 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="text-center">
+                    <p class="text-gray-600 font-medium text-lg mb-4" data-i18n="login-welcome">효빈교통공사 Login Line에 오신 것을 환영합니다!</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="login-id">아이디</label>
+                    <input type="text" id="loginId" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 outline-none" placeholder="아이디를 입력하세요">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="login-pw">비밀번호</label>
+                    <input type="password" id="loginPw" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 outline-none" placeholder="비밀번호를 입력하세요">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-lg transition shadow-lg" data-i18n="btn-login">로그인</button>
+                <div class="flex justify-between text-sm mt-3">
+                    <a href="#" class="text-sky-600 hover:text-sky-500" data-i18n="login-find">아이디/비번 찾기</a>
+                    <a href="#" class="text-sky-600 hover:text-sky-500" data-i18n="login-join">회원가입</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================================================================
+        // 0. 다국어 설정 및 유틸리티
+        // ==================================================================
+        let currentLang = 'ko';
+
+        const translations = {
+            'ko': {
+                'nav-info': '이용정보', 'nav-safety': '안전환경', 'nav-participation': '시민 참여', 'nav-notice': '알림마당',
+                'nav-public': '정보공개', 'nav-esg': 'ESG경영', 'nav-about': '공사 소개', 'nav-qa': '고객센터', 'nav-noseon': '각 노선 소개',
+                'main-title': '효빈교통공사', 'sub-title': 'HYOBIN METRO',
+                'link-realtime': '실시간 열차운행정보보기', 'link-goods': '공식 온라인 굿즈샵 바로가기',
+                'banner-badge': '이번달 배너 주인공!', 'banner-name': '6호선 라세나',
+                'menu-map': '노선도<br>안내', 'menu-lost': '유실물<br>찾기', 'menu-fare': '운임<br>안내', 'menu-weak': '교통약자<br>서비스', 'menu-delay': '간편지연<br>증명서',
+                'search-title': '경로찾기 / 역정보', 'search-desc': '원하는 역을 입력하여<br>운행정보와 성지 정보를 확인하세요.',
+                'label-start': '출발 / 검색', 'label-end': '도착 (선택)', 'btn-search': '검색',
+                'result-title': '검색 결과',
+                'icon-chat': '챗봇상담', 'icon-org': '조직도', 'icon-guide': '역이용안내', 'icon-shop': '굿즈샵 안내', 'icon-tour': '성지순례 가이드', 'icon-mascot': '마스코트 정보',
+                'login-title': '로그인', 'login-welcome': '효빈교통공사 Login Line에 오신 것을 환영합니다!',
+                'login-id': '아이디', 'login-pw': '비밀번호', 'btn-login': '로그인', 'login-find': '아이디/비번 찾기', 'login-join': '회원가입',
+                'btn-confirm': '확인',
+                'ph-station': '역 이름 입력', 'ph-id': '아이디를 입력하세요', 'ph-pw': '비밀번호를 입력하세요',
+                'alert-ready': '준비중입니다.', 'alert-login-success': '로그인 되었습니다.', 'alert-login-fail': '아이디/비번을 확인해주세요.'
+            },
+            'en': {
+                'nav-info': 'Info', 'nav-safety': 'Safety', 'nav-participation': 'Participation', 'nav-notice': 'Notice',
+                'nav-public': 'Public Info', 'nav-esg': 'ESG', 'nav-about': 'About Us', 'nav-qa': 'Help Center', 'nav-noseon': 'Line Info',
+                'main-title': 'HYOBIN METRO', 'sub-title': 'HYOBIN METRO',
+                'link-realtime': 'Real-time Train Info', 'link-goods': 'Official Online Shop',
+                'banner-badge': 'Banner Star of the Month', 'banner-name': 'Line 6 Lasena',
+                'menu-map': 'Route<br>Map', 'menu-lost': 'Lost &<br>Found', 'menu-fare': 'Fare<br>Info', 'menu-weak': 'Accessibility<br>Service', 'menu-delay': 'Delay<br>Proof',
+                'search-title': 'Route / Station Info', 'search-desc': 'Enter station name to check<br>train info and pilgrimage spots.',
+                'label-start': 'Start / Search', 'label-end': 'Arrival (Optional)', 'btn-search': 'Search',
+                'result-title': 'Search Result',
+                'icon-chat': 'Chatbot', 'icon-org': 'Organization', 'icon-guide': 'Station Guide', 'icon-shop': 'Goods Shop', 'icon-tour': 'Pilgrimage Guide', 'icon-mascot': 'Mascot Info',
+                'login-title': 'Login', 'login-welcome': 'Welcome to Hyobin Metro Login Line!',
+                'login-id': 'ID', 'login-pw': 'Password', 'btn-login': 'Login', 'login-find': 'Find ID/PW', 'login-join': 'Sign Up',
+                'btn-confirm': 'Confirm',
+                'ph-station': 'Enter Station', 'ph-id': 'Enter ID', 'ph-pw': 'Enter Password',
+                'alert-ready': 'Coming Soon.', 'alert-login-success': 'Login Successful.', 'alert-login-fail': 'Check ID or Password.'
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ko' ? 'en' : 'ko';
+            updatePageLanguage();
+        }
+
+        function updatePageLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(translations[currentLang][key]) el.innerHTML = translations[currentLang][key];
+            });
+            const t = translations[currentLang];
+            document.getElementById('startStation').placeholder = t['ph-station'];
+            document.getElementById('endStation').placeholder = t['ph-station'];
+            document.getElementById('loginId').placeholder = t['ph-id'];
+            document.getElementById('loginPw').placeholder = t['ph-pw'];
+            document.getElementById('lang-text').innerText = currentLang === 'ko' ? 'KOR / ENG' : 'ENG / KOR';
+        }
+
+        function showAlert(type) {
+            let msg = type;
+            if(type === 'ready') msg = translations[currentLang]['alert-ready'];
+            document.getElementById('customAlertMessage').innerText = msg;
+            document.getElementById('customAlertOverlay').classList.remove('hidden');
+        }
+
+        // 로그인 모달 관련 함수
+        function openLoginModal() {
+            const overlay = document.getElementById('loginModalOverlay');
+            const modal = document.getElementById('loginModal');
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('scale-95', 'opacity-0');
+                modal.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeLoginModal() {
+            const overlay = document.getElementById('loginModalOverlay');
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('scale-100', 'opacity-100');
+            modal.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        function handleLogin() {
+            const id = document.getElementById('loginId').value;
+            const pw = document.getElementById('loginPw').value;
+            if(id && pw) {
+                showAlert(translations[currentLang]['alert-login-success']);
+                closeLoginModal();
+            } else {
+                showAlert(translations[currentLang]['alert-login-fail']);
+            }
+        }
+
+    <script>
+        // ==================================================================
+        // 1. 역 데이터 (stationData) - 외부 파일 의존성 제거를 위해 직접 삽입
+        // ==================================================================
+        const stationData = [
+            // [1호선]
+               {line:"효빈1호선", date:"1994년 12월 29일", id:"101", km:0, dist:0, exits:1, name:"곽암해수욕장", hanjaName:"郭岩海水浴場", engName:"Gwakam Beach", address:"효빈광역시 남구 곽산동 220-2", express:"", transfer:[], riders:5011, trivia:"", time:{prev:"출발", cum:"출발"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"102", km:1.7, dist:1.7, exits:4, name:"곽산", hanjaName:"郭山", engName:"Kwaksan", address:"효빈광역시 남구 곽산동 332-2", express:"급", transfer:["8호선"], riders:9472, trivia:"", time:{prev:"2분 15초", cum:"2분 15초"}, expTime:{prev:"출발", cum:"출발"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"103", km:2.55, dist:0.85, exits:2, name:"회산", hanjaName:"回山", engName:"Hoisan", address:"효빈광역시 남구 곽산동 785-1", express:"", transfer:[], riders:12311, trivia:"", time:{prev:"1분 31초", cum:"3분 46초"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"104", km:3.41, dist:0.86, exits:2, name:"남당", hanjaName:"南堂", engName:"Namdang", address:"효빈광역시 남구 평당동 482-3", express:"", transfer:[], riders:17933, trivia:"", time:{prev:"1분 31초", cum:"5분 18초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"105", km:4.31, dist:0.9, exits:4, name:"평당", hanjaName:"平當", engName:"Pyongdang", address:"효빈광역시 남구 평당동 567-5", express:"급", transfer:[], riders:26181, trivia:"", time:{prev:"1분 34초", cum:"6분 53초"}, expTime:{prev:"2분 55초", cum:"2분 55초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"106", km:5.6, dist:1.29, exits:9, name:"남구청", hanjaName:"南區廳", engName:"Nam-gu Office", address:"효빈광역시 남구 평당동 1708", express:"급", transfer:["4호선","8호선"], riders:38072, trivia:"", time:{prev:"1분 46초", cum:"8분 39초"}, expTime:{prev:"1분 32초", cum:"4분 28초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"107", km:6.8, dist:1.2, exits:5, name:"신거", hanjaName:"宸居", engName:"Singeo", address:"효빈광역시 남구 운양동 2995", express:"", transfer:["8호선"], riders:15293, trivia:"", time:{prev:"1분 45초", cum:"10분 24초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"108", km:8.23, dist:1.43, exits:6, name:"효빈항", hanjaName:"孝彬港", engName:"Hyobin Port", address:"효빈광역시 남구 항동3가 1213", express:"급", transfer:["빈효선광역철도","7호선"], riders:16191, trivia:"", time:{prev:"1분 50초", cum:"12분 15초"}, expTime:{prev:"3분 03초", cum:"7분 32초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"109", km:9.35, dist:1.12, exits:4, name:"효빈항물류지구", hanjaName:"孝彬港物流地區", engName:"Hyobin Port Logistics District", address:"효빈광역시 남구 항동1가 239-3", express:"", transfer:["빈효선광역철도"], riders:6332, trivia:"", time:{prev:"1분 50초", cum:"14분 06초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"110", km:10.5, dist:1.15, exits:8, name:"월천", hanjaName:"月川", engName:"Wolcheon", address:"효빈광역시 남구 월천동 929", express:"급", transfer:["2호선","7호선"], riders:20922, trivia:"", time:{prev:"1분 52초", cum:"15분 58초"}, expTime:{prev:"2분 37초", cum:"10분 09초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"111", km:11.7, dist:1.2, exits:2, name:"십덕", hanjaName:"十徳", engName:"sipdeok", address:"효빈광역시 중구 십덕동 10", express:"", transfer:[], riders:6456, trivia:"", time:{prev:"1분 56초", cum:"17분 55초"}},
+            {line:"효빈1호선", date:"1988년 2월 9일", id:"112", km:12.82, dist:1.12, exits:3, name:"약맥", hanjaName:"弱脈", engName:"yakmeak", address:"효빈광역시 중구 약맥동 685", express:"", transfer:[], riders:6833, trivia:"", time:{prev:"1분 50초", cum:"19분 45초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"113", km:13.82, dist:1, exits:7, name:"창선", hanjaName:"蒼善", engName:"Changseon", address:"효빈광역시 중구 창선동3가 221-6", express:"급", transfer:["1호선 탄성지선"], riders:40292, trivia:"지하 2층에 효빈교통공사 공식 굿즈샵 위치", time:{prev:"1분 42초", cum:"21분 26초"}, expTime:{prev:"3분 47초", cum:"13분 56초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"114", km:14.8, dist:0.98, exits:15, name:"중앙로", hanjaName:"中央路", engName:"Jungang-ro", address:"효빈광역시 중구 중앙로 5가 7-9", express:"급", transfer:["2호선","7호선"], riders:51032, trivia:"", time:{prev:"1분 40초", cum:"23분 08초"}, expTime:{prev:"2분 10초", cum:"16분 07초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"115", km:15.88, dist:1.08, exits:6, name:"중구청", hanjaName:"中區廳(助有)", engName:"Jung-gu Office", address:"효빈광역시 중구 조유동2가 2114", express:"", transfer:["7호선"], riders:19210, trivia:"", time:{prev:"1분 47초", cum:"24분 56초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"116", km:16.83, dist:0.95, exits:3, name:"내조", hanjaName:"内助", engName:"Neajo", address:"효빈광역시 중구 내조동 2190", express:"", transfer:["7호선"], riders:9622, trivia:"", time:{prev:"1분 38초", cum:"26분 34초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"117", km:18.23, dist:1.4, exits:17, name:"효빈", hanjaName:"孝彬", engName:"Hyobin Station", address:"효빈광역시 동구 사가당동 79", express:"급", transfer:["3호선","빈효선광역철도","7호선"], riders:71192, trivia:"", time:{prev:"1분 54초", cum:"28분 28초"}, expTime:{prev:"2분 54초", cum:"19분 02초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"118", km:18.93, dist:0.7, exits:3, name:"보몽", hanjaName:"步夢", engName:"Bomong", address:"효빈광역시 동구 전천동 3-1", express:"", transfer:[], riders:8642, trivia:"러브라이브 니지동 우에하라 아유무의 이름 한자", time:{prev:"1분 20초", cum:"29분 48초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"119", km:19.73, dist:0.8, exits:5, name:"전천", hanjaName:"前川", engName:"Jeoncheon", address:"효빈광역시 동구 전천동  1-1", express:"급", transfer:["5호선"], riders:13911, trivia:"", time:{prev:"1분 26초", cum:"31분 16초"}, expTime:{prev:"1분 42초", cum:"20분 44초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"120", km:20.83, dist:1.1, exits:2, name:"천왕사", hanjaName:"天王寺", engName:"cheomwangsa", address:"효빈광역시 북구 천왕사동 11-13", express:"", transfer:[], riders:15622, trivia:"러브라이브 니지동 텐노지 리나 성씨 한자", time:{prev:"1분 49초", cum:"33분 05초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"121", km:21.58, dist:0.75, exits:3, name:"백천", hanjaName:"白川", engName:"Baekcheon", address:"효빈광역시 북구 천왕사동 1840", express:"", transfer:[], riders:4391, trivia:"", time:{prev:"1분 24초", cum:"34분 29초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"122", km:22.33, dist:0.75, exits:8, name:"입희", hanjaName:"立希", engName:"Ip Hee", address:"효빈광역시 북구 입희동 8-9", express:"급", transfer:["2호선"], riders:25298, trivia:"뱅드림 마이고 시이나 타키 이름 한자", time:{prev:"1분 24초", cum:"35분 53초"}, expTime:{prev:"2분 55초", cum:"23분 39초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"123", km:23.34, dist:1.01, exits:1, name:"추산", hanjaName:"秋山", engName:"Chusan", address:"효빈광역시 북구 추산동 1-15", express:"", transfer:[], riders:5433, trivia:"케이온 아키야마 미오의 성씨 한자", time:{prev:"1분 42초", cum:"37분 36초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"124", km:24.34, dist:1, exits:3, name:"서도", hanjaName:"西道", engName:"Seodo", address:"효빈광역시 북구 서도동 491-12", express:"", transfer:[], riders:7162, trivia:"", time:{prev:"1분 42초", cum:"39분 18초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"125", km:25.41, dist:1.07, exits:7, name:"북구청", hanjaName:"北區廳", engName:"Buk-gu Office", address:"효빈광역시 북구 중수동 79-12", express:"급", transfer:["6호선"], riders:41982, trivia:"", time:{prev:"1분 47초", cum:"41분 05초"}, expTime:{prev:"3분 29초", cum:"27분 09초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"126", km:26.64, dist:1.23, exits:2, name:"등기", hanjaName:"等気", engName:"Deunggi", address:"효빈광역시 북구 중수동 843", express:"", transfer:[], riders:14232, trivia:"", time:{prev:"1분 58초", cum:"43분 04초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"127", km:28.64, dist:2, exits:2, name:"평전", hanjaName:"平田", engName:"Pyeongjeon", address:"효빈광역시 북구 평전동 336", express:"급", transfer:[], riders:10282, trivia:"", time:{prev:"2분 37초", cum:"45분 41초"}, expTime:{prev:"3분 46초", cum:"30분 55초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"128", km:30.02, dist:1.38, exits:1, name:"아진", hanjaName:"阿津", engName:"Ajin", address:"효빈광역시 북구 아진동 667", express:"급", transfer:[], riders:2999, trivia:"", time:{prev:"1분 52초", cum:"47분 33초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"129", km:30.99, dist:0.97, exits:3, name:"당안", hanjaName:"唐安", engName:"Dangan", address:"효빈광역시 안천구 당가동 3133", express:"", transfer:[], riders:13627, trivia:"", time:{prev:"1분 39초", cum:"49분 13초"}, expTime:{prev:"2분 43초", cum:"33분 38초"}},
+            {line:"효빈1호선", date:"1984년 12월 2일", id:"130", km:31.89, dist:0.9, exits:8, name:"안천", hanjaName:"安川", engName:"Ancheon Station", address:"효빈광역시 안천구 안천동 1031", express:"급", transfer:["빈효선광역철도"], riders:37382, trivia:"", time:{prev:"1분 34초", cum:"50분 48초"}, expTime:{prev:"2분 04초", cum:"35분 43초"}},
+            {line:"효빈1호선", date:"1991년 3월 5일", id:"131", km:33.34, dist:1.45, exits:2, name:"팔망성", hanjaName:"八罔城", engName:"Palmangseong", address:"효빈광역시 안천구 팔망성동 927", express:"", transfer:[], riders:18262, trivia:"", time:{prev:"1분 57초", cum:"52분 46초"}},
+            {line:"효빈1호선", date:"1991년 3월 5일", id:"132", km:35.36, dist:2.02, exits:1, name:"추자", hanjaName:"雛子", engName:"Chuja", address:"효빈광역시 안천구 추자동 719", express:"", transfer:[], riders:3312, trivia:"뱅드림 글리터 그린 니쥿키 히나코의 이름 한자", time:{prev:"2분 38초", cum:"55분 24초"}},
+            {line:"효빈1호선", date:"1991년 3월 5일", id:"133", km:36.61, dist:1.25, exits:4, name:"이자출장소", hanjaName:"莉子出張所", engName:"Ija-office", address:"효빈광역시 안천구 이십기동 341", express:"급", transfer:[], riders:14283, trivia:"러브라이브 선샤인 사쿠라우치 이름 한자", time:{prev:"2분 00초", cum:"57분 24초"}, expTime:{prev:"4분 26초", cum:"40분 11초"}},
+            {line:"효빈1호선", date:"1991년 3월 5일", id:"134", km:37.71, dist:1.1, exits:2, name:"과남", hanjaName:"果南", engName:"Gwanam", address:"효빈광역시 안천구 이자동 2-10", express:"", transfer:[], riders:10326, trivia:"러브라이브 선샤인 마츠우라 카난 이름 한자", time:{prev:"1분 49초", cum:"59분 13초"}},
+            {line:"효빈1호선", date:"1991년 3월 5일", id:"135", km:38.81, dist:1.1, exits:6, name:"이자공원", hanjaName:"莉子公院", engName:"Ija Park", address:"효빈광역시 안천구 이자동 1835", express:"급", transfer:["4호선"], riders:28338, trivia:"러브라이브 선샤인 사쿠라우치 리코 이름 한자", time:{prev:"1분 49초", cum:"61분 03초"}, expTime:{prev:"2분 32초", cum:"42분 43초"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"136", km:40.13, dist:1.32, exits:3, name:"정치", hanjaName:"整治", engName:"jeongchi", address:"효빈광역시 안천구 이자동 256", express:"", transfer:[], riders:9192, trivia:"", time:{prev:"1분 48초", cum:"62분 51초"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"137", km:41.13, dist:1, exits:6, name:"영색무", hanjaName:"影色舞", engName:"Yeongsaekmu", address:"효빈광역시 안천구 영색무동 211", express:"급", transfer:["빈효선광역철도"], riders:6832, trivia:"뱅드림 마이고 노래중 실루엣댄스의 한자표기명 사용", time:{prev:"1분 42초", cum:"64분 33초"}, expTime:{prev:"2분 41초", cum:"45분 24초"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"138", km:43.04, dist:1.91, exits:1, name:"능릉", hanjaName:"能稜", engName:"Neungneung", address:"효빈광역시 안천구 능릉동 2042", express:"", transfer:[], riders:2982, trivia:"", time:{prev:"2분 30초", cum:"67분 04초"}},
+            {line:"효빈1호선", date:"1994년 12월 29일", id:"139", km:46.14, dist:3.1, exits:2, name:"고해", hanjaName:"高海", engName:"Gohae Station", address:"효빈광역시 탄성군 고해읍 이와리 81", express:"급", transfer:["빈효선광역철도"], riders:7573, trivia:"러브라이브 선샤인 타카미 치카 성씨 한자", time:{prev:"3분 56초", cum:"71분 00초"}, expTime:{prev:"3분 54초", cum:"49분 19초"}},
+            {line:"효빈1호선", date:"2008년 2월 2일", id:"140", km:51.99, dist:5.85, exits:1, name:"도향", hanjaName:"桃香", engName:"dohyang", address:"효빈광역시 탄성군 도향면 분음리 12-9", express:"", transfer:[], riders:2232, trivia:"걸즈 밴드크라이 카와라기 모모카의 이름 한자", time:{prev:"3분 51초", cum:"74분 52초"}},
+            {line:"효빈1호선", date:"2008년 2월 2일", id:"141", km:55.74, dist:3.75, exits:1, name:"산형", hanjaName:"山形", engName:"sanhyeong", address:"덕빈북도 약산시 매목동 1900", express:"급", transfer:[], riders:8434, trivia:"", time:{prev:"3분 38초", cum:"78분 31초"}, expTime:{prev:"7분 33초", cum:"56분 53초"}},
+            {line:"효빈1호선", date:"2008년 2월 2일", id:"142", km:57.31, dist:1.57, exits:1, name:"탄미", hanjaName:"炭尾", engName:"Tanmi", address:"덕빈북도 약산시 대염동 2834", express:"급", transfer:[], riders:8632, trivia:"", time:{prev:"2분 06초", cum:"80분 37초"}},
+            {line:"효빈1호선", date:"2008년 2월 2일", id:"143", km:58.55, dist:1.24, exits:2, name:"약산시청", hanjaName:"藥山市廳", engName:"Yaksan City Hall", address:"덕빈북도 약산시 약산동 285", express:"급", transfer:[], riders:15232, trivia:"", time:{prev:"1분 59초", cum:"82분 36초"}, expTime:{prev:"5분 22초", cum:"62분 15초"}},
+            {line:"효빈1호선", date:"2018년 9월 22일", id:"144", km:59.58, dist:1.03, exits:1, name:"수구", hanjaName:"垂鉤", engName:"sugu", address:"덕빈북도 약산시 상수구동 210", express:"급", transfer:[], riders:7392, trivia:"", time:{prev:"1분 44초", cum:"84분 20초"}, expTime:{prev:"2분 14초", cum:"64분 29초"}},
+            {line:"효빈1호선", date:"2018년 9월 22일", id:"145", km:60.73, dist:1.15, exits:1, name:"하내장", hanjaName:"河內長", engName:"haneajang", address:"덕빈북도 약산시 화소읍 하내장리 1790", express:"", transfer:[], riders:2728, trivia:"", time:{prev:"1분 52초", cum:"86분 13초"}},
+            {line:"효빈1호선", date:"2018년 9월 22일", id:"146", km:64.57, dist:3.84, exits:1, name:"요곡", hanjaName:"拗哭", engName:"yogok", address:"덕빈북도 약산시 화소읍 요곡리 137", express:"", transfer:[], riders:999, trivia:"", time:{prev:"3분 36초", cum:"89분 49초"}},
+            {line:"효빈1호선", date:"2018년 9월 22일", id:"147", km:69.05, dist:4.48, exits:2, name:"화소", hanjaName:"華所", engName:"hwaso statiom", address:"덕빈북도 약산시 화소읍 상내리 423", express:"급", transfer:["빈효선광역철도"], riders:7734, trivia:"", time:{prev:"3분 40초", cum:"93분 30초"}, expTime:{prev:"5분 52초", cum:"70분 22초"}},
+            {line:"효빈1호선", date:"2018년 9월 22일", id:"148", km:71.84, dist:2.79, exits:3, name:"장곡", hanjaName:"長谷", engName:"Janggok", address:"덕빈북도 약산시 장곡읍 장곡리 268", express:"급", transfer:[], riders:9272, trivia:"", time:{prev:"3분 34초", cum:"97분 04초"}, expTime:{prev:"2분 44초", cum:"73분 07초"}},
+            {line:"효빈1호선", date:"2024년 12월 2일", id:"149", km:79.5, dist:7.66, exits:1, name:"마현", hanjaName:"馬現", engName:"Ma Hyun", address:"덕빈북도 약산시 장곡읍 마현리 595", express:"", transfer:[], riders:2122, trivia:"", time:{prev:"6분 24초", cum:"103분 28초"}},
+            {line:"효빈1호선", date:"2024년 12월 2일", id:"150", km:81.59, dist:2.09, exits:2, name:"무기", hanjaName:"武基", engName:"mugi", address:"덕빈북도 약산시 장곡읍 무기리 1456", express:"급", transfer:[], riders:5001, trivia:"케이온 코토부키 츠무기의 별명\"무기\"", time:{prev:"2분 43초", cum:"106분 12초"}, expTime:{prev:"7분 24초", cum:"81분 31초"}},
+            {line:"효빈1호선", date:"2024년 12월 2일", id:"151", km:83.48, dist:1.89, exits:1, name:"장선", hanjaName:"將船", engName:"jangseon", address:"덕빈북도 약산시 장곡읍 장선리 3194", express:"급", transfer:[], riders:1849, trivia:"", time:{prev:"2분 29초", cum:"108분 41초"}, expTime:{prev:"2분 16초", cum:"82분 47초"}},
+            
+            // 1호선 탄성지선
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113", km:0, dist:0, exits:7, name:"창선", hanjaName:"蒼善", engName:"Changseon", address:"효빈광역시 중구 창선동3가 221-6", express:"급", transfer:["1호선 본선"], riders:40292, trivia:"", time:{prev:"출발", cum:"출발"}, expTime:{prev:"출발", cum:"출발"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-1", km:1.09, dist:1.09, exits:6, name:"오석", hanjaName:"鴉石", engName:"OSeok", address:"효빈광역시 중구 오주동 510", express:"급", transfer:["4호선"], riders:17866, trivia:"", time:{prev:"1분 48초", cum:"1분 48초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-2", km:1.99, dist:0.9, exits:8, name:"장원", hanjaName:"長圓", engName:"jangwon", address:"효빈광역시 중구 정동 622", express:"급", transfer:["4호선","빈효선광역철도"], riders:30273, trivia:"", time:{prev:"1분 34초", cum:"3분 23초"}, expTime:{prev:"2분 41초", cum:"2분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-3", km:3.15, dist:1.16, exits:2, name:"동리", hanjaName:"東里", engName:"Dongli", address:"효빈광역시 청엽구 동리동 1-7", express:"", transfer:[], riders:10238, trivia:"뱅드림 애프터글로우 하자와 츠구미 이름 중국번안 한자", time:{prev:"1분 53초", cum:"5분 16초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-4", km:4.1, dist:0.95, exits:2, name:"비마리유적지구", hanjaName:"悲馬里遺跡地區", engName:"Bimari Historic Area", address:"효빈광역시 청엽구 비마동 10-23", express:"", transfer:[], riders:7492, trivia:"뱅드림 애프터 글로우 우에하라 히마리 이름을 중국 번안 한자", time:{prev:"1분 38초", cum:"6분 55초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-5", km:5.1, dist:1, exits:5, name:"사노", hanjaName:"四労", engName:"Sano", address:"효빈광역시 청엽구 사노동 697", express:"급", transfer:["6호선"], riders:10819, trivia:"", time:{prev:"1분 42초", cum:"8분 37초"}, expTime:{prev:"3분 43초", cum:"5분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-6", km:6.24, dist:1.14, exits:6, name:"청엽구청", hanjaName:"青葉區廳", engName:"Cheongyeop-gu Office", address:"효빈광역시 청엽구 청엽동 93", express:"급", transfer:["3호선"], riders:6221, trivia:"뱅드림 애프터 글로우 아오바 모카 성씨 한자", time:{prev:"1분 52초", cum:"10분 29초"}, expTime:{prev:"1분 46초", cum:"7분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-7", km:7.22, dist:0.98, exits:4, name:"아논타워", hanjaName:"亞論타워", engName:"Anon Tower", address:"효빈광역시 청엽구 청엽동 98", express:"", transfer:[], riders:2023, trivia:"뱅드림 마이고 치하야 아논(아논 도쿄같이 자기 이름에 뭐 붙이는 거 좋아해서 타워붙임)", time:{prev:"1분 40초", cum:"12분 09초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-8", km:8.02, dist:0.8, exits:6, name:"우전", hanjaName:"宇田", engName:"Woojeon", address:"효빈광역시 청엽구 우전동 4-15", express:"급", transfer:["2호선"], riders:4929, trivia:"뱅드림 로젤리아 우다가와 아코, 애프터글로우 우다가와 토모에 성씨 한자", time:{prev:"1분 26초", cum:"13분 37초"}, expTime:{prev:"2분 02초", cum:"9분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-9", km:8.93, dist:0.91, exits:5, name:"창전", hanjaName:"倉田", engName:"Changjeon", address:"효빈광역시 창전구 유류동 388", express:"", transfer:[], riders:3200, trivia:"뱅드림 모르포니카 쿠라타 마시로 성씨 한자", time:{prev:"1분 35초", cum:"15분 12초"}},
+            {line:"효빈 1호선 탄성지선", date:"1988년 2월 9일", id:"113-10", km:9.94, dist:1.01, exits:5, name:"창전구청", hanjaName:"倉田區廳", engName:"Changjeon District Office", address:"효빈광역시 창전구 창전동 2-19", express:"급", transfer:[], riders:9585, trivia:"뱅드림 모르포니카  쿠라타 마시로 성씨 한자,지하1층에 효빈교통공사 공식 굿즈샵", time:{prev:"1분 42초", cum:"16분 55초"}, expTime:{prev:"2분 30초", cum:"11분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"2008년 2월 2일", id:"113-11", km:10.85, dist:0.91, exits:2, name:"보통", hanjaName:"普通", engName:"botong", address:"효빈광역시 창전구 창전동 639", express:"", transfer:[], riders:15322, trivia:"뱅드림 모르포니카 히로마치 나나미의 평소 말버릇중 \"보통\"", time:{prev:"1분 35초", cum:"18분 31초"}},
+            {line:"효빈 1호선 탄성지선", date:"2008년 2월 2일", id:"113-12", km:13.11, dist:2.26, exits:3, name:"고무", hanjaName:"高武", engName:"gomu", address:"효빈광역시 탄성군 탄성읍 고무리 366", express:"", transfer:[], riders:8192, trivia:"", time:{prev:"2분 55초", cum:"21분 26초"}},
+            {line:"효빈 1호선 탄성지선", date:"2008년 2월 2일", id:"113-13", km:15.35, dist:2.24, exits:3, name:"탄성", hanjaName:"彈城", engName:"Tanseong", address:"효빈광역시 탄성군 탄성읍 탄성리 1085", express:"급", transfer:[], riders:20393, trivia:"", time:{prev:"2분 54초", cum:"24분 21초"}, expTime:{prev:"4분 41초", cum:"17분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"2017년 2월 9일", id:"113-14", km:17.06, dist:1.71, exits:2, name:"탄성군청", hanjaName:"彈城郡廳", engName:"Tanseong County Office", address:"효빈광역시 탄성군 탄성읍 공리 642", express:"급", transfer:[], riders:27238, trivia:"", time:{prev:"2분 16초", cum:"26분 37초"}, expTime:{prev:"2분 21초", cum:"19분 19초"}},
+            {line:"효빈 1호선 탄성지선", date:"2017년 2월 9일", id:"113-15", km:19.14, dist:2.08, exits:2, name:"야진입구", hanjaName:"野津入口", engName:"yajin Entrance", address:"효빈광역시 탄성군 탄성읍 미성리 4", express:"", transfer:[], riders:20232, trivia:"러브라이브 니시키노 마키의 성씨 이름 한자 일부와 겹침", time:{prev:"2분 42초", cum:"29분 20초"}},
+            {line:"효빈 1호선 탄성지선", date:"2017년 2월 9일", id:"113-16", km:21.89, dist:2.75, exits:2, name:"서목", hanjaName:"西木", engName:"seomok", address:"효빈광역시 탄성군 서목읍 서목리 753", express:"급", transfer:[], riders:24032, trivia:"러브라이브 니시키노 마키의 성씨 한자중 일부", time:{prev:"3분 31초", cum:"32분 52초"}, expTime:{prev:"5분 18초", cum:"25분 59초"}},
+            {line:"효빈 1호선 탄성지선", date:"2017년 2월 9일", id:"113-17", km:24.06, dist:2.17, exits:1, name:"승남해수욕장", hanjaName:"承南海水浴場", engName:"Seungnam Beach", address:"효빈광역시 탄성군 서목읍 승남리 691", express:"", transfer:[], riders:15492, trivia:"", time:{prev:"2분 49초", cum:"35분 41초"}},
+            
+            // 2호선
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"201", km:0, dist:0, exits:8, name:"월천", hanjaName:"月川", engName:"Wolcheon", address:"효빈광역시 남구 월천동 929", express:"급 ", transfer:["1호선","7호선"," 어간지선 "], riders:30122, trivia:"", time:{prev:"출발", cum:"출발"}, expTime:{prev:"출발", cum:"출발"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"202", km:1.22, dist:1.22, exits:4, name:"박산", hanjaName:"朴山", engName:"baksan", address:"효빈광역시 남구 박산동 62-3", express:"", transfer:["8호선"], riders:8292, trivia:"", time:{prev:"2분 06초", cum:"2분 06초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"203", km:2.42, dist:1.2, exits:8, name:"신흥", hanjaName:"新興", engName:"sinheung", address:"효빈광역시 남구 신흥동 345", express:"급", transfer:["4호선","8호선"], riders:20128, trivia:"", time:{prev:"2분 05초", cum:"4분 41초"}, expTime:{prev:"3분 10초", cum:"3분 10초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"204", km:3.4, dist:0.98, exits:2, name:"효빈공단", hanjaName:"孝彬工團", engName:"Hyobin Industrial Complex", address:"효빈광역시 남구 신흥동 346", express:"급", transfer:[], riders:5427, trivia:"", time:{prev:"1분 47초", cum:"6분 13초"}, expTime:{prev:"1분 47초", cum:"4분 58초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"205", km:4.55, dist:1.15, exits:2, name:"입동", hanjaName:"立洞", engName:"ipdong", address:"효빈광역시 청엽구 입동1가 413", express:"", transfer:[], riders:2123, trivia:"", time:{prev:"2분 01초", cum:"8분 14초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"206", km:5.87, dist:1.32, exits:3, name:"등동", hanjaName:"燈洞", engName:"deungdong", address:"효빈광역시 청엽구 등동 10", express:"급", transfer:[], riders:8127, trivia:"뱅드림 마이고 타카마츠 토모리 이름 한자+동", time:{prev:"2분 14초", cum:"10분 29초"}, expTime:{prev:"2분 54초", cum:"7분 53초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"207", km:7.22, dist:1.35, exits:2, name:"헌이송", hanjaName:"献耳松", engName:"heonisong", address:"효빈광역시 청엽구 헌이송동 9", express:"급(출퇴근한정)", transfer:[], riders:8626, trivia:"", time:{prev:"2분 17초", cum:"12분 46초"}, expTime:{prev:"2분 17초 (출근 전용)", cum:"10분 10초 (출근 전용)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"208", km:8.63, dist:1.41, exits:6, name:"마잡", hanjaName:"馬雑", engName:"majap", address:"효빈광역시 청엽구 마잡동 3", express:"급", transfer:["6호선"], riders:26221, trivia:"뱅드림 애프터글로우 아오바 모카 이름 중국어 번안 한자", time:{prev:"2분 21초", cum:"15분 08초"}, expTime:{prev:"2분 21초 (출근) / 3분 06초 (평시)", cum:"12분 32초 (출근) / 10분 58초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"209", km:9.95, dist:1.32, exits:5, name:"동곡", hanjaName:"桐谷", engName:"donggok", address:"효빈광역시 창전구 동곡동 16", express:"급", transfer:["3호선"], riders:19127, trivia:"뱅드림 모르포니카 키리가야 토우코 성씨 한자와 유사", time:{prev:"2분 14초", cum:"17분 23초"}, expTime:{prev:"2분 14초", cum:"14분 46초 (출근) / 13분 14초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"210", km:11.18, dist:1.23, exits:5, name:"쌍엽", hanjaName:"双葉", engName:"ssangyeop", address:"효빈광역시 창전구 쌍엽동 9", express:"", transfer:[], riders:23292, trivia:"뱅드림 모르포니카 후타바 츠쿠시 성씨와 유사한 뜻", time:{prev:"2분 07초", cum:"19분 30초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"211", km:11.98, dist:0.8, exits:1, name:"엽천", hanjaName:"葉川", engName:"yeopcheon", address:"효빈광역시 창전구 쌍엽동 15", express:"", transfer:[], riders:7912, trivia:"", time:{prev:"1분 33초", cum:"21분 03초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"212", km:12.91, dist:0.93, exits:6, name:"우전", hanjaName:"宇田", engName:"ujeon", address:"효빈광역시 청엽구 우전동 4-15", express:"급", transfer:["1호선"], riders:20049, trivia:"뱅드림 로젤리아 우다가와 아코, 애프터글로우 우다가와 토모에 성씨 한자", time:{prev:"1분 43초", cum:"22분 47초"}, expTime:{prev:"4분 06초", cum:"18분 53초 (출근) / 17분 20초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"213", km:13.61, dist:0.7, exits:3, name:"유류", hanjaName:"有流", engName:"yuryu", address:"효빈광역시 창전구 유류동 24", express:"", transfer:[], riders:10238, trivia:"", time:{prev:"1분 25초", cum:"24분 12초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"214", km:14.63, dist:1.02, exits:4, name:"칠심", hanjaName:"七心", engName:"chilsim", address:"효빈광역시 창전구 칠심동 616", express:"급", transfer:[], riders:23232, trivia:"뱅드림 모르포니카 히로마치 나나미 이름 한자", time:{prev:"1분 50초", cum:"26분 03초"}, expTime:{prev:"2분 32초", cum:"21분 26초 (출근) / 19분 53초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"215", km:16.17, dist:1.54, exits:6, name:"시로", hanjaName:"市路", engName:"siro", address:"효빈광역시 창전구 시로동 46", express:"급", transfer:["5호선"], riders:16832, trivia:"뱅드림 모르포니카  쿠라타 마\"시로\"", time:{prev:"2분 16초", cum:"28분 20초"}, expTime:{prev:"2분 16초", cum:"23분 43초 (출근) / 22분 10초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"216", km:18.05, dist:1.88, exits:2, name:"흑택", hanjaName:"黒澤", engName:"heuktaek", address:"효빈광역시 탄성군 흑택면 흑택리 11", express:"급", transfer:[], riders:6263, trivia:"러브라이브 선샤인 쿠로사와 루비, 쿠로사와 다이아의 성씨 한자", time:{prev:"2분 43초", cum:"31분 04초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"217", km:19.09, dist:1.04, exits:2, name:"상가", hanjaName:"上街", engName:"sangga", address:"효빈광역시 안천구 상가동 526", express:"", transfer:[], riders:5932, trivia:"", time:{prev:"1분 52초", cum:"32분 56초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"218", km:20.18, dist:1.09, exits:6, name:"하가", hanjaName:"下街", engName:"haga", address:"효빈광역시 안천구 하가동 859", express:"급", transfer:["4호선"], riders:10482, trivia:"", time:{prev:"1분 56초", cum:"34분 52초"}, expTime:{prev:"4분 28초", cum:"28분 11초 (출근) / 26분 38초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"219", km:21.26, dist:1.08, exits:6, name:"당가", hanjaName:"唐可", engName:"dangga", address:"효빈광역시 안천구 당가동 717", express:"급", transfer:["빈효광역"], riders:18202, trivia:"러브라이브 슈퍼스타 탕 쿠쿠 이름 일부(唐可) 한자", time:{prev:"1분 55초", cum:"36분 48초"}, expTime:{prev:"1분 55초", cum:"30분 06초 (출근) / 28분 34초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"220", km:23.29, dist:2.03, exits:1, name:"신영", hanjaName:"新榮", engName:"sinyeong", address:"효빈광역시 북구 신영동 412", express:"급(출퇴근한정)", transfer:[], riders:4932, trivia:"", time:{prev:"2분 55초", cum:"39분 44초"}, expTime:{prev:"2분 55초 (출근 전용)", cum:"33분 02초 (출근 전용)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"221", km:24.23, dist:0.94, exits:1, name:"채산", hanjaName:"彩山", engName:"chaesan", address:"효빈광역시 북구 실본동 53", express:"급(출퇴근한정)", transfer:[], riders:7292, trivia:"", time:{prev:"1분 44초", cum:"41분 28초"}, expTime:{prev:"1분 44초 (출근 전용)", cum:"34분 47초 (출근 전용)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"222", km:25.12, dist:0.89, exits:2, name:"남전", hanjaName:"南田", engName:"namjeon", address:"효빈광역시 북구 남전동 431", express:"급", transfer:[], riders:15932, trivia:"", time:{prev:"1분 40초", cum:"43분 09초"}, expTime:{prev:"1분 40초 (출근) / 4분 26초 (평시)", cum:"36분 26초 (출근) / 33분 00초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"223", km:26.03, dist:0.91, exits:8, name:"중수", hanjaName:"中須", engName:"jungsu", address:"효빈광역시 북구 중수동 1-23", express:"급", transfer:["6호선"], riders:27394, trivia:"러브라이브 니지동 나카스 카스미 성씨 한자", time:{prev:"1분 42초", cum:"44분 51초"}, expTime:{prev:"1분 42초", cum:"38분 09초 (출근) / 34분 42초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"224", km:27.59, dist:1.56, exits:4, name:"사연", hanjaName:"四恋", engName:"sayeon", address:"효빈광역시 북구 사연동 352", express:"", transfer:[], riders:9281, trivia:"", time:{prev:"2분 18초", cum:"47분 09초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"225", km:28.79, dist:1.2, exits:9, name:"입희", hanjaName:"立希", engName:"ipui", address:"효빈광역시 북구 입희동 8-9", express:"급", transfer:["1호선"], riders:25293, trivia:"뱅드림 마이고 시이나 타키 이름 한자", time:{prev:"2분 05초", cum:"49분 14초"}, expTime:{prev:"3분 06초", cum:"41분 15초 (출근) / 37분 48초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"226", km:29.9, dist:1.11, exits:4, name:"입선", hanjaName:"立仙", engName:"ipseon", address:"효빈광역시 북구 입선동 65", express:"", transfer:[], riders:6822, trivia:"", time:{prev:"1분 57초", cum:"51분 12초"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"227", km:30.9, dist:1, exits:6, name:"북효빈", hanjaName:"北孝彬", engName:"bukyobinyeok", address:"효빈광역시 북구 입선동 642", express:"급", transfer:["3호선"], riders:20322, trivia:"", time:{prev:"1분 49초", cum:"53분 01초"}, expTime:{prev:"3분 12초", cum:"44분 26초 (출근) / 41분 00초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"228", km:32.04, dist:1.14, exits:6, name:"시청", hanjaName:"市廳", engName:"sicheong", address:"효빈광역시 북구 고송동 79-2", express:"급", transfer:["6호선"], riders:34331, trivia:"", time:{prev:"2분 00초", cum:"55분 02초"}, expTime:{prev:"2분 00초", cum:"46분 26초 (출근) / 43분 01초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"229", km:33.46, dist:1.42, exits:8, name:"고송교차로", hanjaName:"高松交叉路", engName:"gosonggyocharo", address:"효빈광역시 북구 고송동 112-2", express:"급", transfer:["6호선"], riders:70336, trivia:"뱅드림 마이고  타카마츠 토모리 성씨 한자,지하1층에 효빈교통공사 공식 굿즈샵", time:{prev:"2분 22초", cum:"57분 24초"}, expTime:{prev:"2분 22초", cum:"48분 50초 (출근) / 45분 23초 (평시)"}},
+            {line:"효빈 2호선", date:"1989년 2월 3일", id:"230", km:34.63, dist:1.17, exits:3, name:"과송", hanjaName:"果松", engName:"gwasong", address:"효빈광역시 북구 고송동 525", express:"", transfer:[], riders:15298, trivia:"", time:{prev:"2분 02초", cum:"59분 26초"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"231", km:35.66, dist:1.03, exits:7, name:"청덕", hanjaName:"淸德", engName:"cheongdeok", address:"효빈광역시 서구 청덕동 3413", express:"급", transfer:["3호선"], riders:28238, trivia:"", time:{prev:"1분 51초", cum:"61분 19초"}, expTime:{prev:"3분 23초", cum:"52분 14초 (출근) / 48분 47초 (평시)"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"232", km:36.66, dist:1, exits:3, name:"과진중앙", hanjaName:"課津中央", engName:"gwajinjungang", address:"효빈광역시 서구 과진동 644", express:"", transfer:[], riders:17832, trivia:"", time:{prev:"1분 49초", cum:"63분 08초"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"233", km:37.61, dist:0.95, exits:6, name:"사복", hanjaName:"社福", engName:"sabok", address:"효빈광역시 서구 사복동 479", express:"급", transfer:[], riders:20422, trivia:"", time:{prev:"1분 45초", cum:"64분 53초"}, expTime:{prev:"3분 19초", cum:"55분 34초 (출근) / 52분 07초 (평시)"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"234", km:39.2, dist:1.59, exits:10, name:"당선", hanjaName:"當選", engName:"dangseon", address:"효빈광역시 서구 당선동 281-2", express:"급", transfer:["5호선"], riders:41122, trivia:"", time:{prev:"2분 20초", cum:"67분 14초"}, expTime:{prev:"2분 20초", cum:"57분 55초 (출근) / 54분 28초 (평시)"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"235", km:40.04, dist:0.84, exits:8, name:"효빈대", hanjaName:"孝彬大學敎", engName:"Hyobin University", address:"효빈광역시 서구 당선동 231-2", express:"급", transfer:["7호선 효빈대입구역"], riders:36932, trivia:"", time:{prev:"1분 36초", cum:"68분 50초"}, expTime:{prev:"1분 36초", cum:"59분 31초 (출근) / 56분 04초 (평시)"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"236", km:40.79, dist:0.75, exits:3, name:"칠천", hanjaName:"七川", engName:"chilcheon", address:"효빈광역시 서구 칠천동 7000", express:"", transfer:["7호선 구 칠천구사기지앞역"], riders:7263, trivia:"", time:{prev:"1분 29초", cum:"70분 19초"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"237", km:41.7, dist:0.91, exits:3, name:"소장", hanjaName:"小長", engName:"sojang (bungmun)", address:"효빈광역시 서구 북문동1가 524", express:"급", transfer:[], riders:10483, trivia:"", time:{prev:"1분 42초", cum:"72분 01초"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"238", km:42.98, dist:1.28, exits:15, name:"중앙로", hanjaName:"中央路", engName:"jungangno", address:"효빈광역시 중구 중앙로 5가 7-9", express:"급", transfer:["1호선","7호선"], riders:22322, trivia:"", time:{prev:"2분 11초", cum:"74분 13초"}, expTime:{prev:"4분 12초", cum:"63분 44초 (출근) / 60분 17초 (평시)"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"239", km:44.41, dist:1.43, exits:3, name:"심동", hanjaName:"心洞", engName:"simdong", address:"효빈광역시 중구 심동1가 775", express:"", transfer:[], riders:4239, trivia:"", time:{prev:"2분 23초", cum:"76분 37초"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"240", km:45.45, dist:1.04, exits:2, name:"고도", hanjaName:"高道", engName:"godo", address:"효빈광역시 중구 고도동 664", express:"", transfer:[], riders:5032, trivia:"", time:{prev:"1분 52초", cum:"78분 29초"}},
+            {line:"효빈 2호선", date:"1995년 2월 3일", id:"241", km:46.57, dist:1.12, exits:4, name:"내항", hanjaName:"內港", engName:"naehang", address:"효빈광역시 중구 내항동 929", express:"급", transfer:["7호선"], riders:8192, trivia:"", time:{prev:"1분 58초", cum:"80분 28초"}, expTime:{prev:"4분 19초", cum:"68분 03초 (출근) / 64분 37초 (평시)"}},
+            
+            // 2호선 어간지선 (업데이트)
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201", km:0, dist:0, exits:8, name:"월천", hanjaName:"月川", engName:"Wolcheon", address:"효빈광역시 남구 월천동 929", express:"급", transfer:["본선"], riders:30122, trivia:"", time:{prev:"출발", cum:"출발"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-1", km:1.79, dist:1.79, exits:3, name:"서신포", hanjaName:"西新浦", engName:"Seosinpo", address:"효빈광역시 남구 항동1가 523", express:"", transfer:[], riders:1812, trivia:"", time:{prev:"2분 25초", cum:"2분 36초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-2", km:2.79, dist:1, exits:4, name:"운양", hanjaName:"雲陽", engName:"Unyang", address:"효빈광역시 남구 항동1가 343", express:"", transfer:[], riders:14313, trivia:"", time:{prev:"1분 43초", cum:"4분 25초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-3", km:3.82, dist:1.03, exits:2, name:"어간항", hanjaName:"漁間港", engName:"Eogan Port", address:"효빈광역시 남구 어간동 133", express:"", transfer:[], riders:7922, trivia:"", time:{prev:"1분 45초", cum:"6분 17초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-4", km:5.12, dist:1.3, exits:5, name:"어간수산시장", hanjaName:"漁間水産市場", engName:"Eogansusansijang", address:"효빈광역시 남구 어간동 643", express:"", transfer:[], riders:7382, trivia:"", time:{prev:"2분 05초", cum:"8분 30초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-5", km:6.1, dist:0.98, exits:4, name:"어간중앙", hanjaName:"漁間中央", engName:"Eo Ganjungang", address:"효빈광역시 남구 어간동 3421", express:"", transfer:["7호선"], riders:11392, trivia:"", time:{prev:"1분 41초", cum:"10분 18초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-6", km:7.33, dist:1.23, exits:5, name:"어간", hanjaName:"漁間", engName:"Eo Gan", address:"효빈광역시 남구 어간동 54", express:"", transfer:[], riders:13621, trivia:"", time:{prev:"2분 00초", cum:"12분 25초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-7", km:8.87, dist:1.54, exits:3, name:"항동1가", hanjaName:"港洞一街", engName:"Hangdong 1-ga", address:"효빈광역시 남구 항동1가 978", express:"", transfer:[], riders:8726, trivia:"", time:{prev:"2분 23초", cum:"14분 42초"}},
+            {line:"효빈 2호선 어간지선", date:"2009년 2월 3일", id:"201-8", km:10.64, dist:1.77, exits:5, name:"효빈항국제여객터미널", hanjaName:"孝彬港 國際旅客터미널", engName:"Hyobin Port International Passenger Terminal", address:"효빈광역시 남구 항동2가 531", express:"", transfer:[], riders:18392, trivia:"", time:{prev:"2분 24초", cum:"17분 17초"}},
+            
+            // 3호선
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"301", km:0, dist:0, exits:3, name:"팔조", hanjaName:"八潮", engName:"paljo", address:"효빈광역시 창전구 팔조동 220-2", express:"급", transfer:[], riders:8832, trivia:"뱅드림 모르포니카 야시오 루이 성씨 한자, 팔조차량기지 철도박물관 위치(애니메이션 콜라보 자주 진행)", time:{prev:"출발", cum:"출발"}, expTime:{prev:"출발", cum:"출발"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"302", km:1.5, dist:1.5, exits:3, name:"투자", hanjaName:"透子", engName:"tuja", address:"효빈광역시 창전구 투자동 12", express:"", transfer:[], riders:5428, trivia:"뱅드림 모르포니카  키리가야 토우코 이름 한자", time:{prev:"2분 15초", cum:"2분 15초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"303", km:2.42, dist:0.92, exits:5, name:"동곡", hanjaName:"桐谷", engName:"Donggok", address:"효빈광역시 창전구 동곡동 16", express:"급", transfer:["2호선"], riders:16422, trivia:"뱅드림 모르포니카 키리가야 토우코 성씨 한자와 유사", time:{prev:"1분 41초", cum:"3분 56초"}, expTime:{prev:"3분 05초", cum:"3분 05초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"304", km:3.73, dist:1.31, exits:5, name:"효빈남부시외버스터미널", hanjaName:"孝彬南部市外버스터미널", engName:"Hyobin Nambu Intercity Bus Terminal", address:"효빈광역시 청엽구 우전동 593", express:"급", transfer:[], riders:21732, trivia:"", time:{prev:"2분 00초", cum:"5분 56초"}, expTime:{prev:"2분 00초", cum:"5분 06초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"305", km:4.92, dist:1.19, exits:6, name:"청엽구청", hanjaName:"淸葉區廳", engName:"Cheongyeop-gu Office", address:"효빈광역시 청엽구 청엽동 93", express:"급", transfer:["1호선"], riders:34932, trivia:"뱅드림 애프터 글로우 아오바 모카 성씨 한자,지하2층에 효빈교통공사 공식 굿즈샵", time:{prev:"1분 50초", cum:"7분 47초"}, expTime:{prev:"1분 50초", cum:"6분 56초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"306", km:5.79, dist:0.87, exits:5, name:"청엽", hanjaName:"淸葉", engName:"Cheongyeop", address:"효빈광역시 청엽구 청엽동 9-3", express:"", transfer:[], riders:22919, trivia:"뱅드림 애프터글로우 아오바 모카 성씨 한자", time:{prev:"1분 37초", cum:"9분 25초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"307", km:6.42, dist:0.63, exits:6, name:"사가당", hanjaName:"社可堂", engName:"Sagadang", address:"효빈광역시 동구 사가당동 462", express:"", transfer:["4호선"], riders:11283, trivia:"", time:{prev:"1분 19초", cum:"10분 44초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"308", km:7.1, dist:0.68, exits:7, name:"덕현", hanjaName:"徳縣", engName:"Deokhyun", address:"효빈광역시 동구 덕현동 676", express:"급", transfer:["6호선"], riders:25811, trivia:"", time:{prev:"1분 23초", cum:"12분 07초"}, expTime:{prev:"2분 53초", cum:"9분 50초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"309", km:8.52, dist:1.42, exits:17, name:"효빈", hanjaName:"孝彬驛", engName:"Hyobin", address:"효빈광역시 동구 사가당동 1079-2 ", express:"급", transfer:["1호선","빈효선광역철도","7호선","일반열차"], riders:32122, trivia:"", time:{prev:"2분 08초", cum:"14분 16초"}, expTime:{prev:"2분 08초", cum:"11분 58초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"310", km:9.53, dist:1.01, exits:6, name:"사능", hanjaName:"沙綾", engName:"Saneung", address:"효빈광역시 북구 사능동3가 432", express:"", transfer:["7호선 치남역"], riders:10283, trivia:"뱅드림 포핀파티 야마부키 사아야 이름 한자", time:{prev:"1분 48초", cum:"16분 05초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"311", km:10.56, dist:1.03, exits:12, name:"고속버스터미널", hanjaName:"高速버스터미널\n(海西)", engName:"Express Bus Terminal", address:"효빈광역시 북구 해서동 322-2", express:"급", transfer:["5호선"], riders:33592, trivia:"", time:{prev:"1분 38초", cum:"17분 43초"}, expTime:{prev:"2분 18초", cum:"14분 17초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"312", km:12.11, dist:1.55, exits:6, name:"북효빈", hanjaName:"北孝彬驛", engName:"North Hyobin", address:"효빈광역시 북구 청능동 642", express:"급", transfer:["2호선","일반열차"], riders:16373, trivia:"", time:{prev:"2분 08초", cum:"19분 51초"}, expTime:{prev:"2분 08초", cum:"16분 25초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"313", km:13.18, dist:1.07, exits:3, name:"청능", hanjaName:"青能", engName:"Cheongneung", address:"효빈광역시 북구 청능동  533", express:"", transfer:[], riders:10373, trivia:"", time:{prev:"1분 41초", cum:"21분 33초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"314", km:14.18, dist:1, exits:3, name:"효빈복지대", hanjaName:"孝彬福祉大學敎", engName:"Hyobin Welfare University", address:"효빈광역시 서구 사복동 97", express:"급", transfer:[], riders:12332, trivia:"", time:{prev:"1분 48초", cum:"23분 21초"}, expTime:{prev:"2분 19초", cum:"18분 44초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"315", km:15.27, dist:1.09, exits:5, name:"과진", hanjaName:"果津", engName:"Gwajin", address:"효빈광역시 서구 과진동 433", express:"", transfer:[], riders:17882, trivia:"", time:{prev:"1분 43초", cum:"25분 04초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"316", km:16.08, dist:0.81, exits:7, name:"청덕", hanjaName:"淸德", engName:"Cheongdeok", address:"효빈광역시 서구 청덕동 3413", express:"급", transfer:["2호선"], riders:14222, trivia:"", time:{prev:"1분 33초", cum:"26분 37초"}, expTime:{prev:"2분 10초", cum:"20분 55초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"317", km:16.85, dist:0.77, exits:6, name:"송덕", hanjaName:"松德", engName:"Songdeok", address:"효빈광역시 서구 청덕동 1335", express:"", transfer:[], riders:13238, trivia:"", time:{prev:"1분 30초", cum:"28분 07초"}},
+            {line:"효빈 3호선", date:"1994년 2월 9일", id:"318", km:17.68, dist:0.83, exits:7, name:"고송나루", hanjaName:"高松나루", engName:"Gosongnaru", address:"효빈광역시 북구 고송동 323", express:"급", transfer:["6호선"], riders:21273, trivia:"뱅드림 마이고 타카마츠 토모리 성씨 한자", time:{prev:"1분 34초", cum:"29분 42초"}, expTime:{prev:"2분 17초", cum:"23분 13초"}},
+            {line:"효빈 3호선", date:"2004년 3월 7일", id:"319", km:18.53, dist:0.85, exits:3, name:"토모리해수욕장", hanjaName:"土謨里海水浴場", engName:"Tomori Beach", address:"효빈광역시 북구 고송동 103", express:"", transfer:[], riders:11322, trivia:"뱅드림 마이고 타카마츠 토모리의 이름을 그대로 사용", time:{prev:"1분 36초", cum:"31분 18초"}},
+            {line:"효빈 3호선", date:"2004년 3월 7일", id:"320", km:21.13, dist:2.6, exits:1, name:"중만도", hanjaName:"中滿島", engName:"Jungmando", address:"덕빈북도 기도군 염곡면 중만리 643", express:"", transfer:[], riders:2032, trivia:"", time:{prev:"3분 17초", cum:"34분 36초"}},
+            {line:"효빈 3호선", date:"2018년 8월 21일", id:"321", km:23.39, dist:2.26, exits:1, name:"신산", hanjaName:"新山", engName:"sinsan", address:"덕빈북도 기도군 염곡면 신산리 544", express:"", transfer:[], riders:4923, trivia:"", time:{prev:"2분 55초", cum:"37분 31초"}},
+            {line:"효빈 3호선", date:"2023년 3월 31일", id:"322", km:25.91, dist:2.52, exits:1, name:"주양", hanjaName:"朱陽", engName:"juyang", address:"덕빈북도 기도군 염곡면 주양리 6-35", express:"", transfer:[], riders:3082, trivia:"", time:{prev:"3분 12초", cum:"40분 44초"}},
+            {line:"효빈 3호선", date:"2004년 3월 7일", id:"323", km:28.47, dist:2.56, exits:1, name:"염곡", hanjaName:"廉谷驛", engName:"yeom　gok", address:"덕빈북도 기도군 염곡면 염곡리 34-24", express:"급", transfer:["일반열차"], riders:7192, trivia:"", time:{prev:"3분 15초", cum:"43분 58초"}, expTime:{prev:"6분 15초", cum:"29분 28초"}},
+            {line:"효빈 3호선", date:"2004년 3월 7일", id:"324", km:32.61, dist:4.14, exits:4, name:"효빈국제공항", hanjaName:"孝彬國際空港", engName:"Hyobin International Airport", address:"덕빈북도 기도군 주길면 원청리 798-4", express:"급", transfer:[], riders:24832, trivia:"", time:{prev:"4분 58초", cum:"48분 58초"}, expTime:{prev:"4분 58초", cum:"34분 28초"}},
+            
+            // 4호선
+            {line:"효빈 4호선", date:"2015년 5월 31일", id:"401", km:0, dist:0, exits:1, name:"해운산업지구", hanjaName:"海運産業地區", engName:"Haeunsaneopjigu", address:"효빈광역시 남구 평당동 220-2", express:"급", transfer:[], riders:3292, trivia:"", time:{prev:"출발", cum:"출발"}, expTime:{prev:"출발", cum:"출발"}},
+            {line:"효빈 4호선", date:"2015년 5월 31일", id:"402", km:1.6, dist:1.6, exits:2, name:"이부", hanjaName:"二部", engName:"ibu", address:"효빈광역시 남구 평당동 332-2", express:"급", transfer:[], riders:7282, trivia:"뱅드림 파스텔 팔레트 와카미야 이브의 \"이브\"를 약간 변형해서 발음한것과 같음", time:{prev:"2분 11초", cum:"2분 11초"}, expTime:{prev:"2분 11초", cum:"2분 11초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"403", km:2.65, dist:1.05, exits:9, name:"남구청", hanjaName:"南區廳", engName:"namgucheong", address:"효빈광역시 남구 평당동 1708", express:"급", transfer:["1호선","8호선"], riders:32239, trivia:"", time:{prev:"1분 39초", cum:"3분 51초"}, expTime:{prev:"1분 39초", cum:"3분 51초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"404", km:3.45, dist:0.8, exits:2, name:"빙천", hanjaName:"氷川", engName:"binGcheon", address:"효빈광역시 남구 고간동 53", express:"", transfer:[], riders:4822, trivia:"뱅드림 로젤리아 히카와 사요, 파스텔팔레트히카와 히나의 성씨 한자", time:{prev:"1분 32초", cum:"5분 23초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"405", km:4.34, dist:0.89, exits:3, name:"고당", hanjaName:"古堂", engName:"go dang", address:"효빈광역시 남구 고간동 153", express:"급", transfer:[], riders:8127, trivia:"", time:{prev:"1분 39초", cum:"7분 03초"}, expTime:{prev:"2분 22초", cum:"6분 13초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"406", km:5.49, dist:1.15, exits:1, name:"사야", hanjaName:"四野", engName:"sa ya", address:"효빈광역시 남구 박산동 51", express:"", transfer:[], riders:2092, trivia:"뱅드림 로젤리아 히카와 사요의 이름 한자 음독과 같음", time:{prev:"1분 47초", cum:"8분 50초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"407", km:6.39, dist:0.9, exits:8, name:"신흥", hanjaName:"新興", engName:"sinheung", address:"효빈광역시 남구 신흥동 345", express:"급", transfer:["2호선","8호선"], riders:24283, trivia:"", time:{prev:"1분 40초", cum:"10분 30초"}, expTime:{prev:"2분 37초", cum:"8분 51초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"408", km:7.51, dist:1.12, exits:6, name:"진월천", hanjaName:"鎭月川", engName:"jinwolcheon", address:"효빈광역시 남구 월천동 524", express:"급", transfer:["빈효선광역철도"], riders:6293, trivia:"", time:{prev:"1분 45초", cum:"12분 16초"}, expTime:{prev:"1분 45초", cum:"10분 36초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"409", km:8.98, dist:1.47, exits:3, name:"삼각", hanjaName:"三角", engName:"samgak", address:"효빈광역시 중구 삼각동 3", express:"", transfer:[], riders:6235, trivia:"뱅드림 아베무지카 미스미 우이카의 성씨 한자", time:{prev:"2분 12초", cum:"14분 28초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"410", km:9.78, dist:0.8, exits:6, name:"오석", hanjaName:"鴉石", engName:"oseok", address:"효빈광역시 중구 오석동 54", express:"급", transfer:["1호선"], riders:13695, trivia:"", time:{prev:"1분 32초", cum:"16분 01초"}, expTime:{prev:"2분 58초", cum:"13분 35초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"411", km:10.94, dist:1.16, exits:8, name:"장원", hanjaName:"長原", engName:"jangwon", address:"효빈광역시 중구 정동 542", express:"급", transfer:["1호선","빈효선광역철도"], riders:18001, trivia:"", time:{prev:"1분 48초", cum:"17분 49초"}, expTime:{prev:"1분 48초", cum:"15분 23초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"412", km:12.24, dist:1.3, exits:6, name:"신덕", hanjaName:"新德", engName:"sindeok", address:"효빈광역시 중구 신덕동 563", express:"급", transfer:["빈효선광역철도"], riders:9965, trivia:"", time:{prev:"1분 58초", cum:"19분 48초"}, expTime:{prev:"1분 58초", cum:"17분 22초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"413", km:13.72, dist:1.48, exits:5, name:"가동사거리", hanjaName:"加洞사거리", engName:"gadongsageori", address:"효빈광역시 동구 사가당동 654-1", express:"급", transfer:["6호선"], riders:15645, trivia:"", time:{prev:"2분 13초", cum:"22분 02초"}, expTime:{prev:"2분 13초", cum:"19분 36초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"414", km:14.88, dist:1.16, exits:6, name:"사가당", hanjaName:"社可堂", engName:"sagadang", address:"효빈광역시 동구 사가당동 462", express:"급", transfer:["3호선"], riders:10655, trivia:"", time:{prev:"1분 48초", cum:"23분 50초"}, expTime:{prev:"1분 48초", cum:"21분 24초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"415", km:16.22, dist:1.34, exits:5, name:"동덕현", hanjaName:"東德縣", engName:"dongdeokyeon", address:"효빈광역시 동구 덕현동 144", express:"급", transfer:["5호선"], riders:14665, trivia:"", time:{prev:"2분 02초", cum:"25분 52초"}, expTime:{prev:"2분 02초", cum:"23분 26초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"416", km:17.8, dist:1.58, exits:4, name:"우택", hanjaName:"羽澤", engName:"utaek", address:"효빈광역시 청엽구 우택동 19", express:"급", transfer:[], riders:19023, trivia:"뱅드림 애프터글로우 하자와 츠구미 성씨 한자", time:{prev:"2분 10초", cum:"28분 03초"}, expTime:{prev:"2분 10초", cum:"25분 37초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"417", km:19.28, dist:1.48, exits:2, name:"치구", hanjaName:"治口", engName:"chi gu", address:"효빈광역시 안천구 하구동 644", express:"", transfer:[], riders:5288, trivia:"", time:{prev:"2분 13초", cum:"30분 16초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"418", km:20.38, dist:1.1, exits:1, name:"뇌전", hanjaName:"瀬田", engName:"noejeon", address:"효빈광역시 안천구 뇌전동 228", express:"", transfer:[], riders:3093, trivia:"뱅드림 헬로해피월드 세타 카오루의 성씨 한자", time:{prev:"1분 43초", cum:"32분 00초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"419", km:22.24, dist:1.86, exits:6, name:"하가", hanjaName:"下街", engName:"ha ga", address:"효빈광역시 안천구 하가동 859", express:"급", transfer:["2호선"], riders:11393, trivia:"", time:{prev:"2분 28초", cum:"34분 28초"}, expTime:{prev:"4분 36초", cum:"30분 14초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"420", km:23.57, dist:1.33, exits:2, name:"백합공원", hanjaName:"百合公院", engName:"baekapgongwon", address:"효빈광역시 안천구 백합동 352", express:"", transfer:[], riders:8822, trivia:"뱅드림 포핀파티 우시고메 리미의 언니 글리터그린 우시고메 유리의 이름 한자", time:{prev:"2분 01초", cum:"36분 30초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"421", km:26.56, dist:2.99, exits:4, name:"요우", hanjaName:"曜雨", engName:"you", address:"효빈광역시 탄성군 도변읍 요우리 4-17", express:"", transfer:[], riders:17392, trivia:"러브라이브 선샤인 와타나베 요우 이름 그대로", time:{prev:"3분 43초", cum:"40분 14초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"422", km:27.99, dist:1.43, exits:5, name:"도변", hanjaName:"渡辺", engName:"dobyeon", address:"효빈광역시 탄성군 도변읍 도변리 381-21", express:"급", transfer:["5호선"], riders:20249, trivia:"러브라이브 선샤인 와타나베 요우 성씨 한자", time:{prev:"2분 09초", cum:"42분 23초"}, expTime:{prev:"5분 58초", cum:"36분 12초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"423", km:29.74, dist:1.75, exits:1, name:"잠재", hanjaName:"潛在", engName:"jamjae", address:"효빈광역시 탄성군 도변읍 잠재리 145", express:"", transfer:[], riders:2492, trivia:"뱅드림 마이고의 노래 잠재표명중 잠재", time:{prev:"2분 21초", cum:"44분 45초"}},
+            {line:"효빈 4호선", date:"2007년 6월 3일", id:"424", km:31.22, dist:1.48, exits:3, name:"앵내", hanjaName:"桜内", engName:"aengnae", address:"효빈광역시 탄성군 도변읍 앵내리 919", express:"급", transfer:[], riders:22782, trivia:"러브라이브 선샤인 사쿠라우치 리코 성씨 한자", time:{prev:"2분 13초", cum:"46분 58초"}, expTime:{prev:"3분 28초", cum:"39분 40초"}},
+            {line:"효빈 4호선", date:"2007년 6월 3일", id:"425", km:33.11, dist:1.89, exits:3, name:"탄자", hanjaName:"誕者", engName:"tanja", address:"효빈광역시 안천구 탄자동 532", express:"급", transfer:[], riders:27182, trivia:"", time:{prev:"2분 30초", cum:"49분 29초"}, expTime:{prev:"2분 30초", cum:"42분 11초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"426", km:34.11, dist:1, exits:6, name:"이자공원", hanjaName:"莉子公園", engName:"ijagongwon", address:"효빈광역시 안천구 이자동 244", express:"급", transfer:["1호선"], riders:30221, trivia:"러브라이브 선샤인 사쿠라우치 리코 이름 한자", time:{prev:"1분 47초", cum:"51분 17초"}, expTime:{prev:"1분 47초", cum:"43분 58초"}},
+            {line:"효빈 4호선", date:"2003년 3월 5일", id:"427", km:34.86, dist:0.75, exits:9, name:"이자", hanjaName:"莉子", engName:"ija", address:"효빈광역시 안천구 이자동 9-19", express:"급", transfer:["빈효선광역철도"], riders:41239, trivia:"러브라이브 선샤인 사쿠라우치 리코 이름 한자,지하1층에 효빈교통공사 공식 굿즈샵", time:{prev:"1분 28초", cum:"52분 45초"}, expTime:{prev:"1분 28초", cum:"45분 26초"}},
+            {line:"효빈 4호선", date:"2006년 5월 11일", id:"428", km:36.4, dist:1.54, exits:2, name:"서수", hanjaName:"瑞穂", engName:"seo su", address:"효빈광역시 안천구 서수동 134-2", express:"", transfer:[], riders:3928, trivia:"뱅드림 아베무지카 토가와 사키코의 어머니 토가와 미즈호의 이름 한자", time:{prev:"2분 07초", cum:"54분 53초"}},
+            {line:"효빈 4호선", date:"2006년 5월 11일", id:"429", km:38.67, dist:2.27, exits:2, name:"소원", hanjaName:"小原", engName:"so-won", address:"효빈광역시 탄성군 소원면 소원리 613", express:"급", transfer:[], riders:5462, trivia:"러브라이브 선샤인 오하라 마리 성씨 한자", time:{prev:"2분 55초", cum:"57분 48초"}, expTime:{prev:"3분 35초", cum:"49분 03초"}},
+            {line:"효빈 4호선", date:"2019년 2월 4일", id:"430", km:40.86, dist:2.19, exits:1, name:"천가", hanjaName:"千歌", engName:"cheonga", address:"효빈광역시 탄성군 고해읍 천가리 1000", express:"급", transfer:[], riders:4173, trivia:"러브라이브 선샤인 타카미 치카 이름 한자", time:{prev:"2분 50초", cum:"60분 39초"}, expTime:{prev:"2분 50초", cum:"51분 53초"}},
+            
+            // 5호선
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"501", km:0, dist:0, exits:2, name:"청덕공원", hanjaName:"淸德公園", engName:"Cheongdeokgongwon", address:"효빈광역시 서구 청덕동 154", express:"", transfer:[], riders:4282, trivia:"", time:{prev:"출발", cum:"출발"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"502", km:1, dist:1, exits:2, name:"화환", hanjaName:"花丸", engName:"hwahwan", address:"효빈광역시 서구 청덕동 1453", express:"", transfer:[], riders:7592, trivia:"러브라이브 쿠니키다 하나마루의 이름 한자", time:{prev:"1분 33초", cum:"1분 33초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"503", km:1.98, dist:0.98, exits:3, name:"효빈과학기술원", hanjaName:"孝彬科學技術院", engName:"hyobingwahakgisurwon", address:"효빈광역시 서구 과진동 1132", express:"", transfer:[], riders:9101, trivia:"", time:{prev:"1분 47초", cum:"3분 20초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"504", km:3.69, dist:1.71, exits:10, name:"당선", hanjaName:"當選", engName:"dangseon", address:"효빈광역시 서구 당선동 281-2", express:"", transfer:["2호선"], riders:22191, trivia:"", time:{prev:"2분 28초", cum:"5분 49초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"505", km:5.21, dist:1.51, exits:9, name:"소조", hanjaName:"小鳥", engName:"so jo", address:"효빈광역시 북구 소조동 912", express:"", transfer:[], riders:21123, trivia:"러브라이브 미나미 코토리 중 코토리의 한자로 만들때 나오는 조합,지하1층에 효빈교통공사 공식 굿즈샵", time:{prev:"2분 13초", cum:"8분 03초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"506", km:6.58, dist:1.37, exits:12, name:"고속버스터미널", hanjaName:"高速버스터미널\n(海西)", engName:"gosokbeoseuteomineol (haeseo)", address:"효빈광역시 북구 해서동 322-2", express:"", transfer:["3호선"], riders:23092, trivia:"", time:{prev:"2분 02초", cum:"10분 05초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"507", km:7.76, dist:1.18, exits:5, name:"전천", hanjaName:"前川", engName:"jeon cheon", address:"효빈광역시 동구 전천동 1-1", express:"", transfer:["1호선"], riders:11392, trivia:"", time:{prev:"1분 47초", cum:"11분 53초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"508", km:9.23, dist:1.47, exits:6, name:"전천중앙", hanjaName:"前川中央", engName:"jeoncheonjungang", address:"효빈광역시 동구 전천동 886-2", express:"", transfer:["6호선"], riders:12492, trivia:"", time:{prev:"2분 10초", cum:"14분 04초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"510", km:10.73, dist:1.5, exits:5, name:"동덕현", hanjaName:"東德縣", engName:"dongdeokyeon", address:"효빈광역시 동구 덕현동 144", express:"", transfer:["4호선"], riders:14421, trivia:"", time:{prev:"2분 37초", cum:"16분 41초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"511", km:11.68, dist:0.95, exits:5, name:"청엽국제학교", hanjaName:"淸葉國際學校", engName:"cheongyeopgukjehakgyo", address:"효빈광역시 청엽구 청엽동 435", express:"", transfer:[], riders:9382, trivia:"뱅드림 애프터 글로우 아오바 모카 성씨 한자", time:{prev:"1분 44초", cum:"18분 26초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"512", km:12.66, dist:0.98, exits:2, name:"남우택", hanjaName:"南羽澤", engName:"namutaek", address:"효빈광역시 청엽구 우택동 1465", express:"", transfer:[], riders:15022, trivia:"뱅드림 애프터 글로우 하자와 츠구미 성씨 한자", time:{prev:"1분 47초", cum:"20분 13초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"513", km:13.93, dist:1.28, exits:3, name:"진백", hanjaName:"真白", engName:"jinbaek", address:"효빈광역시 창전구 진백동 1651", express:"", transfer:[], riders:10292, trivia:"뱅드림 모르포니카 쿠라타 마시로 이름 중국 번안 한자", time:{prev:"1분 55초", cum:"22분 09초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"514", km:14.85, dist:0.92, exits:6, name:"시로", hanjaName:"市路", engName:"siro", address:"효빈광역시 창전구 시로동 46", express:"", transfer:["2호선"], riders:13592, trivia:"뱅드림 모르포니카  쿠라타 마\"시로\"", time:{prev:"1분 42초", cum:"23분 51초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"515", km:18.15, dist:3.3, exits:2, name:"루비", hanjaName:"累飛", engName:"rubi", address:"효빈광역시 탄성군 흑택면 루비리 9-21", express:"", transfer:[], riders:8827, trivia:"러브라이브 선샤인 쿠로사와 루비 이름 그대로", time:{prev:"4분 20초", cum:"28분 12초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"516", km:21.23, dist:3.08, exits:5, name:"도변", hanjaName:"渡辺", engName:"dobyeon", address:"효빈광역시 탄성군 도변읍 도변리 381-21", express:"", transfer:["4호선"], riders:16372, trivia:"러브라이브 선샤인 와타나베 요우 성씨 한자", time:{prev:"4분 05초", cum:"32분 18초"}},
+            {line:"효빈 5호선", date:"2011년 5월 8일", id:"517", km:22.81, dist:1.58, exits:2, name:"포성산", hanjaName:"布城山", engName:"poseongsan", address:"효빈광역시 탄성군 도변읍 조일리 7-17", express:"", transfer:[], riders:2122, trivia:"", time:{prev:"2분 18초", cum:"34분 37초"}},
+
+            // 6호선
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"601", km:0, dist:0, exits:6, name:"마잡", hanjaName:"馬雑", engName:"Majap", address:"효빈광역시 청엽구 마잡동 3", express:"", transfer:["2호선"], riders:14292, trivia:"뱅드림 애프터글로우 아오바 모카 이름 중국어 번안 한자", time:{prev:"출발", cum:"출발"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"602", km:1.05, dist:1.05, exits:2, name:"비동", hanjaName:"肥洞", engName:"bidong", address:"효빈광역시 청엽구 마잡동 42", express:"", transfer:[], riders:4442, trivia:"", time:{prev:"1분 52초", cum:"1분 52초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"603", km:2.2, dist:1.15, exits:4, name:"비마", hanjaName:"悲馬", engName:"bima", address:"효빈광역시 청엽구 비마동 532", express:"", transfer:[], riders:17921, trivia:"뱅드림 애프터글로우 우에하라 히마리 이름을 중국 번안 한자중 일부", time:{prev:"2분 00초", cum:"3분 53초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"604", km:3.56, dist:1.36, exits:5, name:"사노", hanjaName:"四労", engName:"sano", address:"효빈광역시 청엽구 사노동 697", express:"", transfer:["1호선"], riders:22182, trivia:"", time:{prev:"2분 16초", cum:"6분 10초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"605", km:4.41, dist:0.85, exits:5, name:"가동사거리", hanjaName:"加洞사거리", engName:"gadongsageori", address:"효빈광역시 동구 사가당동 654-1", express:"", transfer:["4호선"], riders:12911, trivia:"", time:{prev:"1분 36초", cum:"7분 46초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"606", km:5.48, dist:1.07, exits:7, name:"덕현", hanjaName:"德縣", engName:"deokyeon", address:"효빈광역시 동구 덕현동 676", express:"", transfer:["3호선"], riders:30192, trivia:"", time:{prev:"1분 54초", cum:"9분 41초"}},
+            {line:"효빈 6호선", date:"2021년 5월 31일", id:"607", km:6.47, dist:0.99, exits:4, name:"전덕", hanjaName:"前德", engName:"jeondeok", address:"효빈광역시 동구 전천동 134", express:"", transfer:["빈효선광역철도"], riders:14521, trivia:"", time:{prev:"1분 47초", cum:"11분 28초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"608", km:7.42, dist:0.95, exits:8, name:"전천중앙", hanjaName:"前川中央", engName:"jeoncheonjungang", address:"효빈광역시 동구 전천동 886-2", express:"", transfer:["5호선"], riders:11598, trivia:"", time:{prev:"1분 44초", cum:"13분 13초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"609", km:8.17, dist:0.75, exits:4, name:"오내사거리", hanjaName:"呉内사거리", engName:"onaesageori", address:"효빈광역시 북구 오내동 544", express:"", transfer:[], riders:20192, trivia:"", time:{prev:"1분 28초", cum:"14분 42초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"610", km:9.27, dist:1.1, exits:3, name:"오내", hanjaName:"呉内", engName:"onae", address:"효빈광역시 북구 오내동 54", express:"", transfer:[], riders:16832, trivia:"", time:{prev:"1분 56초", cum:"16분 39초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"611", km:10.18, dist:0.91, exits:8, name:"중수", hanjaName:"中須", engName:"jungsu", address:"효빈광역시 북구 중수동 1-23", express:"", transfer:["2호선"], riders:50921, trivia:"러브라이브 니지동 나카스 카스미 성씨 한자,지하2층에 효빈교통공사 공식 굿즈샵", time:{prev:"1분 41초", cum:"18분 20초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"612", km:11.04, dist:0.86, exits:7, name:"북구청", hanjaName:"北區廳", engName:"bukgucheong", address:"효빈광역시 북구 중수동 79-12", express:"", transfer:["1호선"], riders:36238, trivia:"", time:{prev:"1분 37초", cum:"19분 58초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"613", km:12.32, dist:1.28, exits:0, name:"포산", hanjaName:"浦山", engName:"posan", address:"효빈광역시 북구 포산동 531", express:"", transfer:[], riders:8939, trivia:"", time:{prev:"2분 10초", cum:"22분 09초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"614", km:13.32, dist:1, exits:3, name:"장포", hanjaName:"場浦", engName:"jangpo", address:"효빈광역시 북구 입희동 122", express:"", transfer:[], riders:6931, trivia:"", time:{prev:"1분 48초", cum:"23분 57초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"615", km:14.44, dist:1.12, exits:6, name:"효빈종합고", hanjaName:"孝彬綜合高", engName:"hyobinjonghapgo", address:"효빈광역시 북구 진희동 553", express:"", transfer:[], riders:16092, trivia:"", time:{prev:"1분 58초", cum:"25분 55초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"616", km:15.54, dist:1.1, exits:9, name:"진희", hanjaName:"眞希", engName:"jinhui", address:"효빈광역시 북구 진희동 221", express:"", transfer:[], riders:32492, trivia:"러브라이브 니시키노 마키, 뱅드림 마이고 시이나 타키의 언니 시이나 마키", time:{prev:"1분 56초", cum:"27분 52초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"617", km:16.54, dist:1, exits:5, name:"동고송", hanjaName:"東高松", engName:"donggosong", address:"효빈광역시 북구 고송동 345", express:"", transfer:[], riders:28412, trivia:"뱅드림 마이고 타카마츠 토모리 성씨 한자", time:{prev:"1분 48초", cum:"29분 41초"}},
+            {line:"효빈 6호선", date:"2016년 9월 21일", id:"618", km:17.44, dist:0.9, exits:0, name:"시청", hanjaName:"市廳", engName:"sicheong", address:"효빈광역시 북구 고송동 79-2", express:"", transfer:["2호선"], riders:25192, trivia:"", time:{prev:"1분 40초", cum:"31분 21초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"619", km:18.54, dist:1.1, exits:7, name:"고송교차로", hanjaName:"高松交叉路", engName:"gosonggyocharo", address:"효빈광역시 북구 고송동 112-2", express:"", transfer:["2호선"], riders:36821, trivia:"뱅드림 마이고  타카마츠 토모리 성씨 한자", time:{prev:"1분 56초", cum:"33분 18초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"620", km:19.61, dist:1.07, exits:4, name:"고송", hanjaName:"高松", engName:"gosong", address:"효빈광역시 북구 고송동 431", express:"", transfer:[], riders:43213, trivia:"뱅드림 마이고  타카마츠 토모리 성씨 한자", time:{prev:"1분 54초", cum:"35분 12초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"621", km:20.63, dist:1.02, exits:5, name:"건강보험공단", hanjaName:"健康保險公團", engName:"geongangboheomgongdan", address:"효빈광역시 북구 고송동 654", express:"", transfer:[], riders:15429, trivia:"", time:{prev:"1분 50초", cum:"37분 02초"}},
+            {line:"효빈 6호선", date:"2016년 4월 3일", id:"622", km:21.61, dist:0.98, exits:0, name:"고송나루", hanjaName:"高松나루", engName:"gosongnaru", address:"효빈광역시 북구 고송동 323", express:"", transfer:["3호선"], riders:15822, trivia:"뱅드림 마이고 타카마츠 토모리 성씨 한자", time:{prev:"1분 47초", cum:"38분 49초"}},
+
+            // 7호선
+            {line:"효빈 7호선", date:"2010년 3월 2일", id:"701", km:0.5, dist:0.5, exits:1, name:"어간중앙", hanjaName:"漁間中央", engName:"Eoganjungang", address:"효빈광역시 남구 어간동 220-2", express:"", transfer:["2호선"], riders:5819, trivia:"", time:{prev:"출발", cum:"출발"}},
+            {line:"효빈 7호선", date:"2010년 3월 2일", id:"702", km:1.48, dist:0.98, exits:1, name:"어간초", hanjaName:"漁間初等學校", engName:"eoganchodeunghakgyo", address:"효빈광역시 남구 어간동 332-2", express:"", transfer:[], riders:1877, trivia:"", time:{prev:"1분 39초", cum:"1분 39초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"703", km:2.37, dist:0.89, exits:1, name:"항동3가", hanjaName:"港洞3街", engName:"hangdong3ga", address:"효빈광역시 남구 항동3가 867", express:"", transfer:[], riders:1038, trivia:"", time:{prev:"1분 32초", cum:"3분 11초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"704", km:2.79, dist:0.42, exits:1, name:"항만해변", hanjaName:"港灣海邊", engName:"hangmanhaebyeon", address:"효빈광역시 남구 항동3가 1165", express:"", transfer:[], riders:728, trivia:"", time:{prev:"1분 22초", cum:"4분 34초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"705", km:3.75, dist:0.96, exits:1, name:"산홍", hanjaName:"山洪", engName:"sanhong", address:"효빈광역시 남구 항동3가 278", express:"", transfer:[], riders:482, trivia:"", time:{prev:"1분 38초", cum:"6분 12초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"706", km:4.45, dist:0.7, exits:1, name:"효빈항", hanjaName:"孝彬港", engName:"hyobinhang", address:"효빈광역시 남구 항동3가 1213", express:"", transfer:["1호선","빈효선광역철도","일반열차"], riders:4183, trivia:"", time:{prev:"1분 28초", cum:"7분 40초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"707", km:5.23, dist:0.78, exits:1, name:"효빈항동부", hanjaName:"孝彬港東部", engName:"hyobinhangdongbu", address:"효빈광역시 남구 항동1가 444", express:"", transfer:[], riders:1048, trivia:"", time:{prev:"1분 23초", cum:"9분 03초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"708", km:5.68, dist:0.45, exits:1, name:"분덕", hanjaName:"分德", engName:"bundeok", address:"효빈광역시 남구 항동1가 253", express:"", transfer:[], riders:342, trivia:"", time:{prev:"1분 26초", cum:"10분 30초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"709", km:6.24, dist:0.56, exits:1, name:"항동문화회관", hanjaName:"港洞文化會館", engName:"hangdongmunhwahoegwan", address:"효빈광역시 남구 항동1가 1079", express:"", transfer:[], riders:919, trivia:"", time:{prev:"1분 16초", cum:"11분 46초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"710", km:6.78, dist:0.54, exits:1, name:"월천", hanjaName:"月川", engName:"wolcheon", address:"효빈광역시 남구 항동1가 1232", express:"", transfer:["1,2호선"], riders:8838, trivia:"", time:{prev:"1분 25초", cum:"13분 12초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"711", km:7.13, dist:0.35, exits:1, name:"갑문", hanjaName:"閘門", engName:"gammun", address:"효빈광역시 중구 명일동 547", express:"", transfer:[], riders:1728, trivia:"", time:{prev:"1분 26초", cum:"14분 39초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"712", km:7.77, dist:0.64, exits:1, name:"명일", hanjaName:"明日", engName:"myeongil", address:"효빈광역시 중구 명일동 233", express:"", transfer:[], riders:1999, trivia:"", time:{prev:"1분 23초", cum:"16분 02초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"713", km:8.02, dist:0.25, exits:1, name:"내항", hanjaName:"內港", engName:"naehang", address:"효빈광역시 중구 내항동 929", express:"", transfer:["2호선"], riders:2221, trivia:"", time:{prev:"1분 13초", cum:"17분 16초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"714", km:8.38, dist:0.36, exits:1, name:"내항시장", hanjaName:"內港市場", engName:"naehangsijang", address:"효빈광역시 중구 내항동 902", express:"", transfer:[], riders:2223, trivia:"", time:{prev:"1분 28초", cum:"18분 45초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"715", km:8.73, dist:0.35, exits:1, name:"만마루", hanjaName:"輓馬累", engName:"manmaru", address:"효빈광역시 중구 내항동 461", express:"", transfer:[], riders:2039, trivia:"뱅드림 파스텔팔레트 마루야마 아야의 \"만마루\"", time:{prev:"1분 26초", cum:"20분 11초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"716", km:9.02, dist:0.29, exits:1, name:"구세관", hanjaName:"舊 稅關", engName:"gu segwan", address:"효빈광역시 중구 고도동 1157", express:"", transfer:[], riders:1591, trivia:"", time:{prev:"1분 20초", cum:"21분 32초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"717", km:9.26, dist:0.24, exits:1, name:"고도리", hanjaName:"高道里", engName:"godori", address:"효빈광역시 중구 고도동 482", express:"", transfer:[], riders:675, trivia:"", time:{prev:"1분 16초", cum:"22분 48초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"718", km:9.59, dist:0.33, exits:1, name:"시북", hanjaName:"市北", engName:"sibuk", address:"효빈광역시 중구 시남동 936", express:"", transfer:[], riders:592, trivia:"", time:{prev:"1분 26초", cum:"24분 15초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"719", km:9.89, dist:0.3, exits:1, name:"시남", hanjaName:"市南", engName:"sinam", address:"효빈광역시 중구 시남동 1108", express:"", transfer:[], riders:402, trivia:"", time:{prev:"1분 21초", cum:"25분 36초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"720", km:10.16, dist:0.27, exits:1, name:"우이", hanjaName:"右ニ", engName:"ui", address:"효빈광역시 중구 우이동 322", express:"", transfer:[], riders:1049, trivia:"케이온 히라사와 우이 이름 그대로 사용", time:{prev:"1분 16초", cum:"26분 53초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"721", km:10.43, dist:0.27, exits:1, name:"우이문화촌", hanjaName:"右ニ文化村", engName:"uimunhwachon", address:"효빈광역시 중구 우이동 852", express:"", transfer:[], riders:3955, trivia:"케이온 히라사와 우이 이름 그대로 사용", time:{prev:"1분 16초", cum:"28분 10초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"722", km:10.83, dist:0.4, exits:1, name:"심동1가", hanjaName:"心洞1街", engName:"simdong1ga", address:"효빈광역시 중구 심동1가 508", express:"", transfer:[], riders:2011, trivia:"", time:{prev:"1분 23초", cum:"29분 33초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"723", km:11.12, dist:0.29, exits:1, name:"심동2가", hanjaName:"心洞2街", engName:"simdong2ga", address:"효빈광역시 중구 심동2가 182", express:"", transfer:[], riders:932, trivia:"", time:{prev:"1분 20초", cum:"30분 53초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"724", km:11.39, dist:0.27, exits:1, name:"중앙로1가", hanjaName:"中央路1街", engName:"jungangno1ga", address:"효빈광역시 중구 중앙로1가 114", express:"", transfer:[], riders:1836, trivia:"효빈교통공사 공식굿즈샵이 역 근처의 건물에 위치", time:{prev:"1분 16초", cum:"32분 10초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"725", km:11.76, dist:0.37, exits:1, name:"개항지", hanjaName:"開港地", engName:"gaehangji", address:"효빈광역시 중구 중앙로1가 1164", express:"", transfer:[], riders:4838, trivia:"", time:{prev:"1분 18초", cum:"33분 28초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"726", km:11.98, dist:0.22, exits:1, name:"중앙로3가", hanjaName:"中央路3街", engName:"jungangno3ga", address:"효빈광역시 중구 중앙로3가 58", express:"", transfer:[], riders:3929, trivia:"", time:{prev:"1분 12초", cum:"34분 41초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"727", km:12.26, dist:0.28, exits:1, name:"중앙로", hanjaName:"中央路", engName:"jungangno", address:"효빈광역시 중구 중앙로5가 299", express:"", transfer:["1호선","2호선"], riders:9374, trivia:"", time:{prev:"1분 18초", cum:"36분 00초"}},
+            {line:"효빈 7호선", date:"1931년 4월 5일", id:"728", km:12.75, dist:0.49, exits:1, name:"원동4가", hanjaName:"原洞4街", engName:"wondong4ga", address:"효빈광역시 중구 원동4가 1085", express:"", transfer:[], riders:2391, trivia:"", time:{prev:"1분 19초", cum:"37분 19초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"729", km:13.01, dist:0.26, exits:1, name:"중보로", hanjaName:"中寶路", engName:"jungboro", address:"효빈광역시 중구 중보로 444", express:"", transfer:[], riders:10482, trivia:"", time:{prev:"1분 15초", cum:"38분 35초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"730", km:13.26, dist:0.25, exits:1, name:"효빈은행", hanjaName:"孝彬銀行", engName:"Hyobineunhaeng", address:"효빈광역시 중구 완동1가 623", express:"", transfer:[], riders:4929, trivia:"", time:{prev:"1분 13초", cum:"39분 48초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"731", km:13.65, dist:0.39, exits:1, name:"구시청앞", hanjaName:"舊市廳앞", engName:"gusicheongap", address:"효빈광역시 중구 완동3가 957", express:"", transfer:[], riders:2399, trivia:"", time:{prev:"1분 21초", cum:"41분 10초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"732", km:13.92, dist:0.27, exits:1, name:"경동", hanjaName:"經洞", engName:"gyeongdong", address:"효빈광역시 중구 경동 627", express:"", transfer:[], riders:1302, trivia:"", time:{prev:"1분 16초", cum:"42분 26초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"733", km:14.12, dist:0.2, exits:1, name:"유내", hanjaName:"有內", engName:"yunae", address:"효빈광역시 중구 유내동 1154", express:"", transfer:[], riders:1591, trivia:"", time:{prev:"1분 09초", cum:"43분 36초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"734", km:14.33, dist:0.21, exits:1, name:"리사", hanjaName:"理事", engName:"risa", address:"효빈광역시 중구 리사동 559", express:"", transfer:[], riders:4931, trivia:"뱅드림 로젤리아 이마이 리사의 이름과 같음", time:{prev:"1분 11초", cum:"44분 48초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"735", km:14.54, dist:0.21, exits:1, name:"도람", hanjaName:"道嵐", engName:"doram", address:"효빈광역시 중구 도람동 500", express:"", transfer:[], riders:1021, trivia:"", time:{prev:"1분 11초", cum:"45분 58초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"736", km:14.81, dist:0.27, exits:1, name:"궁정", hanjaName:"宮正", engName:"gungjeong", address:"효빈광역시 중구 궁정동 616", express:"", transfer:[], riders:2411, trivia:"", time:{prev:"1분 16초", cum:"47분 16초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"737", km:15.12, dist:0.31, exits:1, name:"상원초", hanjaName:"上原初等學校", engName:"sangwonchodeunghakgyo", address:"효빈광역시 중구 만실동 130", express:"", transfer:[], riders:1792, trivia:"러브라이브 니지동 우에하라 아유무 성씨 한자, 뱅드림 우에하라 히마리의 성씨 한자", time:{prev:"1분 23초", cum:"48분 39초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"738", km:15.27, dist:0.15, exits:1, name:"효빈성앞", hanjaName:"孝彬城앞", engName:"hyobinseongap", address:"효빈광역시 중구 내조동 281", express:"", transfer:[], riders:7289, trivia:"", time:{prev:"1분 01초", cum:"49분 41초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"739", km:15.51, dist:0.24, exits:1, name:"내조", hanjaName:"內助", engName:"naejo", address:"효빈광역시 중구 내조동 587", express:"", transfer:[], riders:1231, trivia:"", time:{prev:"1분 16초", cum:"50분 57초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"740", km:15.78, dist:0.27, exits:1, name:"중앙고", hanjaName:"中央高等學校", engName:"junganggodeunghakgyo", address:"효빈광역시 중구 내조동 126", express:"", transfer:[], riders:2302, trivia:"", time:{prev:"1분 16초", cum:"52분 14초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"741", km:16.26, dist:0.48, exits:1, name:"내조공원", hanjaName:"內助公園", engName:"naejogongwon", address:"효빈광역시 중구 내조동 104", express:"", transfer:[], riders:800, trivia:"", time:{prev:"1분 18초", cum:"53분 32초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"742", km:16.57, dist:0.31, exits:1, name:"효빈", hanjaName:"孝彬驛", engName:"hyobinyeok", address:"효빈광역시 동구 사가당동 1079-2 ", express:"", transfer:["1호선","4호선","빈효선광역철도"], riders:12032, trivia:"", time:{prev:"1분 23초", cum:"54분 55초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"743", km:16.83, dist:0.26, exits:1, name:"사가당공원", hanjaName:"社可堂公園", engName:"sagadanggongwon", address:"효빈광역시 동구 사가당동 242", express:"", transfer:[], riders:1394, trivia:"", time:{prev:"1분 15초", cum:"56분 11초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"744", km:17.05, dist:0.22, exits:1, name:"가족센터", hanjaName:"家族센터", engName:"gajoksenteo", address:"효빈광역시 북구 치남동 315", express:"", transfer:[], riders:2492, trivia:"", time:{prev:"1분 12초", cum:"57분 24초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"745", km:17.24, dist:0.19, exits:1, name:"치남", hanjaName:"治南", engName:"chinam", address:"효빈광역시 북구 치남동 583", express:"", transfer:[], riders:1945, trivia:"", time:{prev:"1분 08초", cum:"58분 32초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"747", km:17.74, dist:0.5, exits:1, name:"사능동3가", hanjaName:"沙綾洞3街", engName:"saneungdong3ga", address:"효빈광역시 북구 사능동3가 688", express:"", transfer:[], riders:1322, trivia:"뱅드림 포핀파티 야마부키 사아야 이름 한자", time:{prev:"1분 20초", cum:"59분 52초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"748", km:18, dist:0.26, exits:1, name:"유성당", hanjaName:"流星當", engName:"yuseongdang", address:"효빈광역시 북구 사능동2가 842", express:"", transfer:[], riders:2001, trivia:"뱅드림 포핀파티 이치가야 아리사 할머니가 운영하는 \"유성당\"", time:{prev:"1분 15초", cum:"61분 08초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"749", km:18.3, dist:0.3, exits:1, name:"사능복지관", hanjaName:"沙綾福祉館", engName:"saneungbokjigwan", address:"효빈광역시 북구 사능동2가 852", express:"", transfer:[], riders:1582, trivia:"뱅드림 포핀파티 야마부키 사아야 이름 한자", time:{prev:"1분 21초", cum:"62분 29초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"750", km:18.52, dist:0.22, exits:1, name:"사능동1가", hanjaName:"沙綾洞1街", engName:"saneungdong1ga", address:"효빈광역시 북구 사능동1가 753", express:"", transfer:[], riders:1043, trivia:"뱅드림 포핀파티 야마부키 사아야 이름 한자", time:{prev:"1분 12초", cum:"63분 42초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"751", km:18.82, dist:0.3, exits:1, name:"북구서부어린이회관", hanjaName:"北區 西部어린이會館", engName:"bukgu　seobueorinihoegwan", address:"효빈광역시 북구 사능동1가 1135", express:"", transfer:[], riders:1692, trivia:"", time:{prev:"1분 21초", cum:"65분 04초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"752", km:19.05, dist:0.23, exits:1, name:"사능삼거리", hanjaName:"沙綾三거리", engName:"saneungsamgeori", address:"효빈광역시 북구 사능동1가 220", express:"", transfer:[], riders:1204, trivia:"뱅드림 포핀파티 야마부키 사아야 이름 한자", time:{prev:"1분 14초", cum:"66분 19초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"753", km:19.26, dist:0.21, exits:1, name:"봇지마을", hanjaName:"봇지마을", engName:"botjimaeul", address:"효빈광역시 북구 내성동2가 868", express:"", transfer:[], riders:901, trivia:"봇치더락 고토 히토리의 별명\"봇치\"의 변형", time:{prev:"1분 11초", cum:"67분 30초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"754", km:19.47, dist:0.21, exits:1, name:"북문로", hanjaName:"北門路", engName:"bungmullo", address:"효빈광역시 서구 내성동2가 149", express:"", transfer:[], riders:2039, trivia:"", time:{prev:"1분 11초", cum:"68분 42초"}},
+            {line:"효빈 7호선", date:"1932년 3월 8일", id:"755", km:19.73, dist:0.26, exits:1, name:"효빈성북문", hanjaName:"孝彬城北門", engName:"hyobinseongbungmun", address:"효빈광역시 서구 내성동2가 219", express:"", transfer:[], riders:1461, trivia:"", time:{prev:"1분 15초", cum:"69분 57초"}},
+            {line:"효빈 7호선", date:"1934년 2월 22일", id:"756", km:19.96, dist:0.23, exits:1, name:"구칠천군사기지앞", hanjaName:"舊 七川軍事基地앞", engName:"guchilcheongunsagijiap", address:"효빈광역시 서구 칠천동 296", express:"", transfer:[], riders:5292, trivia:"", time:{prev:"1분 14초", cum:"71분 11초"}},
+            {line:"효빈 7호선", date:"1934년 2월 22일", id:"757", km:20.31, dist:0.35, exits:1, name:"당선원마을", hanjaName:"當選原마을", engName:"dangseonwonmaeul", address:"효빈광역시 서구 당선동 562", express:"", transfer:[], riders:2429, trivia:"", time:{prev:"1분 29초", cum:"72분 41초"}},
+            {line:"효빈 7호선", date:"1934년 2월 22일", id:"758", km:20.8, dist:0.49, exits:1, name:"효빈대입구", hanjaName:"孝彬大學敎入口", engName:"hyobindaehakgyoipgu", address:"효빈광역시 서구 당선동 1132", express:"", transfer:["2호선"], riders:5302, trivia:"", time:{prev:"1분 19초", cum:"74분 01초"}},
+            
+            // 7호선 중보지선 (업데이트)
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729", km:0, dist:0, exits:1, name:"중보로", hanjaName:"中寶路", engName:"jungboro", address:"효빈광역시 중구 중보로 758", express:"", transfer:[], riders:10482, trivia:"", time:{prev:"1분 11초", cum:"38분 42초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-1", km:0.36, dist:0.36, exits:1, name:"중동3가", hanjaName:"中洞3街", engName:"Jungdong3ga", address:"효빈광역시 중구 중동3가 556", express:"", transfer:[], riders:2392, trivia:"", time:{prev:"1분 26초", cum:"40분 09초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-2", km:0.62, dist:0.26, exits:1, name:"색수시장", hanjaName:"色水市場", engName:"saeksusijang", address:"효빈광역시 중구 중동1가 351", express:"", transfer:[], riders:2582, trivia:"", time:{prev:"1분 11초", cum:"41분 20초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-3", km:0.86, dist:0.24, exits:1, name:"조유동3가", hanjaName:"助有洞三街", engName:"joyudong3ga", address:"효빈광역시 중구 조유동3가 520", express:"", transfer:[], riders:1848, trivia:"", time:{prev:"1분 07초", cum:"42분 28초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-4", km:1.2, dist:0.34, exits:1, name:"조유동2가", hanjaName:"助有洞ニ街", engName:"joyudong2ga", address:"효빈광역시 중구 조유동2가 793", express:"", transfer:[], riders:2832, trivia:"", time:{prev:"1분 23초", cum:"43분 52초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-5", km:1.43, dist:0.23, exits:1, name:"중구청", hanjaName:"中區廳", engName:"junggucheong", address:"효빈광역시 중구 조유동2가 830", express:"", transfer:["1호선 중구청역"], riders:4882, trivia:"", time:{prev:"1분 06초", cum:"44분 58초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-6", km:1.64, dist:0.21, exits:1, name:"천석동2가", hanjaName:"千石洞ニ街", engName:"cheonseokdong2ga", address:"효빈광역시 중구 천석동2가 1137", express:"", transfer:[], riders:1948, trivia:"", time:{prev:"1분 03초", cum:"46분 01초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-7", km:1.85, dist:0.21, exits:1, name:"천석동3가", hanjaName:"千石洞三街", engName:"cheonseokdong3ga", address:"효빈광역시 중구 천석동3가 444", express:"", transfer:[], riders:1764, trivia:"", time:{prev:"1분 03초", cum:"47분 04초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-8", km:2.07, dist:0.22, exits:1, name:"서남", hanjaName:"西南", engName:"seonam", address:"효빈광역시 중구 서남동 490", express:"", transfer:[], riders:1028, trivia:"", time:{prev:"1분 04초", cum:"48분 09초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-9", km:2.27, dist:0.2, exits:1, name:"효빈고", hanjaName:"孝彬高等學敎", engName:"hyobingodeunghakgyo", address:"효빈광역시 중구 천석동1가 993", express:"", transfer:[], riders:1222, trivia:"", time:{prev:"1분 01초", cum:"49분 11초"}},
+            {line:"효빈 7호선 중보지선", date:"1931년 4월 5일", id:"729-10", km:2.47, dist:0.2, exits:1, name:"사중", hanjaName:"沙中", engName:"sajung", address:"효빈광역시 북구 사능동1가 814", express:"", transfer:[], riders:928, trivia:"", time:{prev:"1분 01초", cum:"50분 12초"}},
+            {line:"효빈 7호선 중보지선", date:"1932년 3월 8일", id:"752", km:19.05, dist:0.23, exits:1, name:"사능삼거리", hanjaName:"沙綾三거리", engName:"saneungsamgeori", address:"효빈광역시 북구 사능동1가 220", express:"", transfer:[], riders:1204, trivia:"뱅드림 포핀파티 야마부키 사아야 이름 한자", time:{prev:"1분 36초", cum:"51분 49초"}},
+            {line:"효빈 7호선 중보지선", date:"1932년 3월 8일", id:"753", km:19.26, dist:0.21, exits:1, name:"봇지마을", hanjaName:"봇지마을", engName:"botjimaeul", address:"효빈광역시 북구 내성동2가 868", express:"", transfer:[], riders:901, trivia:"봇치더락 고토 히토리의 별명\"봇치\"의 변형", time:{prev:"1분 03초", cum:"52분 52초"}},
+            {line:"효빈 7호선 중보지선", date:"1932년 3월 8일", id:"754", km:19.47, dist:0.21, exits:1, name:"북문로", hanjaName:"北門路", engName:"bungmullo", address:"효빈광역시 서구 내성동2가 149", express:"", transfer:[], riders:2039, trivia:"", time:{prev:"1분 03초", cum:"53분 56초"}},
+            {line:"효빈 7호선 중보지선", date:"1932년 3월 8일", id:"755", km:19.73, dist:0.26, exits:1, name:"효빈성북문", hanjaName:"孝彬城北門", engName:"hyobinseongbungmun", address:"효빈광역시 서구 내성동2가 219", express:"", transfer:[], riders:1461, trivia:"", time:{prev:"1분 11초", cum:"55분 07초"}},
+            {line:"효빈 7호선 중보지선", date:"1934년 2월 22일", id:"756", km:19.96, dist:0.23, exits:1, name:"구칠천군사기지앞", hanjaName:"舊 七川軍事基地앞", engName:"guchilcheongunsagijiap", address:"효빈광역시 서구 칠천동 296", express:"", transfer:[], riders:5292, trivia:"", time:{prev:"1분 06초", cum:"56분 13초"}},
+            {line:"효빈 7호선 중보지선", date:"1934년 2월 22일", id:"757", km:20.31, dist:0.35, exits:1, name:"당선원마을", hanjaName:"當選原마을", engName:"dangseonwonmaeul", address:"효빈광역시 서구 당선동 562", express:"", transfer:[], riders:2429, trivia:"", time:{prev:"1분 25초", cum:"57분 38초"}},
+            {line:"효빈 7호선 중보지선", date:"1934년 2월 22일", id:"758", km:20.8, dist:0.49, exits:1, name:"효빈대입구", hanjaName:"孝彬大學敎入口", engName:"hyobindaehakgyoipgu", address:"효빈광역시 서구 당선동 1132", express:"", transfer:["2호선"], riders:5302, trivia:"", time:{prev:"1분 29초", cum:"59분 08초"}},
+            
+            // 8호선 (업데이트)
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"801", km:0, dist:"", exits:2, name:"곽산", hanjaName:"郭山", engName:"Gwaksan", address:"효빈광역시 남구 곽산동 220-2", express:"", transfer:["1호선"], riders:7821, trivia:"", time:{prev:"출발", cum:"출발"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"802", km:1.17, dist:1.17, exits:2, name:"곽산고", hanjaName:"郭山高等學校", engName:"gwaksangodeunghakgyo", address:"효빈광역시 남구 평당동 429", express:"", transfer:[], riders:2392, trivia:"", time:{prev:"2분 17초", cum:"2분 17초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"803", km:2.28, dist:1.11, exits:2, name:"남부소방서", hanjaName:"南部消防署", engName:"nambusobangseo", address:"효빈광역시 남구 평당동 763", express:"", transfer:[], riders:3281, trivia:"", time:{prev:"2분 11초", cum:"4분 29초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"804", km:3.17, dist:0.89, exits:2, name:"부한", hanjaName:"部韓", engName:"buhan", address:"효빈광역시 남구 평당동 1198", express:"", transfer:[], riders:1032, trivia:"", time:{prev:"2분 03초", cum:"6분 32초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"805", km:3.71, dist:0.54, exits:2, name:"능남", hanjaName:"能南", engName:"neungnam", address:"효빈광역시 남구 평당동 355", express:"", transfer:[], riders:1492, trivia:"", time:{prev:"1분 38초", cum:"8분 10초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"806", km:4.68, dist:0.97, exits:2, name:"평당6동주민센터", hanjaName:"平堂6洞主民센터", engName:"pyeongdang6dongjuminsenteo", address:"효빈광역시 남구 평당동 1164", express:"", transfer:[], riders:4902, trivia:"", time:{prev:"2분 11초", cum:"10분 22초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"807", km:5.55, dist:0.87, exits:2, name:"남구선관위", hanjaName:"南區選擧管理委員會", engName:"namguseongeogwalliwiwonhoe", address:"효빈광역시 남구 평당동 511", express:"", transfer:[], riders:3211, trivia:"", time:{prev:"2분 01초", cum:"12분 24초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"808", km:5.9, dist:0.35, exits:2, name:"평곡", hanjaName:"平谷", engName:"pyeonggok", address:"효빈광역시 남구 평당동 112", express:"", transfer:[], riders:6921, trivia:"", time:{prev:"1분 26초", cum:"13분 51초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"810", km:6.53, dist:0.63, exits:2, name:"평당고", hanjaName:"平堂高等學校", engName:"pyeongdanggodeunghakgyo", address:"효빈광역시 남구 평당동 1117", express:"", transfer:[], riders:5020, trivia:"", time:{prev:"1분 41초", cum:"15분 34초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"811", km:6.99, dist:0.46, exits:2, name:"사북내", hanjaName:"事北內", engName:"sabungnae", address:"효빈광역시 남구 평당동 887", express:"", transfer:[], riders:5094, trivia:"", time:{prev:"1분 45초", cum:"17분 19초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"812", km:7.41, dist:0.42, exits:2, name:"남구청", hanjaName:"南區廳", engName:"NAM-GU office", address:"효빈광역시 남구 평당동 489", express:"", transfer:["1호선","4호선"], riders:13822, trivia:"", time:{prev:"1분 38초", cum:"18분 58초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"813", km:7.82, dist:0.41, exits:2, name:"주오", hanjaName:"主吳", engName:"juo", address:"효빈광역시 남구 평당동 740", express:"", transfer:[], riders:4912, trivia:"", time:{prev:"1분 37초", cum:"20분 35초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"814", km:8.27, dist:0.45, exits:2, name:"평당장애인복지관", hanjaName:"平堂障碍人福祉館", engName:"pyeongdangjangaeinbokjigwan", address:"효빈광역시 남구 평당동 543", express:"", transfer:[], riders:2382, trivia:"", time:{prev:"1분 43초", cum:"22분 19초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"815", km:8.66, dist:0.39, exits:2, name:"북평단", hanjaName:"北平旦", engName:"bukpyeongdan", address:"효빈광역시 남구 평당동 374", express:"", transfer:[], riders:4892, trivia:"", time:{prev:"1분 33초", cum:"23분 53초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"816", km:9.28, dist:0.6, exits:2, name:"주곡", hanjaName:"主穀", engName:"jugok", address:"효빈광역시 남구 평당동 58", express:"", transfer:[], riders:3921, trivia:"", time:{prev:"1분 48초", cum:"25분 41초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"817", km:9.59, dist:0.31, exits:2, name:"창문공원", hanjaName:"窓門公園", engName:"changmungongwon", address:"효빈광역시 남구 어간동 179", express:"", transfer:[], riders:1921, trivia:"", time:{prev:"1분 20초", cum:"27분 02초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"818", km:9.87, dist:0.27, exits:2, name:"세무지구", hanjaName:"稅務地區", engName:"semujigu", address:"효빈광역시 남구 어간동 1014", express:"", transfer:[], riders:3392, trivia:"", time:{prev:"1분 15초", cum:"28분 18초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"819", km:10.38, dist:0.51, exits:2, name:"배고", hanjaName:"配高", engName:"baego", address:"효빈광역시 남구 어간동 235", express:"", transfer:[], riders:1941, trivia:"", time:{prev:"1분 34초", cum:"29분 52초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"820", km:10.77, dist:0.39, exits:2, name:"문화회관", hanjaName:"文化會館", engName:"munhwahoegwan", address:"효빈광역시 남구 평당동 47", express:"", transfer:[], riders:1923, trivia:"", time:{prev:"1분 33초", cum:"31분 26초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"821", km:11.27, dist:0.5, exits:2, name:"신거", hanjaName:"宸居", engName:"singeo", address:"효빈광역시 남구 운양동 325", express:"", transfer:["1호선"], riders:5919, trivia:"", time:{prev:"1분 51초", cum:"33분 18초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"822", km:11.77, dist:0.5, exits:2, name:"평운", hanjaName:"平韻", engName:"pyeongun", address:"효빈광역시 남구 운양동 929", express:"", transfer:[], riders:1491, trivia:"", time:{prev:"1분 51초", cum:"35분 10초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"823", km:12.43, dist:0.66, exits:2, name:"운양중앙", hanjaName:"雲陽中央", engName:"unyangjungang", address:"효빈광역시 남구 운양동 450", express:"", transfer:[], riders:8912, trivia:"효빈교통공사 공식굿즈샵이 지상2층에 위치", time:{prev:"1분 53초", cum:"37분 03초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"824", km:13.24, dist:0.81, exits:2, name:"운촌", hanjaName:"雲村", engName:"unchon", address:"효빈광역시 남구 박산동 398", express:"", transfer:[], riders:5922, trivia:"", time:{prev:"1분 55초", cum:"38분 58초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"825", km:13.81, dist:0.57, exits:2, name:"박산", hanjaName:"朴山", engName:"baksan", address:"효빈광역시 남구 박산동 198", express:"", transfer:["2호선"], riders:9174, trivia:"", time:{prev:"1분 41초", cum:"40분 40초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"826", km:14.34, dist:0.53, exits:2, name:"박산중고등학교", hanjaName:"朴山中高等學校", engName:"baksanjunggodeunghakgyo", address:"효빈광역시 남구 박산동 960", express:"", transfer:[], riders:4921, trivia:"", time:{prev:"1분 36초", cum:"42분 17초"}},
+            {line:"효빈 8호선", date:"2024년 3월 4일", id:"827", km:15.17, dist:0.83, exits:2, name:"신흥", hanjaName:"新興", engName:"sinheung", address:"효빈광역시 남구 신흥동 598", express:"", transfer:["2호선","4호선"], riders:10382, trivia:"", time:{prev:"1분 57초", cum:"44분 14초"}},
+            
+            
+            // 빈효선 광역전철
+      {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B01", km:0, dist:0, exits:6, name:"효빈항", hanjaName:"孝彬港", engName:" Hyobinhang", address:"효빈광역시 남구 항동3가 1213", express:"급 ", transfer:["1호선","7호선","일반열차"], riders:15021, trivia:"", time:{prev:"출발", cum:"출발"}, expTime:{prev:"출발", cum:"출발"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B02", km:1.4, dist:1.4, exits:4, name:"효빈항물류지구", hanjaName:"孝彬港物流地區", engName:"hyobinhangmullyujigu", address:"효빈광역시 남구 항동1가 239-3", express:"급", transfer:["1호선"], riders:4455, trivia:"", time:{prev:"2분 04초", cum:"2분 04초"}, expTime:{prev:"2분 04초", cum:"2분 04초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B03", km:2.7, dist:1.3, exits:1, name:"동신", hanjaName:"東新", engName:"dongsin", address:"효빈광역시 남구 월천동 424", express:"", transfer:[], riders:3292, trivia:"", time:{prev:"1분 57초", cum:"4분 02초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B04", km:4.1, dist:1.4, exits:6, name:"진월천", hanjaName:"鎭月川", engName:"jinwolcheon", address:"효빈광역시 남구 월천동 524", express:"급", transfer:["4호선"], riders:7261, trivia:"", time:{prev:"2분 04초", cum:"6분 06초"}, expTime:{prev:"3분 00초", cum:"5분 04초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B05", km:5.6, dist:1.5, exits:2, name:"오주", hanjaName:"五周", engName:"oju", address:"효빈광역시 청엽구 입동3가 510", express:"", transfer:[], riders:4282, trivia:"", time:{prev:"1분 56초", cum:"8분 03초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B06", km:7.2, dist:1.6, exits:5, name:"효빈동신도시", hanjaName:"孝彬洞新道市", engName:"hyobindongsindosi", address:"효빈광역시 청엽구 효빈동1가 781", express:"급", transfer:[], riders:8272, trivia:"", time:{prev:"2분 02초", cum:"10분 06초"}, expTime:{prev:"2분 57초", cum:"8분 02초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B07", km:8.9, dist:1.7, exits:8, name:"장원", hanjaName:"長原", engName:"jangwon", address:"효빈광역시 청엽구 효빈동2가 523", express:"급", transfer:["1호선","4호선"], riders:5823, trivia:"", time:{prev:"2분 09초", cum:"12분 15초"}, expTime:{prev:"2분 09초", cum:"10분 12초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B08", km:10.4, dist:1.5, exits:6, name:"신덕", hanjaName:"新德", engName:"sindeok", address:"효빈광역시 중구 신덕동 563", express:"급", transfer:["4호선"], riders:8817, trivia:"", time:{prev:"1분 56초", cum:"14분 12초"}, expTime:{prev:"1분 56초", cum:"12분 08초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B09", km:11.86, dist:1.46, exits:17, name:"효빈", hanjaName:"孝彬", engName:"hyobin", address:"효빈광역시 동구 사가당동 1079-2 ", express:"급", transfer:["1호선","3호선","7호선","일반열차","고속열차"], riders:25292, trivia:"지상2층에 빈효선관련 굿즈 대거 포함한 효빈교통공사 공식 굿즈샵 위치", time:{prev:"1분 53초", cum:"16분 05초"}, expTime:{prev:"1분 53초", cum:"14분 01초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B10", km:13.56, dist:1.7, exits:4, name:"전덕", hanjaName:"前德", engName:"jeondeok", address:"효빈광역시 동구 덕현동 134", express:"급", transfer:["6호선"], riders:12021, trivia:"", time:{prev:"2분 09초", cum:"18분 15초"}, expTime:{prev:"2분 09초", cum:"16분 11초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B12", km:15.36, dist:1.8, exits:1, name:"하성천", hanjaName:"下城川", engName:"haseongcheon", address:"효빈광역시 동구 덕현동 634", express:"", transfer:[], riders:4953, trivia:"", time:{prev:"2분 43초", cum:"20분 58초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B13", km:17.52, dist:2.16, exits:3, name:"북택", hanjaName:"北澤", engName:"buktaek", address:"효빈광역시 안천구 북택동 730", express:"급", transfer:[], riders:9183, trivia:"뱅드림 헬로해피월드 키타자와 하구미 성씨 한자", time:{prev:"2분 40초", cum:"23분 39초"}, expTime:{prev:"4분 03초", cum:"20분 15초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B14", km:19.52, dist:2, exits:1, name:"수포", hanjaName:"水浦", engName:"supo", address:"효빈광역시 안천구 세익동 924", express:"", transfer:[], riders:2012, trivia:"", time:{prev:"2분 30초", cum:"26분 09초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B15", km:20.72, dist:1.2, exits:5, name:"당가", hanjaName:"唐可", engName:"dangga", address:"효빈광역시 안천구 당가동 717", express:"", transfer:["2호선"], riders:16092, trivia:"러브라이브 슈퍼스타 탕 쿠쿠 이름 일부(唐可) 한자", time:{prev:"1분 50초", cum:"28분 00초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B16", km:21.85, dist:1.13, exits:8, name:"안천", hanjaName:"安川", engName:"ancheon", address:"효빈광역시 안천구 안천동 1031", express:"급", transfer:["1호선","일반열차","고속열차"], riders:30222, trivia:"", time:{prev:"1분 46초", cum:"29분 46초"}, expTime:{prev:"4분 37초", cum:"24분 52초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B17", km:24.73, dist:2.88, exits:2, name:"타천", hanjaName:"堕天", engName:"tacheon", address:"효빈광역시 안천구 타천동 79", express:"", transfer:[], riders:13485, trivia:"러브라이브 선샤인 츠시마 요시코의 \"타천\"", time:{prev:"3분 29초", cum:"33분 16초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B18", km:27.48, dist:2.75, exits:2, name:"리의", hanjaName:"理衣", engName:"riui", address:"효빈광역시 안천구 리의동 20", express:"", transfer:[], riders:18372, trivia:"뱅드림 글리터 그린 우자와 리이(이름)", time:{prev:"3분 20초", cum:"36분 36초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B19", km:28.93, dist:1.45, exits:9, name:"이자", hanjaName:"莉子", engName:"ija", address:"효빈광역시 안천구 이자동 9-19", express:"급", transfer:["4호선"], riders:30824, trivia:"러브라이브 선샤인 사쿠라우치 리코 이름 한자", time:{prev:"1분 52초", cum:"38분 29초"}, expTime:{prev:"6분 06초", cum:"30분 58초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B20", km:31.01, dist:2.08, exits:6, name:"영색무", hanjaName:"影色舞", engName:"yeongsaengmu", address:"효빈광역시 안천구 영색무동 211", express:"급", transfer:["1호선"], riders:4222, trivia:"뱅드림 마이고 노래중 실루엣댄스의 한자표기명 사용", time:{prev:"2분 35초", cum:"41분 05초"}, expTime:{prev:"2분 35초", cum:"33분 34초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B21", km:36.21, dist:5.2, exits:2, name:"고해", hanjaName:"高海", engName:"gohae", address:"효빈광역시 탄성군 고해읍 이와리 81", express:"급", transfer:["1호선", "일반열차"], riders:6717, trivia:"러브라이브 선샤인 타카미 치카 성씨 한자", time:{prev:"4분 45초", cum:"45분 50초"}, expTime:{prev:"4분 45초", cum:"38분 19초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B22", km:46.7, dist:10.49, exits:2, name:"영내", hanjaName:"楹內", engName:"yeongnae", address:"덕빈북도 약산시 후작동 544", express:"급", transfer:[], riders:4892, trivia:"", time:{prev:"9분 13초", cum:"55분 04초"}, expTime:{prev:"9분 13초", cum:"47분 33초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B23", km:48.96, dist:2.26, exits:4, name:"약산", hanjaName:"藥山", engName:"yaksan", address:"덕빈북도 약산시 보녕동 842", express:"급", transfer:["일반열차"], riders:16382, trivia:"", time:{prev:"2분 47초", cum:"57분 52초"}, expTime:{prev:"2분 47초", cum:"50분 20초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B24", km:55.49, dist:6.53, exits:1, name:"홍하", hanjaName:"紅河", engName:"hongha", address:"덕빈북도 약산시 홍하면 니지리 529", express:"급", transfer:[], riders:1632, trivia:"봇치더락 이지치 니지카의 이름 한자", time:{prev:"5분 53초", cum:"63분 45초"}, expTime:{prev:"5분 53초", cum:"56분 14초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B25", km:57.82, dist:2.33, exits:1, name:"화소", hanjaName:"華所", engName:"hwaso", address:"덕빈북도 약산시 화소읍 상내리 423", express:"급", transfer:["1호선", "일반열차"], riders:6271, trivia:"", time:{prev:"2분 52초", cum:"66분 37초"}, expTime:{prev:"2분 52초", cum:"59분 06초"}},
+            {line:"빈효선 광역전철", date:"2021년 5월 2일", id:"B26", km:62.94, dist:5.12, exits:1, name:"근강", hanjaName:"近江", engName:"geungang", address:"덕빈북도 약산시 근강면 건상리 12-16", express:"급", transfer:[], riders:1928, trivia:"러브라이브 니지동 코노에 카나타 성씨 한자", time:{prev:"4분 41초", cum:"71분 19초"}, expTime:{prev:"4분 41초", cum:"63분 48초"}},
+            {line:"빈효선 광역전철", date:"2021년 5월 2일", id:"B27", km:67.74, dist:4.8, exits:3, name:"궁하", hanjaName:"宮下", engName:"gungha", address:"덕빈북도 천주시 궁하구 궁하동 530", express:"급", transfer:["일반열차"], riders:14621, trivia:"러브라이브 니지동 미야시타 아이 성씨 한자", time:{prev:"4분 25초", cum:"75분 44초"}, expTime:{prev:"4분 25초", cum:"68분 13초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B28", km:69.87, dist:2.13, exits:4, name:"아이", hanjaName:"啞異", engName:"ai", address:"덕빈북도 천주시 궁하구 아이동 5", express:"급", transfer:[], riders:17931, trivia:"러브라이브 니지동 미야시타 아이 이름 그대로", time:{prev:"2분 38초", cum:"78분 23초"}, expTime:{prev:"2분 38초", cum:"70분 52초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B29", km:71.36, dist:1.49, exits:4, name:"서팔", hanjaName:"西八", engName:"seopal", address:"덕빈북도 천주시 궁하구 서팔동 30", express:"급", transfer:[], riders:10372, trivia:"", time:{prev:"1분 55초", cum:"80분 18초"}, expTime:{prev:"1분 55초", cum:"72분 47초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B30", km:74, dist:2.64, exits:1, name:"과림", hanjaName:"果林", engName:"gwarim", address:"덕빈북도 천주시 궁하구 과림읍 궁하구 조향리 629", express:"급", transfer:["일반열차","고속열차"], riders:3852, trivia:"러브라이브 니지동 아사카 카린의 이름 한자", time:{prev:"3분 13초", cum:"83분 32초"}, expTime:{prev:"3분 13초", cum:"76분 01초"}},
+            {line:"빈효선 광역전철", date:"2021년 5월 2일", id:"B31", km:76.05, dist:2.05, exits:2, name:"시곡", hanjaName:"時谷", engName:"sigok", address:"덕빈북도 천주시 궁하구 시곡면 궁하구 유소리 1027", express:"급", transfer:[], riders:1992, trivia:"뱅드림 포핀파티 이치가야 아리사 성씨 한자와 유사", time:{prev:"2분 33초", cum:"86분 05초"}, expTime:{prev:"2분 33초", cum:"78분 34초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B32", km:79.55, dist:3.5, exits:2, name:"산취", hanjaName:"山趣", engName:"sanchwi", address:"덕빈북도 천주시 궁하구 산취면 궁하구 사야리 519", express:"급", transfer:["일반열차","고속열차"], riders:5682, trivia:"뱅드림 포핀파티 야마부키 사아야 성씨 한자", time:{prev:"4분 11초", cum:"90분 16초"}, expTime:{prev:"4분 11초", cum:"82분 45초"}},
+            {line:"빈효선 광역전철", date:"2017년 5월 2일", id:"B33", km:81.08, dist:1.53, exits:3, name:"대뢰", hanjaName:"大牢", engName:"daeroe", address:"덕빈북도 천주시 천성구 대뢰동 102-7", express:"급", transfer:[], riders:5992, trivia:"", time:{prev:"1분 58초", cum:"92분 15초"}, expTime:{prev:"1분 58초", cum:"84분 44초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B34", km:82.23, dist:1.15, exits:3, name:"빈전", hanjaName:"殯殿", engName:"binjeon", address:"덕빈북도 천주시 천성구 빈전동 120", express:"급", transfer:[], riders:8790, trivia:"", time:{prev:"1분 47초", cum:"94분 02초"}, expTime:{prev:"1분 47초", cum:"86분 31초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B35", km:83.4, dist:1.17, exits:5, name:"천주중앙", hanjaName:"泉州中央", engName:"cheonjujungang", address:"덕빈북도 천주시 천성구 중앙동2가 203", express:"급", transfer:[], riders:20122, trivia:"", time:{prev:"1분 48초", cum:"95분 51초"}, expTime:{prev:"1분 48초", cum:"88분 20초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B36", km:84.34, dist:0.94, exits:4, name:"천주시청", hanjaName:"泉州市廳", engName:"cheonjusicheong", address:"덕빈북도 천주시 천성구 평온동 531", express:"급", transfer:[], riders:17493, trivia:"", time:{prev:"1분 33초", cum:"97분 25초"}, expTime:{prev:"1분 33초", cum:"89분 54초"}},
+            {line:"빈효선 광역전철", date:"2019년 5월 2일", id:"B37", km:85.83, dist:1.49, exits:5, name:"천주", hanjaName:"泉州", engName:"cheonju", address:"덕빈북도 천주시 천성구 천성동 463-2", express:"급", transfer:["일반열차","고속열차"], riders:22381, trivia:"", time:{prev:"1분 55초", cum:"99분 20초"}, expTime:{prev:"1분 55초", cum:"91분 49초"}},
+            {line:"빈효선 광역전철", date:"2025년 5월 2일", id:"B38", km:87.89, dist:2.06, exits:1, name:"고남", hanjaName:"高南", engName:"gonam", address:"덕빈북도 낭원군 내덕면 고남리 241", express:"급", transfer:[], riders:180, trivia:"", time:{prev:"2분 34초", cum:"101분 54초"}, expTime:{prev:"2분 34초", cum:"94분 23초"}}
+        ].concat(
+            // [중요] 사용자가 가진 원본 데이터가 모두 포함되도록 수정하세요.
+            // 위 예시는 일부만 보여드린 것입니다.
+            []
+        );
+
+        // ==================================================================
+        // 2. 핵심 로직 (색상, 한자, 영문 복원)
+        // ==================================================================
+        function parseTime(timeStr) {
+            if (!timeStr || typeof timeStr !== 'string' || timeStr.includes("출발")) return 0;
+            let min = 0, sec = 0;
+            const minMatch = timeStr.match(/(\d+)분/); if (minMatch) min = parseInt(minMatch[1], 10);
+            const secMatch = timeStr.match(/(\d+)초/); if (secMatch) sec = parseInt(secMatch[1], 10);
+            return min + (sec / 60);
+        }
+
+        // 노선 색상 클래스 매핑
+        function getLineColorClass(lineName) {
+            if (!lineName) return 'bg-gray-500';
+            if (lineName.includes('1호선')) return 'line-1';
+            if (lineName.includes('2호선')) return 'line-2';
+            if (lineName.includes('3호선')) return 'line-3';
+            if (lineName.includes('4호선')) return 'line-4';
+            if (lineName.includes('5호선')) return 'line-5';
+            if (lineName.includes('6호선')) return 'line-6';
+            if (lineName.includes('7호선')) return 'line-7';
+            if (lineName.includes('8호선')) return 'line-8';
+            if (lineName.includes('빈효선')) return 'line-bh';
+            return 'bg-gray-500';
+        }
+
+        // 그래프 생성
+        let adjList = [];
+        let nameToIndices = {};
+
+        function buildGraph() {
+            adjList = new Array(stationData.length).fill(null).map(() => []);
+            nameToIndices = {};
+            stationData.forEach((station, index) => {
+                if (!nameToIndices[station.name]) nameToIndices[station.name] = [];
+                nameToIndices[station.name].push(index);
+            });
+
+            // 일반 연결
+            for (let i = 0; i < stationData.length - 1; i++) {
+                const current = stationData[i];
+                const next = stationData[i + 1];
+                if (current.line === next.line) {
+                    let timeWeight = 2;
+                    if (next.time && next.time.prev) timeWeight = parseTime(next.time.prev);
+                    else if (current.km !== undefined && next.km !== undefined) timeWeight = Math.abs(current.km - next.km) * 2.5;
+                    adjList[i].push({ to: i + 1, weight: timeWeight, type: 'move' });
+                    adjList[i + 1].push({ to: i, weight: timeWeight, type: 'move' });
+                }
+            }
+            // 급행 및 환승
+            let lastExpressIdx = -1; let currentLine = "";
+            stationData.forEach((station, index) => {
+                if (station.line !== currentLine) { currentLine = station.line; lastExpressIdx = -1; }
+                if (station.express && station.express.trim() !== "") {
+                    if (lastExpressIdx !== -1) {
+                        let weight = 0;
+                        if (station.expTime && station.expTime.prev) weight = parseTime(station.expTime.prev);
+                        if(weight<=0) weight = 3; 
+                        adjList[lastExpressIdx].push({ to: index, weight: weight, type: 'express' });
+                        adjList[index].push({ to: lastExpressIdx, weight: weight, type: 'express' });
+                    }
+                    lastExpressIdx = index;
+                }
+            });
+            for (const name in nameToIndices) {
+                const indices = nameToIndices[name];
+                if (indices.length > 1) {
+                    for (let i = 0; i < indices.length; i++) {
+                        for (let j = i + 1; j < indices.length; j++) {
+                            adjList[indices[i]].push({ to: indices[j], weight: 5, type: 'transfer' });
+                            adjList[indices[j]].push({ to: indices[i], weight: 5, type: 'transfer' });
+                        }
+                    }
+                }
+            }
+        }
+
+        // Dijkstra
+        class PriorityQueue {
+            constructor() { this.values = []; }
+            enqueue(element, priority) { this.values.push({ element, priority }); this.sort(); }
+            dequeue() { return this.values.shift(); }
+            sort() { this.values.sort((a, b) => a.priority - b.priority); }
+            isEmpty() { return this.values.length === 0; }
+        }
+
+        function findPathDijkstra(startName, endName, options = {}) {
+            if(!nameToIndices[startName] || !nameToIndices[endName]) return null;
+            const startNodes = nameToIndices[startName];
+            const endNodes = nameToIndices[endName];
+            const distances = new Array(stationData.length).fill(Infinity);
+            const previous = new Array(stationData.length).fill(null);
+            const pq = new PriorityQueue();
+
+            startNodes.forEach(index => { distances[index] = 0; pq.enqueue(index, 0); });
+
+            while (!pq.isEmpty()) {
+                const { element: u, priority: distU } = pq.dequeue();
+                if (distU > distances[u]) continue;
+                for (const edge of adjList[u]) {
+                    if (options.ignoreExpress && edge.type === 'express') continue;
+                    const v = edge.to;
+                    if (distances[u] + edge.weight < distances[v]) {
+                        distances[v] = distances[u] + edge.weight;
+                        previous[v] = u;
+                        pq.enqueue(v, distances[v]);
+                    }
+                }
+            }
+            let bestEndNode = -1; let minDist = Infinity;
+            endNodes.forEach(index => { if (distances[index] < minDist) { minDist = distances[index]; bestEndNode = index; } });
+            if (bestEndNode === -1 || minDist === Infinity) return null;
+            const path = []; let curr = bestEndNode;
+            while (curr !== null && distances[curr] !== 0) { path.unshift(curr); curr = previous[curr]; }
+            if(curr !== null) path.unshift(curr);
+            return { path, totalTime: minDist };
+        }
+
+        function findRoute() {
+            const start = document.getElementById('startStation').value.trim();
+            const end = document.getElementById('endStation').value.trim();
+            if (!start) { showAlert("출발역을 입력해주세요."); return; }
+            if (start && !end) { showStationInfo(start); return; }
+            if (adjList.length === 0) buildGraph();
+
+            try {
+                const fastestResult = findPathDijkstra(start, end);
+                const normalResult = findPathDijkstra(start, end, { ignoreExpress: true });
+                if (!fastestResult) { showAlert("경로를 찾을 수 없습니다."); return; }
+                document.getElementById('searchResult').classList.remove('hidden');
+                renderRouteResult(fastestResult, normalResult, start, end);
+            } catch(e) { console.error(e); showAlert("경로 검색 오류"); }
+        }
+
+        function closeModal() { document.getElementById('searchResult').classList.add('hidden'); }
+
+        // ==================================================================
+        // 3. 화면 렌더링 (디자인 100% 복원 + 색상 아이콘 추가)
+        // ==================================================================
+        
+        // 경로 결과 렌더링
+        function renderRouteResult(fastest, normal, startName, endName) {
+            const contentDiv = document.getElementById('resultContent');
+            contentDiv.innerHTML = '';
+            
+            const pathIndices = fastest.path;
+            const totalTime = fastest.totalTime;
+            let timeSaved = 0; let isExpressUsed = false;
+            if (normal && normal.totalTime > totalTime + 1) { isExpressUsed = true; timeSaved = normal.totalTime - totalTime; }
+
+            let totalKm = 0;
+            for(let i=0; i<pathIndices.length-1; i++) {
+                const u = stationData[pathIndices[i]]; const v = stationData[pathIndices[i+1]];
+                if(u.line === v.line && u.km !== undefined && v.km !== undefined) totalKm += Math.abs(u.km - v.km);
+            }
+            const fare = 1400 + Math.ceil(Math.max(0, totalKm - 10) / 5) * 100;
+
+            let html = `
+                <div class="bg-slate-800 p-4 rounded-lg mb-6 border border-slate-600">
+                    <div class="flex justify-between items-center text-white mb-2">
+                        <span class="text-xl font-bold">${startName}</span>
+                        <i class="fa-solid fa-arrow-right text-gray-400"></i>
+                        <span class="text-xl font-bold">${endName}</span>
+                    </div>
+                    <div class="flex justify-between items-end text-white border-t border-gray-600 pt-3 mt-2">
+                        <div>
+                            <p class="text-xs text-gray-400 mb-1"><i class="fa-regular fa-clock mr-1"></i>소요시간</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-sky-400">약 ${Math.ceil(totalTime)}분</span>
+                                ${isExpressUsed ? `<span class="text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-700/50">급행 (${Math.floor(timeSaved)}분 단축)</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400 mb-1"><i class="fa-solid fa-coins mr-1"></i>운임</p>
+                            <span class="text-xl font-bold">${fare.toLocaleString()}원</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="route-timeline space-y-0">
+            `;
+
+            let currentLine = stationData[pathIndices[0]].line;
+            let segmentStartIdx = 0;
+
+            for (let i = 1; i <= pathIndices.length; i++) {
+                let isTransfer = false;
+                let nextLine = null;
+                if (i < pathIndices.length) {
+                    const u = stationData[pathIndices[i-1]]; const v = stationData[pathIndices[i]];
+                    if (u.line !== v.line) { isTransfer = true; nextLine = v.line; }
+                }
+
+                if (isTransfer || i === pathIndices.length) {
+                    const startNode = stationData[pathIndices[segmentStartIdx]];
+                    const endNode = stationData[pathIndices[i-1]];
+                    let physicalStops = 0; let isExpressSegment = false;
+                    for (let k = segmentStartIdx + 1; k < i; k++) {
+                        const currIdx = pathIndices[k]; const prevIdx = pathIndices[k-1];
+                        if (Math.abs(currIdx - prevIdx) > 1) isExpressSegment = true;
+                        physicalStops += 1; 
+                    }
+                    const lineColor = getLineColorClass(currentLine);
+
+                    html += `
+                        <div class="route-segment">
+                            <div class="route-point border-white ${lineColor}"></div>
+                            <div class="mb-1">
+                                <span class="line-badge ${lineColor}">${currentLine}</span>
+                                ${isExpressSegment ? `<span class="express-badge">급행 이용</span>` : ''}
+                                <span class="font-bold text-lg text-slate-800">${startNode.name}</span>
+                            </div>
+                            ${physicalStops > 0 ? `<div class="pl-2 border-l-2 border-dotted border-gray-300 ml-[-23px] my-2 py-2"><p class="text-xs text-gray-500 ml-4">${physicalStops}개 역 이동</p></div>` : ''}
+                        </div>
+                    `;
+
+                    if (isTransfer) {
+                        html += `
+                            <div class="route-segment">
+                                <div class="route-point bg-white border-gray-400"></div>
+                                <div class="bg-gray-100 p-2 rounded text-xs text-gray-600 font-bold inline-block border border-gray-300">
+                                    <i class="fa-solid fa-person-walking mr-1"></i>환승 (5분)
+                                </div>
+                            </div>
+                        `;
+                        currentLine = nextLine;
+                        segmentStartIdx = i; 
+                    } else {
+                         html += `
+                            <div class="route-segment">
+                                <div class="route-point border-white ${lineColor}"></div>
+                                <div class="mb-1">
+                                    <span class="font-bold text-lg text-slate-800">${endNode.name}</span>
+                                    <span class="text-xs text-white bg-slate-800 px-2 py-0.5 rounded ml-2">도착</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            html += `</div>`;
+            contentDiv.innerHTML = html;
+            const pathStations = pathIndices.map(idx => stationData[idx]);
+            appendTrivia(contentDiv, pathStations, "경유역 성지정보");
+        }
+
+        // ★ 수정: 역 정보 조회 (한자/영문명 + 노선 색상 아이콘) ★
+        function showStationInfo(name) {
+            const resultDiv = document.getElementById('searchResult');
+            const contentDiv = document.getElementById('resultContent');
+            resultDiv.classList.remove('hidden');
+            
+            const infos = stationData.filter(s => s.name === name);
+            if (infos.length === 0) { contentDiv.innerHTML = '<p class="text-gray-400 p-4">존재하지 않는 역입니다.</p>'; return; }
+
+            // 1. 헤더 (한자/영문 추가됨)
+            const rep = infos[0];
+            let html = `
+                <div class="flex flex-col gap-1 mb-6 pb-4 border-b border-gray-700">
+                    <div class="flex items-baseline gap-3">
+                        <span class="text-3xl font-bold text-white">${rep.name}</span>
+                        <span class="text-xl font-medium text-gray-400">${rep.hanjaName || ''}</span>
+                    </div>
+                    <span class="text-lg text-gray-500 font-medium">${rep.engName || ''}</span>
+                </div>
+            `;
+
+            // 2. 노선 카드 (노선 색상 뱃지 추가됨)
+            infos.forEach(info => {
+                const lineColor = getLineColorClass(info.line);
+                html += `
+                    <div class="bg-slate-800 p-4 rounded-lg mb-4 border border-slate-700 hover:border-slate-500 transition shadow-md">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="line-badge ${lineColor} shadow">${info.line}</span>
+                            <span class="text-xs text-gray-400 bg-slate-900 px-2 py-1 rounded">누적 ${info.km || 0}km</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm mb-3">
+                            <div class="bg-slate-900/60 p-3 rounded border border-slate-700/50">
+                                <p class="text-gray-400 text-xs mb-1">일일 이용객</p>
+                                <p class="text-white font-bold text-lg">${info.riders ? info.riders.toLocaleString() : '-'}명</p>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded border border-slate-700/50">
+                                <p class="text-gray-400 text-xs mb-1">환승 정보</p>
+                                <p class="text-yellow-400 font-bold text-sm truncate">${info.transfer && info.transfer.length > 0 ? info.transfer.join(', ') : '없음'}</p>
+                            </div>
+                        </div>
+                        ${info.address ? `<div class="flex items-start text-xs text-gray-500 mt-2"><i class="fa-solid fa-location-dot mr-2 mt-0.5"></i>${info.address}</div>` : ''}
+                    </div>
+                `;
+            });
+            contentDiv.innerHTML = html;
+            appendTrivia(contentDiv, infos, "성지순례 / 캐릭터 정보");
+        }
+
+        function appendTrivia(container, stations, title) {
+            const trivias = [...new Set(stations.map(s => s.trivia).filter(t => t))];
+            if (trivias.length > 0) {
+                let html = `
+                    <div class="mt-6 pt-4 border-t border-slate-700 animate-fade-in">
+                        <p class="text-indigo-300 font-bold text-sm mb-3 flex items-center">
+                            <i class="fa-solid fa-star text-yellow-400 mr-2"></i>${title || '성지순례 정보'}
+                        </p>
+                `;
+                trivias.forEach(t => {
+                    html += `
+                        <div class="bg-indigo-900/40 p-4 rounded-lg text-sm text-indigo-100 mb-2 border border-indigo-500/30 flex items-start shadow-sm">
+                            <i class="fa-solid fa-quote-left text-indigo-400 mr-2 mt-1 text-xs"></i>
+                            <span class="leading-relaxed">${t}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                container.appendChild(temp);
+            }
+        }
+
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const uniqueStationNames = [...new Set(stationData.map(s => s.name))].sort();
+
+            input.addEventListener('input', function() {
+                const val = this.value;
+                list.innerHTML = '';
+                if (!val) { list.classList.add('hidden'); return; }
+                const matches = uniqueStationNames.filter(name => name.includes(val));
+                if (matches.length > 0) {
+                    list.classList.remove('hidden');
+                    matches.forEach(name => {
+                        const div = document.createElement('div');
+                        div.innerHTML = name.replace(new RegExp(`(${val})`, 'gi'), '<span class="highlight">$1</span>');
+                        div.onclick = () => { input.value = name; list.classList.add('hidden'); };
+                        list.appendChild(div);
+                    });
+                }
+            });
+            document.addEventListener('click', e => { if (e.target !== input && e.target !== list) list.classList.add('hidden'); });
+        }
+
+        window.onload = function() {
+            buildGraph();
+            setupAutocomplete('startStation', 'startAutocomplete');
+            setupAutocomplete('endStation', 'endAutocomplete');
+        };
+    </script>
+</body>
+</html>

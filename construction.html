@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공사알림 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 폰트 설정 -->
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        /* 모달 오버레이 스타일 */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 영역 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">메인으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 제목 및 설명 -->
+    <div class="w-full bg-slate-700 py-12 text-center text-white">
+        <h1 class="text-4xl font-black mb-3">공사알림</h1>
+        <p class="text-slate-300">시민의 안전과 편의를 위한 공사 현황입니다.</p>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+        <!-- 네비게이션 탭 -->
+        <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap">
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='news.html'">새소식</button>
+            <!-- 현재 선택된 탭 -->
+            <button class="px-6 py-3 text-lg text-slate-900 font-black border-b-4 border-slate-900 -mb-[4px]" onclick="location.href='construction.html'">공사알림</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='notice.html'">고시&공고</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='recruit.html'">시험채용</button>
+            <button class="px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600" onclick="location.href='press.html'">보도자료</button>
+        </div>
+
+        <!-- 공사 목록 테이블 -->
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
+            <table class="w-full min-w-max text-sm text-left text-slate-500">
+                <!-- 테이블 헤더 -->
+                <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3 w-28 text-center">번호</th>
+                        <th class="px-6 py-3 w-32 text-center">공사구분</th>
+                        <th class="px-6 py-3 min-w-[200px]">공사명</th>
+                        <th class="px-6 py-3 w-60 text-center">위치</th>
+                        <th class="px-6 py-3 w-40 text-center">기간</th>
+                        <th class="px-6 py-3 w-24 text-center">상태</th>
+                    </tr>
+                </thead>
+                <!-- 테이블 본문 (JavaScript로 채워짐) -->
+                <tbody id="construction-list">
+                    <!-- 데이터가 여기에 삽입됩니다 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 페이징 영역 (단순 예시) -->
+        <div class="flex justify-center mt-8">
+            <button class="px-4 py-2 text-slate-600 font-bold bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-100 transition duration-150">1</button>
+        </div>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400">
+            COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+    
+    <!-- 공사 상세 정보 모달 -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-800" id="modal-title">공사 상세 정보</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <!-- 모달 본문 -->
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">공사 구분</p>
+                        <p class="text-base font-semibold text-slate-900" id="modal-category"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">공사 상태</p>
+                        <p class="text-base font-semibold" id="modal-status"></p>
+                    </div>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium">공사명</p>
+                    <p class="text-xl font-bold text-slate-800" id="modal-name"></p>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">공사 위치</p>
+                    <p class="text-base text-slate-700" id="modal-location"></p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">공사 기간</p>
+                        <p class="text-base text-slate-700" id="modal-period"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">담당 부서/연락처</p>
+                        <p class="text-base text-slate-700" id="modal-contact"></p>
+                    </div>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs text-slate-500 font-medium mb-1">상세 내용 및 협조 사항</p>
+                    <div class="p-4 bg-slate-50 rounded-lg text-slate-700 h-40 overflow-y-auto" id="modal-detail-content">
+                        <!-- 상세 내용이 여기에 들어갑니다 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 모달 푸터 -->
+            <div class="p-6 border-t flex justify-end">
+                <button onclick="closeModal()" class="bg-slate-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-slate-600 transition duration-150">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript 스크립트 -->
+    <script>
+        lucide.createIcons();
+
+        // 1. 주소 데이터 파싱 및 가공 (사용자가 제공한 데이터)
+        const rawAddresses = `효빈광역시	남구	고당동	고간동
+효빈광역시	남구	고당동	평당동
+효빈광역시	남구	곽산1동	곽산동
+효빈광역시	남구	곽산2동	곽산동
+효빈광역시	남구	어간1동	어간동
+효빈광역시	남구	어간2동	어간동
+효빈광역시	남구	어간3동	어간동
+효빈광역시	남구	어간3동	운양동
+효빈광역시	남구	월천동	박산동
+효빈광역시	남구	월천동	신흥동
+효빈광역시	남구	월천동	월천동
+효빈광역시	남구	월천동	포장동
+효빈광역시	남구	평당1동	평당동
+효빈광역시	남구	평당2동	평당동
+효빈광역시	남구	평당3동	평당동
+효빈광역시	남구	평당4동	평당동
+효빈광역시	남구	평당5동	평당동
+효빈광역시	남구	평당6동	평당동
+효빈광역시	남구	평당7동	평당동
+효빈광역시	남구	항1동	항동1가
+효빈광역시	남구	항2동	항동1가
+효빈광역시	남구	항2동	항동2가
+효빈광역시	남구	항3동	항동1가
+효빈광역시	남구	항3동	항동2가
+효빈광역시	남구	항3동	항동3가
+효빈광역시	남구	항4동	항동1가
+효빈광역시	남구	항4동	항동3가
+효빈광역시	동구	덕현11동	덕현동
+효빈광역시	동구	덕현1동	덕현동
+효빈광역시	동구	덕현2동	덕현동
+효빈광역시	동구	덕현3동	덕현동
+효빈광역시	동구	덕현4동	덕현동
+효빈광역시	동구	덕현5동	덕현동
+효빈광역시	동구	덕현6동	덕현동
+효빈광역시	동구	덕현7동	덕현동
+효빈광역시	동구	덕현9동	덕현동
+효빈광역시	동구	사가당1동	사가당동
+효빈광역시	동구	사가당2동	사가당동
+효빈광역시	동구	사가당3동	사가당동
+효빈광역시	동구	사가당4동	사가당동
+효빈광역시	동구	전천동	전천동
+효빈광역시	북구	고송1동	고송동
+효빈광역시	북구	고송2동	고송동
+효빈광역시	북구	고송3동	고송동
+효빈광역시	북구	고송4동	고송동
+효빈광역시	북구	고송5동	고송동
+효빈광역시	북구	고송6동	고송동
+효빈광역시	북구	고송7동	고송동
+효빈광역시	북구	고송8동	고송동
+효빈광역시	북구	남전동	남전동
+효빈광역시	북구	사능2동	사능동2가
+효빈광역시	북구	사능동	사능동1가
+효빈광역시	북구	사능동	사능동2가
+효빈광역시	북구	사능동	사능동3가
+효빈광역시	북구	사능동	생곡동
+효빈광역시	북구	사능동	치남동
+효빈광역시	북구	산고동	사연동
+효빈광역시	북구	산고동	서도동
+효빈광역시	북구	산고동	추산동
+효빈광역시	북구	소조동	소조동
+효빈광역시	북구	오내1동	오내동
+효빈광역시	북구	오내2동	오내동
+효빈광역시	북구	중수1동	중수동
+효빈광역시	북구	중수2동	중수동
+효빈광역시	북구	중수3동	중수동
+효빈광역시	북구	중수4동	중수동
+효빈광역시	북구	진희동	입희동
+효빈광역시	북구	진희동	진희동
+효빈광역시	북구	채산동	곡진동
+효빈광역시	북구	채산동	등기동
+효빈광역시	북구	채산동	수포동
+효빈광역시	북구	채산동	습지동
+효빈광역시	북구	채산동	신영동
+효빈광역시	북구	채산동	실본동
+효빈광역시	북구	채산동	아자동
+효빈광역시	북구	채산동	아진동
+효빈광역시	북구	채산동	채산동
+효빈광역시	북구	채산동	평전동
+효빈광역시	북구	천왕사동	천왕사동
+효빈광역시	북구	천왕사동	해서동
+효빈광역시	북구	청능동	입선동
+효빈광역시	북구	청능동	입희동
+효빈광역시	북구	청능동	청능동
+효빈광역시	북구	포산동	포산동
+효빈광역시	서구	과진1동	과진동
+효빈광역시	서구	과진2동	과진동
+효빈광역시	서구	과진3동	과진동
+효빈광역시	서구	과진4동	과진동
+효빈광역시	서구	과진5동	과진동
+효빈광역시	서구	과진6동	과진동
+효빈광역시	서구	과진7동	과진동
+효빈광역시	서구	당선1동	당선동
+효빈광역시	서구	당선2동	당선동
+효빈광역시	서구	당선3동	당선동
+효빈광역시	서구	당선4동	당선동
+효빈광역시	서구	당선4동	칠천동
+효빈광역시	서구	북성동	내성동1가
+효빈광역시	서구	북성동	내성동2가
+효빈광역시	서구	북성동	내성동3가
+효빈광역시	서구	북성동	북문동1가
+효빈광역시	서구	북성동	북문동2가
+효빈광역시	서구	사복1동	사복동
+효빈광역시	서구	사복2동	사복동
+효빈광역시	서구	청덕1동	청덕동
+효빈광역시	서구	청덕2동	청덕동
+효빈광역시	서구	청덕3동	청덕동
+효빈광역시	안천구	뇌전동	뇌전동
+효빈광역시	안천구	뇌전동	상가동
+효빈광역시	안천구	뇌전동	세익동
+효빈광역시	안천구	뇌전동	치장동
+효빈광역시	안천구	뇌전동	팔월동
+효빈광역시	안천구	뇌전동	하가동
+효빈광역시	안천구	당가1동	당가동
+효빈광역시	안천구	당가2동	당가동
+효빈광역시	안천구	백합동	백합동
+효빈광역시	안천구	백합동	상점동
+효빈광역시	안천구	북택동	북택동
+효빈광역시	안천구	북택동	하구동
+효빈광역시	안천구	성저동	성저동
+효빈광역시	안천구	악부동	광상동
+효빈광역시	안천구	악부동	군청동
+효빈광역시	안천구	악부동	무로동
+효빈광역시	안천구	악부동	악부동
+효빈광역시	안천구	악부동	일화동
+효빈광역시	안천구	악부동	제택동
+효빈광역시	안천구	악부동	천문동
+효빈광역시	안천구	악부동	천본동
+효빈광역시	안천구	악부동	초음동
+효빈광역시	안천구	악부동	타천동
+효빈광역시	안천구	악부동	팔망성동
+효빈광역시	안천구	안천1동	안천동
+효빈광역시	안천구	안천2동	안천동
+효빈광역시	안천구	안천3동	안천동
+효빈광역시	안천구	안천4동	안천동
+효빈광역시	안천구	안천5동	안천동
+효빈광역시	안천구	안천6동	안천동
+효빈광역시	안천구	안천7동	안천동
+효빈광역시	안천구	이십기동	리의동
+효빈광역시	안천구	이십기동	심회동
+효빈광역시	안천구	이십기동	이십기동
+효빈광역시	안천구	이십기동	추자동
+효빈광역시	안천구	이자1동	신동
+효빈광역시	안천구	이자1동	이자동
+효빈광역시	안천구	이자2동	이자동
+효빈광역시	안천구	이자3동	이자동
+효빈광역시	안천구	이자3동	탄자동
+효빈광역시	안천구	이자4동	이자동
+효빈광역시	안천구	창건동	창건동
+효빈광역시	안천구	칠채동	남동
+효빈광역시	안천구	칠채동	능릉동
+효빈광역시	안천구	칠채동	서수동
+효빈광역시	안천구	칠채동	영색무동
+효빈광역시	안천구	칠채동	월삼동
+효빈광역시	안천구	칠채동	융문동
+효빈광역시	안천구	칠채동	정치동
+효빈광역시	안천구	칠채동	칠채동
+효빈광역시	중구	고도동	고도동
+효빈광역시	중구	고도동	서남동
+효빈광역시	중구	고도동	시남동
+효빈광역시	중구	고도동	시북동
+효빈광역시	중구	고도동	십덕동
+효빈광역시	중구	고도동	우이동
+효빈광역시	중구	궁영동	궁정동
+효빈광역시	중구	궁영동	도람동
+효빈광역시	중구	궁영동	만실동
+효빈광역시	중구	궁영동	영동1가
+효빈광역시	중구	궁영동	영동2가
+효빈광역시	중구	내조1동	내조동
+효빈광역시	중구	내조2동	내조동
+효빈광역시	중구	내항동	내항동
+효빈광역시	중구	내항동	명일동
+효빈광역시	중구	신덕동	신덕동
+효빈광역시	중구	약맥동	목동
+효빈광역시	중구	약맥동	삼각동
+효빈광역시	중구	약맥동	약맥동
+효빈광역시	중구	약맥동	오주동
+효빈광역시	중구	약맥동	일향동 
+효빈광역시	중구	유내동	경동
+효빈광역시	중구	유내동	리사동
+효빈광역시	중구	유내동	유내동
+효빈광역시	중구	유내동	정동
+효빈광역시	중구	조유동	조유동1가
+효빈광역시	중구	조유동	조유동2가
+효빈광역시	중구	조유동	조유동3가
+효빈광역시	중구	조유동	조유동4가
+효빈광역시	중구	조유동	조유동5가
+효빈광역시	중구	조유동	천석동1가
+효빈광역시	중구	조유동	천석동2가
+효빈광역시	중구	조유동	천석동3가
+효빈광역시	중구	중앙동	소장동1가
+효빈광역시	중구	중앙동	소장동2가
+효빈광역시	중구	중앙동	심동1가
+효빈광역시	중구	중앙동	심동2가
+효빈광역시	중구	중앙동	원동1가
+효빈광역시	중구	중앙동	원동2가
+효빈광역시	중구	중앙동	원동3가
+효빈광역시	중구	중앙동	원동4가
+효빈광역시	중구	중앙동	중앙로1가
+효빈광역시	중구	중앙동	중앙로2가
+효빈광역시	중구	중앙동	중앙로3가
+효빈광역시	중구	중앙동	중앙로4가
+효빈광역시	중구	중앙동	중앙로5가
+효빈광역시	중구	중앙동	중앙로6가
+효빈광역시	중구	중앙동	지유동1가
+효빈광역시	중구	중앙동	지유동2가
+효빈광역시	중구	중앙동	창선동1가
+효빈광역시	중구	중앙동	창선동2가
+효빈광역시	중구	중앙동	창선동3가
+효빈광역시	중구	중앙동	훈동
+효빈광역시	중구	중정동	오석동
+효빈광역시	중구	중정동	완동1가
+효빈광역시	중구	중정동	완동2가
+효빈광역시	중구	중정동	완동3가
+효빈광역시	중구	중정동	중동1가
+효빈광역시	중구	중정동	중동2가
+효빈광역시	중구	중정동	중동3가
+효빈광역시	중구	중정동	중보로
+효빈광역시	창전구	광정동	광정동
+효빈광역시	창전구	광정동	마시동
+효빈광역시	창전구	광정동	보통동
+효빈광역시	창전구	광정동	생덕동
+효빈광역시	창전구	동곡동	동곡동
+효빈광역시	창전구	동곡동	투자동
+효빈광역시	창전구	쌍엽1동	쌍엽동
+효빈광역시	창전구	쌍엽2동	쌍엽동
+효빈광역시	창전구	유류동	유류동
+효빈광역시	창전구	진백동	시로동
+효빈광역시	창전구	진백동	진백동
+효빈광역시	창전구	창전1동	창전동
+효빈광역시	창전구	창전2동	창전동
+효빈광역시	창전구	창전3동	창전동
+효빈광역시	창전구	창전4동	창전동
+효빈광역시	창전구	창전5동	창전동
+효빈광역시	창전구	칠심1동	칠심동
+효빈광역시	창전구	칠심2동	칠심동
+효빈광역시	창전구	칠심3동	칠심동
+효빈광역시	창전구	팔조동	팔조동
+효빈광역시	청엽구	동리동	동리동
+효빈광역시	청엽구	등동	등동
+효빈광역시	청엽구	마잡1동	마잡동
+효빈광역시	청엽구	마잡1동	서증동
+효빈광역시	청엽구	마잡1동	헌이송동
+효빈광역시	청엽구	마잡2동	마잡동
+효빈광역시	청엽구	비마리동	비마동
+효빈광역시	청엽구	비마리동	사노동
+효빈광역시	청엽구	우전1동	우전동
+효빈광역시	청엽구	우전2동	우전동
+효빈광역시	청엽구	우전3동	우전동
+효빈광역시	청엽구	우택동	우택동
+효빈광역시	청엽구	입빈동	입동1가
+효빈광역시	청엽구	입빈동	입동2가
+효빈광역시	청엽구	입빈동	입동3가
+효빈광역시	청엽구	입빈동	효빈동1가
+효빈광역시	청엽구	입빈동	효빈동2가
+효빈광역시	청엽구	청엽1동	청엽동
+효빈광역시	청엽구	청엽2동	청엽동
+효빈광역시	청엽구	청엽3동	청엽동
+효빈광역시	청엽구	청엽4동	청엽동
+효빈광역시	청엽구	청엽5동	청엽동
+효빈광역시	청엽구	청엽6동	청엽동
+효빈광역시	탄성군	고해읍	고해리
+효빈광역시	탄성군	고해읍	율일리
+효빈광역시	탄성군	고해읍	은진원리
+효빈광역시	탄성군	고해읍	이식리
+효빈광역시	탄성군	고해읍	이와리 
+효빈광역시	탄성군	고해읍	장심리
+효빈광역시	탄성군	고해읍	전추리
+효빈광역시	탄성군	고해읍	정명리
+효빈광역시	탄성군	고해읍	천가리
+효빈광역시	탄성군	도변읍	계층리
+효빈광역시	탄성군	도변읍	도변리
+효빈광역시	탄성군	도변읍	요우리
+효빈광역시	탄성군	도변읍	잠재리
+효빈광역시	탄성군	도변읍	조일리
+효빈광역시	탄성군	도변읍	표명리
+효빈광역시	탄성군	도변읍(앵내출장소)	앵내리
+효빈광역시	탄성군	도향면	미로리
+효빈광역시	탄성군	도향면	반주리
+효빈광역시	탄성군	도향면	벽천리
+효빈광역시	탄성군	도향면	분음리
+효빈광역시	탄성군	도향면	시초리
+효빈광역시	탄성군	도향면	영왕리
+효빈광역시	탄성군	도향면	일일리
+효빈광역시	탄성군	도향면	일하리
+효빈광역시	탄성군	도향면	초반리
+효빈광역시	탄성군	도향면	춘일경리
+효빈광역시	탄성군	도향면	하공리
+효빈광역시	탄성군	서목읍	록구리
+효빈광역시	탄성군	서목읍	마희리
+효빈광역시	탄성군	서목읍	서목리
+효빈광역시	탄성군	서목읍	소춘리
+효빈광역시	탄성군	서목읍	승남리
+효빈광역시	탄성군	서목읍	음일리
+효빈광역시	탄성군	서목읍	일회리
+효빈광역시	탄성군	서목읍	입리
+효빈광역시	탄성군	서목읍	잠금리
+효빈광역시	탄성군	서목읍	조산리
+효빈광역시	탄성군	서목읍	파래리
+효빈광역시	탄성군	소원면	라면리
+효빈광역시	탄성군	소원면	부우리
+효빈광역시	탄성군	소원면	소원리
+효빈광역시	탄성군	소원면	윤부리
+효빈광역시	탄성군	야진읍	미우리
+효빈광역시	탄성군	야진읍	신리
+효빈광역시	탄성군	야진읍	아득리
+효빈광역시	탄성군	야진읍	야진리
+효빈광역시	탄성군	야진읍	원심리
+효빈광역시	탄성군	정근면	구생리
+효빈광역시	탄성군	정근면	사촌리
+효빈광역시	탄성군	정근면	안경리
+효빈광역시	탄성군	정근면	익목리
+효빈광역시	탄성군	정근면	처구리
+효빈광역시	탄성군	정근면	촌주리
+효빈광역시	탄성군	정근면	층부리
+효빈광역시	탄성군	정근면	회층리
+효빈광역시	탄성군	탄성읍	고무리
+효빈광역시	탄성군	탄성읍	공리
+효빈광역시	탄성군	탄성읍	명무리
+효빈광역시	탄성군	탄성읍	무성리
+효빈광역시	탄성군	탄성읍	미성리
+효빈광역시	탄성군	탄성읍	성규리
+효빈광역시	탄성군	탄성읍	탄성리
+효빈광역시	탄성군	흑택면	루비리
+효빈광역시	탄성군	흑택면	명현리
+효빈광역시	탄성군	흑택면	보습리
+효빈광역시	탄성군	흑택면	은염리
+효빈광역시	탄성군	흑택면	흑택리`;
+
+        const addressLines = rawAddresses.trim().split('\n');
+        const addresses = addressLines.map(line => {
+            const parts = line.split('\t').filter(p => p.trim() !== '');
+            // 시, 구/군, 동/읍/면, 리/동 (법정동)
+            if (parts.length >= 4) {
+                return `${parts[1]} ${parts[2]} ${parts[3]} 일원`;
+            } else if (parts.length >= 2) {
+                return `${parts[1]} ${parts[2] || ''} 일원`.trim();
+            }
+            return '효빈광역시 전역';
+        }).filter(addr => addr !== '효빈광역시 전역'); // 유효한 주소만 사용
+
+        // 2. 공사 데이터 정의
+        const constructionData = [];
+        const categories = [
+            { name: "지하철", color: "blue-600", tag: "blue-700", desc: "도시철도 건설 및 연장 사업" },
+            { name: "도로", color: "orange-600", tag: "orange-700", desc: "도로 포장, 확장, 보수 사업" },
+            { name: "상하수도", color: "slate-600", tag: "slate-700", desc: "상수도/하수도관 교체 및 정비 사업" },
+            { name: "교량/터널", color: "purple-600", tag: "purple-700", desc: "교량 및 터널 안전 강화 및 신설 사업" },
+            { name: "건축", color: "teal-600", tag: "teal-700", desc: "공공 건축물 신축 및 리모델링 사업" },
+        ];
+        const statuses = [
+            { name: "진행중", tag: "green-700", bg: "green-100" },
+            { name: "예정", tag: "blue-700", bg: "blue-100" },
+            { name: "일시중단", tag: "red-700", bg: "red-100" }
+        ];
+
+        // 3. 더미 데이터 생성에 필요한 헬퍼 함수
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        function generateRandomDate(startYear, endYear) {
+            const start = new Date(startYear, 0, 1);
+            const end = new Date(endYear, 11, 31);
+            const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+            return new Date(randomTime);
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}.${m}.${d}`;
+        }
+
+        /**
+         * 4자리 숫자를 무작위로 생성합니다.
+         */
+        function getRandomFourDigits() {
+            return String(Math.floor(1000 + Math.random() * 9000));
+        }
+
+        /**
+         * 079-NNNN-NNNN 형식의 전화번호를 무작위로 생성합니다.
+         */
+        function getRandomPhoneNumber() {
+            const middle = getRandomFourDigits();
+            const last = getRandomFourDigits();
+            return `079-${middle}-${last}`;
+        }
+
+        function generateConstructionItem(index) {
+            const category = getRandomItem(categories);
+            const status = getRandomItem(statuses);
+            const location = getRandomItem(addresses);
+            const contactNumber = getRandomPhoneNumber(); // 079-NNNN-NNNN 형식으로 생성
+            
+            const startDate = generateRandomDate(2025, 2026);
+            const endDate = new Date(startDate.getTime());
+            endDate.setMonth(endDate.getMonth() + Math.floor(Math.random() * 12) + 1); // 1~12개월 후
+            
+            let periodText;
+            if (status.name === "예정") {
+                periodText = `${formatDate(startDate)} ~ ${formatDate(endDate)}`;
+            } else if (status.name === "진행중") {
+                 periodText = `~ ${formatDate(endDate)}`;
+            } else {
+                periodText = `${formatDate(startDate)} ~ ${formatDate(endDate)} (중단)`;
+            }
+
+            const titles = [
+                `${category.name} 핵심 기반 시설 확충 공사`,
+                `${location.split(' ')[0]} ${category.name} 노후 시설 개선 사업`,
+                `시민 안전을 위한 ${category.name} 정비 사업`,
+                `도심 주요 ${category.name} 구간 확장 공사`,
+                `친환경 ${category.name} 시스템 구축 프로젝트`,
+            ];
+
+            const detailContent = `
+                <p class="mb-2"><strong>공사 목적:</strong> ${category.desc} 및 시민 편의 증진을 목표로 합니다. 특히 본 공사는 노후화된 시설물을 전면 교체하여 안전사고를 예방하고, 장기적인 도시 기반 시설 안정성을 확보하는 데 중점을 두고 있습니다.</p>
+                <p class="mb-2"><strong>협조 사항:</strong> 공사 기간 중 차량 통행 및 보행에 불편이 예상되오니, 시민 여러분의 양해와 적극적인 협조를 부탁드립니다. 우회 도로를 이용해주시고, 현장 안전 지침을 준수해주시기 바랍니다.</p>
+                <p class="mb-2"><strong>특이 사항:</strong> 공사 구간에 따라 소음 및 진동이 발생할 수 있으며, 주말 및 야간 작업이 병행될 수 있습니다. 문의사항은 담당 부서로 연락 주시면 상세히 안내해 드리겠습니다.</p>
+                <p><strong>공사 규모:</strong> 총 사업비 150억 원, 연면적 2,500m²</p>
+            `;
+
+            return {
+                id: index + 1,
+                category: category.name,
+                categoryColor: category.color,
+                name: getRandomItem(titles),
+                location: location,
+                period: periodText,
+                status: status.name,
+                statusTag: status.tag,
+                statusBg: status.bg,
+                contact: `${category.name} 담당과 / ${contactNumber}`, // 수정된 부분
+                detailContent: detailContent
+            };
+        }
+
+        // 총 15개의 공사 데이터 생성
+        for (let i = 0; i < 15; i++) {
+            constructionData.push(generateConstructionItem(i));
+        }
+
+        // 4. 테이블 렌더링 함수
+        function renderConstructionList() {
+            const tbody = document.getElementById('construction-list');
+            tbody.innerHTML = ''; // 기존 목록 초기화
+
+            constructionData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 border-b cursor-pointer';
+                row.setAttribute('onclick', `showDetails(${item.id})`);
+                
+                // 상태 태그 클래스 동적 설정
+                const statusHtml = `<span class="bg-${item.statusBg} text-${item.statusTag} px-2 py-1 rounded text-xs font-semibold">${item.status}</span>`;
+                
+                // 공사 구분 텍스트 색상 동적 설정
+                const categoryHtml = `<td class="px-6 py-4 text-center text-${item.categoryColor} font-bold">${item.category}</td>`;
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-center text-slate-500">${item.id}</td>
+                    ${categoryHtml}
+                    <td class="px-6 py-4 font-bold text-slate-800">${item.name}</td>
+                    <td class="px-6 py-4 text-center text-slate-600">${item.location}</td>
+                    <td class="px-6 py-4 text-center text-slate-600">${item.period}</td>
+                    <td class="px-6 py-4 text-center">${statusHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 5. 모달 제어 함수
+        const modal = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        function showDetails(id) {
+            const item = constructionData.find(d => d.id === id);
+            if (!item) return;
+
+            // 모달 내용 채우기
+            document.getElementById('modal-name').textContent = item.name;
+            document.getElementById('modal-category').textContent = item.category;
+            document.getElementById('modal-location').textContent = item.location;
+            document.getElementById('modal-period').textContent = item.period;
+            document.getElementById('modal-contact').textContent = item.contact;
+            document.getElementById('modal-detail-content').innerHTML = item.detailContent;
+
+            const statusElement = document.getElementById('modal-status');
+            statusElement.textContent = item.status;
+            // 상태 텍스트 색상 변경 (Tailwind dynamic classes require full names)
+            statusElement.className = `text-base font-semibold text-${item.statusTag}`;
+
+            // 모달 표시
+            modal.classList.remove('hidden');
+            // 애니메이션을 위한 지연
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.remove('opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            // 애니메이션 완료 후 숨기기
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // 6. 페이지 로드 시 목록 렌더링
+        window.onload = renderConstructionList;
+    </script>
+</body>
+</html>

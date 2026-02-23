@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>운수업체 정보 - 효빈광역시 버스</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        .route-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* 사용자 지정 도색 색상 적용 */
+        .bg-trunk { background-color: #01B7ED; }     /* 간선 */
+        .bg-circular { background-color: #E7D600; }  /* 순환 */
+        .bg-branch { background-color: #37B484; }    /* 지선 */
+        .bg-wide { background-color: #485EC6; }      /* 광역 */
+        .bg-seat { background-color: #FF5800; }      /* 좌석 */
+        .bg-village { background-color: #A664A0; }   /* 마을 */
+        .bg-airport { background-color: #84C36E; }   /* 공항 */
+        .bg-citytour { background-color: #7777AA; }  /* 시티투어 */
+        .bg-express { background-color: #D81C2F; }   /* 급행 */
+        
+        /* 기본값 */
+        .bg-default { background-color: #64748b; }
+        
+        /* CEO Room 전용 스타일 */
+        .otaku-bg { background-image: radial-gradient(#e9d5ff 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+</head>
+<body class="bg-white flex flex-col min-h-screen">
+
+    <!-- 상단 네비게이션 -->
+    <header class="border-b border-gray-200 sticky top-0 bg-white z-50">
+        <div class="max-w-6xl mx-auto px-4 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="bus.html" class="text-slate-500 hover:text-blue-600 transition flex items-center gap-1 text-sm font-bold mr-4 border-r pr-4 border-gray-300">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> BIS로 돌아가기
+                </a>
+                <h1 id="company-name" class="text-2xl font-black text-slate-800 tracking-tight">회사명 로딩중...</h1>
+                <span id="company-type-badge" class="hidden px-2 py-0.5 rounded text-xs font-bold border"></span>
+            </div>
+            <nav class="hidden md:flex gap-8 text-sm font-medium text-slate-600 items-center">
+                <a href="#" id="nav-about" class="hover:text-blue-600">회사소개</a>
+                <a href="#" id="nav-routes" class="hover:text-blue-600">운행노선</a>
+                <a href="#" id="nav-recruitment" class="hover:text-blue-600">채용정보</a>
+                <a href="#" id="nav-cs" class="hover:text-blue-600">고객센터</a>
+                <!-- CEO Room 탭 -->
+                <a href="#" id="nav-ceo-room" class="ml-2 px-3 py-1 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition font-bold text-xs flex items-center gap-1 shadow-md">
+                    <i data-lucide="crown" class="w-3 h-3"></i> CEO Room
+                </a>
+            </nav>
+            <button class="md:hidden text-slate-600"><i data-lucide="menu" class="w-6 h-6"></i></button>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <section class="bg-slate-100 py-20 text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-blue-900/10 z-0"></div>
+        <div class="relative z-10 max-w-4xl mx-auto px-4">
+            <span class="inline-block px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full mb-4">효빈광역시 시내버스 운송사업조합 회원사</span>
+            <h2 id="hero-title" class="text-4xl md:text-5xl font-black text-slate-800 mb-6 leading-tight">시민의 발이 되겠습니다.<br><span class="text-blue-600">안전하고 편리한 대중교통</span></h2>
+            <p id="hero-desc" class="text-slate-600 text-lg mb-8 max-w-2xl mx-auto">저희 운수업체는 효빈광역시의 교통 복지 향상을 위해 365일 24시간 노력하고 있습니다. 항상 고객 여러분의 안전을 최우선으로 생각합니다.</p>
+            <div class="flex justify-center gap-4">
+                <button id="btn-view-routes" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg">운행 노선 보기</button>
+                <!-- 민원 접수 버튼 수정: id 유지, 클릭 이벤트 로직 변경 -->
+                <button id="btn-submit-complaint" class="bg-white text-slate-700 border border-slate-300 px-8 py-3 rounded-lg font-bold hover:bg-slate-50 transition shadow-sm">민원 접수</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 주요 컨텐츠 -->
+    <main class="max-w-6xl mx-auto px-4 py-16 flex-grow">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div id="service-safety" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition text-center cursor-pointer">
+                <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">안전 운행</h3>
+                <p class="text-slate-500 text-sm">철저한 차량 정비와 기사 안전 교육을 통해 사고 없는 운행을 약속합니다.</p>
+            </div>
+            <div id="service-kindness" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition text-center cursor-pointer">
+                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                    <i data-lucide="smile" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">친절 봉사</h3>
+                <p class="text-slate-500 text-sm">고객님을 가족처럼 모시는 마음으로 항상 친절하게 응대하겠습니다.</p>
+            </div>
+            <div id="service-punctuality" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition text-center cursor-pointer">
+                <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600">
+                    <i data-lucide="clock" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">정시 준수</h3>
+                <p class="text-slate-500 text-sm">정해진 배차 간격을 준수하여 고객님의 소중한 시간을 지켜드리겠습니다.</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 rounded-2xl p-8 md:p-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">함께할 인재를 찾습니다</h3>
+                    <p class="text-slate-600">효빈광역시의 교통 문화를 선도할 열정적인 승무사원을 모집합니다.</p>
+                </div>
+                <button id="btn-check-recruitment" class="bg-slate-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-900 transition flex items-center gap-2">
+                    채용 공고 확인하기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-slate-900 text-slate-400 py-12 text-sm">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-8">
+                <div>
+                    <h4 id="footer-company" class="text-white text-lg font-bold mb-4">회사명</h4>
+                    <p id="footer-ceo" class="mb-1">대표: -</p> 
+                    <p id="footer-address">주소: -</p> 
+                    <p class="mt-2 text-xs text-slate-500">효빈광역시 버스운송사업조합 등록 업체</p>
+                </div>
+                <div class="flex gap-6">
+                    <a href="#" id="link-terms" class="hover:text-white">이용약관</a>
+                    <a href="#" id="link-privacy" class="hover:text-white font-bold">개인정보처리방침</a>
+                    <a href="#" id="link-email-refusal" class="hover:text-white">이메일무단수집거부</a>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 mt-8 pt-8 text-center text-xs">
+                COPYRIGHT © 2025 ALL RIGHTS RESERVED.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Overlay -->
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 p-8 transform scale-95 transition-all duration-300 max-h-[80vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h3 id="modal-title" class="text-2xl font-bold text-slate-800">모달 제목</h3>
+                <button id="modal-close-btn" class="text-slate-400 hover:text-slate-600 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="text-slate-600 space-y-4">
+                <!-- Content inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // ===================================
+        // COMPANY DATASET
+        // ===================================
+        const companyData = {
+            "칠양여객": {
+                type: "준공영", ceo: "옥덕호", 
+                bias: { 
+                    anime: "러브 라이브! 시리즈", 
+                    char: "와타나베 요우, 텐노지 리나, 헤안나 스미레", 
+                    philosophy: "요우의 '전속전진 요소로!' 정신으로 신속하게, 리나의 '연결(보드)'처럼 소통하며, 스미레처럼 '갤럭시'하게 빛나는 서비스를 제공한다." 
+                },
+                address: "북구 해서동 824 (종합터미널)", routeCount: 10, vehicleCount: 110,
+                routes: [
+                    { type: "급행", no: "4", count: 14 }, { type: "급행", no: "6", count: 15 },
+                    { type: "간선", no: "34", count: 20 },
+                    { type: "지선", no: "112", count: 6 }, { type: "지선", no: "171", count: 13 }, { type: "지선", no: "752", count: 3 }, { type: "지선", no: "881", count: 7 },
+                    { type: "좌석", no: "2222", count: 12 }, { type: "좌석", no: "3333", count: 11 },
+                    { type: "광역", no: "3000", count: 9 }
+                ]
+            },
+            "효빈여객": {
+                type: "준공영", ceo: "유성신", 
+                bias: { 
+                    anime: "BanG Dream! (뱅드림!)", 
+                    char: "Poppin'Party (토야마 카스미 외)", 
+                    philosophy: "우리 버스는 단순한 운송 수단이 아닙니다. 승객의 마음에 '반짝반짝 두근두근(키라키라 도키도키)'한 설렘을 주는 스테이지입니다." 
+                },
+                address: "창전구 우택동 153", routeCount: 11, vehicleCount: 109,
+                routes: [
+                    { type: "급행", no: "3", count: 19 },
+                    { type: "간선", no: "11", count: 9 }, { type: "간선", no: "13", count: 11 }, { type: "간선", no: "14", count: 14 },
+                    { type: "순환", no: "10", count: 9 },
+                    { type: "지선", no: "241", count: 10 }, { type: "지선", no: "258", count: 5 }, { type: "지선", no: "881", count: 2 },
+                    { type: "좌석", no: "8888", count: 11 }, { type: "좌석", no: "9999", count: 12 },
+                    { type: "광역", no: "9000", count: 7 }
+                ]
+            },
+            "소진여객": {
+                type: "준공영", ceo: "이상휴", 
+                bias: { 
+                    anime: "러브 라이브! 선샤인!!", 
+                    char: "타카미 치카, 쿠로사와 다이아", 
+                    philosophy: "치카처럼 포기하지 않는 끈기와, 다이아 학생회장님처럼 한 치의 오차도 없는 완벽한 안전 관리(뿌뿌-데스와!)를 실현한다." 
+                },
+                address: "북구 고송동 672", routeCount: 11, vehicleCount: 107,
+                routes: [
+                    { type: "급행", no: "2", count: 17 },
+                    { type: "간선", no: "22", count: 7 }, { type: "간선", no: "26", count: 11 }, { type: "간선", no: "29", count: 12 },
+                    { type: "순환", no: "20", count: 9 },
+                    { type: "지선", no: "132", count: 7 }, { type: "지선", no: "331", count: 6 }, { type: "지선", no: "881", count: 3 },
+                    { type: "광역", no: "2000", count: 9 }, { type: "광역", no: "4000", count: 14 },
+                    { type: "공항", no: "A02", count: 12 }
+                ]
+            },
+            "청엽여객": {
+                type: "준공영", ceo: "이목선", 
+                bias: { 
+                    anime: "BanG Dream! (Afterglow)", 
+                    char: "아오바 모카", 
+                    philosophy: "모카처럼 여유롭고 느긋해 보이지만, 승객(빵)을 소중히 여기는 마음만은 진심인 '지니어스'한 운행을 추구한다." 
+                },
+                address: "청엽구 마잡동 391", routeCount: 11, vehicleCount: 106,
+                routes: [
+                    { type: "급행", no: "8", count: 17 }, { type: "급행", no: "9", count: 16 },
+                    { type: "간선", no: "88", count: 3 },
+                    { type: "순환", no: "80", count: 13 },
+                    { type: "지선", no: "682", count: 2 }, { type: "지선", no: "781", count: 14 }, { type: "지선", no: "881", count: 2 },
+                    { type: "좌석", no: "4004", count: 12 }, { type: "좌석", no: "5555", count: 8 },
+                    { type: "광역", no: "1000", count: 12 }, { type: "광역", no: "5000", count: 7 }
+                ]
+            },
+            "송포여객": {
+                type: "준공영", ceo: "최강한", 
+                bias: { 
+                    anime: "러브 라이브! 선샤인!!", 
+                    char: "마츠우라 카난", 
+                    philosophy: "카난처럼 튼튼한 체력(차량 정비)과 넓은 바다 같은 마음으로 승객을 '허그'하는 따뜻한 운송 기업이 된다." 
+                },
+                address: "탄성군 소원면 부우리 510", routeCount: 10, vehicleCount: 103,
+                routes: [
+                    { type: "급행", no: "7", count: 15 },
+                    { type: "간선", no: "18", count: 13 },
+                    { type: "지선", no: "222", count: 7 }, { type: "지선", no: "281", count: 16 }, { type: "지선", no: "591", count: 3 }, { type: "지선", no: "881", count: 4 },
+                    { type: "좌석", no: "1111", count: 15 }, { type: "좌석", no: "6666", count: 12 },
+                    { type: "광역", no: "6000", count: 9 }, { type: "광역", no: "8000", count: 9 }
+                ]
+            },
+            "입포여객": {
+                type: "준공영", ceo: "마맹호", 
+                bias: { 
+                    anime: "가면라이더 시리즈", 
+                    char: "역대 가면라이더 전원", 
+                    philosophy: "변신! 단순한 버스에서 시민의 발로 완벽하게 변신한다. 라이더 킥의 파괴력(추진력)으로 목적지까지 안전하게 모신다." 
+                },
+                address: "탄성군 도향면 분음리 228", routeCount: 11, vehicleCount: 101,
+                routes: [
+                    { type: "급행", no: "1", count: 17 }, { type: "급행", no: "5", count: 17 },
+                    { type: "간선", no: "19", count: 12 },
+                    { type: "지선", no: "111", count: 9 }, { type: "지선", no: "121", count: 9 }, { type: "지선", no: "141", count: 7 }, { type: "지선", no: "143", count: 7 }, { type: "지선", no: "154", count: 8 }, { type: "지선", no: "161", count: 2 }, { type: "지선", no: "173", count: 9 }, { type: "지선", no: "881", count: 4 }
+                ]
+            },
+            "임천여객": {
+                type: "민영", ceo: "유산전", 
+                bias: { 
+                    anime: "봇치 더 락!", 
+                    char: "고토 히토리 (봇치)", 
+                    philosophy: "평소엔 구석에 숨고 싶을지라도(차고지), 운행(무대)할 때만큼은 누구보다 빛나는 '버스 히어로'가 된다." 
+                },
+                address: "서구 청덕동 945", routeCount: 9, vehicleCount: 90,
+                routes: [
+                    { type: "간선", no: "17", count: 12 }, { type: "간선", no: "27", count: 20 }, { type: "간선", no: "28", count: 12 }, { type: "간선", no: "45", count: 8 }, { type: "간선", no: "47", count: 7 },
+                    { type: "지선", no: "232", count: 10 },
+                    { type: "좌석", no: "7777", count: 10 },
+                    { type: "광역", no: "7000", count: 8 },
+                    { type: "마을", no: "칠채01", count: 3 }
+                ]
+            },
+            "이자여객": {
+                type: "민영", ceo: "도영선", 
+                bias: { 
+                    anime: "러브 라이브! 시리즈", 
+                    char: "사쿠라우치 리코, 유키 세츠나", 
+                    philosophy: "리코의 피아노 선율처럼 부드러운 승차감과, 세츠나의 'CHASE!'처럼 열정적이고 폭발적인 에너지로 달린다." 
+                },
+                address: "안천구 칠채동 117", routeCount: 12, vehicleCount: 90,
+                routes: [
+                    { type: "간선", no: "25", count: 13 }, { type: "간선", no: "49", count: 9 }, { type: "간선", no: "56", count: 5 },
+                    { type: "순환", no: "50", count: 11 },
+                    { type: "지선", no: "251", count: 7 }, { type: "지선", no: "451", count: 9 }, { type: "지선", no: "551", count: 5 }, { type: "지선", no: "561", count: 3 }, { type: "지선", no: "571", count: 10 }, { type: "지선", no: "672", count: 2 }, { type: "지선", no: "881", count: 4 },
+                    { type: "공항", no: "A01", count: 12 }
+                ]
+            },
+            "창전여객": {
+                type: "민영", ceo: "안오현", 
+                bias: { 
+                    anime: "BanG Dream! (Morfonica)", 
+                    char: "쿠라타 마시로", 
+                    philosophy: "지금은 작고 서툴지 몰라도, 매일매일 성장하여 언젠가는 환하게 빛나는(Daylight) 최고의 버스 회사가 되겠다. 에이, 에이, 오!" 
+                },
+                address: "창전구 마시동 633", routeCount: 7, vehicleCount: 84,
+                routes: [
+                    { type: "간선", no: "77", count: 11 }, { type: "간선", no: "88", count: 9 },
+                    { type: "순환", no: "70", count: 11 },
+                    { type: "지선", no: "271", count: 15 }, { type: "지선", no: "472", count: 4 }, { type: "지선", no: "771", count: 29 },
+                    { type: "마을", no: "광정01", count: 5 }
+                ]
+            },
+            "판주여객": {
+                type: "민영", ceo: "고수현", 
+                bias: { 
+                    anime: "BanG Dream! (Roselia)", 
+                    char: "시로카네 린코", 
+                    philosophy: "린코의 키보드 연주처럼 빠르지만 정확하게, 그리고 정숙하게. 시끄러운 도로 위에서 고요한 품격을 유지한다." 
+                },
+                address: "청엽구 등동 402", routeCount: 8, vehicleCount: 79,
+                routes: [
+                    { type: "간선", no: "79", count: 15 }, { type: "간선", no: "89", count: 8 },
+                    { type: "순환", no: "90", count: 12 },
+                    { type: "지선", no: "123", count: 8 }, { type: "지선", no: "262", count: 5 }, { type: "지선", no: "292", count: 9 }, { type: "지선", no: "991", count: 18 },
+                    { type: "마을", no: "곽산01", count: 4 }
+                ]
+            },
+            "효안교통": {
+                type: "민영", ceo: "박득만", 
+                bias: { 
+                    anime: "현실 (Real World)", 
+                    char: "현실 그 자체", 
+                    philosophy: "덕질할 시간에 타이어 나사를 한 번 더 조인다. 애니메이션 같은 기적은 없다, 오직 정비와 점검만이 살길이다." 
+                },
+                address: "서구 안골로 78", routeCount: 11, vehicleCount: 76,
+                routes: [
+                    { type: "간선", no: "57", count: 6 }, { type: "간선", no: "88", count: 12 },
+                    { type: "지선", no: "131", count: 7 }, { type: "지선", no: "151", count: 5 }, { type: "지선", no: "172", count: 14 }, { type: "지선", no: "222", count: 15 }, { type: "지선", no: "351", count: 10 }, { type: "지선", no: "881", count: 3 },
+                    { type: "마을", no: "도향01", count: 2 }, { type: "마을", no: "도향02", count: 1 }, { type: "마을", no: "도향03", count: 1 }
+                ]
+            },
+            "내삼여객": {
+                type: "민영", ceo: "고진혁", 
+                bias: { 
+                    anime: "인생 2회차", 
+                    char: "개과천선한 본인", 
+                    philosophy: "과거의 과속과 난폭운전은 잊어라. 나는 오늘 다시 태어났다. 새사람이 되어 준법 운전의 아이콘이 되겠다." 
+                },
+                address: "남구 항동 356", routeCount: 7, vehicleCount: 63,
+                routes: [
+                    { type: "간선", no: "23", count: 12 }, { type: "간선", no: "24", count: 13 },
+                    { type: "지선", no: "341", count: 11 }, { type: "지선", no: "582", count: 3 }, { type: "지선", no: "792", count: 8 }, { type: "지선", no: "793", count: 8 }, { type: "지선", no: "892", count: 8 }
+                ]
+            },
+            "월주여객": {
+                type: "민영", ceo: "맹기석", 
+                bias: { 
+                    anime: "베어 그릴스 / 서바이벌", 
+                    char: "최후의 생존자", 
+                    philosophy: "도로는 전장이다. 어떠한 악조건 속에서도 승객을 끝까지 '생존(목적지 도착)'시키는 것이 나의 유일한 임무다." 
+                },
+                address: "서구 과진동 891", routeCount: 8, vehicleCount: 63,
+                routes: [
+                    { type: "간선", no: "15", count: 8 }, { type: "간선", no: "35", count: 11 }, { type: "간선", no: "68", count: 14 }, { type: "간선", no: "69", count: 10 }, { type: "간선", no: "77", count: 11 },
+                    { type: "지선", no: "334", count: 3 }, { type: "지선", no: "581", count: 3 },
+                    { type: "마을", no: "뇌전01", count: 3 }
+                ]
+            },
+            "중성여객": {
+                type: "민영", ceo: "심우진", 
+                bias: { 
+                    anime: "아이돌 마스터 신데렐라 걸즈", 
+                    char: "시마무라 우즈키", 
+                    philosophy: "우즈키처럼 언제나 '스마일'! 아무리 힘든 정체 구간에서도 '열심히 하겠습니다(간바리마스)!' 정신으로 승객을 맞이한다." 
+                },
+                address: "동구 미소로 55", routeCount: 6, vehicleCount: 62,
+                routes: [
+                    { type: "간선", no: "36", count: 9 }, { type: "간선", no: "59", count: 8 }, { type: "간선", no: "67", count: 8 },
+                    { type: "지선", no: "181", count: 12 }, { type: "지선", no: "231", count: 20 }, { type: "지선", no: "371", count: 5 }
+                ]
+            },
+            "남주여객": {
+                type: "민영", ceo: "유남주", 
+                bias: { 
+                    anime: "러브 라이브! 니지가사키", 
+                    char: "쇼우 란쥬, 미후네 시오리코", 
+                    philosophy: "란쥬의 압도적인 퍼포먼스(배차 간격)와 시오리코의 철저한 규율(안전 수칙) 준수. 문제 있나요(몬다이 나이)?" 
+                },
+                address: "남구 평당동 274", routeCount: 8, vehicleCount: 57,
+                routes: [
+                    { type: "간선", no: "48", count: 7 }, { type: "간선", no: "58", count: 7 }, { type: "간선", no: "78", count: 17 },
+                    { type: "지선", no: "193", count: 6 }, { type: "지선", no: "194", count: 6 }, { type: "지선", no: "219", count: 6 }, { type: "지선", no: "492", count: 6 }, { type: "지선", no: "632", count: 2 }
+                ]
+            },
+            "오진여객": {
+                type: "민영", ceo: "김덕산", 
+                bias: { 
+                    anime: "나는 자연인이다", 
+                    char: "엄홍길, 나훈아", 
+                    philosophy: "인생은 등산이고 운행은 트로트다. 굽이굽이 고개(노선)를 트로트 가락처럼 흥겹고 구성지게 넘어간다." 
+                },
+                address: "탄성군 도변읍 109", routeCount: 15, vehicleCount: 57,
+                routes: [
+                    { type: "지선", no: "361", count: 3 }, { type: "지선", no: "461", count: 3 }, { type: "지선", no: "522", count: 4 }, { type: "지선", no: "612", count: 3 }, { type: "지선", no: "691", count: 1 }, { type: "지선", no: "692", count: 4 }, { type: "지선", no: "753", count: 4 }, { type: "지선", no: "891", count: 9 },
+                    { type: "마을", no: "흑택01", count: 4 }, { type: "마을", no: "야진01", count: 2 }, { type: "마을", no: "야진02", count: 1 }, { type: "마을", no: "탄성01", count: 7 }, { type: "마을", no: "탄성02", count: 2 }, { type: "마을", no: "서목01", count: 6 }, { type: "마을", no: "서목02", count: 4 }
+                ]
+            },
+            "청선여객": {
+                type: "민영", ceo: "오산동", 
+                bias: { 
+                    anime: "역전재판 시리즈", 
+                    char: "나루호도 류이치", 
+                    philosophy: "이의 있소! 단 하나의 안전 위반도 용납하지 않는다. 승객의 안전을 위해서라면 어떤 역경이라도 뒤집어(역전) 보인다." 
+                },
+                address: "북구 곡진동 687", routeCount: 8, vehicleCount: 56,
+                routes: [
+                    { type: "간선", no: "12", count: 10 }, { type: "간선", no: "37", count: 15 }, { type: "간선", no: "38", count: 6 }, { type: "간선", no: "39", count: 12 },
+                    { type: "지선", no: "481", count: 4 },
+                    { type: "마을", no: "채산01", count: 3 }, { type: "마을", no: "채산02", count: 3 }, { type: "마을", no: "내항01", count: 3 }
+                ]
+            },
+            "탄성여객": {
+                type: "민영", ceo: "유진오", 
+                bias: { 
+                    anime: "현실 (Non-Otaku)", 
+                    char: "지나가던 시민 A", 
+                    philosophy: "평범함 속에 비범함이 있다. 튀지 않고, 사고 치지 않고, 물 흐르듯 평범하게 목적지까지 모시는 것이 최고의 서비스다." 
+                },
+                address: "탄성군 탄성읍 441", routeCount: 14, vehicleCount: 55,
+                routes: [
+                    { type: "간선", no: "66", count: 4 },
+                    { type: "순환", no: "60", count: 10 },
+                    { type: "지선", no: "242", count: 4 }, { type: "지선", no: "261", count: 4 }, { type: "지선", no: "592", count: 4 }, { type: "지선", no: "661", count: 2 }, { type: "지선", no: "671", count: 4 },
+                    { type: "마을", no: "정근01", count: 2 }, { type: "마을", no: "정근02", count: 1 }, { type: "마을", no: "소원01", count: 2 }, { type: "마을", no: "소원02", count: 2 }, { type: "마을", no: "고해01", count: 5 }, { type: "마을", no: "고해02", count: 2 }, { type: "마을", no: "도변01", count: 9 }
+                ]
+            },
+            "안천고속": {
+                type: "민영", ceo: "안전호", 
+                bias: { 
+                    anime: "기동전사 건담", 
+                    char: "샤아 아즈나블", 
+                    philosophy: "통상 속도의 3배! ...는 과속이라 안 되지만, 3배의 열정과 3배의 안전 점검으로 '붉은 혜성' 같은 강렬한 인상을 남긴다." 
+                },
+                address: "안천구 뇌전동 923", routeCount: 8, vehicleCount: 54,
+                routes: [
+                    { type: "순환", no: "40", count: 11 },
+                    { type: "지선", no: "221", count: 20 }, { type: "지선", no: "391", count: 3 }, { type: "지선", no: "441", count: 2 }, { type: "지선", no: "471", count: 3 }, { type: "지선", no: "552", count: 3 }, { type: "지선", no: "842", count: 8 },
+                    { type: "마을", no: "악부01", count: 4 }
+                ]
+            },
+            "덕빈고속": {
+                type: "민영", ceo: "신세계", 
+                bias: { 
+                    anime: "원피스", 
+                    char: "몽키 D. 루피", 
+                    philosophy: "나는 버스왕이 될 사나이! 내 배(버스)에 탄 승객은 내 동료다. 그 누구도 버리고 가지 않는다. 출항(출발)하라!" 
+                },
+                address: "동구 전천동 518", routeCount: 7, vehicleCount: 51,
+                routes: [
+                    { type: "간선", no: "16", count: 11 }, { type: "간선", no: "46", count: 7 },
+                    { type: "순환", no: "30", count: 10 },
+                    { type: "지선", no: "381", count: 3 }, { type: "지선", no: "681", count: 4 }, { type: "지선", no: "881", count: 4 },
+                    { type: "공항", no: "A03", count: 12 }
+                ]
+            },
+            "대교여객": {
+                type: "민영", ceo: "마동탁", 
+                bias: { 
+                    anime: "우마무스메 프리티 더비", 
+                    char: "심볼리 루돌프, 토카이 테이오", 
+                    philosophy: "황제의 위엄으로 도로를 통제하고, 테이오의 스텝으로 정체를 돌파한다. 목적지까지 '1착'으로 모시는 우마뾰이한 서비스를 약속한다." 
+                },
+                address: "동구 전천동 332", routeCount: 5, vehicleCount: 51,
+                routes: [
+                    { type: "지선", no: "191", count: 8 }, { type: "지선", no: "192", count: 10 }, { type: "지선", no: "291", count: 20 }, { type: "지선", no: "491", count: 4 }, { type: "지선", no: "791", count: 9 }
+                ]
+            }
+        };
+
+        // ===================================
+        // Initialization Logic
+        // ===================================
+        
+        // URL 파라미터에서 회사 이름 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        let companyName = urlParams.get('name') || '칠양여객'; // 기본값 설정
+        
+        // 데이터 존재 여부 확인 후 로딩
+        let currentCompany = companyData[companyName];
+        
+        if (!currentCompany) {
+            companyName = '칠양여객';
+            currentCompany = companyData[companyName];
+        }
+
+        // 페이지 내용 업데이트
+        document.title = `${companyName} - 공식 홈페이지`;
+        document.getElementById('company-name').innerText = companyName;
+        document.getElementById('footer-company').innerText = companyName;
+        
+        // 뱃지 설정
+        const badge = document.getElementById('company-type-badge');
+        badge.innerText = currentCompany.type;
+        badge.classList.remove('hidden');
+        if(currentCompany.type === '준공영') {
+            badge.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-200');
+        } else {
+            badge.classList.add('bg-gray-100', 'text-gray-800', 'border-gray-200');
+        }
+
+        // 푸터 정보 업데이트
+        document.getElementById('footer-ceo').innerText = `대표: ${currentCompany.ceo}`;
+        document.getElementById('footer-address').innerText = `소재지: ${currentCompany.address}`;
+        
+        // 히어로 섹션 텍스트 업데이트
+        if (companyName.includes('고속')) {
+            document.getElementById('hero-title').innerHTML = `더 빠르고 쾌적하게,<br><span class="text-blue-600">${companyName}</span>이 달립니다.`;
+        } else if (companyName.includes('여객') || companyName.includes('교통')) {
+            document.getElementById('hero-title').innerHTML = `시민과 함께하는 행복 파트너,<br><span class="text-blue-600">${companyName}</span>입니다.`;
+        }
+
+        // 연락처 생성
+        function generateRandomPhoneNumber() {
+             const p2 = String(Math.floor(Math.random() * 900) + 100); 
+             const p3 = String(Math.floor(Math.random() * 9000) + 1000);
+             return `079-${p2}-${p3}`;
+        }
+        const randomContactPhone = generateRandomPhoneNumber();
+        const randomRecruitmentPhone = generateRandomPhoneNumber();
+
+
+        // ===================================
+        // Modal Logic
+        // ===================================
+
+        const modalContainer = document.getElementById('modal-container');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        const targets = [
+            document.getElementById('btn-view-routes'),
+            document.getElementById('btn-submit-complaint'),
+            document.getElementById('btn-check-recruitment'),
+            document.getElementById('service-safety'),
+            document.getElementById('service-kindness'),
+            document.getElementById('service-punctuality'),
+            document.getElementById('nav-about'),
+            document.getElementById('nav-routes'),
+            document.getElementById('nav-recruitment'),
+            document.getElementById('nav-cs'),
+            document.getElementById('nav-ceo-room'),
+            document.getElementById('link-terms'),
+            document.getElementById('link-privacy'),
+            document.getElementById('link-email-refusal'),
+        ];
+
+        function showModal(title, content) {
+            modalTitle.innerText = title;
+            modalContent.innerHTML = content;
+            modalContainer.classList.remove('hidden');
+            void modalContainer.offsetWidth; 
+            modalContainer.classList.add('opacity-100');
+            const modalDialog = modalContainer.querySelector('.shadow-2xl');
+            if(modalDialog) {
+                modalDialog.classList.remove('scale-95');
+                modalDialog.classList.add('scale-100');
+            }
+            lucide.createIcons(); 
+        }
+
+        function hideModal() {
+            modalContainer.classList.remove('opacity-100');
+            modalContainer.classList.add('opacity-0');
+            const modalDialog = modalContainer.querySelector('.shadow-2xl');
+            if(modalDialog) {
+                modalDialog.classList.remove('scale-100');
+                modalDialog.classList.add('scale-95');
+            }
+            setTimeout(() => { modalContainer.classList.add('hidden'); }, 300);
+        }
+
+        // 노선 색상 매핑 함수
+        function getRouteColorClass(type) {
+            switch(type) {
+                case '급행': return 'bg-express';
+                case '간선': return 'bg-trunk';
+                case '지선': return 'bg-branch';
+                case '순환': return 'bg-circular';
+                case '좌석': return 'bg-seat';
+                case '광역': return 'bg-wide';
+                case '공항': return 'bg-airport';
+                case '마을': return 'bg-village';
+                case '시티투어': return 'bg-citytour';
+                default: return 'bg-default';
+            }
+        }
+
+        targets.forEach(target => {
+            if (target) {
+                target.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    let title = '';
+                    let content = '';
+                    let buttonId = target.id;
+
+                    switch (buttonId) {
+                        case 'nav-about':
+                            title = `${companyName} 회사 소개`;
+                            content = `
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                                        <h4 class="font-bold text-blue-900 text-lg mb-2">기본 정보</h4>
+                                        <ul class="space-y-2 text-sm text-blue-800">
+                                            <li><span class="font-bold mr-2">운영 형태:</span> ${currentCompany.type}</li>
+                                            <li><span class="font-bold mr-2">대표자:</span> ${currentCompany.ceo}</li>
+                                            <li><span class="font-bold mr-2">소재지:</span> ${currentCompany.address}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-slate-50 p-4 rounded-lg text-center border border-slate-200">
+                                            <p class="text-xs text-slate-500 font-bold uppercase">운행 노선 수</p>
+                                            <p class="text-3xl font-black text-slate-800">${currentCompany.routeCount}<span class="text-sm font-medium text-slate-500 ml-1">개</span></p>
+                                        </div>
+                                        <div class="bg-slate-50 p-4 rounded-lg text-center border border-slate-200">
+                                            <p class="text-xs text-slate-500 font-bold uppercase">총 인가 대수</p>
+                                            <p class="text-3xl font-black text-slate-800">${currentCompany.vehicleCount}<span class="text-sm font-medium text-slate-500 ml-1">대</span></p>
+                                        </div>
+                                    </div>
+                                    <p class="text-slate-600 mt-4">${companyName}는 안전하고 편리한 대중교통 서비스를 제공하기 위해 최선을 다하고 있습니다.</p>
+                                </div>
+                            `;
+                            break;
+
+                        // CEO Room (대폭 수정)
+                        case 'nav-ceo-room':
+                            title = `${companyName} CEO Room`;
+                            const bias = currentCompany.bias;
+                            content = `
+                                <div class="text-center">
+                                    <div class="mb-6 relative inline-block">
+                                        <div class="w-28 h-28 bg-white rounded-full flex items-center justify-center text-5xl shadow-xl border-4 border-purple-200 z-10 relative">
+                                            👑
+                                        </div>
+                                        <div class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full animate-bounce">
+                                            TOP SECRET?
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="text-2xl font-black text-slate-800 mb-2">대표이사 ${currentCompany.ceo}</h3>
+                                    <p class="text-slate-500 text-sm mb-6 font-medium">"회사의 미래는 덕심(心)에 있다"</p>
+                                    
+                                    <div class="otaku-bg p-6 rounded-2xl border border-purple-200 text-left space-y-4 shadow-inner mb-6">
+                                        <div>
+                                            <span class="text-[10px] font-bold text-purple-500 tracking-widest uppercase bg-purple-100 px-2 py-0.5 rounded">Origin (작품)</span>
+                                            <p class="text-lg font-bold text-slate-800 mt-1">${bias.anime}</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] font-bold text-pink-500 tracking-widest uppercase bg-pink-100 px-2 py-0.5 rounded">The Bias (최애)</span>
+                                            <p class="text-lg font-bold text-slate-800 mt-1">${bias.char}</p>
+                                        </div>
+                                        <div class="pt-4 border-t border-purple-200">
+                                            <span class="text-[10px] font-bold text-blue-600 tracking-widest uppercase bg-blue-100 px-2 py-0.5 rounded">Management Philosophy</span>
+                                            <p class="text-xl font-black text-blue-900 mt-2 leading-relaxed break-keep">
+                                                "${bias.philosophy}"
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-red-50 border border-red-100 p-3 rounded-lg flex items-start gap-3 text-left">
+                                        <i data-lucide="alert-circle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"></i>
+                                        <p class="text-xs text-red-600 font-bold leading-relaxed">
+                                            본 내용은 ${companyName}의 공식 경영 방침과 <span class="underline">200% 일치합니다.</span><br>
+                                            전 직원은 위 철학을 가슴에 품고 오늘도 안전 운행에 임하고 있습니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                            break;
+
+                        case 'btn-view-routes':
+                        case 'nav-routes':
+                            title = `${companyName} 운행 노선 안내`;
+                            let routesHtml = `
+                                <div class="overflow-hidden border border-gray-200 rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">유형</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">노선번호</th>
+                                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">인가대수</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                            `;
+                            
+                            currentCompany.routes.forEach(route => {
+                                routesHtml += `
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="route-badge ${getRouteColorClass(route.type)}">${route.type}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${route.no}번</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">${route.count}대</td>
+                                    </tr>
+                                `;
+                            });
+
+                            routesHtml += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2 text-right">총 ${currentCompany.routeCount}개 노선, ${currentCompany.vehicleCount}대 운행 중</p>
+                                <button class="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition font-bold shadow-md" onclick="location.href='bus.html'">실시간 버스 위치 확인 (BIS)</button>
+                            `;
+                            content = routesHtml;
+                            break;
+
+                        case 'service-safety':
+                            title = `안전 운행 철학`;
+                            content = `
+                                <p><strong>${companyName}</strong>의 최우선 가치는 '안전'입니다. 모든 운행은 다음 세 가지 원칙을 철저히 준수합니다.</p>
+                                <ul class="list-disc list-inside ml-4 mt-4 space-y-2">
+                                    <li><span class="font-bold text-blue-600">정기 안전 교육:</span> 분기별 1회, 전 직원을 대상으로 필수 안전 운행 교육을 실시합니다.</li>
+                                    <li><span class="font-bold text-blue-600">첨단 차량 관리:</span> 모든 차량에 첨단 운전자 보조 시스템(ADAS)을 도입하고, 주 3회 정밀 점검을 진행합니다.</li>
+                                </ul>
+                            `;
+                            break;
+                        case 'service-kindness':
+                            title = `친절 봉사 정신`;
+                            content = `
+                                <p>저희 기사님들은 '고객을 가족처럼' 모시는 친절 봉사 정신으로 서비스에 임합니다.</p>
+                                <div class="bg-green-50 p-4 rounded-lg mt-4 space-y-2">
+                                    <p class="font-bold text-green-700">친절 평가 시스템</p>
+                                    <p class="text-sm">실시간 고객 만족도 평가를 통해 친절도를 관리하고 있으며, 평가 결과는 승무사원 인사고과에 반영됩니다.</p>
+                                </div>
+                            `;
+                            break;
+                        case 'service-punctuality':
+                            title = `정시 준수 정책`;
+                            content = `
+                                <p>고객님의 소중한 시간을 지키기 위해 정확한 배차 간격을 준수하는 것을 원칙으로 합니다.</p>
+                                <ul class="list-disc list-inside ml-4 mt-4 space-y-2">
+                                    <li><span class="font-bold text-orange-600">실시간 배차 관리:</span> 모든 버스는 BIS(버스 정보 시스템)를 통해 실시간으로 모니터링됩니다.</li>
+                                </ul>
+                            `;
+                            break;
+                        case 'nav-cs':
+                        case 'btn-submit-complaint':
+                            // 메인 화면 버튼이나 네비게이션 버튼 누르면 즉시 이동
+                            if(buttonId === 'btn-submit-complaint') {
+                                location.href = `민원접수하기.html?name=${encodeURIComponent(companyName)}`;
+                                return;
+                            }
+                            
+                            // nav-cs의 경우 모달을 띄우되, 내부 버튼도 이동하도록 설정
+                            title = `${companyName} 고객센터`;
+                            content = `
+                                <div class="bg-yellow-50 p-6 rounded-xl border border-yellow-100 text-center">
+                                    <p class="font-bold text-yellow-800 text-xl mb-2">${randomContactPhone}</p>
+                                    <p class="text-sm text-yellow-700">평일 09:00 ~ 18:00 (주말/공휴일 휴무)</p>
+                                </div>
+                                <p class="text-sm text-slate-500 mt-4">불편을 드려 죄송합니다. 민원 사항을 접수해주시면 신속히 처리하겠습니다.</p>
+                                <!-- 이동 버튼으로 수정 -->
+                                <button class="w-full bg-slate-800 text-white py-3 rounded-lg mt-4 hover:bg-slate-900 transition font-bold" onclick="location.href='민원접수하기.html?name=${encodeURIComponent(companyName)}'">민원 접수하기</button>
+                            `;
+                            break;
+                        case 'nav-recruitment':
+                        case 'btn-check-recruitment':
+                            title = `${companyName} 채용 공고`;
+                            content = `
+                                <div class="space-y-4">
+                                    <div class="p-4 border rounded-lg hover:bg-slate-50 transition cursor-pointer">
+                                        <span class="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded mb-2">모집중</span>
+                                        <h4 class="font-bold text-lg">시내버스 승무사원 모집 (경력직)</h4>
+                                        <p class="text-sm text-slate-500">대형버스 운전 경력 1년 이상 소지자 우대</p>
+                                    </div>
+                                    <div class="p-4 border rounded-lg hover:bg-slate-50 transition cursor-pointer">
+                                        <span class="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded mb-2">모집중</span>
+                                        <h4 class="font-bold text-lg">정비직 신입/경력 사원 모집</h4>
+                                        <p class="text-sm text-slate-500">자동차 정비 자격증 소지자 필수</p>
+                                    </div>
+                                </div>
+                                <div class="mt-6 bg-slate-100 p-4 rounded-lg text-sm">
+                                    <p><strong>채용 문의:</strong> ${randomRecruitmentPhone} (인사팀)</p>
+                                </div>
+                                <button id=\"btn-apply-now\" class=\"w-full bg-green-600 text-white py-3 rounded-lg mt-4 hover:bg-green-700 transition font-bold\">입사 지원하기</button>
+                            `;
+                            break;
+                        case 'link-terms':
+                        case 'link-privacy':
+                        case 'link-email-refusal':
+                            title = '이용 안내';
+                            content = '<p>해당 내용은 준비 중입니다.</p>';
+                            break;
+                    }
+
+                    showModal(title, content);
+                });
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', hideModal);
+        modalContainer.addEventListener('click', (e) => { if (e.target === modalContainer) hideModal(); });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'btn-apply-now') {
+                hideModal();
+                setTimeout(() => {
+                    showModal('지원 확인', 
+                        `<div class="text-center py-8">
+                            <i data-lucide="help-circle" class="w-12 h-12 text-blue-500 mx-auto mb-4"></i>
+                            <h4 class="text-xl font-bold text-slate-800 mb-2">입사 지원을 진행하시겠습니까?</h4>
+                            <p class="text-slate-600 mb-6">제출된 서류는 반환되지 않으며, 허위 사실 기재 시 채용이 취소될 수 있습니다.</p>
+                            <div class="flex gap-4 justify-center">
+                                <button onclick="hideModal()" class="px-6 py-2 bg-slate-200 rounded-lg hover:bg-slate-300 transition font-bold text-slate-700">취소</button>
+                                <button onclick="submitApplication()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold">지원하기</button>
+                            </div>
+                        </div>`
+                    );
+                }, 300);
+            }
+        });
+
+        function submitApplication() {
+            hideModal();
+            setTimeout(() => {
+                showModal('지원 완료', `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="check" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">지원이 완료되었습니다.</h3>
+                        <p class="text-slate-500">서류 심사 후 합격자에 한해 개별 연락드리겠습니다.</p>
+                        <button onclick="hideModal()" class="mt-6 px-6 py-2 bg-slate-200 rounded-lg hover:bg-slate-300 transition font-bold text-slate-700">닫기</button>
+                    </div>
+                `);
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>

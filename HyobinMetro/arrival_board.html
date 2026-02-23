@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>역별 실시간 도착안내 - 효빈교통공사</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { font-family: 'Pretendard', sans-serif; background-color: #1e293b; color: #fff; }
+    
+    /* 노선 색상 (CSS 변수) */
+    :root {
+      --L1: #0077DD; --L2: #00CCAA; --L3: #FFCC11;
+      --L4: #FF5522; --L5: #EE0022; --L6: #881188;
+      --L7: #FF8899; --L8: #9856FF; --BH: #6677CC;
+    }
+    .bg-l1 { background-color: var(--L1); } .text-l1 { color: var(--L1); }
+    .bg-l2 { background-color: var(--L2); } .text-l2 { color: var(--L2); }
+    .bg-l3 { background-color: var(--L3); color: #111; } .text-l3 { color: var(--L3); }
+    .bg-l4 { background-color: var(--L4); } .text-l4 { color: var(--L4); }
+    .bg-l5 { background-color: var(--L5); } .text-l5 { color: var(--L5); }
+    .bg-l6 { background-color: var(--L6); } .text-l6 { color: var(--L6); }
+    .bg-l7 { background-color: var(--L7); } .text-l7 { color: var(--L7); }
+    .bg-l8 { background-color: var(--L8); } .text-l8 { color: var(--L8); }
+    .bg-bh { background-color: var(--BH); } .text-bh { color: var(--BH); }
+
+    /* LCD 패널 스타일 */
+    .board-container { max-width: 1000px; margin: 0 auto; }
+    .lcd-panel { background-color: #0f172a; border: 4px solid #334155; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .lcd-header { background: linear-gradient(180deg, #334155 0%, #1e293b 100%); padding: 15px; text-align: center; border-bottom: 2px solid #475569; }
+    .lcd-row { display: flex; align-items: center; border-bottom: 1px solid #334155; padding: 10px 16px; transition: background 0.2s; }
+    .lcd-row:last-child { border-bottom: none; }
+    .lcd-row:hover { background-color: #1e293b; }
+    
+    /* 애니메이션 */
+    .blink { animation: blinker 1.5s linear infinite; color: #ef4444; font-weight: bold; }
+    @keyframes blinker { 50% { opacity: 0.3; } }
+    
+    .status-arrival { color: #ef4444; font-weight: 800; }
+    .status-approach { color: #f59e0b; font-weight: 700; }
+    .status-normal { color: #10b981; }
+
+    /* 검색창 */
+    .search-box { position: relative; max-width: 500px; margin: 0 auto 30px; }
+    .search-input { width: 100%; background: #334155; border: 2px solid #475569; color: white; padding: 15px 20px; border-radius: 30px; font-size: 1.1rem; outline: none; transition: 0.3s; }
+    .search-input:focus { border-color: #0ea5e9; box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); background: #1e293b; }
+    .suggestions { position: absolute; top: 60px; left: 0; right: 0; background: #334155; border-radius: 10px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .suggestion-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #475569; }
+    .suggestion-item:hover { background: #0ea5e9; }
+    
+    .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-left: 5px; vertical-align: middle; }
+    .badge-exp { background: #dc2626; color: white; }
+    .badge-local { background: #64748b; color: white; }
+    .badge-shuttle { background: #0ea5e9; color: white; }
+  </style>
+
+  <!-- 데이터베이스 파일 로드 -->
+  <script src="hyobin_station_db.js"></script>
+</head>
+<body>
+
+  <header class="py-8 text-center relative">
+    <!-- 메인으로 이동 버튼 추가 -->
+    <div class="absolute top-4 left-4">
+        <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition text-sm font-bold bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 hover:border-slate-500">
+            <i data-lucide="home" class="w-4 h-4"></i> 메인으로
+        </a>
+    </div>
+
+    <div class="flex items-center justify-center gap-3 mb-2">
+      <div class="w-10 h-10 bg-sky-500 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-lg">H</div>
+      <h1 class="text-3xl font-black tracking-tight text-white">실시간 도착안내</h1>
+    </div>
+    <p class="text-slate-400 text-sm">역 이름을 검색하여 실시간 열차 위치를 확인하세요.</p>
+  </header>
+
+  <main class="px-4 pb-20">
+    <!-- 검색 영역 -->
+    <div class="search-box">
+      <input type="text" id="stationInput" class="search-input" placeholder="역 검색 (예: 효빈, 고송교차로...)" autocomplete="off">
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+
+    <!-- 결과 패널 (초기엔 숨김) -->
+    <div id="resultPanel" class="board-container hidden">
+      <div class="lcd-panel">
+        <div class="lcd-header">
+          <div class="flex justify-between items-center px-4">
+            <div id="stationLines" class="flex gap-2">
+              <!-- 노선 배지 -->
+            </div>
+            <h2 id="stationNameDisplay" class="text-3xl font-black text-white tracking-widest"></h2>
+            <div class="text-right">
+              <div id="currentTime" class="text-xl font-mono text-sky-400 font-bold">00:00:00</div>
+              <div class="text-xs text-slate-500">현재시간 기준</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="arrivalList" class="bg-slate-900 min-h-[300px]">
+          <!-- 도착 정보 리스트 -->
+        </div>
+      </div>
+
+      <!-- 역 정보 박스 -->
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <h3 class="text-slate-400 text-sm font-bold mb-3 flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> 역 정보</h3>
+          <p id="stationDesc" class="text-slate-200 text-sm leading-relaxed">
+            역 정보를 선택하면 상세 내용이 표시됩니다.
+          </p>
+        </div>
+        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700">
+          <h3 class="text-slate-400 text-sm font-bold mb-3 flex items-center gap-2"><i data-lucide="bus" class="w-4 h-4"></i> 연계 버스</h3>
+          <div class="flex flex-wrap gap-2 text-xs font-bold text-white">
+            <span style="background:#01B7ED" class="px-2 py-1 rounded-full">간선</span>
+            <span style="background:#37B484" class="px-2 py-1 rounded-full">지선</span>
+            <span style="background:#A664A0" class="px-2 py-1 rounded-full">마을</span>
+          </div>
+          <p class="text-slate-500 text-xs mt-2">* 출구별 버스 정류장 정보는 상세페이지 참조</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 대기 화면 -->
+    <div id="emptyState" class="text-center py-20 text-slate-600">
+      <i data-lucide="search" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
+      <p>역 이름을 검색해보세요.</p>
+    </div>
+  </main>
+
+  <script>
+    // ============================================
+    // 설정: 노선별 운행 계통 및 배차 간격
+    // ============================================
+    const LINE_CONFIG = {
+      "1": { 
+        color: "bg-l1", name: "1호선", type: "중전철", 
+        interval: { rh: 2, nh: 6 },
+        dests: [
+          { name: "장선", type: "급행가능", w: 15 },
+          { name: "안천", type: "완행", w: 25 },
+          { name: "곽산", type: "급행가능", w: 15 },
+          { name: "북구청", type: "완행", w: 10 },
+          { name: "승남해수욕장", type: "지선", w: 15 },
+          { name: "창선(셔틀)", type: "셔틀", w: 10 },
+          { name: "약산시청(셔틀)", type: "셔틀", w: 5 },
+          { name: "장선(셔틀)", type: "셔틀", w: 5 }
+        ] 
+      },
+      "2": { 
+        color: "bg-l2", name: "2호선", type: "중전철", 
+        interval: { rh: 3, nh: 6 },
+        dests: [
+          { name: "내선순환", type: "순환", w: 35 },
+          { name: "외선순환", type: "순환", w: 35 },
+          { name: "내선(급행)", type: "순환급행", w: 10 },
+          { name: "효빈항여객", type: "지선", w: 10 }
+        ] 
+      },
+      "3": { 
+        color: "bg-l3", name: "3호선", type: "중전철", 
+        interval: { rh: 4, nh: 6 },
+        dests: [
+          { name: "효빈국제공항", type: "완행", w: 40 },
+          { name: "팔조", type: "완행", w: 40 },
+          { name: "공항(급행)", type: "공항급행", w: 20 }
+        ] 
+      },
+      "4": { 
+        color: "bg-l4", name: "4호선", type: "중전철", 
+        interval: { rh: 4, nh: 7 },
+        dests: [
+          { name: "천가", type: "완행", w: 30 },
+          { name: "해운산업지구", type: "완행", w: 30 },
+          { name: "이자(종착)", type: "타절", w: 20 },
+          { name: "남구청(종착)", type: "타절", w: 20 }
+        ] 
+      },
+      "5": { 
+        color: "bg-l5", name: "5호선", type: "경전철", 
+        interval: { rh: 5, nh: 7 },
+        dests: [
+          { name: "청덕공원", type: "완행", w: 50 },
+          { name: "포성산", type: "완행", w: 50 }
+        ] 
+      },
+      "6": { 
+        color: "bg-l6", name: "6호선", type: "중전철", 
+        interval: { rh: 2, nh: 5 },
+        dests: [
+          { name: "마잡", type: "완행", w: 50 },
+          { name: "고송나루", type: "완행", w: 50 }
+        ] 
+      },
+      "7": { 
+        color: "bg-l7", name: "7호선", type: "트램", 
+        interval: { rh: 3, nh: 4 },
+        dests: [
+          { name: "어간중앙", type: "본선", w: 35 },
+          { name: "사능삼거리", type: "본선", w: 35 },
+          { name: "조유(지선)", type: "지선", w: 30 }
+        ] 
+      },
+      "8": { 
+        color: "bg-l8", name: "8호선", type: "경전철", 
+        interval: { rh: 5, nh: 7 },
+        dests: [
+          { name: "곽산(순환)", type: "순환", w: 50 },
+          { name: "신흥(순환)", type: "순환", w: 50 }
+        ] 
+      },
+      "bh": { 
+        color: "bg-bh", name: "빈효선", type: "광역", 
+        interval: { rh: 6, nh: 10 },
+        dests: [
+          { name: "효빈항", type: "완행", w: 30 },
+          { name: "고남", type: "완행", w: 30 },
+          { name: "천주(급행)", type: "급행", w: 20 },
+          { name: "고남(급행)", type: "급행", w: 20 }
+        ] 
+      }
+    };
+
+    // ============================================
+    // 로직 시작
+    // ============================================
+    const input = document.getElementById('stationInput');
+    const suggestions = document.getElementById('suggestions');
+    const resultPanel = document.getElementById('resultPanel');
+    const emptyState = document.getElementById('emptyState');
+    const stationNameDisplay = document.getElementById('stationNameDisplay');
+    const stationLines = document.getElementById('stationLines');
+    const stationDesc = document.getElementById('stationDesc');
+    const arrivalList = document.getElementById('arrivalList');
+    const timeDisplay = document.getElementById('currentTime');
+
+    // DB가 로드되지 않았을 경우를 대비한 안전 장치
+    const db = window.STATION_DB || {};
+    const stationNames = Object.keys(db).sort();
+
+    // 시간 업데이트
+    function updateClock() {
+      const now = new Date();
+      timeDisplay.innerText = now.toLocaleTimeString('ko-KR', { hour12: false });
+      return now;
+    }
+    setInterval(updateClock, 1000);
+
+    // 러시아워 체크
+    function isRushHour() {
+      const h = new Date().getHours();
+      return (h >= 7 && h <= 9) || (h >= 17 && h <= 20);
+    }
+
+    // 가중치 랜덤 선택
+    function getWeightedItem(items) {
+      let total = 0;
+      items.forEach(i => total += i.w);
+      let r = Math.random() * total;
+      for(let i=0; i<items.length; i++) {
+        r -= items[i].w;
+        if(r <= 0) return items[i];
+      }
+      return items[0];
+    }
+
+    // 검색 이벤트
+    input.addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      suggestions.innerHTML = '';
+      if (val.length < 1) {
+        suggestions.style.display = 'none';
+        return;
+      }
+
+      const matches = stationNames.filter(name => name.includes(val));
+      if (matches.length > 0) {
+        suggestions.style.display = 'block';
+        matches.forEach(name => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          const badges = db[name].lines.map(l => 
+            `<span class="inline-block w-4 h-4 rounded-full ${LINE_CONFIG[l].color} mr-1"></span>`
+          ).join('');
+          
+          div.innerHTML = `<div class="flex items-center text-white">${badges} <span>${name}</span></div>`;
+          div.onclick = () => selectStation(name);
+          suggestions.appendChild(div);
+        });
+      } else {
+        suggestions.style.display = 'none';
+      }
+    });
+
+    function selectStation(name) {
+      input.value = name;
+      suggestions.style.display = 'none';
+      emptyState.classList.add('hidden');
+      resultPanel.classList.remove('hidden');
+      
+      const data = db[name];
+      stationNameDisplay.innerText = name;
+      stationDesc.innerText = data.desc;
+      
+      stationLines.innerHTML = data.lines.map(l => 
+        `<span class="px-2 py-1 rounded text-xs font-bold text-white ${LINE_CONFIG[l].color}">${LINE_CONFIG[l].name}</span>`
+      ).join('');
+
+      renderArrivals(data.lines);
+    }
+
+    // 도착 정보 렌더링 (배차 간격 반영 및 수량 확대)
+    function renderArrivals(lines) {
+      arrivalList.innerHTML = '';
+      const rh = isRushHour();
+
+      lines.forEach(lineId => {
+        const conf = LINE_CONFIG[lineId];
+        const interval = rh ? conf.interval.rh : conf.interval.nh;
+        
+        // [핵심 변경] 각 노선별로 5~7대의 도착 열차 생성 (기존 2대에서 확대)
+        // 짧은 배차의 경우 10분 내에 5대, 긴 배차는 40분 내에 5대 식으로 표시
+        const trainCount = 5 + Math.floor(Math.random() * 2); 
+        
+        // 노선별 시작 시간 랜덤화 (첫차 도착 시점)
+        let accumulatedTime = Math.floor(Math.random() * interval); 
+
+        for(let i=0; i<trainCount; i++) {
+          const destItem = getWeightedItem(conf.dests);
+          
+          // 다음 열차 도착 시간 계산 (누적)
+          // i=0: accumulatedTime (곧 도착 ~ 배차간격 사이)
+          // i>0: 이전시간 + 배차간격 + 약간의 랜덤 지연(0~1분)
+          if (i > 0) {
+            accumulatedTime += interval + (Math.random() > 0.7 ? 1 : 0);
+          }
+          
+          const arrivalTime = accumulatedTime;
+          
+          // 표시용 이름 정리
+          let displayName = destItem.name.replace(/\(.*\)/, '');
+          let badgeHtml = '<span class="badge badge-local">완행</span>';
+          
+          if (destItem.type.includes('급행')) badgeHtml = '<span class="badge badge-exp">급행</span>';
+          else if (destItem.type.includes('셔틀')) badgeHtml = '<span class="badge badge-shuttle">셔틀</span>';
+          
+          // 상태 텍스트 및 스타일
+          let statusHtml = '';
+          let rowClass = '';
+          
+          if (arrivalTime <= 1) {
+            statusHtml = '<span class="blink status-arrival">곧 도착</span>';
+            rowClass = 'bg-slate-800 border-l-4 border-l-red-500';
+          } else if (arrivalTime <= 3) {
+            statusHtml = `<span class="status-approach">전역 출발</span> <span class="text-xs text-slate-400">(${arrivalTime}분)</span>`;
+          } else {
+            statusHtml = `<span class="status-normal">${arrivalTime}분 후</span>`;
+          }
+
+          // 차량 번호 (BH는 K, 나머지는 S)
+          const trainPrefix = lineId === 'bh' ? 'K' : 'S';
+          // 차량 번호를 좀 더 다양하게 (1호선은 76편성 등)
+          const maxFleet = (lineId === '1') ? 111 : 99; 
+          const trainNum = trainPrefix + (parseInt(lineId)*1000 + Math.floor(Math.random()*maxFleet));
+
+          const row = document.createElement('div');
+          row.className = `lcd-row ${rowClass}`;
+          row.innerHTML = `
+            <div class="w-16 font-bold ${conf.color.replace('bg-','text-')} text-lg">${conf.name}</div>
+            <div class="flex-1 px-4">
+              <div class="flex items-center">
+                <span class="text-white font-bold text-xl tracking-tight mr-2">${displayName}행</span>
+                ${badgeHtml}
+              </div>
+              <div class="text-xs text-slate-500 mt-1">열차번호 ${trainNum}</div>
+            </div>
+            <div class="text-right w-32">
+              <div class="text-lg">${statusHtml}</div>
+            </div>
+          `;
+          arrivalList.appendChild(row);
+        }
+      });
+      lucide.createIcons();
+    }
+    
+    // 초기 아이콘 로드
+    lucide.createIcons();
+  </script>
+</body>
+</html>

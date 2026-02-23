@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈항 국제여객터미널 - 효빈광역시</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 700; }
+        .tab-inactive { border-bottom: 3px solid transparent; color: #64748b; }
+        .tab-inactive:hover { color: #334155; border-bottom: 3px solid #cbd5e1; }
+        
+        /* 2호선 라인 색상 (요청하신 #00CCAA 적용) */
+        .line-2 { background-color: #00CCAA; color: white; }
+        .line-2-text { color: #00CCAA; }
+        .line-2-border { border-color: #00CCAA; }
+
+        /* 모달 애니메이션 */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative">
+    <!-- 헤더 -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-40 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-32 h-9 bg-white rounded hidden items-center justify-center text-slate-500 text-xs font-bold shadow-md">[로고 이미지]</div>
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <div class="flex items-center space-x-6 text-gray-300">
+                <button onclick="location.href='transport.html'" class="hover:text-white flex items-center gap-1 transition">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span class="text-sm">교통정보 메인</span>
+                </button>
+                <button onclick="location.href='index.html'" class="hover:text-white flex items-center gap-1 transition">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    <span class="text-sm">홈으로</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 비주얼 헤더 -->
+    <div class="w-full h-72 bg-blue-900 relative flex items-center justify-center text-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1543715694-81498b894d03?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40" alt="항구 배경">
+        <div class="relative z-10 px-4 mt-8">
+            <h1 class="text-3xl md:text-5xl font-black text-white mb-2 drop-shadow-lg">효빈항 국제여객터미널</h1>
+            <p class="text-blue-100 text-lg font-medium">Hyobin Port International Passenger Terminal</p>
+            <div class="mt-4 flex justify-center gap-2">
+                <span class="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                    <i data-lucide="anchor" class="w-3 h-3"></i> 국제여객선
+                </span>
+                <span class="line-2 px-3 py-1 rounded-sm text-sm font-bold flex items-center gap-1 shadow-md">
+                    <span class="bg-white text-[#00CCAA] rounded-sm w-4 h-4 flex items-center justify-center text-[10px] font-black">2</span>
+                    201-8 효빈항국제여객터미널역
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
+        <div class="max-w-6xl mx-auto px-4 flex">
+            <button onclick="switchTab('ferry')" id="tab-ferry" class="tab-active flex-1 py-4 text-center transition duration-200 flex items-center justify-center gap-2">
+                <i data-lucide="ship" class="w-5 h-5"></i>
+                <span>여객선 운항/예매</span>
+            </button>
+            <button onclick="switchTab('subway')" id="tab-subway" class="tab-inactive flex-1 py-4 text-center transition duration-200 flex items-center justify-center gap-2">
+                <i data-lucide="train-front" class="w-5 h-5"></i>
+                <span>지하철/교통 정보</span>
+            </button>
+            <button onclick="switchTab('facility')" id="tab-facility" class="tab-inactive flex-1 py-4 text-center transition duration-200 flex items-center justify-center gap-2">
+                <i data-lucide="coffee" class="w-5 h-5"></i>
+                <span>편의시설/테마</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full mb-20 min-h-[600px]">
+        
+        <!-- 1. 여객선 탭 컨텐츠 -->
+        <div id="content-ferry" class="block animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 예매 위젯 -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100 sticky top-36">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                            <i data-lucide="ticket" class="w-5 h-5 mr-2 text-blue-600"></i>승선권 빠른 예매
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 block mb-1">출발지</label>
+                                <select id="dep-port" class="w-full bg-slate-50 border border-slate-200 rounded p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="HBP">효빈항 (Hyobin)</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute left-3 top-9 bottom-0 w-0.5 bg-slate-200 -z-10 h-4"></div>
+                                <button onclick="swapPorts()" class="absolute right-0 -top-3 bg-white border border-slate-200 p-1.5 rounded-full hover:text-blue-600 shadow-sm z-10">
+                                    <i data-lucide="arrow-up-down" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 block mb-1">도착지</label>
+                                <select id="arr-port" class="w-full bg-slate-50 border border-slate-200 rounded p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="">도착지 선택</option>
+                                    <option value="CJU">제주 (Jeju)</option>
+                                    <option value="FUK">후쿠오카 (Fukuoka)</option>
+                                    <option value="SIM">시모노세키 (Shimonoseki)</option>
+                                    <option value="YNT">옌타이 (Yantai)</option>
+                                    <option value="TAO">칭다오 (Qingdao)</option>
+                                    <option value="ULD">울릉도 (Ulleungdo)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 block mb-1">가는 날</label>
+                                <input type="date" id="dep-date" class="w-full bg-slate-50 border border-slate-200 rounded p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <button onclick="startBooking()" id="search-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded transition flex items-center justify-center gap-2 mt-2 shadow-md hover:shadow-lg transform active:scale-95 duration-150">
+                                <span>배편 조회 및 예매</span>
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 운항 정보 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- 운항 현황 알림 -->
+                    <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg flex items-start justify-between">
+                        <div>
+                            <h4 class="font-bold text-blue-900 flex items-center gap-2">
+                                <i data-lucide="rss" class="w-4 h-4 animate-pulse"></i> 실시간 운항 정보
+                            </h4>
+                            <p class="text-sm text-blue-700 mt-1">현재 전 해상 기상 양호로 <span class="font-bold">정상 운항</span> 중입니다.</p>
+                        </div>
+                        <span class="text-xs text-blue-500 bg-white px-2 py-1 rounded border border-blue-100" id="current-time"></span>
+                    </div>
+
+                    <!-- 시간표 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <h2 class="font-bold text-lg text-slate-800">일일 운항 스케줄</h2>
+                            <span class="text-xs text-slate-400">행을 클릭하면 상세 정보를 볼 수 있습니다.</span>
+                        </div>
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-500 border-b border-slate-200">
+                                <tr>
+                                    <th class="px-4 md:px-6 py-3 font-bold">노선</th>
+                                    <th class="px-4 md:px-6 py-3 font-bold">출발</th>
+                                    <th class="px-4 md:px-6 py-3 font-bold">선박명</th>
+                                    <th class="px-4 md:px-6 py-3 font-bold text-right">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer" onclick="showScheduleDetail({dest:'울릉도', eng:'Ulleungdo', time:'08:00', ship:'아일랜드 링크', status:'출항완료', price:65000, img:'https://images.unsplash.com/photo-1548291616-6c929a43a060?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">울릉도</div>
+                                        <div class="text-xs text-slate-400">Ulleungdo</div>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg">08:00</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">아일랜드 링크</td>
+                                    <td class="px-4 md:px-6 py-4 text-right">
+                                        <span class="inline-block w-2 h-2 bg-gray-400 rounded-full mr-1"></span>출항완료
+                                    </td>
+                                </tr>
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer" onclick="showScheduleDetail({dest:'제주', eng:'Jeju', time:'09:00', ship:'효빈 블루호', status:'수속중', price:45000, img:'https://images.unsplash.com/photo-1596423736783-cd562e8f1727?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">제주</div>
+                                        <div class="text-xs text-slate-400">Jeju</div>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg text-blue-600 font-bold">09:00</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">효빈 블루호</td>
+                                    <td class="px-4 md:px-6 py-4 text-right">
+                                        <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">수속중</span>
+                                    </td>
+                                </tr>
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer" onclick="showScheduleDetail({dest:'후쿠오카', eng:'Fukuoka', time:'10:30', ship:'오션 스타', status:'예약가능', price:85000, img:'https://images.unsplash.com/photo-1540995138258-406cbef589c3?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">후쿠오카</div>
+                                        <div class="text-xs text-slate-400">Fukuoka</div>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg">10:30</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">오션 스타</td>
+                                    <td class="px-4 md:px-6 py-4 text-right text-slate-500">예약가능</td>
+                                </tr>
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer bg-blue-50/30" onclick="showScheduleDetail({dest:'칭다오', eng:'Qingdao', time:'17:30', ship:'골든 브릿지', status:'예약마감', price:120000, img:'https://images.unsplash.com/photo-1541414779316-956a5084c0d4?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">칭다오</div>
+                                        <div class="text-xs text-slate-400">Qingdao</div>
+                                        <span class="text-[10px] text-red-500 font-bold">NEW</span>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg">17:30</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">골든 브릿지</td>
+                                    <td class="px-4 md:px-6 py-4 text-right text-slate-400">예약마감</td>
+                                </tr>
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer" onclick="showScheduleDetail({dest:'시모노세키', eng:'Shimonoseki', time:'18:00', ship:'하마유', status:'예약가능', price:90000, img:'https://images.unsplash.com/photo-1540995138258-406cbef589c3?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">시모노세키</div>
+                                        <div class="text-xs text-slate-400">Shimonoseki</div>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg">18:00</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">하마유</td>
+                                    <td class="px-4 md:px-6 py-4 text-right text-slate-500">예약가능</td>
+                                </tr>
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer bg-blue-50/30" onclick="showScheduleDetail({dest:'옌타이', eng:'Yantai', time:'19:00', ship:'향설란', status:'예약가능', price:115000, img:'https://images.unsplash.com/photo-1541414779316-956a5084c0d4?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">옌타이</div>
+                                        <div class="text-xs text-slate-400">Yantai</div>
+                                        <span class="text-[10px] text-red-500 font-bold">NEW</span>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg">19:00</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">향설란</td>
+                                    <td class="px-4 md:px-6 py-4 text-right text-slate-500">예약가능</td>
+                                </tr>
+                                <tr class="group hover:bg-blue-50 transition cursor-pointer" onclick="showScheduleDetail({dest:'제주(심야)', eng:'Night Ferry', time:'23:00', ship:'드림 크루즈', status:'예약가능', price:55000, img:'https://images.unsplash.com/photo-1596423736783-cd562e8f1727?auto=format&fit=crop&q=80&w=600'})">
+                                    <td class="px-4 md:px-6 py-4">
+                                        <div class="font-bold text-slate-800">제주 (심야)</div>
+                                        <div class="text-xs text-slate-400">Night Ferry</div>
+                                    </td>
+                                    <td class="px-4 md:px-6 py-4 font-mono text-lg">23:00</td>
+                                    <td class="px-4 md:px-6 py-4 text-slate-500">드림 크루즈</td>
+                                    <td class="px-4 md:px-6 py-4 text-right text-slate-500">예약가능</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 지하철/교통 탭 컨텐츠 -->
+        <div id="content-subway" class="hidden animate-fade-in">
+            <!-- 역명판 디자인 -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-4 line-2"></div>
+                
+                <div class="flex items-center justify-center gap-8 mb-4">
+                    <div class="text-slate-400 text-sm font-medium flex items-center gap-1">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>1.7km 항동1가</span>
+                    </div>
+                    <div class="relative">
+                        <div class="w-48 h-12 border-4 line-2-border rounded-full flex items-center justify-between px-2 bg-white z-10 relative">
+                            <div class="w-8 h-8 rounded-full line-2 text-white flex items-center justify-center font-black text-sm">201-8</div>
+                            <div class="flex-1 text-center font-bold text-slate-800 tracking-tight text-sm">효빈항국제여객터미널</div>
+                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-bold text-xs">종착</div>
+                        </div>
+                        <!-- 라인 관통 효과 -->
+                        <div class="absolute top-1/2 left-[-50px] right-[-50px] h-1 line-2 -z-0"></div>
+                    </div>
+                    <div class="text-slate-300 text-sm font-medium flex items-center gap-1">
+                        <span>시종착역</span>
+                        <i data-lucide="ban" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <h2 class="text-3xl font-black text-slate-800 mb-1">효빈항국제여객터미널</h2>
+                <p class="text-slate-500 font-medium mb-4">Hyobin Port International Passenger Terminal / 孝彬港國際旅客터미널</p>
+                <div class="inline-flex items-center gap-2 bg-slate-100 px-4 py-1.5 rounded-full text-xs text-slate-600 font-bold">
+                    <span>효빈 도시철도 2호선 (어간지선)</span>
+                    <span class="w-1 h-1 bg-slate-400 rounded-full"></span>
+                    <span>역번호 201-8</span>
+                    <span class="w-1 h-1 bg-slate-400 rounded-full"></span>
+                    <span>지하 3층 (2면 3선)</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 출구 정보 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                        <i data-lucide="door-open" class="w-5 h-5 mr-2 text-slate-600"></i>출구 정보 (Exit Guide)
+                    </h3>
+                    <ul class="space-y-4">
+                        <li class="flex gap-4 items-start">
+                            <span class="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-black shadow-sm">1</span>
+                            <div>
+                                <strong class="block text-slate-800">해양아파트</strong>
+                                <span class="text-sm text-slate-500">주거지역 방향</span>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <span class="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-black shadow-sm">2</span>
+                            <div>
+                                <strong class="block text-slate-800">효빈항 제4부두, 항동차량기지</strong>
+                                <span class="text-sm text-slate-500">관계자 외 출입 주의</span>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <span class="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-black shadow-sm">3</span>
+                            <div>
+                                <strong class="block text-slate-800">항동중학교, 소여아파트</strong>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start bg-blue-50 -mx-2 p-2 rounded-lg border border-blue-100">
+                            <span class="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-black shadow-sm ring-2 ring-blue-200">4</span>
+                            <div>
+                                <strong class="block text-blue-800">효빈항 국제여객터미널 (직결)</strong>
+                                <span class="text-sm text-blue-600 font-medium">여객선 승선장, 대합실 바로 연결</span>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <span class="flex-shrink-0 w-8 h-8 bg-yellow-400 text-slate-900 rounded-full flex items-center justify-center font-black shadow-sm">5</span>
+                            <div>
+                                <strong class="block text-slate-800">회주공업, 회주공업사원아파트 1차</strong>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 연계 버스 정보 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                        <i data-lucide="bus" class="w-5 h-5 mr-2 text-green-600"></i>연계 버스 (Bus Transfer)
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-500 mb-2 border-l-4 border-green-500 pl-2">순방향 (효빈항국제 정류소)</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">90</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">892</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">59</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">89</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">591</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">692</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">891</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-500 mb-2 border-l-4 border-slate-400 pl-2">역방향 (효빈항국제 건너편)</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">90-1</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">892</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">95</span>
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">98</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">951</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">692</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-bold">891</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-slate-50 rounded text-xs text-slate-500">
+                            * 파란색: 간선버스 / 초록색: 지선버스<br>
+                            * 첫차/막차 정보는 BIS 앱을 참고하세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 편의시설/테마 탭 컨텐츠 -->
+        <div id="content-facility" class="hidden animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 시설 안내 상세 리스트 -->
+                <div class="space-y-6">
+                    <h3 class="font-bold text-xl text-slate-800">터미널 주요 편의시설 안내</h3>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <!-- 주차장 -->
+                        <div class="p-5 border-b border-slate-100 hover:bg-slate-50 transition">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-orange-100 p-2.5 rounded-lg text-orange-600">
+                                    <i data-lucide="parking-circle" class="w-6 h-6"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-800 mb-1">공영 주차장</h4>
+                                    <p class="text-sm text-slate-600 mb-2">제1·2주차장(실내), 제3주차장(야외) 포함 총 2,000대 수용 가능</p>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <span class="bg-slate-100 px-2 py-1 rounded text-slate-500">운영: 24시간</span>
+                                        <span class="bg-slate-100 px-2 py-1 rounded text-slate-500">요금: 30분 1,000원 (일 최대 10,000원)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 식음료 -->
+                        <div class="p-5 border-b border-slate-100 hover:bg-slate-50 transition">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-red-100 p-2.5 rounded-lg text-red-600">
+                                    <i data-lucide="utensils" class="w-6 h-6"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-800 mb-1">전문 식당가 & 카페</h4>
+                                    <p class="text-sm text-slate-600 mb-2">3층 오션뷰 테라스에서 즐기는 다양한 미식</p>
+                                    <div class="text-xs text-slate-500 space-y-1">
+                                        <p>• <span class="font-bold">한식:</span> 오션테라스, 전주비빔밥</p>
+                                        <p>• <span class="font-bold">패스트푸드:</span> 버거킹, 롯데리아</p>
+                                        <p>• <span class="font-bold">카페:</span> 스타벅스, 카페베네 (3층 전망대)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 쇼핑/면세 -->
+                        <div class="p-5 border-b border-slate-100 hover:bg-slate-50 transition">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-purple-100 p-2.5 rounded-lg text-purple-600">
+                                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-800 mb-1">면세점 및 편의점</h4>
+                                    <p class="text-sm text-slate-600 mb-2">출국장 내 대형 면세점 및 1층 편의점 운영</p>
+                                    <div class="text-xs text-slate-500 space-y-1">
+                                        <p>• <span class="font-bold">효빈면세점:</span> 화장품(설화수, 헤라), 주류(발렌타인), 정관장 등</p>
+                                        <p>• <span class="font-bold">편의점:</span> CU (1층 대합실), GS25 (2층)</p>
+                                        <p>• <span class="font-bold">기타:</span> 지역 특산품 판매장 (1층)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 고객 편의 -->
+                        <div class="p-5 hover:bg-slate-50 transition">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-blue-100 p-2.5 rounded-lg text-blue-600">
+                                    <i data-lucide="users" class="w-6 h-6"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-800 mb-1">고객 지원 시설</h4>
+                                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-500 mt-2">
+                                        <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>약국 (2층)</span>
+                                        <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>수유실 (1,3층)</span>
+                                        <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>물품보관소</span>
+                                        <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>관광안내소</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 테마 공간 -->
+                <div class="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-xl shadow-lg text-white p-8 relative overflow-hidden group h-fit">
+                    <div class="absolute top-0 right-0 p-32 bg-purple-600 rounded-full blur-3xl opacity-20 -mr-16 -mt-16"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-4 text-purple-300">
+                            <i data-lucide="music" class="w-5 h-5"></i>
+                            <span class="text-sm font-bold tracking-widest uppercase">Special Theme</span>
+                        </div>
+                        <h3 class="text-2xl font-black mb-2 italic">"세계를 향한 관문"</h3>
+                        <p class="text-purple-100 text-sm leading-relaxed mb-6 opacity-90">
+                            효빈항국제여객터미널역은 팬들 사이에서 밴드 <strong>[Roselia]</strong>가 목표로 하는 '세계'로 나가는 상징적인 장소로 통합니다.<br><br>
+                            대합실에서 바다를 바라보며 <em>'Neo-Aspect'</em>나 <em>'FIRE BIRD'</em>를 들어보세요. 비장함과 함께 새로운 여정의 설렘을 느낄 수 있습니다.
+                        </p>
+                        
+                        <div class="bg-black/30 backdrop-blur-md rounded-lg p-4 border border-white/10">
+                            <h4 class="font-bold text-sm mb-2 text-purple-200 flex items-center">
+                                <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i> 성지순례 포인트
+                            </h4>
+                            <ul class="text-xs space-y-2 text-slate-300">
+                                <li class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                                    2호선 4번 출구 앞 만남의 광장
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                                    터미널 3층 오션뷰 데크 (포토존)
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-20">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-slate-500 text-center md:text-left">
+                <p class="font-bold text-slate-700 mb-1">효빈항 국제여객터미널 (Hyobin Port Int'l Terminal)</p>
+                <p>주소: 효빈광역시 남구 항동2가 531 (2호선 효빈항국제여객터미널역)</p>
+                <p>고객센터: 1588-0000 | 역무실: 052-123-4567</p>
+            </div>
+            <div class="text-slate-400 font-bold">
+                COPYRIGHT © 2023 HYOBIN CITY. ALL RIGHTS RESERVED.
+            </div>
+        </div>
+    </footer>
+
+    <!-- 모달: 상세 일정 보기 -->
+    <div id="detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden modal-enter relative">
+            <button onclick="closeModal('detail-modal')" class="absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white rounded-full p-1 z-10 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="h-48 bg-slate-200 relative">
+                <img id="modal-img" src="" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-6 pt-20">
+                    <h3 id="modal-title" class="text-2xl font-black text-white"></h3>
+                    <p id="modal-subtitle" class="text-slate-200 text-sm font-medium"></p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="text-center">
+                        <div class="text-xs text-slate-400 font-bold mb-1">출발 (Departure)</div>
+                        <div id="modal-time" class="text-2xl font-black text-slate-800"></div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-6 h-6 text-slate-300"></i>
+                    <div class="text-center">
+                        <div class="text-xs text-slate-400 font-bold mb-1">소요시간</div>
+                        <div class="text-lg font-bold text-slate-600">약 3시간 30분</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">선박명</span>
+                        <span id="modal-ship" class="font-bold text-slate-800"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">운임 (일반석)</span>
+                        <span id="modal-price" class="font-bold text-blue-600"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">운항 상태</span>
+                        <span id="modal-status" class="px-2 py-0.5 rounded text-xs font-bold"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">편의시설</span>
+                        <div class="flex gap-2">
+                            <i data-lucide="wifi" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="coffee" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="tv" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="startBookingFromModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+                    예매하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 예매/결제 (다단계) -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden modal-enter flex flex-col max-h-[90vh]">
+            <!-- 헤더 -->
+            <div class="bg-slate-50 border-b border-slate-100 p-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800">승선권 예매</h3>
+                <button onclick="closeModal('booking-modal')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- STEP 1: 인원 선택 -->
+            <div id="booking-step-1" class="p-6 flex-1 overflow-y-auto">
+                <div class="bg-blue-50 p-4 rounded-xl mb-6">
+                    <h4 id="booking-route-title" class="font-bold text-blue-900 mb-1">효빈항 → 제주</h4>
+                    <p class="text-sm text-blue-700">2025.12.18 (목) 09:00 출발</p>
+                </div>
+
+                <h4 class="font-bold text-sm text-slate-800 mb-4">인원 선택</h4>
+                
+                <div class="space-y-4 mb-6">
+                    <!-- 성인 -->
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="block font-bold text-slate-700">성인 (Adult)</span>
+                            <span id="price-adult" class="text-xs text-slate-400"></span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="updateCount('adult', -1)" class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-50">-</button>
+                            <span id="count-adult" class="font-bold w-4 text-center">1</span>
+                            <button onclick="updateCount('adult', 1)" class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-50">+</button>
+                        </div>
+                    </div>
+                    <!-- 소인 -->
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="block font-bold text-slate-700">소인 (Child)</span>
+                            <span id="price-child" class="text-xs text-slate-400"></span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="updateCount('child', -1)" class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-50">-</button>
+                            <span id="count-child" class="font-bold w-4 text-center">0</span>
+                            <button onclick="updateCount('child', 1)" class="w-8 h-8 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-50">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-4 flex justify-between items-center mb-6">
+                    <span class="font-bold text-slate-600">총 결제금액</span>
+                    <span id="total-price" class="text-2xl font-black text-blue-600">0원</span>
+                </div>
+
+                <button onclick="goToPayment()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition">
+                    다음 단계 (결제)
+                </button>
+            </div>
+
+            <!-- STEP 2: 결제 -->
+            <div id="booking-step-2" class="p-6 hidden flex-1 overflow-y-auto">
+                <h4 class="font-bold text-lg text-slate-800 mb-4">결제 수단 선택</h4>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <button class="border border-blue-500 bg-blue-50 text-blue-700 font-bold py-3 rounded-lg flex flex-col items-center justify-center gap-1 ring-2 ring-blue-500 ring-offset-1">
+                        <i data-lucide="credit-card" class="w-5 h-5"></i> 신용카드
+                    </button>
+                    <button class="border border-slate-200 hover:border-slate-300 text-slate-600 font-bold py-3 rounded-lg flex flex-col items-center justify-center gap-1">
+                        <i data-lucide="smartphone" class="w-5 h-5"></i> 간편결제
+                    </button>
+                </div>
+
+                <div class="bg-slate-50 rounded-lg p-4 mb-6 text-sm">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-500">주문명</span>
+                        <span class="font-bold text-slate-800">승선권 예매</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">최종 결제금액</span>
+                        <span id="final-price" class="font-bold text-blue-600"></span>
+                    </div>
+                </div>
+
+                <button onclick="processPayment()" id="pay-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center">
+                    결제하기
+                </button>
+            </div>
+
+            <!-- STEP 3: 완료 -->
+            <div id="booking-step-3" class="p-6 hidden flex-1 flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4 animate-bounce">
+                    <i data-lucide="check" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2">예매 완료!</h3>
+                <p class="text-slate-500 mb-6">승선권이 발권되었습니다.<br>즐거운 여행 되세요.</p>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 w-full mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>BOARDING PASS</span>
+                        <span>HYOBIN PORT</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-bold text-lg">효빈</span>
+                        <i data-lucide="move-right" class="w-4 h-4 text-slate-300"></i>
+                        <span id="ticket-dest" class="font-bold text-lg"></span>
+                    </div>
+                    <div class="border-t border-dashed border-slate-300 pt-2 flex justify-between">
+                        <div>
+                            <span class="block text-xs text-slate-400">DATE</span>
+                            <span class="font-bold text-sm">2025.12.18</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-400">SEAT</span>
+                            <span class="font-bold text-sm">FREE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="closeModal('booking-modal')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl transition">
+                    닫기
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // 날짜 업데이트
+        const today = new Date();
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        document.getElementById('current-time').innerText = 
+            `${today.getFullYear()}. ${today.getMonth()+1}. ${today.getDate()} (${days[today.getDay()]}) 기준`;
+        document.getElementById('dep-date').valueAsDate = new Date();
+
+        // 탭 전환 기능
+        function switchTab(tabName) {
+            ['ferry', 'subway', 'facility'].forEach(name => {
+                const btn = document.getElementById(`tab-${name}`);
+                const content = document.getElementById(`content-${name}`);
+                
+                if (name === tabName) {
+                    btn.classList.remove('tab-inactive');
+                    btn.classList.add('tab-active');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('tab-inactive');
+                    content.classList.add('hidden');
+                }
+            });
+            lucide.createIcons(); 
+        }
+
+        // 항구 교체 기능
+        function swapPorts() {
+            // 시각적 효과만
+            const depBtn = document.querySelector('.fa-arrow-up-down') || document.querySelector('.lucide-arrow-up-down');
+            if(depBtn) depBtn.classList.toggle('rotate-180');
+        }
+
+        // --- 모달 및 예약 로직 ---
+
+        let currentBookingData = {};
+        const counts = { adult: 1, child: 0 };
+
+        // 1. 상세 일정 보기
+        function showScheduleDetail(data) {
+            currentBookingData = data;
+            
+            // 모달 데이터 채우기
+            document.getElementById('modal-img').src = data.img;
+            document.getElementById('modal-title').innerText = data.dest;
+            document.getElementById('modal-subtitle').innerText = data.eng;
+            document.getElementById('modal-time').innerText = data.time;
+            document.getElementById('modal-ship').innerText = data.ship;
+            document.getElementById('modal-price').innerText = data.price.toLocaleString() + '원';
+            
+            const statusEl = document.getElementById('modal-status');
+            statusEl.innerText = data.status;
+            statusEl.className = 'px-2 py-0.5 rounded text-xs font-bold ' + 
+                (data.status === '예약마감' || data.status === '출항완료' ? 'bg-slate-100 text-slate-500' : 'bg-green-100 text-green-700');
+
+            // 모달 열기
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        // 2. 예약 모달 열기 (상세 모달에서 진입)
+        function startBookingFromModal() {
+            closeModal('detail-modal');
+            if(currentBookingData.status === '예약마감' || currentBookingData.status === '출항완료') {
+                alert("예약이 마감되었거나 이미 출항한 선박입니다.");
+                return;
+            }
+            openBookingModal(currentBookingData);
+        }
+
+        // 2-1. 위젯에서 예약 시작
+        function startBooking() {
+            const destSelect = document.getElementById('arr-port');
+            const destText = destSelect.options[destSelect.selectedIndex].text;
+            
+            if (!destSelect.value) {
+                alert("도착지를 선택해주세요.");
+                return;
+            }
+            
+            // 더미 데이터 생성하여 모달 열기
+            const dummyData = {
+                dest: destText.split(' ')[0],
+                eng: destText.split('(')[1].replace(')', ''),
+                time: '09:00',
+                price: 50000 // 기본값
+            };
+            openBookingModal(dummyData);
+        }
+
+        function openBookingModal(data) {
+            currentBookingData = data;
+            
+            // 초기화
+            counts.adult = 1;
+            counts.child = 0;
+            document.getElementById('booking-step-1').classList.remove('hidden');
+            document.getElementById('booking-step-2').classList.add('hidden');
+            document.getElementById('booking-step-3').classList.add('hidden');
+            
+            // 데이터 바인딩
+            document.getElementById('booking-route-title').innerText = `효빈항 → ${data.dest}`;
+            document.getElementById('price-adult').innerText = `1인 ${data.price.toLocaleString()}원`;
+            document.getElementById('price-child').innerText = `1인 ${(data.price * 0.5).toLocaleString()}원`;
+            
+            updateCount('adult', 0); // 가격 계산 트리거
+
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        // 수량 변경 및 가격 계산
+        function updateCount(type, change) {
+            if (type === 'adult') {
+                counts.adult = Math.max(1, counts.adult + change);
+                document.getElementById('count-adult').innerText = counts.adult;
+            } else {
+                counts.child = Math.max(0, counts.child + change);
+                document.getElementById('count-child').innerText = counts.child;
+            }
+            
+            const total = (counts.adult * currentBookingData.price) + (counts.child * currentBookingData.price * 0.5);
+            document.getElementById('total-price').innerText = total.toLocaleString() + '원';
+        }
+
+        function goToPayment() {
+            const total = (counts.adult * currentBookingData.price) + (counts.child * currentBookingData.price * 0.5);
+            document.getElementById('final-price').innerText = total.toLocaleString() + '원';
+            
+            document.getElementById('booking-step-1').classList.add('hidden');
+            document.getElementById('booking-step-2').classList.remove('hidden');
+        }
+
+        function processPayment() {
+            const btn = document.getElementById('pay-btn');
+            const originalHTML = btn.innerHTML;
+            
+            // 로딩 표시
+            btn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 결제 진행중...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                
+                // 완료 화면으로
+                document.getElementById('ticket-dest').innerText = currentBookingData.dest;
+                document.getElementById('booking-step-2').classList.add('hidden');
+                document.getElementById('booking-step-3').classList.remove('hidden');
+                document.getElementById('booking-step-3').classList.add('flex'); // flex class needs to be added back for centering
+            }, 2000);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
