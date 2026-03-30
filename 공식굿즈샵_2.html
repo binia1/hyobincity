@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈 공식 굿즈샵 - 효빈광역시청</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 토스트 알림 애니메이션 */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideOutDown {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100%); opacity: 0; }
+        }
+        .toast-enter { animation: slideInUp 0.3s ease-out forwards; }
+        .toast-leave { animation: slideOutDown 0.3s ease-in forwards; }
+
+        /* 모달 및 드로어 애니메이션 */
+        .fade-enter { opacity: 0; pointer-events: none; }
+        .fade-enter-active { opacity: 1; pointer-events: auto; transition: opacity 0.3s ease; }
+        .slide-right-enter { transform: translateX(100%); }
+        .slide-right-active { transform: translateX(0); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .scale-enter { transform: scale(0.95); opacity: 0; }
+        .scale-active { transform: scale(1); opacity: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 로딩 스피너 */
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #0ea5e9; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden">
+    
+    <!-- Header -->
+    <header class="bg-[#1e293b] text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="이미지/효빈시_로고.png" alt="효빈광역시 로고" class="h-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="w-8 h-8 bg-sky-500 rounded hidden items-center justify-center text-white text-xs font-bold">로고</div>
+                <span class="text-xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-gray-300 font-medium text-sm">
+                <a href="효빈소개.html" class="hover:text-sky-400 transition">효빈소개</a>
+                <a href="시정소식.html" class="hover:text-sky-400 transition">시정소식</a>
+                <a href="시민참여.html" class="hover:text-sky-400 transition">시민참여</a>
+                <a href="한바다.html" class="hover:text-sky-400 transition">상징/마스코트</a>
+                <a href="공식굿즈샵.html" class="text-sky-400 font-bold border-b-2 border-sky-400 pb-1">공식굿즈샵</a>
+            </nav>
+            <div class="flex items-center space-x-5 text-gray-300">
+                <!-- 장바구니 아이콘 -->
+                <button class="hover:text-white flex items-center gap-1 relative group" onclick="toggleCartDrawer()">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm transition-all">0</span>
+                </button>
+                <button class="md:hidden hover:text-white">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero / Banner Section -->
+    <div class="w-full relative h-[300px] md:h-[400px] bg-slate-900 overflow-hidden shrink-0">
+        <img src="이미지/효빈시청_굿즈샵.png" alt="굿즈샵 전경" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" onerror="this.src='https://placehold.co/1920x400/1e293b/38bdf8?text=Store+Banner'">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-4 text-center mt-8">
+            <span class="px-3 py-1 bg-sky-500 text-white text-xs font-bold rounded-full mb-4 tracking-widest shadow-lg">OFFICIAL STORE</span>
+            <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tight drop-shadow-lg">효빈 공식 스토어</h1>
+            <p class="text-lg md:text-xl text-sky-100 font-medium drop-shadow-md">시민의 벗 한바다와 함께하는 특별한 굿즈를 만나보세요!</p>
+        </div>
+    </div>
+
+    <!-- Main Shop Content -->
+    <main class="max-w-6xl mx-auto px-4 py-12 w-full flex-grow mb-20">
+        
+        <!-- Filters & Sort -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div id="category-filters" class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+                <!-- JS로 동적 생성됨 -->
+            </div>
+            <div class="w-full md:w-auto flex justify-end">
+                <select id="sort-select" onchange="handleSort()" class="border border-slate-300 text-slate-600 text-sm rounded-lg px-4 py-2 bg-white outline-none focus:border-sky-500 transition cursor-pointer shadow-sm">
+                    <option value="new">신상품순 (ID순)</option>
+                    <option value="priceAsc">낮은 가격순</option>
+                    <option value="priceDesc">높은 가격순</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- JS로 동적 생성됨 -->
+        </div>
+
+        <!-- No Products Placeholder -->
+        <div id="no-products" class="hidden flex-col items-center justify-center py-20 text-slate-400">
+            <i data-lucide="package-open" class="w-16 h-16 mb-4 opacity-50"></i>
+            <p class="text-lg font-bold">해당 카테고리의 상품이 없습니다.</p>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10 shrink-0">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-6">
+                <div class="flex flex-wrap gap-x-6 gap-y-2 font-medium text-slate-600 justify-center md:justify-start">
+                    <a href="#" class="text-[#2563eb] font-bold hover:underline" data-policy="privacy">개인정보처리방침</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline" data-policy="copyright">저작권정책</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline" data-policy="cctv">영상정보처리기기 운영방침</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline" data-policy="viewer">뷰어내려받기</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline" data-policy="error">누리집 오류신고</a>
+                    <a href="#" class="hover:text-slate-900 hover:underline" data-policy="directions">오시는 길</a>
+                </div>
+                
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <select id="family-site" class="border border-slate-300 rounded px-3 py-1.5 text-slate-600 outline-none hover:border-slate-400 transition bg-white w-full md:w-48">
+                        <option value="">유관기관 바로가기</option>
+                        <optgroup label="산하기관">
+                            <option value="효빈교통공사.html">효빈교통공사</option>
+                            <option value="효빈문화공단.html">효빈문화공단</option>
+                            <option value="효빈도시공사.html">효빈도시공사</option>
+                        </optgroup>
+                    </select>
+                    <button onclick="goFamilySite()" class="bg-slate-700 text-white px-3 py-1.5 rounded hover:bg-slate-800 transition font-bold whitespace-nowrap shrink-0">이동</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-start gap-8">
+                <div class="text-slate-500 space-y-2 leading-relaxed flex-grow w-full md:w-auto">
+                    <p class="text-slate-600"><span class="mr-2">(우) 79791</span><span>효빈광역시 북구 효빈로 79(고송8동)</span></p>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1">
+                        <span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">대표전화</strong><span>079-591-2548</span></span>
+                        <span class="text-slate-400">월~금 : 08:30~18:30 (시간외는 당직실로 연결)</span>
+                    </div>
+                    <p class="text-slate-400 mt-6 font-light font-sans">COPYRIGHT © 2026 HYOBIN CITY. ALL RIGHTS RESERVED.</p>
+                </div>
+                <div class="flex items-center space-x-3 flex-shrink-0">
+                    <div class="h-14 w-auto flex items-center">
+                         <img src="이미지/효빈시_로고_그레이.png" alt="하단 로고" class="h-full w-auto object-contain grayscale opacity-50" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                         <div class="w-32 h-14 border border-slate-200 rounded-lg bg-white hidden items-center justify-center text-slate-400 text-xs font-bold shadow-sm">[로고 이미지]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS & DRAWERS ================= -->
+
+    <!-- 글로벌 오버레이 -->
+    <div id="global-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 fade-enter hidden" onclick="closeAllModals()"></div>
+
+    <!-- 1. 상품 상세 모달 -->
+    <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden pointer-events-none p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto no-scrollbar relative scale-enter pointer-events-auto flex flex-col md:flex-row">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition z-10">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <!-- 이미지 영역 -->
+            <div class="md:w-1/2 bg-slate-50 p-8 flex items-center justify-center min-h-[300px]">
+                <img id="modal-img" src="" alt="상품이미지" class="max-w-full max-h-[400px] object-contain drop-shadow-lg">
+            </div>
+            <!-- 상세 정보 영역 -->
+            <div class="md:w-1/2 p-8 lg:p-10 flex flex-col">
+                <div class="mb-4">
+                    <span id="modal-brand" class="text-sm font-bold text-slate-400"></span>
+                    <h2 id="modal-name" class="text-2xl lg:text-3xl font-black text-slate-800 mt-1 leading-tight"></h2>
+                </div>
+                <p id="modal-price" class="text-3xl font-black text-sky-600 mb-6 border-b border-slate-100 pb-6"></p>
+                
+                <h4 class="font-bold text-slate-800 mb-2">상품 설명</h4>
+                <p id="modal-desc" class="text-slate-600 text-sm leading-relaxed mb-8 flex-grow"></p>
+                
+                <!-- 수량 선택 -->
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl mb-6 border border-slate-200">
+                    <span class="font-bold text-slate-700">수량</span>
+                    <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden">
+                        <button onclick="updateModalQty(-1)" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <span id="modal-qty" class="w-12 text-center font-bold text-slate-800">1</span>
+                        <button onclick="updateModalQty(1)" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <!-- 총 상품금액 및 버튼 -->
+                <div class="flex items-end justify-between mb-6">
+                    <span class="text-slate-500 font-bold">총 상품금액</span>
+                    <span id="modal-total" class="text-2xl font-black text-rose-500"></span>
+                </div>
+                <div class="flex gap-3 mt-auto">
+                    <button id="modal-cart-btn" class="w-1/2 bg-white border-2 border-sky-500 text-sky-500 font-bold py-4 rounded-xl hover:bg-sky-50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i> 장바구니
+                    </button>
+                    <button id="modal-buy-btn" class="w-1/2 bg-sky-500 text-white font-bold py-4 rounded-xl hover:bg-sky-600 transition shadow-md">
+                        바로 구매하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 장바구니 드로어 (우측 슬라이드) -->
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
+            <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="text-sky-500"></i> 장바구니
+            </h2>
+            <button onclick="toggleCartDrawer()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <!-- 장바구니 리스트 -->
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 flex flex-col gap-4 bg-slate-50">
+            <!-- JS 동적 생성 -->
+        </div>
+
+        <!-- 하단 결제 영역 -->
+        <div class="border-t border-slate-200 bg-white p-6 pb-8 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-slate-500 font-medium">총 상품금액</span>
+                <span id="cart-subtotal" class="font-bold text-slate-800">0원</span>
+            </div>
+            <div class="flex justify-between items-center mb-4 text-sm">
+                <span class="text-slate-500">배송비</span>
+                <span class="font-medium text-slate-600">무료배송</span>
+            </div>
+            <div class="flex justify-between items-center mb-6 pt-4 border-t border-slate-100">
+                <span class="text-lg font-bold text-slate-800">결제 예상금액</span>
+                <span id="cart-total" class="text-2xl font-black text-rose-500">0원</span>
+            </div>
+            <button onclick="openCheckoutModal()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg text-lg flex justify-center items-center gap-2">
+                주문 / 결제하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. 결제 진행 모달 -->
+    <div id="checkout-modal" class="fixed inset-0 z-[60] flex items-center justify-center hidden pointer-events-none p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto no-scrollbar relative scale-enter pointer-events-auto">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                <h2 class="text-xl font-black text-slate-800">주문 / 결제</h2>
+                <button onclick="closeCheckoutModal()" class="p-2 text-slate-400 hover:bg-slate-100 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="checkout-form" onsubmit="processPayment(event)" class="p-6 space-y-6">
+                <!-- 주문자 정보 -->
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-3 border-l-4 border-sky-500 pl-2">주문자 정보 (배송지)</h3>
+                    <div class="space-y-3">
+                        <input type="text" required placeholder="수령인 이름" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition">
+                        <input type="tel" required placeholder="휴대폰 번호 (- 없이 입력)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition" pattern="[0-9]{10,11}">
+                        <div class="flex gap-2">
+                            <input type="text" required placeholder="우편번호" class="w-1/3 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition" value="79791" readonly>
+                            <button type="button" class="w-2/3 bg-slate-200 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-300 transition">주소 검색</button>
+                        </div>
+                        <input type="text" required placeholder="기본 주소" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition" value="효빈광역시 북구 효빈로 79">
+                        <input type="text" placeholder="상세 주소 입력" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- 결제 수단 (카드 가상 구현) -->
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-3 border-l-4 border-sky-500 pl-2">결제 수단 (신용/체크카드)</h3>
+                    <div class="bg-slate-800 p-5 rounded-xl text-white shadow-inner relative overflow-hidden">
+                        <!-- 디자인 요소 -->
+                        <div class="absolute -right-10 -top-10 w-32 h-32 border-4 border-white/10 rounded-full"></div>
+                        <div class="absolute -right-2 -bottom-2 w-16 h-16 bg-white/10 rounded-full"></div>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-bold text-slate-300 tracking-wider">CREDIT CARD</span>
+                            <i data-lucide="credit-card" class="w-6 h-6 text-slate-300"></i>
+                        </div>
+                        <input type="text" required placeholder="카드 번호 (0000-0000-0000-0000)" class="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-sky-400 mb-3 placeholder-slate-400 tracking-widest" maxlength="19">
+                        <div class="flex gap-3">
+                            <input type="text" required placeholder="MM/YY" class="w-1/2 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-sky-400 placeholder-slate-400" maxlength="5">
+                            <input type="password" required placeholder="CVC" class="w-1/2 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-sky-400 placeholder-slate-400" maxlength="3">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 결제 버튼 -->
+                <button type="submit" id="submit-payment-btn" class="w-full bg-sky-500 text-white font-bold py-4 rounded-xl hover:bg-sky-600 transition shadow-lg text-lg flex justify-center items-center relative overflow-hidden group">
+                    <span class="relative z-10" id="payment-btn-text"></span>
+                </button>
+            </form>
+            
+            <!-- 결제 로딩 & 완료 화면 (오버레이 형태) -->
+            <div id="payment-status-overlay" class="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center hidden rounded-2xl">
+                <div id="loading-view" class="flex flex-col items-center">
+                    <div class="spinner border-sky-200 border-t-sky-500 mb-4"></div>
+                    <p class="font-bold text-slate-700">안전하게 결제를 진행하고 있습니다...</p>
+                </div>
+                <div id="success-view" class="hidden flex-col items-center text-center p-6">
+                    <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                        <i data-lucide="check" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-2">결제가 완료되었습니다!</h3>
+                    <p class="text-slate-500 text-sm mb-6">주문번호: <span id="order-number" class="font-bold text-slate-700"></span><br>한바다 굿즈가 곧 배송될 예정입니다.</p>
+                    <button type="button" onclick="finishOrder()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-900 transition">쇼핑 계속하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 장바구니 토스트 알림 컨테이너 -->
+    <div id="toast-container" class="fixed bottom-6 right-6 flex flex-col gap-3 z-50 pointer-events-none"></div>
+
+    <script>
+        // ================= 데이터 정의 (15개) =================
+        const products = [
+            { id: 1, name: '한바다 1/7 스케일 피규어 (공식 콜라보)', price: 45000, category: '피규어', img: '이미지/한바다 스케일피규어.png', badge: 'BEST', brand: 'SEGA', desc: 'SEGA와의 정식 협약을 통해 제작된 고품질 스케일 피규어입니다. 역동적인 포즈와 완벽한 조형을 자랑합니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Scale+Figure' },
+            { id: 2, name: '한바다 SD 관절 피규어', price: 35000, category: '피규어', img: '이미지/한바다 넨도.png', badge: '', brand: 'Goodsmile', desc: 'Goodsmile Company와 콜라보하여 제작된 넨도로이드 스타일 피규어입니다. 표정 파츠 교체가 가능합니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Nendoroid' },
+            { id: 3, name: '한바다 클래식 대형 봉제인형 (45cm)', price: 38000, category: '봉제인형', img: '이미지/한바다_인형.png', badge: '재입고', brand: '효빈시청 굿즈샵', desc: '단정하게 앉아있는 포즈의 고퀄리티 대형 봉제인형입니다. 푹신한 촉감으로 힐링을 선사합니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Plush+Doll' },
+            { id: 4, name: '한바다 엎드린 네소베리 인형 (O_O 표정)', price: 28000, category: '봉제인형', img: '이미지/한바다 네소베리.png', badge: '인기폭발', brand: '효빈시청 굿즈샵', desc: '특유의 O_O 표정이 매력적인 엎드린 네소베리 인형입니다. 컬트적인 인기를 끌고 있는 상품입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Nesoberi' },
+            { id: 5, name: '한바다 미니 앉은 인형 (깜짝 표정)', price: 22000, category: '봉제인형', img: '이미지/한바다 네소 앉음.png', badge: 'NEW', brand: '효빈시청 굿즈샵', desc: '가방에 매달거나 책상에 두기 좋은 미니 사이즈의 귀여운 앉은 인형입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Sitting+Doll' },
+            { id: 6, name: '한바다 데일리 캔버스 에코백', price: 15000, category: '생활잡화', img: '이미지/한바다 에코백.png', badge: '', brand: '효빈시청 굿즈샵', desc: '튼튼한 캔버스 소재의 실용적인 데일리 에코백입니다. 공식 일러스트가 깔끔하게 인쇄되어 있습니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Eco+Bag' },
+            { id: 7, name: '한바다 공식 킹블레이드 (14색 발광)', price: 25000, category: '응원도구', img: '이미지/한바다_응원봉.png', badge: '축제필수', brand: 'HAF 오피셜', desc: 'HAF 전야제 축하 공연의 필수 아이템입니다. 박효빈 시장님의 보물 1호와 동일한 스펙입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=King+Blade' },
+            { id: 8, name: '오피스 아크릴 스탠드 (시장실 비치 모델)', price: 15000, category: '생활잡화', img: '이미지/한바다_아크릴.png', badge: '', brand: '효빈시청 굿즈샵', desc: '효빈광역시청 직원들의 책상 위를 든든하게 지켜주는 투명 아크릴 스탠드입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Acrylic+Stand' },
+            { id: 9, name: '한바다 일러스트 머그컵', price: 12000, category: '생활잡화', img: '이미지/한바다 머그컵.png', badge: '', brand: '효빈시청 굿즈샵', desc: '고온 소성으로 제작되어 환경호르몬 걱정 없는 안전하고 튼튼한 한바다 머그컵입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Mug+Cup' },
+            { id: 10, name: '한바다 메탈 뱃지 세트 (닻 & 조개)', price: 18000, category: '생활잡화', img: '이미지/한바다 뱃지.png', badge: '소장용', brand: '효빈시청 굿즈샵', desc: '한바다의 상징인 닻과 조개 머리핀을 모티브로 한 프리미엄 메탈 뱃지 2종 세트입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Metal+Badge' },
+            { id: 11, name: '한바다 게이밍 장패드 (HAF 한정판)', price: 20000, category: '생활잡화', img: '이미지/한바다 장패드.png', badge: '한정판', brand: 'HAF 오피셜', desc: '키보드와 마우스를 넉넉하게 놓을 수 있는 HAF 키비주얼 한정판 논슬립 장패드입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Desk+Pad' },
+            { id: 12, name: '한바다 응원 머플러 타월', price: 15000, category: '응원도구', img: '이미지/한바다 머플러.png', badge: '', brand: 'HAF 오피셜', desc: '땀 흡수가 뛰어난 최고급 순면으로 제작된 열정적인 응원용 머플러 타월입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Towel' },
+            { id: 13, name: '한바다 삼색 볼펜 세트 (3종)', price: 8000, category: '생활잡화', img: '이미지/한바다 볼펜.png', badge: '실용템', brand: '효빈시청 굿즈샵', desc: '부드러운 필기감을 자랑하며 시청 공무원들이 즐겨쓰는 오피스용 볼펜 3종 세트입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Pen+Set' },
+            { id: 14, name: '한바다 다꾸용 홀로그램 스티커 팩', price: 5000, category: '생활잡화', img: '이미지/한바다 스티커.png', badge: '', brand: '효빈시청 굿즈샵', desc: '다이어리 꾸미기에 최적화된 반짝이는 홀로그램 스티커 20장 세트입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Stickers' },
+            { id: 15, name: '한바다 젤리 폰케이스 (주문제작)', price: 18000, category: '생활잡화', img: '이미지/한바다 폰케이스.png', badge: '', brand: '효빈시청 굿즈샵', desc: '충격 흡수에 탁월하며 귀여운 SD 한바다가 프린팅된 투명 젤리 케이스입니다.', fallback: 'https://placehold.co/400x400/e2e8f0/94a3b8?text=Phone+Case' }
+        ];
+
+        // ================= 상태 관리 =================
+        let currentCategory = '전체상품';
+        let currentSort = 'new';
+        let cart = []; // {product, qty}
+        let selectedProductForModal = null;
+        let selectedQtyForModal = 1;
+
+        // ================= 초기화 및 렌더링 =================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFilters();
+            renderGrid();
+            lucide.createIcons();
+        });
+
+        // 화폐 포맷
+        const formatMoney = (num) => num.toLocaleString('ko-KR');
+
+        // 필터 렌더링
+        function renderFilters() {
+            const categories = ['전체상품', '피규어', '봉제인형', '생활잡화', '응원도구'];
+            const container = document.getElementById('category-filters');
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === currentCategory;
+                const baseClass = isActive 
+                    ? 'bg-slate-800 text-white shadow-md' 
+                    : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-400';
+                return `<button onclick="setCategory('${cat}')" class="px-5 py-2 rounded-full font-bold text-sm shrink-0 transition ${baseClass}">${cat}</button>`;
+            }).join('');
+        }
+
+        // 카테고리 설정
+        function setCategory(cat) {
+            currentCategory = cat;
+            renderFilters();
+            renderGrid();
+        }
+
+        // 정렬 설정
+        function handleSort() {
+            currentSort = document.getElementById('sort-select').value;
+            renderGrid();
+        }
+
+        // 상품 그리드 렌더링
+        function renderGrid() {
+            const grid = document.getElementById('product-grid');
+            const noProducts = document.getElementById('no-products');
+            
+            let filtered = products.filter(p => currentCategory === '전체상품' || p.category === currentCategory);
+            
+            // 정렬
+            if(currentSort === 'priceAsc') filtered.sort((a,b) => a.price - b.price);
+            else if(currentSort === 'priceDesc') filtered.sort((a,b) => b.price - a.price);
+            else filtered.sort((a,b) => a.id - b.id); // new
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                noProducts.classList.remove('hidden');
+                noProducts.classList.add('flex');
+            } else {
+                noProducts.classList.add('hidden');
+                noProducts.classList.remove('flex');
+                
+                grid.innerHTML = filtered.map(p => `
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition duration-300 group flex flex-col cursor-pointer" onclick="openProductModal(${p.id})">
+                        <div class="h-56 bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+                            <img src="${p.img}" alt="${p.name}" class="max-h-full object-contain group-hover:scale-110 transition duration-500" onerror="this.src='${p.fallback}'">
+                            ${p.badge ? `<div class="absolute top-3 left-3"><span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">${p.badge}</span></div>` : ''}
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow border-t border-slate-100 bg-white">
+                            <p class="text-xs text-slate-400 mb-1 font-bold">${p.brand}</p>
+                            <h3 class="font-bold text-slate-800 text-[15px] mb-2 line-clamp-2 leading-snug">${p.name}</h3>
+                            <div class="mt-auto pt-3 flex items-end justify-between">
+                                <p class="font-black text-xl text-slate-900">${formatMoney(p.price)}<span class="text-sm font-medium ml-0.5 text-slate-500">원</span></p>
+                                <button onclick="event.stopPropagation(); quickAddToCart(${p.id})" class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-sky-500 hover:text-white transition">
+                                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
+        }
+
+        // ================= 상품 상세 모달 =================
+        const overlay = document.getElementById('global-overlay');
+        const pModal = document.getElementById('product-modal');
+        const pModalContent = pModal.querySelector('div');
+
+        function openProductModal(id) {
+            selectedProductForModal = products.find(p => p.id === id);
+            selectedQtyForModal = 1;
+            
+            const p = selectedProductForModal;
+            document.getElementById('modal-img').src = p.img;
+            document.getElementById('modal-img').onerror = function() { this.src = p.fallback; };
+            document.getElementById('modal-brand').textContent = p.brand;
+            document.getElementById('modal-name').textContent = p.name;
+            document.getElementById('modal-price').textContent = `${formatMoney(p.price)}원`;
+            document.getElementById('modal-desc').textContent = p.desc;
+            
+            updateModalTotal();
+
+            // 버튼 이벤트 연결
+            document.getElementById('modal-cart-btn').onclick = () => { addModalItemToCart(); closeProductModal(); };
+            document.getElementById('modal-buy-btn').onclick = () => { addModalItemToCart(); closeProductModal(); toggleCartDrawer(); };
+
+            overlay.classList.remove('hidden');
+            pModal.classList.remove('hidden');
+            // trigger reflow
+            void pModal.offsetWidth;
+            overlay.classList.add('fade-enter-active');
+            pModalContent.classList.add('scale-active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateModalQty(delta) {
+            selectedQtyForModal += delta;
+            if (selectedQtyForModal < 1) selectedQtyForModal = 1;
+            updateModalTotal();
+        }
+
+        function updateModalTotal() {
+            document.getElementById('modal-qty').textContent = selectedQtyForModal;
+            document.getElementById('modal-total').textContent = `${formatMoney(selectedProductForModal.price * selectedQtyForModal)}원`;
+        }
+
+        function closeProductModal() {
+            overlay.classList.remove('fade-enter-active');
+            pModalContent.classList.remove('scale-active');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                pModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function closeAllModals() {
+            closeProductModal();
+            closeCheckoutModal();
+        }
+
+        // ================= 장바구니 로직 =================
+        const cartDrawer = document.getElementById('cart-drawer');
+
+        function quickAddToCart(id) {
+            const p = products.find(p => p.id === id);
+            addItemToCart(p, 1);
+        }
+
+        function addModalItemToCart() {
+            addItemToCart(selectedProductForModal, selectedQtyForModal);
+        }
+
+        function addItemToCart(product, qty) {
+            const existing = cart.find(item => item.product.id === product.id);
+            if(existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ product, qty });
+            }
+            updateCartUI();
+            showToast(`${product.name}`);
+        }
+
+        function removeCartItem(id) {
+            cart = cart.filter(item => item.product.id !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+            
+            // 뱃지 업데이트
+            const badge = document.getElementById('cart-badge');
+            badge.textContent = totalQty;
+            badge.classList.add('scale-125');
+            setTimeout(() => badge.classList.remove('scale-125'), 200);
+
+            // 드로어 텍스트 업데이트
+            document.getElementById('cart-subtotal').textContent = `${formatMoney(totalPrice)}원`;
+            document.getElementById('cart-total').textContent = `${formatMoney(totalPrice)}원`;
+
+            // 드로어 리스트 렌더링
+            const container = document.getElementById('cart-items-container');
+            if(cart.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 py-10">
+                        <i data-lucide="shopping-cart" class="w-12 h-12 mb-3 opacity-50"></i>
+                        <p>장바구니가 비어있습니다.</p>
+                    </div>`;
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 flex gap-4 shadow-sm items-center">
+                        <div class="w-20 h-20 bg-slate-50 rounded-lg shrink-0 flex items-center justify-center overflow-hidden">
+                            <img src="${item.product.img}" class="max-h-full" onerror="this.src='${item.product.fallback}'">
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-sm font-bold text-slate-800 line-clamp-1">${item.product.name}</h4>
+                            <p class="text-xs text-slate-500 mb-2">수량: ${item.qty}개</p>
+                            <p class="font-black text-sky-600">${formatMoney(item.product.price * item.qty)}원</p>
+                        </div>
+                        <button onclick="removeCartItem(${item.product.id})" class="p-2 text-slate-300 hover:text-rose-500 transition">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function toggleCartDrawer() {
+            if(cartDrawer.classList.contains('translate-x-full')) {
+                // 열기
+                overlay.classList.remove('hidden');
+                void overlay.offsetWidth;
+                overlay.classList.add('fade-enter-active');
+                cartDrawer.classList.remove('translate-x-full');
+                cartDrawer.classList.add('slide-right-active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                // 닫기
+                closeCartDrawer();
+            }
+        }
+
+        function closeCartDrawer() {
+            cartDrawer.classList.remove('slide-right-active');
+            cartDrawer.classList.add('translate-x-full');
+            if(document.getElementById('checkout-modal').classList.contains('hidden')) {
+                overlay.classList.remove('fade-enter-active');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+        }
+
+        // 오버레이 클릭 시 장바구니도 닫힘
+        overlay.addEventListener('click', () => {
+            if(!cartDrawer.classList.contains('translate-x-full')) closeCartDrawer();
+        });
+
+        function showToast(itemName) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-800 text-white px-5 py-3 rounded-lg shadow-2xl flex items-center gap-3 toast-enter pointer-events-auto border border-slate-700';
+            toast.innerHTML = `
+                <div class="bg-green-500 rounded-full p-1 text-white"><i data-lucide="check" class="w-4 h-4"></i></div>
+                <div><p class="text-sm font-bold w-48 truncate">${itemName}</p><p class="text-xs text-slate-300">장바구니에 담겼습니다.</p></div>
+            `;
+            toastContainer.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ================= 결제 프로세스 로직 =================
+        const checkoutModal = document.getElementById('checkout-modal');
+        const checkoutContent = checkoutModal.querySelector('div');
+
+        function openCheckoutModal() {
+            if(cart.length === 0) {
+                alert("장바구니가 비어있습니다.");
+                return;
+            }
+            const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+            document.getElementById('payment-btn-text').textContent = `${formatMoney(totalPrice)}원 안전하게 결제하기`;
+            
+            closeCartDrawer();
+            
+            // 모달 열기
+            checkoutModal.classList.remove('hidden');
+            void checkoutModal.offsetWidth;
+            checkoutContent.classList.add('scale-active');
+        }
+
+        function closeCheckoutModal() {
+            checkoutContent.classList.remove('scale-active');
+            overlay.classList.remove('fade-enter-active');
+            setTimeout(() => {
+                checkoutModal.classList.add('hidden');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+                
+                // 폼 초기화
+                document.getElementById('checkout-form').reset();
+                document.getElementById('payment-status-overlay').classList.add('hidden');
+                document.getElementById('loading-view').classList.remove('hidden');
+                document.getElementById('success-view').classList.add('hidden');
+            }, 300);
+        }
+
+        function processPayment(e) {
+            e.preventDefault();
+            
+            // 로딩 오버레이 띄우기
+            const statusOverlay = document.getElementById('payment-status-overlay');
+            const loadingView = document.getElementById('loading-view');
+            const successView = document.getElementById('success-view');
+            
+            statusOverlay.classList.remove('hidden');
+            
+            // 2초 후 결제 완료 처리
+            setTimeout(() => {
+                loadingView.classList.add('hidden');
+                successView.classList.remove('hidden');
+                successView.classList.add('flex');
+                
+                // 가짜 주문번호 생성
+                const orderNum = '2026' + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+                document.getElementById('order-number').textContent = orderNum;
+                
+                // 장바구니 비우기
+                cart = [];
+                updateCartUI();
+            }, 2000);
+        }
+
+        function finishOrder() {
+            closeCheckoutModal();
+        }
+
+    </script>
+</body>
+</html>
