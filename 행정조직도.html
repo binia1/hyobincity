@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시청안내 - 행정조직도 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 조직도 전용 스타일 */
+        .dept-item { 
+            padding: 6px 8px; 
+            font-size: 0.9rem; 
+            color: #475569; 
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .dept-item::before {
+            content: '·';
+            margin-right: 6px;
+            font-weight: bold;
+            color: #94a3b8;
+        }
+        .dept-item:last-child { border-bottom: none; }
+        .dept-item:hover { 
+            color: #2563eb; 
+            font-weight: 600; 
+            background-color: #f8fafc;
+            padding-left: 12px;
+        }
+        .dept-item:hover::before { color: #2563eb; }
+        
+        /* 모달 스타일 */
+        .modal {
+            transition: opacity 0.2s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.2s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* 다이어그램 선 그리기 용도 */
+        .org-line-v { width: 2px; background-color: #cbd5e1; margin: 0 auto; }
+        .org-line-h { height: 2px; background-color: #cbd5e1; width: 100%; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <!-- 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full lg:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html" class="current">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (조직도 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 시청안내
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">행정조직도</strong>
+            </div>
+
+            <!-- 본문 타이틀 -->
+            <h2 class="text-3xl font-black text-gray-900 content-title flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <span>행정조직도</span>
+                <span class="text-sm font-normal text-gray-500 bg-gray-100 px-3 py-1 rounded-full w-fit"><i data-lucide="mouse-pointer-click" class="w-4 h-4 inline-block mr-1"></i>부서를 클릭하면 상세 안내를 볼 수 있습니다.</span>
+            </h2>
+
+            <!-- 조직도 다이어그램 래퍼 -->
+            <div class="w-full overflow-x-auto pb-10">
+                <div class="min-w-[950px] bg-slate-50 p-8 rounded-2xl border border-slate-200">
+                    
+                    <!-- 1. 시장 및 비서실 -->
+                    <div class="flex flex-col items-center">
+                        <div class="bg-blue-700 text-white w-72 py-5 rounded-2xl shadow-xl text-center cursor-pointer hover:bg-blue-800 transition transform hover:-translate-y-1 relative z-10" onclick="location.href='mayor.html'">
+                            <div class="text-blue-200 text-xs font-bold mb-1">제8대 효빈광역시장 (차관급)</div>
+                            <div class="font-black text-3xl mb-1 tracking-widest">박 효 빈</div>
+                            <div class="text-blue-100 text-sm">더불어민주당 (초선)</div>
+                        </div>
+                        
+                        <!-- 시장과 비서실 연결선 -->
+                        <div class="org-line-v h-5"></div>
+                        
+                        <!-- 비서실 추가 -->
+                        <div class="bg-white border-2 border-slate-300 py-2 px-10 rounded-xl shadow-sm cursor-pointer hover:border-blue-500 hover:text-blue-700 transition relative z-10" onclick="openDept('비서실')">
+                            <span class="font-bold text-slate-800 flex items-center gap-1">
+                                <i data-lucide="user-check" class="w-4 h-4"></i> 비서실
+                            </span>
+                        </div>
+
+                        <!-- 아래 대변인/감사위 등으로 가는 연결선 -->
+                        <div class="org-line-v h-5"></div>
+                    </div>
+
+                    <!-- 2. 직속/합의제 기관 (대변인, 감사위원회, 자치경찰위원회) -->
+                    <div class="flex flex-col items-center mb-8">
+                        <div class="w-full max-w-4xl relative">
+                            <div class="org-line-h absolute top-0"></div>
+                            <div class="grid grid-cols-3 gap-6 pt-6 relative">
+                                <!-- 위로 향하는 연결선들 -->
+                                <div class="org-line-v h-6 absolute top-0 left-[16.666%]"></div>
+                                <div class="org-line-v h-6 absolute top-0 left-1/2"></div>
+                                <div class="org-line-v h-6 absolute top-0 left-[83.333%]"></div>
+
+                                <!-- 합의제 행정기관: 자치경찰위원회 -->
+                                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm text-center">
+                                    <h4 class="font-bold text-slate-700 mb-2 pb-2 border-b border-slate-100">자치경찰위원회</h4>
+                                    <div class="text-xs text-left">
+                                        <div class="dept-item" onclick="openDept('자치경찰사무국')">사무국</div>
+                                        <div class="dept-item" onclick="openDept('자치경찰행정과')">자치경찰행정과</div>
+                                        <div class="dept-item" onclick="openDept('자치경찰관리과')">자치경찰관리과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 대변인 -->
+                                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm text-center">
+                                    <h4 class="font-bold text-slate-700 mb-2 pb-2 border-b border-slate-100">대변인</h4>
+                                    <div class="text-xs text-left">
+                                        <div class="dept-item" onclick="openDept('홍보담당관')">홍보담당관</div>
+                                        <div class="dept-item" onclick="openDept('공보담당관')">공보담당관</div>
+                                        <div class="dept-item font-bold text-blue-600" onclick="openDept('미디어담당관')" title="뉴미디어 및 숏폼 총괄">미디어담당관</div>
+                                    </div>
+                                </div>
+
+                                <!-- 합의제 행정기관: 감사위원회 -->
+                                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm text-center">
+                                    <h4 class="font-bold text-slate-700 mb-2 pb-2 border-b border-slate-100">감사위원회</h4>
+                                    <div class="text-xs text-left">
+                                        <div class="dept-item" onclick="openDept('감사담당관')">감사담당관</div>
+                                        <div class="dept-item" onclick="openDept('청렴담당관')">청렴담당관</div>
+                                        <div class="dept-item" onclick="openDept('권익보호담당관')">권익보호담당관</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 중앙 연결선 -->
+                    <div class="flex justify-center">
+                        <div class="org-line-v h-10"></div>
+                    </div>
+
+                    <!-- 3. 양대 부시장 분기점 -->
+                    <div class="w-full relative h-10 border-t-2 border-slate-300">
+                        <!-- 행정부시장 연결선 -->
+                        <div class="absolute top-0 left-[25%] org-line-v h-10"></div>
+                        <!-- 미래혁신부시장 연결선 -->
+                        <div class="absolute top-0 left-[75%] org-line-v h-10"></div>
+                    </div>
+
+                    <!-- 4. 부시장 라인 (그리드 레이아웃) -->
+                    <div class="grid grid-cols-2 gap-8 items-start mb-12">
+                        
+                        <!-- ================= 행정부시장 라인 ================= -->
+                        <div class="flex flex-col items-center w-full">
+                            <!-- 행정부시장 카드 -->
+                            <div class="bg-indigo-700 text-white w-64 py-3 rounded-lg shadow-md text-center mb-6 relative cursor-pointer hover:bg-indigo-800 transition" onclick="openDept('행정부시장실')">
+                                <div class="font-bold text-lg">행정부시장</div>
+                                <div class="text-sm text-indigo-200 mt-0.5">고 성 진</div>
+                                <div class="absolute -bottom-6 left-1/2 w-[2px] h-6 bg-indigo-200 pointer-events-none"></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 w-full">
+                                <!-- 기획조정실 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-indigo-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-indigo-800 text-base mb-2">기획조정실</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('기획관')">기획관</div>
+                                        <div class="dept-item" onclick="openDept('기획담당관')">기획담당관</div>
+                                        <div class="dept-item" onclick="openDept('조직담당관')">조직담당관</div>
+                                        <div class="dept-item" onclick="openDept('인구정책담당관')">인구정책담당관</div>
+                                        <div class="dept-item" onclick="openDept('법무담당관')">법무담당관</div>
+                                    </div>
+                                </div>
+
+                                <!-- 재정관 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-indigo-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-indigo-800 text-base mb-2">재정관</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('예산담당관')">예산담당관</div>
+                                        <div class="dept-item" onclick="openDept('공공기관담당관')">공공기관담당관</div>
+                                        <div class="dept-item" onclick="openDept('세정정책담당관')">세정정책/운영담당관</div>
+                                        <div class="dept-item" onclick="openDept('회계재산담당관')">회계재산담당관</div>
+                                    </div>
+                                </div>
+
+                                <!-- 시민안전실 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-indigo-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-indigo-800 text-base mb-2">시민안전실</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('안전정책과')">안전정책/중대재해예방과</div>
+                                        <div class="dept-item" onclick="openDept('자연재난과')">자연/사회재난과</div>
+                                        <div class="dept-item" onclick="openDept('원자력안전과')">원자력안전과</div>
+                                        <div class="dept-item font-bold text-red-600" onclick="openDept('특별사법경찰과')" title="서브컬처 범죄 전담 포함">특별사법경찰과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 문화체육국 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-pink-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-pink-700 text-base mb-2">문화체육국</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('문화예술과')">문화예술/유산과</div>
+                                        <div class="dept-item font-bold text-purple-600" onclick="openDept('애니메이션산업과')" title="효빈 특화 L-Project 총괄">애니메이션산업과</div>
+                                        <div class="dept-item" onclick="openDept('영상콘텐츠산업과')">영상콘텐츠산업과</div>
+                                        <div class="dept-item" onclick="openDept('체육정책과')">체육정책/생활체육과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 사회복지/여성가족국 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-indigo-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-indigo-800 text-base mb-2">사회복지/여성가족국</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('복지정책과')">복지정책/돌봄복지과</div>
+                                        <div class="dept-item" onclick="openDept('장애인노인복지과')">장애인/노인복지과</div>
+                                        <div class="dept-item" onclick="openDept('여성가족과')">여성가족과</div>
+                                        <div class="dept-item" onclick="openDept('출산보육과')">출산보육/아동청소년과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 시민건강/행정자치국 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-indigo-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-indigo-800 text-base mb-2">시민건강/행정자치국</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('건강정책과')">건강정책/보건위생과</div>
+                                        <div class="dept-item" onclick="openDept('감염병관리과')">감염병관리과</div>
+                                        <div class="dept-item" onclick="openDept('자치행정과')">자치행정/총무과/인사과</div>
+                                        <div class="dept-item" onclick="openDept('정보화정책과')">정보화정책/통합민원과</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= 미래혁신부시장 라인 ================= -->
+                        <div class="flex flex-col items-center w-full">
+                            <!-- 미래혁신부시장 카드 -->
+                            <div class="bg-emerald-700 text-white w-64 py-3 rounded-lg shadow-md text-center mb-6 relative cursor-pointer hover:bg-emerald-800 transition" onclick="openDept('미래혁신부시장실')">
+                                <div class="font-bold text-lg">미래혁신부시장</div>
+                                <div class="text-sm text-emerald-200 mt-0.5">우 진 현</div>
+                                <div class="absolute -bottom-6 left-1/2 w-[2px] h-6 bg-emerald-200 pointer-events-none"></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 w-full">
+                                <!-- 디지털경제실 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-emerald-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-emerald-800 text-base mb-2">디지털경제실</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('경제일자리과')">경제정책/일자리노동과</div>
+                                        <div class="dept-item" onclick="openDept('중소상공인지원과')">중소상공인지원과</div>
+                                        <div class="dept-item" onclick="openDept('금융창업정책관')">금융창업정책/벤처과</div>
+                                        <div class="dept-item" onclick="openDept('투자유치과')">투자유치/기업지원과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 미래기술전략국 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-emerald-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-emerald-800 text-base mb-2">미래기술전략/첨단산업</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('산업정책과')">산업정책/반도체신소재</div>
+                                        <div class="dept-item" onclick="openDept('미래에너지산업과')">미래에너지산업과</div>
+                                        <div class="dept-item" onclick="openDept('인공지능소프트웨어과')">인공지능SW/빅데이터과</div>
+                                        <div class="dept-item" onclick="openDept('바이오헬스과')">연구개발/바이오헬스과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 교통혁신국 (효빈 특화) -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-blue-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-blue-700 text-base mb-2">교통혁신국</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('교통혁신과')">교통혁신/대중교통과</div>
+                                        <div class="dept-item" onclick="openDept('도시철도운영과')">도시철도운영과(1~8호선)</div>
+                                        <div class="dept-item" onclick="openDept('택시운수과')">택시운수과</div>
+                                        <div class="dept-item" onclick="openDept('효빈국제공항추진본부')">효빈국제공항추진본부</div>
+                                    </div>
+                                </div>
+
+                                <!-- 도시혁신균형실 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-emerald-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-emerald-800 text-base mb-2">도시혁신균형/계획국</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('미래혁신기획과')">미래혁신기획과</div>
+                                        <div class="dept-item" onclick="openDept('도시인프라개발과')">도시인프라개발/건설행정</div>
+                                        <div class="dept-item" onclick="openDept('도시계획과')">도시/시설/도로계획과</div>
+                                        <div class="dept-item" onclick="openDept('주택건축국')">주택정책/건축/도시정비</div>
+                                    </div>
+                                </div>
+
+                                <!-- 관광마이스/청년산학국 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-emerald-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-emerald-800 text-base mb-2">관광마이스/청년산학</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('관광정책과')">관광정책/마이스산업과</div>
+                                        <div class="dept-item" onclick="openDept('국제협력과')">국제협력과</div>
+                                        <div class="dept-item" onclick="openDept('청년정책과')">청년정책/창조교육과</div>
+                                        <div class="dept-item" onclick="openDept('지산학협력과')">지산학협력과</div>
+                                    </div>
+                                </div>
+
+                                <!-- 환경/해양농수산국 -->
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-t-4 border-emerald-500 hover:shadow-md transition">
+                                    <h4 class="font-bold text-emerald-800 text-base mb-2">환경/해양농수산국</h4>
+                                    <div class="text-sm">
+                                        <div class="dept-item" onclick="openDept('환경정책과')">환경/맑은물/탄소중립</div>
+                                        <div class="dept-item" onclick="openDept('푸른도시국')">공원여가/반려동물과</div>
+                                        <div class="dept-item" onclick="openDept('해양수도정책과')">해양수도/해운항만과</div>
+                                        <div class="dept-item" onclick="openDept('수산농축산과')">수산정책/농축산유통과</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. 소방재난본부 (독립 지휘 라인) -->
+                    <div class="mt-16 relative">
+                        <!-- 연결선 -->
+                        <div class="absolute -top-16 left-1/2 org-line-v h-16"></div>
+                        
+                        <div class="flex flex-col items-center">
+                            <div class="bg-rose-700 text-white w-72 py-4 rounded-xl shadow-lg text-center cursor-pointer hover:bg-rose-800 transition" onclick="openDept('소방재난본부장')">
+                                <div class="font-bold text-xl mb-1">소방재난본부장</div>
+                                <div class="text-sm text-rose-200">소방정감</div>
+                            </div>
+                            
+                            <div class="org-line-v h-6"></div>
+
+                            <div class="bg-white border-2 border-rose-200 p-6 rounded-2xl shadow-sm w-full max-w-4xl relative">
+                                <h4 class="font-black text-rose-800 text-lg mb-4 text-center border-b border-rose-100 pb-2">소방재난본부</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                    <div class="dept-item font-medium" onclick="openDept('소방행정과')">소방행정과</div>
+                                    <div class="dept-item font-medium" onclick="openDept('방호조사과')">방호조사과</div>
+                                    <div class="dept-item font-medium" onclick="openDept('구조구급과')">구조구급과</div>
+                                    <div class="dept-item font-bold text-rose-600" onclick="openDept('119종합상황실')">119종합상황실</div>
+                                    <div class="dept-item font-medium" onclick="openDept('재난예방담당관')">재난예방담당관</div>
+                                    <div class="dept-item font-medium" onclick="openDept('소방감사담당관')">소방감사담당관</div>
+                                    <div class="dept-item font-medium" onclick="openDept('회계장비담당관')">회계장비담당관</div>
+                                    <div class="dept-item font-bold text-orange-600" onclick="openDept('119특수대응단')">119특수대응단</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. 직속기관, 사업소, 자치구군 -->
+                    <div class="mt-16 pt-10 border-t-2 border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">직속기관 및 산하 소속기관</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- 직속기관 -->
+                            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-slate-800 mb-3 bg-slate-200 py-1 px-3 rounded inline-block">직속기관</h4>
+                                <div class="space-y-1 text-sm bg-white p-3 rounded shadow-sm">
+                                    <div class="dept-item" onclick="openDept('인재개발원')">효빈광역시 인재개발원</div>
+                                    <div class="dept-item" onclick="openDept('보건환경연구원')">보건환경연구원</div>
+                                    <div class="dept-item" onclick="openDept('농업기술센터')">농업기술센터</div>
+                                    <div class="dept-item" onclick="openDept('서울본부')">서울본부 / 세종사무소</div>
+                                    <div class="dept-item" onclick="openDept('소방학교')">효빈소방학교</div>
+                                    <div class="dept-item font-bold text-rose-600" onclick="openDept('소방서')">소방서 (9개소)</div>
+                                </div>
+                            </div>
+                            <!-- 사업소 / 합의제 -->
+                            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-slate-800 mb-3 bg-slate-200 py-1 px-3 rounded inline-block">사업소 / 본부 (32개소)</h4>
+                                <div class="space-y-1 text-sm bg-white p-3 rounded shadow-sm">
+                                    <div class="dept-item" onclick="openDept('상수도사업본부')">상수도사업본부 (산하 9개소)</div>
+                                    <div class="dept-item" onclick="openDept('건설본부')">건설본부</div>
+                                    <div class="dept-item" onclick="openDept('차량등록사업소')">차량등록사업소</div>
+                                    <div class="dept-item" onclick="openDept('시립도서관')">시립도서관 (18개소)</div>
+                                    <div class="dept-item" onclick="openDept('시립박물관')">시립박물관 / 시립미술관</div>
+                                    <div class="dept-item" onclick="openDept('경제자유구역청')">서남해안경제자유구역청</div>
+                                </div>
+                            </div>
+                            <!-- 지방공기업 / 출자출연기관 -->
+                            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-slate-800 mb-3 bg-slate-200 py-1 px-3 rounded inline-block">공기업 / 출자·출연 (25개)</h4>
+                                <div class="space-y-4 text-sm bg-white p-3 rounded shadow-sm max-h-56 overflow-y-auto custom-scrollbar">
+                                    <!-- 지방공기업 -->
+                                    <div>
+                                        <div class="text-xs font-bold text-blue-600 mb-1 border-b border-blue-100 pb-1 flex items-center gap-1"><i data-lucide="building-2" class="w-3 h-3"></i> 지방공기업 (8)</div>
+                                        <div class="space-y-1">
+                                            <div class="dept-item" onclick="openDept('효빈광역시상수도')">효빈광역시상수도</div>
+                                            <div class="dept-item" onclick="openDept('효빈광역시하수도')">효빈광역시하수도</div>
+                                            <div class="dept-item" onclick="openDept('효빈관광공사')">효빈관광공사</div>
+                                            <div class="dept-item font-bold text-blue-700" onclick="openDept('효빈교통공사')">효빈교통공사</div>
+                                            <div class="dept-item" onclick="openDept('효빈도시공사')">효빈도시공사</div>
+                                            <div class="dept-item" onclick="openDept('효빈시설공단')">효빈시설공단</div>
+                                            <div class="dept-item" onclick="openDept('효빈환경공단')">효빈환경공단</div>
+                                            <div class="dept-item" onclick="openDept('효빈문화공사')">효빈문화공사</div>
+                                        </div>
+                                    </div>
+                                    <!-- 지방출연기관 -->
+                                    <div>
+                                        <div class="text-xs font-bold text-emerald-600 mb-1 border-b border-emerald-100 pb-1 flex items-center gap-1"><i data-lucide="landmark" class="w-3 h-3"></i> 지방출연기관 (15)</div>
+                                        <div class="space-y-1">
+                                            <div class="dept-item" onclick="openDept('효빈경제진흥원')">효빈경제진흥원</div>
+                                            <div class="dept-item" onclick="openDept('효빈글로벌도시재단')">효빈글로벌도시재단</div>
+                                            <div class="dept-item" onclick="openDept('효빈디자인진흥원')">효빈디자인진흥원</div>
+                                            <div class="dept-item" onclick="openDept('효빈문화재단')">효빈문화재단</div>
+                                            <div class="dept-item" onclick="openDept('효빈연구원')">효빈연구원</div>
+                                            <div class="dept-item" onclick="openDept('효빈광역시사회서비스원')">효빈광역시사회서비스원</div>
+                                            <div class="dept-item" onclick="openDept('효빈신용보증재단')">효빈신용보증재단</div>
+                                            <div class="dept-item text-xs" onclick="openDept('효빈성평등가족평생교육진흥원')">효빈성평등가족과 평생교육진흥원</div>
+                                            <div class="dept-item" onclick="openDept('효빈의료원')">효빈의료원</div>
+                                            <div class="dept-item" onclick="openDept('효빈정보산업진흥원')">효빈정보산업진흥원</div>
+                                            <div class="dept-item" onclick="openDept('효빈테크노파크')">효빈테크노파크</div>
+                                            <div class="dept-item font-bold text-purple-600" onclick="openDept('만화애니메이션의전당')">만화애니메이션의전당</div>
+                                            <div class="dept-item" onclick="openDept('효빈산업과학혁신원')">효빈산업과학혁신원</div>
+                                            <div class="dept-item" onclick="openDept('효빈문화회관')">효빈문화회관</div>
+                                            <div class="dept-item font-bold text-pink-600" onclick="openDept('효빈애니메이션본부')">효빈애니메이션본부</div>
+                                        </div>
+                                    </div>
+                                    <!-- 지방출자기관 -->
+                                    <div>
+                                        <div class="text-xs font-bold text-orange-600 mb-1 border-b border-orange-100 pb-1 flex items-center gap-1"><i data-lucide="briefcase" class="w-3 h-3"></i> 지방출자기관 (2)</div>
+                                        <div class="space-y-1">
+                                            <div class="dept-item" onclick="openDept('HSCO')">HSCO</div>
+                                            <div class="dept-item" onclick="openDept('효빈컬쳐레스풀')">효빈 컬쳐레스풀</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 자치구 군 -->
+                            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-slate-800 mb-3 bg-slate-200 py-1 px-3 rounded inline-block">자치구·군 (8구 1군)</h4>
+                                <div class="space-y-1 text-sm bg-white p-3 rounded shadow-sm">
+                                    <div class="dept-item" onclick="location.href='구군청사현황.html'">구/군청 본청 (9개소)</div>
+                                    <div class="dept-item" onclick="location.href='구군청사현황.html'">보건소 (9개소)</div>
+                                    <div class="dept-item" onclick="location.href='구군청사현황.html'">구/군 의회 (9개소)</div>
+                                    <div class="dept-item font-bold text-emerald-600" onclick="location.href='구군청사현황.html'">행정복지센터 (145개소)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div>자료관리 담당자 : 기획조정실 조직담당관 | 연락처 : 079-613-2210</div>
+                <div class="mt-2 md:mt-0">최종업데이트 : 2026-03-30</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 부서 상세 모달 -->
+    <div id="dept-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="modal-content bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative z-10">
+            <!-- 헤더 -->
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center">
+                <h3 id="modal-dept-name" class="text-xl font-bold">부서명</h3>
+                <button onclick="closeModal()" class="hover:bg-slate-700 p-1 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <!-- 바디 -->
+            <div class="p-6">
+                <!-- 소개 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-bold text-blue-600 mb-2 border-b pb-1 border-blue-100 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-1"></i> 부서 소개</h4>
+                    <p id="modal-desc" class="text-slate-600 text-sm leading-relaxed">부서 업무 설명</p>
+                </div>
+                
+                <!-- 연락처 -->
+                <div class="mb-6">
+                    <h4 class="text-sm font-bold text-green-600 mb-2 border-b pb-1 border-green-100 flex items-center"><i data-lucide="phone" class="w-4 h-4 mr-1"></i> 문의</h4>
+                    <p id="modal-contact" class="text-slate-800 font-bold text-lg">079-000-0000</p>
+                </div>
+
+                <!-- 직원 명단 -->
+                <div>
+                    <h4 class="text-sm font-bold text-slate-700 mb-3 border-b pb-1 flex items-center"><i data-lucide="users" class="w-4 h-4 mr-1"></i> 주요 업무 담당자</h4>
+                    <div class="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-100 text-slate-500 font-medium">
+                                <tr>
+                                    <th class="px-4 py-2 w-20">직위</th>
+                                    <th class="px-4 py-2 w-24">이름</th>
+                                    <th class="px-4 py-2">담당 업무</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-staff-list" class="divide-y divide-slate-100">
+                                <!-- JS로 채워짐 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
+                <button onclick="closeModal()" class="px-6 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 transition text-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 파트 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        lucide.createIcons();
+
+        // 1. 방대한 이름 풀 (자연스러운 한국인 이름)
+        const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '전', '홍', '유', '고', '문', '양', '손', '배', '백', '허', '남', '심', '노', '하', '곽', '성', '차', '주', '우', '구', '민', '진', '지', '엄', '채', '원', '천', '방', '공', '현', '함', '변', '염', '추', '도', '소', '석', '선', '설', '길', '연', '위', '표', '명', '기', '반', '금', '옥', '육', '맹', '제', '모', '탁', '국', '어', '은', '편', '용'];
+        const firstNames = ['민준', '서준', '도윤', '예준', '시우', '하준', '지호', '주원', '지우', '서현', '서연', '민서', '지민', '채원', '하은', '지유', '윤서', '수아', '다은', '예은', '현수', '은지', '성호', '지혜', '동훈', '예진', '재원', '경수', '지현', '준호', '수민', '지훈', '민아', '태영', '우진', '건우', '도현', '민재', '현우', '서진', '정우', '승우', '재윤', '시윤', '지후', '준우', '지원', '승현', '채은', '수빈', '유진', '시은', '민주', '예진', '수현', '은우', '연우', '하윤', '지아', '소율', '시아', '아린', '하린'];
+
+        // 2. 부서별 고유 이름 생성기 (중복 방지 로직)
+        function generateUniqueNames(count, seed) {
+            const uniqueNames = new Set();
+            const result = [];
+            let attempt = 0;
+            
+            // 시드 기반 해시 생성
+            let hash = 0;
+            for (let i = 0; i < seed.length; i++) {
+                hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+                hash |= 0;
+            }
+            
+            // 시드 기반 난수 생성 함수
+            const random = () => {
+                const x = Math.sin(hash++) * 10000;
+                return x - Math.floor(x);
+            };
+
+            while (result.length < count) {
+                const lIdx = Math.floor(random() * lastNames.length);
+                const fIdx = Math.floor(random() * firstNames.length);
+                const name = lastNames[lIdx] + firstNames[fIdx];
+                
+                if (!uniqueNames.has(name)) {
+                    uniqueNames.add(name);
+                    result.push(name);
+                }
+                
+                attempt++;
+                if (attempt > 100) break; // 무한 루프 방지
+            }
+            return result;
+        }
+
+        // 3. 고정 데이터 (임원급 및 특정 직위 - 자연스러운 이름으로 유지, 소방재난본부장 추가)
+        const fixedDeptData = {
+            '비서실': { desc: '박효빈 시장님의 주요 일정을 총괄하고 대내외 의전 및 시민 소통 정무 업무를 밀착 지원합니다.', contact: '079-591-2005', staff: [ {role: '비서실장', name: '천성현', task: '비서실 업무 총괄 및 정무 보좌'}, {role: '수행비서', name: '서현우', task: '시장 현장 수행'}, {role: '일정비서', name: '이지민', task: '시장 일정 기획 및 조율'} ] },
+            '행정부시장실': { desc: '시 행정 전반을 총괄하며 안전, 재정, 복지, 문화 분야를 관장합니다.', contact: '079-591-2010', staff: [ {role: '행정부시장', name: '고성진', task: '행정 사무 총괄'}, {role: '비서실장', name: '이준혁', task: '부시장 일정 관리'} ] },
+            '미래혁신부시장실': { desc: '도시의 미래 먹거리 발굴과 경제, 산업, 교통, 환경 혁신을 주도합니다.', contact: '079-591-2020', staff: [ {role: '미래혁신부시장', name: '우진현', task: '미래혁신 사무 총괄'}, {role: '비서실장', name: '한지윤', task: '부시장 일정 관리'} ] },
+            '소방재난본부장': { desc: '효빈시 전역의 화재 예방, 진압, 구조구급 및 재난 대응을 총괄합니다.', contact: '079-119-0001', staff: [ {role: '소방본부장', name: '최강수', task: '효빈소방재난본부 총괄 지휘'}, {role: '소방경', name: '장민호', task: '상황 통제 및 지휘단장'} ] },
+            '애니메이션산업과': { desc: 'L-Project 추진 및 HAF 개최 등 서브컬처 중심 도시 조성을 총괄합니다.', contact: '079-591-3500', staff: [ {role: '과장', name: '박상훈', task: '애니메이션 산업 총괄'}, {role: '성지관리팀장', name: '김은영', task: '성지순례 코스 개발'}, {role: '행사팀장', name: '이진우', task: 'HAF 운영 기획'} ] },
+            '특별사법경찰과': { desc: '일반 민생 침해 사범 및 서브컬처 관련 범죄(굿즈 훼손 등) 수사를 담당합니다.', contact: '079-591-3800', staff: [ {role: '과장', name: '최석현', task: '수사 총괄'}, {role: '문화안전팀장', name: '권태영', task: '성지 테러 및 범죄 수사'}, {role: '수사팀장', name: '조민기', task: '일반 민생사법 수사'} ] },
+            '미디어담당관': { desc: '유튜브, SNS 등 트렌디한 시정 홍보 콘텐츠 기획 및 제작을 총괄합니다.', contact: '079-591-2050', staff: [ {role: '담당관', name: '정수환', task: '시정 홍보 매체 총괄'}, {role: '영상팀장', name: '강준서', task: '시장 출연 숏폼 기획'} ] },
+            '119종합상황실': { desc: '효빈시 재난 상황 접수 및 출동 지령을 내리는 통합 컨트롤타워입니다.', contact: '079-119-1190', staff: [ {role: '상황실장', name: '안재원', task: '119 신고 접수 및 관제 총괄'}, {role: '구급상황관리관', name: '오은지', task: '응급의료 지도 및 병원 선정'} ] },
+            '소방서': { desc: '효빈시 관내 9개 소방서의 행정 민원 및 일선 화재, 구조, 구급 업무를 안내합니다.', contact: '079-119-0119', staff: [ {role: '담당관', name: '김동훈', task: '9개 소방서 종합 행정 지원'}, {role: '주무관', name: '최수아', task: '소방민원 안내'} ] },
+            '효빈교통공사': { desc: '효빈 1~8호선 및 빈효선 광역전철 등 3세대 대중교통망을 총괄 운영 및 관리합니다.', contact: '079-700-0001', staff: [ {role: '사장', name: '최대현', task: '공사 경영 총괄'}, {role: '안전본부장', name: '박기태', task: '철도 및 버스 안전 운행 총괄'} ] },
+            '상수도사업본부': { desc: '안전하고 깨끗한 수돗물 생산 및 공급, 정수장 관리를 책임집니다.', contact: '079-710-0001', staff: [ {role: '본부장', name: '이수현', task: '상수도 사업 총괄'}, {role: '수질관리과장', name: '이수진', task: '고도정수처리 시설 관리'} ] },
+            '효빈애니메이션본부': { desc: '효빈시 특화 산업인 애니메이션 및 서브컬처 콘텐츠 개발, 글로벌 IP 제휴를 총괄 지원하는 핵심 출연기관입니다.', contact: '079-720-0001', staff: [ {role: '본부장', name: '탁민석', task: '본부 총괄'}, {role: 'IP사업팀장', name: '이세연', task: '글로벌 IP 라이선싱'} ] },
+            '만화애니메이션의전당': { desc: '만화, 애니메이션 전시 및 복합 문화 공간을 운영하며, 시민 참여형 HAF 서브 행사를 주관합니다.', contact: '079-720-0010', staff: [ {role: '원장', name: '민유나', task: '전당 운영 총괄'}, {role: '전시팀장', name: '박수빈', task: '상설/기획 전시 운영'} ] }
+        };
+
+        // 4. 데이터 조회 함수
+        function getDeptInfo(deptName) {
+            if (fixedDeptData[deptName]) return fixedDeptData[deptName];
+            
+            // 이름 3개 생성 (과장, 팀장, 주무관)
+            const names = generateUniqueNames(3, deptName);
+
+            // 시드 기반 연락처 생성
+            let hash = 0;
+            for (let i = 0; i < deptName.length; i++) { hash = ((hash << 5) - hash) + deptName.charCodeAt(i); hash |= 0; }
+            const contactNum = Math.abs(hash) % 8999 + 1000;
+
+            return {
+                desc: `${deptName} 업무 전반을 총괄하며 효빈 시민의 편의 증진과 혁신을 위해 노력하고 있습니다.`,
+                contact: `079-591-${contactNum}`,
+                staff: [
+                    { role: '과장(담당관)', name: names[0], task: `${deptName} 업무 총괄` },
+                    { role: '행정팀장', name: names[1], task: '기획 및 서무' },
+                    { role: '주무관', name: names[2], task: '주요 사업 담당' }
+                ]
+            };
+        }
+
+        function openDept(deptName) {
+            const data = getDeptInfo(deptName);
+            document.getElementById('modal-dept-name').innerText = deptName;
+            document.getElementById('modal-desc').innerText = data.desc;
+            document.getElementById('modal-contact').innerText = data.contact;
+            
+            const tbody = document.getElementById('modal-staff-list');
+            tbody.innerHTML = '';
+            data.staff.forEach(person => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-50 hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="px-4 py-2 font-bold text-slate-700">${person.role}</td>
+                    <td class="px-4 py-2 text-slate-600">${person.name}</td>
+                    <td class="px-4 py-2 text-slate-500 text-xs">${person.task}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const modal = document.getElementById('dept-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('dept-modal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+        }
+    </script>
+    <script src="common.js"></script>
+</body>
+</html>

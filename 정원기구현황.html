@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시청안내 - 정원/기구현황 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 40px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 표 전용 관공서 스타일 (고도화) */
+        .stat-table { width: 100%; text-align: center; border-collapse: collapse; border-top: 2px solid #1e3a8a; margin-bottom: 2rem; }
+        .stat-table th, .stat-table td { border: 1px solid #cbd5e1; padding: 16px 8px; vertical-align: middle; }
+        .stat-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; font-size: 0.95rem; }
+        .stat-table td { color: #334155; font-size: 1rem; }
+        .stat-table th.sub-th { font-size: 0.85rem; font-weight: 600; color: #475569; padding: 12px 8px; background-color: #f1f5f9; }
+        
+        .stat-title { font-size: 1.25rem; font-weight: bold; color: #1e3a8a; display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
+        .stat-icon { width: 14px; height: 14px; border-radius: 50%; border: 4px solid #1e3a8a; box-sizing: border-box; }
+        
+        /* 특정 셀 강조 효과 */
+        .highlight-cell { background-color: #eff6ff !important; font-weight: bold; color: #1e40af !important; }
+        .total-row td { background-color: #f8fafc; font-weight: bold; font-size: 1.05rem; }
+        .grand-total-row td { background-color: #e0e7ff; font-weight: 900; font-size: 1.15rem; color: #1e3a8a; border-top: 2px solid #1e3a8a; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <div id="common-header"></div>
+
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">효빈소개</h1>
+    </div>
+
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html" class="current">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 시청안내
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">정원/기구현황</strong>
+            </div>
+
+            <!-- 본문 타이틀 (날짜 반영) -->
+            <h2 class="text-3xl font-black text-gray-900 content-title">
+                기구/정원 <span class="text-xl text-gray-500 font-medium ml-2 tracking-tighter">(2026.3.30.기준)</span>
+            </h2>
+
+            <!-- 기구현황 섹션 -->
+            <section class="mb-14">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="stat-title"><div class="stat-icon"></div> 기구현황 (본청 및 직속기관)</div>
+                    <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
+                </div>
+
+                <!-- 시본청 & 의회 표 -->
+                <div class="overflow-x-auto">
+                    <table class="stat-table">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 20%;">
+                            <col style="width: 20%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th colspan="5">시본청</th>
+                                <th colspan="3">의회</th>
+                            </tr>
+                            <tr>
+                                <th class="sub-th">실</th>
+                                <th class="sub-th">국</th>
+                                <th class="sub-th">본부</th>
+                                <th class="sub-th">과(관,담당관)</th>
+                                <th class="sub-th">합의제행정기관</th>
+                                <th class="sub-th">처</th>
+                                <th class="sub-th">담당관</th>
+                                <th class="sub-th">전문위원</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>6</td>
+                                <td>14</td>
+                                <td>4</td>
+                                <td>105</td>
+                                <td>2</td>
+                                <td>1</td>
+                                <td>4</td>
+                                <td>9</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 직속기관, 사업소, 출장소 표 -->
+                <div class="overflow-x-auto mt-6">
+                    <table class="stat-table">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 20%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th colspan="6">직속기관</th>
+                                <th rowspan="2">사업소</th>
+                                <th rowspan="2" class="leading-snug">출장소<br><span class="text-xs font-normal text-gray-500">(경제자유구역청)</span></th>
+                            </tr>
+                            <tr>
+                                <th class="sub-th">원</th>
+                                <th class="sub-th">센터</th>
+                                <th class="sub-th">서울본부</th>
+                                <th class="sub-th">소방학교</th>
+                                <th class="sub-th">소방서</th>
+                                <th class="sub-th">소방기타</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td class="highlight-cell text-lg">9</td>
+                                <td class="text-sm leading-snug">2<br><span class="text-gray-500 text-xs">(119특수대응단,<br>119안전체험관)</span></td>
+                                <td class="highlight-cell text-lg">32</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 공공기관 및 하부행정기관 현황 섹션 (메가시티 스케일 강조) -->
+            <section class="mb-14">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="stat-title"><div class="stat-icon"></div> 하부행정기관 및 산하 공공기관 현황</div>
+                    <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="stat-table">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 20%;">
+                            <col style="width: 35%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="2">자치구·군</th>
+                                <th rowspan="2">행정복지센터<br>(읍·면·동)</th>
+                                <th colspan="3">산하 공공기관 (총 25개)</th>
+                            </tr>
+                            <tr>
+                                <th class="sub-th text-blue-800">지방공기업</th>
+                                <th class="sub-th text-emerald-800">지방출연기관</th>
+                                <th class="sub-th text-orange-800">지방출자기관</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold text-lg">8구 1군</td>
+                                <td class="highlight-cell text-2xl">145</td>
+                                <td>8</td>
+                                <td>15</td>
+                                <td>2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 정원현황 섹션 -->
+            <section class="mb-10">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="stat-title"><div class="stat-icon"></div> 정원현황 (공무원)</div>
+                    <div class="text-sm text-gray-500 font-medium">* 산하 공공기관 임직원 제외 / (단위: 명)</div>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar pb-4">
+                    <!-- 8구 1군 체제이므로 가로가 깁니다. overflow-x-auto를 통해 스크롤 제공 -->
+                    <table class="stat-table min-w-[1100px]">
+                        <thead>
+                            <tr>
+                                <th colspan="6">시(市)</th>
+                                <th colspan="9">자치구·군</th>
+                            </tr>
+                            <tr>
+                                <th class="sub-th whitespace-nowrap">본청</th>
+                                <th class="sub-th whitespace-nowrap">의회</th>
+                                <th class="sub-th whitespace-nowrap">직속기관</th>
+                                <th class="sub-th whitespace-nowrap">사업소</th>
+                                <th class="sub-th whitespace-nowrap">출장소</th>
+                                <th class="sub-th whitespace-nowrap">합의제</th>
+                                
+                                <!-- 8구 1군 -->
+                                <th class="sub-th whitespace-nowrap">중구</th>
+                                <th class="sub-th whitespace-nowrap">동구</th>
+                                <th class="sub-th whitespace-nowrap">서구</th>
+                                <th class="sub-th whitespace-nowrap">남구</th>
+                                <th class="sub-th whitespace-nowrap">북구</th>
+                                <th class="sub-th whitespace-nowrap">안천구</th>
+                                <th class="sub-th whitespace-nowrap">창전구</th>
+                                <th class="sub-th whitespace-nowrap">청엽구</th>
+                                <th class="sub-th whitespace-nowrap">탄성군</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2,450</td>
+                                <td>150</td>
+                                <td>3,420</td>
+                                <td>1,280</td>
+                                <td>120</td>
+                                <td>80</td>
+
+                                <td>850</td>
+                                <td>880</td>
+                                <td>1,250</td>
+                                <td>1,120</td>
+                                <td>1,580</td>
+                                <td>1,450</td>
+                                <td>1,380</td>
+                                <td>1,520</td>
+                                <td>980</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="6" class="py-4 text-blue-900">시(市) 소계 : 7,500</td>
+                                <td colspan="9" class="py-4 text-emerald-900">자치구·군 소계 : 11,010</td>
+                            </tr>
+                            <tr class="grand-total-row">
+                                <td colspan="15" class="py-5">총 공무원 정원 : 18,510 명</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div>자료관리 담당자 : 기획조정실 조직담당관 | 연락처 : 079-613-2210</div>
+                <div class="mt-2 md:mt-0">최종업데이트 : 2026-03-30</div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        lucide.createIcons();
+    </script>
+    <script src="common.js"></script>
+</body>
+</html>

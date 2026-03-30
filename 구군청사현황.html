@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈소개 - 구·군 목록 및 청사 현황 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 서브페이지 전용 디자인 (관공서 스타일 고도화) */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+        
+        /* 3뎁스 (하위 메뉴 및 외부링크) */
+        .lnb-depth3 { padding-left: 1.5rem; padding-bottom: 0.75rem; border-top: 1px dashed #e5e7eb; margin-top: 0.5rem; padding-top: 0.5rem; }
+        .lnb-depth3 a { display: flex; align-items: center; padding: 0.35rem 1rem; color: #4b5563; font-size: 0.85rem; position: relative; transition: all 0.2s; }
+        .lnb-depth3 a.anchor-link::before { content: '·'; position: absolute; left: 0.2rem; color: #9ca3af; font-weight: bold; }
+        .lnb-depth3 a.gu-link::before { content: '└'; position: absolute; left: 0.5rem; color: #cbd5e1; font-size: 0.75rem; }
+        .lnb-depth3 a:hover, .lnb-depth3 a.current-sub { color: #2563eb; font-weight: 700; background-color: #f1f5f9; border-radius: 4px; }
+        .lnb-depth3 a.gu-link { padding-left: 1.5rem; font-size: 0.8rem; color: #64748b; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+        .bullet-title { position: relative; padding-left: 16px; margin-top: 3rem; margin-bottom: 1rem; color: #1e3a8a; font-size: 1.25rem; font-weight: 700; scroll-margin-top: 80px; }
+        .bullet-title::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 16px; background-color: #2563eb; border-radius: 2px; }
+        
+        /* 관공서 스타일 데이터 표 */
+        .data-table { width: 100%; border-top: 2px solid #1e3a8a; border-collapse: collapse; font-size: 0.95rem; text-align: center; margin-bottom: 1.5rem; background-color: #fff; }
+        .data-table th, .data-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 12px 10px; line-height: 1.5; }
+        .data-table th:last-child, .data-table td:last-child { border-right: none; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: bold; }
+        .data-table td { color: #334155; }
+        .data-table tr:hover td { background-color: #f1f5f9; }
+        
+        /* 동적 렌더링 시 rowspan 적용된 th의 호버 효과 방지용 */
+        .data-table tr:hover td[rowspan] { background-color: #fff; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <div id="common-header"></div>
+
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">효빈소개</h1>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10">
+        
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li>
+                                <a href="행정구역.html" class="current">행정구역</a>
+                                <ul class="lnb-depth3 flex flex-col gap-1">
+                                    <li><a href="행정구역.html" class="anchor-link font-medium">종합 행정구역 현황</a></li>
+                                    <li><a href="구군청사현황.html" class="anchor-link current-sub">구·군 목록 및 청사 현황</a></li>
+                                    <li><a href="행정동법정동매칭표.html" class="anchor-link font-medium">행정읍면동 및 법정동 매칭표</a></li>
+                                    
+                                    <li><a href="중구.html" class="gu-link">중구</a></li>
+                                    <li><a href="동구.html" class="gu-link">동구</a></li>
+                                    <li><a href="서구.html" class="gu-link">서구</a></li>
+                                    <li><a href="남구.html" class="gu-link">남구</a></li>
+                                    <li><a href="북구.html" class="gu-link">북구</a></li>
+                                    <li><a href="안천구.html" class="gu-link">안천구</a></li>
+                                    <li><a href="창전구.html" class="gu-link">창전구</a></li>
+                                    <li><a href="청엽구.html" class="gu-link">청엽구</a></li>
+                                    <li><a href="탄성군.html" class="gu-link">탄성군</a></li>
+                                    
+                                    <li class="mt-2 pt-2 border-t border-gray-200">
+                                        <a href="https://binia1.github.io/mymap/" target="_blank" class="flex items-center gap-1.5 text-blue-700 bg-blue-50 py-2 px-3 rounded font-bold border border-blue-200 hover:bg-blue-600 hover:text-white transition-colors">
+                                            <i data-lucide="map" class="w-4 h-4"></i> 전자지도 (새창) <i data-lucide="external-link" class="w-3 h-3 ml-auto"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                               <li><a href="역대시장.html">역대시장</a></li>
+
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="flex-grow min-w-0">
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈 <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 <i data-lucide="chevron-right" class="w-4 h-4"></i> 일반현황 <i data-lucide="chevron-right" class="w-4 h-4"></i> 행정구역 <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">구·군 목록 및 청사 현황</strong>
+            </div>
+
+            <h2 class="text-3xl font-black text-gray-900 content-title">구·군 목록 및 청사 현황</h2>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                효빈광역시 산하 8개 자치구 및 1개 자치군의 구청/군청과 각 관할 읍·면·동 행정복지센터의 소재지 및 연락처 현황을 안내해 드립니다. 민원 업무 등 청사 방문 시 참고하시기 바랍니다.
+            </p>
+
+            <div class="flex flex-wrap gap-2 mb-10 pb-4 border-b border-gray-200">
+                <a href="#section-main" class="px-3 py-1.5 bg-blue-100 text-blue-800 font-bold rounded hover:bg-blue-200 transition-colors text-sm">시청·구청·군청</a>
+                <a href="#section-jung" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">중구</a>
+                <a href="#section-dong" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">동구</a>
+                <a href="#section-seo" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">서구</a>
+                <a href="#section-nam" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">남구</a>
+                <a href="#section-buk" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">북구</a>
+                <a href="#section-ancheon" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">안천구</a>
+                <a href="#section-changjeon" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">창전구</a>
+                <a href="#section-cheongyeop" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">청엽구</a>
+                <a href="#section-tanseong" class="px-3 py-1.5 bg-gray-100 text-gray-700 font-medium rounded hover:bg-gray-200 transition-colors text-sm">탄성군</a>
+            </div>
+
+            <section id="section-main" class="mb-14">
+                <h3 class="bullet-title mt-0">효빈광역시청 및 구·군청 청사 현황</h3>
+                <div class="overflow-x-auto">
+                    <table class="data-table" id="main-office-table">
+                        <thead>
+                            <tr>
+                                <th width="15%">관할 지역</th>
+                                <th width="15%">청사명</th>
+                                <th width="35%">소재지</th>
+                                <th width="10%">우편번호</th>
+                                <th width="15%">전화번호</th>
+                                <th width="10%">소재 법정동</th>
+                            </tr>
+                        </thead>
+                        <tbody id="main-office-tbody">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div id="sub-office-container">
+                </div>
+            
+            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div>자료관리 담당자 : 자치행정과 | 연락처 : 079-613-2914</div>
+                <div class="mt-2 md:mt-0">최종업데이트 : 2026-03-30</div>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li.active').forEach(li => {
+                    li.classList.remove('active');
+                    if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // --- 데이터 파싱 및 동적 렌더링 로직 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const rawData = `
+구분	관할 지역	청사명	소재지	우편번호	전화번호	소재 법정동
+광역시청	효빈광역시	시청	효빈광역시 북구 효빈로 79(고송8동)	79791	079-591-2548	고송동
+구군청	효빈광역시	중구청	효빈광역시 중구 중앙로 101(조유동2가)	77014	079-242-8192	조유동2가
+구군청	효빈광역시	북구청	효빈광역시 북구 고중로 2(중수1동)	79088	079-321-5042	중수동
+구군청	효빈광역시	동구청	효빈광역시 동구 덕성로 12(덕현2동)	78032	079-284-1193	덕현2동
+구군청	효빈광역시	남구청	효빈광역시 남구 평당중앙로 33(평당3동)	78519	079-451-9034	평당3동
+구군청	효빈광역시	서구청	효빈광역시 서구 당선동 77(당선4동)	77582	079-634-2201	당선4동
+구군청	효빈광역시	청엽구청	효빈광역시 청엽구 청엽로 51(청엽1동)	79511	079-781-4920	청엽1동
+구군청	효빈광역시	창전구청	효빈광역시 창전구 모포로 21(창전3동)	78805	079-822-1594	창전3동
+구군청	효빈광역시	안천구청	효빈광역시 안천구 안천중앙로 52(안천6동)	77840	079-915-7732	안천6동
+구군청	효빈광역시	안천구청 이자출장소	효빈광역시 안천구 이자로 3(이자4동)	77894	079-984-2015	이자4동
+구군청	효빈광역시	탄성군청	효빈광역시 탄성군 탄성읍 공리 24	79910	079-134-8821	공리
+행정복지센터	남구	곽산1동	효빈광역시 남구 곽산동 142-3	78514	079-421-7731	곽산동
+행정복지센터	남구	곽산2동	효빈광역시 남구 곽산동 88	78529	079-482-1054	곽산동
+행정복지센터	남구	평당2동	효빈광역시 남구 평당동 315-1	78544	079-415-9923	평당동
+행정복지센터	남구	평당3동	효빈광역시 남구 평당동 74	78502	079-493-2144	평당동
+행정복지센터	남구	평당4동	효빈광역시 남구 평당동 201-8	78561	079-442-8501	평당동
+행정복지센터	남구	평당5동	효빈광역시 남구 평당동 19	78577	079-411-3092	평당동
+행정복지센터	남구	평당6동	효빈광역시 남구 평당동 452-2	78530	079-478-6621	평당동
+행정복지센터	남구	평당7동	효빈광역시 남구 평당동 91	78585	079-424-1109	평당동
+행정복지센터	남구	어간1동	효빈광역시 남구 어간동 33-5	78591	079-485-4022	어간동
+행정복지센터	남구	어간2동	효빈광역시 남구 어간동 120	78515	079-431-7530	어간동
+행정복지센터	남구	어간3동	효빈광역시 남구 어간동 258-4	78521	079-462-8819	어간동
+행정복지센터	남구	월천동	효빈광역시 남구 월천동 5-11	78553	079-491-5341	월천동
+행정복지센터	남구	평당1동	효빈광역시 남구 평당동 112	78508	079-455-2983	평당동
+행정복지센터	남구	항1동	효빈광역시 북구 항동1가 42	79015	079-324-1845	항동1가
+행정복지센터	남구	항2동	효빈광역시 북구 항동1가 89-2	79022	079-381-9023	항동1가
+행정복지센터	남구	항3동	효빈광역시 북구 항동2가 17	79034	079-345-6612	항동2가
+행정복지센터	남구	항4동	효빈광역시 북구 항동3가 204-1	79041	079-392-4155	항동3가
+행정복지센터	북구	고송1동	효빈광역시 북구 고송동 55-3	79112	079-521-8834	고송동
+행정복지센터	북구	고송2동	효빈광역시 북구 고송동 198	79125	079-584-1029	고송동
+행정복지센터	북구	고송3동	효빈광역시 북구 고송동 301-4	79133	079-515-7741	고송동
+행정복지센터	북구	고송4동	효빈광역시 북구 고송동 82	79148	079-543-9205	고송동
+행정복지센터	북구	고송5동	효빈광역시 북구 고송동 415-2	79151	079-562-3188	고송동
+행정복지센터	북구	고송6동	효빈광역시 북구 고송동 27	79169	079-591-6452	고송동
+행정복지센터	북구	고송7동	효빈광역시 북구 고송동 110-9	79174	079-534-2091	고송동
+행정복지센터	북구	남전동	효빈광역시 북구 남전동 63	79058	079-371-5520	남전동
+행정복지센터	북구	오내1동	효빈광역시 북구 오내동 221-5	79062	079-318-8493	오내동
+행정복지센터	북구	오내2동	효빈광역시 북구 오내동 44	79077	079-354-1102	오내동
+행정복지센터	북구	중수2동	효빈광역시 북구 중수동 158-3	79081	079-382-7034	중수동
+행정복지센터	북구	중수3동	효빈광역시 북구 중수동 90	79095	079-331-4921	중수동
+행정복지센터	북구	중수4동	효빈광역시 북구 중수동 312-7	79018	079-365-8810	중수동
+행정복지센터	북구	채산동	효빈광역시 북구 채산동 18	79029	079-394-2563	채산동
+행정복지센터	북구	고송8동	효빈광역시 북구 고송동 502-1	79188	079-512-4407	고송동
+행정복지센터	북구	사능1동	효빈광역시 북구 사능동3가 77	79031	079-341-9082	사능동3가
+행정복지센터	북구	사능2동	효빈광역시 북구 사능동2가 134-2	79044	079-375-1145	사능동2가
+행정복지센터	북구	산고동	효빈광역시 북구 추산동 9	79050	079-328-6631	추산동
+행정복지센터	북구	소조동	효빈광역시 북구 소조동 265-4	79067	079-351-3098	소조동
+행정복지센터	북구	중수1동	효빈광역시 북구 중수동 41	79072	079-314-8825	중수동
+행정복지센터	북구	진희동	효빈광역시 북구 진희동 188-9	79085	079-392-5014	진희동
+행정복지센터	북구	천왕사동	효빈광역시 북구 천왕사동 32	79099	079-366-7421	천왕사동
+행정복지센터	북구	청능동	효빈광역시 북구 청능동 105-1	79010	079-335-2980	청능동
+행정복지센터	북구	포산동	효빈광역시 북구 포산동 514	79023	079-381-4456	포산동
+행정복지센터	서구	과진1동	효빈광역시 서구 과진동 88-2	77519	079-624-1593	과진동
+행정복지센터	서구	과진2동	효빈광역시 서구 과진동 150	77528	079-681-4022	과진동
+행정복지센터	서구	과진3동	효빈광역시 서구 과진동 304-5	77535	079-655-8819	과진동
+행정복지센터	서구	과진4동	효빈광역시 서구 과진동 21	77541	079-612-3904	과진동
+행정복지센터	서구	과진5동	효빈광역시 서구 과진동 412-8	77556	079-693-7741	과진동
+행정복지센터	서구	과진6동	효빈광역시 서구 과진동 76	77560	079-641-2055	과진동
+행정복지센터	서구	과진7동	효빈광역시 서구 과진동 189-1	77574	079-678-5532	과진동
+행정복지센터	서구	당선1동	효빈광역시 서구 당선동 53	77589	079-635-1108	당선동
+행정복지센터	서구	당선2동	효빈광역시 서구 당선동 227-4	77592	079-614-9920	당선동
+행정복지센터	서구	당선3동	효빈광역시 서구 당선동 110	77505	079-662-4813	당선동
+행정복지센터	서구	당선4동	효빈광역시 서구 당선동 385-2	77511	079-651-7049	당선동
+행정복지센터	서구	북성동	효빈광역시 서구 북문동2가 40	77524	079-684-2256	북문동2가
+행정복지센터	서구	사복1동	효빈광역시 서구 사복동 166-7	77539	079-621-8890	사복동
+행정복지센터	서구	사복2동	효빈광역시 서구 사복동 8	77547	079-695-3142	사복동
+행정복지센터	서구	청덕1동	효빈광역시 서구 청덕동 291-3	77552	079-633-5011	청덕동
+행정복지센터	서구	청덕2동	효빈광역시 서구 청덕동 65	77568	079-674-8293	청덕동
+행정복지센터	서구	청덕3동	효빈광역시 서구 청덕동 104-1	77570	079-618-4457	청덕동
+행정복지센터	안천구	뇌전동	효빈광역시 안천구 뇌전동 33	77815	079-942-1598	뇌전동
+행정복지센터	안천구	당가1동	효빈광역시 안천구 당가동 152-8	77829	079-981-4033	당가동
+행정복지센터	안천구	당가2동	효빈광역시 안천구 당가동 70	77834	079-955-8821	당가동
+행정복지센터	안천구	백합동	효빈광역시 안천구 백합동 218-5	77841	079-912-3914	백합동
+행정복지센터	안천구	북택동	효빈광역시 안천구 북택동 11	77856	079-993-7750	북택동
+행정복지센터	안천구	안천1동	효빈광역시 안천구 안천동 405-2	77860	079-941-2066	안천동
+행정복지센터	안천구	안천2동	효빈광역시 안천구 안천동 88	77874	079-978-5541	안천동
+행정복지센터	안천구	안천3동	효빈광역시 안천구 안천동 173-1	77889	079-935-1119	안천동
+행정복지센터	안천구	안천4동	효빈광역시 안천구 안천동 22	77892	079-914-9931	안천동
+행정복지센터	안천구	안천5동	효빈광역시 안천구 안천동 310-4	77805	079-962-4824	안천동
+행정복지센터	안천구	안천6동	효빈광역시 안천구 안천동 95	77811	079-951-7058	안천동
+행정복지센터	안천구	안천7동	효빈광역시 안천구 안천동 427-6	77824	079-984-2267	안천동
+행정복지센터	안천구	성저동	효빈광역시 안천구 성저동 50	77839	079-921-8801	성저동
+행정복지센터	안천구	악부동	효빈광역시 안천구 악부동 188-3	77847	079-995-3153	악부동
+행정복지센터	안천구	이십기동	효빈광역시 안천구 이십기동 6	77852	079-933-5022	이십기동
+행정복지센터	안천구	이자1동	효빈광역시 안천구 이자동 254-1	77868	079-974-8304	이자동
+행정복지센터	안천구	이자2동	효빈광역시 안천구 이자동 81	77870	079-918-4468	이자동
+행정복지센터	안천구	이자3동	효빈광역시 안천구 이자동 119-5	77883	079-952-1927	이자동
+행정복지센터	안천구	이자4동	효빈광역시 안천구 이자동 302	77891	079-985-6610	이자동
+행정복지센터	안천구	창건동	효빈광역시 안천구 창건동 47-2	77808	079-924-3085	창건동
+행정복지센터	안천구	칠채동	효빈광역시 안천구 능릉동 165	77819	079-961-8842	능릉동
+행정복지센터	중구	고도동	효빈광역시 중구 우이동 28-4	77025	079-242-1598	우이동
+행정복지센터	중구	궁영동	효빈광역시 중구 영동1가 110	77039	079-281-4033	영동1가
+행정복지센터	중구	내조1동	효빈광역시 중구 내조동 305-1	77044	079-255-8821	내조동
+행정복지센터	중구	내조2동	효빈광역시 중구 내조동 72	77051	079-212-3914	내조동
+행정복지센터	중구	내항동	효빈광역시 중구 내항동 144-8	77066	079-293-7750	내항동
+행정복지센터	중구	신덕동	효빈광역시 중구 신덕동 55	77070	079-241-2066	신덕동
+행정복지센터	중구	약맥동	효빈광역시 중구 목동 219-3	77084	079-278-5541	목동
+행정복지센터	중구	유내동	효빈광역시 중구 유내동 90	77099	079-235-1119	유내동
+행정복지센터	중구	조유동	효빈광역시 중구 조유동5가 411-2	77012	079-214-9931	조유동5가
+행정복지센터	중구	중앙동	효빈광역시 중구 중앙로3가 18	77028	079-262-4824	중앙로3가
+행정복지센터	중구	중정동	효빈광역시 중구 완동1가 277-5	77033	079-251-7058	완동1가
+행정복지센터	동구	덕현11동	효빈광역시 동구 덕현동 83	78015	079-284-2267	덕현동
+행정복지센터	동구	덕현1동	효빈광역시 동구 덕현동 102-1	78029	079-221-8801	덕현동
+행정복지센터	동구	덕현2동	효빈광역시 동구 덕현동 45	78034	079-295-3153	덕현동
+행정복지센터	동구	덕현3동	효빈광역시 동구 덕현동 318-6	78041	079-233-5022	덕현동
+행정복지센터	동구	덕현4동	효빈광역시 동구 덕현동 17	78056	079-274-8304	덕현동
+행정복지센터	동구	덕현5동	효빈광역시 동구 덕현동 250-3	78060	079-218-4468	덕현동
+행정복지센터	동구	덕현6동	효빈광역시 동구 덕현동 99	78074	079-252-1927	덕현동
+행정복지센터	동구	덕현7동	효빈광역시 동구 덕현동 411-8	78089	079-285-6610	덕현동
+행정복지센터	동구	덕현9동	효빈광역시 동구 덕현동 22	78092	079-224-3085	덕현동
+행정복지센터	동구	사가당1동	효빈광역시 동구 사가당동 135-4	78005	079-261-8842	사가당동
+행정복지센터	동구	사가당2동	효빈광역시 동구 사가당동 60	78011	079-242-9915	사가당동
+행정복지센터	동구	사가당3동	효빈광역시 동구 사가당동 288-1	78024	079-281-5534	사가당동
+행정복지센터	동구	사가당4동	효빈광역시 동구 사가당동 14	78039	079-255-2089	사가당동
+행정복지센터	동구	전천동	효빈광역시 동구 전천동 170-5	78047	079-212-7741	전천동
+행정복지센터	창전구	광정동	효빈광역시 동구 광정동 82	78052	079-293-1102	광정동
+행정복지센터	창전구	동곡동	효빈광역시 동구 동곡동 309-2	78068	079-241-8856	동곡동
+행정복지센터	창전구	진백동	효빈광역시 동구 진백동 55	78070	079-278-3924	진백동
+행정복지센터	창전구	창전5동	효빈광역시 창전구 창전동 421-3	78818	079-842-1598	창전동
+행정복지센터	창전구	칠심1동	효빈광역시 창전구 칠심동 90	78829	079-881-4033	칠심동
+행정복지센터	창전구	칠심2동	효빈광역시 창전구 칠심동 115-8	78834	079-855-8821	칠심동
+행정복지센터	창전구	칠심3동	효빈광역시 창전구 칠심동 27	78841	079-812-3914	칠심동
+행정복지센터	창전구	쌍엽1동	효빈광역시 창전구 쌍엽동 250-1	78856	079-893-7750	쌍엽동
+행정복지센터	창전구	쌍엽2동	효빈광역시 창전구 쌍엽동 63	78860	079-841-2066	쌍엽동
+행정복지센터	창전구	유류동	효빈광역시 창전구 유류동 314-4	78874	079-878-5541	유류동
+행정복지센터	창전구	창전1동	효빈광역시 창전구 창전동 18	78889	079-835-1119	창전동
+행정복지센터	창전구	창전2동	효빈광역시 창전구 창전동 199-2	78892	079-814-9931	창전동
+행정복지센터	창전구	창전3동	효빈광역시 창전구 창전동 77	78805	079-862-4824	창전동
+행정복지센터	창전구	창전4동	효빈광역시 창전구 창전동 405-6	78811	079-851-7058	창전동
+행정복지센터	창전구	팔조동	효빈광역시 창전구 팔조동 32	78824	079-884-2267	팔조동
+행정복지센터	청엽구	우전1동	효빈광역시 청엽구 우전동 155-3	79515	079-721-8801	우전동
+행정복지센터	청엽구	우전2동	효빈광역시 청엽구 우전동 80	79529	079-795-3153	우전동
+행정복지센터	청엽구	우전3동	효빈광역시 청엽구 우전동 210-5	79534	079-733-5022	우전동
+행정복지센터	청엽구	우택동	효빈광역시 청엽구 우택동 14	79541	079-774-8304	우택동
+행정복지센터	청엽구	청엽1동	효빈광역시 청엽구 청엽동 332-1	79556	079-718-4468	청엽동
+행정복지센터	청엽구	청엽2동	효빈광역시 청엽구 청엽동 91	79560	079-752-1927	청엽동
+행정복지센터	청엽구	청엽3동	효빈광역시 청엽구 청엽동 188-4	79574	079-785-6610	청엽동
+행정복지센터	청엽구	청엽4동	효빈광역시 청엽구 청엽동 25	79589	079-724-3085	청엽동
+행정복지센터	청엽구	동리동	효빈광역시 청엽구 동리동 401-7	79592	079-761-8842	동리동
+행정복지센터	청엽구	등동	효빈광역시 청엽구 등동 50	79505	079-742-9915	등동
+행정복지센터	청엽구	마잡1동	효빈광역시 청엽구 마잡동 173-2	79511	079-781-5534	마잡동
+행정복지센터	청엽구	마잡2동	효빈광역시 청엽구 마잡동 8	79524	079-755-2089	마잡동
+행정복지센터	청엽구	비마리동	효빈광역시 청엽구 비마동 255-9	79539	079-712-7741	비마동
+행정복지센터	청엽구	입빈동	효빈광역시 청엽구 입동3가 62	79547	079-793-1102	입동3가
+행정복지센터	청엽구	청엽5동	효빈광역시 청엽구 청엽동 114-5	79552	079-741-8856	청엽동
+행정복지센터	청엽구	청엽6동	효빈광역시 청엽구 청엽동 30	79568	079-778-3924	청엽동
+행정복지센터	탄성군	고해읍	효빈광역시 탄성군 고해읍 고해리 142-3	79915	079-142-1598	고해리
+행정복지센터	탄성군	도변읍	효빈광역시 탄성군 도변읍 도변리 88	79929	079-181-4033	도변리
+행정복지센터	탄성군	도변읍 앵내출장소	효빈광역시 탄성군 도변읍 앵내리 215-1	79934	079-155-8821	앵내리
+행정복지센터	탄성군	도향면	효빈광역시 탄성군 도향면 분음리 74	79941	079-112-3914	분음리
+행정복지센터	탄성군	서목읍	효빈광역시 탄성군 서목읍 서목리 301-8	79956	079-193-7750	서목리
+행정복지센터	탄성군	소원면	효빈광역시 탄성군 소원면 소원리 19	79960	079-141-2066	소원리
+행정복지센터	탄성군	야진읍	효빈광역시 탄성군 야진읍 야진리 452-2	79974	079-178-5541	야진리
+행정복지센터	탄성군	정근면	효빈광역시 탄성군 정근면 층부리 91	79989	079-135-1119	층부리
+행정복지센터	탄성군	탄성읍	효빈광역시 탄성군 탄성읍 탄성리 133-5	79992	079-114-9931	탄성리
+행정복지센터	탄성군	흑택면	효빈광역시 탄성군 흑택면 흑택리 120	79905	079-162-4824	흑택리
+            `;
+
+            // 데이터 파싱
+            const lines = rawData.trim().split('\n');
+            const mainOffices = [];
+            const subOffices = {};
+
+            // 구·군 순서 정의 (렌더링 시 이 순서대로 출력)
+            const guOrder = ['중구', '동구', '서구', '남구', '북구', '안천구', '창전구', '청엽구', '탄성군'];
+
+            // 헤더 건너뛰고 데이터 처리
+            for (let i = 1; i < lines.length; i++) {
+                const parts = lines[i].split('\t').map(p => p.trim());
+                if (parts.length < 7) continue;
+
+                const [category, region, name, address, zipcode, phone, beopjeong] = parts;
+
+                if (category === '광역시청' || category === '구군청') {
+                    mainOffices.push({ region, name, address, zipcode, phone, beopjeong, category });
+                } else if (category === '행정복지센터') {
+                    if (!subOffices[region]) subOffices[region] = [];
+                    // 행정동명 가나다순 정렬을 위해 우선 배열에 담음
+                    subOffices[region].push({ name, address, zipcode, phone, beopjeong });
+                }
+            }
+
+            // 1. 시청 및 구/군청 렌더링
+            const mainTbody = document.getElementById('main-office-tbody');
+            mainOffices.forEach(item => {
+                const tr = document.createElement('tr');
+                const isCityHall = item.category === '광역시청';
+                
+                tr.innerHTML = `
+                    <td class="${isCityHall ? 'font-black text-blue-900 bg-blue-50' : 'font-bold bg-gray-50'}">${item.region}</td>
+                    <td class="${isCityHall ? 'font-bold text-blue-800' : 'font-bold'}">${item.name}</td>
+                    <td class="text-left pl-4">${item.address}</td>
+                    <td>${item.zipcode}</td>
+                    <td class="font-medium text-gray-800">${item.phone}</td>
+                    <td class="text-sm text-gray-500">${item.beopjeong}</td>
+                `;
+                mainTbody.appendChild(tr);
+            });
+
+            // 2. 각 구/군별 행정복지센터 렌더링
+            const subContainer = document.getElementById('sub-office-container');
+            
+            guOrder.forEach(gu => {
+                if (!subOffices[gu] || subOffices[gu].length === 0) return;
+
+                // 해당 구의 데이터를 이름(가나다) 순으로 정렬
+                // 단, '가'가 붙은 이름(예: 사능동1가) 등의 숫자 정렬을 위해 localeCompare 옵션 사용
+                const sortedItems = subOffices[gu].sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+
+                const sectionId = `section-${gu === '탄성군' ? 'tanseong' : gu === '청엽구' ? 'cheongyeop' : gu === '창전구' ? 'changjeon' : gu === '안천구' ? 'ancheon' : gu === '북구' ? 'buk' : gu === '남구' ? 'nam' : gu === '서구' ? 'seo' : gu === '동구' ? 'dong' : 'jung'}`;
+
+                const sectionHtml = `
+                    <section id="${sectionId}" class="mb-14">
+                        <h3 class="bullet-title">${gu} 관할 행정복지센터</h3>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th width="15%">행정동·읍·면</th>
+                                        <th width="45%">소재지 (도로명/지번)</th>
+                                        <th width="10%">우편번호</th>
+                                        <th width="15%">전화번호</th>
+                                        <th width="15%">소재 법정동·리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${sortedItems.map(item => `
+                                        <tr>
+                                            <th class="bg-gray-50 text-gray-800">${item.name}</th>
+                                            <td class="text-left pl-4">${item.address}</td>
+                                            <td>${item.zipcode}</td>
+                                            <td class="font-medium text-gray-800">${item.phone}</td>
+                                            <td class="text-sm text-gray-500">${item.beopjeong}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                `;
+                subContainer.insertAdjacentHTML('beforeend', sectionHtml);
+            });
+            
+            // 아이콘 렌더링
+            lucide.createIcons();
+        });
+    </script>
+        <script src="common.js"></script>
+</body>
+</html>

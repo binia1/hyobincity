@@ -3,340 +3,553 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>역사관 - 효빈광역시</title>
+    <title>효빈소개 - 효빈의유래와연혁 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> 
-        body { font-family: 'Noto Sans KR', sans-serif; } 
-        /* 타임라인 스타일 */
-        .timeline-line::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 23px;
-            width: 4px;
-            background-color: #e2e8f0; /* slate-200 */
-            z-index: 0;
-        }
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
         
-        /* 모달 애니메이션 */
-        #modal-backdrop.open {
-            display: flex;
-            opacity: 1;
-            pointer-events: auto;
-        }
-        #modal-panel.open {
-            opacity: 1;
-            transform: scale(1);
-        }
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+        
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover { background-color: #f8fafc; color: #1e3a8a; }
+
+        /* 타이틀 디자인 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 표 스타일 */
+        .history-table { width: 100%; border-top: 2px solid #1e3a8a; border-collapse: collapse; font-size: 0.95rem; text-align: center; }
+        .history-table th, .history-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 12px 8px; vertical-align: middle; word-break: keep-all; }
+        .history-table th:last-child, .history-table td:last-child { border-right: none; }
+        .history-table th { background-color: #f1f5f9; color: #334155; font-weight: 700; }
+        .history-table td { color: #475569; }
+        .history-table tr:hover td { background-color: #f8fafc; }
+
+        /* 모달 애니메이션 및 기타 */
+        #modal-backdrop.open { display: flex; opacity: 1; pointer-events: auto; }
+        #modal-panel.open { opacity: 1; transform: scale(1); }
 
         /* 커스텀 스크롤바 */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 타임라인 카드 호버 시 전환 효과 */
+        .timeline-card { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800">
+
+    <!-- 1. 최상단 헤더 -->
     <div id="common-header"></div>
 
-    <!-- 히어로 섹션 -->
-    <div class="w-full bg-slate-700 py-24 text-center text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-stone-900 opacity-80"></div>
-        <img src="history_bg.jpg" class="absolute inset-0 w-full h-full object-cover -z-10" onerror="this.style.display='none'">
-        <div class="relative z-10 px-4">
-            <span class="inline-block py-1 px-3 rounded-full bg-indigo-500/50 backdrop-blur-sm text-indigo-100 text-sm font-bold mb-4 border border-indigo-400/30">SINCE 1914</span>
-            <h1 class="text-4xl md:text-6xl font-black mb-6 break-keep tracking-tight leading-tight">효빈의 발자취,<br>천년의 미래</h1>
-            <p class="text-stone-300 text-lg md:text-xl break-keep font-light max-w-2xl mx-auto">
-                작은 읍성에서 시작하여 인구 200만의 거대 광역시가 되기까지.<br>
-                기적과 시련, 그리고 재건의 역사를 기록합니다.
-            </p>
-        </div>
+    <!-- 2. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">효빈소개</h1>
     </div>
 
-    <main class="max-w-5xl mx-auto px-4 py-16 w-full mb-10">
+    <!-- 3. 본문 컨테이너 -->
+    <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10">
         
-        <!-- 타임라인 컨테이너 -->
-        <div class="relative space-y-12 ml-2 md:ml-6 mb-32">
-            <!-- 수직 선 -->
-            <div class="absolute left-[11px] top-2 bottom-0 w-1 bg-slate-200 -z-10"></div>
+        <!-- 아코디언 LNB (좌측 메뉴) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">자매결연도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                                 <li><a href="역대시장.html">역대시장</a></li>
+
+                            <li><a href="history.html" class="current">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈 <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈의역사 <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">효빈의유래와연혁</strong>
+            </div>
+
+            <h2 class="text-3xl font-black text-gray-900 content-title">효빈의 유래와 연혁</h2>
+
+            <!-- 내부 히어로 배너 -->
+            <div class="relative w-full bg-slate-800 rounded-xl overflow-hidden p-10 mb-14 flex flex-col items-center justify-center text-center shadow-lg">
+                <div class="absolute inset-0 opacity-40 mix-blend-overlay">
+                    <img src="이미지/history_bg.jpg" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1548509925-0e6ee78c3531?q=80&w=2000';">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-800/60 to-transparent"></div>
+                <div class="relative z-10 w-full">
+                    <span class="inline-block py-1 px-4 rounded-full bg-blue-500/20 backdrop-blur-sm text-blue-200 text-sm font-bold mb-4 border border-blue-400/30">SINCE 1914</span>
+                    <h3 class="text-3xl md:text-5xl font-black mb-5 text-white tracking-tight leading-tight">효빈의 발자취, 천년의 미래</h3>
+                    <p class="text-slate-300 text-base md:text-lg break-keep font-light max-w-2xl mx-auto">
+                        작은 읍성에서 시작하여 인구 300만을 바라보는 거대 광역시가 되기까지.<br>
+                        도전과 성취, 그리고 찬란한 재건의 역사를 기록합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1. 효빈의 유래 -->
+            <section class="mb-16">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-1.5 h-6 bg-blue-800"></div>
+                    <h3 class="text-2xl font-bold text-gray-900">효빈의 유래와 성장 배경</h3>
+                </div>
+                <div class="bg-gray-50 p-6 sm:p-8 rounded-xl border border-gray-200 text-gray-700 leading-relaxed space-y-5 shadow-sm">
+                    <div>
+                        <h4 class="text-lg font-bold text-blue-900 mb-2 flex items-center gap-2"><i data-lucide="book-open" class="w-5 h-5"></i> 조선 시대</h4>
+                        <p class="pl-7">조선 시대의 효빈은 인접한 덕주, 빈주 등 주요 거점 도시에 비해서는 규모가 상대적으로 작은 고을이었습니다. 그러나 해안 및 수운 교통의 이점을 바탕으로 지역의 소규모 중심지 역할을 꾸준히 수행하며 역사적 명맥을 이어왔습니다.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-blue-900 mb-2 flex items-center gap-2"><i data-lucide="ship" class="w-5 h-5"></i> 개항기와 일제강점기</h4>
+                        <p class="pl-7">1880년대 개항을 맞이하면서 본격적인 근대적 성장의 궤도에 올랐습니다. 특히 1883년 발생한 '계미군란(빈주 지역 군사 반란)'과 '계미 대홍수'로 인하여 기존의 도(道) 관아가 크게 파괴됨에 따라, 행정과 상업 기능을 대체할 새로운 중심지로서 효빈 지역이 크게 부상하였습니다. 이후 항만 인프라 확충과 철도 교통의 획기적인 발달에 힘입어 외부 인구가 대거 유입되었으며, 1929년에 이르러서는 과거 지역 맹주였던 빈주의 인구 및 경제 규모를 능가하는 덕북권 최대 도시로 자리매김하게 되었습니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 행정구역 변천사 표 -->
+            <section class="mb-16">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-1.5 h-6 bg-blue-800"></div>
+                    <h3 class="text-2xl font-bold text-gray-900">행정구역 변천사</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="history-table min-w-[800px]">
+                        <thead>
+                            <tr>
+                                <th width="20%">시대 / 구분</th>
+                                <th width="20%">시내 지역</th>
+                                <th width="20%">탄성 지역</th>
+                                <th width="20%">서목 지역</th>
+                                <th width="20%">도향 지역</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold">구한말<br>(1896)</td>
+                                <td>덕빈북도<br><strong>효빈군 (孝彬郡)</strong></td>
+                                <td>덕빈북도<br><strong>탄성군 (彈城郡)</strong></td>
+                                <td>덕빈북도 <strong>선곡군</strong> 남내면<br>덕빈북도 <strong>탄성군</strong> 야진/동/서목면</td>
+                                <td>덕빈북도 <strong>약산군</strong> 향리/정선/근원면<br>덕빈북도 <strong>탄성군</strong> 도진면</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold bg-gray-50">일제강점기<br>(1914)</td>
+                                <td class="bg-gray-50">덕빈북도<br><strong>효빈군 (孝彬郡)</strong></td>
+                                <td class="text-gray-400 bg-gray-50">-</td>
+                                <td class="bg-gray-50">덕빈북도<br><strong>선곡군</strong> 서목/야진면</td>
+                                <td class="bg-gray-50">덕빈북도<br><strong>약산군</strong> 도향/정근면</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">일제강점기<br>(1935)</td>
+                                <td>덕빈북도<br><strong class="text-blue-700">효빈부 (孝彬府)</strong><br><span class="text-xs text-gray-500">(승격 분리)</span></td>
+                                <td>덕빈북도<br><strong>탄성군 (彈城郡)</strong></td>
+                                <td>덕빈북도<br><strong>선곡군</strong> 서목/야진면</td>
+                                <td>덕빈북도<br><strong>약산군</strong> 도향/정근면</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold bg-gray-50">대한민국<br>(1949)</td>
+                                <td class="bg-gray-50">덕빈북도<br><strong class="text-blue-700">효빈시 (孝彬市)</strong><br><span class="text-xs text-gray-500">(개칭 및 승격)</span></td>
+                                <td class="bg-gray-50">덕빈북도<br><strong>탄성군 (彈城郡)</strong></td>
+                                <td class="bg-gray-50">덕빈북도<br><strong>선곡군</strong> 서목/야진면</td>
+                                <td class="bg-gray-50">덕빈북도<br><strong>약산군</strong> 도향/정근면</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">대한민국<br>(1963~1980)</td>
+                                <td colspan="2">1963년 구(區)제 실시 (중구, 남구, 서구)<br>탄성군 일대 지속 편입 및 행정구역 대확장</td>
+                                <td>1963 덕빈북도<br><strong>탄성군</strong> 서목면/야진읍 편입</td>
+                                <td>1980 덕빈북도<br><strong>안천시</strong> (소원면 편입)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold bg-indigo-50 text-indigo-900">효빈직할시<br>(1981)</td>
+                                <td colspan="4" class="bg-indigo-50 text-indigo-900 font-medium">
+                                    도(道) 산하에서 분리되어 <strong class="text-indigo-700 font-bold">효빈직할시 (孝彬直轄市)</strong> 승격<br>
+                                    <span class="text-sm">(1983년 안천시 일대 편입 및 안천구 신설 / 1986년 도향면, 정근면 탄성군 편입)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold bg-blue-50 text-blue-900">효빈광역시<br>(1995~)</td>
+                                <td colspan="4" class="bg-blue-50 text-blue-900 font-medium">
+                                    도농통합에 따른 <strong class="text-blue-700 font-bold">효빈광역시 (孝彬廣域市)</strong> 출범 및 탄성군 전면 통합<br>
+                                    <span class="text-sm">(현재 8구 1군 체제 완성)</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 3. 타임라인 컨테이너 -->
+            <section class="mb-24">
+                <div class="flex items-center gap-2 mb-10">
+                    <div class="w-1.5 h-6 bg-blue-800"></div>
+                    <h3 class="text-2xl font-bold text-gray-900">연표로 보는 효빈의 발자취</h3>
+                </div>
+
+                <div class="relative space-y-10 ml-2 md:ml-6">
+                    <!-- 수직 선 -->
+                    <div class="absolute left-[11px] top-2 bottom-0 w-1 bg-slate-200 -z-10"></div>
+                    
+                    <!-- 1914 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-stone-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-stone-600 mb-2">1914. 04. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1914. 04. 01", "title": "효빈군(孝彬郡) 통합 출범", "desc": "일제의 부군면 통폐합 조치에 따라 기존의 효빈군과 탄성군이 합군되어, 현대 효빈의 지리적 원형이 형성되었습니다.", "detail": "이 통합 조치는 훗날 효빈이 덕북권의 거대 광역시로 성장하는 데 필요한 행정적, 지리적 모태가 되었습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-stone-600 transition-colors">효빈군(孝彬郡) 통합 출범</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                부군면 통폐합으로 효빈군과 탄성군이 합쳐지며, 현대 효빈의 지리적 원형이 형성되었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1931 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-slate-700 mb-2">1931</h3>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1931년", "title": "효빈읍 승격 및 시영전차 개통", "desc": "효빈면이 읍으로 승격됨과 동시에 시내 주요 구간을 잇는 시영전차가 개통하며 근대화의 첫발을 내디뎠습니다.", "detail": "어간중앙과 효빈대학을 잇는 궤도 전차가 운행을 시작했습니다. 이 전차 인프라는 현재 시민들의 발이 되어주는 도시철도 7호선의 시초가 되었습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-800 transition-colors">효빈읍 승격 및 시영전차 개통</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                효빈면이 읍으로 승격되고, 근대 교통 수단인 전차가 운행을 시작하며 본격적인 도시화가 진행되었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1935 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-indigo-800 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-indigo-800 mb-2">1935. 10. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-indigo-200 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1935. 10. 01", "title": "효빈부(府) 승격", "desc": "도시화가 급진전된 효빈읍 지역이 독립된 효빈부로 승격되었습니다.", "detail": "효빈부 승격과 함께 잔여 농촌 지역은 다시 탄성군이라는 명칭을 사용하게 되었습니다. 행정 분리를 통해 각 지역 특성에 맞는 행정 기반을 다졌습니다."})'>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-xl font-bold text-slate-700 group-hover:text-indigo-800 transition-colors">효빈부(府) 승격</h4>
+                                <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200">CITY STATUS</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                효빈읍이 효빈부로 승격되며 도시 행정의 독립성을 확보하였고, 잔여 지역은 탄성군으로 변경되었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1941~1946 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-slate-500 mb-2">1941 ~ 1946</h3>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1941 ~ 1946", "title": "시역 대확장기", "desc": "사능면, 어간면, 청엽면의 주요 지역들이 효빈부로 순차적으로 편입되며 도시 외연이 크게 팽창했습니다.", "detail": "<ul class=\"list-disc pl-5 space-y-1 text-sm\"><li>1941년: 사능면 천석리, 내조리, 사능리 등 편입</li><li>1942년: 사능면 월천리, 박산리 및 어간면 항리 일부 편입</li><li>1945년: 청엽면 신덕리, 사가당리, 등리 편입</li><li>1946년: 사능면 운양리 편입</li></ul>"})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-600 transition-colors">시역 확장 (사능, 어간, 청엽 편입)</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                1940년대에 걸쳐 외곽의 주요 리(里) 지역들이 지속 편입되며 시 규모가 비약적으로 확대되었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1949 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-teal-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-teal-600 mb-2">1949. 08. 15</h3>
+                        <div class="bg-white p-6 rounded-xl border border-teal-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1949. 08. 15", "title": "효빈시(市) 개칭", "desc": "지방자치법 시행에 따라 효빈부에서 효빈시로 명칭이 변경되었습니다.", "detail": "광복 후 수립된 새로운 행정 체계에 맞추어 시(市)로 승격 및 개칭되었으며, 사능면 잔여 지역을 추가로 편입하여 광역 도시로서의 면모를 갖추기 시작했습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-teal-600 transition-colors">효빈시(市) 개칭 및 구역 편입</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                지방자치법 제정에 따라 효빈시로 공식 명칭이 변경되었으며, 사능면 잔여 구역 편입이 완료되었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1955~1957 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-cyan-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-cyan-600 mb-2">1955 ~ 1957</h3>
+                        <div class="bg-white p-6 rounded-xl border border-cyan-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1955 ~ 1957", "title": "청엽·어간면 편입 및 구(區)제 시행 준비", "desc": "인접한 청엽면과 어간면 전역을 완전히 편입하였으며, 1957년에는 행정 수요 급증에 대비하여 시청사를 이전했습니다.", "detail": "중구 중앙로에 위치했던 기존 시청사를 중구 중보로로 신축 이전하며, 급팽창하는 도심의 행정 지휘 기능을 한층 강화하였습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-cyan-600 transition-colors">청엽·어간면 전면 편입 및 시청사 이전</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                도시 외연 확장에 따라 청엽면과 어간면을 완전히 흡수하고, 행정 효율을 위해 시청을 중구 중보로로 이전했습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1963 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-blue-500 mb-2">1963. 01. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1963. 01. 01", "title": "구(區)제 실시 및 2차 시역 대확장", "desc": "인구 급증에 대응하여 효빈시에 공식적으로 구(區)제가 시행되었습니다.", "detail": "<ul class=\"list-disc pl-5 space-y-1 text-sm\"><li>중구, 남구, 서구 공식 신설</li><li>고송면 일부 및 창전면 전역 대규모 편입</li><li>인근 탄성군 관내 탄성면 및 이자면의 읍(邑) 승격 시행</li></ul>"})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-blue-600 transition-colors">구(區)제 실시 및 시역 대확장</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                중구, 남구, 서구가 최초로 설치되었으며 고송면과 창전면 등 대규모 구역 편입이 이루어졌습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                     <!-- 1971~1979 -->
+                     <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-orange-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-orange-500 mb-2">1971 ~ 1979</h3>
+                        <div class="bg-white p-6 rounded-xl border border-orange-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1971 ~ 1979", "title": "다핵 도심 체제 구축 (북구·동구·청엽구 신설)", "desc": "1970년대 고도 성장기를 맞아 행정 구역이 지속적으로 세분화되고 인접 위성도시들의 발전이 가속화되었습니다.", "detail": "<ul class=\"list-disc pl-5 space-y-1 text-sm\"><li>1971년: 고송면/당가면 전역 편입 및 <strong>북구</strong> 신설</li><li>1973년: 중수면/흑택면 일부 편입 및 <strong>동구</strong> 신설</li><li>1979년: <strong>청엽구</strong> 분리 신설 / 안천읍의 안천시 승격</li></ul>"})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-orange-600 transition-colors">북구·동구·청엽구 신설</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                산업화와 인구 유입에 발맞추어 북구, 동구, 청엽구가 차례로 신설되며 본격적인 다핵 도심 체제를 갖추었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1980~1981 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-indigo-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-indigo-500 mb-2">1981. 07. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-indigo-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1981. 07. 01", "title": "효빈직할시 승격", "desc": "행정 구역 편입 및 통합을 마무리하고, 도(道)의 관할에서 벗어나 중앙정부 직할시로 격상되었습니다.", "detail": "1980년대 초반 안천시(소원면 등) 및 이자읍 관할 조정을 마무리하고 1981년 7월 1일 자로 덕빈북도에서 완전히 분리되어 효빈직할시로 공식 승격되었습니다."})'>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-xl font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">효빈직할시 승격</h4>
+                                <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200">JIKHAL-SI</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                덕빈북도에서 분리되어 정부 직할시로 승격하며 광역 행정 체계의 확고한 기반을 다졌습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1983~1989 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-slate-500 mb-2">1983 ~ 1989</h3>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1983 ~ 1989", "title": "안천시 편입 및 시계(市界) 최종 확정", "desc": "직할시 승격 이후 인접한 안천시 일대를 완전히 흡수 통합하며 안천구를 신설하였습니다.", "detail": "1983년 안천시 및 이자읍 일대를 편입하여 안천구를 신설하였고, 1986년 약산군 일대를 탄성군으로 추가 편입, 1989년 고해면의 읍 승격 등을 거치며 현대 효빈광역시의 시계(市界) 및 생활권 권역을 1차적으로 완성했습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-600 transition-colors">안천시 통합 및 안천구 신설</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                주변 생활권을 효빈직할시로 대거 통합 흡수하며 광역 도시에 걸맞은 넉넉한 부지와 행정망을 확보했습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1995 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-green-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-green-600 mb-2">1995. 01. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-green-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "1995. 01. 01", "title": "효빈광역시 출범 (도농복합)", "desc": "지방자치제도 개편에 따라 탄성군 전역을 전면 통합하여 도농복합형 광역시인 &#39;효빈광역시&#39;로 출범했습니다.", "detail": "직할시에서 광역시로 명칭이 개편됨과 동시에 배후 지역인 탄성군을 완전 통합하였습니다. 또한 행정 수요를 고려해 청엽구의 일부를 창전구로 분리 신설하며 현재의 8구 1군 체제의 확고한 틀을 완성했습니다."})'>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-xl font-bold text-slate-700 group-hover:text-green-600 transition-colors">효빈광역시 출범</h4>
+                                <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded border border-green-200">METROPOLITAN</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                탄성군을 통합하여 도농복합 광역시 시대를 열었으며, 창전구를 신설하여 행정 편의를 극대화했습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2004 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-400 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-slate-500 mb-2">2004. 03</h3>
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2004. 03", "title": "광역시청사 북구 이전", "desc": "노후화되고 협소했던 중구 중보로 청사 시대를 마감하고, 북구 고송동 신청사로 전면 이전했습니다.", "detail": "1957년부터 약 반세기 동안 사용해온 중구 청사의 한계를 극복하고 광역 행정 수요에 적극 대응하기 위해, 신도시 인프라가 갖추어진 북구 고송동에 매머드급 신청사를 건립하여 이전하였습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-500 transition-colors">광역시청사 이전 (북구 고송동)</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                광역 행정 수요 급증에 부응하기 위해 현대식 설비를 갖춘 북구 고송동 신청사 시대를 열었습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2006 HAF -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-pink-500 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-pink-500 mb-2">2006. 05</h3>
+                        <div class="bg-white p-6 rounded-xl border border-pink-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2006. 05", "title": "제1회 효빈 애니메이션 페스티벌(HAF) 개최", "desc": "지역 문화 산업 육성 및 관광 특화 거점화를 위한 전략의 일환으로 제1회 HAF가 성대하게 개최되었습니다.", "detail": "2000년대 초반부터 기획된 지식재산권(IP) 연계 문화 특화 사업의 첫 결실입니다. 이 행사는 훗날 효빈이 아시아를 대표하는 서브컬처 특화 문화 도시로 도약하는 결정적인 분수령이 되었습니다."})'>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-xl font-bold text-slate-700 group-hover:text-pink-600 transition-colors">제1회 HAF 개최</h4>
+                                <span class="bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-0.5 rounded border border-pink-200">CULTURE</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                신성장 동력 확보를 위해 기획된 특화 문화 축제가 성공적으로 첫선을 보이며 문화 도시의 신호탄을 쏘아 올렸습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2006~2007 시정 과도기 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-800 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-slate-500 mb-2">2006. 07 ~ 2007. 11</h3>
+                        <div class="bg-slate-50 p-6 rounded-xl border border-slate-300 shadow-inner hover:shadow-md hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2006. 07 ~ 2007. 11", "title": "시정 과도기 및 시민사회의 성숙", "desc": "민선 4기 초기, 독단적인 대중교통(도시철도 및 전차) 폐지 시도와 편향적 정책으로 극심한 행정 혼선이 발생했던 과도기입니다.", "detail": "특정 민간 운수 업체의 독과점을 위한 궤도 교통망(도시철도 5·6호선 공사 중단 및 7호선 전차 폐지 시도) 훼손, 유망 문화 축제(HAF) 취소 등 독단적 시정에 맞서, 성숙한 시민들의 자발적 권리 수호 운동과 사법부의 엄정한 판결(당선 무효)을 통해 위기를 극복해낸 민주적 행정 복원의 역사적 시기입니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-900 transition-colors">대중교통 정책 개편 갈등 및 과도기</h4>
+                            <p class="text-slate-500 leading-relaxed break-keep text-sm">
+                                편향적인 대중교통 정책(전차 폐지 시도 등)으로 촉발된 시정 위기를 시민의 굳건한 의지와 법치주의를 통해 올바르게 정상화한 기간입니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2008 정상화 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-blue-600 mb-2">2008. 06</h3>
+                        <div class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2008. 06", "title": "시정 정상화 및 대중교통 공공성 확보", "desc": "재보궐 선거를 통해 출범한 새 시정부가 중단된 대형 국책 사업을 정상 궤도로 돌려놓았습니다.", "detail": "특정 업체(두청운수)에 의해 독점되던 버스 체계에 준공영제를 전격 도입하고, 중단되었던 도시철도 건설을 재개하였습니다. 아울러 폐지 위기에 처했던 HAF(문화 축제)를 부활시키는 등 공공성과 문화가 공존하는 행정을 확립했습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 group-hover:text-blue-600 transition-colors mb-2">시정 정상화 및 국책 사업 재개</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                버스 준공영제 도입, 도시철도 공사 재개, 특화 문화 축제(HAF) 부활 등 행정의 공공성을 전면적으로 회복하였습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2016 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-cyan-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-cyan-600 mb-2">2016. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-cyan-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2016. 01", "title": "효빈교통공사 출범", "desc": "대중교통 운영의 전문성과 효율성을 극대화하기 위하여 효빈도시공사에서 철도운영본부를 전면 분리·독립시켰습니다.", "detail": "이를 통해 광역 철도망과 시내 궤도 교통의 안정적인 운영 기반을 다졌으며, 향후 HAF 등 대형 국제 문화 행사 시 발생할 수 있는 막대한 교통 수요에 체계적으로 대응할 수 있는 전문 공기업 체제를 구축했습니다."})'>
+                            <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-cyan-600 transition-colors">효빈교통공사 공식 출범</h4>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                궤도 교통의 전문성 강화를 목표로 독립 공기업을 신설하여 선진적인 시민 교통 복지 환경을 조성했습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2022 -->
+                    <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-purple-600 border-4 border-white shadow-sm z-10"></div>
+                        <h3 class="text-2xl font-black text-purple-600 mb-2">2022. 07. 01</h3>
+                        <div class="bg-white p-6 rounded-xl border border-purple-100 shadow-sm hover:shadow-lg hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2022. 07. 01", "title": "민선 8기 출범 및 문화 특화 도시 선포", "desc": "역대 최연소 시장 취임과 함께 청년 친화적 복지 정책과 융복합 문화 산업 집중 육성을 시정 핵심 목표로 선포했습니다.", "detail": "기존의 물리적 인프라 개발을 넘어 L-Project(전략적 문화 관광 거점화 사업)를 가동하고, 블루 버드 멘토단 등 청년 실무형 인턴십을 도입하여 도시에 새롭고 혁신적인 활력을 불어넣기 시작했습니다."})'>
+                            <div class="flex items-start justify-between">
+                                <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-purple-600 transition-colors">민선 8기 출범 및 문화·교통 특화 선언</h4>
+                                <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded">REINNOVATION</span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                혁신적인 청년 리더십을 바탕으로 대중교통 혁신과 글로벌 문화 콘텐츠(서브컬처) 거점화를 위한 대형 프로젝트를 가동했습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                     <!-- 2025 -->
+                     <div class="relative pl-10 md:pl-14">
+                        <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-indigo-600 border-4 border-white shadow-lg z-10 ring-2 ring-indigo-100"></div>
+                        <h3 class="text-2xl font-black text-indigo-600 mb-2">2025. 08</h3>
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100 shadow-md hover:shadow-xl hover:-translate-y-1 timeline-card cursor-pointer group"
+                             onclick='openModal("timeline", {"date": "2025. 08", "title": "글로벌 특화 축제 HAF 2025 개최", "desc": "효빈광역시가 아시아를 대표하는 문화 융복합 특화 도시로서의 역량을 전 세계에 입증한 국제적 랜드마크 행사입니다.", "detail": "L-Project의 핵심 성과로서, 완벽한 궤도 교통망과 고도화된 치안(Kuku Guard) 및 문화 인프라를 성공적으로 융합하여 막대한 글로벌 관광 수요를 안정적으로 소화해 내며 명실상부한 세계적 문화 거점(성지)으로 도약했습니다."})'>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-xl font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">글로벌 융복합 문화 축제 HAF 2025</h4>
+                                <span class="animate-pulse w-2 h-2 rounded-full bg-red-500"></span>
+                            </div>
+                            <p class="text-slate-600 leading-relaxed break-keep text-sm">
+                                치안, 교통, 문화가 어우러진 완벽한 국제 관광 인프라를 증명하며 아시아 최고의 특화 문화 랜드마크 도시로 자리매김했습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
             
-            <!-- 1914 (통폐합) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-stone-500 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-stone-600 mb-2 timeline-date">1914. 04. 01</h3>
-                <div class="bg-white p-6 rounded-xl border border-stone-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1914. 04. 01', title: '효빈군(孝彬郡) 출범', desc: '부군면 통폐합으로 효빈군과 탄성군이 합군되어 근대 행정 구역의 기틀이 마련되었습니다.', detail: '일제의 부군면 통폐합 조치에 따라 기존의 효빈군과 탄성군이 통합되어 새로운 효빈군이 탄생했습니다. 이는 훗날 광역시로 성장하는 지리적 모태가 되었습니다.'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-stone-600 transition-colors">효빈군(孝彬郡) 통합 출범</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        부군면 통폐합으로 효빈군과 탄성군이 합쳐지며, 현대 효빈의 지리적 원형이 형성되었습니다.
-                    </p>
+            <!-- 관리부서 정보 -->
+            <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div>담당부서 : 자치행정과 | 문의처 : 079-591-2300 | 책임자 : 행정지원팀장</div>
+                <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
+            </div>
+
+            <!-- 만족도 조사 컴포넌트 -->
+            <div class="bg-gray-50 border border-gray-200 rounded p-6 mt-8">
+                <div class="font-bold text-gray-700 mb-3">이 페이지에서 제공하는 정보에 대하여 만족하십니까?</div>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" checked> 매우만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 보통</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 불만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 매우불만족</label>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" placeholder="페이지 품질 향상을 위한 의견을 남겨주세요." class="flex-grow border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500">
+                    <button class="bg-gray-800 hover:bg-black text-white px-5 py-2 rounded text-sm font-bold transition-colors whitespace-nowrap">평가등록</button>
                 </div>
             </div>
 
-            <!-- 1931 (읍 승격 & 전차) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-slate-700 mb-2 timeline-date">1931</h3>
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1931년', title: '효빈읍 승격 및 시영전차 개통', desc: '효빈면이 효빈읍으로 승격되었으며, 같은 해 4월 5일 효빈 시영전차가 운행을 시작했습니다.', detail: '1931년은 효빈 근대화의 원년입니다. 행정구역 승격과 함께 어간중앙~효빈대학을 잇는 전차가 개통되어 도시의 면모를 갖추기 시작했습니다. 이 전차는 현재 도시철도 7호선의 시초입니다.'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-800 transition-colors">효빈읍 승격 & 시영전차 개통</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        효빈면이 읍으로 승격되고, 전차 종소리가 울려 퍼지며 근대 도시로의 첫발을 내디뎠습니다.
-                    </p>
-                </div>
-            </div>
+        </main>
+    </div>
 
-             <!-- 1935 (부 승격) -->
-             <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-indigo-800 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-indigo-800 mb-2 timeline-date">1935. 10. 01</h3>
-                <div class="bg-white p-6 rounded-xl border border-indigo-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1935. 10. 01', title: '효빈부(府) 승격', desc: '효빈읍이 효빈부로 승격되어 분리되었으며, 잔여 지역은 탄성군으로 개칭되었습니다.', detail: '도시화가 진행된 효빈읍 지역이 \'효빈부\'로 승격되며 독립된 도시 행정을 시작했습니다. 농촌 지역은 다시 탄성군이라는 이름을 사용하게 되었습니다.'})">
-                    <div class="flex items-center gap-2 mb-2">
-                        <h4 class="text-xl font-bold text-slate-700 group-hover:text-indigo-800 transition-colors">효빈부(府) 승격 (도시 승격)</h4>
-                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200">CITY STATUS</span>
-                    </div>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        효빈읍이 효빈부로 승격되며 도시 행정의 독립성을 확보했습니다. 잔여 지역은 탄성군으로 변경되었습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 1940s (확장기) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-500 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-slate-500 mb-2 timeline-date">1941 ~ 1946</h3>
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1941 ~ 1946', title: '광복 전후의 시세 확장', desc: '사능면, 어간면, 청엽면의 주요 지역들이 효빈부로 순차 편입되었습니다.', detail: '<ul class=\'list-disc pl-5 space-y-1\'><li>1941: 사능면 천석리, 내조리, 사능리, 입리, 원리, 동리리 편입</li><li>1942: 사능면 월천리, 박산리, 신흥리 및 어간면 항리 일부(항동1가, 3가) 편입</li><li>1945: 청엽면 신덕리, 사가당리, 등리 편입</li><li>1946: 사능면 운양리 편입</li></ul>'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-600 transition-colors">시역 확장 (사능, 어간, 청엽 편입)</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        1940년대에 걸쳐 사능면, 어간면, 청엽면의 주요 리(里)들이 편입되며 도시 규모가 팽창했습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 1949 (효빈시 승격) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-teal-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-teal-600 mb-2 timeline-date">1949. 08. 15</h3>
-                <div class="bg-white p-6 rounded-xl border border-teal-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1949. 08. 15', title: '효빈시(市) 개칭 및 사능면 편입', desc: '지방자치법 시행으로 효빈부에서 효빈시로 명칭이 변경되었습니다. 사능면 잔여 지역도 이때 편입되었습니다.', detail: '효빈부에서 효빈시로 공식 명칭이 변경되었으며, 사능면의 남은 지역을 모두 편입하여 시세를 확장했습니다.'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-teal-600 transition-colors">효빈시(市) 개칭 및 승격</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        효빈부가 효빈시로 개칭되었습니다. 사능면 잔여 지역을 편입하며 광복 후 도시의 기틀을 다졌습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 1950s (시청이전 및 확장) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-cyan-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-cyan-600 mb-2 timeline-date">1955 ~ 1957</h3>
-                <div class="bg-white p-6 rounded-xl border border-cyan-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1955 ~ 1957', title: '대규모 편입 및 시청 이전', desc: '청엽면과 어간면 전역이 편입되었으며, 시청사가 중보로로 이전했습니다.', detail: '<ul class=\'list-disc pl-5 space-y-1\'><li>1955: 청엽면, 어간면 전역 편입 및 구(區)제 시행 준비</li><li>1957: 시청사 이전 (중구 중앙로 현 중앙동사무소 → 중보로)</li></ul>'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-cyan-600 transition-colors">청엽·어간면 편입 및 시청 이전</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        청엽면과 어간면을 완전히 흡수하고, 시청을 중구 중보로로 이전하며 도심 기능을 강화했습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 1963 (구제 실시) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-500 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-blue-500 mb-2 timeline-date">1963. 01. 01</h3>
-                <div class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1963. 01. 01', title: '구(區)제 실시 및 대확장', desc: '중구, 남구, 서구가 설치되었으며 인근 고송면, 창전면 등을 대거 편입했습니다.', detail: '<ul class=\'list-disc pl-5 space-y-1\'><li>구제 실시: 중구, 남구, 서구 신설</li><li>편입: 고송면 일부(과진, 사복, 청덕리), 창전면 전역</li><li>탄성군: 이자면→이자읍 승격(선곡군 야진읍 편입), 탄성면→탄성읍 승격</li></ul>'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-blue-600 transition-colors">구(區)제 실시 및 시역 대확장</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        중구, 남구, 서구 설치. 고송면, 창전면 등을 편입하며 거대 도시로 성장하기 위한 뼈대를 완성했습니다.
-                    </p>
-                </div>
-            </div>
-
-             <!-- 1970s (성장기) -->
-             <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-orange-500 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-orange-500 mb-2 timeline-date">1971 ~ 1979</h3>
-                <div class="bg-white p-6 rounded-xl border border-orange-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1971 ~ 1979', title: '고도 성장기의 행정 개편', desc: '북구, 동구, 청엽구가 신설되었으며 주변 지역 통합이 가속화되었습니다.', detail: '<ul class=\'list-disc pl-5 space-y-1\'><li>1971: 고송면, 당가면 전역 편입 → <strong>북구 신설</strong> / 탄성군 안천면→안천읍 승격 (선곡군 서목면 편입)</li><li>1973: 중수면 전역 편입 → <strong>동구 신설</strong> / 흑택면 일부(뫼서, 시로, 광정) 편입</li><li>1979: <strong>청엽구 신설</strong> / 탄성군 안천읍→안천시 승격 / 이자읍에 고해면 일부 편입</li></ul>'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-orange-600 transition-colors">북구·동구·청엽구 신설</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        인구 급증으로 북구, 동구, 청엽구가 차례로 신설되었습니다. 인근 안천읍은 안천시로 승격하며 위성도시로 성장했습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 1983 (직할시 승격) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-indigo-500 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-indigo-500 mb-2 timeline-date">1983. 07. 01</h3>
-                <div class="bg-white p-6 rounded-xl border border-indigo-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1983. 07. 01', title: '효빈직할시 승격', desc: '도 산하에서 벗어나 정부 직할시로 승격되었습니다. 인근 안천시를 흡수하여 안천구를 신설했습니다.', detail: '<ul class=\'list-disc pl-5 space-y-1\'><li><strong>효빈직할시 승격</strong></li><li>안천시 및 이자읍 편입 → <strong>안천구 신설</strong></li><li>1980: 안천시에 소원면(천본, 광상, 신, 천문), 도변면(창건, 이십기) 편입</li><li>1981: 이자읍 앵내리 도변면 편입</li><li>1986: 약산군 도향, 정근면 탄성군 편입 / 안천구 이자출장소 설치</li><li>1989: 탄성군 고해면→고해읍 승격</li></ul>'})">
-                    <div class="flex items-center gap-2 mb-2">
-                        <h4 class="text-xl font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">효빈직할시 승격 & 안천 통합</h4>
-                        <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200">JIKHAL-SI</span>
-                    </div>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        경북에서 분리되어 정부 직할시로 승격. 안천시를 통합하여 안천구를 신설, 광역 행정의 서막을 열었습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 1995 (광역시 & 민선1기) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-green-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-green-600 mb-2 timeline-date">1995. 01 ~ 07</h3>
-                <div class="bg-white p-6 rounded-xl border border-green-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '1995년', title: '효빈광역시 출범 & 민선 1기', desc: '탄성군을 통합하여 효빈광역시로 개편되었으며, 초대 민선 시장으로 환산채 시장이 취임했습니다.', detail: '<ul class=\'list-disc pl-5 space-y-1\'><li>1.1: <strong>효빈광역시 출범</strong> (탄성군 편입)</li><li>창전구 신설 (청엽구 일부 분리)</li><li>7.1: 초대 민선 환산채 시장 취임</li><li>1996: 도변면→도변읍 승격</li></ul>'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-green-600 transition-colors">효빈광역시 출범 & 민선 1기</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        탄성군 통합으로 광역시 체제 완성(창전구 신설). 초대 민선 환산채 시장 취임으로 지방자치 시대가 개막했습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 2004 (시청 이전) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-400 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-slate-500 mb-2 timeline-date">2004. 03</h3>
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2004. 03', title: '시청사 이전 (중구→북구)', desc: '노후화된 중구 중보로 청사를 떠나 북구 고송동 신청사로 이전했습니다.', detail: '1957년부터 사용해온 중구 청사의 노후화와 공간 부족으로 인해, 북구 고송동에 신청사를 건립하여 이전했습니다. 이는 북구 지역 발전의 기폭제가 되었습니다. (참고: 2003년 서목면이 서목읍으로 승격됨)'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-slate-500 transition-colors">광역시청사 이전 (북구 고송동)</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        반세기 동안의 중구 시대를 마감하고, 행정 효율화를 위해 북구 고송동 신청사로 이전했습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 2006 (제1회 HAF) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-pink-500 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-pink-500 mb-2 timeline-date">2006. 05</h3>
-                <div class="bg-white p-6 rounded-xl border border-pink-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2006. 05', title: '제1회 HAF 개최', desc: '박현만 시장 임기 말, 역사적인 제1회 효빈 애니메이션 페스티벌(HAF)이 개최되었습니다.', detail: '2000년대 초반부터 준비해온 캐릭터 사업의 결실이었습니다. 박현만 시장과 오다구 사장의 주도로 열린 제1회 HAF는 전국의 서브컬처 팬들에게 신선한 충격을 주었으나, 직후 취임한 윤대환 시장에 의해 2회 행사가 취소되는 비운을 맞기도 했습니다.'})">
-                    <div class="flex items-center gap-2 mb-2">
-                        <h4 class="text-xl font-bold text-slate-700 group-hover:text-pink-600 transition-colors">제1회 HAF 개최</h4>
-                        <span class="bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-0.5 rounded border border-pink-200">HISTORIC</span>
-                    </div>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        전설의 시작. 박현만 시장 임기 말, 효빈 서브컬처 역사의 첫 페이지를 장식한 제1회 HAF가 성황리에 개최되었습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 2006 (암흑기) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-800 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-slate-500 mb-2 timeline-date">2006. 07 ~ 2007. 11</h3>
-                <div class="bg-slate-100 p-6 rounded-xl border border-slate-200 shadow-inner hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2006. 07 ~ 2007. 11', title: '3표의 비극 (암흑기)', desc: '윤대환 시장의 실정으로 효빈시가 교통 대란과 행정 마비에 빠졌던 시기입니다.', detail: '제1회 HAF의 성공 직후 취임한 윤대환은 2회 HAF를 취소하고, 7호선 폐지 시도 및 5·6호선 공사 중단 등 도시의 시계를 거꾸로 돌렸습니다. 결국 시민들의 저항과 비리 발각으로 1년 4개월 만에 당선 무효 처리되었습니다.'})">
-                    <h4 class="text-xl font-bold text-slate-600 mb-2 group-hover:text-slate-900 transition-colors">3표의 비극 (암흑기)</h4>
-                    <p class="text-slate-500 leading-relaxed break-keep text-sm">
-                        단 3표 차로 당선된 윤대환의 폭정. HAF 폐지, 전차 말살 시도 등 도시가 가장 어두웠던 시기입니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 2008 (대복구) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-blue-600 mb-2 timeline-date">2008. 06</h3>
-                <div class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2008. 06', title: '대복구 시대 (Great Restoration)', desc: '80.9%의 지지로 복귀한 박현만 시장이 도시 재건을 지휘했습니다.', detail: '[스타더스트 작전]으로 두청운수를 해체하고, 중단된 도시철도 공사를 재개했습니다. 또한 취소되었던 HAF를 부활시켜 현재의 글로벌 축제로 키워냈습니다.'})">
-                    <h4 class="text-xl font-bold text-slate-700 group-hover:text-blue-600 transition-colors mb-2">대복구 시대 (Great Restoration)</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        박현만 시장의 귀환. 두청운수 해체와 HAF 부활, 도시철도 공사 재개로 효빈은 다시 비상했습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 2016 (교통공사 설립) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-cyan-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-cyan-600 mb-2 timeline-date">2016. 01</h3>
-                <div class="bg-white p-6 rounded-xl border border-cyan-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2016. 01', title: '효빈교통공사 출범', desc: '효빈도시공사 내 철도운영본부를 분리하여 독립된 [효빈교통공사]가 출범했습니다.', detail: '김성민 시장의 결단으로 도시철도 운영의 전문성을 강화했습니다. 이는 HAF와 연계된 철도 문화 사업을 더욱 체계적으로 지원하는 계기가 되었습니다.'})">
-                    <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-cyan-600 transition-colors">효빈교통공사 공식 출범</h4>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        김성민 시장 주도로 도시공사에서 철도 부문을 분리·독립, 교통 전문 공기업 시대를 열었습니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 2022 (박효빈 취임) -->
-            <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-purple-600 border-4 border-white shadow-sm z-10"></div>
-                <h3 class="text-2xl font-black text-purple-600 mb-2 timeline-date">2022. 07. 01</h3>
-                <div class="bg-white p-6 rounded-xl border border-purple-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2022. 07. 01', title: '민선 8기 박효빈 시장 취임', desc: '헌정 사상 최연소(만 26세) 시장이자 \'성덕 행정가\'의 등장.', detail: '\"누군가 도와주길 바란다면, 네가 먼저 시작해!\" 윤대환 키즈 세대의 아픔을 딛고 일어선 박효빈 시장은 L-Project와 블루 버드 멘토단으로 도시에 젊은 활력을 불어넣었습니다.'})">
-                    <div class="flex items-start justify-between">
-                        <h4 class="text-xl font-bold text-slate-700 mb-2 group-hover:text-purple-600 transition-colors">민선 8기 박효빈 시장 취임</h4>
-                        <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-1 rounded">TURNING POINT</span>
-                    </div>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        역대 최연소 시장의 취임. L-Project 추진으로 효빈을 '세계적인 서브컬처 수도'로 만들기 시작했습니다.
-                    </p>
-                </div>
-            </div>
-
-             <!-- 2025 (현재) -->
-             <div class="relative pl-10 md:pl-12">
-                <div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-indigo-600 border-4 border-white shadow-lg z-10 ring-2 ring-indigo-100"></div>
-                <h3 class="text-2xl font-black text-indigo-600 mb-2 timeline-date">2025. 08</h3>
-                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer timeline-card group"
-                     onclick="openModal('timeline', {date: '2025. 08', title: 'HAF 2025 개최', desc: '아시아 최대 규모 서브컬처 축제, 효빈을 글로벌 성지로 만들다.', detail: '박효빈 시장의 L-Project가 만개했습니다. 혐오 세력과의 [4대 대첩] 승리, 필리핀 케손시티와의 자매결연 등 효빈은 이제 명실상부한 글로벌 문화 도시입니다.'})">
-                    <div class="flex items-center gap-2 mb-2">
-                        <h4 class="text-xl font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">HAF 2025: 글로벌 성지 도약</h4>
-                        <span class="animate-pulse w-2 h-2 rounded-full bg-red-500"></span>
-                    </div>
-                    <p class="text-slate-600 leading-relaxed break-keep text-sm">
-                        L-Project의 정점. 문화와 철도가 어우러진 효빈은 이제 전 세계 팬들이 꿈꾸는 성지(聖地)입니다.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 역대 시장실 섹션 -->
-        <section id="mayor-section" class="border-t border-slate-200 pt-16">
-            <div class="text-center mb-12">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-100 rounded-full mb-4">
-                    <i data-lucide="users" class="w-6 h-6 text-slate-600"></i>
-                </div>
-                <h2 class="text-3xl font-black text-slate-800 mb-3">역대 시장실</h2>
-                <p class="text-slate-500 break-keep">위기와 도약을 반복하며 효빈의 역사를 만들어온 주역들입니다.</p>
-            </div>
-
-            <!-- 시장 목록 그리드 -->
-            <div id="mayor-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 min-h-[400px]">
-                <!-- 자바스크립트로 렌더링 됩니다 -->
-            </div>
-
-            <!-- 페이지네이션 컨트롤 -->
-            <div id="pagination" class="flex justify-center items-center gap-2 select-none">
-                <!-- 자바스크립트로 렌더링 됩니다 -->
-            </div>
-        </section>
-
-    </main>
-
+    <!-- 6. 페이지 하단 푸터 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
     
-    <!-- 모달 HTML -->
-    <div id="modal-backdrop" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeModal()">
+    <!-- 모달 HTML (히스토리 전용) -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeModal()">
         <div id="modal-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform scale-95 transition-all duration-300 opacity-0 flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
             <!-- Modal Header -->
             <div id="modal-header-bg" class="relative h-48 bg-slate-800 flex items-end p-6 shrink-0 transition-colors overflow-hidden">
@@ -345,9 +558,6 @@
                 <button onclick="closeModal()" class="absolute top-4 right-4 text-white/70 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-2 transition-all z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
                 
                 <div class="relative z-10 w-full flex items-end gap-5">
-                     <!-- Profile Image for Mayor -->
-                     <img id="modal-img" src="" class="w-28 h-28 rounded-xl border-4 border-white shadow-xl bg-slate-200 object-cover hidden shrink-0" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'">
-                     
                      <!-- Timeline Icon Placeholder -->
                      <div id="modal-icon" class="w-20 h-20 rounded-xl border-4 border-white shadow-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hidden shrink-0">
                         <i data-lucide="calendar" class="w-10 h-10"></i>
@@ -367,11 +577,6 @@
                 <div class="p-8">
                     <div id="modal-meta" class="flex flex-wrap gap-2 mb-6">
                         <!-- Dynamic badges -->
-                    </div>
-                    
-                    <div id="modal-quote-container" class="mb-6 relative hidden">
-                        <i class="absolute -top-3 -left-2 text-4xl text-slate-200 serif font-serif">"</i>
-                        <p id="modal-quote" class="text-xl font-bold text-slate-800 relative z-10 pl-6 border-l-4 border-indigo-500 italic"></p>
                     </div>
 
                     <div class="prose prose-slate max-w-none">
@@ -394,227 +599,49 @@
         </div>
     </div>
 
-    <script> lucide.createIcons(); </script>
-    
+    <!-- 분리한 JS 파일 연결 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
     <script>
-        // 역대 시장 데이터
-        const mayors = [
-            {
-                term: "제9대 (민선 8기)",
-                name: "박효빈",
-                period: "2022.07 ~ 현재",
-                slogan: "누군가 도와주길 바란다면, 네가 먼저 시작해!",
-                desc: `<strong>"성덕 시장, 혐오 분쇄기."</strong><br>
-                헌정 사상 최연소(만 26세) 광역단체장이자, '성공한 덕후'와 '행정가'의 완벽한 결합. 
-                윤대환 시정의 피해자였던 어린 시절의 아픔(가난, 비만, 학교폭력)을 딛고 일어나, 
-                <strong>"교통은 생존권, 서브컬처는 미래 산업"</strong>이라는 철학으로 효빈시를 '철도 중심 복지 도시'이자 '세계적인 덕후들의 성지'로 개조했습니다.`,
-                image: "mayor_park.jpg",
-                party: "더불어민주당",
-                achievements: [
-                    "<strong>[L-Project]</strong> 효빈시 전체를 '거대한 성지순례 코스'로 만드는 서브컬처 도시 계획 (HAF 확대)",
-                    "<strong>[블루 버드 멘토단]</strong> 저소득층 청년 대상 실무형 행정 인턴십 (새벽 3시의 오열 기획)",
-                    "<strong>[골든 로드]</strong> 구도심 우범지대를 '카스밍 옐로우' 테마로 범죄예방환경설계(CPTED) 적용",
-                    "<strong>[혐오 분쇄]</strong> 탕쿠쿠 대첩, 케손시티 자매결연 등으로 혐오 세력 축출 및 글로벌 연대 강화"
-                ]
-            },
-            {
-                term: "제8대 (민선 7기)",
-                name: "김성민",
-                period: "2018.07 ~ 2022.06",
-                slogan: "시민이 주인인 정의로운 효빈",
-                desc: "재선에 성공하며 안정적인 시정 운영을 보여주었습니다. 시민 참여 예산제를 대폭 확대하여 풀뿌리 민주주의를 실현하고, 재난 안전 시스템을 고도화했습니다.",
-                image: "mayor_kim_2.jpg",
-                party: "더불어민주당",
-                achievements: [
-                    "시민 참여 예산제 확대 시행",
-                    "효빈형 재난 안전 매뉴얼 구축",
-                    "구도심 도시재생 뉴딜 사업 추진"
-                ]
-            },
-            {
-                term: "제7대 (민선 6기)",
-                name: "김성민",
-                period: "2014.07 ~ 2018.06",
-                slogan: "사람 중심, 안전하고 따뜻한 도시",
-                desc: "도시 안전망 구축에 주력하며, 특히 2016년 효빈도시공사 내 철도운영본부를 분리하여 독립된 [효빈교통공사]를 출범시켰습니다. 이를 통해 도시철도 운영의 전문성과 공공성을 획기적으로 강화했습니다.",
-                image: "mayor_kim_1.jpg",
-                party: "새정치민주연합",
-                achievements: [
-                    "★ 효빈교통공사 설립 (도시공사에서 철도 운영 분리)",
-                    "보행자 중심의 교통 환경 조성",
-                    "복지 사각지대 해소 프로젝트 가동"
-                ]
-            },
-            {
-                term: "제6대 (민선 5기)",
-                name: "박현만",
-                period: "2010.07 ~ 2014.06",
-                slogan: "다시 뛰는 효빈, 검증된 리더십",
-                desc: `효빈시의 전성기를 이끌었던 행정 전문가이자 <strong>'1세대 건담 덕후(올드타입)'</strong>. 
-                4선 시장이라는 전무후무한 기록을 세우며 도시 인프라를 완성했습니다. 퇴임 후에는 탄성군 국회의원으로 출마하여 75.2%라는 경이적인 득표율을 기록했습니다. 
-                그는 "행정은 철학이며, 도시 정책은 로망이다"라는 신념으로 7호선 전차를 지켜내고 HAF를 글로벌 축제로 키워냈습니다.`,
-                image: "mayor_park_hm_4.jpg",
-                party: "민주당",
-                achievements: [
-                    "<strong>[광역 교통망]</strong> 도시철도 5호선(2011), 6호선(2015) 조기 개통 기반 마련",
-                    "<strong>[서브컬처 수도]</strong> HAF를 글로벌 축제로 격상 및 '성지순례' 코스 설계",
-                    "<strong>[탄성군의 기적]</strong> 국회의원 시절, 탄성군 도시철도 1, 5호선 연장 확정",
-                    "<strong>[저술]</strong> 《도시 철도, 덕후의 시선으로 바라보기》 등 집필"
-                ]
-            },
-            {
-                term: "제5대 (민선 4기 재보궐)",
-                name: "박현만",
-                period: "2008.06 ~ 2010.06",
-                slogan: "위기를 기회로, 대복구 시대 (Great Restoration)",
-                desc: `윤대환이 망쳐놓은 도시를 구하기 위해 <strong>80.9%</strong>의 압도적 지지로 복귀했습니다. 
-                일명 <strong>'스타더스트 작전'</strong>을 통해 부패 기업 [두청운수]를 해체하고 준공영제를 도입했으며, 멈췄던 도시철도 공사를 재개시켰습니다. 
-                그의 복귀는 효빈시 역사상 가장 드라마틱한 장면으로 기억됩니다.`,
-                image: "mayor_park_hm_3.jpg",
-                party: "통합민주당",
-                achievements: [
-                    "<strong>[스타더스트 작전]</strong> 두청운수 완전 해체 및 버스 준공영제 도입",
-                    "<strong>[정상화]</strong> 중단된 도시철도 5·6호선 공사 전면 재개 (예비비 투입)",
-                    "<strong>[외교 복원]</strong> 빈효선 광역전철 사업 정상화 및 인근 지자체 관계 회복"
-                ]
-            },
-            {
-                term: "제4대 (민선 4기)",
-                name: "윤대환",
-                period: "2006.07 ~ 2007.11 (당선 무효)",
-                slogan: "철도는 예산 낭비! 버스(두청운수) 중심의 교통 혁명",
-                desc: `<strong>"효빈시 역사상 최악의 흑역사."</strong><br>
-                단 3표 차이로 당선된 후, 본인 일가 소유인 <strong>[두청운수]</strong>의 독점을 위해 도시철도망을 초토화시켰습니다. 
-                광역철도 분담금 거부로 인근 도시와 외교 마찰을 빚었으며('거지 동네' 망언), 비리 폭로를 막기 위해 <strong>수행비서관 살인미수 교사</strong>라는 충격적인 범죄까지 저질러 임기 1년 4개월 만에 구속, 불명예 퇴진했습니다.`,
-                image: "mayor_yoon.jpg",
-                party: "한나라당 (제명)",
-                achievements: [
-                    "<strong>[철도 말살]</strong> 5·6호선 공사 중단, 7호선 폐지 시도 및 관제 데모 주도",
-                    "<strong>[빈효선 사태]</strong> 광역전철 백지화 및 타 지자체 비하 (\"거지 동네\" 망언)",
-                    "<strong>[두청운수 게이트]</strong> 살인적 과적(75인승 '인간 테트리스') 및 요금 폭리",
-                    "<strong>[비서관 살인미수]</strong> 내부 고발자 청부 살해 시도 (결국 당선 무효)"
-                ]
-            },
-            {
-                term: "제3대 (민선 3기)",
-                name: "박현만",
-                period: "2002.07 ~ 2006.06",
-                slogan: "세계로 뻗어가는 동북아 중심 도시",
-                desc: `2002 월드컵 개최 도시 지원을 성공적으로 수행하고 효빈항 확장을 주도했습니다. 
-                특히 이 시기에 오다구 도시공사 사장과 의기투합하여 <strong>HAF(효빈 애니메이션 페스티벌)를 창설</strong>했습니다. 
-                당시 그는 "이 캐릭터의 메카닉 고증이 훌륭하다"며 즉석에서 결재 도장을 찍었다는 전설이 있습니다.`,
-                image: "mayor_park_hm_2.jpg",
-                party: "새천년민주당",
-                achievements: [
-                    "<strong>[문화 창조]</strong> 효빈 애니메이션 페스티벌(HAF) 기획 및 제1회 개최(2006)",
-                    "효빈항 2단계 확장 공사 준공 및 2002 월드컵 성공 지원",
-                    "도시철도 기본 계획 수립 (5, 6호선 및 8호선 기획)"
-                ]
-            },
-            {
-                term: "제2대 (민선 2기)",
-                name: "박현만",
-                period: "1998.07 ~ 2002.06",
-                slogan: "IMF 극복, 함께하는 효빈",
-                desc: `만 40세의 젊은 나이에 취임하여, IMF 경제 위기 속에서 과감한 구조 개혁과 경제 살리기 정책으로 위기를 조기에 극복했습니다. 
-                스스로를 '올드타입(Oldtype)'이라 칭하며 기존 시스템을 지키고 발전시키는 행정을 펼쳤습니다.`,
-                image: "mayor_park_hm_1.jpg",
-                party: "새정치국민회의",
-                achievements: [
-                    "외국인 투자 유치 및 지역 경제 활성화 (IMF 조기 졸업)",
-                    "노면전차(7호선) 존치 및 현대화 결정 (도시 정체성 보존)",
-                    "행정 정보화 시스템 구축 및 중구청장 경험을 살린 현장 행정"
-                ]
-            },
-            {
-                term: "제1대 (민선 1기)",
-                name: "환산채",
-                period: "1995.07 ~ 1998.06",
-                slogan: "지방자치 원년, 시민과 함께 여는 미래",
-                desc: "효빈시의 초대 민선 시장. 관선 시대의 권위적인 행정을 타파하고, '시민이 주인인 시청'을 모토로 풀뿌리 지방자치의 기틀을 닦았습니다. 구청 자치권을 대폭 강화하는 등 분권에 힘썼습니다.",
-                image: "mayor_hwan.jpg",
-                party: "민주자유당",
-                achievements: [
-                    "초대 민선 시장 취임",
-                    "효빈시 장기 발전 계획(비전 2020) 최초 수립",
-                    "시민 민원실 확대 및 행정 서비스 개선"
-                ]
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li.active').forEach(li => {
+                    li.classList.remove('active');
+                    let activeIcon = li.querySelector('.lnb-toggle i');
+                    if(activeIcon) activeIcon.classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                if(icon) icon.classList.add('rotate-180');
             }
-        ];
+        }
 
-        const itemsPerPage = 4;
-        let currentPage = 1;
-
-        // 모달 열기 함수
+        // 모달 열기 함수 (타임라인 전용)
         function openModal(type, data) {
             const backdrop = document.getElementById('modal-backdrop');
             const panel = document.getElementById('modal-panel');
             const title = document.getElementById('modal-title');
             const subtitle = document.getElementById('modal-subtitle');
-            const img = document.getElementById('modal-img');
             const icon = document.getElementById('modal-icon');
             const desc = document.getElementById('modal-desc');
-            const quote = document.getElementById('modal-quote');
-            const quoteContainer = document.getElementById('modal-quote-container');
             const meta = document.getElementById('modal-meta');
             const detailDiv = document.getElementById('modal-detail');
             const achievementsDiv = document.getElementById('modal-achievements');
             const headerBg = document.getElementById('modal-header-bg');
 
             // 초기화
-            img.classList.add('hidden');
             icon.classList.add('hidden');
-            quoteContainer.classList.add('hidden');
             achievementsDiv.classList.add('hidden');
             meta.innerHTML = '';
             headerBg.className = 'relative h-48 flex items-end p-6 shrink-0 transition-colors bg-slate-800 overflow-hidden';
 
-            if (type === 'mayor') {
-                // 시장 모달 설정
-                title.innerText = data.name;
-                subtitle.innerText = data.term;
-                
-                img.src = data.image;
-                img.classList.remove('hidden');
-                
-                desc.innerHTML = data.desc.replace(/\n/g, '<br>'); // 줄바꿈 반영
-                
-                quote.innerText = data.slogan;
-                quoteContainer.classList.remove('hidden');
-
-                // 정당 뱃지
-                const partyBadge = document.createElement('span');
-                partyBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300';
-                partyBadge.innerText = data.party;
-                meta.appendChild(partyBadge);
-
-                // 기간 뱃지
-                const periodBadge = document.createElement('span');
-                periodBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200';
-                periodBadge.innerText = data.period;
-                meta.appendChild(periodBadge);
-
-                // 업적 리스트
-                if (data.achievements && data.achievements.length > 0) {
-                    detailDiv.innerHTML = data.achievements.map(item => 
-                        `<div class="flex items-start gap-2"><span class="text-indigo-500 mt-1">•</span><span>${item}</span></div>`
-                    ).join('');
-                    achievementsDiv.classList.remove('hidden');
-                }
-
-                // 박효빈 시장 특전 (테마 컬러)
-                if (data.name.includes('박효빈')) {
-                    headerBg.classList.remove('bg-slate-800');
-                    headerBg.classList.add('bg-purple-700');
-                }
-                 // 윤대환 시장 특전 (테마 컬러)
-                 if (data.name.includes('윤대환')) {
-                    headerBg.classList.remove('bg-slate-800');
-                    headerBg.classList.add('bg-red-900');
-                }
-
-
-            } else if (type === 'timeline') {
+            if (type === 'timeline') {
                 // 타임라인 모달 설정
                 title.innerText = data.title;
                 subtitle.innerText = data.date;
@@ -624,21 +651,20 @@
                 desc.innerText = data.desc;
                 
                 if (data.detail) {
-                    detailDiv.innerHTML = `<p>${data.detail}</p>`;
+                    detailDiv.innerHTML = `<div class="text-slate-700 font-medium">${data.detail}</div>`;
                     achievementsDiv.classList.remove('hidden');
                     achievementsDiv.querySelector('h5').innerHTML = '<i data-lucide="info" class="w-4 h-4 text-indigo-500"></i> 상세 내용';
                 }
                 
                 // 타임라인 특정 색상 적용
-                if (data.title.includes('2025') || data.title.includes('박효빈') || data.title.includes('대복구')) {
+                if (data.title.includes('2025') || data.title.includes('민선 8기') || data.title.includes('정상화')) {
                     headerBg.classList.remove('bg-slate-800');
                     headerBg.classList.add('bg-indigo-600');
                 }
-                if (data.title.includes('암흑기')) {
+                if (data.title.includes('과도기')) {
                      headerBg.classList.remove('bg-slate-800');
                     headerBg.classList.add('bg-slate-900');
                 }
-                // 역사적 행정구역 관련 색상
                 if (data.title.includes('군') || data.title.includes('읍') || data.title.includes('부')) {
                     headerBg.classList.remove('bg-slate-800');
                     headerBg.classList.add('bg-stone-600');
@@ -672,84 +698,12 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") closeModal();
         });
-
-        function renderMayors(page) {
-            const listContainer = document.getElementById('mayor-list');
-            listContainer.innerHTML = '';
-
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageData = mayors.slice(start, end);
-
-            pageData.forEach((mayor, index) => {
-                const realIndex = start + index;
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row group cursor-pointer';
-                card.onclick = () => openModal('mayor', mayors[realIndex]);
-                
-                let highlightClass = "";
-                if(mayor.name === "박효빈") highlightClass = "text-purple-600";
-                if(mayor.name === "윤대환") highlightClass = "text-red-600";
-
-                card.innerHTML = `
-                    <div class="w-full md:w-36 h-48 md:h-auto bg-slate-100 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
-                        <img src="${mayor.image}" alt="${mayor.name} 시장" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                        <div class="absolute inset-0 bg-slate-200 hidden items-center justify-center text-slate-400 flex-col gap-2">
-                            <i data-lucide="user" class="w-10 h-10"></i>
-                            <span class="text-xs font-bold">NO IMAGE</span>
-                        </div>
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                             <span class="bg-white/90 text-slate-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">상세보기</span>
-                        </div>
-                    </div>
-                    <div class="p-6 flex-1 flex flex-col justify-center">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="inline-block bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded mb-1.5 tracking-tight">${mayor.term}</span>
-                                <h4 class="text-xl font-bold text-slate-800 group-hover:text-indigo-600 transition-colors ${highlightClass}">${mayor.name} <span class="text-sm font-normal text-slate-500 ml-1">시장</span></h4>
-                            </div>
-                        </div>
-                        <p class="text-indigo-600 font-bold text-sm mb-3">"${mayor.slogan}"</p>
-                        <p class="text-slate-500 text-sm leading-relaxed break-keep line-clamp-2">${mayor.desc}</p>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
+        
+        // DOM 로드 시 실행
+        document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-        }
-
-        function renderPagination() {
-            const paginationContainer = document.getElementById('pagination');
-            const totalPages = Math.ceil(mayors.length / itemsPerPage);
-            paginationContainer.innerHTML = '';
-
-            const prevBtn = document.createElement('button');
-            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-5 h-5"></i>';
-            prevBtn.className = `p-2 rounded-lg hover:bg-slate-100 transition-colors ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:text-indigo-600'}`;
-            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; updateView(); } };
-            paginationContainer.appendChild(prevBtn);
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.innerText = i;
-                pageBtn.className = `w-10 h-10 rounded-lg font-bold transition-all ${i === currentPage ? 'bg-indigo-600 text-white shadow-md transform scale-105' : 'text-slate-500 hover:bg-slate-100 hover:text-indigo-600'}`;
-                pageBtn.onclick = () => { currentPage = i; updateView(); };
-                paginationContainer.appendChild(pageBtn);
-            }
-
-            const nextBtn = document.createElement('button');
-            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-5 h-5"></i>';
-            nextBtn.className = `p-2 rounded-lg hover:bg-slate-100 transition-colors ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:text-indigo-600'}`;
-            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; updateView(); } };
-            paginationContainer.appendChild(nextBtn);
-            lucide.createIcons();
-        }
-
-        function updateView() { renderMayors(currentPage); renderPagination(); }
-        updateView();
+        });
     </script>
-<script src="data.js"></script>
-    <script src="script.js"></script>
     <script src="common.js"></script>
 </body>
 </html>
