@@ -4,13 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>도시철도 - 효빈광역시</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', // 관공서 신뢰의 블루
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            subway1: '#0077DD', subway2: '#00CCAA', subway3: '#FFCC11',
+                            subway4: '#FF5522', subway5: '#EE0022', subway6: '#881188',
+                            subway7: '#FF8899', subway8: '#9856FF', subway_wide: '#6677CC',
+                            bus_gan: '#01B7ED', bus_sun: '#E7D600', bus_ji: '#37B484',
+                            bus_wide: '#485EC6', bus_seat: '#FF5800', bus_maeul: '#A664A0',
+                            bus_air: '#84C36E', bus_city: '#7777AA', bus_exp: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> 
-        /* 한글 폰트 적용 */
-        body { font-family: 'Noto Sans KR', sans-serif; } 
-        /* 노선 번호 배지 스타일 */
+
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 관공서 템플릿 공통 스타일 */
+        .sub-visual {
+            background-image: linear-gradient(rgba(0, 43, 92, 0.7), rgba(0, 43, 92, 0.7)), url('이미지/교통배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth2 {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lnb-depth2 > li > a {
+            display: block;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        .lnb-depth2 > li.current > a {
+            color: #005bac;
+            font-weight: 700;
+            position: relative;
+        }
+        .lnb-depth2 > li.current > a::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        /* 도시철도 전용 커스텀 스타일 (원본 유지) */
         .line-badge { 
             font-weight: 900; 
             color: white; 
@@ -24,7 +107,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
             transition: transform 0.2s;
         }
-        /* 마우스 호버 시 카드 효과 */
         .hover-card:hover { 
             transform: translateY(-5px); 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
@@ -32,9 +114,8 @@
         .hover-card { 
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        /* 노선도 이미지 컨테이너 - 반응형 최대 높이 설정 */
         #map-image-container {
-            max-height: 80vh; /* 뷰포트 높이의 80% */
+            max-height: 80vh;
             overflow-y: auto;
         }
         .line-map-button {
@@ -56,428 +137,458 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="text-gray-800 antialiased bg-white flex flex-col min-h-screen">
 
-    <!-- 헤더 -->
+    <!-- [규칙 엄수] 공통 헤더 렌더링 영역 -->
     <div id="common-header"></div>
 
-    <!-- 서브 비주얼 (배경 이미지 없을 시 대체 색상) -->
-    <div class="w-full bg-slate-800 py-12 text-center text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-blue-900 opacity-60"></div>
-        <!-- 배경 이미지 (이미지 없을 시 안 보이게 처리) -->
-        <img src="subway_bg.jpg" class="absolute inset-0 w-full h-full object-cover -z-10" onerror="this.style.display='none'">
-        <div class="relative z-10">
-            <h1 class="text-4xl font-black mb-3">효빈 도시철도</h1>
-            <p class="text-slate-300 font-medium text-lg">시민의 발, 안전하고 편리한 대중교통</p>
-        </div>
+    <!-- 타이틀 배너 (Sub Visual) -->
+    <div class="sub-visual h-48 md:h-56 flex flex-col items-center justify-center text-white">
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg">교통</h1>
+        <p class="mt-4 text-lg md:text-xl font-light opacity-90">시민의 발, 안전하고 편리한 효빈 도시철도</p>
     </div>
 
-    <!-- 컨텐츠 영역 -->
-    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 w-full flex-1">
         
-        <!-- 탭 메뉴 (뷰 전환 기능 추가) -->
-        <div class="flex border-b border-slate-300 mb-10 overflow-x-auto whitespace-nowrap">
-            <div id="tab-line-info" onclick="switchView('line-info')" class="px-6 py-4 text-blue-600 font-bold border-b-4 border-blue-600 text-lg cursor-pointer transition">노선 안내</div>
-            <!-- 노선도 탭: 새로운 뷰로 전환 -->
-            <div id="tab-map" onclick="switchView('map')" class="px-6 py-4 text-slate-500 font-medium hover:text-slate-700 transition cursor-pointer">노선도</div>
-            <div id="tab-fares" onclick="switchView('fares')" class="px-6 py-4 text-slate-500 font-medium hover:text-slate-700 transition cursor-pointer">운임 안내</div>
-        </div>
-
-        <!-- 1. 노선 정보 뷰 (기본 표시) -->
-        <section id="view-line-info" class="mb-16">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex flex-col sm:flex-row sm:items-center">
-                <div class="flex items-center mb-2 sm:mb-0">
-                    <i data-lucide="train" class="w-7 h-7 mr-3 text-blue-600"></i>
-                    운행 노선 현황
-                </div>
-                <!-- 안내 문구 수정 -->
-                <span class="ml-0 sm:ml-3 text-sm font-normal text-slate-500">* 노선을 클릭하면 노선별 설명 PDF 파일을 보실 수 있습니다.</span>
+        <!-- 좌측 LNB (Local Navigation Bar) -->
+        <aside class="w-full md:w-64 flex-shrink-0 hidden md:block">
+            <h2 class="text-2xl font-black text-hyobin-dark border-b-2 border-hyobin-dark pb-4 mb-0">
+                교통
             </h2>
+            <ul class="lnb-depth1">
+                <li>
+                    <a href="bus.html">효빈시내버스 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li class="active">
+                    <a href="subway.html">도시철도(1~8호선) <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a>
+                </li>
+                <li>
+                    <a href="교통약자지원.html">교통약자지원 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="parking.html">공영주차장 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 우측 본문 (Main Content) -->
+        <main class="w-full flex-1 min-w-0">
+            <!-- Breadcrumb -->
+            <div class="flex items-center text-sm text-gray-500 mb-6 font-medium">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span class="text-hyobin-blue font-bold">도시철도(1~8호선)</span>
+            </div>
+
+            <!-- 페이지 타이틀 및 유틸리티 -->
+            <div class="flex justify-between items-end border-b border-gray-300 pb-6 mb-10">
+                <h2 class="text-3xl md:text-4xl font-black content-title text-gray-900 m-0 leading-none">
+                    효빈 도시철도
+                </h2>
+                <div class="flex gap-2 hidden md:flex">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="관심스크랩"><i data-lucide="star" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="인쇄"><i data-lucide="printer" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="공유"><i data-lucide="share-2" class="w-5 h-5 text-gray-600"></i></button>
+                </div>
+            </div>
             
-            <!-- 노선 카드 목록 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 탭 메뉴 (뷰 전환 기능) -->
+            <div class="flex border-b border-slate-300 mb-10 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                <div id="tab-line-info" onclick="switchView('line-info')" class="px-6 py-4 text-hyobin-blue font-bold border-b-4 border-hyobin-blue text-lg cursor-pointer transition">노선 안내</div>
+                <div id="tab-map" onclick="switchView('map')" class="px-6 py-4 text-slate-500 font-medium hover:text-slate-700 transition cursor-pointer text-lg">노선도</div>
+                <div id="tab-fares" onclick="switchView('fares')" class="px-6 py-4 text-slate-500 font-medium hover:text-slate-700 transition cursor-pointer text-lg">운임 안내</div>
+            </div>
+
+            <!-- 1. 노선 정보 뷰 -->
+            <section id="view-line-info" class="mb-16">
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex flex-col sm:flex-row sm:items-center">
+                    <div class="flex items-center mb-2 sm:mb-0">
+                        <i data-lucide="train" class="w-7 h-7 mr-3 text-hyobin-blue"></i>
+                        운행 노선 현황
+                    </div>
+                    <span class="ml-0 sm:ml-3 text-sm font-normal text-slate-500">* 노선을 클릭하면 노선별 설명 PDF 파일을 보실 수 있습니다.</span>
+                </h3>
                 
-                <!-- 1호선 (파랑) - PDF 링크 -->
-                <div onclick="window.open('line_1_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #0077DD;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #0077DD;">1</span>
-                                <span class="font-black text-xl text-slate-800">1호선</span>
+                <!-- 노선 카드 목록 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 1호선 -->
+                    <div onclick="window.open('line_1_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #0077DD;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #0077DD;">1</span>
+                                    <span class="font-black text-xl text-slate-800">1호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
                             </div>
-                            <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>곽암해수욕장 ↔ 장선/승남</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1984. 12. 02</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>곽암해수욕장 ↔ 장선/승남</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1984. 12. 02</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 2호선 (민트) - PDF 링크 -->
-                <div onclick="window.open('line_2_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #00CCAA;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #00CCAA;">2</span>
-                                <span class="font-black text-xl text-slate-800">2호선</span>
+                    <!-- 2호선 -->
+                    <div onclick="window.open('line_2_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #00CCAA;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #00CCAA;">2</span>
+                                    <span class="font-black text-xl text-slate-800">2호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
                             </div>
-                            <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>중앙로 ↔ 월천/효빈항</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1989. 02. 03</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>중앙로 ↔ 월천/효빈항</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1989. 02. 03</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 3호선 (노랑/공항선) - PDF 링크 -->
-                <div onclick="window.open('line_3_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #FFCC11;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #FFCC11;">3</span>
-                                <span class="font-black text-xl text-slate-800">3호선</span>
+                    <!-- 3호선 -->
+                    <div onclick="window.open('line_3_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #FFCC11;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #FFCC11;">3</span>
+                                    <span class="font-black text-xl text-slate-800">3호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded flex items-center gap-1">
+                                    <i data-lucide="plane" class="w-3 h-3"></i> 공항선
+                                </span>
                             </div>
-                            <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded flex items-center gap-1">
-                                <i data-lucide="plane" class="w-3 h-3"></i> 공항선
-                            </span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>팔조 ↔ 효빈국제공항</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1994. 02. 09</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>팔조 ↔ 효빈국제공항</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1994. 02. 09</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 4호선 (주황) - PDF 링크 -->
-                <div onclick="window.open('line_4_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #FF5522;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #FF5522;">4</span>
-                                <span class="font-black text-xl text-slate-800">4호선</span>
+                    <!-- 4호선 -->
+                    <div onclick="window.open('line_4_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #FF5522;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #FF5522;">4</span>
+                                    <span class="font-black text-xl text-slate-800">4호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
                             </div>
-                            <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>해운산업지구 ↔ 천가</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2003. 03. 05</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>해운산업지구 ↔ 천가</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2003. 03. 05</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 5호선 (빨강/경전철) - PDF 링크 -->
-                <div onclick="window.open('line_5_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #EE0022;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #EE0022;">5</span>
-                                <span class="font-black text-xl text-slate-800">5호선</span>
+                    <!-- 5호선 -->
+                    <div onclick="window.open('line_5_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #EE0022;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #EE0022;">5</span>
+                                    <span class="font-black text-xl text-slate-800">5호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-green-50 text-green-600 px-2 py-1 rounded">경전철(AGT)</span>
                             </div>
-                            <span class="text-xs font-bold bg-green-50 text-green-600 px-2 py-1 rounded">경전철(AGT)</span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>청덕공원 ↔ 포성산</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2011. 05. 08</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>청덕공원 ↔ 포성산</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2011. 05. 08</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 6호선 (보라) - PDF 링크 -->
-                <div onclick="window.open('line_6_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #881188;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #881188;">6</span>
-                                <span class="font-black text-xl text-slate-800">6호선</span>
+                    <!-- 6호선 -->
+                    <div onclick="window.open('line_6_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #881188;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #881188;">6</span>
+                                    <span class="font-black text-xl text-slate-800">6호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
                             </div>
-                            <span class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">중전철</span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>마잡 ↔ 고송나루</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2016. 04. 03</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>마잡 ↔ 고송나루</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2016. 04. 03</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 7호선 (분홍/노면전차) - PDF 링크 -->
-                <div onclick="window.open('line_7_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #FF8899;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #FF8899;">7</span>
-                                <span class="font-black text-xl text-slate-800">7호선</span>
+                    <!-- 7호선 -->
+                    <div onclick="window.open('line_7_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #FF8899;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #FF8899;">7</span>
+                                    <span class="font-black text-xl text-slate-800">7호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-yellow-50 text-yellow-700 px-2 py-1 rounded flex items-center gap-1">
+                                    <i data-lucide="tram-front" class="w-3 h-3"></i> 노면전차
+                                </span>
                             </div>
-                            <span class="text-xs font-bold bg-yellow-50 text-yellow-700 px-2 py-1 rounded flex items-center gap-1">
-                                <i data-lucide="tram-front" class="w-3 h-3"></i> 노면전차
-                            </span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>어간중앙 ↔ 효빈대입구</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1931. 04. 05</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>어간중앙 ↔ 효빈대입구</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>1931. 04. 05</li>
-                        </ul>
                     </div>
-                </div>
 
-                <!-- 8호선 (연보라/경전철) - PDF 링크 -->
-                <div onclick="window.open('line_8_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #9856FF;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #9856FF;">8</span>
-                                <span class="font-black text-xl text-slate-800">8호선</span>
+                    <!-- 8호선 -->
+                    <div onclick="window.open('line_8_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #9856FF;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #9856FF;">8</span>
+                                    <span class="font-black text-xl text-slate-800">8호선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-green-50 text-green-600 px-2 py-1 rounded">경전철(AGT)</span>
                             </div>
-                            <span class="text-xs font-bold bg-green-50 text-green-600 px-2 py-1 rounded">경전철(AGT)</span>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>곽산 ↔ 신흥</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2024. 03. 04</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>곽산 ↔ 신흥</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2024. 03. 04</li>
-                        </ul>
                     </div>
+                    
+                    <!-- 창전선 -->
+                    <div onclick="window.open('changjeon_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #33aaff;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge text-base" style="background-color: #33aaff; font-size: 0.9rem; width: 50px; height: 35px; border-radius: 9999px;">창전</span>
+                                    <span class="font-black text-xl text-slate-800">창전선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-red-50 text-red-600 px-2 py-1 rounded flex items-center gap-1">
+                                    <i data-lucide="construction" class="w-3 h-3"></i> 개통 예정
+                                </span>
+                            </div>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>팔조 ↔ 하성천</li> 
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2027년 개통 예정</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 빈효선 -->
+                    <div onclick="window.open('binhyo_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
+                        <div class="h-3 w-full" style="background-color: #6677CC;"></div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="line-badge" style="background-color: #6677CC; font-size: 0.8rem;">빈효</span>
+                                    <span class="font-black text-xl text-slate-800">빈효선</span>
+                                </div>
+                                <span class="text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-1 rounded">광역철도</span>
+                            </div>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>효빈항 ↔ 고남</li>
+                                <li class="flex"><span class="w-16 font-bold text-slate-400">운영</span>한국철도공사(Korail)</li>
+                            </ul>
+                        </div>
+                    </div>
+
                 </div>
+            </section>
+
+            <!-- 2. 노선도 뷰 -->
+            <section id="view-map" class="hidden mb-16">
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+                    <i data-lucide="map" class="w-7 h-7 mr-3 text-hyobin-blue"></i>
+                    노선별 상세 노선도
+                </h3>
                 
-                <!-- 창전선 (구간 업데이트: 팔조 ↔ 하성천) - PDF 링크 -->
-                <div onclick="window.open('changjeon_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #33aaff;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <!-- 배지를 '9' 대신 '창전'으로 표시 -->
-                                <span class="line-badge text-base" style="background-color: #33aaff; font-size: 0.9rem; width: 50px; height: 35px; border-radius: 9999px;">창전</span>
-                                <span class="font-black text-xl text-slate-800">창전선</span>
-                            </div>
-                            <span class="text-xs font-bold bg-red-50 text-red-600 px-2 py-1 rounded flex items-center gap-1">
-                                <i data-lucide="construction" class="w-3 h-3"></i> 개통 예정
-                            </span>
-                        </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <!-- 구간 정보 업데이트 -->
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>팔조 ↔ 하성천</li> 
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">개통일</span>2027년 개통 예정</li>
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-8">
+                    <!-- 노선 선택 버튼 그룹 -->
+                    <div id="line-selection-buttons" class="flex flex-wrap gap-2 justify-center mb-6 pb-4 border-b">
+                        <!-- JS에서 버튼 렌더링 -->
+                    </div>
+
+                    <!-- 현재 노선도 이미지 타이틀 -->
+                    <h4 id="line-map-title" class="text-center text-xl font-black text-slate-700 mb-4"></h4>
+
+                    <!-- 노선도 이미지 컨테이너 -->
+                    <div id="map-image-container" class="w-full bg-slate-50 rounded-lg overflow-hidden border border-slate-300">
+                        <img id="subway-map-image" src="" alt="효빈 도시철도 노선도" class="w-full h-auto object-contain transition duration-500 ease-in-out transform hover:scale-[1.01] cursor-zoom-in" onclick="window.open(this.src, '_blank')" onerror="this.src='이미지/기본노선도.png'">
+                    </div>
+                    
+                    <p class="text-xs text-slate-500 mt-4 text-center">이미지 경로: <span id="map-filename-indicator" class="font-mono text-slate-700"></span></p>
+                    <p class="text-xs text-slate-500 text-center">노선도를 클릭하면 원본 크기로 새 창에서 볼 수 있습니다.</p>
+                </div>
+            </section>
+
+            <!-- 3. 운임표 뷰 -->
+            <section id="view-fares" class="hidden mb-16">
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+                    <i data-lucide="credit-card" class="w-7 h-7 mr-3 text-hyobin-blue"></i>
+                    효빈권 통합 운임 안내
+                </h3>
+                
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+                    <div class="mb-6 bg-blue-50 border-l-4 border-hyobin-blue p-4 text-sm text-blue-800 rounded">
+                        <p class="font-bold mb-1 flex items-center gap-1">
+                            <i data-lucide="bell" class="w-4 h-4 text-hyobin-blue"></i>
+                            효빈권 광역 환승 할인 시행 중
+                        </p>
+                        <p>효빈 도시철도(1~8호선), 빈효선(광역전철), 효빈시내버스는 통합요금제가 적용되어 자유로운 환승이 가능합니다.</p>
+                    </div>
+
+                    <!-- 기본 운임표 -->
+                    <div class="overflow-x-auto mb-10">
+                        <h4 class="text-lg font-bold text-slate-700 mb-3 border-l-4 border-hyobin-dark pl-3">기본 운임 (10km 이내)</h4>
+                        <table class="w-full border-collapse text-center table-auto">
+                            <thead class="bg-slate-100 border-t-2 border-hyobin-dark">
+                                <tr>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[70px]">구분</th>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[100px]">교통카드</th>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[100px]">1회권(현금)</th>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">대상</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">일반</td>
+                                    <td class="py-3 px-4 text-hyobin-blue font-bold border-b border-slate-100">1,500원</td>
+                                    <td class="py-3 px-4 text-slate-600 border-b border-slate-100">1,600원</td>
+                                    <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">만 19세 이상</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">청소년</td>
+                                    <td class="py-3 px-4 text-hyobin-blue font-bold border-b border-slate-100">850원</td>
+                                    <td class="py-3 px-4 text-slate-600 border-b border-slate-100">1,600원</td>
+                                    <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">만 13세 ~ 18세</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">어린이</td>
+                                    <td class="py-3 px-4 text-hyobin-blue font-bold border-b border-slate-100">550원</td>
+                                    <td class="py-3 px-4 text-slate-600 border-b border-slate-100">550원</td>
+                                    <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">만 6세 ~ 12세</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">무임</td>
+                                    <td colspan="2" class="py-3 px-4 text-slate-400 font-bold border-b border-slate-100">0원 (100% 할인)</td>
+                                    <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">
+                                        만 65세 이상, 장애인, 국가유공자<br>
+                                        <span class="text-xs text-slate-400">(단, 빈효선 광역전철 구간 포함)</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 거리비례 추가운임 -->
+                    <div class="overflow-x-auto mb-10">
+                        <h4 class="text-lg font-bold text-slate-700 mb-3 border-l-4 border-hyobin-dark pl-3">거리비례 추가 운임</h4>
+                        <table class="w-full border-collapse text-center table-auto">
+                            <thead class="bg-slate-100 border-t-2 border-hyobin-dark">
+                                <tr>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">거리 구간</th>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">추가 금액</th>
+                                    <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">비고</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-slate-100 text-slate-800">10km 초과 ~ 50km 까지</td>
+                                    <td class="py-3 px-4 text-slate-800 font-bold border-b border-slate-100">5km 마다 100원 추가</td>
+                                    <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">도시철도 시내 구간 적용</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 border-b border-slate-100 text-slate-800">50km 초과 시</td>
+                                    <td class="py-3 px-4 text-slate-800 font-bold border-b border-slate-100">8km 마다 100원 추가</td>
+                                    <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">광역 구간 적용 (빈효선 등)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 환승 정책 -->
+                    <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 text-hyobin-blue"></i>
+                            환승 할인 기준
+                        </h4>
+                        <ul class="list-disc list-inside text-sm text-slate-600 space-y-2 pl-2">
+                            <li><strong class="text-slate-700">대상 수단:</strong> 효빈 도시철도(1~8호선), 빈효선(광역전철), 효빈시 시내버스(마을버스 포함)</li>
+                            <li><strong class="text-slate-700">적용 시간:</strong> 하차 후 <span class="text-red-500 font-bold">30분 이내</span> (21시~07시 심야 시간: 60분 이내)</li>
+                            <li><strong class="text-slate-700">횟수 제한:</strong> 최대 4회 환승 (5회 탑승) 가능</li>
+                            <li><strong class="text-slate-700">주의 사항:</strong> 동일 노선(지하철↔지하철, 동일 번호 버스) 간 환승은 적용되지 않음</li>
                         </ul>
                     </div>
                 </div>
+            </section>
 
-                <!-- 빈효선 (광역철도) - PDF 링크 -->
-                <div onclick="window.open('binhyo_schedule.pdf', '_blank')" class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden hover-card transition cursor-pointer">
-                    <div class="h-3 w-full" style="background-color: #6677CC;"></div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="line-badge" style="background-color: #6677CC; font-size: 0.8rem;">빈효</span>
-                                <span class="font-black text-xl text-slate-800">빈효선</span>
-                            </div>
-                            <span class="text-xs font-bold bg-indigo-50 text-indigo-700 px-2 py-1 rounded">광역철도</span>
-                        </div>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">구간</span>효빈항 ↔ 고남</li>
-                            <li class="flex"><span class="w-16 font-bold text-slate-400">운영</span>한국철도공사(Korail)</li>
-                        </ul>
-                    </div>
-                </div>
+        </main>
+    </div>
 
-            </div>
-        </section>
-
-        <!-- 2. 노선도 뷰 (노선별 상세 맵 셀렉터로 변경) -->
-        <section id="view-map" class="hidden">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                <i data-lucide="map" class="w-7 h-7 mr-3 text-blue-600"></i>
-                노선별 상세 노선도
-            </h2>
-            
-            <div class="bg-white rounded-xl border border-slate-200 shadow-lg p-4 md:p-8">
-                <!-- 노선 선택 버튼 그룹 -->
-                <div id="line-selection-buttons" class="flex flex-wrap gap-2 justify-center mb-6 pb-4 border-b">
-                    <!-- JS에서 버튼이 여기에 렌더링됩니다. -->
-                </div>
-
-                <!-- 현재 노선도 이미지 타이틀 -->
-                <h3 id="line-map-title" class="text-center text-xl font-black text-slate-700 mb-4"></h3>
-
-                <!-- 노선도 이미지 컨테이너 -->
-                <div id="map-image-container" class="w-full bg-slate-100 rounded-lg overflow-hidden border border-slate-300">
-                    <!-- 노선도 이미지 (사용자가 제공하는 이미지 파일을 넣어주세요) -->
-                    <img id="subway-map-image" src="" alt="효빈 도시철도 노선도" class="w-full h-auto object-contain transition duration-500 ease-in-out transform hover:scale-[1.01] cursor-zoom-in" onclick="window.open(this.src, '_blank')">
-                </div>
-                <!-- 창전선 PDF 파일명도 'changjeon_schedule.pdf'로 변경되었으니 주의하세요. -->
-                <p class="text-xs text-slate-500 mt-4 text-center">이미지 파일명: <span id="map-filename-indicator" class="font-mono text-slate-700"></span></p>
-                <p class="text-xs text-slate-500 text-center">노선도를 클릭하면 원본 크기로 새 창에서 볼 수 있습니다. (예시 파일명: **map_line_1.png**)</p>
-            </div>
-        </section>
-
-
-        <!-- 3. 운임표 뷰 (숨김) -->
-        <section id="view-fares" class="bg-white rounded-xl border border-slate-200 shadow-lg p-8 hidden">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                <i data-lucide="credit-card" class="w-7 h-7 mr-3 text-blue-600"></i>
-                효빈권 통합 운임 안내
-            </h2>
-            
-            <div class="mb-6 bg-blue-50 border-l-4 border-blue-600 p-4 text-sm text-blue-800 rounded">
-                <p class="font-bold mb-1 flex items-center gap-1">
-                    <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i>
-                    효빈권 광역 환승 할인 시행 중
-                </p>
-                <p>효빈 도시철도(1~8호선), 빈효선(광역전철), 효빈시내버스는 통합요금제가 적용되어 자유로운 환승이 가능합니다.</p>
-            </div>
-
-            <!-- 기본 운임표 -->
-            <div class="overflow-x-auto mb-8">
-                <h3 class="text-lg font-bold text-slate-700 mb-3 border-l-4 border-slate-700 pl-3">기본 운임 (10km 이내)</h3>
-                <table class="w-full border-collapse text-center table-auto">
-                    <thead class="bg-slate-100 border-t-2 border-slate-500">
-                        <tr>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[70px]">구분</th>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[100px]">교통카드</th>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[100px]">1회권(현금)</th>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">대상</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">일반</td>
-                            <td class="py-3 px-4 text-blue-600 font-bold border-b border-slate-100">1,500원</td>
-                            <td class="py-3 px-4 text-slate-600 border-b border-slate-100">1,600원</td>
-                            <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">만 19세 이상</td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">청소년</td>
-                            <td class="py-3 px-4 text-blue-600 font-bold border-b border-slate-100">850원</td>
-                            <td class="py-3 px-4 text-slate-600 border-b border-slate-100">1,600원</td>
-                            <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">만 13세 ~ 18세</td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">어린이</td>
-                            <td class="py-3 px-4 text-blue-600 font-bold border-b border-slate-100">550원</td>
-                            <td class="py-3 px-4 text-slate-600 border-b border-slate-100">550원</td>
-                            <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">만 6세 ~ 12세</td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-4 border-b border-slate-100 font-bold text-slate-800">무임</td>
-                            <td colspan="2" class="py-3 px-4 text-slate-400 font-bold border-b border-slate-100">0원 (100% 할인)</td>
-                            <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">
-                                만 65세 이상, 장애인, 국가유공자<br>
-                                <span class="text-xs text-slate-400">(단, 빈효선 광역전철 구간 포함)</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 거리비례 추가운임 -->
-            <div class="overflow-x-auto mb-8">
-                <h3 class="text-lg font-bold text-slate-700 mb-3 border-l-4 border-slate-700 pl-3">거리비례 추가 운임</h3>
-                <table class="w-full border-collapse text-center table-auto">
-                    <thead class="bg-slate-100 border-t-2 border-slate-500">
-                        <tr>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">거리 구간</th>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">추가 금액</th>
-                            <th class="py-3 px-4 text-slate-700 font-bold border-b border-slate-200 min-w-[150px]">비고</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="py-3 px-4 border-b border-slate-100 text-slate-800">10km 초과 ~ 50km 까지</td>
-                            <td class="py-3 px-4 text-slate-800 font-bold border-b border-slate-100">5km 마다 100원 추가</td>
-                            <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">도시철도 시내 구간 적용</td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-4 border-b border-slate-100 text-slate-800">50km 초과 시</td>
-                            <td class="py-3 px-4 text-slate-800 font-bold border-b border-slate-100">8km 마다 100원 추가</td>
-                            <td class="py-3 px-4 text-sm text-slate-500 border-b border-slate-100">광역 구간 적용 (빈효선 등)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 환승 정책 -->
-            <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 shadow-inner">
-                <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-500"></i>
-                    환승 할인 기준
-                </h4>
-                <ul class="list-disc list-inside text-sm text-slate-600 space-y-1 pl-4">
-                    <li><strong class="text-slate-700">대상 수단:</strong> 효빈 도시철도(1~8호선), 빈효선(광역전철), 효빈시 시내버스(마을버스 포함)</li>
-                    <li><strong class="text-slate-700">적용 시간:</strong> 하차 후 <span class="text-red-500 font-bold">30분 이내</span> (21시~07시 심야 시간: 60분 이내)</li>
-                    <li><strong class="text-slate-700">횟수 제한:</strong> 최대 4회 환승 (5회 탑승) 가능</li>
-                    <li><strong class="text-slate-700">주의 사항:</strong> 동일 노선(지하철↔지하철, 동일 번호 버스) 간 환승은 적용되지 않음</li>
-                </ul>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- 푸터 -->
+    <!-- [규칙 엄수] 공통 푸터 및 모달 렌더링 영역 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
+
+    <!-- [규칙 엄수] 스크립트 배치 순서 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
 
     <!-- Lucide 아이콘 초기화 스크립트 및 뷰 전환/페이지네이션 로직 -->
     <script>
         lucide.createIcons();
         
-        // 노선도 이미지 정보 배열
+        // 노선도 데이터 (색상은 템플릿의 hyobin 컬러 활용)
         const lineMapData = [
-            { id: 'line_1', name: '1호선', color: '#0077DD', badge: '1' },
-            { id: 'line_2', name: '2호선', color: '#00CCAA', badge: '2' },
-            { id: 'line_3', name: '3호선', color: '#FFCC11', badge: '3' },
-            { id: 'line_4', name: '4호선', color: '#FF5522', badge: '4' },
-            { id: 'line_5', name: '5호선', color: '#EE0022', badge: '5' },
-            { id: 'line_6', name: '6호선', color: '#881188', badge: '6' },
-            { id: 'line_7', name: '7호선', color: '#FF8899', badge: '7' },
-            { id: 'line_8', name: '8호선', color: '#9856FF', badge: '8' },
-            // 창전선: id와 name을 '창전'으로 통일하고, badge는 '창전'으로 표시
-            { id: 'changjeon', name: '창전선', color: '#33aaff', badge: '창전' }, 
-            { id: 'binhyo', name: '빈효선', color: '#6677CC', badge: '빈효' }
+            { id: '1호선', name: '1호선', color: '#0077DD', badge: '1' },
+            { id: '2호선', name: '2호선', color: '#00CCAA', badge: '2' },
+            { id: '3호선', name: '3호선', color: '#FFCC11', badge: '3' },
+            { id: '4호선', name: '4호선', color: '#FF5522', badge: '4' },
+            { id: '5호선', name: '5호선', color: '#EE0022', badge: '5' },
+            { id: '6호선', name: '6호선', color: '#881188', badge: '6' },
+            { id: '7호선', name: '7호선', color: '#FF8899', badge: '7' },
+            { id: '8호선', name: '8호선', color: '#9856FF', badge: '8' },
+            { id: '창전선', name: '창전선', color: '#33aaff', badge: '창전' }, 
+            { id: '빈효선', name: '빈효선', color: '#6677CC', badge: '빈효' }
         ];
-        let currentLineMapId = 'line_1'; // 기본값
+        let currentLineMapId = '1호선';
 
         /**
          * 탭 클릭 시 뷰를 전환하는 함수
-         * @param {string} viewId - 표시할 뷰의 ID ('line-info', 'map', 'fares')
          */
         function switchView(viewId) {
             const views = ['line-info', 'map', 'fares'];
             const tabs = ['tab-line-info', 'tab-map', 'tab-fares'];
 
-            // 1. 모든 뷰 숨기기
             views.forEach(id => {
                 const viewElement = document.getElementById(`view-${id}`);
-                if (viewElement) {
-                    viewElement.classList.add('hidden');
-                }
+                if (viewElement) viewElement.classList.add('hidden');
             });
 
-            // 2. 현재 뷰 표시
             const activeView = document.getElementById(`view-${viewId}`);
-            if (activeView) {
-                activeView.classList.remove('hidden');
-            }
+            if (activeView) activeView.classList.remove('hidden');
 
-            // 3. 탭 스타일 업데이트
             tabs.forEach(tabId => {
                 const tabElement = document.getElementById(tabId);
-                tabElement.classList.remove('text-blue-600', 'border-b-4', 'border-blue-600');
+                tabElement.classList.remove('text-hyobin-blue', 'border-b-4', 'border-hyobin-blue', 'font-bold');
                 tabElement.classList.add('text-slate-500', 'font-medium');
             });
             
             const activeTab = document.getElementById(`tab-${viewId}`);
             activeTab.classList.remove('text-slate-500', 'font-medium');
-            activeTab.classList.add('text-blue-600', 'font-bold', 'border-b-4', 'border-blue-600');
+            activeTab.classList.add('text-hyobin-blue', 'font-bold', 'border-b-4', 'border-hyobin-blue');
             
-            // 노선도 뷰로 전환될 때 초기 맵 업데이트 및 버튼 렌더링
             if (viewId === 'map') {
                 renderLineButtons();
-                selectLineMap(currentLineMapId); // 마지막에 선택된 맵 또는 기본 맵 표시
+                selectLineMap(currentLineMapId); 
             }
         }
         
@@ -487,14 +598,11 @@
         function renderLineButtons() {
             const container = document.getElementById('line-selection-buttons');
             if (!container) return;
-
-            // 버튼 초기화
             container.innerHTML = ''; 
 
             lineMapData.forEach(line => {
                 const button = document.createElement('button');
-                // 호선 번호 대신 line.name 또는 line.badge를 사용
-                button.textContent = line.badge === line.name ? line.name : line.name; 
+                button.textContent = line.name; 
                 button.className = `line-map-button`;
                 button.style.backgroundColor = line.color;
                 button.onclick = () => selectLineMap(line.id);
@@ -505,7 +613,6 @@
         
         /**
          * 특정 노선 지도를 선택하고 표시하는 함수
-         * @param {string} lineId - 선택된 노선의 ID (예: 'line_1', 'changjeon')
          */
         function selectLineMap(lineId) {
             const mapImage = document.getElementById('subway-map-image');
@@ -514,38 +621,27 @@
             const line = lineMapData.find(d => d.id === lineId);
             
             if (!line) return;
-
             currentLineMapId = lineId;
             
-            // 파일명 규칙: map_line_1.png 또는 map_changjeon.png
-            const fileName = `map_${lineId}.png`.replace('map_binhyo.png', 'map_binhyo_line.png'); // 광역철도 파일명 예외 처리
+            // 한글 이미지 파일명 규칙 준수 (<img src="이미지/[한국어이름].png">)
+            const fileName = `이미지/노선도_${line.name}.png`;
             
-            // 노선도 이미지 및 정보 업데이트
             mapTitle.textContent = line.name + ' 상세 노선도';
             mapImage.src = fileName;
             mapImage.alt = line.name + ' 상세 노선도';
             fileNameIndicator.textContent = fileName;
             
-            // 활성 버튼 스타일 업데이트
             document.querySelectorAll('.line-map-button').forEach(btn => {
                 btn.classList.remove('active');
             });
             const activeBtn = document.getElementById(`map-btn-${lineId}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
+            if (activeBtn) activeBtn.classList.add('active');
         }
 
-
-        // 초기 로드 시 실행 (기본 뷰 설정)
+        // 초기 로드 시 기본 뷰(노선 안내) 실행
         window.onload = function() {
-            lucide.createIcons();
-            // 노선도 버튼이 렌더링되기 전에 초기 맵 ID를 설정합니다.
             switchView('line-info'); 
         };
     </script>
-<script src="data.js"></script>
-    <script src="script.js"></script>
-    <script src="common.js"></script>
 </body>
 </html>

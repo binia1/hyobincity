@@ -70,18 +70,21 @@ const headerHTML = `
                 </li>
                 <li class="text-slate-600 text-xs hidden md:block">|</li>
 
+
                 <!-- 교통 -->
                 <li class="group relative px-4 py-4 cursor-pointer">
                     <span class="hover:text-blue-300 transition block" onclick="location.href='transport.html'">교통</span>
                     <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
                         <a href="bus.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈시내버스 안내</a>
                         <a href="subway.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">도시철도(1~8호선)</a>
+                        <a href="airport.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈국제공항</a>
+                        <a href="port.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈항</a>
                         <a href="교통약자지원.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">교통약자지원</a>
                         <a href="parking.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">공영주차장 안내</a>
                     </div>
                 </li>
                 <li class="text-slate-600 text-xs hidden md:block">|</li>
-
+                
                 <!-- 복지 -->
                 <li class="group relative px-4 py-4 cursor-pointer">
                     <span class="hover:text-blue-300 transition block" onclick="location.href='welfare.html'">복지</span>

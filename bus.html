@@ -3,21 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>버스 정보 - 효빈광역시</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>효빈시내버스 안내 - 효빈광역시</title>
+    
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', // 관공서 신뢰의 블루
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            subway1: '#0077DD', subway2: '#00CCAA', subway3: '#FFCC11',
+                            subway4: '#FF5522', subway5: '#EE0022', subway6: '#881188',
+                            subway7: '#FF8899', subway8: '#9856FF', subway_wide: '#6677CC',
+                            bus_gan: '#01B7ED', bus_sun: '#E7D600', bus_ji: '#37B484',
+                            bus_wide: '#485EC6', bus_seat: '#FF5800', bus_maeul: '#A664A0',
+                            bus_air: '#84C36E', bus_city: '#7777AA', bus_exp: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> 
-        body { font-family: 'Noto Sans KR', sans-serif; } 
-        
-        /* 탭 버튼 스타일 */
+
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 관공서 템플릿 공통 스타일 */
+        .sub-visual {
+            background-image: linear-gradient(rgba(0, 43, 92, 0.7), rgba(0, 43, 92, 0.7)), url('이미지/교통배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth2 {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lnb-depth2 > li > a {
+            display: block;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        .lnb-depth2 > li.current > a {
+            color: #005bac;
+            font-weight: 700;
+            position: relative;
+        }
+        .lnb-depth2 > li.current > a::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        /* 버스 전용 커스텀 스타일 */
         .tab-btn.active { background-color: #01B7ED; color: white; border-color: #01B7ED; }
         .tab-btn:hover:not(.active) { color: #01B7ED; }
         
-        /* 버스 뱃지 스타일 */
         .bus-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: white; display: inline-block; min-width: 50px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        /* 버스 유형별 도색 - 2026-01-22 업데이트 반영 */
         .bg-rapid { background-color: #D81C2F; }   /* 급행 */
         .bg-seat { background-color: #FF5800; }    /* 좌석 */
         .bg-main { background-color: #01B7ED; }    /* 간선 */
@@ -28,7 +109,6 @@
         .bg-airport { background-color: #84C36E; } /* 공항 */
         .bg-tour { background-color: #7777AA; }    /* 시티투어 */
         
-        /* 텍스트/테두리 색상 유틸리티 */
         .border-rapid { border-color: #D81C2F; }
         .border-seat { border-color: #FF5800; }
         .border-main { border-color: #01B7ED; }
@@ -39,7 +119,6 @@
         .border-airport { border-color: #84C36E; }
         .border-tour { border-color: #7777AA; }
         
-        /* 배경 색상 유틸리티 */
         .bg-soft-rapid { background-color: #FEE2E2; color: #D81C2F; }
         .bg-soft-seat { background-color: #FFEDD5; color: #FF5800; }
         .bg-soft-main { background-color: #E0F2FE; color: #01B7ED; }
@@ -53,7 +132,6 @@
         .clickable-row { cursor: pointer; transition: background-color 0.2s; }
         .clickable-row:hover { background-color: #f8fafc; }
 
-        /* 화면 전환 애니메이션 */
         .view-section { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -64,32 +142,76 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="text-gray-800 antialiased bg-white flex flex-col min-h-screen">
 
-<div id="common-header"></div>
+    <!-- [규칙 엄수] 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
 
-    <!-- 메인 컨텐츠 -->
-    <main class="w-full flex-grow relative">
+    <!-- 타이틀 배너 (Sub Visual) -->
+    <div class="sub-visual h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-hyobin-dark opacity-60"></div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg">교통</h1>
+            <p class="mt-4 text-lg md:text-xl font-light opacity-90">시민과 함께 달리는 행복 버스, 준공영제로 더 안전하게</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 w-full flex-1">
         
-        <!-- VIEW 1: 목록 화면 -->
-        <div id="list-view" class="view-section">
-            <div class="w-full bg-slate-700 py-16 text-center text-white relative overflow-hidden">
-                <div class="absolute inset-0 bg-[#01B7ED] opacity-70"></div>
-                <div class="absolute inset-0 -z-10 bg-gradient-to-r from-slate-800 to-slate-600"></div>
-                <div class="relative z-10 px-4">
-                    <h1 class="text-4xl md:text-5xl font-black mb-4">효빈 버스정보시스템 (BIS)</h1>
-                    <p class="text-slate-200 font-medium text-lg md:text-xl break-keep">시민과 함께 달리는 행복 버스, 준공영제로 더 안전하고 편리하게</p>
+        <!-- 좌측 LNB (Local Navigation Bar) -->
+        <aside class="w-full md:w-64 flex-shrink-0 hidden md:block">
+            <h2 class="text-2xl font-black text-hyobin-dark border-b-2 border-hyobin-dark pb-4 mb-0">
+                교통
+            </h2>
+            <ul class="lnb-depth1">
+                <li class="active">
+                    <a href="bus.html">효빈시내버스 안내 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a>
+                </li>
+                <li>
+                    <a href="subway.html">도시철도(1~8호선) <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="교통약자지원.html">교통약자지원 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="parking.html">공영주차장 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 우측 본문 (Main Content) -->
+        <main class="w-full flex-1 min-w-0">
+            <!-- Breadcrumb -->
+            <div class="flex items-center text-sm text-gray-500 mb-6 font-medium">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span class="text-hyobin-blue font-bold">효빈시내버스 안내</span>
+            </div>
+
+            <!-- 페이지 타이틀 및 유틸리티 -->
+            <div class="flex justify-between items-end border-b border-gray-300 pb-6 mb-10">
+                <h2 class="text-3xl md:text-4xl font-black content-title text-gray-900 m-0 leading-none">
+                    효빈 버스정보시스템 (BIS)
+                </h2>
+                <div class="flex gap-2 hidden md:flex">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="관심스크랩"><i data-lucide="star" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="인쇄"><i data-lucide="printer" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="공유"><i data-lucide="share-2" class="w-5 h-5 text-gray-600"></i></button>
                 </div>
             </div>
 
-            <div class="max-w-6xl mx-auto px-4 py-12 mb-20">
+            <!-- VIEW 1: 목록 화면 -->
+            <div id="list-view" class="view-section">
                 <!-- 검색 -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                    <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-md border border-slate-200">
+                    <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
                         <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
                             <i data-lucide="search" class="w-6 h-6 mr-2 text-[#01B7ED]"></i> 노선 검색
                         </h3>
-                        <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex-grow relative">
                                 <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') searchBus()" placeholder="노선번호 (예: 01, A01) 또는 정류장명" class="w-full pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:border-[#01B7ED] focus:outline-none text-lg transition-colors">
                                 <button onclick="searchBus()" class="absolute right-2 top-2 p-1 bg-[#01B7ED] text-white rounded hover:bg-sky-600 transition">
@@ -98,10 +220,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-sky-50 p-6 rounded-xl border border-sky-100 h-full">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 h-full">
                         <h4 class="font-bold text-[#01B7ED] mb-2 flex items-center"><i data-lucide="info" class="w-4 h-4 mr-2"></i> 효빈 BIS 안내</h4>
                         <p class="text-sm text-slate-700 leading-relaxed mb-3">
-                            효빈광역시의 모든 버스 노선 정보를 통합 제공합니다. 21개 운수업체와 시티투어가 함께합니다.
+                            효빈광역시의 모든 버스 노선 정보를 통합 제공합니다. 21개 운수업체와 시티투어가 시민의 안전한 이동을 함께합니다.
                         </p>
                     </div>
                 </div>
@@ -118,9 +240,9 @@
                     </div>
 
                     <div class="overflow-hidden bg-white rounded-xl shadow-sm border border-slate-200">
-                        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                        <div class="overflow-x-auto max-h-[600px] overflow-y-auto relative">
                             <table class="w-full text-sm text-left text-slate-600 whitespace-nowrap md:whitespace-normal">
-                                <thead class="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200 sticky top-0 z-10">
+                                <thead class="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                                     <tr>
                                         <th class="px-6 py-4 w-24">유형</th>
                                         <th class="px-6 py-4 w-24">노선번호</th>
@@ -137,72 +259,79 @@
 
                 <!-- 운수업체 리스트 -->
                 <section class="mb-16">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i data-lucide="users" class="w-7 h-7 mr-3 text-[#01B7ED]"></i> 협력 운수업체</h2>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center"><i data-lucide="users" class="w-7 h-7 mr-3 text-[#01B7ED]"></i> 협력 운수업체</h3>
                     <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
                         <div class="flex flex-wrap gap-2 text-sm text-slate-600 leading-relaxed" id="company-list"></div>
                     </div>
                 </section>
             </div>
-        </div>
 
-        <!-- VIEW 2: 상세 화면 -->
-        <div id="detail-view" class="view-section hidden max-w-6xl mx-auto px-4 py-10 mb-20">
-            <!-- 노선 헤더 -->
-            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8" id="detail-header-card">
-                <div class="flex flex-col md:flex-row justify-between items-start">
-                    <div>
-                        <span id="detail-badge" class="px-2 py-1 rounded text-sm font-bold mb-2 inline-block">버스유형</span>
-                        <div class="flex items-baseline gap-3">
-                            <h1 id="detail-num" class="text-4xl font-black text-slate-800 mb-1">번호</h1>
-                            <span class="text-slate-400 font-medium">↔</span>
-                            <h1 id="detail-num-rev" class="text-2xl font-bold text-slate-500 mb-1">역번호</h1>
+            <!-- VIEW 2: 상세 화면 -->
+            <div id="detail-view" class="view-section hidden mb-16">
+                <!-- 목록으로 돌아가기 버튼 -->
+                <button onclick="showListView()" class="mb-6 flex items-center text-slate-600 hover:text-hyobin-blue font-bold transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5 mr-1"></i> 노선 목록으로 돌아가기
+                </button>
+
+                <!-- 노선 헤더 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6 border-l-8" id="detail-header-card">
+                    <div class="flex flex-col md:flex-row justify-between items-start">
+                        <div>
+                            <span id="detail-badge" class="px-2 py-1 rounded text-sm font-bold mb-2 inline-block">버스유형</span>
+                            <div class="flex items-baseline gap-3">
+                                <h3 id="detail-num" class="text-4xl font-black text-slate-800 mb-1">번호</h3>
+                                <span class="text-slate-400 font-medium">↔</span>
+                                <h4 id="detail-num-rev" class="text-2xl font-bold text-slate-500 mb-1">역번호</h4>
+                            </div>
+                            <p id="detail-route" class="text-lg text-slate-600 font-medium mt-2">기점 ↔ 종점</p>
+                            <p id="detail-addr" class="text-sm text-slate-400 mt-1">운행지역 정보</p>
                         </div>
-                        <p id="detail-route" class="text-lg text-slate-600 font-medium mt-2">기점 ↔ 종점</p>
-                        <p id="detail-addr" class="text-sm text-slate-400 mt-1">운행지역 정보</p>
+                        <div class="text-left md:text-right text-slate-500 text-sm mt-4 md:mt-0 bg-slate-50 p-3 rounded-lg md:bg-transparent md:p-0 w-full md:w-auto">
+                            <p>운수업체: <a href="#" id="detail-comp-link" class="font-bold text-[#01B7ED] hover:underline">정보</a></p>
+                            <p>첫차: <span id="detail-first-time" class="font-bold text-slate-700">05:30</span> / 막차: <span id="detail-last-time" class="font-bold text-slate-700">23:00</span></p>
+                            <button onclick="refreshBusLocation()" class="mt-2 text-sm text-white bg-[#01B7ED] px-3 py-1.5 rounded hover:bg-sky-600 flex items-center justify-center md:justify-end gap-1 w-full md:w-auto transition">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> 위치 새로고침
+                            </button>
+                        </div>
                     </div>
-                    <div class="text-left md:text-right text-slate-500 text-sm mt-4 md:mt-0 bg-slate-50 p-3 rounded-lg md:bg-transparent md:p-0 w-full md:w-auto">
-                        <p>운수업체: <a href="#" id="detail-comp-link" class="font-bold text-[#01B7ED] hover:underline">정보</a></p>
-                        <p>첫차: <span id="detail-first-time" class="font-bold text-slate-700">05:30</span> / 막차: <span id="detail-last-time" class="font-bold text-slate-700">23:00</span></p>
-                        <button onclick="refreshBusLocation()" class="mt-2 text-sm text-white bg-[#01B7ED] px-3 py-1.5 rounded hover:bg-sky-600 flex items-center justify-center md:justify-end gap-1 w-full md:w-auto transition">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> 위치 새로고침
-                        </button>
+                </div>
+
+                <!-- 노선도 (2단 그리드 - 상세 정류장 표시) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 상행 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
+                            <h4 class="text-lg font-bold text-slate-800 flex items-center">
+                                <span class="w-6 h-6 rounded-full bg-[#01B7ED] bg-opacity-20 text-[#01B7ED] flex items-center justify-center text-xs mr-2 font-black">상</span>
+                                순방향 (기점 → 종점)
+                            </h4>
+                        </div>
+                        <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-forward"></div>
+                    </div>
+                    <!-- 하행 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
+                            <h4 class="text-lg font-bold text-slate-800 flex items-center">
+                                <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs mr-2 font-black">하</span>
+                                역방향 (종점 → 기점)
+                            </h4>
+                        </div>
+                        <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-reverse"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 노선도 (2단 그리드 - 상세 정류장 표시) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 상행 -->
-                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                            <span class="w-6 h-6 rounded-full bg-[#01B7ED] bg-opacity-20 text-[#01B7ED] flex items-center justify-center text-xs mr-2 font-black">상</span>
-                            순방향 (기점 → 종점)
-                        </h3>
-                    </div>
-                    <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-forward"></div>
-                </div>
-                <!-- 하행 -->
-                <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-                    <div class="flex justify-between items-center mb-6 pb-2 border-b border-slate-100">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                            <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs mr-2 font-black">하</span>
-                            역방향 (종점 → 기점)
-                        </h3>
-                    </div>
-                    <div class="relative pl-4 border-l-4 border-slate-200 space-y-0 min-h-[300px]" id="detail-stops-reverse"></div>
-                </div>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
+    <!-- [규칙 엄수] 공통 푸터 및 모달 렌더링 영역 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
 
+    <!-- [규칙 엄수] 스크립트 배치 순서 -->
     <script>
         lucide.createIcons();
 
-        // 기존 운수업체 목록 유지 (공공/민영 구분용)
         const companies = [
             { name: '덕빈고속', public: false }, { name: '효빈여객', public: true }, { name: '청엽여객', public: true },
             { name: '창전여객', public: false }, { name: '안천고속', public: false }, { name: '이자여객', public: false },
@@ -218,13 +347,14 @@
             const isPublic = comp.public;
             const styleClass = isPublic ? 'text-[#01B7ED] font-bold ring-1 ring-sky-100 hover:bg-sky-50' : 'text-slate-600 hover:bg-slate-100';
             const link = document.createElement('a');
-            link.href = `company.html?name=${encodeURIComponent(comp.name)}`;
+            // 한글 URL 규칙은 기본 HTML 파일에 적용, 이러한 동적 파라미터는 원본 유지
+            link.href = `운수업체.html?name=${encodeURIComponent(comp.name)}`;
             link.className = `px-3 py-1 bg-white border border-slate-200 rounded-full transition ${styleClass}`;
             link.innerText = comp.name;
             companyListContainer.appendChild(link);
         });
 
-        // 데이터 교체
+        // 100% 데이터 유지
         const rawData = [
             { t: 'rapid', n: '1', s: '팔조역', sa: '효빈광역시 창전구 팔조동', e: '내항역', ea: '효빈광역시 중구 내항동', v: '팔조 - 창전 - 유류 - 중앙로 - 중구청 - 내항', c: '입포여객', ft: '5:30', lt: '23:20' },
             { t: 'rapid', n: '2', s: '소원면사무소', sa: '효빈광역시 탄성군 소원면 소원리', e: '고송동', ea: '효빈광역시 북구 고송동', v: '소원 - 이자 - 안천 - 평전 - 북구청 - 고송', c: '소진여객', ft: '5:10', lt: '23:45' },
@@ -413,7 +543,7 @@
             { t: 'airport', n: 'A02', s: '곽산역', sa: '남구 곽산동', e: '효빈국제공항', ea: '덕빈북도 기도군 주길면 원청리', v: '남구, 중구,북구', c: '소진여객', ft: '2:40', lt: '23:10' },
             { t: 'airport', n: 'A03', s: '도변역', sa: '탄성군 도변읍 도변리', e: '효빈국제공항', ea: '덕빈북도 기도군 주길면 원청리', v: '중구, 서구', c: '덕빈고속', ft: '2:30', lt: '23:30' }
         ];
-        
+
         const detailDataStore = {
             '1': ['내항역', '내항초', '다판고', '우이문화촌', '중부경찰서', '중앙로역', '중구청역', '효빈대병원 중구분관', '도람역', '신덕초등학교', '신덕역', '효빈역(남부광장)', '덕현3아파트', '전덕역', '동덕현역', '나공중', '우택덕현아파트', '우택동주민센터', '코스트코', '남우택역', '칠심3동주민센터', '유류역', '창전역', '유류초', '쌍엽역', '쌍엽세라스 아파트', '팔조초', '팔조동주민센터', '팔조역'],
             '2': ['소원면사무소', '윤부초', '윤부에리아파트', '이자중', '이자역', '이자 우리아파트', '이자출장소', '팔망성고', '백합공원역', '시택초', '안천역', '당가중', '당가역', '평전고', '회주공업 평전공장', '등기산', '등기초', '등기역', '중수3동 주민센터', '북구청.북구의회', '중수역.고등법원', '북부경찰서', '평안명대 후문', '청남초', '백천역', '천왕사아파트', '효빈교대', '청능초', '당선역', '이마트 사복점', '효빈복지대', '고송교차로역', '고송아파트', '고송수협', '고송현대아파트', '고송 휴먼빌', '고송다이버아파트'],
@@ -670,13 +800,15 @@
             });
             lucide.createIcons();
         }
+
         function filterBus(type) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                if (btn.dataset.type === type) { btn.classList.add('active', 'border-blue-600', 'text-blue-600'); btn.classList.remove('border-transparent', 'text-slate-600'); } 
-                else { btn.classList.remove('active', 'border-blue-600', 'text-blue-600'); btn.classList.add('border-transparent', 'text-slate-600'); }
+                if (btn.dataset.type === type) { btn.classList.add('active', 'border-hyobin-blue', 'text-hyobin-blue'); btn.classList.remove('border-transparent', 'text-slate-600'); } 
+                else { btn.classList.remove('active', 'border-hyobin-blue', 'text-hyobin-blue'); btn.classList.add('border-transparent', 'text-slate-600'); }
             });
             renderBusList(type);
         }
+
         function searchBus() {
             const keyword = document.getElementById('search-input').value.trim();
             if (!keyword) { renderBusList('all'); return; }
@@ -684,7 +816,7 @@
             tbody.innerHTML = '';
             const filtered = busData.filter(bus => bus.num.includes(keyword) || bus.start.includes(keyword) || bus.end.includes(keyword) || bus.via.includes(keyword));
             
-            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'border-blue-600', 'text-blue-600'); b.classList.add('border-transparent', 'text-slate-600'); });
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'border-hyobin-blue', 'text-hyobin-blue'); b.classList.add('border-transparent', 'text-slate-600'); });
 
             if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400">"${keyword}"에 대한 검색 결과가 없습니다.</td></tr>`; return; }
 
@@ -706,7 +838,11 @@
         }
 
         function setSearch(term) { document.getElementById('search-input').value = term; searchBus(); }
-        function showListView() { document.getElementById('list-view').classList.remove('hidden'); document.getElementById('detail-view').classList.add('hidden'); document.getElementById('nav-home-btn').classList.remove('hidden'); document.getElementById('nav-back-btn').classList.add('hidden'); window.scrollTo(0, 0); }
+        function showListView() { 
+            document.getElementById('list-view').classList.remove('hidden'); 
+            document.getElementById('detail-view').classList.add('hidden'); 
+            window.scrollTo(0, 0); 
+        }
 
         function showBusDetail(routeNum) {
             const bus = busData.find(b => b.num === routeNum);
@@ -714,8 +850,6 @@
 
             document.getElementById('list-view').classList.add('hidden');
             document.getElementById('detail-view').classList.remove('hidden');
-            document.getElementById('nav-home-btn').classList.add('hidden');
-            document.getElementById('nav-back-btn').classList.remove('hidden');
             window.scrollTo(0, 0);
 
             let typeName = '', colorClass = '', badgeBgClass = '';
@@ -742,7 +876,7 @@
             
             const detailCompLink = document.getElementById('detail-comp-link');
             detailCompLink.innerText = bus.comp;
-            detailCompLink.href = `company.html?name=${encodeURIComponent(bus.comp)}`;
+            detailCompLink.href = `운수업체.html?name=${encodeURIComponent(bus.comp)}`;
             detailCompLink.className = `font-bold hover:underline`;
             detailCompLink.style.color = busColors[colorClass] || '#333';
 
@@ -755,7 +889,6 @@
             const headerCard = document.getElementById('detail-header-card');
             headerCard.className = `bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6 border-l-8 ${colorClass.replace('border-', 'border-l-')}`;
 
-            // --- 스마트 경로 생성 로직 (데이터 우선 사용) ---
             let stopsForward = [];
             
             if (detailDataStore[routeNum]) {
@@ -770,17 +903,13 @@
                 stopsForward = [`${bus.start}(기점)`, ...parts, `${bus.end}(종점)`];
             }
             else {
-                // 데이터 없을 시 비상 생성 로직
                 stopsForward = [`${bus.start}(기점)`, `${bus.end}(종점)`];
             }
 
             let stopsReverse = [...stopsForward].reverse();
-            // 역방향 텍스트 처리 개선
             stopsReverse = stopsReverse.map(s => s.replace('(기점)', '').replace('(종점)', '').replace('(출발)', '').replace('(도착)', '').replace('(순환시점)', '').replace('(순환종점)', '').trim());
             
-            // 순환버스의 경우 역방향이 의미가 다를 수 있으나, 단순 역순으로 표시 (필요 시 데이터 추가)
             if(bus.type === 'circular') {
-                 // 순환은 시작/끝 점이 같으므로 역순 표시도 시작/끝 점 처리
                  stopsReverse[0] += '(종점)';
                  stopsReverse[stopsReverse.length-1] += '(기점)';
             } else {
@@ -819,7 +948,6 @@
                 }
                 
                 const textClass = hasBus ? 'font-black text-slate-900' : 'text-slate-700 font-medium';
-                // 순환 노선 등 괄호 텍스트 처리
                 let displayName = stop;
                 let subText = '';
                 
@@ -851,9 +979,12 @@
             lucide.createIcons();
         }
 
-        renderBusList('all');
+        window.onload = function() {
+            renderBusList('all');
+        }
     </script>
-<script src="data.js"></script>
+
+    <script src="data.js"></script>
     <script src="script.js"></script>
     <script src="common.js"></script>
 </body>

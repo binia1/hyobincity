@@ -2,78 +2,454 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>주차장 안내 - 효빈광역시</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공영주차장 안내 - 효빈광역시</title>
+    
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', // 관공서 신뢰의 블루
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> body { font-family: 'Noto Sans KR', sans-serif; } 
-        .clickable-card { cursor: pointer; transition: transform 0.2s; }
-        .clickable-card:hover { transform: translateY(-3px); }
+
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 관공서 템플릿 공통 스타일 */
+        .sub-visual {
+            background-image: linear-gradient(rgba(0, 43, 92, 0.7), rgba(0, 43, 92, 0.7)), url('이미지/교통배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth2 {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lnb-depth2 > li > a {
+            display: block;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        .lnb-depth2 > li.current > a {
+            color: #005bac;
+            font-weight: 700;
+            position: relative;
+        }
+        .lnb-depth2 > li.current > a::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        /* 주차장 전용 커스텀 스타일 */
+        .clickable-card { 
+            cursor: pointer; 
+            transition: all 0.2s ease-in-out; 
+            border-left: 4px solid transparent;
+        }
+        .clickable-card:hover, .clickable-card.active { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-left-color: #005bac;
+            background-color: #f8fafc;
+        }
+        .scrollbar-custom::-webkit-scrollbar { width: 6px; }
+        .scrollbar-custom::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .scrollbar-custom::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
-    <!-- 헤더 생략 -->
+<body class="text-gray-800 antialiased bg-white flex flex-col min-h-screen">
+
+    <!-- [규칙 엄수] 공통 헤더 렌더링 영역 -->
     <div id="common-header"></div>
 
-    <div class="w-full bg-slate-700 py-12 text-center text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-slate-800 opacity-70"></div>
-        <div class="relative z-10">
-            <h1 class="text-4xl font-black mb-3">공영주차장 안내</h1>
-            <p class="text-slate-300">실시간 주차 가능 정보를 확인하세요.</p>
+    <!-- 타이틀 배너 (Sub Visual) -->
+    <div class="sub-visual h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-hyobin-dark opacity-60"></div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg">교통</h1>
+            <p class="mt-4 text-lg md:text-xl font-light opacity-90">시민을 위한 스마트 주차 정보 시스템</p>
         </div>
     </div>
 
-    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 w-full flex-1">
         
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- 주차장 리스트 -->
-            <div class="lg:col-span-1 space-y-4">
-                <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm clickable-card hover:border-blue-500 transition" onclick="location.href='parking_view.html?id=cityhall'">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-lg">시청광장 지하주차장</h4>
-                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded font-bold">여유</span>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-2">북구 효빈로 79</p>
-                    <div class="flex justify-between text-xs text-slate-500">
-                        <span>전체 350면</span>
-                        <span class="font-bold text-blue-600">210면 가능</span>
-                    </div>
+        <!-- 좌측 LNB (Local Navigation Bar) -->
+        <aside class="w-full md:w-64 flex-shrink-0 hidden md:block">
+            <h2 class="text-2xl font-black text-hyobin-dark border-b-2 border-hyobin-dark pb-4 mb-0">
+                교통
+            </h2>
+            <ul class="lnb-depth1">
+                <li>
+                    <a href="bus.html">효빈시내버스 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="subway.html">도시철도(1~8호선) <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="교통약자지원.html">교통약자지원 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li class="active">
+                    <a href="parking.html">공영주차장 안내 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 우측 본문 (Main Content) -->
+        <main class="w-full flex-1 min-w-0">
+            <!-- Breadcrumb -->
+            <div class="flex items-center text-sm text-gray-500 mb-6 font-medium">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span class="text-hyobin-blue font-bold">공영주차장 안내</span>
+            </div>
+
+            <!-- 페이지 타이틀 및 유틸리티 -->
+            <div class="flex justify-between items-end border-b border-gray-300 pb-6 mb-8">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-black content-title text-gray-900 m-0 leading-none mb-2">
+                        공영주차장 안내
+                    </h2>
+                    <p class="text-slate-500 text-sm">관내 8구 1군의 실시간 공영주차장 현황을 제공합니다.</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm clickable-card hover:border-blue-500 transition" onclick="location.href='parking_view.html?id=station'">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-lg">효빈역 환승주차장</h4>
-                        <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">혼잡</span>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-2">중구 역전대로 123</p>
-                    <div class="flex justify-between text-xs text-slate-500">
-                        <span>전체 500면</span>
-                        <span class="font-bold text-red-600">12면 가능</span>
-                    </div>
+                <div class="flex gap-2 hidden md:flex">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="관심스크랩"><i data-lucide="star" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="인쇄"><i data-lucide="printer" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="공유"><i data-lucide="share-2" class="w-5 h-5 text-gray-600"></i></button>
                 </div>
-                <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm clickable-card hover:border-blue-500 transition" onclick="location.href='parking_view.html?id=hsco'">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-lg">HSCO 공영주차장</h4>
-                        <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold">보통</span>
-                    </div>
-                    <p class="text-sm text-slate-600 mb-2">북구 엑스포로 55</p>
-                    <div class="flex justify-between text-xs text-slate-500">
-                        <span>전체 800면</span>
-                        <span class="font-bold text-yellow-600">85면 가능</span>
+            </div>
+
+            <!-- 검색 및 필터 -->
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <select id="gu-filter" onchange="filterParkingLots()" class="w-full md:w-48 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-hyobin-blue bg-white font-medium text-slate-700">
+                        <option value="all">전체 구/군</option>
+                        <option value="중구">중구</option>
+                        <option value="동구">동구</option>
+                        <option value="서구">서구</option>
+                        <option value="남구">남구</option>
+                        <option value="북구">북구</option>
+                        <option value="안천구">안천구</option>
+                        <option value="창전구">창전구</option>
+                        <option value="청엽구">청엽구</option>
+                        <option value="탄성군">탄성군</option>
+                    </select>
+                    <div class="flex-1 relative">
+                        <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') filterParkingLots()" placeholder="주차장명 또는 도로명 주소를 입력하세요" class="w-full pl-4 pr-12 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-hyobin-blue transition-colors text-slate-700">
+                        <button onclick="filterParkingLots()" class="absolute right-2 top-2 p-1.5 bg-hyobin-blue text-white rounded hover:bg-blue-700 transition">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 지도 영역 -->
-            <div class="lg:col-span-2 bg-slate-200 rounded-xl min-h-[500px] flex items-center justify-center text-slate-400 relative">
-                <i data-lucide="map" class="w-16 h-16 mb-4"></i>
-                <span class="absolute bottom-4 font-bold">[지도 API 영역]</span>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 주차장 리스트 -->
+                <div class="lg:col-span-1">
+                    <div class="flex justify-between items-center mb-3 px-1">
+                        <span class="text-sm font-bold text-slate-600">검색결과: <span id="result-count" class="text-hyobin-blue">60</span>건</span>
+                        <div class="flex gap-2 text-xs">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span>여유</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>보통</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span>혼잡</span>
+                        </div>
+                    </div>
+                    <!-- 동적 렌더링 컨테이너 -->
+                    <div id="parking-list-container" class="space-y-4 max-h-[600px] overflow-y-auto scrollbar-custom pr-2 pb-2">
+                        <!-- JS 렌더링 영역 -->
+                    </div>
+                </div>
+
+                <!-- 지도 영역 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-slate-200 rounded-xl min-h-[600px] h-full flex flex-col items-center justify-center text-slate-500 relative border border-slate-300 overflow-hidden shadow-inner">
+                        <!-- 배경 지도 가상 연출 -->
+                        <div class="absolute inset-0 opacity-30 bg-[url('https://placehold.co/800x600/e2e8f0/94a3b8?text=Map+Data')] bg-cover bg-center"></div>
+                        
+                        <div id="map-overlay-info" class="relative z-10 flex flex-col items-center p-6 text-center">
+                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg mb-4 text-hyobin-blue">
+                                <i data-lucide="map-pin" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-2xl font-black text-slate-700 mb-2">스마트 주차 맵</h3>
+                            <p class="text-slate-600 mb-6">좌측 목록에서 주차장을 선택하시면<br>상세 위치와 요금 정보를 확인할 수 있습니다.</p>
+                            <span class="px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded-full opacity-70">지도 API 연동 대기중</span>
+                        </div>
+
+                        <!-- 주차장 선택 시 노출될 상세 정보 오버레이 (초기 숨김) -->
+                        <div id="parking-detail-card" class="absolute bottom-4 left-4 right-4 bg-white rounded-xl shadow-2xl border border-slate-200 p-6 transform translate-y-full opacity-0 transition-all duration-300 z-20">
+                            <button onclick="closeDetailCard()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+                            <div class="flex items-center gap-3 mb-4">
+                                <span id="detail-status" class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-sm font-bold">여유</span>
+                                <h3 id="detail-name" class="text-xl font-black text-slate-800">주차장 이름</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <p class="text-slate-500 mb-1">도로명 주소</p>
+                                    <p id="detail-address" class="font-medium text-slate-700">주소</p>
+                                </div>
+                                <div>
+                                    <p class="text-slate-500 mb-1">운영 시간</p>
+                                    <p class="font-medium text-slate-700">24시간 (연중무휴)</p>
+                                </div>
+                                <div>
+                                    <p class="text-slate-500 mb-1">주차 요금</p>
+                                    <p class="font-medium text-slate-700">최초 30분 600원<br>이후 10분당 200원</p>
+                                </div>
+                                <div>
+                                    <p class="text-slate-500 mb-1">실시간 현황</p>
+                                    <p class="font-medium text-slate-700">총 <span id="detail-total">0</span>면 중 <span id="detail-available" class="text-hyobin-blue font-black">0</span>면 가능</p>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 text-right">
+                                <!-- 한국어 하이퍼링크 규칙 엄수 -->
+                                <button onclick="location.href='주차장상세.html'" class="px-5 py-2 bg-hyobin-dark text-white rounded font-bold hover:bg-slate-800 transition">상세보기 및 길안내</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
+
+    <!-- [규칙 엄수] 공통 푸터 및 모달 렌더링 영역 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
-    <script> lucide.createIcons(); </script>
-<script src="data.js"></script>
+
+    <!-- 데이터 및 렌더링 스크립트 -->
+    <script>
+        // 제공된 행정구역 데이터를 기반으로 생성된 60개 주차장 데이터
+        // 대규모 인구 밀집 구역(예: 도변읍 90,238명, 이자3동 83,399명)에는 규모가 큰 주차장 배치
+        const parkingData = [
+            // 중구 (6개)
+            { id: 'p01', gu: '중구', name: '시청광장 지하주차장', addr: '중구 중앙동 1가', total: 450, available: 120 },
+            { id: 'p02', gu: '중구', name: '내항 여객터미널 주차장', addr: '중구 내항동 22', total: 600, available: 45 },
+            { id: 'p03', gu: '중구', name: '신덕 문화거리 공영주차장', addr: '중구 신덕동 105', total: 120, available: 80 },
+            { id: 'p04', gu: '중구', name: '중앙로 상가 공영주차장', addr: '중구 중앙동 3가', total: 200, available: 15 },
+            { id: 'p05', gu: '중구', name: '고도 한옥마을 주차장', addr: '중구 고도동 45', total: 180, available: 110 },
+            { id: 'p06', gu: '중구', name: '약맥 경공업단지 주차장', addr: '중구 약맥동 88', total: 300, available: 210 },
+            
+            // 남구 (7개) - 평당7동(6만) 등 인구 밀집지역 포함
+            { id: 'p07', gu: '남구', name: '평당7동 대형주차장', addr: '남구 평당7동 12', total: 850, available: 200 },
+            { id: 'p08', gu: '남구', name: '고당 시민체육공원 주차장', addr: '남구 고당동 55', total: 340, available: 150 },
+            { id: 'p09', gu: '남구', name: '곽산역 환승주차장', addr: '남구 곽산2동 8', total: 400, available: 32 },
+            { id: 'p10', gu: '남구', name: '어간 수산시장 공영주차장', addr: '남구 어간3동 41', total: 550, available: 20 },
+            { id: 'p11', gu: '남구', name: '월천 상업지구 주차장', addr: '남구 월천동 112', total: 280, available: 105 },
+            { id: 'p12', gu: '남구', name: '항동 물류단지 화물주차장', addr: '남구 항2동 99', total: 1200, available: 850 },
+            { id: 'p13', gu: '남구', name: '남구청사 민원주차장', addr: '남구 평당1동 3', total: 150, available: 40 },
+
+            // 북구 (8개) - 고송6동(5만), 중수4동(4만) 등
+            { id: 'p14', gu: '북구', name: '고송나루역 환승주차장', addr: '북구 고송6동 14', total: 600, available: 350 },
+            { id: 'p15', gu: '북구', name: '중수4동 복합문화센터 주차장', addr: '북구 중수4동 22', total: 420, available: 80 },
+            { id: 'p16', gu: '북구', name: '오내 근린공원 공영주차장', addr: '북구 오내2동 50', total: 250, available: 140 },
+            { id: 'p17', gu: '북구', name: '진희 상업지구 노상주차장', addr: '북구 진희동 11', total: 90, available: 5 },
+            { id: 'p18', gu: '북구', name: '채산 체육공원 지하주차장', addr: '북구 채산동 88', total: 320, available: 210 },
+            { id: 'p19', gu: '북구', name: '소조 환승주차장', addr: '북구 소조동 4', total: 180, available: 60 },
+            { id: 'p20', gu: '북구', name: '포산 선착장 주차장', addr: '북구 포산동 77', total: 400, available: 280 },
+            { id: 'p21', gu: '북구', name: '사능 전통시장 주차장', addr: '북구 사능2동 33', total: 140, available: 12 },
+
+            // 서구 (6개) - 청덕3동(3.1만), 과진6동(2.8만) 등
+            { id: 'p22', gu: '서구', name: '청덕3동 도서관 공영주차장', addr: '서구 청덕3동 21', total: 250, available: 110 },
+            { id: 'p23', gu: '서구', name: '과진 테크노밸리 주차장', addr: '서구 과진6동 100', total: 700, available: 450 },
+            { id: 'p24', gu: '서구', name: '당선역 1번출구 환승주차장', addr: '서구 당선3동 15', total: 380, available: 45 },
+            { id: 'p25', gu: '서구', name: '사복 먹자골목 주차장', addr: '서구 사복2동 44', total: 160, available: 10 },
+            { id: 'p26', gu: '서구', name: '효빈과기원 공영주차장', addr: '서구 청덕1동 8', total: 500, available: 320 },
+            { id: 'p27', gu: '서구', name: '북성 문화센터 노외주차장', addr: '서구 북성동 2', total: 80, available: 55 },
+
+            // 안천구 (7개) - 이자3동(8.3만), 이자1동(3.8만) 등
+            { id: 'p28', gu: '안천구', name: '이자3동 대규모 공영주차장', addr: '안천구 이자3동 1', total: 1500, available: 410 },
+            { id: 'p29', gu: '안천구', name: '안천구청 지하주차장', addr: '안천구 안천4동 55', total: 400, available: 120 },
+            { id: 'p30', gu: '안천구', name: '북택 유적지 관광주차장', addr: '안천구 북택동 10', total: 280, available: 200 },
+            { id: 'p31', gu: '안천구', name: '당가동 공영주차장', addr: '안천구 당가1동 77', total: 350, available: 180 },
+            { id: 'p32', gu: '안천구', name: '악부 도매시장 공영주차장', addr: '안천구 악부동 42', total: 450, available: 20 },
+            { id: 'p33', gu: '안천구', name: '뇌전 테마파크 주차장', addr: '안천구 뇌전동 80', total: 600, available: 450 },
+            { id: 'p34', gu: '안천구', name: '창건 체육관 공영주차장', addr: '안천구 창건동 22', total: 220, available: 130 },
+
+            // 동구 (6개) - 덕현2동(1.9만), 전천동(1.7만) 등
+            { id: 'p35', gu: '동구', name: '효빈역(동구) 복합환승주차장', addr: '동구 사가당1동 5', total: 800, available: 65 },
+            { id: 'p36', gu: '동구', name: '전천 시민공원 공영주차장', addr: '동구 전천동 40', total: 300, available: 180 },
+            { id: 'p37', gu: '동구', name: '덕현2동 주거지 주차장', addr: '동구 덕현2동 11', total: 150, available: 15 },
+            { id: 'p38', gu: '동구', name: '사가당 재래시장 노상주차장', addr: '동구 사가당3동 7', total: 110, available: 8 },
+            { id: 'p39', gu: '동구', name: '동구 문화회관 주차장', addr: '동구 덕현1동 33', total: 240, available: 150 },
+            { id: 'p40', gu: '동구', name: '덕현 고가도로 하부 공영주차장', addr: '동구 덕현6동 99', total: 180, available: 95 },
+
+            // 창전구 (7개) - 창전3동(4.6만), 쌍엽1동(3.8만) 등
+            { id: 'p41', gu: '창전구', name: '창전3동 중심상가 지하주차장', addr: '창전구 창전3동 18', total: 550, available: 40 },
+            { id: 'p42', gu: '창전구', name: '쌍엽1동 복합체육센터 주차장', addr: '창전구 쌍엽1동 20', total: 320, available: 140 },
+            { id: 'p43', gu: '창전구', name: '진백 일반산업단지 화물주차장', addr: '창전구 진백동 100', total: 800, available: 600 },
+            { id: 'p44', gu: '창전구', name: '칠심1동 호수공원 주차장', addr: '창전구 칠심1동 55', total: 400, available: 210 },
+            { id: 'p45', gu: '창전구', name: '동곡역 공영환승주차장', addr: '창전구 동곡동 12', total: 380, available: 85 },
+            { id: 'p46', gu: '창전구', name: '창전구청사 민원주차장', addr: '창전구 창전1동 1', total: 200, available: 45 },
+            { id: 'p47', gu: '창전구', name: '팔조 청소년수련관 주차장', addr: '창전구 팔조동 44', total: 150, available: 110 },
+
+            // 청엽구 (7개) - 청엽1동(4.9만), 우전1동(4.5만) 등
+            { id: 'p48', gu: '청엽구', name: '청엽1동 대형 쇼핑몰앞 공영', addr: '청엽구 청엽1동 10', total: 700, available: 50 },
+            { id: 'p49', gu: '청엽구', name: '우전1동 스마트 공영주차장', addr: '청엽구 우전1동 25', total: 450, available: 130 },
+            { id: 'p50', gu: '청엽구', name: '비마 유적지 박물관 주차장', addr: '청엽구 비마동 88', total: 300, available: 220 },
+            { id: 'p51', gu: '청엽구', name: '입빈 예술회관 지하주차장', addr: '청엽구 입빈동 14', total: 380, available: 250 },
+            { id: 'p52', gu: '청엽구', name: '마잡2동 전통시장 주차타워', addr: '청엽구 마잡2동 41', total: 260, available: 15 },
+            { id: 'p53', gu: '청엽구', name: '우택 시립도서관 주차장', addr: '청엽구 우택동 9', total: 180, available: 65 },
+            { id: 'p54', gu: '청엽구', name: '등동 IT밸리 주차장', addr: '청엽구 등동 100', total: 600, available: 480 },
+
+            // 탄성군 (6개) - 도변읍(9만), 탄성읍(4.9만) 등
+            { id: 'p55', gu: '탄성군', name: '도변읍사무소 복합주차장', addr: '탄성군 도변읍 도변리 11', total: 1200, available: 450 },
+            { id: 'p56', gu: '탄성군', name: '탄성 군청사 중앙주차장', addr: '탄성군 탄성읍 공리 1', total: 400, available: 180 },
+            { id: 'p57', gu: '탄성군', name: '서목 해양관광단지 대주차장', addr: '탄성군 서목읍 소춘리 50', total: 950, available: 720 },
+            { id: 'p58', gu: '탄성군', name: '고해 농수산물도매시장 주차장', addr: '탄성군 고해읍 이와리 30', total: 550, available: 80 },
+            { id: 'p59', gu: '탄성군', name: '흑택 체육공원 부설주차장', addr: '탄성군 흑택면 흑택리 77', total: 250, available: 160 },
+            { id: 'p60', gu: '탄성군', name: '소원면 생태공원 주차장', addr: '탄성군 소원면 소원리 22', total: 200, available: 185 }
+        ];
+
+        function getStatusInfo(available, total) {
+            const ratio = available / total;
+            if (ratio > 0.3) return { text: '여유', bgClass: 'bg-blue-100', textClass: 'text-blue-700', labelClass: 'text-blue-600' };
+            if (ratio >= 0.1) return { text: '보통', bgClass: 'bg-yellow-100', textClass: 'text-yellow-700', labelClass: 'text-yellow-600' };
+            return { text: '혼잡', bgClass: 'bg-red-100', textClass: 'text-red-700', labelClass: 'text-red-600' };
+        }
+
+        function renderParkingLots(data) {
+            const container = document.getElementById('parking-list-container');
+            const countEl = document.getElementById('result-count');
+            container.innerHTML = '';
+            countEl.innerText = data.length;
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="p-8 text-center text-slate-400">검색 결과가 없습니다.</div>';
+                return;
+            }
+
+            data.forEach(lot => {
+                const status = getStatusInfo(lot.available, lot.total);
+                
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-lg border border-slate-200 shadow-sm clickable-card';
+                card.onclick = () => showDetailCard(lot, card);
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 gap-2">
+                        <h4 class="font-bold text-lg leading-tight text-slate-800 break-keep">${lot.name}</h4>
+                        <span class="${status.bgClass} ${status.textClass} text-xs px-2 py-1 rounded font-bold shrink-0">${status.text}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i>${lot.addr}</p>
+                    <div class="flex justify-between text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                        <span>전체 ${lot.total.toLocaleString()}면</span>
+                        <span class="font-black ${status.labelClass}">${lot.available.toLocaleString()}면 가능</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function filterParkingLots() {
+            const guFilter = document.getElementById('gu-filter').value;
+            const searchKeyword = document.getElementById('search-input').value.trim().toLowerCase();
+
+            const filteredData = parkingData.filter(lot => {
+                const matchGu = guFilter === 'all' || lot.gu === guFilter;
+                const matchKeyword = lot.name.toLowerCase().includes(searchKeyword) || lot.addr.toLowerCase().includes(searchKeyword);
+                return matchGu && matchKeyword;
+            });
+
+            renderParkingLots(filteredData);
+            closeDetailCard();
+        }
+
+        function showDetailCard(lot, cardElement) {
+            // 리스트 하이라이트
+            document.querySelectorAll('.clickable-card').forEach(el => el.classList.remove('active'));
+            cardElement.classList.add('active');
+
+            // 오버레이 정보 업데이트
+            const status = getStatusInfo(lot.available, lot.total);
+            const detailCard = document.getElementById('parking-detail-card');
+            const overlayInfo = document.getElementById('map-overlay-info');
+            
+            document.getElementById('detail-name').innerText = lot.name;
+            document.getElementById('detail-address').innerText = lot.addr;
+            document.getElementById('detail-total').innerText = lot.total.toLocaleString();
+            
+            const availEl = document.getElementById('detail-available');
+            availEl.innerText = lot.available.toLocaleString();
+            availEl.className = `font-black ${status.labelClass}`;
+            
+            const statusBadge = document.getElementById('detail-status');
+            statusBadge.innerText = status.text;
+            statusBadge.className = `${status.bgClass} ${status.textClass} text-xs px-2.5 py-1 rounded-sm font-bold`;
+
+            overlayInfo.classList.add('opacity-0');
+            setTimeout(() => {
+                detailCard.classList.remove('translate-y-full', 'opacity-0');
+            }, 100);
+        }
+
+        function closeDetailCard() {
+            document.querySelectorAll('.clickable-card').forEach(el => el.classList.remove('active'));
+            const detailCard = document.getElementById('parking-detail-card');
+            const overlayInfo = document.getElementById('map-overlay-info');
+            
+            detailCard.classList.add('translate-y-full', 'opacity-0');
+            setTimeout(() => {
+                overlayInfo.classList.remove('opacity-0');
+            }, 300);
+        }
+
+        // 초기 로드 시 렌더링
+        window.onload = () => {
+            renderParkingLots(parkingData);
+        };
+    </script>
+    
+    <script src="data.js"></script>
     <script src="script.js"></script>
     <script src="common.js"></script>
 </body>

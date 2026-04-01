@@ -4,133 +4,781 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>새소식 - 효빈광역시</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> 
-        body { font-family: 'Noto Sans KR', sans-serif; } 
-        .tab-btn.active {
-            color: #0f172a; /* slate-900 */
-            border-bottom-width: 4px;
-            border-color: #0f172a;
-            font-weight: 900;
+    
+    <!-- PDF 생성을 위한 개별 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        body { font-family: "Noto Sans KR", sans-serif; }
+        
+        .sub-visual {
+            background-image: linear-gradient(rgba(0, 43, 92, 0.7), rgba(0, 43, 92, 0.7)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
         }
-        /* 모달 애니메이션 */
-        .modal {
-            transition: opacity 0.2s ease-in-out;
-            opacity: 0;
-            pointer-events: none;
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
         }
-        .modal.active {
-            opacity: 1;
-            pointer-events: auto;
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
         }
-        .modal-content {
-            transform: scale(0.98);
-            transition: transform 0.2s ease-in-out;
+
+        .tab-btn { position: relative; }
+        .tab-btn.active { color: #005bac; font-weight: 900; }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #005bac;
         }
-        .modal.active .modal-content {
-            transform: scale(1);
+
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* PDF 래퍼 설정 - 레이아웃 영향 제로화 */
+        #pdf-wrapper {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 794px; /* A4 폭 고정 */
+            background: white;
+            z-index: -10;
+            opacity: 0; 
+        }
+        
+        /* 공문서용 테이블 및 폰트 스타일 */
+        .official-doc-font { font-family: 'Batang', 'Gungsuh', 'Noto Serif KR', serif !important; }
+        
+        .official-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .official-table th, .official-table td {
+            border: 1px solid #94a3b8;
+            padding: 6px;
+        }
+        .official-table th {
+            background-color: #f1f5f9;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        /* 결재란 스타일 */
+        .approval-box {
+            border: 1px solid #000;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 10px;
+        }
+        .approval-box th, .approval-box td {
+            border: 1px solid #000;
+            padding: 2px;
+        }
+        .approval-box th {
+            background-color: #f8fafc;
+            width: 20px;
+            padding: 5px 2px;
+        }
+        .approval-box td {
+            width: 60px;
+            height: 50px;
+            vertical-align: middle;
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col relative">
-    <!-- 헤더 -->
-    <div id="common-header"></div>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
 
-    <!-- 타이틀 영역 -->
-    <div class="w-full bg-slate-700 py-12 text-center text-white">
-        <div class="max-w-4xl mx-auto px-4">
-            <h1 class="text-4xl font-black mb-3">행정소식</h1>
-            <p class="text-slate-300">효빈의 새로운 소식을 가장 빠르게 전해드립니다.</p>
+    <!-- [해결책] common.js의 동적 생성 요소들을 직접 하드코딩하여 렌더링 충돌 완벽 방지 -->
+    <!-- 1. 최상단 헤더 -->
+    <header class="bg-[#1e293b] text-white">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
+                <img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
+            </div>
+
+            <div class="flex items-center space-x-3 md:space-x-5 text-gray-300">
+                <button onclick="openSearch()" class="hover:text-white transition p-1"><i data-lucide="search" class="w-6 h-6"></i></button>
+                <button id="dark-mode-toggle" class="hover:text-white transition p-1" onclick="toggleDarkMode()"><i data-lucide="moon" class="w-6 h-6"></i></button>
+                <button onclick="changeLanguage()" class="hover:text-white transition p-1"><i data-lucide="globe" class="w-6 h-6"></i></button>
+                <!-- 햄버거 메뉴는 모바일/태블릿(lg 미만)에서만 노출 -->
+                <button onclick="toggleMenu()" class="hover:text-white transition p-1 lg:hidden"><i data-lucide="menu" class="w-6 h-6"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. 메인 내비게이션 (PC용 드롭다운 적용) - 화면 넘침 방지를 위해 lg:block으로 변경 -->
+    <nav class="bg-[#172554] text-white border-t border-slate-700 shadow-md relative z-40 hidden lg:block">
+        <div class="max-w-6xl mx-auto px-4">
+            <ul class="flex justify-center items-center text-[16px] font-medium tracking-tight whitespace-nowrap">
+                <!-- 민원 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='civil.html'">민원</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-44 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="civil.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">온라인 민원신청</a>
+                        <a href="passport.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">여권발급</a>
+                        <a href="waste.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">대형폐기물 신고</a>
+                        <a href="tax.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">지방세 납부</a>
+                        <a href="contact.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">문의</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+                
+                <!-- 효빈소개 -->
+                <li class="group relative px-4 py-4 cursor-pointer font-bold">
+                    <span class="text-blue-300 transition block" onclick="location.href='intro.html'">효빈소개</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-40 bg-white text-slate-800 font-normal shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="intro.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">기본현황</a>
+                        <a href="city_hall.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">시청안내</a>
+                        <a href="mascot.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">시의 상징</a>
+                        <a href="history.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">효빈의 역사</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+                
+                <!-- 시정소식 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='news.html'">시정소식</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-40 bg-white text-slate-800 font-normal shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="news.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">새소식</a>
+                        <a href="official_notice.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">고시&공고</a>
+                        <a href="press_release.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">보도자료</a>
+                        <a href="construction.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">공사알림</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+
+                <!-- 생활정보 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='life.html'">생활정보</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-40 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="보건의료.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">보건/의료</a>
+                        <a href="library.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">교육/도서관</a>
+                        <a href="환경청소.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">환경/청소</a>
+                        <a href="재난안전.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">재난/안전</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+
+                <!-- 교통 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='transport.html'">교통</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="bus.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈시내버스 안내</a>
+                        <a href="subway.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">도시철도(1~8호선)</a>
+                        <a href="airport.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈국제공항</a>
+                        <a href="port.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈항</a>
+                        <a href="교통약자지원.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">교통약자지원</a>
+                        <a href="parking.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">공영주차장 안내</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+                
+                <!-- 복지 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='welfare.html'">복지</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-44 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="맞춤형복지.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">맞춤형 복지</a>
+                        <a href="노인장애인복지.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">노인/장애인 복지</a>
+                        <a href="child.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">보육포털</a>
+                        <a href="여성가족.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">여성/가족</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+
+                <!-- 일자리 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='job.html'">일자리</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-40 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="job.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">일자리센터</a>
+                        <a href="공공근로채용.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">공공근로 채용</a>
+                        <a href="창업지원.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">창업지원</a>
+                        <a href="직업훈련.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">직업훈련</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+
+                <!-- 관광 -->
+                <li class="group relative px-4 py-4 cursor-pointer">
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='tour.html'">관광</span>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-48 bg-white text-slate-800 shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
+                        <a href="tour.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈 관광지도</a>
+                        <a href="HAF축제.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">HAF (애니 축제)</a>
+                        <a href="효빈시티투어.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">효빈 시티투어</a>
+                        <a href="vr.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">VR 랜드마크 투어</a>
+                    </div>
+                </li>
+                <li class="text-slate-600 text-xs">|</li>
+
+                <!-- 행정구역 검색 -->
+                <li class="group relative px-4 py-4 cursor-pointer font-bold flex items-center gap-1">
+                    <i data-lucide="search" class="w-4 h-4 group-hover:text-blue-300 transition"></i> 
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='district_search.html'">행정구역 검색</span>
+                    <div class="absolute right-0 top-full mt-0 w-72 bg-white text-slate-800 font-normal shadow-xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50 p-3">
+                        <p class="text-xs text-slate-400 font-bold mb-2 border-b pb-1">효빈광역시 행정구역</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <a href="북구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">북구</a>
+                            <a href="중구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">중구</a>
+                            <a href="동구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">동구</a>
+                            <a href="서구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">서구</a>
+                            <a href="남구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">남구</a>
+                            <a href="탄성군.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">탄성군</a>
+                            <a href="창전구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">창전구</a>
+                            <a href="청엽구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">청엽구</a>
+                            <a href="안천구.html" class="px-2 py-1.5 hover:bg-blue-50 hover:text-blue-600 text-[13px] rounded text-center transition">안천구</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-hyobin-dark opacity-60"></div>
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg">시정소식</h1>
+            <p class="mt-4 text-lg md:text-xl font-light opacity-90">효빈의 새로운 내일을 가장 빠르게 전해드립니다.</p>
         </div>
     </div>
 
-    <main class="max-w-6xl mx-auto px-4 py-10 w-full mb-20">
-        <!-- 탭 네비게이션 -->
-        <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap">
-            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors active" onclick="switchCategory('news', this)">새소식</button>
-            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('construction', this)">공사알림</button>
-            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('notice', this)">고시&공고</button>
-            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('recruit', this)">시험채용</button>
-            <button class="tab-btn px-6 py-3 text-lg text-slate-400 font-medium hover:text-slate-600 transition-colors" onclick="switchCategory('press', this)">보도자료</button>
-        </div>
+    <!-- 본문 레이아웃: 화면 넘침 및 배경색 삐져나옴 방지를 위해 컨테이너 분리 -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 relative z-20 mb-20 mt-[-20px]">
+        <div class="bg-white shadow-sm border border-slate-200 rounded-xl p-6 md:p-8 lg:p-10 flex flex-col md:flex-row gap-8 lg:gap-10 w-full max-w-full">
+            
+            <!-- 좌측 LNB -->
+            <aside class="w-full md:w-56 lg:w-64 flex-shrink-0 hidden md:block">
+                <h2 class="text-2xl font-black text-hyobin-dark border-b-2 border-hyobin-dark pb-4 mb-0">
+                    시정소식
+                </h2>
+                <ul class="lnb-depth1">
+                    <li class="active">
+                        <a href="news.html">새소식 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a>
+                    </li>
+                    <li>
+                        <a href="official_notice.html">고시&공고 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                    </li>
+                    <li>
+                        <a href="press_release.html">보도자료 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                    </li>
+                    <li>
+                        <a href="construction.html">공사알림 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                    </li>
+                    <li>
+                        <a href="recruit.html">시험채용 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                    </li>
+                </ul>
+            </aside>
 
-        <!-- 게시판 목록 -->
-        <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
-            <div class="overflow-x-auto flex-grow">
-                <table class="w-full text-sm text-left text-slate-500 min-w-[600px]">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
-                        <tr>
-                            <th class="px-6 py-3 w-20 text-center">번호</th>
-                            <th class="px-6 py-3 w-32 text-center">부서</th>
-                            <th class="px-6 py-3">제목</th>
-                            <th class="px-6 py-3 w-32 text-center">작성일</th>
-                            <th class="px-6 py-3 w-20 text-center">조회</th>
-                        </tr>
-                    </thead>
-                    <tbody id="news-table-body">
-                        <!-- 자바스크립트로 데이터가 로드됩니다 -->
-                    </tbody>
+            <!-- 우측 본문 -->
+            <main class="w-full flex-1 min-w-0 max-w-full">
+                <!-- Breadcrumb -->
+                <div class="flex flex-wrap items-center text-sm text-gray-500 mb-6 font-medium">
+                    <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span>시정소식</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">새소식</span>
+                </div>
+
+                <!-- 페이지 타이틀 및 유틸리티 -->
+                <div class="flex justify-between items-end border-b border-gray-300 pb-6 mb-8">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-black content-title text-gray-900 m-0 leading-none mb-2">
+                            행정소식
+                        </h2>
+                    </div>
+                    <div class="flex gap-2 hidden md:flex shrink-0">
+                        <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="관심스크랩"><i data-lucide="star" class="w-5 h-5 text-gray-600"></i></button>
+                        <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="인쇄"><i data-lucide="printer" class="w-5 h-5 text-gray-600"></i></button>
+                        <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="공유"><i data-lucide="share-2" class="w-5 h-5 text-gray-600"></i></button>
+                    </div>
+                </div>
+
+                <!-- 탭 네비게이션 -->
+                <div class="flex border-b border-slate-300 mb-8 overflow-x-auto whitespace-nowrap scrollbar-hide w-full max-w-full">
+                    <button class="tab-btn px-6 py-3 text-lg text-slate-500 font-medium hover:text-hyobin-blue transition-colors active shrink-0" onclick="switchCategory('news', this)">새소식</button>
+                    <button class="tab-btn px-6 py-3 text-lg text-slate-500 font-medium hover:text-hyobin-blue transition-colors shrink-0" onclick="switchCategory('construction', this)">공사알림</button>
+                    <button class="tab-btn px-6 py-3 text-lg text-slate-500 font-medium hover:text-hyobin-blue transition-colors shrink-0" onclick="switchCategory('notice', this)">고시&공고</button>
+                    <button class="tab-btn px-6 py-3 text-lg text-slate-500 font-medium hover:text-hyobin-blue transition-colors shrink-0" onclick="switchCategory('recruit', this)">시험채용</button>
+                    <button class="tab-btn px-6 py-3 text-lg text-slate-500 font-medium hover:text-hyobin-blue transition-colors shrink-0" onclick="switchCategory('press', this)">보도자료</button>
+                </div>
+
+                <!-- 검색 영역 (요소 찌그러짐 방지를 위해 shrink-0 적용) -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6 flex flex-col md:flex-row md:justify-end gap-3">
+                    <div class="flex w-full md:w-96 relative max-w-full">
+                        <select class="px-3 py-2 border border-slate-300 rounded-l-lg focus:outline-none focus:border-hyobin-blue bg-white text-sm text-slate-700 border-r-0 shrink-0">
+                            <option value="title">제목</option>
+                            <option value="dept">부서</option>
+                        </select>
+                        <input type="text" placeholder="검색어를 입력하세요" class="w-full min-w-0 pl-3 pr-10 py-2 border border-slate-300 focus:outline-none focus:border-hyobin-blue transition-colors text-sm text-slate-700 rounded-r-lg">
+                        <button class="absolute right-2 top-1.5 p-1 text-slate-400 hover:text-hyobin-blue transition">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 게시판 목록 (모바일에서도 스크롤 바를 통해 테이블 모양 유지) -->
+                <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden flex flex-col w-full max-w-full min-h-[500px]">
+                    <div class="overflow-x-auto flex-grow w-full custom-scrollbar">
+                        <table class="w-full text-sm text-left text-slate-600 min-w-[700px]">
+                            <thead class="text-sm text-slate-700 bg-slate-100 border-t-2 border-hyobin-dark border-b border-slate-300">
+                                <tr>
+                                    <th class="px-6 py-3.5 w-20 text-center font-bold">번호</th>
+                                    <th class="px-6 py-3.5 w-32 text-center font-bold">담당부서</th>
+                                    <th class="px-6 py-3.5 font-bold">제목</th>
+                                    <th class="px-6 py-3.5 w-32 text-center font-bold">작성일</th>
+                                    <th class="px-6 py-3.5 w-20 text-center font-bold">조회</th>
+                                </tr>
+                            </thead>
+                            <tbody id="news-table-body" class="divide-y divide-slate-100">
+                                <!-- JS로 데이터 삽입 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="no-data" class="hidden py-20 text-center text-slate-400 border-t border-slate-100">
+                        해당하는 게시글이 없습니다.
+                    </div>
+
+                    <!-- 페이지네이션 (좁은 화면에서도 줄바꿈 되도록 flex-wrap 추가) -->
+                    <div id="pagination-container" class="flex justify-center flex-wrap py-6 gap-2 border-t border-slate-100 bg-white">
+                        <!-- 버튼 생성 -->
+                    </div>
+                </div>
+
+                <!-- 페이지 하단 부서 정보 -->
+                <div class="border-t-2 border-gray-800 pt-6 mt-16 w-full">
+                    <div class="flex flex-col lg:flex-row justify-between lg:items-center bg-gray-50 border border-gray-200 p-6 rounded-lg mb-8 gap-4 w-full">
+                        <div class="w-full">
+                            <p class="font-bold text-gray-800 text-lg mb-1 break-keep">담당부서 : 효빈광역시 대변인실 (언론홍보담당관)</p>
+                            <p class="text-gray-600 text-sm flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                                <span><i data-lucide="phone" class="inline-block w-4 h-4 mr-1 align-text-bottom"></i> 문의처: 079-500-1234</span>
+                                <span><i data-lucide="clock" class="inline-block w-4 h-4 mr-1 align-text-bottom"></i> 최종업데이트: 2026-03-31</span>
+                            </p>
+                        </div>
+                        <div class="w-full sm:w-auto flex-shrink-0 text-right">
+                            <a href="담당자안내.html" class="inline-block px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium hover:bg-gray-100 transition-colors w-full sm:w-auto text-center">담당자 안내</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 하드코딩된 푸터 -->
+    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10 w-full">
+        <div class="max-w-6xl mx-auto px-4 w-full">
+            <div class="flex flex-col lg:flex-row justify-between lg:items-center mb-6 gap-4 border-b border-slate-100 pb-6 w-full">
+                <div class="flex flex-wrap gap-x-6 gap-y-2 font-medium text-slate-600 justify-center lg:justify-start w-full lg:w-auto">
+                    <a href="개인정보처리방침.html" class="text-[#2563eb] font-bold hover:underline" onclick="handleFooterLink(event, 'privacy')">개인정보처리방침</a>
+                    <a href="저작권정책.html" class="hover:text-slate-900 hover:underline" onclick="handleFooterLink(event, 'copyright')">저작권정책</a>
+                    <a href="영상정보처리기기운영방침.html" class="hover:text-slate-900 hover:underline" onclick="handleFooterLink(event, 'cctv')">영상정보처리기기 운영방침</a>
+                    <a href="뷰어내려받기.html" class="hover:text-slate-900 hover:underline" onclick="handleFooterLink(event, 'viewer')">뷰어내려받기</a>
+                    <a href="누리집오류신고.html" class="hover:text-slate-900 hover:underline" onclick="handleFooterLink(event, 'error')">누리집 오류신고</a>
+                    <a href="찾아오시는길.html" class="hover:text-slate-900 hover:underline" onclick="handleFooterLink(event, 'directions')">오시는 길</a>
+                </div>
+                <div class="flex items-center gap-2 w-full lg:w-auto justify-end shrink-0 mt-4 lg:mt-0">
+                    <select id="family-site" class="border border-slate-300 rounded px-3 py-1.5 text-slate-600 outline-none hover:border-slate-400 transition bg-white w-full sm:w-48 max-w-full">
+                        <option value="">유관기관 바로가기</option>
+                        <optgroup label="산하기관">
+                            <option value="HyobinMetro/index.html">효빈교통공사</option>
+                            <option value="culture_foundation.html">효빈문화공단</option>
+                        </optgroup>
+                    </select>
+                    <button onclick="goFamilySite()" class="bg-slate-700 text-white px-3 py-1.5 rounded hover:bg-slate-800 transition font-bold whitespace-nowrap shrink-0">이동</button>
+                </div>
+            </div>
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 w-full">
+                <div class="text-slate-500 space-y-2 leading-relaxed flex-grow w-full">
+                    <p class="text-slate-600"><span class="mr-2">(우) 79791</span><span>효빈광역시 북구 효빈로 79(고송8동)</span></p>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1">
+                        <span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">대표전화</strong><span>079-591-2548</span></span>
+                        <span class="text-slate-400">월~금 : 08:30~18:30 (시간외는 당직실로 연결)</span>
+                    </div>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1">
+                        <span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">팩스</strong><span>079-591-2547</span></span>
+                        <span class="flex items-center"><strong class="text-slate-700 font-bold mr-2">당직실</strong><span>079-591-2546</span><span class="text-slate-400 ml-2">(야간, 공휴일)</span></span>
+                    </div>
+                    <p class="text-slate-400 mt-6 font-light font-sans">COPYRIGHT © 2026 HYOBIN CITY. ALL RIGHTS RESERVED.</p>
+                </div>
+                <div class="flex items-center space-x-3 flex-shrink-0 w-full sm:w-auto mt-4 lg:mt-0 justify-center lg:justify-end">
+                    <div class="h-14 w-auto flex items-center">
+                         <img src="logo.png" alt="하단 로고" class="h-full w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                         <div class="w-32 h-14 border border-slate-200 rounded-lg bg-white hidden items-center justify-center text-slate-400 text-xs font-bold shadow-sm">[로고 이미지]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 하드코딩된 모달들 -->
+    <!-- 검색 모달 -->
+    <div id="search-overlay" class="fixed inset-0 z-[70] hidden bg-black bg-opacity-80 flex items-start justify-center p-4 pt-20" onclick="closeOverlay('search-overlay', 'search-content-wrapper')">
+        <div class="w-full max-w-4xl transform transition-all duration-300 scale-95 opacity-0" id="search-content-wrapper" onclick="event.stopPropagation()">
+            <div class="bg-white dark:bg-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4">
+                        <input type="text" id="header-search-input" placeholder="검색어를 입력하세요..." class="flex-grow p-4 text-xl border-2 border-blue-500 rounded-lg outline-none focus:border-blue-700 dark:bg-gray-800 dark:text-white dark:border-blue-400 min-w-0">
+                        <button class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition shrink-0">
+                            <i data-lucide="search" class="w-7 h-7"></i>
+                        </button>
+                        <button onclick="closeOverlay('search-overlay', 'search-content-wrapper')" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition shrink-0">
+                            <i data-lucide="x" class="w-7 h-7"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 다국어 모달 -->
+    <div id="language-modal" class="fixed inset-0 z-[70] hidden bg-black bg-opacity-50 flex items-center justify-center p-4" onclick="closeOverlay('language-modal', 'language-content-wrapper')">
+        <div class="bg-white dark:bg-gray-700 rounded-xl shadow-2xl w-full max-w-sm transform transition-all duration-300 scale-95 opacity-0" id="language-content-wrapper" onclick="event.stopPropagation()">
+            <div class="sticky top-0 bg-blue-600 text-white p-4 flex justify-between items-center rounded-t-xl z-10">
+                <h3 class="text-xl font-bold">언어 선택 (Language)</h3>
+                <button onclick="closeOverlay('language-modal', 'language-content-wrapper')" class="text-white hover:text-blue-200 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-6 grid gap-2">
+                <button class="w-full py-2 bg-slate-50 border border-slate-200 rounded font-bold hover:bg-blue-50 hover:text-blue-600 transition">English</button>
+                <button class="w-full py-2 bg-slate-50 border border-slate-200 rounded font-bold hover:bg-blue-50 hover:text-blue-600 transition">日本語</button>
+                <button class="w-full py-2 bg-slate-50 border border-slate-200 rounded font-bold hover:bg-blue-50 hover:text-blue-600 transition">中文</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모바일 전체 메뉴 사이드바 -->
+    <div id="full-menu-modal" class="fixed inset-0 z-[70] hidden bg-black bg-opacity-70 flex items-start justify-end" onclick="closeOverlay('full-menu-modal', 'full-menu-content-wrapper')">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm h-full shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col" id="full-menu-content-wrapper" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center p-6 border-b border-slate-200 dark:border-gray-700 shrink-0">
+                <h3 class="text-2xl font-black text-blue-700 dark:text-blue-400">전체 메뉴</h3>
+                <button onclick="closeOverlay('full-menu-modal', 'full-menu-content-wrapper')" class="text-slate-500 hover:text-slate-900 dark:text-gray-300 dark:hover:text-white transition">
+                    <i data-lucide="x" class="w-7 h-7"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto flex-grow p-4 custom-scrollbar">
+                <ul class="space-y-1 font-semibold text-lg text-slate-700 dark:text-gray-200">
+                    <li>
+                        <button class="w-full flex justify-between items-center p-3 hover:bg-blue-50 dark:hover:bg-gray-700 rounded transition-colors" onclick="toggleMobileMenu(this)">
+                            시정소식 <i data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-200"></i>
+                        </button>
+                        <ul class="hidden pl-4 mt-1 space-y-1 text-base text-slate-600 dark:text-gray-300 font-medium border-l-2 border-blue-100 dark:border-gray-600 ml-3">
+                            <li><a href="news.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-blue-700 dark:text-blue-400">시정소식 홈 바로가기</a></li>
+                            <li><a href="news.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">새소식</a></li>
+                            <li><a href="official_notice.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">고시/공고</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 게시글 상세 모달 -->
+    <div id="news-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center modal-overlay transition-opacity duration-300" aria-modal="true" role="dialog">
+        <div class="absolute inset-0" onclick="closeNewsModal()"></div>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" id="news-modal-content">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b flex justify-between items-start bg-slate-50 rounded-t-xl shrink-0">
+                <div class="pr-8 max-w-full">
+                    <div id="modal-dept" class="text-hyobin-blue font-bold text-sm mb-1">부서명</div>
+                    <h3 id="modal-title" class="font-black text-xl sm:text-2xl text-slate-800 leading-snug break-keep">게시글 제목</h3>
+                    <div class="text-slate-500 text-sm mt-3 flex flex-wrap gap-2 items-center">
+                        <span class="flex items-center"><i data-lucide="calendar" class="w-3.5 h-3.5 mr-1"></i><span id="modal-date">2026.00.00</span></span>
+                        <span class="text-slate-300">|</span>
+                        <span class="flex items-center"><i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i>조회 <span id="modal-views" class="ml-1">0</span></span>
+                    </div>
+                </div>
+                <button onclick="closeNewsModal()" class="text-slate-400 hover:text-slate-600 transition flex-shrink-0">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <!-- 모달 바디 -->
+            <div id="modal-body" class="p-6 sm:p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed text-[15px] flex-grow break-all">
+                <!-- 본문 내용 -->
+            </div>
+            <!-- 모달 푸터 (PDF 다운로드 버튼) -->
+            <div class="p-6 border-t bg-slate-50 rounded-b-xl flex flex-col sm:flex-row gap-3 justify-between items-center shrink-0">
+                <button id="download-btn" onclick="downloadOfficialDoc()" class="w-full sm:w-auto flex justify-center items-center px-4 py-2.5 bg-blue-50 text-hyobin-blue rounded-lg border border-blue-200 font-bold text-sm hover:bg-blue-100 transition shadow-sm shrink-0">
+                    <i data-lucide="download" class="w-4 h-4 mr-2"></i> 공문 다운로드(PDF)
+                </button>
+                <button onclick="closeNewsModal()" class="w-full sm:w-auto px-6 py-2.5 bg-slate-600 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm shrink-0">목록으로 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF 렌더링용 로딩 오버레이 (z-index 100) -->
+    <div id="pdf-processing-overlay" class="fixed inset-0 z-[100] hidden bg-white/95 flex flex-col items-center justify-center">
+        <div class="text-center">
+            <i data-lucide="loader-2" class="w-12 h-12 text-hyobin-blue animate-spin mx-auto mb-4"></i>
+            <h2 class="text-xl font-black text-slate-800 mb-2">공문서를 생성하는 중입니다.</h2>
+            <p class="text-slate-500 mt-2">잠시만 기다려 주세요...</p>
+        </div>
+    </div>
+
+    <!-- [완벽 해결 템플릿] 잘림 현상을 방지하기 위한 PDF 전용 컨테이너 -->
+    <!-- 화면 밖(-9999px)에 위치하여 브라우저에서 미리 렌더링되도록 합니다. -->
+    <div id="pdf-wrapper">
+        <div id="pdf-render-area" class="official-doc-font" style="width: 794px; min-height: 1123px; background-color: #fff; padding: 40px 40px; box-sizing: border-box;">
+            
+            <!-- 상단 헤더: 기관 로고 및 결재란 -->
+            <div class="flex justify-between items-start mb-6 h-20">
+                <div class="flex flex-col justify-center h-full">
+                    <div class="flex items-center gap-3">
+                        <img src="logo.png" alt="로고" class="h-9 w-auto object-contain" crossorigin="anonymous" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';">
+                        <h1 class="text-2xl font-black text-slate-900 tracking-wide official-doc-font">효 빈 광 역 시</h1>
+                    </div>
+                    <span class="text-xs text-slate-500 font-sans mt-1 tracking-widest pl-12">www.hyobin.go.kr</span>
+                </div>
+                <!-- 결재란 -->
+                <table class="approval-box font-sans">
+                    <tr>
+                        <th rowspan="2">결<br>재</th>
+                        <td>기안</td>
+                        <td>검토</td>
+                        <td>시장</td>
+                    </tr>
+                    <tr>
+                        <td><span class="text-[8px] text-slate-400">전결<br>01/24</span></td>
+                        <td><span class="text-[8px] text-slate-400">협조<br>01/24</span></td>
+                        <td><span class="font-bold text-slate-800 official-doc-font">지인</span></td>
+                    </tr>
                 </table>
             </div>
             
-            <!-- 데이터 없을 경우 표시 (숨김 처리됨) -->
-            <div id="no-data" class="hidden py-20 text-center text-slate-400 border-t border-slate-100">
-                해당하는 게시글이 없습니다.
+            <div class="w-full h-[2px] bg-black mb-1"></div>
+            <div class="w-full h-[1px] bg-black mb-6"></div>
+
+            <!-- 수신 및 제목 -->
+            <div class="mb-8 font-sans">
+                <div class="flex mb-1">
+                    <span class="w-16 font-bold text-slate-700">수신</span>
+                    <span>내부결재</span>
+                </div>
+                <div class="flex mb-1">
+                    <span class="w-16 font-bold text-slate-700">참조</span>
+                    <span>관계 부서장</span>
+                </div>
+                <div class="flex items-start mt-4">
+                    <span class="w-16 font-bold text-slate-700 pt-0.5">제목</span>
+                    <h2 class="text-xl font-bold flex-1 break-keep leading-snug official-doc-font" id="pdf-title"></h2>
+                </div>
             </div>
 
-            <!-- 페이지네이션 -->
-            <div id="pagination-container" class="flex justify-center py-6 gap-2 border-t border-slate-100 bg-white">
-                <!-- 자바스크립트로 버튼 생성 -->
+            <!-- 본문 내용 -->
+            <div class="text-[13px] leading-relaxed text-justify mb-8 space-y-4 px-1" style="font-family: 'Noto Sans KR', sans-serif;">
+                <p>1. 시민의 행복과 시정 발전을 위해 불철주야 노고가 많으신 귀하께 감사드립니다.</p>
+                <p>2. 관련 근거: 「효빈광역시 행정정보 공개 조례」 제5조 및 「지방자치법」 제28조.</p>
+                <p>3. 위 호와 관련하여, 우리 시에서 추진 중인 주요 사업 및 행정 사항을 다음과 같이 고시/공고하오니, 관계 부서에서는 시민들에게 널리 홍보하여 주시기 바랍니다.</p>
+                
+                <!-- 문서 개요 테이블 -->
+                <div class="py-2">
+                    <p class="font-bold mb-1 ml-2">□ 주요 내용 요약</p>
+                    <table class="official-table">
+                        <colgroup>
+                            <col style="width: 25%;">
+                            <col style="width: 75%;">
+                        </colgroup>
+                        <tr>
+                            <th>문서 번호</th>
+                            <td id="pdf-table-id"></td>
+                        </tr>
+                        <tr>
+                            <th>소관 부서</th>
+                            <td id="pdf-table-dept"></td>
+                        </tr>
+                        <tr>
+                            <th>작성 일자</th>
+                            <td id="pdf-table-date"></td>
+                        </tr>
+                        <tr>
+                            <th>관련 파일</th>
+                            <td id="pdf-table-file"></td>
+                        </tr>
+                        <tr>
+                            <th>비고</th>
+                            <td>효빈광역시청 홈페이지 및 게시판 게시</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="pdf-doc-content" class="p-4 bg-slate-50 border border-slate-200 mt-4 rounded text-[13px] break-words">
+                    <!-- 상세 내용 주입 -->
+                </div>
+
+                <p>4. 본 건에 대하여 추가 문의사항이 있는 경우 담당 부서로 연락 바랍니다.</p>
+                <p>5. 붙임: <span id="pdf-filename" class="font-medium"></span> 1부.  끝.</p>
             </div>
-        </div>
 
-    </main>
-
-    <div id="common-footer"></div>
-    <div id="common-modals"></div>
-
-    <!-- 게시글 상세 모달 -->
-    <div id="news-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeNewsModal()"></div>
-        <div class="modal-content bg-white w-full max-w-4xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative z-10">
-            <!-- 모달 헤더 -->
-            <div class="px-8 py-6 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
-                <div class="pr-8">
-                    <div id="modal-dept" class="text-blue-600 font-bold text-sm mb-1">부서명</div>
-                    <h3 id="modal-title" class="font-black text-2xl text-slate-800 leading-snug">게시글 제목</h3>
-                    <div class="text-slate-400 text-sm mt-2 flex gap-3">
-                        <span id="modal-date">2025.00.00</span>
-                        <span class="text-slate-300">|</span>
-                        <span>조회수 <span id="modal-views">0</span></span>
+            <!-- 하단 직인 및 서명부 -->
+            <div class="mt-16 mb-12 relative text-center">
+                <div class="relative inline-block py-6 px-12">
+                    <p class="text-3xl font-black tracking-[0.6em] text-slate-900 z-10 relative official-doc-font">효 빈 광 역 시 장</p>
+                    <!-- 직인 -->
+                    <div class="absolute top-1/2 right-[10px] transform -translate-y-1/2 w-[84px] h-[84px] border-[3px] border-red-600 rounded flex items-center justify-center opacity-85 mix-blend-multiply" style="transform: translateY(-50%) rotate(-2deg);">
+                        <div class="w-[76px] h-[76px] border border-red-600 flex items-center justify-center">
+                            <span class="text-red-600 font-bold text-xs leading-tight text-center official-doc-font" style="font-size: 16px;">
+                                효빈<br>시장<br>지인
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <button onclick="closeNewsModal()" class="p-2 hover:bg-slate-200 rounded-full transition flex-shrink-0">
-                    <i data-lucide="x" class="w-6 h-6 text-slate-500"></i>
-                </button>
             </div>
-            <!-- 모달 바디 (본문) -->
-            <div id="modal-body" class="p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed min-h-[300px]">
-                <!-- 본문 내용 -->
-            </div>
-            <!-- 모달 푸터 -->
-            <div class="px-8 py-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
-                <div class="text-xs text-slate-400">
-                    <i data-lucide="paperclip" class="w-3 h-3 inline mr-1"></i>첨부파일은 PC버전에서 확인 가능합니다.
+            
+            <!-- 하단 정보 -->
+            <div class="mt-8 pt-4 pb-2 font-sans">
+                <div class="w-full text-center mb-3">
+                    <span class="text-xs font-bold text-slate-400 tracking-widest border-b border-slate-300 pb-1">"시민이 주인인 효빈, 더불어 사는 행복 도시"</span>
                 </div>
-                <button onclick="closeNewsModal()" class="px-6 py-2.5 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition">닫기</button>
+                
+                <div class="border-t-2 border-slate-400 pt-3 flex justify-between text-[10px] text-slate-500">
+                    <div class="flex gap-4">
+                        <span><b class="text-slate-700">담당부서</b> <span id="pdf-dept"></span></span>
+                        <span><b class="text-slate-700">전화</b> <span id="pdf-contact"></span></span>
+                        <span><b class="text-slate-700">FAX</b> 079-123-4567</span>
+                    </div>
+                    <div class="text-right">
+                        <span><b class="text-slate-700">공개구분</b> 대국민공개</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- 스크립트: common.js 호출을 삭제하고 필요한 스크립트만 유지합니다 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    
     <script>
-        lucide.createIcons();
+        // 누락된 UI 제어 스크립트 긴급 추가 (모달 오픈 및 햄버거 메뉴 작동)
+        window.toggleMenu = function() {
+            const modal = document.getElementById('full-menu-modal');
+            const wrapper = document.getElementById('full-menu-content-wrapper');
+            modal.classList.remove('hidden');
+            setTimeout(() => wrapper.classList.remove('translate-x-full'), 10);
+        };
 
-        // 1. 카테고리별 고유 콘텐츠 풀 (Pool) - 중복 방지를 위한 고유 데이터
+        window.openSearch = function() {
+            const modal = document.getElementById('search-overlay');
+            const wrapper = document.getElementById('search-content-wrapper');
+            modal.classList.remove('hidden');
+            setTimeout(() => wrapper.classList.remove('scale-95', 'opacity-0'), 10);
+        };
+
+        window.toggleDarkMode = function() {
+            document.documentElement.classList.toggle('dark');
+        };
+
+        window.changeLanguage = function() {
+            const modal = document.getElementById('language-modal');
+            const wrapper = document.getElementById('language-content-wrapper');
+            modal.classList.remove('hidden');
+            setTimeout(() => wrapper.classList.remove('scale-95', 'opacity-0'), 10);
+        };
+
+        window.closeOverlay = function(modalId, wrapperId) {
+            const modal = document.getElementById(modalId);
+            const wrapper = document.getElementById(wrapperId);
+            
+            if (wrapper.classList.contains('translate-x-full') === false && modalId === 'full-menu-modal') {
+                wrapper.classList.add('translate-x-full');
+            } else {
+                wrapper.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (modalId !== 'full-menu-modal') wrapper.classList.remove('scale-95', 'opacity-0');
+            }, 300);
+        };
+
+        window.toggleMobileMenu = function(btn) {
+            const submenu = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            const currentLi = btn.parentElement;
+            const parentUl = currentLi.parentElement;
+            
+            if (submenu.classList.contains('hidden')) {
+                Array.from(parentUl.children).forEach(li => {
+                    if (li !== currentLi && li.tagName === 'LI') {
+                        const siblingBtn = li.querySelector('button');
+                        if (siblingBtn) {
+                            const siblingSub = siblingBtn.nextElementSibling;
+                            const siblingIcon = siblingBtn.querySelector('i');
+                            if (siblingSub && siblingSub.tagName === 'UL' && !siblingSub.classList.contains('hidden')) {
+                                siblingSub.classList.add('hidden');
+                                if (siblingIcon) siblingIcon.classList.remove('rotate-180');
+                            }
+                        }
+                    }
+                });
+                submenu.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                setTimeout(() => {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            } else {
+                submenu.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        };
+
         const contentPool = {
             'news': [
                 { dept: "기획조정실", t: "2026년도 효빈시 본예산안 의회 제출", c: "2026년도 효빈시 본예산안을 시의회에 제출했습니다. 총 규모는 전년 대비 5.2% 증가한 15조 6천억 원입니다. 이번 예산안은 민생 경제 회복, 청년 일자리 창출, 그리고 사회적 약자 보호를 위한 복지 예산 확충에 중점을 두어 편성되었습니다." },
@@ -153,7 +801,7 @@
                 { dept: "노인복지과", t: "어르신 품위유지비 지원 사업 시행 안내", c: "만 75세 이상 어르신에게 목욕 및 이발 비용을 지원하는 바우처 카드를 발급합니다. 반기별 6만 원씩 충전되며, 관내 지정 업소에서 자유롭게 사용 가능합니다." }
             ],
             'construction': [
-                { dept: "도시철도과", t: "도시철도 3호선 야간 선로 유지보수 작업 안내", c: "안전한 열차 운행을 위해 심야 시간대 선로 유지보수 작업을 시행합니다. 작업 중 소음이 발생할 수 있으니 인근 주민 여러분의 양해 부탁드립니다.<br><strong>기간:</strong> 12.01 ~ 12.15 (01:00~04:30)" },
+                { dept: "도시철도과", t: "도시철도 3호선 야간 선로 유지보수 작업 안내", c: "안전한 열차 운행을 위해 심야 시간대 선로 유지보수 작업 시행합니다. 작업 중 소음이 발생할 수 있으니 인근 주민 여러분의 양해 부탁드립니다.<br><strong>기간:</strong> 12.01 ~ 12.15 (01:00~04:30)" },
                 { dept: "도로계획과", t: "효빈대로(남구청~법원) 노후 아스팔트 재포장 공사", c: "노후된 도로 포장면을 정비하여 쾌적한 주행 환경을 조성합니다. 교통 혼잡 최소화를 위해 야간에 작업을 진행합니다.<br><strong>기간:</strong> 2025.12.05 ~ 12.08 (22:00 ~ 06:00)" },
                 { dept: "상수도본부", t: "동구 덕현동 일원 노후 상수도관 갱생 공사", c: "녹물 발생 예방 및 유수율 제고를 위해 노후 상수관로 정비 공사를 진행합니다. 공사 중 일시적인 단수가 발생할 수 있습니다.<br><strong>단수 일시:</strong> 2025.12.10 (13:00 ~ 17:00)" },
                 { dept: "건설본부", t: "탄성대교 신축이음장치 교체 공사 교통 통제", c: "교량의 내구성 증진을 위해 신축이음장치 교체 공사를 시행합니다. 공사 기간 중 편도 1차선이 통제되오니 우회 도로를 이용해 주시기 바랍니다.<br><strong>기간:</strong> 2025.12.01 ~ 12.10" },
@@ -182,7 +830,7 @@
                 { dept: "지역경제과", t: "전통시장 시설현대화 사업 지원 대상 선정 결과 공고", c: "2026년도 전통시장 시설현대화 사업 지원 대상으로 선정된 시장 명단을 공고합니다. 선정된 시장은 개별 통보 및 사업 설명회를 진행할 예정입니다." },
                 { dept: "도시재생과", t: "도시재생 주민공모사업 보조금 교부 신청 공고", c: "주민 주도 도시재생 사업 활성화를 위해 선정된 단체에 대한 보조금 교부 신청을 받습니다. 기한 내 관련 서류를 구비하여 신청하시기 바랍니다." },
                 { dept: "식품위생과", t: "모범음식점 지정 및 재지정 결과 공고", c: "위생 상태와 서비스 수준이 우수한 음식점을 모범음식점으로 지정하고 그 결과를 알립니다. 지정된 업소에는 표지판 부착 및 상수도 요금 감면 혜택이 제공됩니다." },
-                { dept: "공원녹지과", t: "기간제근로자(산불전문예방진화대) 합격자 명단 공고", c: "산불 예방 및 진화 업무를 수행할 기간제 근로자 최종 합격자 명단을 공고합니다. 합격자는 등록일에 맞춰 관련 서류를 제출해 주시기 바랍니다." },
+                { dept: "공원녹지과", t: "기간제근로자(산불전문예방진화대) 합격자 명단 공고", c: "산불 예방 및 진화 업무를 수행할 기간제 근로자 최종 합격자 명단을 공고합니다. 합격자는 등록일에 맞춰 관련 서류 지참 후 제출해 주시기 바랍니다." },
                 { dept: "재난안전과", t: "재난관리기금 운용심의위원회 위원 위촉 공모", c: "재난관리기금의 효율적 운용을 위해 전문 지식을 갖춘 심의위원을 공개 모집합니다. 방재, 토목, 건축 등 관련 분야 전문가들의 많은 지원 바랍니다." },
                 { dept: "여성가족과", t: "양성평등기금 지원 사업 공모", c: "양성평등 문화 확산과 여성 권익 증진을 위한 사업을 수행할 비영리 법인 및 단체를 모집합니다. 선정된 단체에는 사업비가 지원됩니다." }
             ],
@@ -220,226 +868,295 @@
                 { dept: "농축산유통과", t: "[보도] 효빈 쌀 '효미', 미국 수출길 올랐다", c: "효빈시 대표 농산물 브랜드인 '효미'가 까다로운 검역을 통과하고 미국 수출을 시작했습니다. K-푸드 열풍을 타고 세계인의 식탁에 오릅니다." },
                 { dept: "정보화담당관", t: "[보도] 공공 와이파이 확대 구축 완료... 시내버스 전 차량 무료 이용", c: "관내 모든 시내버스와 주요 공원에 공공 와이파이 설치를 완료했습니다. 시민들의 통신비 절감과 정보 격차 해소에 기여할 것으로 기대됩니다." },
                 { dept: "감사관", t: "[보도] 효빈시, 청렴도 평가 3년 연속 1등급 달성 쾌거", c: "국민권익위원회 주관 공공기관 청렴도 평가에서 효빈시가 최우수 등급인 1등급을 받았습니다. 투명하고 공정한 행정 구현을 위한 노력이 인정받았습니다." },
-                { dept: "투자유치과", t: "[보도] 글로벌 데이터센터 유치 협약 체결... 5천억 투자", c: "효빈시가 글로벌 IT 기업과 5천억 원 규모의 데이터센터 건립 투자 협약을 맺었습니다. 양질의 일자리 창출과 지역 경제 활성화가 기대됩니다." },
+                { dept: "투자유치과", t: "[보도] 글로벌 데이터센터 유치 협약 체결... 5천억 투자", c: "효빈시가 글로벌 IT 기업과 5천억 원 규모의 데이터센터 건립 투자 협약을 맺었습니다. 양질 일자리 창출과 지역 경제 활성화가 기대됩니다." },
                 { dept: "재난안전과", t: "[보도] '안전한국훈련' 우수 기관 표창 수상", c: "재난 대응 역량 강화를 위한 안전한국훈련에서 효빈시가 행정안전부 장관 표창을 수상했습니다. 실전 같은 훈련으로 시민 안전을 지키겠습니다." },
                 { dept: "보건소", t: "[보도] 치매안심센터 운영 성과 발표회 개최", c: "치매 조기 검진 및 예방 프로그램 운영 성과를 공유하는 자리를 가졌습니다. 치매 걱정 없는 효빈시를 만들기 위해 더욱 노력하겠습니다." },
                 { dept: "여성가족과", t: "[보도] 여성친화도시 재지정 심사 통과", c: "여성의 역량 강화와 돌봄 안전 구현을 위한 노력을 인정받아 여성친화도시로 재지정되었습니다. 모두가 평등하고 행복한 도시를 만들어가겠습니다." }
             ]
         };
 
-        // 2. 핵심 데이터 정의 (상세 내용 포함된 주요 공지 - 상단 고정용)
         const coreData = {
             'news': [
                 { 
                     id: 600, dept: "교통복지과", title: "2026 취약계층 교통비 지원사업 최종 계획안 공개", date: "2025.11.28", views: 1024,
-                    content: `<p class="mb-4">효빈광역시 교통복지과입니다.</p><p class="mb-4">박효빈 시장의 핵심 공약인 <strong>'이동권 보장'</strong> 정책의 일환으로, 2026년도 취약계층 교통비 지원사업 최종 계획안을 공고합니다.</p><hr class="my-6 border-slate-200"><h4 class="font-bold text-lg mb-2 text-slate-800">1. 주요 지원 대상</h4><ul class="list-disc list-inside mb-4 pl-2 text-slate-700"><li>효빈시에 주민등록을 둔 만 65세 이상 어르신</li><li>만 13세 ~ 24세 청소년 및 청년 (소득 무관)</li><li>장애인 및 국가유공자</li></ul><h4 class="font-bold text-lg mb-2 text-slate-800">2. 지원 내용</h4><ul class="list-disc list-inside mb-4 pl-2 text-slate-700"><li><strong>효빈패스(Hyobin Pass)</strong> 지급: 월 5만원 한도 내 대중교통 이용 실비 자동 환급</li><li>시티투어버스 및 마을버스 환승 횟수 제한 해제</li><li>심야 안심 귀가 택시 바우처 연 12회 제공</li></ul><div class="bg-blue-50 p-4 rounded border border-blue-100"><p class="text-blue-800 text-sm font-bold">※ 재원 안내</p><p class="text-blue-700 text-xs mt-1">본 사업의 재원은 HAF(효빈 애니메이션 페스티벌) 수익금 및 시 직영 굿즈 판매 수익으로 전액 충당됩니다. 시민 여러분의 덕질이 복지가 됩니다.</p></div>`
+                    content: `<p class="mb-4">효빈광역시 교통복지과입니다.</p><p class="mb-4">박효빈 시장의 핵심 공약인 <strong>'이동권 보장'</strong> 정책의 일환으로, 2026년도 취약계층 교통비 지원사업 최종 계획안을 공고합니다.</p><hr class="my-6 border-slate-200"><h4 class="font-bold text-lg mb-2 text-slate-800">1. 주요 지원 대상</h4><ul class="list-disc list-inside mb-4 pl-2 text-slate-700"><li>효빈시에 주민등록을 둔 만 65세 이상 어르신</li><li>만 13세 ~ 24세 청소년 및 청년 (소득 무관)</li><li>장애인 및 국가유공자</li></ul><h4 class="font-bold text-lg mb-2 text-slate-800">2. 지원 내용</h4><ul class="list-disc list-inside mb-4 pl-2 text-slate-700"><li><strong>효빈패스(Hyobin Pass)</strong> 지급: 월 5만원 한도 내 대중교통 이용 실비 자동 환급</li><li>시티투어버스 및 마을버스 환승 횟수 제한 해제</li><li>심야 안심 귀가 택시 바우처 연 12회 제공</li></ul><div class="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-6"><p class="text-blue-800 text-sm font-bold">※ 재원 안내</p><p class="text-blue-700 text-sm mt-1">본 사업의 재원은 HAF(효빈 애니메이션 페스티벌) 수익금 및 시 직영 굿즈 판매 수익으로 전액 충당됩니다. 시민 여러분의 덕질이 복지가 됩니다.</p></div>`
                 },
                 { 
                     id: 599, dept: "문화산업과", title: "2026 HAF (Hyobin Animation Festival) 기본 계획 발표", date: "2025.11.28", views: 982,
-                    content: `<p class="mb-4">2026년 효빈 애니메이션 페스티벌(HAF)의 기본 계획을 알려드립니다.</p><p class="mb-4">올해는 역대 최대 규모로, 도시 전체를 4개 테마 구역(Zone)으로 나누어 진행할 예정입니다. 단순한 관람을 넘어 도시 전체가 거대한 축제의 장으로 변모합니다.</p><div class="bg-slate-50 p-6 rounded-lg border border-slate-200 mb-6"><h5 class="font-bold mb-3 text-lg">🎮 4대 테마 구역 안내</h5><ul class="space-y-3 text-sm"><li><span class="font-bold text-pink-600 bg-pink-50 px-2 py-1 rounded">ZONE A (시청 광장)</span><br>글로벌 성우 초청 토크쇼, 핸드프린팅 행사, 공식 개막식</li><li><span class="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">ZONE B (효빈항 & 해안도로)</span><br>선상 코스프레 파티, 대규모 이타샤 모터쇼, 야간 불꽃놀이</li><li><span class="font-bold text-green-600 bg-green-50 px-2 py-1 rounded">ZONE C (고송대로)</span><br>캐릭터 퍼레이드 (교통 통제 예정), 거리 버스킹</li><li><span class="font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded">ZONE D (효빈대 캠퍼스)</span><br>아마추어 창작 동아리 부스, 인디 게임 시연, 동인 행사</li></ul></div><p>상세 타임테이블 및 1차 초청 게스트 명단은 12월 중 2차 공고를 통해 발표됩니다.</p>`
+                    content: `<p class="mb-4">2026년 효빈 애니메이션 페스티벌(HAF)의 기본 계획을 알려드립니다.</p><p class="mb-4">올해는 역대 최대 규모로, 도시 전체를 4개 테마 구역(Zone)으로 나누어 진행할 예정입니다. 단순한 관람을 넘어 도시 전체가 거대한 축제의 장으로 변모합니다.</p><div class="bg-slate-50 p-6 rounded-lg border border-slate-200 mb-6 mt-4"><h5 class="font-bold mb-4 text-lg">🎮 4대 테마 구역 안내</h5><ul class="space-y-4 text-sm"><li><span class="font-bold text-pink-600 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-200 inline-block mb-1">ZONE A (시청 광장)</span><br>글로벌 성우 초청 토크쇼, 핸드프린팅 행사, 공식 개막식</li><li><span class="font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 inline-block mb-1">ZONE B (효빈항 & 해안도로)</span><br>선상 코스프레 파티, 대규모 이타샤 모터쇼, 야간 불꽃놀이</li><li><span class="font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200 inline-block mb-1">ZONE C (고송대로)</span><br>캐릭터 퍼레이드 (교통 통제 예정), 거리 버스킹</li><li><span class="font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200 inline-block mb-1">ZONE D (효빈대 캠퍼스)</span><br>아마추어 창작 동아리 부스, 인디 게임 시연, 동인 행사</li></ul></div><p class="text-slate-600 bg-slate-100 p-4 rounded-lg">상세 타임테이블 및 1차 초청 게스트 명단은 12월 중 2차 공고를 통해 발표됩니다.</p>`
                 }
             ]
         };
 
-        // 3. 데이터 생성 로직
         function generateData(category, count, startId) {
             const data = [];
             const pool = contentPool[category] || contentPool['news'];
-            
-            // pool의 내용을 순차적으로 가져와 중복을 피함 (요청 수 count만큼)
-            // 만약 pool 크기보다 요청 수가 많으면 처음으로 돌아가지만, 현재 pool을 충분히 확보함
-            
             for (let i = 0; i < count; i++) {
                 const item = pool[i % pool.length];
-                
-                // 날짜 생성 (최근 60일 이내 랜덤)
-                const date = new Date(2025, 10, 28); 
-                date.setDate(date.getDate() - Math.floor(Math.random() * 60) - 1); 
-                const dateStr = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-                
+                const dateStr = "2026.03.31"; 
                 const views = Math.floor(Math.random() * 1500) + 50;
-
                 data.push({
                     id: startId - i,
                     dept: item.dept,
                     title: item.t,
                     date: dateStr,
                     views: views,
-                    content: `<p class="text-lg font-bold mb-4 text-blue-600">[${category === 'press' ? '보도자료' : '상세 내용'}]</p>
-                              <div class="bg-slate-50 p-4 rounded border border-slate-100 mb-4">
-                                <strong>${item.t}</strong>
+                    summary: item.c.replace(/\n/g, '<br>'),
+                    content: `<h4 class="text-lg font-black mb-4 text-hyobin-blue border-b border-slate-200 pb-2">[상세 내용]</h4>
+                              <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 mb-6 shadow-sm">
+                                <strong class="text-lg text-slate-800 break-words">${item.t}</strong>
                               </div>
-                              <div class="text-slate-700 leading-relaxed min-h-[100px]">
-                                ${item.c}
-                              </div>
-                              <hr class="my-6 border-slate-100">
-                              <p class="text-slate-400 text-sm flex justify-between">
-                                <span>담당 부서: ${item.dept}</span>
-                                <span>작성일: ${dateStr}</span>
-                              </p>`
+                              <div class="text-slate-700 leading-loose min-h-[100px] text-[15px] whitespace-pre-wrap break-words">${item.c}</div>`
                 });
             }
-            
-            // 날짜 최신순 정렬 (ID는 그대로 두고 내용만 날짜순 정렬 시 ID 순서가 꼬일 수 있으므로
-            // ID 기준 내림차순을 우선으로 하되, 여기선 ID가 높은게 최신글로 보이게 순차 생성했으므로 그대로 둠)
             return data;
         }
 
-        // 전체 데이터베이스 구성
-        // 각 카테고리별 데이터 개수를 Pool 사이즈와 비슷하게 맞춰 중복을 원천 차단
         const db = {
             'news': [...coreData.news, ...generateData('news', 30, 598)], 
             'construction': generateData('construction', 20, 220),
-            'notice': generateData('notice', 15, 915),
-            'recruit': generateData('recruit', 15, 120),
-            'press': generateData('press', 20, 360)
+            'notice': generateData('notice', 25, 450),
+            'recruit': generateData('recruit', 20, 320),
+            'press': generateData('press', 25, 850)
         };
 
         let currentCategory = 'news';
         let currentPage = 1;
         const itemsPerPage = 10; 
+        let currentItemForPDF = null;
 
-        const tableBody = document.getElementById('news-table-body');
-        const noData = document.getElementById('no-data');
-        const paginationContainer = document.getElementById('pagination-container');
-        const modal = document.getElementById('news-modal');
-
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', () => {
             renderTable();
-        };
+        });
 
-        function switchCategory(category, btnElement) {
+        window.switchCategory = function(category, btnElement) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             if(btnElement) btnElement.classList.add('active');
-            
             currentCategory = category;
             currentPage = 1; 
             renderTable();
-        }
+        };
 
-        function changePage(page) {
+        window.changeNewsPage = function(page) {
             currentPage = page;
             renderTable();
-        }
+        };
 
         function renderTable() {
-            const data = db[currentCategory];
+            const tableBody = document.getElementById('news-table-body');
+            const noData = document.getElementById('no-data');
+            const data = db[currentCategory] || [];
+            
             const totalItems = data.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
-            
             const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentData = data.slice(startIndex, endIndex);
+            const currentData = data.slice(startIndex, startIndex + itemsPerPage);
 
-            tableBody.innerHTML = '';
+            if(tableBody) tableBody.innerHTML = '';
 
             if (totalItems === 0) {
-                noData.classList.remove('hidden');
-                paginationContainer.innerHTML = '';
+                if(noData) noData.classList.remove('hidden');
+                if(document.getElementById('pagination-container')) document.getElementById('pagination-container').innerHTML = '';
                 return;
             } else {
-                noData.classList.add('hidden');
+                if(noData) noData.classList.add('hidden');
             }
 
             currentData.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 border-b cursor-pointer transition-colors';
+                tr.className = 'hover:bg-blue-50 cursor-pointer transition-colors';
                 tr.onclick = function() { openNewsModal(item); };
 
                 let deptColor = "text-slate-600";
-                if(currentCategory === 'news') deptColor = "text-blue-600";
+                if(currentCategory === 'news') deptColor = "text-hyobin-blue";
                 if(currentCategory === 'construction') deptColor = "text-orange-600";
-                if(currentCategory === 'recruit') deptColor = "text-red-600";
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 text-center text-slate-400 font-light">${item.id}</td>
-                    <td class="px-6 py-4 text-center ${deptColor} font-bold text-xs md:text-sm">${item.dept}</td>
-                    <td class="px-6 py-4 font-bold text-slate-800 text-sm md:text-base break-keep text-left">
-                        ${item.title}
-                        ${isNew(item.date) ? '<span class="ml-2 inline-block w-1.5 h-1.5 bg-red-500 rounded-full align-middle"></span>' : ''}
+                    <td class="px-3 md:px-6 py-4 text-center text-slate-400 font-light whitespace-nowrap">${item.id}</td>
+                    <td class="px-3 md:px-6 py-4 text-center ${deptColor} font-bold text-[13px] md:text-sm whitespace-nowrap">${item.dept}</td>
+                    <td class="px-3 md:px-6 py-4 font-bold text-slate-800 text-[14px] md:text-base text-left group break-words whitespace-normal">
+                        <span class="group-hover:underline">${item.title}</span>
                     </td>
-                    <td class="px-6 py-4 text-center text-slate-500 text-xs">${item.date}</td>
-                    <td class="px-6 py-4 text-center text-slate-400 text-xs">${item.views.toLocaleString()}</td>
+                    <td class="px-3 md:px-6 py-4 text-center text-slate-500 text-xs whitespace-nowrap">${item.date}</td>
+                    <td class="px-3 md:px-6 py-4 text-center text-slate-400 text-xs whitespace-nowrap">${item.views.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(tr);
             });
 
             renderPagination(totalPages);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function renderPagination(totalPages) {
-            paginationContainer.innerHTML = '';
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            container.innerHTML = '';
 
             const prevBtn = document.createElement('button');
-            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed' : 'hover:bg-slate-50 text-slate-600'}`;
+            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center ${currentPage === 1 ? 'text-slate-300 cursor-not-allowed bg-slate-50' : 'hover:bg-slate-100 hover:text-hyobin-blue text-slate-600 bg-white shadow-sm'}`;
             prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
-            prevBtn.onclick = () => { if(currentPage > 1) changePage(currentPage - 1); };
-            paginationContainer.appendChild(prevBtn);
+            prevBtn.onclick = () => { if(currentPage > 1) changeNewsPage(currentPage - 1); };
+            container.appendChild(prevBtn);
 
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, startPage + 4);
-            
-            if (endPage - startPage < 4) {
-                startPage = Math.max(1, endPage - 4);
-            }
-            if (startPage < 1) startPage = 1;
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
 
             for (let i = startPage; i <= endPage; i++) {
                 const btn = document.createElement('button');
-                if (i === currentPage) {
-                    btn.className = 'w-8 h-8 rounded bg-slate-800 text-white font-bold flex items-center justify-center';
-                } else {
-                    btn.className = 'w-8 h-8 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-50 text-slate-600';
-                }
+                btn.className = i === currentPage 
+                    ? 'w-8 h-8 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md shrink-0' 
+                    : 'w-8 h-8 rounded border border-slate-200 bg-white flex items-center justify-center hover:bg-slate-100 hover:text-hyobin-blue text-slate-600 shadow-sm transition-colors shrink-0';
                 btn.innerText = i;
-                btn.onclick = () => changePage(i);
-                paginationContainer.appendChild(btn);
+                btn.onclick = () => changeNewsPage(i);
+                container.appendChild(btn);
             }
 
             const nextBtn = document.createElement('button');
-            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed' : 'hover:bg-slate-50 text-slate-600'}`;
+            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center ${currentPage === totalPages ? 'text-slate-300 cursor-not-allowed bg-slate-50' : 'hover:bg-slate-100 hover:text-hyobin-blue text-slate-600 bg-white shadow-sm'}`;
             nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
-            nextBtn.onclick = () => { if(currentPage < totalPages) changePage(currentPage + 1); };
-            paginationContainer.appendChild(nextBtn);
-            
-            lucide.createIcons();
+            nextBtn.onclick = () => { if(currentPage < totalPages) changeNewsPage(currentPage + 1); };
+            container.appendChild(nextBtn);
         }
 
-        function openNewsModal(item) {
+        window.openNewsModal = function(item) {
+            currentItemForPDF = item; 
             document.getElementById('modal-dept').innerText = item.dept;
             document.getElementById('modal-title').innerText = item.title;
             document.getElementById('modal-date').innerText = item.date;
             document.getElementById('modal-views').innerText = item.views.toLocaleString();
             document.getElementById('modal-body').innerHTML = item.content;
 
+            const modal = document.getElementById('news-modal');
+            const content = document.getElementById('news-modal-content');
             modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.add('active'); }, 10);
+            setTimeout(() => { 
+                modal.classList.add('active'); 
+                content.classList.remove('scale-95', 'opacity-0');
+            }, 10);
             document.body.style.overflow = 'hidden';
-        }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        };
 
-        function closeNewsModal() {
+        window.closeNewsModal = function() {
+            const modal = document.getElementById('news-modal');
+            const content = document.getElementById('news-modal-content');
             modal.classList.remove('active');
+            content.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
-                modal.classList.add('hidden');고송
+                modal.classList.add('hidden');
                 document.body.style.overflow = '';
-            }, 200);
-        }
+            }, 300); 
+        };
 
-        function isNew(dateString) {
-            const today = new Date('2025-11-28');
-            const dateParts = dateString.split('.');
-            const postDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-            const diffTime = Math.abs(today - postDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-            return diffDays <= 7;
-        }
+        window.downloadOfficialDoc = async function() {
+            if(!currentItemForPDF) return;
 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") closeNewsModal();
-        });
+            const btn = document.getElementById('download-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i> 문서 생성 중...';
+            btn.disabled = true;
+            btn.classList.add('bg-slate-400', 'cursor-not-allowed');
+            btn.classList.remove('bg-blue-50', 'hover:bg-blue-100');
+
+            const fileName = `[공문]_${currentItemForPDF.title}.pdf`;
+
+            // 데이터 맵핑
+            const mapData = {
+                'pdf-title': currentItemForPDF.title,
+                'pdf-table-id': `제2026-${currentItemForPDF.id}호`,
+                'pdf-table-dept': currentItemForPDF.dept,
+                'pdf-table-date': currentItemForPDF.date,
+                'pdf-table-file': fileName,
+                'pdf-doc-content': currentItemForPDF.summary || currentItemForPDF.title,
+                'pdf-filename': fileName,
+                'pdf-dept': currentItemForPDF.dept,
+                'pdf-contact': `079-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`
+            };
+
+            Object.keys(mapData).forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    if(id === 'pdf-doc-content') el.innerHTML = mapData[id];
+                    else el.textContent = mapData[id];
+                }
+            });
+
+            const overlay = document.getElementById('pdf-processing-overlay');
+            overlay.classList.remove('hidden');
+            
+            window.scrollTo(0, 0);
+            const wrapper = document.getElementById('pdf-wrapper');
+            wrapper.style.left = '0px'; 
+            wrapper.style.top = '0px';
+            wrapper.style.opacity = '1';
+            wrapper.style.zIndex = '50';
+
+            // PDF 래퍼, 오버레이, 스크립트 외에 모든 요소를 html2canvas 렌더링에서 배제
+            Array.from(document.body.children).forEach(child => {
+                if (child.id !== 'pdf-wrapper' && child.id !== 'pdf-processing-overlay' && child.tagName !== 'SCRIPT') {
+                    child.setAttribute('data-html2canvas-ignore', 'true');
+                }
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            try {
+                const template = document.getElementById('pdf-render-area');
+                const canvas = await html2canvas(template, {
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                const imgWidth = 210; 
+                const pageHeight = 297; 
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight; 
+                    doc.addPage();
+                    doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                doc.save(fileName);
+                closeNewsModal();
+
+            } catch (error) {
+                console.error("PDF 생성 오류:", error);
+                alert('PDF 생성 중 오류가 발생했습니다.');
+            } finally {
+                // 무시(ignore) 설정 원상 복구
+                Array.from(document.body.children).forEach(child => {
+                    child.removeAttribute('data-html2canvas-ignore');
+                });
+
+                wrapper.style.left = '-9999px';
+                wrapper.style.top = '-9999px';
+                wrapper.style.opacity = '0';
+                wrapper.style.zIndex = '-10';
+                overlay.classList.add('hidden');
+                
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                btn.classList.remove('bg-slate-400', 'cursor-not-allowed');
+                btn.classList.add('bg-blue-50', 'hover:bg-blue-100');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        };
     </script>
-<script src="data.js"></script>
-    <script src="script.js"></script>
-    <script src="common.js"></script>
 </body>
 </html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>저상버스 운행정보 - 효빈광역시</title>
+    
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', // 관공서 신뢰의 블루
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            bus_rapid: '#D81C2F',
+                            bus_seat: '#FF5800',
+                            bus_main: '#01B7ED',
+                            bus_branch: '#37B484',
+                            bus_town: '#A664A0',
+                            bus_wide: '#485EC6',
+                            bus_circular: '#E7D600',
+                            bus_airport: '#84C36E',
+                            bus_tour: '#7777AA'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 관공서 템플릿 공통 스타일 */
+        .sub-visual {
+            background-image: linear-gradient(rgba(0, 43, 92, 0.7), rgba(0, 43, 92, 0.7)), url('이미지/교통배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth2 {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lnb-depth2 > li > a {
+            display: block;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        .lnb-depth2 > li.current > a {
+            color: #005bac;
+            font-weight: 700;
+            position: relative;
+        }
+        .lnb-depth2 > li.current > a::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        .bullet-title {
+            position: relative;
+            padding-left: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+        .bullet-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 24px;
+            background-color: #005bac;
+            border-radius: 4px;
+        }
+        
+        /* 버스 뱃지 스타일 */
+        .route-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 900;
+            font-size: 0.875rem;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .route-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-white flex flex-col min-h-screen">
+
+    <!-- [규칙 엄수] 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 (Sub Visual) -->
+    <div class="sub-visual h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-hyobin-dark opacity-60"></div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg">교통</h1>
+            <p class="mt-4 text-lg md:text-xl font-light opacity-90">누구도 소외되지 않는 혁신적 이동권 보장, 효빈교통</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 w-full flex-1">
+        
+        <!-- 좌측 LNB (Local Navigation Bar) -->
+        <aside class="w-full md:w-64 flex-shrink-0 hidden md:block">
+            <h2 class="text-2xl font-black text-hyobin-dark border-b-2 border-hyobin-dark pb-4 mb-0">
+                교통
+            </h2>
+            <ul class="lnb-depth1">
+                <li>
+                    <a href="bus.html">효빈시내버스 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="subway.html">도시철도(1~8호선) <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li class="active">
+                    <a href="교통약자지원.html">교통약자지원 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <ul class="lnb-depth2 block">
+                        <li><a href="교통약자지원.html">교통약자지원 안내</a></li>
+                        <li><a href="이동지원센터.html">특별교통수단(콜택시)</a></li>
+                        <li><a href="바우처택시.html">바우처 택시</a></li>
+                        <li class="current"><a href="저상버스운행정보.html">저상버스 운행정보</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="parking.html">공영주차장 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 우측 본문 (Main Content) -->
+        <main class="w-full flex-1 min-w-0">
+            <!-- Breadcrumb -->
+            <div class="flex items-center text-sm text-gray-500 mb-6 font-medium">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통약자지원</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span class="text-hyobin-blue font-bold">저상버스 운행정보</span>
+            </div>
+
+            <!-- 페이지 타이틀 및 유틸리티 -->
+            <div class="flex justify-between items-end border-b border-gray-300 pb-6 mb-10">
+                <h2 class="text-3xl md:text-4xl font-black content-title text-gray-900 m-0 leading-none">
+                    저상버스 운행정보 안내
+                </h2>
+                <div class="flex gap-2 hidden md:flex">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="관심스크랩"><i data-lucide="star" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="인쇄"><i data-lucide="printer" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="공유"><i data-lucide="share-2" class="w-5 h-5 text-gray-600"></i></button>
+                </div>
+            </div>
+
+            <!-- 시정 비전 개요 -->
+            <section class="mb-12 bg-hyobin-light p-8 rounded-xl border border-blue-100 flex flex-col md:flex-row gap-8 items-center">
+                <div class="w-full md:w-2/3">
+                    <h3 class="text-2xl font-black mb-3 text-hyobin-dark">시내버스 전 노선 100% 저상화 달성</h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        효빈광역시는 휠체어 이용자, 고령자, 임산부 및 영유아 동반자 등 모든 시민이 차별 없이 안전하게 이동할 수 있도록 <strong>전국 최초로 시내버스 전 노선(간선, 지선, 순환, 마을, 급행)의 100% 저상버스 도입을 완료</strong>하였습니다. (※ 자동차 전용도로를 경유하는 광역·좌석버스는 현재 2층 저상버스 등을 시범 도입 중입니다.)
+                    </p>
+                    <button onclick="location.href='bus.html'" class="inline-flex items-center bg-hyobin-blue text-white px-5 py-2.5 rounded-md shadow-sm font-bold hover:bg-blue-700 transition">
+                        <i data-lucide="monitor-smartphone" class="w-5 h-5 mr-2"></i> 실시간 버스 도착 정보 조회
+                    </button>
+                </div>
+                <div class="w-full md:w-1/3 flex justify-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <!-- 한국어 이미지 경로 규칙 엄수 -->
+                    <img src="이미지/저상버스.png" alt="효빈 친환경 저상버스" class="max-w-full h-auto object-contain" onerror="this.src='https://placehold.co/300x200/e2e8f0/475569?text=저상버스+이미지'">
+                </div>
+            </section>
+
+            <!-- 저상버스의 주요 특징 -->
+            <section class="mb-16">
+                <h3 class="bullet-title">효빈형 저상버스의 3대 특징</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white border border-gray-200 p-6 rounded-xl shadow-sm text-center">
+                        <div class="w-16 h-16 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-hyobin-blue mb-4">
+                            <i data-lucide="arrow-down-to-line" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 mb-2">닐링 시스템 (Kneeling)</h4>
+                        <p class="text-sm text-slate-600">차체 바닥을 보도블록 높이까지 낮추어 휠체어와 유아차가 계단 없이 수평으로 승하차할 수 있습니다.</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 p-6 rounded-xl shadow-sm text-center">
+                        <div class="w-16 h-16 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-hyobin-blue mb-4">
+                            <i data-lucide="move-right" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 mb-2">자동 슬로프 (Ramp)</h4>
+                        <p class="text-sm text-slate-600">차량 중간문에서 전동 경사판이 전개되어 휠체어가 안전하게 차량 내부로 진입하도록 지원합니다.</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 p-6 rounded-xl shadow-sm text-center">
+                        <div class="w-16 h-16 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-hyobin-blue mb-4">
+                            <i data-lucide="accessibility" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 mb-2">교통약자 전용 공간</h4>
+                        <p class="text-sm text-slate-600">차량 내부에 휠체어 및 유아차를 2대 이상 고정할 수 있는 전용 공간과 안전벨트가 마련되어 있습니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 노선 유형별 저상버스 투입 현황 (동적 렌더링) -->
+            <section class="mb-16">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="bullet-title mb-0">노선 유형별 저상버스 배차 현황</h3>
+                    <span class="text-sm font-bold text-hyobin-blue bg-blue-50 px-3 py-1 rounded-full">데이터 기준: 효빈 BIS 통합망</span>
+                </div>
+                <p class="mb-6 text-slate-600">
+                    아래 명시된 노선은 전 차량이 100% 친환경 전기·수소 저상버스로 운행됩니다. (단, 배지 클릭 시 상세 노선 정보 페이지로 이동합니다.)
+                </p>
+
+                <div id="low-floor-routes-container" class="space-y-6">
+                    <!-- JavaScript를 통해 전체 노선 데이터가 카테고리별로 여기에 렌더링됩니다. -->
+                </div>
+                
+                <!-- 예외 노선 안내 -->
+                <div class="mt-8 bg-gray-50 border border-gray-200 p-6 rounded-lg text-sm text-slate-600">
+                    <p class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i> 저상버스 미운행(일부 운행) 노선 안내
+                    </p>
+                    <p>자동차 전용도로(고속도로)를 경유하는 <strong>광역버스(파란색)</strong> 및 <strong>좌석버스(주황색)</strong>, <strong>공항버스(연두색)</strong>는 「여객자동차 운수사업법」에 따른 안전띠 착용 의무화 및 차량 구조적 한계로 인해 과거 저상버스 전면 투입이 제한되었습니다.</p>
+                    <p class="mt-3"><strong class="text-hyobin-blue">※ 단, 박효빈 시장의 '이동권 완전 보장' 정책에 따라 현재 일부 좌석 및 광역버스 노선에 휠체어 탑승이 가능한 2층 저상버스 및 전용 저상버스를 시범 도입하여 운행 중입니다.</strong> 전면 도입이 완료되기 전까지 휠체어 이용자께서는 해당 구간 이동 시 <strong>특별교통수단(한바다 콜택시)</strong>을 우선 이용해 주시기 바랍니다.</p>
+                </div>
+            </section>
+
+            <!-- 페이지 하단 부서 정보 -->
+            <div class="border-t-2 border-gray-800 pt-6 mt-16">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 border border-gray-200 p-6 rounded-lg mb-8">
+                    <div class="w-full md:w-auto mb-4 md:mb-0">
+                        <p class="font-bold text-gray-800 text-lg mb-1">담당부서 : 효빈광역시 교통국 대중교통과 (저상버스도입팀)</p>
+                        <p class="text-gray-600 text-sm">
+                            <span class="inline-block mr-4"><i data-lucide="phone" class="inline-block w-4 h-4 mr-1 align-text-bottom"></i> 행정문의: 079-500-1234</span>
+                            <span class="inline-block"><i data-lucide="clock" class="inline-block w-4 h-4 mr-1 align-text-bottom"></i> 최종업데이트: 2026-03-31</span>
+                        </p>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <a href="담당자안내.html" class="inline-block px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium hover:bg-gray-100 transition-colors">담당자 안내</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- [규칙 엄수] 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 데이터 병합 및 렌더링 스크립트 -->
+    <script>
+        // 버스 안내 페이지(bus.html)에서 제공된 전체 노선망 데이터 완벽 통합
+        const rawData = [
+            { t: 'rapid', n: '1' }, { t: 'rapid', n: '2' }, { t: 'rapid', n: '3' }, { t: 'rapid', n: '4' }, { t: 'rapid', n: '5' }, { t: 'rapid', n: '6' }, { t: 'rapid', n: '7' }, { t: 'rapid', n: '8' }, { t: 'rapid', n: '9' },
+            { t: 'main', n: '11' }, { t: 'main', n: '12' }, { t: 'main', n: '13' }, { t: 'main', n: '14' }, { t: 'main', n: '15' }, { t: 'main', n: '16' }, { t: 'main', n: '17' }, { t: 'main', n: '18' }, { t: 'main', n: '19' },
+            { t: 'main', n: '22' }, { t: 'main', n: '23' }, { t: 'main', n: '24' }, { t: 'main', n: '25' }, { t: 'main', n: '26' }, { t: 'main', n: '27' }, { t: 'main', n: '28' }, { t: 'main', n: '29' },
+            { t: 'main', n: '33' }, { t: 'main', n: '34' }, { t: 'main', n: '35' }, { t: 'main', n: '36' }, { t: 'main', n: '37' }, { t: 'main', n: '38' }, { t: 'main', n: '39' },
+            { t: 'main', n: '45' }, { t: 'main', n: '46' }, { t: 'main', n: '47' }, { t: 'main', n: '48' }, { t: 'main', n: '49' },
+            { t: 'main', n: '56' }, { t: 'main', n: '57' }, { t: 'main', n: '58' }, { t: 'main', n: '59' },
+            { t: 'main', n: '66' }, { t: 'main', n: '67' }, { t: 'main', n: '68' }, { t: 'main', n: '69' },
+            { t: 'main', n: '77' }, { t: 'main', n: '78' }, { t: 'main', n: '79' },
+            { t: 'main', n: '88' }, { t: 'main', n: '89' },
+            { t: 'branch', n: '111' }, { t: 'branch', n: '112' }, { t: 'branch', n: '121' }, { t: 'branch', n: '123' }, { t: 'branch', n: '131' }, { t: 'branch', n: '132' }, { t: 'branch', n: '141' }, { t: 'branch', n: '143' }, { t: 'branch', n: '151' }, { t: 'branch', n: '154' }, { t: 'branch', n: '161' }, { t: 'branch', n: '171' }, { t: 'branch', n: '172' }, { t: 'branch', n: '173' }, { t: 'branch', n: '181' }, { t: 'branch', n: '191' }, { t: 'branch', n: '192' }, { t: 'branch', n: '193' }, { t: 'branch', n: '194' },
+            { t: 'branch', n: '219' }, { t: 'branch', n: '221' }, { t: 'branch', n: '222' }, { t: 'branch', n: '231' }, { t: 'branch', n: '232' }, { t: 'branch', n: '241' }, { t: 'branch', n: '242' }, { t: 'branch', n: '251' }, { t: 'branch', n: '258' }, { t: 'branch', n: '261' }, { t: 'branch', n: '262' }, { t: 'branch', n: '271' }, { t: 'branch', n: '281' }, { t: 'branch', n: '291' }, { t: 'branch', n: '292' },
+            { t: 'branch', n: '331' }, { t: 'branch', n: '334' }, { t: 'branch', n: '341' }, { t: 'branch', n: '351' }, { t: 'branch', n: '361' }, { t: 'branch', n: '371' }, { t: 'branch', n: '381' }, { t: 'branch', n: '391' },
+            { t: 'branch', n: '441' }, { t: 'branch', n: '451' }, { t: 'branch', n: '461' }, { t: 'branch', n: '471' }, { t: 'branch', n: '472' }, { t: 'branch', n: '481' }, { t: 'branch', n: '491' }, { t: 'branch', n: '492' },
+            { t: 'branch', n: '522' }, { t: 'branch', n: '551' }, { t: 'branch', n: '552' }, { t: 'branch', n: '561' }, { t: 'branch', n: '571' }, { t: 'branch', n: '581' }, { t: 'branch', n: '582' }, { t: 'branch', n: '591' }, { t: 'branch', n: '592' },
+            { t: 'branch', n: '612' }, { t: 'branch', n: '632' }, { t: 'branch', n: '661' }, { t: 'branch', n: '671' }, { t: 'branch', n: '672' }, { t: 'branch', n: '681' }, { t: 'branch', n: '682' }, { t: 'branch', n: '691' }, { t: 'branch', n: '692' },
+            { t: 'branch', n: '752' }, { t: 'branch', n: '753' }, { t: 'branch', n: '771' }, { t: 'branch', n: '781' }, { t: 'branch', n: '791' }, { t: 'branch', n: '792' }, { t: 'branch', n: '793' },
+            { t: 'branch', n: '842' }, { t: 'branch', n: '881' }, { t: 'branch', n: '891' }, { t: 'branch', n: '892' },
+            { t: 'branch', n: '991' },
+            { t: 'town', n: '도향01' }, { t: 'town', n: '도향02' }, { t: 'town', n: '도향03' }, { t: 'town', n: '정근01' }, { t: 'town', n: '정근02' }, { t: 'town', n: '소원01' }, { t: 'town', n: '소원02' }, { t: 'town', n: '흑택01' }, { t: 'town', n: '야진01' }, { t: 'town', n: '야진02' }, { t: 'town', n: '탄성01' }, { t: 'town', n: '탄성02' }, { t: 'town', n: '서목01' }, { t: 'town', n: '서목02' }, { t: 'town', n: '고해01' }, { t: 'town', n: '고해02' }, { t: 'town', n: '도변01' }, { t: 'town', n: '채산01' }, { t: 'town', n: '채산02' }, { t: 'town', n: '내항01' }, { t: 'town', n: '악부01' }, { t: 'town', n: '뇌전01' }, { t: 'town', n: '칠채01' }, { t: 'town', n: '광정01' }, { t: 'town', n: '곽산01' },
+            { t: 'circular', n: '10' }, { t: 'circular', n: '20' }, { t: 'circular', n: '30' }, { t: 'circular', n: '40' }, { t: 'circular', n: '50' }, { t: 'circular', n: '60' }, { t: 'circular', n: '70' }, { t: 'circular', n: '80' }, { t: 'circular', n: '90' },
+            { t: 'seat', n: '1111' }, { t: 'seat', n: '2222' }, { t: 'seat', n: '3333' }, { t: 'seat', n: '4004' }, { t: 'seat', n: '5555' }, { t: 'seat', n: '6666' }, { t: 'seat', n: '7777' }, { t: 'seat', n: '8888' }, { t: 'seat', n: '9999' },
+            { t: 'wide', n: '1000' }, { t: 'wide', n: '2000' }, { t: 'wide', n: '3000' }, { t: 'wide', n: '4000' }, { t: 'wide', n: '5000' }, { t: 'wide', n: '6000' }, { t: 'wide', n: '7000' }, { t: 'wide', n: '8000' }, { t: 'wide', n: '9000' }
+            // 공항(airport)버스는 저상버스 예외이므로 필터링됨
+        ];
+
+        const busCategories = [
+            { id: 'rapid', title: '급행버스 (100% 운영)', color: '#D81C2F', bgClass: 'bg-hyobin-bus_rapid' },
+            { id: 'seat', title: '좌석버스 (일부 시범 운영)', color: '#FF5800', bgClass: 'bg-hyobin-bus_seat' },
+            { id: 'main', title: '간선버스 (100% 운영)', color: '#01B7ED', bgClass: 'bg-hyobin-bus_main' },
+            { id: 'circular', title: '순환버스 (100% 운영)', color: '#E7D600', bgClass: 'bg-hyobin-bus_circular', textDark: true },
+            { id: 'branch', title: '지선버스 (100% 운영)', color: '#37B484', bgClass: 'bg-hyobin-bus_branch' },
+            { id: 'town', title: '마을버스 (100% 운영)', color: '#A664A0', bgClass: 'bg-hyobin-bus_town' },
+            { id: 'wide', title: '광역버스 (일부 시범 운영)', color: '#485EC6', bgClass: 'bg-hyobin-bus_wide' }
+        ];
+
+        function renderLowFloorRoutes() {
+            const container = document.getElementById('low-floor-routes-container');
+            
+            busCategories.forEach(category => {
+                // 해당 카테고리의 노선만 필터링
+                const routes = rawData.filter(d => d.t === category.id);
+                
+                if(routes.length === 0) return;
+
+                // 뱃지 HTML 생성
+                const badgesHtml = routes.map(route => {
+                    const textColor = category.textDark ? 'text-slate-800' : 'text-white';
+                    return `
+                        <span onclick="location.href='bus.html'" class="route-badge ${category.bgClass} ${textColor} hover:opacity-80" title="${route.n}번 노선 정보 보기">
+                            ${route.n}
+                        </span>
+                    `;
+                }).join('');
+
+                // 카테고리별 섹션 HTML 생성
+                const sectionHtml = `
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="px-6 py-3 border-b border-slate-100 flex items-center" style="border-left: 6px solid ${category.color};">
+                            <h4 class="font-bold text-slate-800">${category.title}</h4>
+                            <span class="ml-3 text-sm text-slate-500 font-medium">총 ${routes.length}개 노선</span>
+                        </div>
+                        <div class="p-6 flex flex-wrap gap-2">
+                            ${badgesHtml}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += sectionHtml;
+            });
+            lucide.createIcons();
+        }
+
+        window.onload = () => {
+            renderLowFloorRoutes();
+        };
+    </script>
+    
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>

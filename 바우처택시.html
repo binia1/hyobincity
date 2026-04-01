@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>바우처 택시 - 효빈광역시</title>
+    
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', // 관공서 신뢰의 블루
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            subway1: '#0077DD', subway2: '#00CCAA', subway3: '#FFCC11',
+                            subway4: '#FF5522', subway5: '#EE0022', subway6: '#881188',
+                            subway7: '#FF8899', subway8: '#9856FF', subway_wide: '#6677CC'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 관공서 템플릿 공통 스타일 */
+        .sub-visual {
+            background-image: linear-gradient(rgba(0, 43, 92, 0.7), rgba(0, 43, 92, 0.7)), url('이미지/교통배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth2 {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lnb-depth2 > li > a {
+            display: block;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        .lnb-depth2 > li.current > a {
+            color: #005bac;
+            font-weight: 700;
+            position: relative;
+        }
+        .lnb-depth2 > li.current > a::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        .bullet-title {
+            position: relative;
+            padding-left: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+        .bullet-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 24px;
+            background-color: #005bac;
+            border-radius: 4px;
+        }
+        .data-table {
+            width: 100%;
+            border-top: 2px solid #1a365d;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 2rem;
+        }
+        .data-table th, .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .data-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            width: 25%;
+        }
+        @media (max-width: 768px) {
+            .data-table th, .data-table td {
+                display: block;
+                width: 100%;
+            }
+            .data-table th {
+                border-bottom: none;
+                padding-bottom: 0.5rem;
+            }
+            .data-table td {
+                padding-top: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-white flex flex-col min-h-screen">
+
+    <!-- [규칙 엄수] 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 (Sub Visual) -->
+    <div class="sub-visual h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-hyobin-dark opacity-60"></div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg">교통</h1>
+            <p class="mt-4 text-lg md:text-xl font-light opacity-90">누구도 소외되지 않는 혁신적 이동권 보장, 효빈교통</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 w-full flex-1">
+        
+        <!-- 좌측 LNB (Local Navigation Bar) -->
+        <aside class="w-full md:w-64 flex-shrink-0 hidden md:block">
+            <h2 class="text-2xl font-black text-hyobin-dark border-b-2 border-hyobin-dark pb-4 mb-0">
+                교통
+            </h2>
+            <ul class="lnb-depth1">
+                <li>
+                    <a href="bus.html">효빈시내버스 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li>
+                    <a href="subway.html">도시철도(1~8호선) <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+                <li class="active">
+                    <a href="교통약자지원.html">교통약자지원 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <ul class="lnb-depth2 block">
+                        <li><a href="교통약자지원.html">교통약자지원 안내</a></li>
+                        <li><a href="이동지원센터.html">특별교통수단(콜택시)</a></li>
+                        <li class="current"><a href="바우처택시.html">바우처 택시</a></li>
+                        <li><a href="저상버스운행정보.html">저상버스 운행정보</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="parking.html">공영주차장 안내 <i data-lucide="chevron-right" class="w-4 h-4"></i></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 우측 본문 (Main Content) -->
+        <main class="w-full flex-1 min-w-0">
+            <!-- Breadcrumb -->
+            <div class="flex items-center text-sm text-gray-500 mb-6 font-medium">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span>교통약자지원</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2"></i>
+                <span class="text-hyobin-blue font-bold">바우처 택시</span>
+            </div>
+
+            <!-- 페이지 타이틀 및 유틸리티 -->
+            <div class="flex justify-between items-end border-b border-gray-300 pb-6 mb-10">
+                <h2 class="text-3xl md:text-4xl font-black content-title text-gray-900 m-0 leading-none">
+                    바우처 택시 안내
+                </h2>
+                <div class="flex gap-2 hidden md:flex">
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="관심스크랩"><i data-lucide="star" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="인쇄"><i data-lucide="printer" class="w-5 h-5 text-gray-600"></i></button>
+                    <button class="p-2 border border-gray-300 rounded hover:bg-gray-100 transition-colors" title="공유"><i data-lucide="share-2" class="w-5 h-5 text-gray-600"></i></button>
+                </div>
+            </div>
+
+            <!-- 사업 개요 -->
+            <section class="mb-12 bg-hyobin-light p-8 rounded-xl border border-blue-100 flex flex-col md:flex-row gap-8 items-center">
+                <div class="w-full md:w-2/3">
+                    <h3 class="text-2xl font-black mb-3 text-hyobin-dark">비휠체어 교통약자를 위한 빠르고 편리한 이동</h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        <strong>효빈광역시 바우처 택시</strong>는 휠체어를 이용하지 않는 교통약자(시각·청각 장애인, 임산부, 노약자 등)의 대기시간을 단축하고 이동 편의를 증진하기 위해 도입된 맞춤형 교통복지 서비스입니다. 관내 일반 택시 운송 사업자와 협약을 맺어, 이용자가 일반 택시를 이용할 때 발생하는 요금의 일정 부분을 효빈시에서 지원합니다.
+                    </p>
+                </div>
+                <div class="w-full md:w-1/3 flex justify-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <!-- 한국어 이미지 경로 규칙 엄수 -->
+                    <img src="이미지/바우처택시.png" alt="효빈 바우처 택시" class="max-w-full h-auto object-contain" onerror="this.src='https://placehold.co/300x200/e2e8f0/475569?text=바우처택시+이미지'">
+                </div>
+            </section>
+
+            <!-- 효빈 아이맘(Mom) 바우처 택시 (특화 사업) -->
+            <section class="mb-16">
+                <div class="border border-pink-200 rounded-2xl p-8 bg-pink-50 shadow-sm flex flex-col md:flex-row gap-8 items-center">
+                    <div class="w-full md:w-1/4 flex justify-center">
+                        <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <img src="이미지/아이맘택시.png" alt="아이맘택시 로고" class="w-20 h-20 object-contain" onerror="this.src='https://placehold.co/150x150/ffedf5/d53f8c?text=아이맘'">
+                        </div>
+                    </div>
+                    <div class="w-full md:w-3/4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 bg-pink-500 text-white text-sm font-bold rounded-full">특화 사업</span>
+                            <h3 class="text-xl text-slate-900 font-black">효빈 아이맘(Mom) 바우처 택시</h3>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            대중교통 이용이 불편한 임산부와 영유아(24개월 이하)를 동반한 가정의 원활한 병원 진료 및 외출을 돕기 위해, 전용 바우처 택시를 별도로 지정 운영하고 있습니다. <strong>모든 배차 차량에는 프리미엄 유아용 카시트 및 공기청정기가 기본 장착</strong>되어 있어 안심하고 이용하실 수 있습니다.
+                        </p>
+                        <div class="bg-white px-4 py-3 rounded-md border border-pink-200 inline-block shadow-sm">
+                            <span class="text-sm text-pink-700 font-bold mr-2"><i data-lucide="phone-call" class="inline w-4 h-4 mr-1 align-text-bottom"></i>아이맘택시 전용 콜센터:</span>
+                            <span class="text-lg text-gray-900 font-black">079-500-1004</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 이용 대상 및 한도 -->
+            <section class="mb-16">
+                <h3 class="bullet-title">이용 대상 및 지원 한도</h3>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="data-table mb-0">
+                        <tbody>
+                            <tr>
+                                <th>이용 대상</th>
+                                <td>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><strong>비휠체어 장애인:</strong> 장애의 정도가 심한 장애인 중 보행상 장애가 있는 자 (기존 1~3급)</li>
+                                        <li><strong>임산부 및 영유아:</strong> 임산부 및 24개월 이하 영유아를 동반한 보호자 (아이맘 바우처 대상)</li>
+                                        <li><strong>노약자:</strong> 만 65세 이상 노약자 중 대중교통 승차가 곤란한 비휠체어 이용자</li>
+                                        <li class="text-red-500 text-sm mt-2">※ 휠체어 이용자는 차량 구조상 탑승이 불가하므로 '특별교통수단(한바다 콜택시)'을 이용해 주시기 바랍니다.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>지원 횟수 및 한도</th>
+                                <td>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><strong>월 이용 횟수:</strong> 1인당 월 최대 20회 지원 (임산부의 경우 병원 진료 목적 시 추가 4회 승인 가능)</li>
+                                        <li><strong>지원 한도:</strong> 1회당 미터기 요금의 최대 20,000원 한도 내에서 시가 요금 지원 (초과 금액은 본인 부담)</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 이용 요금 및 지역 -->
+            <section class="mb-16">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="bullet-title">이용 요금 (본인 부담금)</h3>
+                        <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl h-full shadow-sm">
+                            <ul class="space-y-4 text-slate-700">
+                                <li class="flex justify-between items-center border-b border-slate-200 pb-3">
+                                    <span class="font-bold">기본 요금 (5km 이내)</span>
+                                    <span class="text-lg font-black text-hyobin-blue">1,200원</span>
+                                </li>
+                                <li class="flex justify-between items-center border-b border-slate-200 pb-3">
+                                    <span class="font-bold">추가 요금</span>
+                                    <span>1km 당 100원 추가</span>
+                                </li>
+                                <li class="flex justify-between items-center pb-1">
+                                    <span class="font-bold">최대 상한액</span>
+                                    <span class="text-lg font-black text-red-600">3,000원</span>
+                                </li>
+                            </ul>
+                            <p class="text-sm text-slate-500 mt-4 leading-relaxed">
+                                ※ 한바다 콜택시 요금과 동일하게 적용되며, 실제 택시 미터기 요금과 본인 부담금의 차액은 효빈시에서 택시 사업자에게 직접 정산합니다.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="bullet-title">운행 지역 및 시간</h3>
+                        <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl h-full shadow-sm">
+                            <div class="mb-5">
+                                <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                    <i data-lucide="map" class="w-5 h-5 text-hyobin-blue"></i> 운행 지역
+                                </h4>
+                                <p class="text-slate-600 pl-7">효빈광역시 전역 (8구 1군 관내 운행 원칙)</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                    <i data-lucide="clock" class="w-5 h-5 text-hyobin-blue"></i> 운행 시간
+                                </h4>
+                                <p class="text-slate-600 pl-7">365일 24시간 연중무휴</p>
+                                <p class="text-sm text-slate-500 pl-7 mt-1">
+                                    (※ 일반 택시를 연계하는 방식으로, 출퇴근 등 택시 수요가 몰리는 혼잡 시간대에는 배차가 다소 지연될 수 있습니다.)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 이용 방법 (호출) -->
+            <section class="mb-16">
+                <h3 class="bullet-title">바우처 택시 호출 방법</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border border-slate-200 p-8 rounded-xl bg-white shadow-sm hover:shadow-md transition">
+                        <i data-lucide="smartphone" class="w-12 h-12 text-hyobin-blue mb-4"></i>
+                        <h4 class="font-bold text-xl text-slate-800 mb-3">스마트폰 앱(App) 호출</h4>
+                        <p class="text-slate-600 mb-4">
+                            '효빈 이동지원센터' 통합 앱을 설치하시면 바우처 택시 전용 메뉴를 통해 가장 가까운 거리에 있는 택시를 빠르게 배차받을 수 있습니다.
+                        </p>
+                        <a href="앱다운로드.html" class="text-hyobin-blue font-bold hover:underline inline-flex items-center">
+                            앱 다운로드 바로가기 <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+                        </a>
+                    </div>
+                    <div class="border border-slate-200 p-8 rounded-xl bg-white shadow-sm hover:shadow-md transition">
+                        <i data-lucide="phone-call" class="w-12 h-12 text-hyobin-blue mb-4"></i>
+                        <h4 class="font-bold text-xl text-slate-800 mb-3">콜센터 전화 호출</h4>
+                        <p class="text-slate-600 mb-4">
+                            앱 사용이 어려우신 경우, 통합 콜센터로 전화하시면 전문 상담원이 배차를 도와드립니다. (아이맘 택시는 전용 번호 이용)
+                        </p>
+                        <div class="flex flex-col gap-2 mt-2">
+                            <span class="text-slate-800 font-bold bg-slate-100 px-3 py-1.5 rounded inline-block w-fit">
+                                일반 바우처: 079-500-1111
+                            </span>
+                            <span class="text-pink-700 font-bold bg-pink-50 border border-pink-100 px-3 py-1.5 rounded inline-block w-fit">
+                                아이맘 택시: 079-500-1004
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 페이지 하단 부서 정보 및 만족도 평가 -->
+            <div class="border-t-2 border-gray-800 pt-6 mt-16">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 border border-gray-200 p-6 rounded-lg mb-8">
+                    <div class="w-full md:w-auto mb-4 md:mb-0">
+                        <p class="font-bold text-gray-800 text-lg mb-1">담당부서 : 효빈광역시 교통국 교통약자지원과 (바우처택시운영팀)</p>
+                        <p class="text-gray-600 text-sm">
+                            <span class="inline-block mr-4"><i data-lucide="phone" class="inline-block w-4 h-4 mr-1 align-text-bottom"></i> 행정문의: 079-500-1234</span>
+                            <span class="inline-block"><i data-lucide="clock" class="inline-block w-4 h-4 mr-1 align-text-bottom"></i> 최종업데이트: 2026-03-31</span>
+                        </p>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <a href="담당자안내.html" class="inline-block px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium hover:bg-gray-100 transition-colors">담당자 안내</a>
+                    </div>
+                </div>
+
+                <!-- 만족도 조사 -->
+                <div class="bg-white border border-gray-200 p-8 rounded-lg shadow-sm">
+                    <p class="font-bold text-gray-900 text-lg mb-6 text-center">현재 페이지에서 제공되는 정보에 대하여 만족하십니까?</p>
+                    <form onsubmit="event.preventDefault(); alert('평가가 제출되었습니다. 귀중한 의견 감사합니다.');">
+                        <div class="flex flex-wrap justify-center gap-4 mb-6">
+                            <label class="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full hover:bg-hyobin-light hover:border-hyobin-blue transition-colors">
+                                <input type="radio" name="satisfaction" value="5" class="w-4 h-4 text-hyobin-blue focus:ring-hyobin-blue">
+                                <span>매우 만족</span>
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full hover:bg-hyobin-light hover:border-hyobin-blue transition-colors">
+                                <input type="radio" name="satisfaction" value="4" class="w-4 h-4 text-hyobin-blue focus:ring-hyobin-blue">
+                                <span>만족</span>
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full hover:bg-hyobin-light hover:border-hyobin-blue transition-colors">
+                                <input type="radio" name="satisfaction" value="3" class="w-4 h-4 text-hyobin-blue focus:ring-hyobin-blue">
+                                <span>보통</span>
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full hover:bg-hyobin-light hover:border-hyobin-blue transition-colors">
+                                <input type="radio" name="satisfaction" value="2" class="w-4 h-4 text-hyobin-blue focus:ring-hyobin-blue">
+                                <span>불만족</span>
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full hover:bg-hyobin-light hover:border-hyobin-blue transition-colors">
+                                <input type="radio" name="satisfaction" value="1" class="w-4 h-4 text-hyobin-blue focus:ring-hyobin-blue">
+                                <span>매우 불만족</span>
+                            </label>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="px-8 py-2.5 bg-hyobin-dark text-white font-bold rounded hover:bg-slate-800 transition-colors">평가하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- [규칙 엄수] 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- [규칙 엄수] 스크립트 배치 순서 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+    
+    <script>
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+    </script>
+</body>
+</html>

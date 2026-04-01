@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈 보건·의료 통합포털 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; } 
+        .clickable-card { cursor: pointer; transition: all 0.2s; }
+        .clickable-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-color: #0284c7; }
+        .tab-btn.active { background-color: #0284c7; color: white; border-color: #0284c7; }
+        .hidden-facility { display: none; }
+        
+        /* 스크롤바 커스텀 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7dd3fc; }
+        
+        /* 응급/필수 배지 그라데이션 */
+        .emergency-badge { background: linear-gradient(45deg, #ef4444, #f97316); color: white; }
+        .moonlight-badge { background: linear-gradient(45deg, #f59e0b, #eab308); color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 보건의료 전용 커스텀 헤더 영역 -->
+    <div id="health-header"></div>
+
+    <!-- 히어로 섹션 (보건의료 전용 테마) -->
+    <div class="w-full bg-slate-800 py-12 md:py-16 text-center text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-sky-900 to-blue-950 opacity-80 z-0"></div>
+        <img src="보건의료배경.png" class="absolute inset-0 w-full h-full object-cover z-0 opacity-40 mix-blend-overlay" onerror="this.style.display='none'">
+        <div class="relative z-10 px-4 pt-6">
+            <h1 class="text-3xl md:text-5xl font-black mb-3 md:mb-4 tracking-tight drop-shadow-lg">효빈 보건·의료 통합포털</h1>
+            <p class="text-sky-200 text-sm md:text-lg font-medium drop-shadow">건강한 300만 시민, 활력 넘치는 효빈광역시</p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 md:py-12 w-full mb-20 flex-grow">
+        <!-- 검색창 (오버랩 디자인) -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-100 mb-10 -mt-20 relative z-20">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-6 text-center">우리동네 의료기관 찾기</h3>
+            <div class="flex justify-center">
+                <div class="flex flex-col md:flex-row border-2 border-sky-600 rounded-lg md:rounded-full overflow-hidden w-full max-w-3xl md:h-14 shadow-sm">
+                    <select class="h-12 md:h-auto pl-4 md:pl-6 pr-8 bg-slate-50 text-slate-700 outline-none border-b md:border-b-0 md:border-r border-slate-200 font-bold appearance-none cursor-pointer">
+                        <option>전체 기관</option>
+                        <option>보건소/보건지소</option>
+                        <option>달빛어린이병원</option>
+                        <option>공공심야약국</option>
+                        <option>응급의료센터</option>
+                    </select>
+                    <input type="text" placeholder="의료기관명, 진료과목, 행정동(예: 조유동) 검색" class="h-12 md:h-auto flex-grow px-4 outline-none text-base md:text-lg placeholder-slate-400">
+                    <button class="h-12 md:h-auto bg-sky-600 text-white px-8 hover:bg-sky-700 font-bold flex items-center justify-center transition-colors">
+                        <i data-lucide="search" class="w-5 h-5 md:mr-2"></i> <span class="hidden md:inline">검색</span>
+                    </button>
+                </div>
+            </div>
+            <!-- 인기 검색어 -->
+            <div class="mt-4 text-center text-sm text-slate-500 flex justify-center gap-3 flex-wrap">
+                <span class="font-bold text-slate-700">많이 찾는 검색어:</span>
+                <span class="cursor-pointer hover:text-sky-600">#심야약국</span>
+                <span class="cursor-pointer hover:text-sky-600">#소아과야간</span>
+                <span class="cursor-pointer hover:text-sky-600">#보건증</span>
+                <span class="cursor-pointer hover:text-sky-600">#독감예방접종</span>
+                <span class="cursor-pointer hover:text-sky-600">#응급실</span>
+            </div>
+        </div>
+
+        <!-- 빠른 서비스 퀵메뉴 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <a href="https://www.e-gen.or.kr/egen/search_hospital.do" target="_blank" class="bg-white border border-slate-200 rounded-xl p-5 hover:-translate-y-1 transition-transform shadow-sm flex flex-col items-center justify-center text-center group">
+                <div class="w-12 h-12 bg-sky-50 rounded-full flex items-center justify-center mb-2 group-hover:bg-sky-100 transition-colors">
+                    <i data-lucide="stethoscope" class="w-6 h-6 text-sky-600"></i>
+                </div>
+                <span class="font-bold text-slate-800 text-sm">병의원 찾기 (E-Gen)</span>
+            </a>
+            <a href="https://www.e-gen.or.kr/egen/search_pharmacy.do" target="_blank" class="bg-white border border-slate-200 rounded-xl p-5 hover:-translate-y-1 transition-transform shadow-sm flex flex-col items-center justify-center text-center group">
+                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-2 group-hover:bg-emerald-100 transition-colors">
+                    <i data-lucide="pill" class="w-6 h-6 text-emerald-600"></i>
+                </div>
+                <span class="font-bold text-slate-800 text-sm">휴일약국 찾기 (E-Gen)</span>
+            </a>
+            <a href="#" class="bg-white border border-slate-200 rounded-xl p-5 hover:-translate-y-1 transition-transform shadow-sm flex flex-col items-center justify-center text-center group">
+                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-2 group-hover:bg-indigo-100 transition-colors">
+                    <i data-lucide="file-badge" class="w-6 h-6 text-indigo-600"></i>
+                </div>
+                <span class="font-bold text-slate-800 text-sm">건강진단결과서 발급</span>
+            </a>
+            <a href="#" class="bg-white border border-slate-200 rounded-xl p-5 hover:-translate-y-1 transition-transform shadow-sm flex flex-col items-center justify-center text-center group">
+                <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mb-2 group-hover:bg-rose-100 transition-colors">
+                    <i data-lucide="syringe" class="w-6 h-6 text-rose-600"></i>
+                </div>
+                <span class="font-bold text-slate-800 text-sm">예방접종 도우미</span>
+            </a>
+        </div>
+
+        <!-- 기관 필터 탭 -->
+        <div class="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
+            <button class="tab-btn active px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterFacility('all', this)">전체보기</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterFacility('emergency', this)">응급의료센터</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterFacility('moonlight', this)">달빛어린이병원</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterFacility('pharmacy', this)">공공심야약국</button>
+            <button class="tab-btn px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-sm transition-colors" onclick="filterFacility('health-center', this)">보건기관</button>
+        </div>
+
+        <!-- 의료기관 목록 그리드 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="facilityGrid">
+            
+            <!-- ============ 응급의료센터 ============ -->
+            <!-- 1. 효빈대학교병원 -->
+            <div class="facility-item emergency bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 emergency-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 당선동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-red-500 transition-colors">효빈대학교병원</h4>
+                        </div>
+                        <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold">권역응급</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">효빈광역시 중증 응급환자 최종 치료기관</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-634-1119</div>
+                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> 24시간 연중무휴</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 삼선대학교병원 -->
+            <div class="facility-item emergency bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 emergency-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 등기동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-red-500 transition-colors">삼선대학교병원</h4>
+                        </div>
+                        <span class="bg-rose-100 text-rose-700 text-xs px-2 py-1 rounded font-bold">지역응급</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">북부권역 거점 지역응급의료센터</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-321-1119</div>
+                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> 24시간 연중무휴</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 효빈시립의료원 -->
+            <div class="facility-item emergency bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 emergency-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 평당동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-red-500 transition-colors">효빈시립의료원</h4>
+                        </div>
+                        <span class="bg-rose-100 text-rose-700 text-xs px-2 py-1 rounded font-bold">지역응급</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">시민의 건강을 책임지는 공공의료 거점</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-451-1119</div>
+                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> 24시간 연중무휴</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ 달빛어린이병원 ============ -->
+            <!-- 1. 북구 효빈아동병원 -->
+            <div class="facility-item moonlight bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 moonlight-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 중수동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-orange-500 transition-colors">효빈아동병원</h4>
+                        </div>
+                        <span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded font-bold">달빛소아과</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">경증 소아환자 야간 및 휴일 외래진료</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-321-7575</div>
+                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> 평일 ~23:00 / 주말 ~18:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 동구 덕현성모아이의원 -->
+            <div class="facility-item moonlight bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 moonlight-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">동구 덕현동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-orange-500 transition-colors">덕현성모아이의원</h4>
+                        </div>
+                        <span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded font-bold">달빛소아과</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">경증 소아환자 야간 및 휴일 외래진료</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-284-7575</div>
+                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> 평일 ~21:00 / 주말 ~18:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 탄성군 탄성제일소아과 -->
+            <div class="facility-item moonlight bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 moonlight-badge"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">탄성군 도변읍</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-orange-500 transition-colors">탄성제일소아과</h4>
+                        </div>
+                        <span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded font-bold">달빛소아과</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">경증 소아환자 휴일 집중 진료</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-134-7575</div>
+                        <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-slate-400"></i> 평일 ~19:00 / 주말 ~15:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ 공공심야약국 ============ -->
+            <!-- 1. 중구 중앙제일약국 -->
+            <div class="facility-item pharmacy bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-yellow-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">중구 조유동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-yellow-600 transition-colors">중앙제일약국</h4>
+                        </div>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">심야약국</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">의약품 심야 안심 구매 및 복약지도</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-242-8282</div>
+                        <div class="flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 text-slate-400"></i> 매일 22:00 ~ 01:00 운영</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 서구 당선온누리약국 -->
+            <div class="facility-item pharmacy bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-yellow-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 당선동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-yellow-600 transition-colors">당선온누리약국</h4>
+                        </div>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">심야약국</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">의약품 심야 안심 구매 및 복약지도</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-634-8282</div>
+                        <div class="flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 text-slate-400"></i> 매일 22:00 ~ 01:00 운영</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 안천구 이자동 365약국 -->
+            <div class="facility-item pharmacy bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-yellow-400"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 이자동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-yellow-600 transition-colors">이자동 365약국</h4>
+                        </div>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">심야약국</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">이자동 중심가 위치, 365일 야간운영</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-984-8282</div>
+                        <div class="flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 text-slate-400"></i> 매일 22:00 ~ 01:00 운영</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ 보건소/보건기관 ============ -->
+            <!-- 1. 중구보건소 -->
+            <div class="facility-item health-center bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">중구 조유동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">중구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-242-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 중구 중앙로 103</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 동구보건소 -->
+            <div class="facility-item health-center hidden-facility bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">동구 덕현동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">동구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-284-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 동구 덕성로 15</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 서구보건소 -->
+            <div class="facility-item health-center bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">서구 당선동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">서구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-634-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 서구 당선동 80</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 남구보건소 -->
+            <div class="facility-item health-center bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">남구 평당동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">남구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-451-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 남구 평당중앙로 36</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 북구보건소 -->
+            <div class="facility-item health-center hidden-facility bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">북구 중수동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">북구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-321-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 북구 고중로 5</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 안천구보건소 -->
+            <div class="facility-item health-center hidden-facility bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">안천구 안천동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">안천구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-915-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 안천구 안천중앙로 55</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. 청엽구보건소 -->
+            <div class="facility-item health-center hidden-facility bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">청엽구 청엽동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">청엽구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-781-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 청엽구 청엽로 54</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. 창전구보건소 -->
+            <div class="facility-item health-center hidden-facility bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-sky-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">창전구 창전동</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-sky-600 transition-colors">창전구보건소</h4>
+                        </div>
+                        <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded font-bold">보건소</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-822-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 창전구 모포로 24</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. 탄성군 보건의료원 -->
+            <div class="facility-item health-center bg-white rounded-xl border border-slate-200 shadow-sm clickable-card overflow-hidden group">
+                <div class="h-2 bg-emerald-500"></div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 mb-1 block">탄성군 탄성읍</span>
+                            <h4 class="font-bold text-xl text-slate-800 group-hover:text-emerald-600 transition-colors">탄성군 보건의료원</h4>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded font-bold">보건소/병원</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 line-clamp-1">보건소 기능 및 일반 병원 진료 병행</p>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-slate-400"></i> 079-134-5000</div>
+                        <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> 탄성군 탄성읍 공리 30</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- 더보기 버튼 -->
+        <div class="mt-10 text-center">
+            <button id="loadMoreBtn" class="bg-white border border-slate-300 text-slate-600 px-8 py-3 rounded-full font-bold hover:bg-slate-50 hover:text-sky-600 transition-colors shadow-sm" onclick="showMoreFacilities()">
+                기관 더보기 +
+            </button>
+        </div>
+
+        <!-- 관리부서 정보 -->
+        <div class="border-t border-gray-300 pt-4 mt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+            <div>담당부서 : 시민건강국 보건의료정책과 | 문의처 : 079-591-4100 | 책임자 : 공공의료팀장</div>
+            <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 31.</div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <div id="common-footer"></div>
+    <!-- 공통 모달(검색창/언어/사이드바 등) -->
+    <div id="common-modals"></div>
+
+    <script> 
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+
+        // 의료기관 필터링
+        function filterFacility(type, btn) {
+            // 버튼 스타일 초기화 및 활성화
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-sky-600', 'text-white', 'border-sky-600');
+                b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+            });
+            
+            btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+            btn.classList.add('active', 'bg-sky-600', 'text-white', 'border-sky-600');
+
+            // 그리드 필터링
+            const items = document.querySelectorAll('.facility-item');
+            items.forEach(item => {
+                if (item.classList.contains('hidden-facility')) {
+                    item.style.display = 'none';
+                    return;
+                }
+
+                if (type === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    if (item.classList.contains(type)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // 더보기 기능
+        function showMoreFacilities() {
+            const hiddenItems = document.querySelectorAll('.hidden-facility');
+            hiddenItems.forEach(item => {
+                item.classList.remove('hidden-facility');
+                item.style.display = 'block'; 
+            });
+            
+            document.getElementById('loadMoreBtn').style.display = 'none';
+            
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if(activeBtn) {
+                let type = 'all';
+                if(activeBtn.innerText.includes('응급')) type = 'emergency';
+                else if(activeBtn.innerText.includes('달빛')) type = 'moonlight';
+                else if(activeBtn.innerText.includes('약국')) type = 'pharmacy';
+                else if(activeBtn.innerText.includes('보건')) type = 'health-center';
+                
+                filterFacility(type, activeBtn);
+            }
+        }
+    </script>
+    
+    <!-- 별도 헤더를 불러오는 스크립트를 common.js 보다 먼저 위치 -->
+    <script src="health_header.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>
