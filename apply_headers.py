@@ -38,8 +38,8 @@ def update_html_files():
             scripts_to_add += '<script src="data.js"></script>\n    '
         if 'script.js' not in content:
             scripts_to_add += '<script src="script.js"></script>\n    '
-        if 'common.js' not in content:
-            scripts_to_add += '<script src="common.js"></script>\n'
+        if 'common121.js' not in content:
+            scripts_to_add += '<script src="common121.js"></script>\n'
             
         content = content.replace('</body>', scripts_to_add + '</body>')
         

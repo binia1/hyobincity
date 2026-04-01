@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 통계연보 상세 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- ZIP 파일 동적 생성을 위한 JSZip 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('효빈광역시청사배경.png') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 게시판 상세뷰 전용 스타일 */
+        .board-view-header { border-top: 2px solid #1e3a8a; border-bottom: 1px solid #cbd5e1; background-color: #fff; }
+        .board-view-meta { border-bottom: 1px solid #e2e8f0; background-color: #f8fafc; }
+        .board-view-meta dl { display: flex; flex-wrap: wrap; margin: 0; }
+        .board-view-meta dt { font-weight: 600; color: #475569; padding: 12px 16px; width: 100px; border-right: 1px solid #e2e8f0; }
+        .board-view-meta dd { color: #334155; padding: 12px 16px; flex: 1; min-width: 200px; border-right: 1px solid #e2e8f0; }
+        .board-view-meta dd:last-child { border-right: none; }
+        
+        .board-view-attach { border-bottom: 1px solid #cbd5e1; padding: 16px; background-color: #fff; }
+        .board-view-content { padding: 40px 20px; min-height: 300px; color: #334155; line-height: 1.8; font-size: 1.05rem; }
+        
+        /* 챕터 다운로드 버튼 */
+        .chapter-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #fff; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .chapter-box:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .chapter-title { font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        
+        /* 이전/다음글 스타일 */
+        .board-nav { border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; }
+        .board-nav-item { display: flex; padding: 14px 16px; border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s; }
+        .board-nav-item:last-child { border-bottom: none; }
+        .board-nav-item:hover { background-color: #f8fafc; }
+        .board-nav-label { width: 100px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; }
+        .board-nav-link { flex: 1; color: #1e293b; text-decoration: none; font-weight: 500; }
+        .board-nav-link:hover { color: #2563eb; text-decoration: underline; }
+        .board-nav-link.disabled { color: #94a3b8; pointer-events: none; text-decoration: none; }
+
+        /* 버튼 컴포넌트 */
+        .btn-download { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer;}
+        .btn-pdf { border: 1px solid #ef4444; color: #dc2626; background: #fef2f2; }
+        .btn-pdf:hover { background: #ef4444; color: #fff; }
+        .btn-hwp { border: 1px solid #3b82f6; color: #2563eb; background: #eff6ff; }
+        .btn-hwp:hover { background: #3b82f6; color: #fff; }
+        .btn-zip { border: 1px solid #8b5cf6; color: #6d28d9; background: #f5f3ff; }
+        .btn-zip:hover { background: #8b5cf6; color: #fff; }
+        .btn-excel { border: 1px solid #10b981; color: #15803d; background: #ecfdf5; }
+        .btn-excel:hover { background: #10b981; color: #fff; }
+
+        /* 인쇄 시 불필요한 요소 숨김 처리 */
+        @media print {
+            body * { visibility: hidden; }
+            .board-view-content, .board-view-content * { visibility: visible; }
+            .board-view-content { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+            .chapter-box button { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html" class="current">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (통계연보 상세 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <a href="통계연보.html" class="hover:text-blue-600 transition-colors">통계연보</a>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">상세보기</strong>
+            </div>
+
+            <!-- 본문 타이틀 -->
+            <h2 class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
+                통계연보
+            </h2>
+
+            <!-- 게시판 상세뷰 영역 -->
+            <article class="mb-10">
+                <!-- 헤더 (제목) -->
+                <div class="board-view-header p-6">
+                    <h3 id="view-title" class="text-2xl font-bold text-slate-900">제목을 불러오는 중...</h3>
+                </div>
+
+                <!-- 메타 정보 -->
+                <div class="board-view-meta">
+                    <dl>
+                        <dt>담당부서</dt>
+                        <dd>기획조정실 조직담당관</dd>
+                        <dt>등록일</dt>
+                        <dd id="view-date">0000-00-00</dd>
+                        <dt>조회수</dt>
+                        <dd id="view-views">0</dd>
+                    </dl>
+                </div>
+
+                <!-- 첨부파일 영역 -->
+                <div class="board-view-attach">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="font-bold text-slate-700 w-24 shrink-0 flex items-center gap-2">
+                            <i data-lucide="paperclip" class="w-4 h-4 text-slate-500"></i> 첨부파일
+                        </div>
+                        <div id="view-files" class="flex flex-wrap gap-2">
+                            <!-- JS로 버튼이 동적 삽입됩니다 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 본문 내용 영역 -->
+                <div class="board-view-content border-b border-slate-300" id="print-area">
+                    <p class="mb-8" id="view-content-text">
+                        효빈광역시의 발전상과 시민 생활의 변화상을 종합적으로 수록한 「효빈광역시 통계연보」를 발간하여 게시합니다.<br>
+                        본 통계연보는 매년 12월 31일을 기준으로 작성되었으며, 토지·기후, 인구, 경제, 사회, 문화 등 각 분야의 기본 통계 자료를 담고 있습니다.<br><br>
+                        시민 여러분과 주요 정책 입안자, 학술 연구자 분들의 소중한 기초 자료로 활용되기를 바랍니다. 전체본 첨부파일 또는 아래의 분야별 통계표를 통해 필요한 자료를 다운로드하실 수 있습니다.
+                    </p>
+
+                    <h4 class="text-xl font-bold text-blue-900 border-l-4 border-blue-600 pl-3 mb-6 mt-10">분야별 통계표 다운로드</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- [추가 데이터 삽입 장소 1] 새로운 챕터(분야별 통계표) 항목을 추가할 때 이곳의 HTML 구조를 복사하여 추가하세요. -->
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅰ</span> 연혁 및 면적</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('연혁_및_면적')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅱ</span> 인구</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('인구')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅲ</span> 노동 및 사업체</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('노동_및_사업체')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅳ</span> 농림수산업</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('농림수산업')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅴ</span> 광업·제조업 및 에너지</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('광업_제조업_및_에너지')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅵ</span> 유통·금융 및 기타서비스</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('유통_금융_및_기타서비스')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅶ</span> 주택 및 건설</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('주택_및_건설')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅷ</span> 교통, 정보통신 및 관광</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('교통_정보통신_및_관광')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅸ</span> 보건 및 사회보장</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('보건_및_사회보장')">XLS</button>
+                            </div>
+                        </div>
+                        <div class="chapter-box">
+                            <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">Ⅹ</span> 교육 및 문화</div>
+                            <div class="flex gap-1">
+                                <button class="btn-download btn-pdf" onclick="downloadPDF()">PDF</button>
+                                <button class="btn-download btn-excel" onclick="downloadExcel('교육_및_문화')">XLS</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 이전글 / 다음글 네비게이션 -->
+                <div class="board-nav">
+                    <div class="board-nav-item">
+                        <div class="board-nav-label"><i data-lucide="chevron-up" class="w-4 h-4"></i> 다음글</div>
+                        <a href="#" id="link-next" class="board-nav-link disabled">다음 글이 없습니다.</a>
+                    </div>
+                    <div class="board-nav-item">
+                        <div class="board-nav-label"><i data-lucide="chevron-down" class="w-4 h-4"></i> 이전글</div>
+                        <a href="#" id="link-prev" class="board-nav-link disabled">이전 글이 없습니다.</a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 목록 버튼 -->
+            <div class="flex justify-end mb-10">
+                <a href="통계연보.html" class="bg-slate-700 text-white font-bold px-8 py-3 rounded-md hover:bg-slate-800 transition shadow-sm flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5"></i> 목록으로
+                </a>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 (common121.js가 렌더링) -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // 아코디언 메뉴 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // 1. 브라우저 인쇄 기능을 통한 PDF 변환 기능
+        function downloadPDF() {
+            alert('브라우저의 인쇄 옵션에서 "PDF로 저장"을 선택해주세요.');
+            window.print();
+        }
+
+        // 2. CSV/Excel 예시 파일 생성 및 다운로드 기능
+        function downloadExcel(chapterTitle) {
+            const bom = "\uFEFF"; 
+            const csvContent = bom + 
+                               "연도,구분,수치,비고\n" +
+                               "2023," + chapterTitle.replace(/_/g, ' ') + " 관련 지표 1,1250000,추계\n" +
+                               "2024," + chapterTitle.replace(/_/g, ' ') + " 관련 지표 2,1265000,확정\n" +
+                               "2025," + chapterTitle.replace(/_/g, ' ') + " 관련 지표 3,1280000,잠정\n";
+            
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `효빈광역시_통계연보_${chapterTitle}_예시데이터.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 3. HWP 예시 파일 생성 및 다운로드 기능
+        function downloadHWP(title) {
+            const bom = "\uFEFF";
+            const hwpContent = bom + 
+                               "효빈광역시 통계연보 요약문\n\n" +
+                               "----------------------------------------\n" +
+                               "문서명: " + title + "\n" +
+                               "----------------------------------------\n" +
+                               "본 문서는 HWP 예시 다운로드 파일입니다.\n" +
+                               "실제 통계 요약 데이터는 추후 서버와 연동하여 제공될 예정입니다.\n";
+            
+            // MIME 타입을 일반 텍스트 형태로 하되 확장자를 hwp로 지정하여 테스트 가능하도록 구현
+            const blob = new Blob([hwpContent], { type: "text/plain;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${title}_요약본.hwp`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 4. ZIP 예시 파일 생성 및 다운로드 기능 (JSZip 활용)
+        async function downloadZIP(title) {
+            if (typeof JSZip === 'undefined') {
+                alert('압축 라이브러리(JSZip)를 로드하지 못했습니다. 인터넷 연결을 확인해주세요.');
+                return;
+            }
+            
+            const zip = new JSZip();
+            // 임의의 데이터 파일 2개를 ZIP 안에 생성
+            zip.file("통계연보_안내사항.txt", "효빈광역시 통계연보 엑셀 데이터 압축 파일입니다.\n추후 실제 데이터베이스 덤프 파일이 포함됩니다.");
+            zip.file("통계연보_예시데이터.csv", "\uFEFF연도,분류,통계값\n2024,총인구,1050000\n2025,총인구,1065000");
+
+            // ZIP 파일 생성 및 다운로드 트리거
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(content);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${title}_전체데이터.zip`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // [추가 데이터 삽입 장소 2] 서버/DB 연동 시 이 배열을 실제 데이터로 교체하세요. (통계연보.html과 동일한 구조)
+        const statData = [
+            { id: 30, year: '2025', title: '제30회 효빈광역시 통계연보 (2025년 기준)', date: '2026-01-15', views: 1245, files: ['pdf', 'zip'] },
+            { id: 29, year: '2024', title: '제29회 효빈광역시 통계연보 (2024년 기준)', date: '2025-02-20', views: 2510, files: ['pdf', 'hwp', 'zip'] },
+            { id: 28, year: '2023', title: '제28회 효빈광역시 통계연보 (2023년 기준)', date: '2024-03-05', views: 3102, files: ['pdf', 'zip'] },
+            { id: 27, year: '2022', title: '제27회 효빈광역시 통계연보 (2022년 기준)', date: '2023-02-28', views: 3420, files: ['pdf', 'hwp'] },
+            { id: 26, year: '2021', title: '제26회 효빈광역시 통계연보 (2021년 기준)', date: '2022-01-30', views: 4015, files: ['pdf', 'zip'] },
+            { id: 25, year: '2020', title: '제25회 효빈광역시 통계연보 (2020년 기준)', date: '2021-02-10', views: 4210, files: ['pdf'] },
+            { id: 24, year: '2019', title: '제24회 효빈광역시 통계연보 (2019년 기준)', date: '2020-02-15', views: 5120, files: ['pdf', 'hwp'] },
+            { id: 23, year: '2018', title: '제23회 효빈광역시 통계연보 (2018년 기준)', date: '2019-01-25', views: 4890, files: ['pdf'] },
+            { id: 22, year: '2017', title: '제22회 효빈광역시 통계연보 (2017년 기준)', date: '2018-03-10', views: 3950, files: ['pdf', 'zip'] },
+            { id: 21, year: '2016', title: '제21회 효빈광역시 통계연보 (2016년 기준)', date: '2017-02-20', views: 3600, files: ['pdf'] }
+        ];
+
+        // 동적 데이터 렌더링 스크립트
+        document.addEventListener("DOMContentLoaded", () => {
+            // URL 파라미터에서 id 추출 (기본값: 최신글 id=30)
+            const urlParams = new URLSearchParams(window.location.search);
+            const statId = parseInt(urlParams.get('id')) || 30;
+            
+            // 데이터 탐색
+            const currentIndex = statData.findIndex(item => item.id === statId);
+            
+            if (currentIndex !== -1) {
+                const currentData = statData[currentIndex];
+                const safeTitle = currentData.title.replace(/'/g, "\\'"); // XSS 방지 처리
+                
+                // 정보 바인딩
+                document.getElementById('view-title').innerText = currentData.title;
+                document.getElementById('view-date').innerText = currentData.date;
+                document.getElementById('view-views').innerText = currentData.views.toLocaleString();
+
+                // 첨부파일 렌더링 (각 버튼에 생성된 다운로드 함수 연결)
+                let fileHtml = '';
+                if(currentData.files.includes('pdf')) {
+                    fileHtml += `<button class="btn-download btn-pdf" onclick="downloadPDF()"><i data-lucide="file-text" class="w-4 h-4"></i> [전체본] ${currentData.title}.pdf</button>`;
+                }
+                if(currentData.files.includes('hwp')) {
+                    fileHtml += `<button class="btn-download btn-hwp" onclick="downloadHWP('${safeTitle}')"><i data-lucide="file" class="w-4 h-4"></i> [요약본] ${currentData.title}.hwp</button>`;
+                }
+                if(currentData.files.includes('zip')) {
+                    fileHtml += `<button class="btn-download btn-zip" onclick="downloadZIP('${safeTitle}')"><i data-lucide="file-archive" class="w-4 h-4"></i> [데이터] 통계표_엑셀데이터.zip</button>`;
+                }
+                document.getElementById('view-files').innerHTML = fileHtml;
+
+                // [추가 데이터 삽입 장소 3] 실제 서버 환경에서는 이 부분에 HTML Content 파싱 결과를 넣어주세요.
+                document.getElementById('view-content-text').innerHTML = `
+                    효빈광역시의 발전상과 시민 생활의 변화상을 종합적으로 수록한 「${currentData.title}」를 발간하여 게시합니다.<br>
+                    본 통계연보는 ${currentData.year - 1}년 12월 31일을 기준으로 작성되었으며, 토지·기후, 인구, 경제, 사회, 문화 등 각 분야의 기본 통계 자료를 담고 있습니다.<br><br>
+                    시민 여러분과 주요 정책 입안자, 학술 연구자 분들의 소중한 기초 자료로 활용되기를 바랍니다. 전체본 첨부파일 또는 아래의 분야별 통계표를 통해 필요한 자료를 다운로드하실 수 있습니다.
+                `;
+
+                // 이전글 / 다음글 세팅
+                const linkNext = document.getElementById('link-next');
+                const linkPrev = document.getElementById('link-prev');
+                
+                // 다음글 (최신글 방향)
+                if (currentIndex > 0) {
+                    const nextData = statData[currentIndex - 1];
+                    linkNext.innerText = nextData.title;
+                    linkNext.href = `통계연보_상세.html?id=${nextData.id}`;
+                    linkNext.classList.remove('disabled', 'text-slate-400');
+                }
+                
+                // 이전글 (과거글 방향)
+                if (currentIndex < statData.length - 1) {
+                    const prevData = statData[currentIndex + 1];
+                    linkPrev.innerText = prevData.title;
+                    linkPrev.href = `통계연보_상세.html?id=${prevData.id}`;
+                    linkPrev.classList.remove('disabled', 'text-slate-400');
+                }
+            } else {
+                // 데이터를 못 찾은 경우
+                document.getElementById('view-title').innerText = "존재하지 않는 게시글입니다.";
+                document.getElementById('view-content-text').innerText = "잘못된 접근이거나 삭제된 게시물입니다.";
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

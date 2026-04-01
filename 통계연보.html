@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 통계연보 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- ZIP 파일 동적 생성을 위한 JSZip 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('효빈광역시청사배경.png') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 통계연보 테이블 전용 스타일 */
+        .stat-table th { background-color: #f8fafc; color: #334155; font-weight: 700; text-align: center; border-top: 2px solid #1e3a8a; border-bottom: 1px solid #cbd5e1; padding: 14px 8px; }
+        .stat-table td { padding: 14px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; text-align: center; color: #475569; }
+        .stat-table tr:hover td { background-color: #f1f5f9; }
+        .title-column { text-align: left !important; font-weight: 600; color: #1e293b; cursor: pointer; transition: color 0.2s; }
+        .title-column:hover { color: #2563eb; text-decoration: underline; }
+        
+        /* 다운로드 버튼 스타일 */
+        .btn-download { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer;}
+        .btn-pdf { border: 1px solid #ef4444; color: #dc2626; background: #fef2f2; }
+        .btn-pdf:hover { background: #ef4444; color: #fff; }
+        .btn-hwp { border: 1px solid #3b82f6; color: #2563eb; background: #eff6ff; }
+        .btn-hwp:hover { background: #3b82f6; color: #fff; }
+        .btn-zip { border: 1px solid #8b5cf6; color: #6d28d9; background: #f5f3ff; }
+        .btn-zip:hover { background: #8b5cf6; color: #fff; }
+        .btn-excel { border: 1px solid #10b981; color: #15803d; background: #ecfdf5; }
+        .btn-excel:hover { background: #10b981; color: #fff; }
+
+        /* 검색 폼 스타일 */
+        .search-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; margin-bottom: 30px; }
+        
+        /* 페이징 스타일 */
+        .pagination a, .pagination button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 4px; transition: all 0.2s; margin: 0 2px; }
+        .pagination a:hover, .pagination button:hover { border-color: #3b82f6; color: #3b82f6; }
+        .pagination .active { background: #1e3a8a; color: #fff; border-color: #1e3a8a; }
+        .pagination .active:hover { color: #fff; }
+
+        /* 인쇄 시 불필요한 요소 숨김 처리 (PDF 인쇄용) */
+        @media print {
+            body * { visibility: hidden; }
+            .stat-table, .stat-table * { visibility: visible; }
+            .stat-table { position: absolute; left: 0; top: 0; width: 100%; }
+            .btn-download { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html" class="current">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (통계연보 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">통계연보</strong>
+            </div>
+
+            <!-- 본문 타이틀 -->
+            <h2 class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
+                통계연보
+            </h2>
+
+            <!-- 안내 박스 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 flex items-start gap-4">
+                <div class="bg-blue-600 text-white rounded-full p-3 shrink-0">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-blue-900 mb-2">효빈광역시 통계연보</h3>
+                    <p class="text-slate-700 leading-relaxed text-sm">
+                        통계연보는 효빈광역시의 토지, 인구, 경제, 사회, 문화 등 각 분야의 기본 통계를 종합적으로 수록하여 시정 발전상과 시민 생활의 변화를 한눈에 파악할 수 있는 공식 통계 자료집입니다. <br>
+                        ※ 매년 연말을 기준으로 작성되며, 다음 해 하반기에 공표됩니다. (예: 2025년도 통계연보는 2024년 12월 31일 기준 자료입니다.)
+                    </p>
+                </div>
+            </div>
+
+            <!-- 검색 박스 -->
+            <div class="search-box">
+                <form onsubmit="event.preventDefault(); executeStatSearch();" class="flex flex-col md:flex-row gap-4 items-center">
+                    <!-- 연도 선택 -->
+                    <div class="w-full md:w-1/4">
+                        <select id="yearFilter" class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">발간연도 전체</option>
+                            <option value="2025">2025년 (제30회)</option>
+                            <option value="2024">2024년 (제29회)</option>
+                            <option value="2023">2023년 (제28회)</option>
+                            <option value="2022">2022년 (제27회)</option>
+                            <option value="2021">2021년 (제26회)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 검색 카테고리 및 입력창 -->
+                    <div class="w-full md:w-3/4 flex flex-col sm:flex-row gap-2">
+                        <select id="searchType" class="border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white sm:w-1/3">
+                            <option value="title">제목</option>
+                            <option value="content">내용</option>
+                        </select>
+                        <div class="flex w-full relative">
+                            <input type="text" id="searchInput" placeholder="검색어를 입력하세요." class="w-full border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="submit" class="bg-blue-800 text-white px-6 py-3 rounded-r-md hover:bg-blue-900 transition flex items-center gap-2 shrink-0 font-bold">
+                                <i data-lucide="search" class="w-5 h-5"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 데이터 안내 바 -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-bold text-gray-700">
+                    총 <span id="totalCount" class="text-blue-600">0</span>건의 통계자료가 있습니다.
+                </div>
+            </div>
+
+            <!-- 통계연보 테이블 -->
+            <div class="overflow-x-auto bg-white border-t border-slate-200 mb-6">
+                <table class="w-full stat-table min-w-[800px]">
+                    <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 12%;">
+                        <col style="width: auto;">
+                        <col style="width: 25%;">
+                        <col style="width: 12%;">
+                        <col style="width: 8%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>발간연도</th>
+                            <th>제목</th>
+                            <th>첨부파일</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statTableBody">
+                        <!-- JS로 렌더링 -->
+                        <!-- [추가 데이터 삽입 장소 1] 자바스크립트를 통하지 않고 수동으로 <tr> 태그를 추가하려면 이곳에 작성하세요. -->
+                    </tbody>
+                </table>
+                <!-- 데이터가 없을 때 -->
+                <div id="emptyState" class="hidden py-20 border-b border-slate-200 text-center text-gray-500">
+                    <i data-lucide="file-search" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                    <p class="text-lg">검색 결과가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 페이징 (퍼블리싱용 UI) -->
+            <div class="flex justify-center pagination">
+                <button disabled class="opacity-50 cursor-not-allowed"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>
+                <button disabled class="opacity-50 cursor-not-allowed"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                <button><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 (common121.js가 렌더링) -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // 아코디언 메뉴 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // [추가 데이터 삽입 장소 2] 서버/DB 연동 시 이 배열을 실제 데이터로 교체하세요.
+        const statData = [
+            { id: 30, year: '2025', title: '제30회 효빈광역시 통계연보 (2025년 기준)', date: '2026-01-15', views: 1245, files: ['pdf', 'xls', 'zip'] },
+            { id: 29, year: '2024', title: '제29회 효빈광역시 통계연보 (2024년 기준)', date: '2025-02-20', views: 2510, files: ['pdf', 'hwp', 'zip'] },
+            { id: 28, year: '2023', title: '제28회 효빈광역시 통계연보 (2023년 기준)', date: '2024-03-05', views: 3102, files: ['pdf', 'xls', 'zip'] },
+            { id: 27, year: '2022', title: '제27회 효빈광역시 통계연보 (2022년 기준)', date: '2023-02-28', views: 3420, files: ['pdf', 'hwp'] },
+            { id: 26, year: '2021', title: '제26회 효빈광역시 통계연보 (2021년 기준)', date: '2022-01-30', views: 4015, files: ['pdf', 'zip'] },
+            { id: 25, year: '2020', title: '제25회 효빈광역시 통계연보 (2020년 기준)', date: '2021-02-10', views: 4210, files: ['pdf'] },
+            { id: 24, year: '2019', title: '제24회 효빈광역시 통계연보 (2019년 기준)', date: '2020-02-15', views: 5120, files: ['pdf', 'hwp'] },
+            { id: 23, year: '2018', title: '제23회 효빈광역시 통계연보 (2018년 기준)', date: '2019-01-25', views: 4890, files: ['pdf'] },
+            { id: 22, year: '2017', title: '제22회 효빈광역시 통계연보 (2017년 기준)', date: '2018-03-10', views: 3950, files: ['pdf', 'zip'] },
+            { id: 21, year: '2016', title: '제21회 효빈광역시 통계연보 (2016년 기준)', date: '2017-02-20', views: 3600, files: ['pdf'] }
+        ];
+
+        // 파일 다운로드 관련 함수들
+        function downloadPDF() {
+            alert('브라우저의 인쇄 옵션에서 "PDF로 저장"을 선택해주세요.');
+            window.print();
+        }
+
+        function downloadExcel(title) {
+            const bom = "\uFEFF"; 
+            const csvContent = bom + 
+                               "연도,구분,수치,비고\n" +
+                               "2023," + title + " 관련 지표 1,1250000,추계\n" +
+                               "2024," + title + " 관련 지표 2,1265000,확정\n" +
+                               "2025," + title + " 관련 지표 3,1280000,잠정\n";
+            
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${title}_데이터.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadHWP(title) {
+            const bom = "\uFEFF";
+            const hwpContent = bom + 
+                               "효빈광역시 통계연보 요약문\n\n" +
+                               "----------------------------------------\n" +
+                               "문서명: " + title + "\n" +
+                               "----------------------------------------\n" +
+                               "본 문서는 HWP 예시 다운로드 파일입니다.\n" +
+                               "실제 통계 요약 데이터는 추후 서버와 연동하여 제공될 예정입니다.\n";
+            
+            const blob = new Blob([hwpContent], { type: "text/plain;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${title}_요약본.hwp`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function downloadZIP(title) {
+            if (typeof JSZip === 'undefined') {
+                alert('압축 라이브러리(JSZip)를 로드하지 못했습니다. 인터넷 연결을 확인해주세요.');
+                return;
+            }
+            
+            const zip = new JSZip();
+            zip.file("통계연보_안내사항.txt", "효빈광역시 통계연보 엑셀 데이터 압축 파일입니다.\n추후 실제 데이터베이스 덤프 파일이 포함됩니다.");
+            zip.file("통계연보_예시데이터.csv", "\uFEFF연도,분류,통계값\n2024,총인구,1050000\n2025,총인구,1065000");
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(content);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${title}_전체데이터.zip`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 첨부파일 버튼 렌더링 헬퍼 함수
+        function getFileButtons(files, title) {
+            const safeTitle = title.replace(/'/g, "\\'"); // XSS 방지
+            let html = '';
+            if (files.includes('pdf')) html += `<button class="btn-download btn-pdf" onclick="event.stopPropagation(); downloadPDF()"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button> `;
+            if (files.includes('hwp')) html += `<button class="btn-download btn-hwp" onclick="event.stopPropagation(); downloadHWP('${safeTitle}')"><i data-lucide="file" class="w-3 h-3"></i> HWP</button> `;
+            if (files.includes('xls')) html += `<button class="btn-download btn-excel" onclick="event.stopPropagation(); downloadExcel('${safeTitle}')"><i data-lucide="table" class="w-3 h-3"></i> XLS</button> `;
+            if (files.includes('zip')) html += `<button class="btn-download btn-zip" onclick="event.stopPropagation(); downloadZIP('${safeTitle}')"><i data-lucide="file-archive" class="w-3 h-3"></i> ZIP</button> `;
+            return html;
+        }
+
+        // 테이블 렌더링 함수
+        function renderTable(data) {
+            const tbody = document.getElementById('statTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const totalCount = document.getElementById('totalCount');
+            
+            tbody.innerHTML = '';
+            totalCount.innerText = data.length;
+
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('block');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('block');
+                
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td class="font-medium text-slate-700">${item.year}</td>
+                        <td class="title-column" onclick="location.href='통계연보_상세.html?id=${item.id}'">${item.title}</td>
+                        <td class="text-center">${getFileButtons(item.files, item.title)}</td>
+                        <td class="text-sm">${item.date}</td>
+                        <td class="text-sm">${item.views.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                lucide.createIcons(); // 동적 렌더링 후 아이콘 재생성
+            }
+        }
+
+        // 검색 실행 함수
+        function executeStatSearch() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const searchType = document.getElementById('searchType').value;
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filteredData = statData.filter(item => {
+                // 연도 필터 매칭
+                const matchYear = yearFilter === "" || item.year === yearFilter;
+                
+                // 검색어 매칭
+                let matchKeyword = false;
+                if (keyword === "") {
+                    matchKeyword = true;
+                } else {
+                    if (searchType === 'title') {
+                        matchKeyword = item.title.toLowerCase().includes(keyword);
+                    } else if (searchType === 'content') {
+                        // 내용 검색의 경우 현재 임시 데이터에는 내용 필드가 없으므로 제목과 동일하게 처리
+                        matchKeyword = item.title.toLowerCase().includes(keyword);
+                    }
+                }
+                
+                return matchYear && matchKeyword;
+            });
+
+            renderTable(filteredData);
+        }
+
+        // 초기 실행
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTable(statData);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

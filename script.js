@@ -144,8 +144,9 @@ function closeOverlay(id, wrapperId) {
 
 function openSearch() { openOverlay('search-overlay', 'search-content-wrapper'); }
 function changeLanguage() { openOverlay('language-modal', 'language-content-wrapper'); }
-function toggleMenu() { openOverlay('full-menu-modal', 'full-menu-content-wrapper'); }
-
+function openSitemap() { 
+    openOverlay('sitemap-modal', 'sitemap-content-wrapper'); 
+}
 // =========================================
 // 5. 검색 로직 (Search Engine)
 // =========================================
