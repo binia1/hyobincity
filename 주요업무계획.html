@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주요업무계획 - 효빈광역시 시정소식</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED', // 간선버스 도색
+                            red: '#D81C2F' // 급행버스 도색
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.9), rgba(26, 54, 93, 0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 게시판 테이블 스타일 */
+        .board-table-wrap {
+            border-top: 2px solid #1a365d;
+            background: #fff;
+            overflow-x: auto;
+        }
+        .board-table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+        }
+        .board-table th {
+            padding: 1rem 0.5rem;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: center;
+            border-bottom: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .board-table td {
+            padding: 1rem 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: background-color 0.2s;
+            vertical-align: middle;
+        }
+        .board-table tr:hover td {
+            background-color: #f8fafc;
+        }
+        .board-table td.subject {
+            text-align: left;
+            padding-left: 1rem;
+        }
+        .board-table td.subject a {
+            display: block;
+            color: #334155;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .board-table td.subject a:hover {
+            text-decoration: underline;
+            color: #005bac;
+        }
+        
+        /* 상세 뷰 타이틀 영역 박스 */
+        .detail-info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #board-detail-view, #board-detail-view * { visibility: visible; }
+            #board-detail-view {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+
+        /* 공고문 내 테이블 스타일 (에디터 본문용) */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+        .content-table th {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .content-table td {
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1rem;
+            color: #475569;
+            vertical-align: middle;
+        }
+        
+        /* 업무계획 비전/목표용 특별 스타일 */
+        .vision-box {
+            border: 2px solid #005bac;
+            border-radius: 8px;
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #f3f8fd;
+            margin-bottom: 2rem;
+        }
+        .vision-box h4 {
+            color: #005bac;
+            font-weight: 900;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .vision-box p {
+            color: #1a365d;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">시정소식</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">효빈의 오늘과 내일을 투명하고 바르게 알려드립니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <div>
+                    <div class="mb-6">
+                        <h4 class="font-black text-hyobin-dark mb-4 border-b-2 border-slate-200 pb-3 text-lg flex items-center">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-2 text-hyobin-blue"></i>
+                            시정소식 일반
+                        </h4>
+                        <ul class="space-y-2 text-[15px] break-keep lnb-menu ml-1">
+                            <li><a href="공지사항.html">공지사항</a></li>
+                            <li><a href="보도자료.html">보도자료</a></li>
+                            <li><a href="언론보도사실은이렇습니다.html">언론보도 사실은 이렇습니다</a></li>
+                            <li><a href="news.html">고시·공고</a></li>
+                            <li><a href="입법예고.html">입법예고</a></li>
+                            <li><a href="시험인사정보.html">시험정보</a></li>
+                            <li><a href="인사정보.html">인사정보</a></li>
+                            <li><a href="공무직채용.html">공무직 채용정보</a></li>
+                            <li><a href="입찰소식.html">입찰소식</a></li>
+                            <li><a href="주요업무계획.html" class="active">주요업무계획</a></li>
+                            <li><a href="주요업무계획과거.html">주요업무계획 (과거자료)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="시정소식.html" class="hover:text-slate-700">시정소식</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">시정소식 일반</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">주요업무계획</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8 no-print">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">주요업무계획</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">효빈광역시청 실·국 및 직속기관의 연도별 핵심 비전과 세부 추진 전략을 투명하게 공개합니다.</p>
+            </div>
+
+            <!-- ==============================
+                 [1] 게시글 목록 뷰 (List View)
+                 ============================== -->
+            <div id="board-list-view">
+                <!-- 검색 및 필터 영역 -->
+                <div class="bg-slate-50 border border-slate-200 p-5 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-[15px] text-slate-700 font-medium">
+                        전체 <span class="text-hyobin-blue font-bold" id="total-count">0</span>건 (<span id="current-page">1</span>/<span id="total-pages">1</span> 페이지)
+                    </div>
+                    <form class="flex flex-wrap gap-2 w-full md:w-auto" onsubmit="handleSearch(event)">
+                        <select id="search-year" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">연도 전체</option>
+                            <option value="2026">2026년</option>
+                            <option value="2025">2025년</option>
+                        </select>
+                        <select id="search-type" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">제목+부서</option>
+                            <option value="title">자료명/제목</option>
+                            <option value="dept">담당 실·국</option>
+                        </select>
+                        <div class="flex flex-1 md:w-64 relative">
+                            <input type="text" id="search-keyword" placeholder="검색어를 입력하세요." class="w-full border border-slate-300 border-r-0 h-10 pl-3 pr-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                            <button type="submit" class="bg-hyobin-dark text-white px-4 h-10 hover:bg-slate-800 transition flex items-center justify-center font-medium">
+                                <i data-lucide="search" class="w-4 h-4 mr-1"></i> 검색
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 게시판 테이블 -->
+                <div class="board-table-wrap mb-8">
+                    <table class="board-table">
+                        <colgroup>
+                            <col style="width: 8%">
+                            <col style="width: 12%">
+                            <col style="width: auto">
+                            <col style="width: 15%">
+                            <col style="width: 10%">
+                            <col style="width: 10%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>해당연도</th>
+                                <th>자료명</th>
+                                <th>담당부서</th>
+                                <th>등록일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-tbody">
+                            <!-- JS 렌더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 컨테이너 -->
+                <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-12">
+                    <!-- JS 렌더링 영역 -->
+                </div>
+            </div>
+
+            <!-- ==============================
+                 [2] 게시글 상세 뷰 (Detail View)
+                 ============================== -->
+            <div id="board-detail-view" class="hidden">
+                <div id="pdf-content" class="border-t-2 border-hyobin-dark bg-white shadow-sm mb-6">
+                    <!-- 상세 헤더 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span id="detail-year" class="bg-hyobin-light text-hyobin-blue border border-hyobin-blue text-xs font-bold px-2 py-1 rounded">2026년</span>
+                            <span class="text-slate-300">|</span>
+                            <span id="detail-dept" class="text-hyobin-blue font-bold text-sm">담당부서</span>
+                        </div>
+                        <h3 id="detail-title" class="text-2xl font-black text-slate-800 mb-5 break-keep leading-tight">주요업무계획 제목</h3>
+                        
+                        <div class="detail-info-box grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-[15px]">
+                            <div><strong class="text-slate-500 mr-2">담당부서</strong> <span id="detail-writer" class="text-slate-800 font-bold">부서명</span></div>
+                            <div><strong class="text-slate-500 mr-2">등록일</strong> <span id="detail-date" class="text-slate-800">2026.00.00</span></div>
+                            <div><strong class="text-slate-500 mr-2">조회수</strong> <span id="detail-views" class="text-slate-800">0</span></div>
+                            <div><strong class="text-slate-500 mr-2">문의전화</strong> <span id="detail-contact" class="text-slate-800 font-bold text-blue-700">079-0000-0000</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 첨부파일 렌더링 영역 -->
+                    <div id="detail-attachments-container" class="px-6 md:px-8 py-5 border-b border-slate-200 bg-slate-50/50 hidden">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="paperclip" class="w-5 h-5 text-slate-400 mt-0.5"></i>
+                            <div class="w-full">
+                                <p class="text-[15px] font-bold text-slate-700 mb-2">첨부문서 (업무계획서 전체본)</p>
+                                <ul id="detail-attachments-list" class="space-y-1.5">
+                                    <!-- 첨부파일 목록 동적 생성 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 상세 본문 -->
+                    <div class="p-6 md:p-8 min-h-[300px]">
+                        <div id="detail-content" class="text-slate-700 leading-relaxed text-[16px] break-keep">
+                            본문 내용이 여기에 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-12 action-buttons no-print">
+                    <button onclick="goBackToList()" class="w-full md:w-auto px-6 py-3 bg-white border border-slate-300 text-slate-700 rounded font-bold hover:bg-slate-50 hover:border-slate-400 transition flex justify-center items-center shadow-sm">
+                        <i data-lucide="list" class="w-4 h-4 mr-2"></i> 목록으로
+                    </button>
+                    <div class="flex w-full md:w-auto gap-2">
+                        <button onclick="downloadNativePDF()" class="flex-1 md:flex-none px-6 py-3 bg-hyobin-blue text-white rounded font-bold hover:bg-blue-800 transition flex justify-center items-center shadow-sm">
+                            <i data-lucide="file-down" class="w-4 h-4 mr-2"></i> 업무계획 PDF 인쇄
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 필수 스크립트 로드 순서 엄수 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        /* * ========================================================
+           [실제 데이터 연동 위치] 
+           효빈광역시 세계관 설정이 반영된 "주요업무계획" 10개 상세 데이터 세트 
+         ======================================================== */
+        let RAW_DATA = [
+            {
+                id: 3010, year: '2026', title: '2026년도 대중교통과 주요업무계획', department: '대중교통과',
+                date: '2026-02-15', views: 8450, contact: '079-111-2222',
+                attachments: [{ name: '2026년_대중교통과_주요업무계획.pdf', size: '2,150 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>시민의 발, 투명하고 혁신적인 대중교통 체계 확립</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">3세대 완전<br>준공영제 정착</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>사모펀드 등 투기자본 완전 퇴출 및 공공성 확보 강화</li>
+                    <li>버스기사 근로 여건 대폭 개선 및 임금 체불 무관용 원칙 적용</li>
+                    <li>시민 모니터링단 신설을 통한 실시간 버스 서비스 질 평가</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">권역별 지정 도색<br>안착 및 래핑 활성화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>9개 권역 지정 색상 전면 적용 완료<br>
+                        (간선 <span style="color:#01B7ED; font-weight:bold;">#01B7ED</span>, 지선 <span style="color:#37B484; font-weight:bold;">#37B484</span>, 순환 <span style="color:#E7D600; font-weight:bold;">#E7D600</span>, 급행 <span style="color:#D81C2F; font-weight:bold;">#D81C2F</span>, 마을 <span style="color:#A664A0; font-weight:bold;">#A664A0</span> 등)
+                    </li>
+                    <li>애니메이션 글로벌 IP(HAF 연계) 래핑 버스 사업 확대로 광고 수익 극대화 및 재정 지원금 절감</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">도시철도 및<br>환승 체계 고도화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>1~8호선 및 빈효선 광역전철 배차 간격 최적화</li>
+                    <li>안천 복합환승센터 건립 연계 버스 노선 전면 개편 준비</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3009, year: '2026', title: '2026년도 문화관광체육국 주요업무계획', department: '문화관광체육국',
+                date: '2026-02-12', views: 5620, contact: '079-222-3333',
+                attachments: [{ name: '2026년_문화관광체육국_주요업무계획.pdf', size: '3,800 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>아시아를 선도하는 글로벌 서브컬처 중심도시, 효빈</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">제17회 HAF<br>성공적 개최</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>2006년 첫 개최 이래 역대 최대 규모로 준비(2007~08년 직권취소 및 20~21년 코로나 미개최 제외, 올해 17회차)</li>
+                    <li>BanG Dream!, 러브라이브! 등 글로벌 대형 IP 명예 홍보대사 위촉 및 콜라보 확대</li>
+                    <li>효빈종합운동장 및 구도심 연계 '서브컬처 위크' 운영으로 관광객 50만 명 유치 목표</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">파스텔블루 거리<br>르네상스 프로젝트</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>당가동 일대 '파스텔블루 거리' 상권 재생 및 굿즈샵, 테마 카페 유치 적극 지원</li>
+                    <li>7호선 노면전차(트램) 인프라를 활용한 감성 관광 자원화</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">시민 체감형<br>생활체육 활성화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>8구 1군 전역 노후 체육시설 전면 개보수</li>
+                    <li>효빈 시민 누구나 참여하는 '건강 효빈 리그' 창설</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3008, year: '2026', title: '2026년도 자치행정과 주요업무계획', department: '자치행정과',
+                date: '2026-02-10', views: 3450, contact: '079-333-4444',
+                attachments: [{ name: '2026년_자치행정과_주요업무계획.pdf', size: '1,500 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>5도심 다핵구조 완성을 향한 8구 1군 메가시티 상생 비전</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">탄성군 편입 31주년<br>상생 시너지 극대화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>1995년 탄성군 편입 이후 31주년을 맞이하여, 농어촌 소외 현상을 없애기 위한 '탄성군 특별지원조례' 이행 철저 점검</li>
+                    <li>8구 1군 통합 시민 화합 한마당 축제 추진 (4월 예정)</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">현장 중심의<br>자치 행정력 강화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>박효빈 시장 주재 '오픈 마이크 타운홀 미팅' 구·군별 순회 개최</li>
+                    <li>주민참여예산제 대폭 확대 및 모바일 전자투표 시스템 고도화</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3007, year: '2026', title: '2026년도 도시계획과 주요업무계획', department: '도시계획과',
+                date: '2026-02-08', views: 4120, contact: '079-444-5555',
+                attachments: [{ name: '2026년_도시계획과_주요업무계획.pdf', size: '5,200 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>사람 중심의 5도심 다핵구조, 스마트 미래 도시 효빈</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">5도심 다핵구조<br>도시계획 재편</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>특정 구도심 집중을 해소하고 중/동/서/남/북/안천/창전/청엽구 및 탄성군의 특화 발전 전략 수립</li>
+                    <li>노후 산업단지의 디지털 혁신 산단 전환 규제 완화</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">안천 복합환승센터<br>건립 추진</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>안천구 일원을 특별계획구역으로 지정하고 랜드마크 건립을 위한 타당성 조사 용역 완료</li>
+                    <li>광역교통 결절점으로서 시외버스, 광역전철, 시내버스 입체 연계망 구상</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3006, year: '2026', title: '2026년도 기후환경국 주요업무계획', department: '기후환경국',
+                date: '2026-02-05', views: 2890, contact: '079-555-6666',
+                attachments: [{ name: '2026년_기후환경국_주요업무계획.pdf', size: '1,850 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>자연과 사람이 공존하는 친환경 생태도시 실현</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">시조 '기러기(히버히)'<br>서식지 중점 보호</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>남구 해안 생태공원 일대 특별보호구역 지정 및 산란기 에코-존 출입 통제 강화</li>
+                    <li>밀렵 및 불법 투기 근절을 위한 공무직 공원관리원 집중 배치</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">탄소중립 조기 달성<br>기반 구축</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>공공기관 일회용품 사용 제로화 달성</li>
+                    <li>전기/수소 친환경 시내버스 보급률 70% 이상 달성 지원</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3005, year: '2026', title: '2026년도 청년정책담당관실 주요업무계획', department: '청년정책담당관',
+                date: '2026-02-01', views: 6700, contact: '079-666-7777',
+                attachments: [{ name: '2026년_청년정책담당관_주요업무계획.pdf', size: '2,300 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>청년이 스스로 미래를 그리는 희망 도시, 청년 특별시 효빈</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">청년 멘토단<br>「블루 버드」 확대</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>제3기 블루 버드 행정인턴 50명 선발 및 실질적 시정 기획 참여 보장</li>
+                    <li>생활임금 1.2배 지급 및 무제한 대중교통 이용권(H-Pass) 제공 정례화</li>
+                    <li>가족돌봄청년(영 케어러) 발굴 및 우선 선발 가점 부여</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">청년 주거 안정<br>「효빈 하우스」 안착</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>효빈 하우스 1~3호점 순차적 건립 및 저렴한 임대료 보장</li>
+                    <li>청년 창업가를 위한 주거·오피스 통합형 코리빙 스페이스 조성</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3004, year: '2026', title: '2026년도 도시철도건설본부 주요업무계획', department: '도시철도건설본부',
+                date: '2026-01-28', views: 5400, contact: '079-777-8888',
+                attachments: [{ name: '2026년_도시철도건설본부_주요업무계획.pdf', size: '4,100 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>어디서나 빠르고 쾌적하게 연결되는 철도 르네상스 실현</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">7호선(노면전차)<br>현대화 사업 완료</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>시민의 애환이 담긴 7호선(<span style="color:#FF8899; font-weight:bold;">#FF8899 분홍색</span>)의 구형 전차를 최신형 무가선 저상 트램으로 전면 교체 완료</li>
+                    <li>도심 미관을 살리는 친환경 잔디 궤도 개량 공사 차질 없이 준공</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">광역전철 빈효선<br>지선 연장 착공</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>빈효선(<span style="color:#6677CC; font-weight:bold;">#6677CC 연청색</span>)의 탄성군 방면 지선 연장 공사 조기 착공</li>
+                    <li>8호선(<span style="color:#9856FF; font-weight:bold;">#9856FF 연보라색</span>) 환승 구간 스크린도어(PSD) 등 안전설비 고도화</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3003, year: '2026', title: '2026년도 주택정책과 주요업무계획', department: '주택정책과',
+                date: '2026-01-20', views: 3200, contact: '079-888-9999',
+                attachments: [{ name: '2026년_주택정책과_주요업무계획.pdf', size: '1,950 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>투기를 근절하고 서민의 보금자리를 지키는 주거 안정 실현</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">구도심 도시재생 및<br>주거 환경 개선</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>당가동 일대 빈집 정비 및 청년 창업 공간으로의 리모델링 지원</li>
+                    <li>과거 무리한 고층 아파트(두청힐스 등) 인허가 적폐 조사 및 난개발 방지 규제 강화</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">맞춤형 주거 복지<br>안전망 구축</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>청년, 신혼부부를 위한 공공임대주택 1만 호 공급 부지 확보</li>
+                    <li>주거취약계층을 위한 에너지 효율 개선(그린 리모델링) 사업 확대</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3002, year: '2026', title: '2026년도 농업기술센터 주요업무계획', department: '농업기술센터',
+                date: '2026-01-15', views: 2100, contact: '079-999-0000',
+                attachments: [{ name: '2026년_농업기술센터_주요업무계획.pdf', size: '1,100 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>탄성군의 도농상생을 이끄는 디지털 스마트 농업 혁신</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">탄성군 스마트팜<br>거점 단지 조성</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>청년 농업인 유입을 위한 탄성군 내 임대형 스마트팜 1단계 준공</li>
+                    <li>기후 변화에 대응하는 지역 특화 아열대 작물 재배 기술 실증 연구</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">농산물 유통 선진화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>효빈시 도심권 소비자와 탄성군 생산자를 잇는 직거래 로컬푸드 마켓 확대</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: 3001, year: '2026', title: '2026년도 총무과(인사혁신) 주요업무계획', department: '총무과',
+                date: '2026-01-10', views: 4800, contact: '079-000-1111',
+                attachments: [{ name: '2026년_총무과_주요업무계획.pdf', size: '1,350 KB' }],
+                content: `
+<div class="vision-box">
+    <h4>[비 전]</h4>
+    <p>적폐를 청산하고 공정하게 일할 맛 나는 공직사회 구현</p>
+</div>
+<table class="content-table">
+    <thead>
+        <tr><th style="width:20%">핵심 목표</th><th>세부 추진 전략</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="font-bold text-center">투명하고 공정한<br>인사 시스템 확립</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>전임 윤대환 시장 시절의 부정 청탁 및 이권 개입(사모펀드 유착 등) 관련 인적 적폐 완전히 청산</li>
+                    <li>연공서열을 타파하고, 성과와 능력(현장 대응력) 중심의 발탁 인사 전면 시행</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td class="font-bold text-center">직원 복지 증진 및<br>업무 효율화</td>
+            <td>
+                <ul class="list-disc pl-4 space-y-1">
+                    <li>시청 구내식당 환경 개선 및 노후 취사기구 전면 교체</li>
+                    <li>격무 부서(대중교통, 기후환경 등) 우대 및 심리 상담 지원 프로그램 확대</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>`
+            }
+        ];
+
+        // 상태 관리
+        let state = {
+            data: [...RAW_DATA],
+            filteredData: [...RAW_DATA],
+            currentPage: 1,
+            itemsPerPage: 10,
+            searchType: 'all',
+            searchYear: 'all',
+            searchKeyword: ''
+        };
+
+        // 초기화
+        function init() {
+            renderList();
+        }
+
+        // 검색 처리
+        function handleSearch(e) {
+            e.preventDefault();
+            const searchType = document.getElementById('search-type').value;
+            const searchYear = document.getElementById('search-year').value;
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+
+            state.searchType = searchType;
+            state.searchYear = searchYear;
+            state.searchKeyword = keyword;
+            state.currentPage = 1;
+
+            state.filteredData = state.data.filter(item => {
+                // 키워드 필터링
+                let keywordMatch = true;
+                if (keyword) {
+                    const titleMatch = item.title.toLowerCase().includes(keyword);
+                    const deptMatch = item.department.toLowerCase().includes(keyword);
+
+                    if (searchType === 'all') keywordMatch = titleMatch || deptMatch;
+                    else if (searchType === 'title') keywordMatch = titleMatch;
+                    else if (searchType === 'dept') keywordMatch = deptMatch;
+                }
+
+                // 연도 필터링
+                let yearMatch = true;
+                if (searchYear !== 'all') {
+                    yearMatch = item.year === searchYear;
+                }
+
+                return keywordMatch && yearMatch;
+            });
+            
+            renderList();
+        }
+
+        // 목록 렌더링
+        function renderList() {
+            const tbody = document.getElementById('notice-tbody');
+            const totalCountEl = document.getElementById('total-count');
+            
+            const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+            const endIndex = startIndex + state.itemsPerPage;
+            const paginatedData = state.filteredData.slice(startIndex, endIndex);
+
+            totalCountEl.textContent = state.filteredData.length.toLocaleString();
+            
+            let html = '';
+            
+            if (paginatedData.length === 0) {
+                html = `<tr><td colspan="6" class="py-10 text-center text-slate-500">검색 결과가 없습니다.</td></tr>`;
+            } else {
+                paginatedData.forEach(post => {
+                    html += `
+                        <tr class="cursor-pointer" onclick="viewDetail(${post.id})">
+                            <td class="text-[14px] font-medium">${post.id}</td>
+                            <td><span class="bg-slate-100 text-slate-600 border border-slate-200 text-xs font-bold px-2 py-1 rounded">${post.year}년</span></td>
+                            <td class="subject">
+                                <a href="#none" onclick="event.preventDefault();" class="text-slate-700 font-bold hover:text-hyobin-blue truncate max-w-sm md:max-w-md lg:max-w-lg" title="${post.title}">
+                                    ${post.title}
+                                </a>
+                            </td>
+                            <td>${post.department}</td>
+                            <td class="text-[14px]">${post.date}</td>
+                            <td>${post.views.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tbody.innerHTML = html;
+            renderPagination();
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            const totalPages = Math.ceil(state.filteredData.length / state.itemsPerPage) || 1;
+            
+            document.getElementById('current-page').textContent = state.currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+
+            let html = '';
+            const prevDisabled = state.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(1)" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${prevDisabled}" title="처음 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${state.currentPage - 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 mr-2 ${prevDisabled}" title="이전 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+
+            let startPage = Math.max(1, state.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === state.currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-hyobin-blue bg-hyobin-blue text-white font-bold">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-600 hover:bg-slate-50">${i}</button>`;
+                }
+            }
+
+            const nextDisabled = state.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(${state.currentPage + 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ml-2 ${nextDisabled}" title="다음 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${totalPages})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${nextDisabled}" title="마지막 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>`;
+
+            container.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(state.filteredData.length / state.itemsPerPage)) return;
+            state.currentPage = page;
+            renderList();
+        }
+
+        // ==========================================
+        // 상세 뷰 관련 로직
+        // ==========================================
+        function viewDetail(id) {
+            const item = state.data.find(n => n.id === id);
+            if (!item) return;
+
+            item.views += 1;
+
+            document.getElementById('detail-year').textContent = `${item.year}년`;
+            document.getElementById('detail-dept').textContent = item.department;
+            document.getElementById('detail-title').textContent = item.title;
+            
+            document.getElementById('detail-writer').textContent = item.department;
+            document.getElementById('detail-date').textContent = item.date;
+            document.getElementById('detail-views').textContent = item.views.toLocaleString();
+            document.getElementById('detail-contact').textContent = item.contact;
+            
+            document.getElementById('detail-content').innerHTML = item.content;
+
+            // 첨부파일 영역
+            const attachContainer = document.getElementById('detail-attachments-container');
+            const attachList = document.getElementById('detail-attachments-list');
+            attachList.innerHTML = '';
+            
+            if (item.attachments && item.attachments.length > 0) {
+                attachContainer.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    attachList.innerHTML += `
+                        <li>
+                            <a href="#none" onclick="alert('${file.name} 다운로드를 시작합니다.'); event.preventDefault();" class="text-[15px] text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 transition font-medium">
+                                <i data-lucide="file-text" class="w-4 h-4"></i> ${file.name} <span class="text-xs text-slate-400 ml-1">(${file.size})</span> <i data-lucide="download" class="w-3 h-3 ml-1"></i>
+                            </a>
+                        </li>
+                    `;
+                });
+            } else {
+                attachContainer.classList.add('hidden');
+            }
+
+            document.getElementById('board-list-view').classList.add('hidden');
+            document.getElementById('board-detail-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function goBackToList() {
+            renderList();
+            document.getElementById('board-detail-view').classList.add('hidden');
+            document.getElementById('board-list-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // PDF 다운로드 로직 (네이티브 방식)
+        // ==========================================
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -86,7 +86,7 @@ const headerHTML = `
                                             <li><a href="공지사항.html" class="hover:text-blue-600">공지사항</a></li>
                                             <li><a href="보도자료.html" class="hover:text-blue-600">보도자료</a></li>
                                             <li><a href="언론보도사실은이렇습니다.html" class="hover:text-blue-600">언론보도 사실은 이렇습니다</a></li>
-                                            <li><a href="고시공고.html" class="hover:text-blue-600">고시·공고</a></li>
+                                            <li><a href="news.html" class="hover:text-blue-600">고시·공고</a></li>
                                             <li><a href="입법예고.html" class="hover:text-blue-600">입법예고</a></li>
                                             <li><a href="시험인사정보.html" class="hover:text-blue-600">시험정보</a></li>
                                             <li><a href="인사정보.html" class="hover:text-blue-600">인사정보</a></li>
@@ -310,7 +310,7 @@ const headerHTML = `
                                                 <li class="pl-2"><a href="대중교통과.html" class="hover:text-blue-600 block">대중교통과</a></li>
                                                 <li class="pl-2"><a href="도시철도운영과.html" class="hover:text-blue-600 block">도시철도운영과</a></li>
                                                 <li class="pl-2"><a href="택시운수과.html" class="hover:text-blue-600 block">택시운수과</a></li>
-                                                <li class="pl-2"><a href="효빈국제공항추진본부.html" class="hover:text-blue-600 block">효빈국제공항추진본부</a></li>
+                                                <li class="pl-2"><a href="효빈국제공항관리본부.html" class="hover:text-blue-600 block">효빈국제공항관리본부</a></li>
                                             </ul>
                                         </li>
                                         <li>
@@ -607,7 +607,7 @@ const headerHTML = `
                                     <li><a href="효빈애니메이션페스티벌사업.html" class="hover:text-blue-600">효빈 애니메이션 페스티벌 (HAF) 사업</a></li>
                                     <li><a href="효빈전차보존사업.html" class="hover:text-blue-600">효빈전차 (7호선) 보존 및 연장 사업</a></li>
                                     <li><a href="방직공장부지개발사업.html" class="hover:text-blue-600">구(舊) 방직공장 부지 국제설계공모 결과</a></li>
-                                    <li><a href="효빈종합터미널복합화사업계획서.html" class="hover:text-blue-600">효빈종합터미널 복합화사업계획서</a></li>
+                                    <li><a href="terminal.html" class="hover:text-blue-600">효빈종합터미널 안내</a></li>
                                 </ul>
                             </div>
                             <div>
@@ -690,7 +690,6 @@ const headerHTML = `
                                 <ul class="space-y-1.5 text-[12px]">
                                     <li><a href="history.html" class="hover:text-blue-600">역사 개요 (조선시대~현대)</a></li>
                                     <li><a href="역대시장.html" class="hover:text-blue-600">역대시장</a></li>
-                                    <li><a href="효빈의유래와연혁.html" class="hover:text-blue-600">효빈의유래와연혁</a></li>
                                     <li><a href="향토자료.html" class="hover:text-blue-600">향토자료</a></li>
                                     <li><a href="세계속의효빈.html" class="hover:text-blue-600">세계속의효빈</a></li>
                                     <li><a href="문화수도효빈.html" class="hover:text-blue-600">문화수도효빈</a></li>

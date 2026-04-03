@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터넷 민원신청 - 효빈광역시 종합민원</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/민원안내배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Form Styles */
+        .form-input { w-full; border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.6rem 0.75rem; transition: all 0.2s; font-size: 0.95rem; color: #334155; background-color: #fff; }
+        .form-input:focus { outline: none; border-color: #005bac; box-shadow: 0 0 0 3px rgba(0, 91, 172, 0.1); }
+        .form-input:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+        .form-input::placeholder { color: #94a3b8; }
+        
+        .radio-custom, .checkbox-custom { display: inline-flex; align-items: center; cursor: pointer; margin-right: 1.25rem; }
+        .radio-custom input[type="radio"], .checkbox-custom input[type="checkbox"] {
+            appearance: none; -webkit-appearance: none; width: 1.25rem; height: 1.25rem;
+            border: 2px solid #cbd5e1; transition: all 0.2s; position: relative; top: 1px; margin-right: 0.5rem; background-color: white;
+        }
+        .radio-custom input[type="radio"] { border-radius: 50%; }
+        .checkbox-custom input[type="checkbox"] { border-radius: 0.25rem; }
+        
+        .radio-custom input[type="radio"]:checked { border-color: #005bac; }
+        .radio-custom input[type="radio"]:checked::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 0.6rem; height: 0.6rem; background-color: #005bac; border-radius: 50%;
+        }
+        .checkbox-custom input[type="checkbox"]:checked { background-color: #005bac; border-color: #005bac; }
+        .checkbox-custom input[type="checkbox"]:checked::after {
+            content: '✔'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-size: 0.8rem; font-weight: bold;
+        }
+
+        .section-box { border: 1px solid #cbd5e1; border-radius: 0.5rem; background: white; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .section-header { background-color: #f8fafc; padding: 1rem 1.5rem; border-bottom: 1px solid #cbd5e1; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 0.5rem; }
+        .section-body { padding: 0; }
+        
+        /* Grid Layout for Form */
+        .grid-layout { display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid #f1f5f9; }
+        .grid-layout:last-child { border-bottom: none; }
+        .grid-label { background-color: #f8fafc; padding: 1.25rem 1.5rem; font-weight: 700; color: #475569; display: flex; align-items: flex-start; border-right: 1px solid #f1f5f9; }
+        .grid-content { padding: 1.25rem 1.5rem; }
+        
+        @media (max-width: 768px) {
+            .grid-layout { grid-template-columns: 1fr; border-bottom: 1px solid #e2e8f0; }
+            .grid-label { border-right: none; padding: 1rem 1rem 0.5rem 1rem; background-color: #f8fafc; border-bottom: none; }
+            .grid-content { padding: 0.5rem 1rem 1rem 1rem; }
+        }
+
+        .btn-address { background-color: #475569; color: white; padding: 0.6rem 1rem; border-radius: 0.375rem; font-size: 0.85rem; font-weight: bold; transition: background 0.2s; white-space: nowrap; }
+        .btn-address:hover { background-color: #334155; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">종합민원</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 소리를 가장 가까이에서 듣겠습니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0 flex items-center gap-2">
+                    <i data-lucide="headphones" class="w-5 h-5"></i> 민원안내 및 발급
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="민원업무안내.html">민원업무안내 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="자격증교부.html">자격증교부 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원제증명수수료.html">민원 제증명 수수료 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="무인민원발급.html">무인민원발급 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="사전심사청구제.html">사전심사청구제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원후견인제.html">민원후견인제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원편람.html">민원편람 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원전화번호.html">민원전화번호 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active current"><a href="민원신청.html">민원신청 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 pb-10">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>종합민원</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>민원안내 및 발급</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">인터넷 민원신청</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-6">
+                <h2 class="text-3xl font-black text-slate-800 mb-2 content-title">인터넷 민원신청 (시장에게 바란다)</h2>
+                <p class="text-slate-600">효빈광역시청 및 관할 8구 1군에 바라는 건의사항, 불편신고 등을 자유롭게 접수하실 수 있습니다.</p>
+            </div>
+
+            <!-- 강력한 안내 박스 (악성민원 대응 포함) -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm mb-8">
+                <div class="flex flex-col md:flex-row items-start gap-4">
+                    <div class="bg-white p-3 rounded-full shadow-sm text-blue-600 shrink-0">
+                        <i data-lucide="info" class="w-6 h-6"></i>
+                    </div>
+                    <div class="text-[14px] text-slate-700 leading-relaxed w-full">
+                        <p class="mb-2"><strong class="text-blue-900 text-lg">박효빈 시장과 효빈광역시 공직자는 시민 여러분의 목소리를 소중히 경청합니다.</strong></p>
+                        <ul class="space-y-1.5 text-slate-600 list-disc list-inside mb-4">
+                            <li>접수된 민원은 담당 부서 지정 후 <strong class="text-blue-600">법정 처리기한(보통 7~14일) 이내</strong>에 답변이 완료됩니다.</li>
+                            <li>단순 질의, 부서 안내, 빠른 조치가 필요한 생활불편(불법주정차, 도로 파손 등)은 <strong>효빈 민원콜센터(120)</strong> 또는 스마트폰 앱(안전신문고)을 이용하시면 더욱 빠릅니다.</li>
+                        </ul>
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                            <p class="font-bold text-red-700 mb-1 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 악성민원 및 처리 불가 사항 안내</p>
+                            <p class="text-xs text-red-600">
+                                상업적 광고, 욕설·비속어 사용, 특정인에 대한 명예훼손, 정치적 목적의 게시물, 동일·유사한 내용의 반복 게시(도배) 등은 「민원처리에 관한 법률」 제23조 및 동법 시행령 제21조에 따라 <strong class="underline">답변 없이 자체 종결 또는 삭제 처리</strong>되며, 심각한 폭언 및 협박의 경우 법적 조치될 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 민원신청 Form 시작 -->
+            <form id="petition-form" onsubmit="submitPetition(event)">
+                
+                <!-- 1. 개인정보 수집 동의 -->
+                <div class="section-box">
+                    <div class="section-header">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
+                        <span>1단계. 개인정보 수집 및 이용 동의</span>
+                    </div>
+                    <div class="section-body p-6 bg-slate-50/50">
+                        
+                        <!-- 필수 동의 -->
+                        <div class="mb-6">
+                            <h4 class="font-bold text-slate-800 mb-2">[필수] 개인정보 수집·이용 동의</h4>
+                            <div class="bg-white border border-slate-200 p-4 rounded-lg h-32 overflow-y-auto custom-scrollbar text-xs text-slate-600 leading-relaxed mb-3">
+                                효빈광역시는 「개인정보 보호법」 제15조제1항제1호에 따라 정보주체의 동의를 받아 아래와 같이 개인정보를 수집·이용합니다.<br><br>
+                                <strong>1. 수집·이용 목적:</strong> 민원신청(시장에게 바란다, 일반 불편신고 등) 접수 및 처리, 결과 회신, 이력 관리, 만족도 조사<br>
+                                <strong>2. 수집하는 개인정보 항목:</strong> 성명, 연락처(휴대전화번호), 이메일, 주소<br>
+                                <strong>3. 개인정보의 보유 및 이용기간:</strong> <span class="text-blue-600 font-bold">민원처리 종료 후 3년 (공공기록물 관리에 관한 법률)</span><br>
+                                <strong>4. 동의 거부권 안내:</strong> 귀하는 개인정보 수집 및 이용에 동의를 거부할 수 있으나, 필수항목 동의 거부 시 민원 접수 및 결과 회신이 불가능합니다.
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <label class="radio-custom">
+                                    <input type="radio" name="privacy-req" value="agree" required>
+                                    <span class="text-slate-800 font-bold">동의함</span>
+                                </label>
+                                <label class="radio-custom">
+                                    <input type="radio" name="privacy-req" value="disagree">
+                                    <span class="text-slate-600 font-medium">동의하지 않음</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 선택 동의 (제3자 제공) -->
+                        <div class="border-t border-slate-200 pt-6">
+                            <h4 class="font-bold text-slate-800 mb-2">[선택] 개인정보 제3자 제공 동의</h4>
+                            <div class="bg-white border border-slate-200 p-4 rounded-lg h-24 overflow-y-auto custom-scrollbar text-xs text-slate-600 leading-relaxed mb-3">
+                                <strong>1. 제공받는 자:</strong> 타 행정기관, 경찰서, 국민권익위원회 등 (타 기관 소관 민원 이첩 시)<br>
+                                <strong>2. 제공 목적:</strong> 타 기관 소관 업무의 원활한 처리 및 이첩<br>
+                                <strong>3. 제공 항목:</strong> 성명, 연락처, 주소, 민원내용<br>
+                                <strong>4. 보유 및 이용기간:</strong> 제공받은 기관의 관련 법령에 따름<br>
+                                ※ 선택 항목은 동의하지 않아도 당 시청 소관 민원 접수는 가능합니다. (단, 타 기관 이첩 불가)
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <label class="radio-custom">
+                                    <input type="radio" name="privacy-opt" value="agree">
+                                    <span class="text-slate-800 font-bold">동의함</span>
+                                </label>
+                                <label class="radio-custom">
+                                    <input type="radio" name="privacy-opt" value="disagree" checked>
+                                    <span class="text-slate-600 font-medium">동의하지 않음</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 신청인 정보 -->
+                <div class="section-box">
+                    <div class="section-header">
+                        <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
+                        <span>2단계. 신청인 기본 정보</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="grid-layout">
+                            <div class="grid-label">신청인 성명 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content">
+                                <input type="text" id="petitioner-name" class="form-input w-full md:w-1/3" placeholder="실명을 입력해주세요" required>
+                                <label class="checkbox-custom ml-4 mt-2 md:mt-0 inline-flex">
+                                    <input type="checkbox" id="is-vulnerable">
+                                    <span class="text-sm font-bold text-blue-700">사회적 배려 대상자 (장애인/고령자 등) - <span class="font-normal text-slate-500">민원후견인 우선 배정</span></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid-layout">
+                            <div class="grid-label">연락처 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content">
+                                <div class="flex gap-2 items-center mb-2">
+                                    <select id="phone-1" class="form-input w-24">
+                                        <option value="010">010</option>
+                                        <option value="011">011</option>
+                                        <option value="079">079</option>
+                                    </select>
+                                    <span class="text-slate-400">-</span>
+                                    <input type="text" id="phone-2" class="form-input w-24 text-center" maxlength="4" required>
+                                    <span class="text-slate-400">-</span>
+                                    <input type="text" id="phone-3" class="form-input w-24 text-center" maxlength="4" required>
+                                </div>
+                                <label class="checkbox-custom mt-1">
+                                    <input type="checkbox" id="notify-sms" checked>
+                                    <span class="text-sm text-slate-600">민원 접수 및 처리결과 SMS 문자 수신 동의</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid-layout">
+                            <div class="grid-label">이메일 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content">
+                                <div class="flex flex-wrap gap-2 items-center mb-2">
+                                    <input type="text" id="email-1" class="form-input w-32 md:w-40" required>
+                                    <span class="text-slate-400 font-bold">@</span>
+                                    <input type="text" id="email-2" class="form-input w-32 md:w-40" required>
+                                    <select id="email-domain" class="form-input w-32 md:w-40" onchange="document.getElementById('email-2').value = this.value; if(this.value==='') document.getElementById('email-2').focus();">
+                                        <option value="">직접입력</option>
+                                        <option value="naver.com">naver.com</option>
+                                        <option value="daum.net">daum.net</option>
+                                        <option value="gmail.com">gmail.com</option>
+                                        <option value="hyobin.go.kr">hyobin.go.kr</option>
+                                    </select>
+                                </div>
+                                <label class="checkbox-custom mt-1">
+                                    <input type="checkbox" id="notify-email" checked>
+                                    <span class="text-sm text-slate-600">민원 접수 및 처리결과 이메일 수신 동의</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid-layout">
+                            <div class="grid-label">주소 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content space-y-2">
+                                <div class="flex gap-2">
+                                    <input type="text" id="zipcode" class="form-input w-24 md:w-32 bg-slate-50 cursor-not-allowed" placeholder="우편번호" readonly required>
+                                    <button type="button" onclick="searchAddress()" class="btn-address">우편번호 검색</button>
+                                </div>
+                                <input type="text" id="address-1" class="form-input w-full bg-slate-50 cursor-not-allowed" placeholder="기본 주소" readonly required>
+                                <input type="text" id="address-2" class="form-input w-full" placeholder="상세 주소를 입력해주세요 (동, 호수 등)" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 민원 내용 -->
+                <div class="section-box">
+                    <div class="section-header">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i>
+                        <span>3단계. 민원 상세 내용 작성</span>
+                    </div>
+                    <div class="section-body">
+                        <!-- 분야 선택 (동적 연동) -->
+                        <div class="grid-layout">
+                            <div class="grid-label pt-4">민원 분류 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content">
+                                <div class="flex flex-col md:flex-row gap-3">
+                                    <select id="category-main" class="form-input w-full md:w-1/2" onchange="updateSubCategories()" required>
+                                        <option value="">-- 대분류 선택 --</option>
+                                        <option value="교통">[효빈특화] 교통 / 철도</option>
+                                        <option value="청년">[효빈특화] 청년 / 주거 / 경제</option>
+                                        <option value="문화">[효빈특화] 문화 / 관광 / 체육</option>
+                                        <option value="환경">환경 / 해양 / 생태</option>
+                                        <option value="건설">도로 / 건설 / 건축</option>
+                                        <option value="복지">보건 / 복지 / 여성</option>
+                                        <option value="일반">일반행정 / 세무 / 기타</option>
+                                    </select>
+                                    <select id="category-sub" class="form-input w-full md:w-1/2 bg-slate-50" disabled required>
+                                        <option value="">-- 소분류 선택 (대분류를 먼저 선택하세요) --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-layout">
+                            <div class="grid-label">공개 여부 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content flex items-center">
+                                <label class="radio-custom">
+                                    <input type="radio" name="is-public" value="private" checked>
+                                    <span class="text-slate-800 font-bold text-sm">비공개 (본인과 담당자만 열람)</span>
+                                </label>
+                                <label class="radio-custom">
+                                    <input type="radio" name="is-public" value="public">
+                                    <span class="text-slate-600 font-medium text-sm">공개 (시민광장 게시판에 노출)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid-layout">
+                            <div class="grid-label">발생 위치 <span class="text-slate-400 font-normal ml-1 text-xs">(선택)</span></div>
+                            <div class="grid-content">
+                                <input type="text" id="petition-location" class="form-input w-full" placeholder="민원이 발생한 특정 위치가 있다면 입력해주세요 (예: 안천구 당가동 파스텔블루길 2번 교차로 앞)">
+                            </div>
+                        </div>
+
+                        <div class="grid-layout">
+                            <div class="grid-label">제목 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content">
+                                <input type="text" id="petition-title" class="form-input w-full font-bold" placeholder="민원의 핵심 내용을 간략히 적어주세요. (최대 50자)" maxlength="50" required>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-layout">
+                            <div class="grid-label items-start pt-5">내용 <span class="text-red-500 ml-1">*</span></div>
+                            <div class="grid-content">
+                                <textarea id="petition-content" class="form-input w-full min-h-[300px] resize-y custom-scrollbar leading-relaxed" placeholder="민원 발생 지역, 시간, 육하원칙에 따른 구체적인 상황 및 요구사항을 명확히 기재해 주시면 보다 정확하고 빠른 답변을 받으실 수 있습니다.
+
+[작성 예시]
+1. 언제: 2026년 4월 3일 오후 2시경
+2. 어디서: 효빈광역시 동구 당가동 파스텔블루길 입구 버스정류장
+3. 내용:
+HAF 축제를 앞두고 도로변에 방치된 쓰레기가 많습니다. 
+또한 7호선(트램) 환승구간의 가로등이 고장나 야간에 위험하오니 신속한 수거 및 수리를 요청합니다.
+
+※ 개인정보(주민등록번호, 계좌번호 등)가 본문에 포함되지 않도록 주의해 주시기 바랍니다." required></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="grid-layout">
+                            <div class="grid-label items-start pt-5">첨부 파일</div>
+                            <div class="grid-content">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                    <label class="cursor-pointer bg-white border border-slate-300 hover:border-blue-500 hover:text-blue-600 text-slate-700 py-2.5 px-5 rounded-lg font-bold text-sm transition shadow-sm inline-flex items-center gap-2">
+                                        <i data-lucide="folder-up" class="w-4 h-4"></i> 내 PC에서 파일 찾기
+                                        <input type="file" id="petition-file" class="hidden" multiple onchange="updateFileName()">
+                                    </label>
+                                    <span id="file-name-display" class="text-sm text-slate-500 bg-slate-50 px-3 py-1.5 rounded border border-slate-200">선택된 파일 없음</span>
+                                </div>
+                                <div class="mt-3 p-3 bg-slate-50 rounded-lg text-xs text-slate-500 space-y-1 border border-slate-100">
+                                    <p class="font-bold text-slate-700"><i data-lucide="alert-circle" class="w-3 h-3 inline"></i> 파일 첨부 시 유의사항</p>
+                                    <p>- 최대 5개, 총 용량 50MB 이하의 파일만 등록 가능합니다.</p>
+                                    <p>- 허용 확장자: hwp, pdf, jpg, jpeg, png, mp4 (블랙박스 영상 등)</p>
+                                    <p>- 현장 사진이나 블랙박스 영상 캡처 등을 첨부하시면 정확한 현장 파악 및 처리에 큰 도움이 됩니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 악성민원 방지 서약 -->
+                <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-200 mb-8 flex items-start gap-3">
+                    <label class="checkbox-custom mt-0.5">
+                        <input type="checkbox" id="abuse-consent" required>
+                        <span class="sr-only">동의</span>
+                    </label>
+                    <p class="text-sm text-slate-700 font-medium cursor-pointer" onclick="document.getElementById('abuse-consent').click()">
+                        본인은 본 민원이 특정인에 대한 근거 없는 비방, 욕설, 협박, 상업적 광고가 아님을 확인하며, 만약 악성 민원(도배, 허위사실 유포 등)으로 판명될 경우 효빈광역시의 「악성민원 대응 지침」에 따라 처리가 거부되거나 관련 법령에 의해 처벌받을 수 있음에 동의합니다. <span class="text-red-500 font-bold">*</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-4 border-t border-slate-200 pt-8 pb-10">
+                    <button type="button" onclick="history.back()" class="w-full sm:w-auto px-10 py-3.5 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold text-lg hover:bg-slate-50 transition shadow-sm">
+                        작성 취소
+                    </button>
+                    <button type="submit" class="w-full sm:w-auto px-12 py-3.5 bg-hyobin-blue border-2 border-hyobin-blue text-white rounded-xl font-black text-lg hover:bg-blue-800 hover:border-blue-800 transition shadow-md flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-5 h-5"></i> 민원 최종 접수하기
+                    </button>
+                </div>
+            </form>
+
+        </main>
+    </div>
+
+    <!-- 접수 완료 모달 -->
+    <div id="success-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4 transition-opacity duration-300">
+        <div id="success-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col text-center p-8 border-t-8 border-hyobin-blue">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <i data-lucide="check-circle" class="w-10 h-10"></i>
+            </div>
+            <h3 class="font-black text-2xl text-slate-800 mb-2">민원 접수가 완료되었습니다!</h3>
+            <p class="text-slate-600 mb-6 leading-relaxed text-sm">
+                시민님의 소중한 의견이 효빈광역시 종합민원실에 정상적으로 접수되었습니다. 더 살기 좋은 효빈시를 위해 목소리를 내어 주셔서 감사합니다.
+            </p>
+            
+            <div class="bg-slate-50 border border-slate-200 p-5 rounded-xl text-left mb-6 space-y-2">
+                <p class="text-sm"><span class="inline-block w-20 font-bold text-slate-500">접수번호</span> <span class="font-bold text-hyobin-blue text-lg" id="random-ticket">HB-2026-0000</span></p>
+                <p class="text-sm"><span class="inline-block w-20 font-bold text-slate-500">신청인</span> <span class="font-medium text-slate-800" id="result-name">홍길동</span></p>
+                <p class="text-sm"><span class="inline-block w-20 font-bold text-slate-500">분류</span> <span class="font-medium text-slate-800" id="result-category">분류명</span></p>
+            </div>
+            
+            <p class="text-xs text-slate-400 mb-6">담당 부서 지정 및 처리 현황은 등록하신 휴대폰과 이메일로 안내해 드립니다. (나의 민원조회 메뉴에서도 확인 가능)</p>
+            
+            <button onclick="closeSuccessModal()" class="w-full px-6 py-3.5 bg-hyobin-blue text-white rounded-xl font-bold text-lg hover:bg-blue-800 transition shadow-sm">
+                메인 화면으로 돌아가기
+            </button>
+        </div>
+    </div>
+
+    <!-- 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // Lucide 아이콘 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 우편번호 검색 목업 기능 (실제로는 카카오/행안부 API 연동 필요)
+        function searchAddress() {
+            alert('실제 환경에서는 도로명 주소 팝업이 열립니다.\n테스트를 위해 효빈광역시청 주소로 자동 입력됩니다.');
+            document.getElementById('zipcode').value = '79791';
+            document.getElementById('address-1').value = '효빈광역시 북구 효빈로 79(고송8동)';
+            document.getElementById('address-2').focus();
+        }
+
+        // 소분류 동적 변경 기능 (효빈시 세계관 철저 반영)
+        const subCategories = {
+            '교통': [
+                '시내버스 (3세대 준공영제 불친절/노선건의 등)',
+                '노면전차 (7호선 트램 운영/시설 관련)',
+                '도시철도 (1~8호선, 빈효선 광역전철 관련)',
+                '대중교통 마일리지 (H-Pass) 관련',
+                '교통안전 시설 (신호등, 횡단보도, 스쿨존)',
+                '기타 교통 민원'
+            ],
+            '청년': [
+                '청년 안심 주택 (효빈 하우스) 관련',
+                '영 케어러 (가족돌봄청년) 지원 관련',
+                '블루 버드 멘토단 사업 건의',
+                '청년 취업/창업/일자리 지원',
+                '기타 청년 정책 건의'
+            ],
+            '문화': [
+                'HAF (효빈 애니메이션 페스티벌) 관련 건의/불편',
+                '당가동 파스텔블루길 (서브컬처 거리) 환경 개선',
+                '효빈항 연안관광 및 무안반도 관광 인프라',
+                '시립 체육시설(운동장 등) 이용 불편',
+                '기타 문화/체육/관광 민원'
+            ],
+            '환경': [
+                '시조 기러기(히버히) 서식지 및 생태계 보호',
+                '효빈천 자전거도로 및 수질 개선',
+                '탄성군 앞바다 해양쓰레기 및 정화 활동',
+                '생활쓰레기 무단투기 및 악취/소음 신고',
+                '기타 환경 민원'
+            ],
+            '건설': [
+                '불법 주정차 단속 및 과태료 이의신청',
+                '도로 파손(포트홀) 및 가로등/보도블럭 보수',
+                '불법 건축물 신고 및 건축 허가 관련',
+                '기타 건설 및 도로 민원'
+            ],
+            '복지': [
+                '기초생활수급 및 긴급복지 지원 상담',
+                '장애인 이동권 및 복지카드 관련',
+                '북구 공단 다문화 가족 및 외국인 근로자 지원',
+                '보건/방역/위생 점검 신고',
+                '기타 복지/여성/보건 민원'
+            ],
+            '일반': [
+                '각종 제증명 발급 및 무인민원발급기 장애 신고',
+                '지방세 부과 이의신청',
+                '공무원 불친절 및 부당행위 신고 (감사위원회 이첩)',
+                '구 윤대환 시장 시절 교통적폐 피해 접수',
+                '기타 일반 행정 건의'
+            ]
+        };
+
+        function updateSubCategories() {
+            const mainSelect = document.getElementById('category-main');
+            const subSelect = document.getElementById('category-sub');
+            const selectedMain = mainSelect.value;
+
+            // 옵션 초기화
+            subSelect.innerHTML = '<option value="">-- 소분류를 선택해주세요 --</option>';
+
+            if (selectedMain && subCategories[selectedMain]) {
+                subSelect.disabled = false;
+                subSelect.classList.remove('bg-slate-50', 'cursor-not-allowed');
+                
+                subCategories[selectedMain].forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub;
+                    option.textContent = sub;
+                    subSelect.appendChild(option);
+                });
+            } else {
+                subSelect.disabled = true;
+                subSelect.classList.add('bg-slate-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 첨부파일 이름 표시
+        function updateFileName() {
+            const input = document.getElementById('petition-file');
+            const display = document.getElementById('file-name-display');
+            if (input.files && input.files.length > 0) {
+                if (input.files.length === 1) {
+                    display.innerText = input.files[0].name;
+                } else {
+                    display.innerText = `${input.files[0].name} 외 ${input.files.length - 1}개 파일`;
+                }
+                display.classList.add('text-blue-600', 'font-bold');
+                display.classList.remove('bg-slate-50');
+                display.classList.add('bg-blue-50', 'border-blue-200');
+            } else {
+                display.innerText = '선택된 파일 없음';
+                display.classList.remove('text-blue-600', 'font-bold', 'bg-blue-50', 'border-blue-200');
+                display.classList.add('bg-slate-50');
+            }
+        }
+
+        // 민원 접수 로직
+        function submitPetition(event) {
+            event.preventDefault();
+
+            // 1. 필수 동의 체크 확인 (HTML5 required로 1차 차단되지만 JS로 이중 확인)
+            const consentReq = document.querySelector('input[name="privacy-req"]:checked');
+            if (!consentReq || consentReq.value === 'disagree') {
+                alert('[필수] 개인정보 수집 및 이용에 동의하셔야 민원 접수가 가능합니다.');
+                document.querySelector('input[name="privacy-req"]').focus();
+                return;
+            }
+
+            // 2. 주소 입력 확인
+            if (!document.getElementById('zipcode').value) {
+                alert('우편번호 검색을 통해 기본 주소를 입력해주세요.');
+                return;
+            }
+
+            // 3. 서약 확인
+            if (!document.getElementById('abuse-consent').checked) {
+                alert('악성민원 방지 서약에 동의해주세요.');
+                return;
+            }
+
+            // 모달 데이터 바인딩
+            const petitionerName = document.getElementById('petitioner-name').value;
+            const mainCat = document.getElementById('category-main').options[document.getElementById('category-main').selectedIndex].text;
+            const subCat = document.getElementById('category-sub').value;
+            
+            const ticketNum = 'HB-2026-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('random-ticket').innerText = ticketNum;
+            document.getElementById('result-name').innerText = petitionerName;
+            document.getElementById('result-category').innerText = `${mainCat.replace(/\[효빈특화\] /g, '')} > ${subCat}`;
+
+            // 접수 완료 모달 띄우기
+            const modal = document.getElementById('success-modal');
+            const content = document.getElementById('success-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('success-modal');
+            const content = document.getElementById('success-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+                // 폼 초기화 및 메인 페이지 이동
+                document.getElementById('petition-form').reset();
+                updateSubCategories();
+                updateFileName();
+                window.location.href = 'index.html'; // 메인으로 리다이렉트
+            }, 300);
+        }
+    </script>
+</body>
+</html>

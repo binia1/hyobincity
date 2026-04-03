@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>어린이시청 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR & Jua for Kids) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                        kids: ['"Jua"', 'sans-serif'], // 어린이 전용 둥근 폰트
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            yellow: '#ffcc00',
+                            pink: '#ff8899'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) - 어린이시청 전용 */
+        .sub-visual-kids {
+            background-image: linear-gradient(to bottom, rgba(0, 162, 255, 0.8), rgba(0, 91, 172, 0.9)), url('이미지/어린이시청배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Kids Page Specific Elements */
+        .kids-title { font-family: 'Jua', sans-serif; letter-spacing: 0.05em; }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        
+        /* 퀴즈 모달 애니메이션 */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        .quiz-btn-hover:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 (어린이 시청 전용) -->
+    <div class="sub-visual-kids w-full h-64 md:h-80 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <!-- 구름 배경 장식 -->
+        <div class="absolute top-10 left-10 opacity-30"><i data-lucide="cloud" class="w-24 h-24 text-white"></i></div>
+        <div class="absolute bottom-10 right-20 opacity-20"><i data-lucide="cloud" class="w-32 h-32 text-white"></i></div>
+        
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <span class="inline-block bg-yellow-400 text-slate-800 font-bold px-4 py-1.5 rounded-full text-sm mb-3">미래의 주역이 자라나는 곳 🌱</span>
+            <h1 class="text-5xl md:text-7xl kids-title tracking-wide drop-shadow-lg mb-4 text-white">효빈 어린이 시청</h1>
+            <p class="text-xl md:text-2xl font-bold opacity-95 drop-shadow-md text-yellow-200 kids-title">꿈과 희망이 쑥쑥 자라는 우리 동네, 효빈광역시!</p>
+        </div>
+        
+        <!-- 하단 물결 장식 -->
+        <svg class="absolute bottom-0 w-full h-12 text-slate-50 fill-current" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.83,121.2,201.5,114.5,242.84,110.59,283.47,95.58,321.39,56.44Z"></path>
+        </svg>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0 flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i> 민간단체 및 기타
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="비영리법인등록현황.html">비영리법인등록현황 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="비영리민간단체등록및지원.html">비영리민간단체등록및지원 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active current"><a href="어린이시청.html">어린이시청 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                </ul>
+            </div>
+            
+            <!-- 퀵 링크 배너 -->
+            <div class="mt-6 bg-gradient-to-br from-pink-400 to-rose-400 rounded-2xl p-5 text-white shadow-md card-hover cursor-pointer" onclick="alert('효빈 애니메이션 페스티벌(HAF) 안내 페이지로 이동합니다.')">
+                <h3 class="kids-title text-2xl mb-1 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5"></i> HAF 놀러가기!</h3>
+                <p class="text-sm font-medium opacity-90">세계 최고의 애니메이션 축제 정보</p>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-16 pb-10">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b-2 border-dashed border-slate-200 pb-4">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>정보공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>민간단체 및 기타</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">어린이시청</span>
+            </div>
+
+            <!-- 1. 시장님 인사말 -->
+            <section class="bg-white rounded-3xl p-6 md:p-10 shadow-lg border-4 border-blue-100 relative overflow-hidden card-hover">
+                <div class="absolute -right-10 -top-10 opacity-5">
+                    <i data-lucide="heart" class="w-64 h-64 text-hyobin-blue fill-hyobin-blue"></i>
+                </div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                    <div class="w-48 h-48 rounded-full border-8 border-yellow-300 shadow-md overflow-hidden shrink-0 bg-blue-50 flex items-center justify-center">
+                        <img src="이미지/박효빈시장.png" alt="박효빈 시장님" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2UzZjJmZCIvPjxwYXRoIGQ9Ik01MCA2MGMtMTMuOCAwLTI1IDExLjItMjUgMjV2NWg1MHYtNWMwLTEzLjgtMTEuMi0yNS0yNS0yNXoiIGZpbGw9IiM5MGNhZjkiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjM1IiByPSIxNSIgZmlsbD0iIzkwY2FmOSIvPjwvc3ZnPg=='">
+                    </div>
+                    <div>
+                        <h2 class="text-3xl kids-title text-hyobin-blue mb-4 leading-tight">"안녕? 나는 효빈시를 가장 사랑하는 젊은 시장, 박효빈이야!"</h2>
+                        <div class="space-y-3 text-slate-700 leading-relaxed text-lg font-medium">
+                            <p>우리 효빈광역시의 이름은 <strong>'효도 효(孝)'</strong>와 <strong>'빛날 빈(彬)'</strong> 자를 써서 <strong>'어른을 공경하고 사랑하는 마음이 아름답게 빛나는 도시'</strong>라는 멋진 뜻을 가지고 있단다! 내 이름인 '효빈'에 들어가는 한자랑 똑같아서 나도 시장이 되었을 때 정말 신기했단다.</p>
+                            <p>나는 우리 어린이 친구들이 깨끗한 공기를 마시며 마음껏 뛰어놀고, 전 세계 친구들이 모이는 애니메이션 축제(HAF)도 잔뜩 즐길 수 있는 신나는 도시를 만들고 있어.</p>
+                            <p>우리 어린이 시청에서 효빈시의 멋진 비밀과 역사들을 하나씩 탐험해 볼까?</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 지리와 행정구역 (8구 1군) -->
+            <section class="bg-gradient-to-b from-emerald-50 to-emerald-100 rounded-3xl p-6 md:p-10 border-4 border-emerald-200">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="flex-1">
+                        <h2 class="text-3xl kids-title text-emerald-800 mb-4 flex items-center gap-2">
+                            <i data-lucide="map" class="text-emerald-500 w-8 h-8 fill-emerald-200"></i> 
+                            우리 동네는 어디에 있을까?
+                        </h2>
+                        <p class="text-lg font-bold text-slate-700 mb-6 leading-relaxed bg-white/70 p-4 rounded-xl">
+                            우리 자랑스러운 효빈광역시는 <strong>광주광역시의 남서쪽</strong>, 무안반도 이서에 넓고 맑은 바다를 품고 자리 잡고 있어요!<br>
+                            효빈시는 커다란 동네들이 모여서 만들어졌는데, 모두 합쳐서 <span class="text-emerald-600 text-xl font-black">8개의 구</span>와 <span class="text-emerald-600 text-xl font-black">1개의 군</span>으로 이루어져 있답니다. 우리 집은 어디에 속해 있는지 지도를 볼 때 찾아보아요!
+                        </p>
+                    </div>
+                    <div class="shrink-0 w-full md:w-1/2 bg-white rounded-2xl p-5 shadow-sm border border-emerald-100 relative">
+                        <h3 class="kids-title text-xl text-center text-emerald-700 mb-4 border-b-2 border-dashed border-emerald-200 pb-2">효빈시의 8구 1군 가족들</h3>
+                        <div class="flex flex-wrap gap-2 justify-center">
+                            <span class="bg-emerald-100 px-4 py-2 rounded-full font-bold text-emerald-800 shadow-sm border border-emerald-200 hover:scale-110 transition">중구</span>
+                            <span class="bg-emerald-100 px-4 py-2 rounded-full font-bold text-emerald-800 shadow-sm border border-emerald-200 hover:scale-110 transition">동구</span>
+                            <span class="bg-emerald-100 px-4 py-2 rounded-full font-bold text-emerald-800 shadow-sm border border-emerald-200 hover:scale-110 transition">서구</span>
+                            <span class="bg-emerald-100 px-4 py-2 rounded-full font-bold text-emerald-800 shadow-sm border border-emerald-200 hover:scale-110 transition">남구</span>
+                            <span class="bg-emerald-100 px-4 py-2 rounded-full font-bold text-emerald-800 shadow-sm border border-emerald-200 hover:scale-110 transition">북구</span>
+                            <span class="bg-blue-100 px-4 py-2 rounded-full font-bold text-blue-800 shadow-sm border border-blue-200 hover:scale-110 transition">안천구</span>
+                            <span class="bg-blue-100 px-4 py-2 rounded-full font-bold text-blue-800 shadow-sm border border-blue-200 hover:scale-110 transition">창전구</span>
+                            <span class="bg-blue-100 px-4 py-2 rounded-full font-bold text-blue-800 shadow-sm border border-blue-200 hover:scale-110 transition">청엽구</span>
+                            <span class="bg-yellow-100 px-4 py-2 rounded-full font-bold text-yellow-800 shadow-sm border border-yellow-300 hover:scale-110 transition w-full text-center mt-1">탄성군 (자연이 아름다운 농어촌)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 효빈시 상징물 -->
+            <section>
+                <div class="text-center mb-8">
+                    <span class="bg-yellow-100 text-yellow-800 font-bold px-3 py-1 rounded-full text-sm inline-block mb-2">효빈의 얼굴</span>
+                    <h2 class="text-3xl md:text-4xl kids-title text-slate-800 flex items-center justify-center gap-2">
+                        <i data-lucide="star" class="text-yellow-400 w-8 h-8 fill-yellow-400"></i> 
+                        효빈광역시의 반짝이는 상징물!
+                    </h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 마스코트 -->
+                    <div class="bg-white rounded-3xl p-6 border-4 border-blue-100 card-hover flex flex-col md:flex-row gap-6 items-center text-center md:text-left cursor-pointer" onclick="location.href='상징물.html'">
+                        <div class="w-32 h-32 bg-blue-50 rounded-full p-2 shadow-inner shrink-0 flex items-center justify-center overflow-hidden border-4 border-blue-200">
+                            <img src="이미지/한바다.png" alt="한바다" class="w-full h-full object-contain" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iIzQyYTVmNSIvPjwvc3ZnPg=='">
+                        </div>
+                        <div>
+                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold mb-2 inline-block">우리의 친구, 시 마스코트</span>
+                            <h3 class="text-3xl kids-title text-blue-900 mb-2">한바다</h3>
+                            <p class="text-slate-600 font-medium">우리 효빈시 앞바다를 지키는 씩씩한 친구야! 바다처럼 넓은 마음을 가졌어.</p>
+                        </div>
+                    </div>
+                    <!-- 시조 -->
+                    <div class="bg-white rounded-3xl p-6 border-4 border-amber-100 card-hover flex flex-col md:flex-row gap-6 items-center text-center md:text-left cursor-pointer" onclick="location.href='상징물.html'">
+                        <div class="w-32 h-32 bg-amber-50 rounded-full p-2 shadow-inner shrink-0 flex items-center justify-center overflow-hidden border-4 border-amber-200">
+                            <img src="이미지/히버히.png" alt="히버히" class="w-full h-full object-contain" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMjBMOTAgODBIMTBMMTAgMjBaIiBmaWxsPSIjZmZhYjAwIi8+PC9zdmc+'">
+                        </div>
+                        <div>
+                            <span class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-bold mb-2 inline-block">하늘을 나는 시의 새 (시조)</span>
+                            <h3 class="text-3xl kids-title text-amber-900 mb-2">기러기 (히버히)</h3>
+                            <p class="text-slate-600 font-medium">친구들과 함께 줄맞춰 높이 날아오르는 기러기처럼 우리도 꿈을 향해 날아볼까?</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 효빈 어린이 탐험대 (명소) -->
+            <section>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-3xl kids-title text-slate-800 flex items-center gap-2">
+                        <i data-lucide="camera" class="text-pink-500 w-8 h-8 fill-pink-200"></i> 
+                        어린이 탐험대! 우리 고장 명소
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <!-- 명소 1 -->
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-200">
+                        <div class="h-40 bg-pink-100 relative">
+                            <img src="이미지/파스텔블루길.png" alt="당가동 파스텔블루길" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNlNGVjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjZDgxYjYwIj5BbmltYXRpb24gU3RyZWV0PC90ZXh0Pjwvc3ZnPg=='">
+                            <span class="absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold px-2 py-1 rounded-md">인기만점!</span>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl kids-title text-slate-800 mb-1">당가동 파스텔블루길</h3>
+                            <p class="text-sm text-slate-600 font-medium">애니메이션 주인공들을 만날 수 있는 HAF 축제의 중심 거리! 귀여운 굿즈샵이 가득해요.</p>
+                        </div>
+                    </div>
+                    <!-- 명소 2 -->
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-200">
+                        <div class="h-40 bg-blue-100 relative">
+                            <img src="이미지/효빈천.png" alt="효빈천 자전거길" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTEmNWZlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjMWU0MGFmIj5SaXZlciBQYXJrPC90ZXh0Pjwvc3ZnPg=='">
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl kids-title text-slate-800 mb-1">효빈천 자전거길</h3>
+                            <p class="text-sm text-slate-600 font-medium">가족들과 함께 자전거를 타며 맑은 공기를 마셔요. 철새 기러기(히버히)도 볼 수 있답니다.</p>
+                        </div>
+                    </div>
+                    <!-- 명소 3 -->
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-slate-200">
+                        <div class="h-40 bg-teal-100 relative">
+                            <img src="이미지/효빈항.png" alt="효빈항 해양공원" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NmYmYxIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBmaWxsPSIjMTE1ZTU5Ij5IeW9iaW4gUG9ydDwvdGV4dD48L3N2Zz4='">
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl kids-title text-slate-800 mb-1">효빈항 해양공원</h3>
+                            <p class="text-sm text-slate-600 font-medium">넓은 바다를 보며 뛰어놀 수 있는 공원! 마스코트 한바다 동상과 사진을 찍어보세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 대중교통 소개 -->
+            <section class="bg-slate-800 rounded-3xl p-6 md:p-10 border-4 border-slate-700 shadow-xl text-white relative">
+                <!-- 트램 일러스트 장식 -->
+                <div class="absolute top-4 right-6 opacity-20 hidden md:block">
+                    <i data-lucide="tram-front" class="w-32 h-32 text-pink-400"></i>
+                </div>
+                
+                <div class="flex items-center justify-between mb-6 relative z-10">
+                    <div>
+                        <span class="bg-blue-500 text-white font-bold px-3 py-1 rounded-full text-xs inline-block mb-2">효빈의 자랑거리!</span>
+                        <h2 class="text-3xl kids-title flex items-center gap-2">
+                            <i data-lucide="train" class="text-yellow-400 w-8 h-8"></i> 
+                            무지개빛 대중교통 탐험 🚌🚇
+                        </h2>
+                    </div>
+                    <a href="교통안내.html" class="text-sm font-bold text-slate-800 bg-yellow-400 px-4 py-2 rounded-full hover:bg-yellow-300 transition shrink-0 hidden sm:block">노선도 보기 ></a>
+                </div>
+                
+                <div class="bg-slate-700/50 p-5 rounded-2xl mb-8 border border-slate-600 relative z-10">
+                    <h4 class="font-bold text-yellow-300 mb-2 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4"></i> 재미있는 역사 이야기</h4>
+                    <p class="text-slate-200 font-medium text-sm leading-relaxed">
+                        아주 옛날, 나쁜 시장님(윤대환)이 우리가 사랑하는 전차를 낡게 내버려 두고 버스 회사가 횡포를 부리게 한 적이 있었어요. 하지만 <strong>용감한 효빈 시민들이 똘똘 뭉쳐 이를 막아냈고</strong>, 분홍색 노면전차(트램) 7호선이 훨씬 더 멋진 모습으로 새단장했어요! 그 덕분에 지금의 멋진 무지개색 교통망이 완성되었답니다.
+                    </p>
+                </div>
+
+                <!-- 지하철 노선 색상 -->
+                <h3 class="text-xl font-bold text-white mb-4 border-b-2 border-slate-600 pb-2 inline-block relative z-10">🚇 우리는 무슨 색 전철을 탈까?</h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 mb-10 relative z-10">
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#0077DD]">
+                        <div class="w-10 h-10 rounded-full bg-[#0077DD] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">1</div>
+                        <span class="font-bold text-xs text-slate-300">파란색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#00CCAA]">
+                        <div class="w-10 h-10 rounded-full bg-[#00CCAA] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">2</div>
+                        <span class="font-bold text-xs text-slate-300">초록색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#FFCC11]">
+                        <div class="w-10 h-10 rounded-full bg-[#FFCC11] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">3</div>
+                        <span class="font-bold text-xs text-slate-300">노란색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#FF5522]">
+                        <div class="w-10 h-10 rounded-full bg-[#FF5522] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">4</div>
+                        <span class="font-bold text-xs text-slate-300">주황색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#EE0022]">
+                        <div class="w-10 h-10 rounded-full bg-[#EE0022] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">5</div>
+                        <span class="font-bold text-xs text-slate-300">빨간색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#881188]">
+                        <div class="w-10 h-10 rounded-full bg-[#881188] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">6</div>
+                        <span class="font-bold text-xs text-slate-300">보라색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#FF8899] relative ring-2 ring-pink-400 ring-offset-2 ring-offset-slate-800">
+                        <span class="absolute -top-3 bg-pink-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-bounce shadow-lg">더 멋진 트램!</span>
+                        <div class="w-10 h-10 rounded-full bg-[#FF8899] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">7</div>
+                        <span class="font-bold text-xs text-slate-300">분홍색 트램</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#9856FF]">
+                        <div class="w-10 h-10 rounded-full bg-[#9856FF] text-white flex items-center justify-center font-black text-lg mb-2 shadow-inner">8</div>
+                        <span class="font-bold text-xs text-slate-300">연보라색</span>
+                    </div>
+                    <div class="bg-slate-900 rounded-xl p-3 flex flex-col items-center justify-center shadow-md card-hover border-b-4 border-[#6677CC]">
+                        <div class="w-10 h-10 rounded-full bg-[#6677CC] text-white flex items-center justify-center font-black text-[11px] mb-2 shadow-inner leading-tight">빈효선</div>
+                        <span class="font-bold text-xs text-slate-300 text-center">광역전철</span>
+                    </div>
+                </div>
+
+                <!-- 버스 도색 안내 -->
+                <h3 class="text-xl font-bold text-white mb-4 border-b-2 border-slate-600 pb-2 inline-block relative z-10">🚌 3세대 완전 준공영제 무지개 버스!</h3>
+                <div class="flex flex-wrap gap-2 md:gap-3 relative z-10">
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#01B7ED]">간선</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-slate-900 text-sm shadow-sm flex items-center bg-[#E7D600]">순환</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#37B484]">지선</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#485EC6]">광역</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#FF5800]">좌석</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#A664A0]">마을</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#84C36E]">공항</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#D81C2F]">급행</span>
+                    <span class="px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-white text-sm shadow-sm flex items-center bg-[#7777AA]">시티투어</span>
+                </div>
+                <div class="mt-4 bg-slate-900/50 p-3 rounded-lg border border-slate-700 flex items-start gap-3 relative z-10">
+                    <i data-lucide="music" class="w-5 h-5 text-pink-400 shrink-0 mt-0.5"></i>
+                    <p class="text-sm text-slate-300 font-medium">
+                        꿀팁: 버스와 전철을 탈 때 귀를 쫑긋 세워보세요! BanG Dream!, 러브라이브 등 유명한 애니메이션 주인공들이 들려주는 명예 홍보대사 안내방송을 들을 수 있답니다!
+                    </p>
+                </div>
+            </section>
+
+            <!-- 6. 어린이 명예 시장증 발급 체험 (인터랙티브 퀴즈) -->
+            <section class="bg-gradient-to-r from-hyobin-blue to-blue-500 rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-xl mt-10">
+                <!-- 폭죽 장식 -->
+                <div class="absolute top-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -ml-10 -mt-10"></div>
+                <div class="absolute bottom-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-10 -mb-10"></div>
+                
+                <div class="relative z-10 max-w-2xl mx-auto">
+                    <div class="inline-block bg-white text-blue-600 rounded-full p-4 mb-4 shadow-lg">
+                        <i data-lucide="award" class="w-10 h-10"></i>
+                    </div>
+                    <h2 class="text-4xl kids-title mb-4">도전! 나도 효빈광역시 명예 시장!</h2>
+                    <p class="mb-8 opacity-90 font-medium text-lg">
+                        효빈시에 대해 얼마나 잘 알고 있나요? <br>
+                        3가지 퀴즈를 모두 맞히고 자랑스러운 <strong>어린이 명예 시장증</strong>을 발급받아 보세요!
+                    </p>
+                    
+                    <button onclick="startQuiz()" class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-2xl kids-title px-10 py-4 rounded-full shadow-lg transform transition card-hover flex items-center justify-center gap-3 mx-auto w-full sm:w-auto">
+                        <i data-lucide="play-circle" class="w-7 h-7"></i> 퀴즈 풀고 시장증 받기!
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 퀴즈 & 시장증 모달 (초기 숨김) -->
+    <div id="quiz-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4">
+        <div id="quiz-content" class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden relative scale-95 opacity-0 transition-all duration-300">
+            <!-- Header -->
+            <div class="bg-blue-500 p-4 text-center relative">
+                <h3 class="text-white font-bold text-xl kids-title">효빈시 탐험 퀴즈</h3>
+                <button onclick="closeQuiz()" class="absolute right-4 top-4 text-white/80 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <!-- Quiz Step -->
+            <div id="step-quiz" class="p-8 text-center">
+                <div class="mb-5">
+                    <span id="quiz-progress" class="bg-blue-100 text-blue-800 text-sm font-bold px-4 py-1.5 rounded-full">문제 1 / 3</span>
+                </div>
+                <i data-lucide="help-circle" class="w-14 h-14 text-amber-400 mx-auto mb-4"></i>
+                <h4 id="quiz-question" class="text-xl font-bold text-slate-800 mb-6 leading-relaxed min-h-[5rem]">
+                    <!-- Question dynamically loaded -->
+                </h4>
+                <div id="quiz-options" class="grid grid-cols-2 gap-3">
+                    <!-- Options dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- Name Input Step -->
+            <div id="step-name" class="p-8 text-center hidden">
+                <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
+                <h4 class="text-2xl kids-title text-slate-800 mb-2">모든 문제를 맞혔어요! 👏</h4>
+                <p class="text-slate-600 font-medium mb-6">명예 시장증에 들어갈 이름을 적어주세요.</p>
+                <input type="text" id="mayor-name" placeholder="이름 입력 (예: 박효빈)" class="w-full border-2 border-blue-200 rounded-xl px-4 py-3 text-center text-lg font-bold text-slate-800 focus:outline-none focus:border-blue-500 mb-4">
+                <button onclick="issueCertificate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-lg shadow-md quiz-btn-hover">시장증 발급하기</button>
+            </div>
+
+            <!-- Result Certificate Step -->
+            <div id="step-result" class="p-8 text-center hidden bg-gradient-to-b from-yellow-50 to-white">
+                <h4 class="text-2xl kids-title text-amber-600 mb-6">🎉 축하합니다! 🎉</h4>
+                <div class="border-4 border-amber-300 bg-white p-6 rounded-2xl shadow-sm relative mb-6">
+                    <div class="absolute top-2 left-2 text-amber-200"><i data-lucide="star" class="w-6 h-6 fill-amber-200"></i></div>
+                    <div class="absolute top-2 right-2 text-amber-200"><i data-lucide="star" class="w-6 h-6 fill-amber-200"></i></div>
+                    
+                    <p class="text-sm font-bold text-slate-500 mb-1">효빈광역시 제1호</p>
+                    <h5 class="text-2xl font-black text-slate-800 mb-4 border-b-2 border-dashed border-slate-200 pb-2">어린이 명예 시장증</h5>
+                    <p class="text-xl font-bold text-blue-600 mb-2"><span id="result-name">홍길동</span> 시장님</p>
+                    <p class="text-sm text-slate-700 leading-relaxed font-medium">
+                        위 어린이는 우리 효빈시를 사랑하는 마음이 가득하므로 어린이 명예 시장으로 임명합니다!<br>
+                        (8구 1군을 잘 부탁해요!)
+                    </p>
+                    <div class="mt-4 pt-4 text-right flex items-center justify-end gap-2">
+                        <img src="이미지/박효빈시장.png" class="w-10 h-10 rounded-full border border-slate-200" onerror="this.style.display='none'">
+                        <span class="font-bold text-slate-800">효빈광역시장 박효빈</span>
+                    </div>
+                </div>
+                <button onclick="closeQuiz()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-2 rounded-full transition quiz-btn-hover">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // Lucide 아이콘 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 퀴즈 데이터 구성
+        const quizData = [
+            {
+                question: "우리 효빈광역시는 몇 개의 구와 군으로<br>이루어져 있을까요?",
+                options: ["5구 1군", "8구 1군", "10구 2군", "7구 0군"],
+                correct: 1 // 인덱스 기준 (8구 1군)
+            },
+            {
+                question: "효빈광역시 앞바다를 지키는<br><span class='text-blue-500 font-black text-2xl'>마스코트 친구</span>의 이름은 무엇일까요?",
+                options: ["고나미", "효빈이", "히버히", "한바다"],
+                correct: 3 // 인덱스 기준 (한바다)
+            },
+            {
+                question: "시민들의 힘으로 새롭게 더 멋져진<br><span class='text-pink-500 font-black text-2xl'>분홍색 노면전차(트램)</span>는<br>몇 호선일까요?",
+                options: ["1호선", "7호선", "3호선", "5호선"],
+                correct: 1 // 인덱스 기준 (7호선)
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        // 모달 및 DOM 요소
+        const modal = document.getElementById('quiz-modal');
+        const content = document.getElementById('quiz-content');
+        const stepQuiz = document.getElementById('step-quiz');
+        const stepName = document.getElementById('step-name');
+        const stepResult = document.getElementById('step-result');
+        const nameInput = document.getElementById('mayor-name');
+        const quizProgress = document.getElementById('quiz-progress');
+        const quizQuestionText = document.getElementById('quiz-question');
+        const quizOptionsContainer = document.getElementById('quiz-options');
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            
+            // UI 초기화
+            stepQuiz.classList.remove('hidden');
+            stepName.classList.add('hidden');
+            stepResult.classList.add('hidden');
+            nameInput.value = '';
+            
+            loadQuestion();
+            
+            // 모달 열기
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function loadQuestion() {
+            const currentQuiz = quizData[currentQuestionIndex];
+            
+            // 진행도 표시
+            quizProgress.innerText = `문제 ${currentQuestionIndex + 1} / ${quizData.length}`;
+            
+            // 질문 텍스트
+            quizQuestionText.innerHTML = currentQuiz.question;
+            
+            // 보기 버튼 생성
+            quizOptionsContainer.innerHTML = '';
+            currentQuiz.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                
+                // 트램 정답처럼 특정 텍스트 꾸미기가 필요할 경우를 대비해 스타일을 지정
+                if (option === "7호선" && currentQuestionIndex === 2) {
+                    button.className = "bg-pink-100 hover:bg-pink-200 text-pink-700 border-2 border-pink-300 font-bold py-3 rounded-xl transition quiz-btn-hover";
+                } else {
+                    button.className = "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl border-2 border-transparent transition quiz-btn-hover";
+                }
+                
+                button.innerText = option;
+                button.onclick = () => checkAnswer(index);
+                quizOptionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const currentQuiz = quizData[currentQuestionIndex];
+            
+            if (selectedIndex === currentQuiz.correct) {
+                // 정답 처리
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    // 다음 문제 로드 (가벼운 흔들림이나 변경 효과를 주면 더 좋음)
+                    loadQuestion();
+                } else {
+                    // 모든 문제를 다 풀었을 때
+                    stepQuiz.classList.add('hidden');
+                    stepName.classList.remove('hidden');
+                    stepName.classList.add('animate-pop-in');
+                }
+            } else {
+                // 오답 처리
+                alert('앗, 아쉬워요! 본문에 있는 힌트를 다시 한번 잘 생각해 보세요!');
+            }
+        }
+
+        function closeQuiz() {
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function issueCertificate() {
+            const name = nameInput.value.trim();
+            if (name === '') {
+                alert('명예 시장님의 이름을 꼭 적어주세요!');
+                nameInput.focus();
+                return;
+            }
+            
+            document.getElementById('result-name').innerText = name;
+            stepName.classList.add('hidden');
+            stepResult.classList.remove('hidden');
+            stepResult.classList.add('animate-pop-in');
+        }
+    </script>
+</body>
+</html>

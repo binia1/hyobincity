@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입찰소식 - 효빈광역시 시정소식</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED', // 간선버스
+                            red: '#D81C2F' // 급행버스
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.9), rgba(26, 54, 93, 0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 게시판 테이블 스타일 */
+        .board-table-wrap {
+            border-top: 2px solid #1a365d;
+            background: #fff;
+            overflow-x: auto;
+        }
+        .board-table {
+            width: 100%;
+            min-width: 950px;
+            border-collapse: collapse;
+        }
+        .board-table th {
+            padding: 1rem 0.5rem;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: center;
+            border-bottom: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .board-table td {
+            padding: 1rem 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: background-color 0.2s;
+            vertical-align: middle;
+        }
+        .board-table tr:hover td {
+            background-color: #f8fafc;
+        }
+        .board-table td.subject {
+            text-align: left;
+            padding-left: 1rem;
+        }
+        .board-table td.subject a {
+            display: block;
+            color: #334155;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .board-table td.subject a:hover {
+            text-decoration: underline;
+            color: #005bac;
+        }
+
+        /* 분류 뱃지 스타일 */
+        .badge-type {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 55px;
+        }
+        .badge-type.construct { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; } /* 공사 */
+        .badge-type.service { background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; } /* 용역 */
+        .badge-type.goods { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; } /* 물품 */
+        .badge-type.etc { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; } /* 기타/매각 */
+
+        /* 상태 뱃지 스타일 */
+        .badge-status {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            text-align: center;
+            min-width: 65px;
+        }
+        .badge-status.active { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; animation: pulse-soft 2s infinite; } /* 입찰중 */
+        .badge-status.closed { background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; } /* 개찰완료 */
+        .badge-status.failed { background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } /* 유찰 */
+
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* 상세 뷰 타이틀 영역 박스 */
+        .detail-info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #board-detail-view, #board-detail-view * { visibility: visible; }
+            #board-detail-view {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+
+        /* 공고문 내 테이블 스타일 (에디터 본문용) */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+        .content-table th {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            width: 25%;
+        }
+        .content-table td {
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1rem;
+            color: #475569;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">시정소식</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">효빈의 오늘과 내일을 투명하고 바르게 알려드립니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <div>
+                    <div class="mb-6">
+                        <h4 class="font-black text-hyobin-dark mb-4 border-b-2 border-slate-200 pb-3 text-lg flex items-center">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-2 text-hyobin-blue"></i>
+                            시정소식 일반
+                        </h4>
+                        <ul class="space-y-2 text-[15px] break-keep lnb-menu ml-1">
+                            <li><a href="공지사항.html">공지사항</a></li>
+                            <li><a href="보도자료.html">보도자료</a></li>
+                            <li><a href="언론보도사실은이렇습니다.html">언론보도 사실은 이렇습니다</a></li>
+                            <li><a href="news.html">고시·공고</a></li>
+                            <li><a href="입법예고.html">입법예고</a></li>
+                            <li><a href="시험인사정보.html">시험정보</a></li>
+                            <li><a href="인사정보.html">인사정보</a></li>
+                            <li><a href="공무직채용.html">공무직 채용정보</a></li>
+                            <li><a href="입찰소식.html" class="active">입찰소식</a></li>
+                            <li><a href="주요업무계획.html">주요업무계획</a></li>
+                            <li><a href="주요업무계획과거.html">주요업무계획 (과거자료)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="시정소식.html" class="hover:text-slate-700">시정소식</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">시정소식 일반</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">입찰소식</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8 no-print">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">입찰소식</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">효빈광역시청 및 직속기관에서 발주하는 공사, 용역, 물품구매 등의 각종 입찰 정보를 투명하게 공개합니다.</p>
+            </div>
+
+            <!-- ==============================
+                 [1] 게시글 목록 뷰 (List View)
+                 ============================== -->
+            <div id="board-list-view">
+                <!-- 검색 및 필터 영역 -->
+                <div class="bg-slate-50 border border-slate-200 p-5 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-[15px] text-slate-700 font-medium">
+                        전체 <span class="text-hyobin-blue font-bold" id="total-count">0</span>건 (<span id="current-page">1</span>/<span id="total-pages">1</span> 페이지)
+                    </div>
+                    <form class="flex flex-wrap gap-2 w-full md:w-auto" onsubmit="handleSearch(event)">
+                        <select id="search-status" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">진행상태 전체</option>
+                            <option value="입찰중">입찰중</option>
+                            <option value="개찰완료">개찰완료</option>
+                            <option value="유찰">유찰</option>
+                        </select>
+                        <select id="search-type-badge" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">구분 전체</option>
+                            <option value="공사">공사</option>
+                            <option value="용역">용역</option>
+                            <option value="물품">물품</option>
+                            <option value="기타">기타/매각</option>
+                        </select>
+                        <div class="flex flex-1 md:w-64 relative">
+                            <input type="text" id="search-keyword" placeholder="공고명 또는 공고번호" class="w-full border border-slate-300 border-r-0 h-10 pl-3 pr-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                            <button type="submit" class="bg-hyobin-dark text-white px-4 h-10 hover:bg-slate-800 transition flex items-center justify-center font-medium">
+                                <i data-lucide="search" class="w-4 h-4 mr-1"></i> 검색
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 게시판 테이블 -->
+                <div class="board-table-wrap mb-8">
+                    <table class="board-table">
+                        <colgroup>
+                            <col style="width: 6%">
+                            <col style="width: 8%">
+                            <col style="width: auto">
+                            <col style="width: 14%">
+                            <col style="width: 12%">
+                            <col style="width: 12%">
+                            <col style="width: 9%">
+                            <col style="width: 7%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>공고번호</th>
+                                <th>구분</th>
+                                <th>입찰공고명</th>
+                                <th>발주처</th>
+                                <th>공고일자</th>
+                                <th>마감일시</th>
+                                <th>진행상태</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-tbody">
+                            <!-- JS 렌더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 컨테이너 -->
+                <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-12">
+                    <!-- JS 렌더링 영역 -->
+                </div>
+            </div>
+
+            <!-- ==============================
+                 [2] 게시글 상세 뷰 (Detail View)
+                 ============================== -->
+            <div id="board-detail-view" class="hidden">
+                <div id="pdf-content" class="border-t-2 border-hyobin-dark bg-white shadow-sm mb-6">
+                    <!-- 상세 헤더 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span id="detail-type" class="badge-type construct">공사</span>
+                            <span id="detail-status" class="badge-status active">입찰중</span>
+                            <span class="text-slate-300">|</span>
+                            <span id="detail-id" class="text-slate-500 font-bold text-sm">공고번호</span>
+                        </div>
+                        <h3 id="detail-title" class="text-2xl font-black text-slate-800 mb-5 break-keep leading-tight">입찰공고명</h3>
+                        
+                        <div class="detail-info-box grid grid-cols-1 md:grid-cols-2 gap-4 text-[15px]">
+                            <div><strong class="text-slate-500 w-24 inline-block">추정가격</strong> <span id="detail-price" class="text-slate-800 font-bold text-blue-700">0원</span></div>
+                            <div><strong class="text-slate-500 w-24 inline-block">발주부서</strong> <span id="detail-dept" class="text-slate-800">담당부서</span></div>
+                            <div><strong class="text-slate-500 w-24 inline-block">계약방법</strong> <span id="detail-contract-method" class="text-slate-800">제한경쟁</span></div>
+                            <div><strong class="text-slate-500 w-24 inline-block">입찰방식</strong> <span id="detail-bid-method" class="text-slate-800">전자입찰(G2B)</span></div>
+                            <div><strong class="text-slate-500 w-24 inline-block">공고일자</strong> <span id="detail-date" class="text-slate-800">2026.00.00</span></div>
+                            <div><strong class="text-slate-500 w-24 inline-block">마감일시</strong> <span id="detail-deadline" class="text-red-600 font-bold">2026.00.00 00:00</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 첨부파일 렌더링 영역 -->
+                    <div id="detail-attachments-container" class="px-6 md:px-8 py-5 border-b border-slate-200 bg-slate-50/50 hidden">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="paperclip" class="w-5 h-5 text-slate-400 mt-0.5"></i>
+                            <div class="w-full">
+                                <p class="text-[15px] font-bold text-slate-700 mb-2">첨부문서 (공고문, 과업지시서, 내역서 등)</p>
+                                <ul id="detail-attachments-list" class="space-y-1.5">
+                                    <!-- 첨부파일 목록 동적 생성 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 상세 본문 -->
+                    <div class="p-6 md:p-8 min-h-[300px]">
+                        <h4 class="font-bold text-lg text-blue-800 mb-4 border-l-4 border-blue-500 pl-3">공고 상세 내용</h4>
+                        <div id="detail-content" class="text-slate-700 leading-relaxed text-[16px] break-keep">
+                            본문 내용이 여기에 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-12 action-buttons no-print">
+                    <button onclick="goBackToList()" class="w-full md:w-auto px-6 py-3 bg-white border border-slate-300 text-slate-700 rounded font-bold hover:bg-slate-50 hover:border-slate-400 transition flex justify-center items-center shadow-sm">
+                        <i data-lucide="list" class="w-4 h-4 mr-2"></i> 목록으로
+                    </button>
+                    <div class="flex w-full md:w-auto gap-2">
+                        <button onclick="alert('국가종합전자조달시스템(나라장터)으로 이동합니다.')" class="flex-1 md:flex-none px-6 py-3 bg-[#1a365d] text-white rounded font-bold hover:bg-slate-800 transition flex justify-center items-center shadow-sm">
+                            <i data-lucide="external-link" class="w-4 h-4 mr-2"></i> 나라장터 입찰참여
+                        </button>
+                        <button onclick="downloadNativePDF()" class="flex-1 md:flex-none px-6 py-3 bg-hyobin-blue text-white rounded font-bold hover:bg-blue-800 transition flex justify-center items-center shadow-sm">
+                            <i data-lucide="file-down" class="w-4 h-4 mr-2"></i> PDF 인쇄
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 필수 스크립트 로드 순서 엄수 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        /* * ========================================================
+           [실제 데이터 연동 위치] 
+           효빈광역시 세계관 설정이 반영된 "입찰소식" 10개 상세 데이터 세트 
+         ======================================================== */
+        let RAW_DATA = [
+            {
+                id: '2604-001', type: '용역', title: '제17회 HAF 2026 행사장(당가동 파스텔블루 거리) 안전경호 및 인파통제 용역', department: '문화관광체육국',
+                date: '2026-04-02', deadline: '2026-04-10 10:00', status: '입찰중', views: 840,
+                price: '150,000,000', contractMethod: '제한경쟁(총액)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '입찰공고문_HAF안전경호용역.pdf', size: '210 KB' },
+                    { name: '과업지시서_및_산출내역서.hwp', size: '1,025 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>용역명</th><td>제17회 HAF 2026 행사장 안전경호 및 인파통제 용역</td></tr>
+        <tr><th>기초금액</th><td>금165,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>용역현장</th><td>효빈광역시 당가동 파스텔블루 거리 및 효빈종합운동장 일원</td></tr>
+        <tr><th>용역기간</th><td>착수일로부터 행사 종료 시(2026년 8월 예정)까지</td></tr>
+        <tr><th>참가자격</th><td>
+            1. 지방계약법 시행령 제13조 요건을 갖춘 자<br>
+            2. 경비업법 제4조에 의한 <strong>[시설경비업]</strong> 또는 <strong>[신변보호업]</strong> 허가를 받은 업체<br>
+            3. 공고일 전일 기준 법인등기부상 본점 소재지가 <strong>효빈광역시</strong> 내에 있는 업체
+        </td></tr>
+    </tbody>
+</table>
+<p class="mt-4"><strong>[공고 안내사항]</strong><br>
+본 입찰은 전자입찰로만 집행되며, 조달청 나라장터(G2B) 시스템을 이용하여 제출하여야 합니다. 2006년 첫 개최 이래 역대 최대 규모로 글로벌 IP가 참여하는 17번째 서브컬처 축제(2007~08년, 2020~21년 미개최 제외)이므로, 다중 밀집 행사 통제 유경험 업체의 많은 참여를 바랍니다.</p>`
+            },
+            {
+                id: '2603-085', type: '공사', title: '도시철도 7호선(트램) 잔디궤도 및 스마트 정류장 개량 공사', department: '도시철도건설본부',
+                date: '2026-03-25', deadline: '2026-04-08 14:00', status: '입찰중', views: 1250,
+                price: '2,850,000,000', contractMethod: '일반경쟁(전국)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '공사입찰공고문_7호선궤도개량.pdf', size: '340 KB' },
+                    { name: '설계서_및_도면.zip', size: '45,200 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>공사명</th><td>도시철도 7호선(트램) 잔디궤도 및 스마트 정류장 개량 공사</td></tr>
+        <tr><th>기초금액</th><td>금3,135,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>공사현장</th><td>효빈광역시 효빈전차(7호선, <span style="color:#FF8899; font-weight:bold;">#FF8899 분홍색 노선</span>) 구간 일원</td></tr>
+        <tr><th>공사기간</th><td>착공일로부터 180일</td></tr>
+        <tr><th>참가자격</th><td>
+            1. 건설산업기본법에 따른 <strong>[철도·궤도공사업]</strong> 면허를 등록한 업체<br>
+            2. 최근 5년 이내 무가선 저상트램 궤도 시공 실적이 있는 업체 우대
+        </td></tr>
+    </tbody>
+</table>
+<p class="mt-4"><strong>[사업 배경]</strong><br>
+과거 폐지 위기를 딛고 부활한 효빈시의 명물 7호선을 최신식 무가선 저상 트램으로 교체함에 따라, 궤도 주변 환경을 친환경 잔디로 조성하고 정류장을 스마트화하는 핵심 사업입니다.</p>`
+            },
+            {
+                id: '2603-080', type: '물품', title: '시내버스 3세대 완전 준공영제 전환에 따른 권역별 지정 도색 래핑 필름 구매', department: '대중교통과',
+                date: '2026-03-20', deadline: '2026-03-31 10:00', status: '개찰완료', views: 680,
+                price: '340,000,000', contractMethod: '제한경쟁(중소기업)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '물품구매_입찰공고문.pdf', size: '210 KB' },
+                    { name: '도색_시방서_및_색상코드표.pdf', size: '540 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>물품명</th><td>권역별 시내버스 지정 도색 래핑 필름 구매</td></tr>
+        <tr><th>기초금액</th><td>금374,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>납품기한</th><td>계약일로부터 45일 이내</td></tr>
+        <tr><th>납품장소</th><td>효빈광역시 관내 9개 시내버스 공영차고지</td></tr>
+        <tr><th>납품규격</th><td>
+            - 간선버스: <span style="color:#01B7ED; font-weight:bold;">#01B7ED</span> 외 8종 규격 일체<br>
+            - 내후성, 내변색성이 우수한 옥외 차량용 고급 래핑 필름 (시방서 참조)
+        </td></tr>
+    </tbody>
+</table>
+<p class="mt-4 text-red-600 font-bold">[안내] 본 입찰은 개찰 완료되어 적격심사가 진행 중입니다.</p>`
+            },
+            {
+                id: '2603-050', type: '용역', title: '안천 복합환승센터 건립 타당성 및 기본계획 수립 용역', department: '도시계획과',
+                date: '2026-03-15', deadline: '2026-03-30 16:00', status: '개찰완료', views: 950,
+                price: '280,000,000', contractMethod: '일반경쟁(협상에 의한 계약)', bidMethod: '전자입찰+제안서평가',
+                attachments: [
+                    { name: '용역입찰공고문_및_제안요청서.pdf', size: '1,120 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>용역명</th><td>안천 복합환승센터 건립 타당성 및 기본계획 수립 용역</td></tr>
+        <tr><th>기초금액</th><td>금308,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>용역기간</th><td>착수일로부터 10개월</td></tr>
+        <tr><th>참가자격</th><td>
+            1. 엔지니어링산업진흥법에 따른 <strong>[도시계획, 교통, 건축]</strong> 부문 신고 업체<br>
+            2. 학술·연구용역 등록 기관
+        </td></tr>
+    </tbody>
+</table>
+<p class="mt-4"><strong>[사업 개요]</strong><br>
+효빈광역시 5도심 다핵구조의 핵심 교통 결절점인 안천구 일원에 시외버스, 광역전철(빈효선), 시내버스를 입체적으로 연계하는 복합환승센터 건립을 위한 타당성 조사 및 기본계획을 수립하는 용역입니다.</p>`
+            },
+            {
+                id: '2603-042', type: '공사', title: '남구 해안 생태공원 (히버히 서식지) 탐방로 데크 설치 공사', department: '기후환경국',
+                date: '2026-03-10', deadline: '2026-03-24 10:00', status: '개찰완료', views: 540,
+                price: '850,000,000', contractMethod: '지역제한(효빈시)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '생태공원_데크공사_공고문.pdf', size: '280 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>공사명</th><td>남구 해안 생태공원 (히버히 서식지) 탐방로 데크 설치 공사</td></tr>
+        <tr><th>기초금액</th><td>금935,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>공사기간</th><td>착공일로부터 90일</td></tr>
+        <tr><th>참가자격</th><td>
+            1. 건설산업기본법에 의한 <strong>[조경공사업]</strong> 등록 업체<br>
+            2. 법인 등기부상 본점이 <strong>효빈광역시</strong>인 업체 (지역제한)
+        </td></tr>
+    </tbody>
+</table>
+<p class="mt-4">우리 시조 '기러기(히버히)'의 주요 서식지를 보호하면서도 시민들이 안전하게 생태 관찰을 할 수 있도록 친환경 천연목재 데크를 설치하는 공사입니다.</p>`
+            },
+            {
+                id: '2602-120', type: '물품', title: '효빈시청 구내식당 노후 취사기구 교체 및 구매', department: '총무과',
+                date: '2026-02-25', deadline: '2026-03-05 14:00', status: '개찰완료', views: 320,
+                price: '45,000,000', contractMethod: '수의계약(소액)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '물품구매_수의계약_안내공고.pdf', size: '150 KB' },
+                    { name: '취사기구_구매규격서.hwp', size: '45 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>물품명</th><td>효빈시청 구내식당 노후 취사기구 교체 및 구매</td></tr>
+        <tr><th>기초금액</th><td>금49,500,000원 (부가가치세 포함)</td></tr>
+        <tr><th>납품기한</th><td>계약일로부터 20일 이내</td></tr>
+        <tr><th>구매내역</th><td>대형 국솥(회전식) 2대, 상업용 가스레인지 3대, 자외선 살균소독기 2대 등</td></tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: '2602-090', type: '용역', title: '청년 안심 주택 \'효빈 하우스\' 1호점 종합 관리 및 운영 용역', department: '주택정책과',
+                date: '2026-02-18', deadline: '2026-02-28 10:00', status: '유찰', views: 410,
+                price: '120,000,000', contractMethod: '제한경쟁(실적)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '용역입찰공고문_재공고안내.pdf', size: '180 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>용역명</th><td>청년 안심 주택 '효빈 하우스' 1호점 종합 관리 및 운영 용역</td></tr>
+        <tr><th>기초금액</th><td>금132,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>사유</th><td>단독 응찰로 인한 <strong>유찰 (재공고 예정)</strong></td></tr>
+    </tbody>
+</table>
+<p class="mt-4 text-orange-600 font-bold">[안내] 본 건은 단독 응찰로 유찰되었으며, 차주 중 재공고가 진행될 예정입니다.</p>`
+            },
+            {
+                id: '2602-045', type: '공사', title: '효빈종합터미널 ~ 신세계/이마트 연결 통로 에스컬레이터 교체 공사', department: '대중교통과',
+                date: '2026-02-10', deadline: '2026-02-24 14:00', status: '개찰완료', views: 760,
+                price: '420,000,000', contractMethod: '지역제한(효빈시)', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '승강기교체공사_공고문.pdf', size: '250 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>공사명</th><td>효빈종합터미널 ~ 대형쇼핑몰 연결 통로 에스컬레이터 교체 공사</td></tr>
+        <tr><th>기초금액</th><td>금462,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>공사현장</th><td>효빈종합터미널 2층 연결통로</td></tr>
+        <tr><th>참가자격</th><td>승강기설치공사업 등록 업체 (효빈시 지역제한)</td></tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: '2601-112', type: '물품', title: '광역전철 빈효선(연청색) 탄성군 지선 연장구간 스크린도어(PSD) 부품 구매', department: '도시철도건설본부',
+                date: '2026-01-25', deadline: '2026-02-05 10:00', status: '개찰완료', views: 880,
+                price: '650,000,000', contractMethod: '일반경쟁', bidMethod: '전자입찰',
+                attachments: [
+                    { name: '물품구매공고문_빈효선PSD부품.pdf', size: '310 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>물품명</th><td>광역전철 빈효선 탄성군 지선 연장구간 스크린도어(PSD) 부품 구매</td></tr>
+        <tr><th>기초금액</th><td>금715,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>납품장소</th><td>효빈교통공사 차량기지 자재창고</td></tr>
+        <tr><th>상세규격</th><td>도시철도 8호선 및 빈효선(<span style="color:#6677CC; font-weight:bold;">#6677CC 연청색</span>) 공용 규격 호환 모터 및 구동제어장치(DCU)</td></tr>
+    </tbody>
+</table>`
+            },
+            {
+                id: '2601-088', type: '용역', title: '탄성군 편입 31주년 및 8구 1군 상생 발전 기념 시민 화합 한마당 축제 대행 용역', department: '자치행정과',
+                date: '2026-01-15', deadline: '2026-01-30 16:00', status: '개찰완료', views: 1050,
+                price: '300,000,000', contractMethod: '협상에 의한 계약', bidMethod: '전자입찰+제안서평가',
+                attachments: [
+                    { name: '행사대행용역_공고문_및_제안요청서.pdf', size: '890 KB' }
+                ],
+                content: `
+<table class="content-table">
+    <tbody>
+        <tr><th>용역명</th><td>탄성군 편입 31주년 및 8구 1군 상생 발전 기념 시민 화합 한마당 축제 대행 용역</td></tr>
+        <tr><th>기초금액</th><td>금330,000,000원 (부가가치세 포함)</td></tr>
+        <tr><th>행사일시</th><td>2026년 4월 중 (상세일정 협의)</td></tr>
+        <tr><th>과업내용</th><td>
+            - 1995년 탄성군 편입 이후 31주년 회고 및 8구 1군 통합 상생 비전 퍼포먼스 기획<br>
+            - 초대가수 섭외, 무대 설치, 안전관리, 홍보 마케팅 일체
+        </td></tr>
+    </tbody>
+</table>`
+            }
+        ];
+
+        // 상태 관리
+        let state = {
+            data: [...RAW_DATA],
+            filteredData: [...RAW_DATA],
+            currentPage: 1,
+            itemsPerPage: 10,
+            searchType: 'all',
+            searchStatus: 'all',
+            searchBadge: 'all',
+            searchKeyword: ''
+        };
+
+        // 초기화
+        function init() {
+            renderList();
+        }
+
+        // 검색 처리
+        function handleSearch(e) {
+            e.preventDefault();
+            const searchType = document.getElementById('search-type').value;
+            const searchStatus = document.getElementById('search-status').value;
+            const searchBadge = document.getElementById('search-type-badge').value;
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+
+            state.searchType = searchType;
+            state.searchStatus = searchStatus;
+            state.searchBadge = searchBadge;
+            state.searchKeyword = keyword;
+            state.currentPage = 1;
+
+            state.filteredData = state.data.filter(item => {
+                // 키워드 필터링
+                let keywordMatch = true;
+                if (keyword) {
+                    const titleMatch = item.title.toLowerCase().includes(keyword);
+                    const contentMatch = item.content.toLowerCase().includes(keyword);
+                    const deptMatch = item.department.toLowerCase().includes(keyword);
+                    const idMatch = item.id.toLowerCase().includes(keyword);
+
+                    if (searchType === 'all') keywordMatch = titleMatch || contentMatch || deptMatch || idMatch;
+                    else if (searchType === 'title') keywordMatch = titleMatch || idMatch;
+                    else if (searchType === 'dept') keywordMatch = deptMatch;
+                }
+
+                // 상태 필터링
+                let statusMatch = true;
+                if (searchStatus !== 'all') {
+                    statusMatch = item.status === searchStatus;
+                }
+
+                // 구분(뱃지) 필터링
+                let badgeMatch = true;
+                if (searchBadge !== 'all') {
+                    if (searchBadge === '기타') {
+                        badgeMatch = (item.type !== '공사' && item.type !== '용역' && item.type !== '물품');
+                    } else {
+                        badgeMatch = item.type === searchBadge;
+                    }
+                }
+
+                return keywordMatch && statusMatch && badgeMatch;
+            });
+            
+            renderList();
+        }
+
+        // 뱃지 렌더링 헬퍼
+        function getTypeBadgeHtml(type) {
+            if(type === '공사') return `<span class="badge-type construct">공사</span>`;
+            if(type === '용역') return `<span class="badge-type service">용역</span>`;
+            if(type === '물품') return `<span class="badge-type goods">물품</span>`;
+            return `<span class="badge-type etc">${type}</span>`;
+        }
+        
+        function getStatusBadgeHtml(status) {
+            if(status === '입찰중') return `<span class="badge-status active">입찰중</span>`;
+            if(status === '개찰완료') return `<span class="badge-status closed">개찰완료</span>`;
+            if(status === '유찰') return `<span class="badge-status failed">유찰</span>`;
+            return `<span>-</span>`;
+        }
+
+        // 목록 렌더링
+        function renderList() {
+            const tbody = document.getElementById('notice-tbody');
+            const totalCountEl = document.getElementById('total-count');
+            
+            const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+            const endIndex = startIndex + state.itemsPerPage;
+            const paginatedData = state.filteredData.slice(startIndex, endIndex);
+
+            totalCountEl.textContent = state.filteredData.length.toLocaleString();
+            
+            let html = '';
+            
+            if (paginatedData.length === 0) {
+                html = `<tr><td colspan="8" class="py-10 text-center text-slate-500">검색 결과가 없습니다.</td></tr>`;
+            } else {
+                paginatedData.forEach(post => {
+                    const deadlineStr = post.deadline.substring(0, 10);
+                    
+                    html += `
+                        <tr class="cursor-pointer" onclick="viewDetail('${post.id}')">
+                            <td class="text-[14px] font-medium">${post.id}</td>
+                            <td>${getTypeBadgeHtml(post.type)}</td>
+                            <td class="subject">
+                                <a href="#none" onclick="event.preventDefault();" class="text-slate-700 font-bold hover:text-hyobin-blue truncate max-w-sm md:max-w-md lg:max-w-lg" title="${post.title}">
+                                    ${post.title}
+                                </a>
+                            </td>
+                            <td>${post.department}</td>
+                            <td class="text-[14px]">${post.date}</td>
+                            <td class="text-[14px] font-bold ${post.status === '입찰중' ? 'text-red-600' : 'text-slate-500'}">${deadlineStr}</td>
+                            <td>${getStatusBadgeHtml(post.status)}</td>
+                            <td>${post.views.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tbody.innerHTML = html;
+            renderPagination();
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            const totalPages = Math.ceil(state.filteredData.length / state.itemsPerPage) || 1;
+            
+            document.getElementById('current-page').textContent = state.currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+
+            let html = '';
+            const prevDisabled = state.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(1)" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${prevDisabled}" title="처음 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${state.currentPage - 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 mr-2 ${prevDisabled}" title="이전 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+
+            let startPage = Math.max(1, state.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === state.currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-hyobin-blue bg-hyobin-blue text-white font-bold">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-600 hover:bg-slate-50">${i}</button>`;
+                }
+            }
+
+            const nextDisabled = state.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(${state.currentPage + 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ml-2 ${nextDisabled}" title="다음 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${totalPages})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${nextDisabled}" title="마지막 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>`;
+
+            container.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(state.filteredData.length / state.itemsPerPage)) return;
+            state.currentPage = page;
+            renderList();
+        }
+
+        // ==========================================
+        // 상세 뷰 관련 로직
+        // ==========================================
+        function viewDetail(id) {
+            const item = state.data.find(n => n.id === id);
+            if (!item) return;
+
+            item.views += 1;
+
+            // 상세 상단
+            document.getElementById('detail-type').outerHTML = getTypeBadgeHtml(item.type);
+            const badges = document.querySelectorAll('.badge-type');
+            badges[badges.length-1].id = 'detail-type'; 
+
+            document.getElementById('detail-status').outerHTML = getStatusBadgeHtml(item.status);
+            const statuses = document.querySelectorAll('.badge-status');
+            statuses[statuses.length-1].id = 'detail-status';
+
+            document.getElementById('detail-id').textContent = item.id;
+            document.getElementById('detail-title').textContent = item.title;
+            
+            // 상세 박스
+            document.getElementById('detail-price').textContent = item.price + "원";
+            document.getElementById('detail-dept').textContent = item.department;
+            document.getElementById('detail-contract-method').textContent = item.contractMethod;
+            document.getElementById('detail-bid-method').textContent = item.bidMethod;
+            document.getElementById('detail-date').textContent = item.date;
+            document.getElementById('detail-deadline').textContent = item.deadline;
+            
+            // 내용
+            document.getElementById('detail-content').innerHTML = item.content;
+
+            // 첨부파일 영역
+            const attachContainer = document.getElementById('detail-attachments-container');
+            const attachList = document.getElementById('detail-attachments-list');
+            attachList.innerHTML = '';
+            
+            if (item.attachments && item.attachments.length > 0) {
+                attachContainer.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    attachList.innerHTML += `
+                        <li>
+                            <a href="#none" onclick="alert('${file.name} 다운로드를 시작합니다.'); event.preventDefault();" class="text-[15px] text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 transition font-medium">
+                                <i data-lucide="file-text" class="w-4 h-4"></i> ${file.name} <span class="text-xs text-slate-400 ml-1">(${file.size})</span> <i data-lucide="download" class="w-3 h-3 ml-1"></i>
+                            </a>
+                        </li>
+                    `;
+                });
+            } else {
+                attachContainer.classList.add('hidden');
+            }
+
+            document.getElementById('board-list-view').classList.add('hidden');
+            document.getElementById('board-detail-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function goBackToList() {
+            renderList();
+            document.getElementById('board-detail-view').classList.add('hidden');
+            document.getElementById('board-list-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // PDF 다운로드 로직 (네이티브 방식)
+        // ==========================================
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

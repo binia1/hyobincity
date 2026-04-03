@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시민의 소리 - 효빈광역시 소통·참여</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Table Styles (게시판 전용) */
+        .table-container { overflow-x: auto; border-top: 2px solid #1a365d; background: white; }
+        th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.875rem; padding: 1rem; text-align: center; white-space: nowrap; border-bottom: 1px solid #cbd5e1; }
+        td { padding: 1rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; text-align: center; }
+        td.title-col { text-align: left; }
+        tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+        tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+
+        /* Status Tags */
+        .status-wait { background-color: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #cbd5e1; }
+        .status-ing { background-color: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #a7f3d0; }
+        .status-done { background-color: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #bfdbfe; }
+
+        /* Modal Overlay & Base */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민 여러분의 소중한 의견에 귀 기울이겠습니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 (사이드바 + 메인 컨텐츠) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민 광장
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 광장</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">시민의 소리</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">시민의 소리</h2>
+                <p class="text-slate-600">시정 발전과 관련된 제안, 칭찬, 건의, 불편사항 등을 자유롭게 남겨주시기 바랍니다.</p>
+            </div>
+
+            <!-- 안내 박스 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm flex gap-4 items-start">
+                <div class="bg-white p-3 rounded-full shadow-sm text-blue-600 shrink-0">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[14px] text-slate-700 space-y-2 leading-relaxed">
+                    <p><strong class="text-blue-800">게시물 작성 시 유의사항</strong></p>
+                    <ul class="list-disc list-inside space-y-1 ml-1 text-slate-600">
+                        <li>상업성 광고, 저속한 표현, 특정인에 대한 비방, 명예훼손, 정치적 목적의 게시물은 <strong>통보 없이 삭제</strong>될 수 있습니다.</li>
+                        <li>주민등록번호, 전화번호 등 <strong>개인정보가 포함된 내용은 등록을 삼가</strong>해 주시기 바랍니다. (개인정보 노출 시 즉시 비공개 전환)</li>
+                        <li>민원 처리에 관한 법률에 따른 정식 민원 접수는 <a href="civil.html" class="text-blue-600 underline font-bold">온라인 민원창구</a>를 이용해 주시기 바랍니다.</li>
+                        <li>비밀글로 작성 시 작성자 본인과 담당 공무원만 내용을 확인할 수 있습니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 검색 및 필터 영역 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center text-sm font-medium text-slate-600">
+                    전체 게시물 <span id="total-count" class="text-hyobin-blue font-bold ml-1 mr-1">0</span>건
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <select class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <option value="all">처리상태 전체</option>
+                        <option value="wait">접수대기</option>
+                        <option value="ing">처리중</option>
+                        <option value="done">답변완료</option>
+                    </select>
+                    <div class="relative flex-1 md:w-64">
+                        <input type="text" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <button class="absolute right-2 top-1.5 text-slate-400 hover:text-hyobin-blue">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 게시판 테이블 -->
+            <div class="table-container shadow-sm min-h-[400px]">
+                <table class="w-full">
+                    <colgroup>
+                        <col style="width: 8%">
+                        <col style="width: 12%">
+                        <col style="width: 45%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 10%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>처리상태</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>작성일</th>
+                            <th>조회</th>
+                        </tr>
+                    </thead>
+                    <tbody id="board-tbody" class="divide-y divide-slate-100">
+                        <!-- JS Rendered -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 하단 버튼 및 페이지네이션 -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mt-6">
+                <!-- 빈 공간 (모바일 정렬용) -->
+                <div class="hidden md:block w-24"></div>
+                
+                <!-- 페이지네이션 -->
+                <div class="flex gap-1" id="pagination-container">
+                    <!-- JS Rendered -->
+                </div>
+
+                <!-- 글쓰기 버튼 -->
+                <button onclick="openWriteModal()" class="bg-hyobin-blue text-white px-5 py-2.5 rounded-lg flex items-center font-bold hover:bg-blue-800 transition shadow-md w-full md:w-auto justify-center">
+                    <i data-lucide="pencil" class="w-4 h-4 mr-2"></i> 글쓰기
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 1. 게시글 조회 모달 -->
+    <div id="board-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeViewModal()">
+        <div id="board-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b bg-slate-50 rounded-t-xl shrink-0 flex justify-between items-start">
+                <div class="pr-6">
+                    <div class="flex gap-2 mb-2">
+                        <span id="modal-status" class="status-done">답변완료</span>
+                        <span class="text-slate-400 text-sm flex items-center" id="modal-dept-label"><i data-lucide="folder" class="w-3.5 h-3.5 mr-1"></i>해당부서</span>
+                    </div>
+                    <h3 id="modal-title" class="font-black text-xl md:text-2xl text-slate-800 break-keep leading-tight">제목</h3>
+                    <div class="flex flex-wrap gap-4 text-sm text-slate-500 mt-3">
+                        <span class="flex items-center"><i data-lucide="user" class="w-4 h-4 mr-1"></i><span id="modal-author">작성자</span></span>
+                        <span class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1"></i><span id="modal-date">작성일</span></span>
+                        <span class="flex items-center"><i data-lucide="eye" class="w-4 h-4 mr-1"></i>조회 <span id="modal-views" class="ml-1">0</span></span>
+                    </div>
+                </div>
+                <button onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 모달 바디 (원문 내용) -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed text-[15px] flex-grow">
+                <div id="modal-body" class="whitespace-pre-wrap min-h-[150px] mb-8">내용</div>
+                
+                <!-- 답변 영역 -->
+                <div id="modal-reply-area" class="bg-blue-50 border border-blue-100 rounded-lg p-6 mt-8 hidden">
+                    <div class="flex items-center gap-2 mb-4 border-b border-blue-200 pb-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-5 h-5"></i></div>
+                        <h4 class="font-bold text-lg text-blue-900">효빈광역시 답변</h4>
+                    </div>
+                    <div id="modal-reply-content" class="text-sm text-slate-700 whitespace-pre-wrap leading-loose"></div>
+                    <div class="text-right text-xs text-blue-500 mt-4 pt-3 border-t border-blue-100 border-dashed" id="modal-reply-dept">
+                        담당부서: 
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-5 border-t bg-slate-50 rounded-b-xl flex justify-end shrink-0">
+                <button onclick="closeViewModal()" class="px-6 py-2.5 bg-slate-600 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm">목록으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 글쓰기 모달 -->
+    <div id="write-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4 transition-opacity duration-300" onclick="closeWriteModal()">
+        <div id="write-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <form onsubmit="submitPost(event)" class="flex flex-col h-full">
+                <!-- 헤더 -->
+                <div class="p-6 border-b bg-slate-50 rounded-t-xl shrink-0 flex justify-between items-center">
+                    <h3 class="font-black text-xl text-slate-800">시민의 소리 작성</h3>
+                    <button type="button" onclick="closeWriteModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <!-- 바디 -->
+                <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">제목 <span class="text-red-500">*</span></label>
+                        <input type="text" id="write-title" required placeholder="민원 제목을 입력해주세요." class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">작성자 <span class="text-red-500">*</span></label>
+                            <input type="text" id="write-author" required placeholder="홍*동" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        </div>
+                        <div class="flex items-end pb-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="write-secret" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                                <span class="ml-2 text-sm font-bold text-slate-700 select-none"><i data-lucide="lock" class="w-4 h-4 inline mr-1 text-slate-500"></i>비밀글로 등록하기</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">내용 <span class="text-red-500">*</span></label>
+                        <textarea id="write-content" required rows="8" placeholder="불편사항, 건의사항 등을 상세히 적어주세요.&#13;&#10;※ 주민등록번호 등 개인정보가 포함되지 않도록 주의 바랍니다." class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none custom-scrollbar"></textarea>
+                    </div>
+                </div>
+
+                <!-- 푸터 -->
+                <div class="p-5 border-t bg-slate-50 rounded-b-xl flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeWriteModal()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition shadow-sm">취소</button>
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition shadow-sm flex items-center">
+                        <i data-lucide="send" class="w-4 h-4 mr-2"></i> 등록완료
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 외부 스크립트 연결 -->
+    <!-- 스크립트를 body 최하단에 배치하여 DOM 로드 후 실행 보장 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <!-- 게시판 전용 및 페이지네이션 스크립트 -->
+    <script>
+        // 게시판 데이터 (SyntaxError 유발 따옴표를 모두 제거/치환)
+        let boardData = [
+            // 시민들의 강경 대응 요구 민원 3건 추가
+            {
+                id: 1260, status: '답변완료', isSecret: false,
+                title: '자칭 계엄사령관 윤재훈에 대한 효빈시 차원의 강력한 법적 조치와 접근금지를 촉구합니다.',
+                author: '박*성', date: '2026.04.07', views: 5642, dept: '법무담당관',
+                content: '어제 당가동 파스텔 블루 거리에 전 시장 아들 윤재훈이 장난감 총과 야구빠따를 들고 나타나 상인들과 시민들을 위협했다는 뉴스를 보았습니다.\n이 도시에 사는 일반 시민으로서 너무나 부끄럽고 분노가 치밉니다. 4.8% 표를 받고도 정신을 못 차리고 계엄사령관 행세를 하는 저 범죄자에게 시청 차원에서 막대한 손해배상을 청구해 주십시오.\n또한 당가동 등 주요 상권 접근금지 가처분을 반드시 신청해 주십시오. 더 이상 저런 혐오 세력이 효빈시의 물을 흐리게 놔둬서는 안 됩니다!',
+                reply: '안녕하십니까, 효빈광역시청 법무담당관실입니다.\n시민님께서 느끼셨을 불안과 분노에 깊이 공감합니다. 우리 시는 해당 인물(윤재훈)이 벌인 당가동 위협 사건 및 기물 파손 미수 등 일련의 불법 행위에 대해 현재 경찰과 공조하여 엄정하게 수사를 진행 중입니다.\n시청 차원에서도 영업 방해 및 도시 이미지 훼손에 대한 대규모 민사 소송을 준비 중이며, 시민 여러분의 안전을 위해 주요 상권 접근 금지 조치도 법원에 강력히 요청한 상태입니다. 시민이 안심할 수 있는 효빈시를 지켜내겠습니다.'
+            },
+            {
+                id: 1259, status: '답변완료', isSecret: false,
+                title: '윤재훈 및 그 일당의 대중교통(도시철도/버스) 탑승 영구 제한 건의',
+                author: '이*진', date: '2026.04.07', views: 3290, dept: '안전정책과',
+                content: '지난번 터미널 오물 투척 미수 사건도 그렇고, 윤대환 전 시장 아들이라는 사람이 잊을 만하면 대중교통 시설이나 HAF 행사장 근처에서 난동을 부립니다.\n대중교통은 모든 시민이 안전하게 이용해야 할 시설입니다. 이런 상습적인 테러 위협범은 효빈도시철도 및 시내버스 탑승을 블랙리스트 제도를 통해 영구적으로 제한할 수 없나요? 장난감 총기 난동 뉴스를 보니 너무 불안해서 1호선 타기도 겁납니다.',
+                reply: '시민님, 안녕하십니까. 효빈광역시 안전정책과 및 대중교통과입니다.\n시민님의 우려에 깊이 공감하며, 대중교통 내 시민 안전 확보를 최우선으로 생각하고 있습니다.\n현재 철도안전법 및 여객자동차운수사업법에 근거하여, 상습적으로 타인에게 위협을 가하거나 운행을 방해하는 자에 대해서는 탑승 거부 및 현장 경찰 인계 조치 매뉴얼을 강화하여 시행 중입니다.\n해당 인물에 대해서는 전체 역사 및 터미널 보안 요원들에게 특별 경계령이 내려져 있으며, 시설 접근 시 즉시 차단 및 퇴거 조치되도록 24시간 감시 체계를 가동하고 있습니다.'
+            },
+            {
+                id: 1258, status: '답변완료', isSecret: false,
+                title: '효빈시의 자랑 HAF 행사를 위협하는 세력에 대한 무관용 원칙을 전적으로 지지합니다.',
+                author: '정*우', date: '2026.04.06', views: 4120, dept: '문화예술유산과',
+                content: '매년 HAF(효빈 애니메이션 페스티벌)에 자원봉사자로 참여하고 있는 시민입니다.\n최근 윤재훈이 HAF 행사를 방해하겠다고 협박 글을 올리고, 내한하는 외국인 성우들에게까지 SNS로 욕설을 퍼붓는 만행을 저질렀다는 소식을 접했습니다.\n효빈시의 소중한 문화 자산이자 엄청난 경제 효과를 가져오는 축제를 망치려는 자에게 절대 선처하지 마십시오! 박효빈 시장님의 [단 1mg의 자비도 없는 무관용 원칙]을 전폭적으로 지지하며, 끝까지 처벌해 주시기를 바랍니다.',
+                reply: '안녕하십니까, 효빈광역시청 문화예술유산과입니다.\nHAF에 대한 시민님의 깊은 애정과 시정에 대한 적극적인 지지에 진심으로 감사드립니다.\n박효빈 시장님께서 여러 차례 천명하셨듯, 우리 시의 문화적 다양성을 훼손하고 시민들의 평화로운 축제를 위협하는 어떠한 증오 범죄나 테러 시도에 대해서도 단 1mg의 선처 없는 무관용 원칙을 고수할 것입니다.\n올해 HAF 행사장에는 예년 대비 3배 이상의 민관 합동 경비 인력이 투입될 예정이며, 해당 인물을 비롯한 불순 세력의 접근을 원천 차단하여 전 세계인이 안전하게 즐기는 글로벌 축제로 만들어가겠습니다.'
+            },
+            // 윤재훈의 찌질한 원본 악성 민원
+            {
+                id: 1257, status: '답변완료', isSecret: false,
+                title: '나는 효빈지구 시민계엄사령관 윤재훈이다! 박효빈은 당장 항복하라!',
+                author: '윤*훈', date: '2026.04.06', views: 8820, dept: '법무담당관',
+                content: '내 득표율 4.8%는 명백한 조작이다! 박효빈 이 [필터링된 욕설]들아! 당장 시청을 비우고 시민계엄군에게 항복하라!\n그리고 당가동 파스텔 블루 거리에 있는 불온한 오타쿠 시설들과 탕쿠쿠인지 뭔지 하는 중국인 등신대 판넬 당장 다 치워버려! 안 그러면 내가 직접 시민계엄군을 이끌고 가서 장난감 총이 아니라 야구빠따로 싹 다 부숴버리겠다!\n내가 누군지 알아?! 우리 아빠가 전 시장 윤대환이야!!! 당장 구치소에 망고 빙수나 특식으로 배달해라!',
+                reply: '안녕하십니까, 효빈광역시청 법무담당관실입니다.\n\n귀하께서 작성하신 게시물은 [정보통신망 이용촉진 및 정보보호 등에 관한 법률] 제44조의7 및 형법상 협박, 내란선동, 공무집행방해 등에 해당하는 중대한 범죄 행위로 간주되어 규정에 따라 일부 내용이 블라인드 처리되었습니다.\n\n효빈광역시는 귀하의 상습적인 시정 방해 및 당가동 상인들을 향한 테러 예고에 대해 절대 타협하지 않는 [무관용 원칙]으로 일관하고 있습니다. 본 게시물의 접속 IP와 원본 내용은 즉시 채증되어 효빈경찰청에 고발 조치되었음을 엄중히 통보합니다.\n장난감 비비탄 총을 들고 붉은 완장을 찬 채 거리를 배회하며 시민을 위협하는 등의 몰지각한 행위는 귀하의 가중처벌 대상이 될 뿐임을 강력히 경고합니다.'
+            },
+            // 이하 정상적인 시민 민원들
+            {
+                id: 1256, status: '답변완료', isSecret: false,
+                title: '효빈도시철도 1호선 고나미 굿즈 추가 입고 건의 및 6호선 관련 문의',
+                author: '덕*러', date: '2026.04.05', views: 1024, dept: '효빈교통공사 영업본부',
+                content: '안녕하세요. 도시철도 1호선 파란색 마스코트 캐릭터 고나미 아크릴 스탠드가 발매 첫날 전역에서 품절되었습니다.\n파란색 상징 컬러에 기타를 치는 설정이 제가 좋아하는 뱅드림!의 하나조노 타에(오타에)짱이랑 엮이는 요소가 너무 완벽해서 꼭 구하고 싶은데, 터미널 굿즈샵에 가보니 흔적조차 없더군요.\n\n매번 품절 대란인데 제발 재입고 일정을 알려주시고 물량도 넉넉하게 뽑아주세요!\n추가로 보라색 6호선 라세나(미나토 유키나 컨셉) 관련한 팝업 스토어나 콜라보 이벤트는 언제쯤 열리는지도 답변 부탁드립니다.',
+                reply: '효빈도시철도를 이용해 주시고 당사 1호선 마스코트 고나미 캐릭터 상품에 큰 성원을 보내주셔서 대단히 감사합니다.\n\n시민님께서 언급해주신 대로, 고나미 캐릭터의 기획 단계에서 뱅드림!의 하나조노 타에 캐릭터가 가진 푸른색 이미지와 엉뚱하면서도 매력적인 기타리스트 설정을 일부 오마주한 바 있어, 서브컬처 팬 여러분의 뜨거운 반응을 얻은 것 같습니다.\n하지만 초기 물량이 예상보다 빠르게 소진되어 구매에 불편을 드린 점 진심으로 사과드립니다. 현재 긴급 추가 제작에 들어갔으며, 4월 중순 경 효빈종합버스터미널 굿즈샵 및 1호선 주요 환승역 고객센터에 2차 물량이 대량 입고될 예정입니다.\n\n아울러 문의하신 6호선 라세나 관련 이벤트는 다가오는 하반기 HAF(효빈 애니메이션 페스티벌) 기간에 맞춰 특별 팝업 스토어 형태로 기획 중에 있습니다. 앞으로도 효빈교통공사는 시민 여러분의 서브컬처 문화 향유에 부응하는 다양한 기획을 선보이도록 노력하겠습니다.'
+            },
+            {
+                id: 1255, status: '접수대기', isSecret: false,
+                title: '북구 효빈현대백화점 인근 도로 파손(포트홀) 보수 긴급 요청',
+                author: '김*수', date: '2026.04.05', views: 15, dept: '도로계획과',
+                content: '북구 고송동 효빈현대백화점 정문 앞 횡단보도 부근 도로가 심하게 패여(포트홀) 있습니다.\n특히 비가 오는 날이면 웅덩이에 물이 고여 지나가는 버스나 대형 차량에 의해 횡단보도를 건너려 대기 중인 보행자들이 물벼락을 맞는 등 불편이 매우 심각합니다.\n또한 야간에는 오토바이나 자전거 운전자들이 해당 포트홀을 피하려다 급차선 변경을 하여 교통사고가 날 뻔한 아찔한 상황을 여러 번 목격했습니다. 안전사고 예방을 위해 조속한 현장 확인 및 아스팔트 보수 공사를 간곡히 부탁드립니다.',
+                reply: null
+            },
+            {
+                id: 1254, status: '처리중', isSecret: false,
+                title: '고송동 방직공장 부지 개발 공사 소음 및 분진 피해 신고',
+                author: '박*훈', date: '2026.04.04', views: 88, dept: '건설행정과',
+                content: '구(舊) 방직공장 부지 복합개발 공사 현장 인근 아파트에 거주하는 주민입니다.\n최근 터파기 및 철거 공사가 본격적으로 시작되면서, 이른 아침인 오전 6시 30분부터 포크레인과 덤프트럭의 소음과 진동이 발생하여 주말에도 정상적인 수면을 취할 수 없을 정도로 고통받고 있습니다.\n더불어 바람이 부는 날에는 현장에서 발생하는 흙먼지와 분진이 아파트 베란다와 거실까지 날아와 창문을 열어둘 수도 없는 상황입니다. 공사 시간 준수 여부를 철저히 감독해 주시고, 비산먼지 저감 대책(살수차 상시 운행 등)을 강력히 요구합니다.',
+                reply: null
+            },
+            {
+                id: 1253, status: '답변완료', isSecret: false,
+                title: '중구시립도서관 와이파이 연결 불량 및 콘센트 부족 문제 개선',
+                author: '윤*석', date: '2026.04.04', views: 112, dept: '중구도서관 행정지원팀',
+                content: '중구시립도서관 3층 종합자료실에서 개인 노트북을 이용해 인터넷 강의를 들으며 취업을 준비하는 시민입니다.\n최근 들어 도서관 내 공공 와이파이가 너무 자주 끊기고 속도가 지나치게 느려 동영상 강의 시청에 지장이 큽니다.\n또한, 벽면 쪽 일부 좌석에만 콘센트가 설치되어 있어 아침 일찍부터 자리 눈치 게임과 다툼이 일어나는 등 불쾌한 분위기가 조성됩니다.\n무선 인터넷 공유기 증설과 다인용 책상 중앙에 멀티탭이나 콘센트를 넉넉히 추가로 설치해 주실 것을 강력히 건의합니다.',
+                reply: '안녕하십니까, 중구시립도서관입니다. 도서관 이용에 큰 불편을 드려 대단히 죄송합니다.\n\n먼저 와이파이 문제의 경우, 최근 취업 및 수험 준비 이용객의 전자기기 접속 폭증으로 인해 기존 무선 공유기(AP)의 동시 접속 처리 용량을 초과하여 속도 저하 현상이 발생한 것으로 확인되었습니다. 이를 신속히 해결하기 위해 이달 말까지 3층 종합자료실 내 고성능 무선 공유기 5대를 추가 증설하는 작업에 착수했습니다.\n\n또한, 열람석 콘센트 부족 문제와 관련해서는 오는 하반기에 예정된 열람실 환경 개선 리모델링 사업에 노트북 전용석 대폭 확충 및 중앙 멀티탭 매립형 책상 전면 교체 예산을 이미 확보하여 반영해 두었습니다. 빠른 시일 내에 개선하여 쾌적하고 집중할 수 있는 학습 환경을 제공하겠습니다.'
+            },
+            {
+                id: 1252, status: '답변완료', isSecret: false,
+                title: '시내버스 110번 노선 출퇴근 시간대 배차간격 단축 건의',
+                author: '이*진', date: '2026.04.03', views: 245, dept: '대중교통과',
+                content: '출퇴근 시간대 110번 시내버스의 배차간격이 너무 깁니다. 정류장 안내 전광판에는 15분이라고 뜨지만 실제로는 30분 넘게 기다려야 하는 경우가 비일비재합니다.\n특히 남구에서 덕북권으로 넘어가는 주요 환승 지점인 고송사거리 정류장에서는 버스가 이미 만차 상태로 도착하여, 출입문에도 매달리지 못하고 그대로 차량을 보내는 일이 잦아 지각하는 시민들이 속출하고 있습니다.\n시민 불편 해소를 위해 출퇴근 붐비는 시간(오전 7~9시, 오후 6~8시)만이라도 탄력적으로 집중 배차를 늘려주실 것을 건의합니다.',
+                reply: '안녕하십니까, 효빈광역시 대중교통과입니다.\n출퇴근 시간대 시내버스 이용에 큰 불편을 겪게 해드려 진심으로 사과의 말씀을 드립니다.\n\n건의해주신 110번 노선의 시간대별 탑승률과 배차 지연 현상을 자체 모니터링 시스템으로 분석한 결과, 특정 시간대 덕북권 방향으로의 승객 쏠림 현상과 주요 교차로 상습 정체로 인한 연착이 주된 원인으로 파악되었습니다.\n\n이를 해결하기 위해 해당 운수업체와 긴급 협의를 진행하였으며, 오는 5월 1일부터 평일 출퇴근 시간대에 한정하여 예비 차량 3대를 110번 주요 혼잡 구간에 집중 추가 투입(일명 다람쥐 버스 형태)하기로 최종 결정하였습니다. 이를 통해 실질적인 배차 간격을 10분 이내로 단축시켜 시민 여러분의 불편을 해소하도록 조치하겠습니다.'
+            },
+            {
+                id: 1251, status: '답변완료', isSecret: false,
+                title: '안천구 어린이공원 야간 조명 밝기 및 우범지대화 우려',
+                author: '송*미', date: '2026.04.03', views: 76, dept: '안천구청 공원녹지과',
+                content: '안천구 3어린이공원 산책로와 놀이터 가로등이 너무 어두워 야간에 운동하거나 퇴근길에 아이들과 산책하기가 매우 불안합니다.\n가로등 불빛 자체가 약한 데다 주변 나무들이 무성하게 자라 불빛을 가리면서 사각지대가 공원 곳곳에 많이 발생합니다.\n청소년들의 탈선 장소나 우범 지대가 되지 않도록 노후 가로등을 밝은 LED 조명으로 전면 교체하거나 조도를 대폭 높여주시고, 정기적인 순찰도 부탁드립니다.',
+                reply: '시민님, 안녕하십니까. 안천구청 공원녹지과입니다.\n먼저 공원 이용에 불안을 느끼게 해드린 점 죄송합니다.\n\n건의하신 안천구 3어린이공원의 야간 조도 문제를 인지하고 즉시 야간 현장 점검을 실시한 결과, 시민님 말씀대로 수목이 무성해져 가로등 불빛을 심각하게 가리고 있는 현상을 확인하였습니다.\n\n우선적으로 시야를 가리는 수목 가지치기(전정) 작업을 다음 주 수요일까지 완료하여 조도를 확보할 예정이며, 5월 중 공원 안전 환경 정비 예산을 투입하여 산책로 및 놀이터 주변의 노후 가로등 6개소를 고효율·고조도 LED 조명으로 교체하겠습니다. 아울러 관할 지구대와 협조하여 심야 시간대 순찰 노선에 해당 공원을 추가하도록 조치했습니다. 안전하고 쾌적한 공원 조성에 최선을 다하겠습니다.'
+            },
+            {
+                id: 1250, status: '답변완료', isSecret: false,
+                title: '2026 HAF(효빈 애니메이션 페스티벌) 자원봉사자 연령 제한 완화 요청',
+                author: '최*영', date: '2026.04.02', views: 562, dept: '애니메이션산업과',
+                content: '올해 8월에 열리는 HAF(효빈 애니메이션 페스티벌)에 자원봉사자로 꼭 참여하고 싶은 효빈시 소재 고등학교 재학생입니다.\n최근 홈페이지에 뜬 자원봉사자 모집 공고를 확인했는데, 만 19세 이상 성인만 지원 가능하다고 명시되어 있어 무척 아쉽고 실망스러웠습니다.\n전체 행사 진행이나 철야 업무는 아니더라도, 행사장 외부 안내 데스크나 단순 질서 유지, 쓰레기 분리수거 안내 업무 정도는 고등학생 등 청소년도 충분히 참여할 수 있다고 생각합니다. 관련 규정을 완화해 주실 수 없는지 적극적인 검토 부탁드립니다. 저희 청소년들도 시의 자랑인 HAF에 직접 기여하고 싶습니다.',
+                reply: '효빈 애니메이션 페스티벌(HAF)에 대한 청소년 여러분의 뜨거운 관심과 열정적인 자원봉사 참여 의지에 깊이 감사드립니다.\n\n안타깝게도 HAF 행사의 특성상 행사장 내외부의 인파 밀집도가 매우 높고, 코스프레 야간 퍼레이드나 심야 라이브 무대 행사 등 늦은 시간까지 진행되는 일정이 다수 포함되어 있습니다. 이로 인해 대규모 군중 속에서 자원봉사자의 안전 확보와 돌발 상황 대처 책임 문제로 부득이하게 지원 자격을 성인으로 제한하게 되었습니다.\n\n다만, 학생 분의 귀중한 제안에 저희 조직위원회도 깊이 공감하여, 당장 올해 행사부터 주간 시간대(오전 10시~오후 5시)에 한정하여 청소년들이 멘토(성인 봉사자)와 2인 1조로 안전하게 참여할 수 있는 [HAF 청소년 친환경·안내 서포터즈] 전형을 별도로 50명 규모로 신설하기로 전격 결정하였습니다. 자세한 모집 요강은 내주 중 페스티벌 공식 홈페이지에 추가 공지될 예정이니 많은 지원 바랍니다.'
+            },
+            {
+                id: 1249, status: '접수대기', isSecret: false,
+                title: '탄성군 마을버스 노선 전면 폐지안 결사 반대',
+                author: '최*철', date: '2026.04.02', views: 89, dept: '대중교통과',
+                content: '최근 시청에서 발표된 탄성군 마을버스 노선 개편안을 보면, 저희 마을(삼고리) 내부를 경유하던 3-1번 노선이 완전히 폐지되고 1.5km 떨어진 읍내 큰길 정류장 노선으로 통폐합된다고 나와 있습니다.\n이 마을은 거주민의 80% 이상이 70대 이상 고령의 노인분들이라, 장날이나 병원에 가기 위해 무거운 짐을 들고 1.5km의 오르막길을 걸어 큰길 정류장까지 나가는 것은 현실적으로 불가능에 가깝고 생존권의 문제입니다.\n버스 운영의 효율성과 적자 절감도 중요하지만, 교통 약자들의 최소한의 이동권이 이렇게 무참히 박탈되어서는 안 됩니다. 탁상행정식 해당 노선 폐지안을 전면 백지화하고 재검토해 주시기 바랍니다.',
+                reply: null
+            },
+            {
+                id: 1248, status: '처리중', isSecret: false,
+                title: '도시철도 4호선 열차 내 냉방 온도 조절 및 송풍 건의',
+                author: '박*영', date: '2026.04.01', views: 42, dept: '효빈교통공사 차량본부',
+                content: '여름철을 앞두고 도시철도 4호선(주황색)을 출퇴근용으로 이용하는 시민입니다.\n최근 낮 기온이 오르면서 차내에 사람이 많을 때 너무 덥고 답답합니다. 특히 4호선 마스코트 다로나(토야마 카스미) 래핑 열차를 탔을 때 왠지 모르게 래핑 때문에 열기가 더 심하게 느껴지는 것 같습니다.\n출퇴근 시간대만이라도 에어컨 온도를 1~2도 낮춰주시거나, 약냉방칸을 제외한 일반 객차의 송풍을 강하게 틀어주시면 감사하겠습니다.',
+                reply: null
+            },
+            {
+                id: 1247, status: '처리중', isSecret: false,
+                title: '효빈항 인근 심야 불법 폭주족 오토바이 단속 강화 요청',
+                author: '홍*기', date: '2026.04.01', views: 134, dept: '효빈경찰청 교통안전과',
+                content: '매주 금요일과 토요일 밤 11시만 넘어가면 효빈항 해안도로와 수변공원 일대를 따라 오토바이 폭주족 수십 대가 머플러를 불법 개조한 채 굉음을 내며 질주합니다.\n이 소음 때문에 인근 아파트 주민들은 잠을 이룰 수 없는 것은 물론이고, 신호 무시와 지그재그 곡예 운전으로 야간에 산책을 즐기는 시민들을 심각하게 위협하고 있습니다.\n고정식 과속 단속 CCTV만으로는 번호판을 가리거나 꺾고 달리는 이들을 막는 데 한계가 뚜렷합니다. 주말 심야 시간대 해당 구간 양방향에 경찰 순찰차의 거점 배치와 그물망식 집중 단속을 간곡히 요청합니다.',
+                reply: null
+            },
+            {
+                id: 1246, status: '접수대기', isSecret: true,
+                title: '보건소 난임부부 시술비 및 의료비 지원 사업 신청 자격 상세 문의',
+                author: '강*희', date: '2026.03.31', views: 2, dept: '보건위생과',
+                content: '(비밀글 내용)',
+                reply: null
+            },
+            {
+                id: 1245, status: '답변완료', isSecret: false,
+                title: '시청 광장 흡연구역 위치 부적절에 따른 이전 또는 재지정 요청',
+                author: '배*수', date: '2026.03.31', views: 215, dept: '총무과',
+                content: '현재 효빈시청 앞 광장 우측 한편에 펜스만 쳐서 임시로 마련된 흡연구역의 위치가 횡단보도 대기 장소와 너무 가깝습니다.\n바람이 조금만 부는 날이면 그곳에서 피우는 담배 연기가 길을 건너기 위해 신호를 기다리는 다수의 시민들과, 유모차를 끌고 지나가는 부모님들에게 고스란히 덮쳐 심각한 간접흡연 피해를 주고 있습니다.\n흡연자의 흡연할 권리도 존중되어야 마땅하지만, 다수 비흡연자 시민들의 건강권과 불쾌감 방지가 우선되어야 합니다. 임시 흡연구역을 철거하고 완전 밀폐형 스마트 흡연 부스를 설치하시거나, 통행량이 아예 없는 청사 뒤편 구석으로 당장 위치를 옮겨주셨으면 합니다.',
+                reply: '안녕하십니까, 효빈광역시청 총무과입니다.\n우리 시 청사 주변 흡연구역으로 인해 심한 불쾌감과 불편을 겪으신 점에 대해 진심으로 사과의 말씀을 드립니다.\n\n해당 흡연구역은 기존 노후화된 밀폐형 부스가 안전상의 이유로 철거된 후 임시로 지정해 둔 장소였으나, 시민 통행로 및 횡단보도와 지나치게 가까워 간접흡연 피해가 심각하게 발생하고 있다는 시민님의 지적에 전적으로 공감하고 반성합니다.\n\n이에 따라, 금주 주말 공휴일을 이용하여 현재의 임시 흡연구역을 즉각 폐쇄 및 철거하고, 보행로와 30m 이상 완전히 이격된 청사 야외 주차장 뒤편으로 흡연구역을 전면 이전 조치할 예정입니다. 더 나아가 올해 하반기 추경 예산을 확보하여, 음압 시스템과 공기 정화 필터 시설이 완비된 최신식 완전 밀폐형 스마트 흡연 부스 2개동을 신규 설치하여 간접흡연 피해를 원천 차단하도록 노력하겠습니다.'
+            },
+            {
+                id: 1244, status: '답변완료', isSecret: false,
+                title: '효빈천변 산책로 쓰레기 무단투기 및 악취 문제',
+                author: '오*영', date: '2026.03.30', views: 88, dept: '자원순환과',
+                content: '봄이 되면서 효빈천변 산책로에 피크닉이나 치맥을 즐기러 나오는 사람들이 크게 늘었습니다.\n문제는 사람들이 취식 후 남은 배달 음식물 찌꺼기와 플라스틱 컵, 돗자리 등을 지정된 쓰레기통이 아닌 잔디밭이나 벤치 밑에 그대로 무단 투기하고 간다는 것입니다.\n이로 인해 다음 날 아침이면 산책로 전체가 쓰레기장으로 변하고 부패한 음식물 악취가 진동하여 눈살을 찌푸리게 합니다. 쓰레기통 증설, 무단투기 단속 CCTV 추가 설치, 그리고 순찰 인력을 통한 현장 단속 강화를 제안합니다.',
+                reply: '효빈천 산책로를 아끼고 이용해주시는 시민님께 불편을 드려 대단히 죄송합니다.\n\n봄철 야간 이용객 급증으로 쓰레기 무단 투기가 심각해짐에 따라, 자원순환과에서는 효빈천 일대 환경 정비 특별 대책을 다음과 같이 시행합니다.\n1. 주요 피크닉 명소 5개소에 100L급 대형 분리수거함 10세트를 이번 주 내로 추가 배치합니다.\n2. 매일 새벽 1회 실시하던 청소 용역을 심야(23시)와 새벽(5시) 2회로 늘려 악취 발생을 최소화하겠습니다.\n3. 스마트도시과와 협력하여 상습 투기 지역에 [지능형 무단투기 경고 CCTV] 4대를 이달 말까지 신규 설치하고, 야간 단속조를 편성하여 집중 계도 및 과태료 부과 활동을 벌이겠습니다. 깨끗한 하천 환경을 위해 최선을 다하겠습니다.'
+            },
+            {
+                id: 1243, status: '처리중', isSecret: true,
+                title: '시립 체육시설(배드민턴장) 특정 동호회 주말 독점 대관 및 횡포 고발',
+                author: '신*우', date: '2026.03.29', views: 5, dept: '체육시설관리사업소',
+                content: '(비밀글 내용)',
+                reply: null
+            },
+            {
+                id: 1242, status: '접수대기', isSecret: false,
+                title: '효빈전차(7호선) 보존 및 연장 사업 관련 관광 자원화 제안',
+                author: '한*기', date: '2026.03.28', views: 320, dept: '도시철도과',
+                content: '현재 시에서 추진 중인 효빈전차(7호선) 보존 사업을 매우 지지하는 시민입니다.\n기존의 낡은 전차를 단순히 수리해서 달리는 것에 그치지 않고, 유럽이나 일본의 유명 노면전차처럼 내외부를 빈티지하게 꾸미거나 7호선 마스코트(임세정, 임세하)를 활용한 특별 래핑 칸을 상시 운영하면 훌륭한 관광 상품이 될 것 같습니다.\n또한, 현재 계획된 연장 노선 종점에서 1km 정도만 더 선로를 늘리면 주요 관광지인 효빈해양공원과 바로 연결됩니다. 공사비가 추가로 들겠지만 장기적인 관광 시너지를 위해 연장 노선 재검토를 제안합니다.',
+                reply: null
+            },
+            {
+                id: 1241, status: '답변완료', isSecret: false,
+                title: '동구 청년 창업지원센터 공유 오피스 주말 개방 및 운영시간 확대',
+                author: '서*민', date: '2026.03.28', views: 180, dept: '일자리노동과',
+                content: '현재 동구에 위치한 청년 창업지원센터의 운영시간이 평일 오전 9시부터 오후 6시까지로, 전형적인 공무원 근무 시간에 맞춰져 있습니다.\n하지만 입주 기업이나 초기 창업을 준비하는 예비 창업자, 그리고 퇴근 후 투잡으로 창업을 준비하는 청년들은 저녁 시간이나 주말에 집중적으로 모여 아이디어를 짜고 회의를 해야 합니다.\n운영 인력이 부족하다면 무인 출입 통제 시스템(지문이나 QR코드)을 도입해서라도 평일 야간(밤 10시까지) 및 주말 공휴일에도 공유 오피스와 회의실을 사용할 수 있도록 시설 개방을 강력히 요구합니다.',
+                reply: '청년 창업 생태계 활성화를 위해 귀중한 제안을 해주신 시민님께 감사드립니다.\n\n창업지원센터의 현행 운영시간이 실제 창업자들의 업무 패턴과 맞지 않아 불편을 초래했다는 점에 깊이 공감합니다. 시에서는 청년들의 요구를 반영하여 시설 개방 시간을 획기적으로 늘리는 방안을 마련했습니다.\n\n오는 5월 1일부터 동구 청년 창업지원센터 1층 코워킹 스페이스와 2층 공용 회의실에 사물인터넷(IoT) 기반의 무인 출입 인증 및 원격 제어 시스템(조명, 냉난방)을 도입 구축합니다. 시스템 구축이 완료되면, 사전에 등록된 창업 회원에 한해 평일은 밤 11시까지, 주말 및 공휴일은 오전 10시부터 오후 8시까지 센터 시설을 자유롭게 이용하실 수 있게 됩니다. 앞으로도 청년 창업자들의 목소리를 귀담아듣는 효빈시가 되겠습니다.'
+            }
+        ];
+
+        // 페이지네이션 변수
+        let currentPage = 1;
+        const itemsPerPage = 8; // 한 페이지당 8개 표시
+
+        // 총 게시물 수 업데이트
+        function updateTotalCount() {
+            document.getElementById('total-count').innerText = boardData.length.toLocaleString();
+        }
+
+        // 테이블 렌더링 함수
+        function renderTable(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('board-tbody');
+            if(!tbody) return;
+            
+            tbody.innerHTML = '';
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentData = boardData.slice(startIdx, endIdx);
+
+            currentData.forEach(item => {
+                let statusClass = '';
+                if(item.status === '접수대기') statusClass = 'status-wait';
+                else if(item.status === '처리중') statusClass = 'status-ing';
+                else if(item.status === '답변완료') statusClass = 'status-done';
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => openViewModal(item);
+                
+                // 비밀글 아이콘 처리
+                const secretIcon = item.isSecret ? `<i data-lucide="lock" class="w-3.5 h-3.5 inline text-slate-400 mr-1"></i>` : '';
+                
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td><span class="${statusClass}">${item.status}</span></td>
+                    <td class="title-col font-bold text-slate-800">
+                        ${secretIcon} <span class="hover:underline">${item.title}</span>
+                    </td>
+                    <td>${item.author}</td>
+                    <td>${item.date}</td>
+                    <td>${item.views}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateTotalCount();
+            renderPagination();
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링 함수
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            
+            const totalPages = Math.ceil(boardData.length / itemsPerPage);
+            container.innerHTML = '';
+
+            // 이전 버튼
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === 1 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) renderTable(currentPage - 1); };
+            container.appendChild(prevBtn);
+
+            // 숫자 버튼
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if(i === currentPage) {
+                    pageBtn.className = 'w-8 h-8 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else {
+                    pageBtn.className = 'w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition';
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => renderTable(i);
+                container.appendChild(pageBtn);
+            }
+
+            // 다음 버튼
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === totalPages || totalPages === 0 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) renderTable(currentPage + 1); };
+            container.appendChild(nextBtn);
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // --- 글 조회 모달 로직 ---
+        window.openViewModal = function(item) {
+            if(item.isSecret) {
+                alert("비밀글은 작성자 본인만 열람할 수 있습니다.");
+                return;
+            }
+
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-author').innerText = item.author;
+            document.getElementById('modal-date').innerText = item.date;
+            // 조회수 증가 시뮬레이션
+            item.views += 1; 
+            document.getElementById('modal-views').innerText = item.views;
+            document.getElementById('modal-body').innerText = item.content;
+            document.getElementById('modal-dept-label').innerHTML = `<i data-lucide="folder" class="w-3.5 h-3.5 mr-1"></i>${item.dept || '담당부서 지정 전'}`;
+
+            const statusEl = document.getElementById('modal-status');
+            statusEl.innerText = item.status;
+            statusEl.className = item.status === '답변완료' ? 'status-done' : (item.status === '처리중' ? 'status-ing' : 'status-wait');
+
+            const replyArea = document.getElementById('modal-reply-area');
+            if(item.reply) {
+                replyArea.classList.remove('hidden');
+                document.getElementById('modal-reply-content').innerText = item.reply;
+                document.getElementById('modal-reply-dept').innerText = `담당부서: ${item.dept}`;
+            } else {
+                replyArea.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('board-modal');
+            const content = document.getElementById('board-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // 테이블 조회수 갱신을 위해 재렌더링
+            renderTable(currentPage);
+        }
+
+        window.closeViewModal = function() {
+            const modal = document.getElementById('board-modal');
+            const content = document.getElementById('board-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // --- 글 작성 모달 로직 ---
+        window.openWriteModal = function() {
+            // 폼 초기화
+            document.getElementById('write-title').value = '';
+            document.getElementById('write-author').value = '';
+            document.getElementById('write-content').value = '';
+            document.getElementById('write-secret').checked = false;
+
+            const modal = document.getElementById('write-modal');
+            const content = document.getElementById('write-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeWriteModal = function() {
+            const modal = document.getElementById('write-modal');
+            const content = document.getElementById('write-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // 폼 제출 이벤트 처리
+        window.submitPost = function(event) {
+            event.preventDefault(); // 페이지 새로고침 방지
+
+            const title = document.getElementById('write-title').value.trim();
+            const authorInput = document.getElementById('write-author').value.trim();
+            const content = document.getElementById('write-content').value.trim();
+            const isSecret = document.getElementById('write-secret').checked;
+
+            if(!title || !authorInput || !content) {
+                alert("필수 항목을 모두 입력해주세요.");
+                return;
+            }
+
+            // 이름 마스킹 처리 로직 (예: 홍길동 -> 홍*동)
+            let author = authorInput;
+            if(author.length > 2) {
+                author = author[0] + '*' + author.slice(2);
+            } else if(author.length === 2) {
+                author = author[0] + '*';
+            }
+
+            // 오늘 날짜 생성
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+            // 새 글 번호 생성 (가장 큰 ID + 1)
+            const maxId = boardData.length > 0 ? Math.max(...boardData.map(item => item.id)) : 1000;
+            
+            // 새 데이터 객체 생성
+            const newPost = {
+                id: maxId + 1,
+                status: '접수대기',
+                isSecret: isSecret,
+                title: title,
+                author: author,
+                date: dateStr,
+                views: 0,
+                dept: '부서 배정 대기중',
+                content: content,
+                reply: null
+            };
+
+            // 배열 맨 앞에 추가
+            boardData.unshift(newPost);
+
+            alert('민원이 정상적으로 접수되었습니다. 처리 결과는 알림톡을 통해 안내해 드립니다.');
+            closeWriteModal();
+            
+            // 1페이지로 이동하여 렌더링
+            renderTable(1);
+        }
+
+        // 초기 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTable(1);
+        });
+    </script>
+</body>
+</html>

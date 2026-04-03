@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구인구직참여 - 효빈광역시 소통·참여</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Table Styles (게시판 전용) */
+        .table-container { overflow-x: auto; border-top: 2px solid #1a365d; background: white; }
+        th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.875rem; padding: 1rem; text-align: center; white-space: nowrap; border-bottom: 1px solid #cbd5e1; }
+        td { padding: 1rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; text-align: center; }
+        td.title-col { text-align: left; }
+        tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+        tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+
+        /* Job Status & Type Tags */
+        .tag-public { background-color: #d1fae5; color: #047857; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #a7f3d0; }
+        .tag-private { background-color: #fef3c7; color: #b45309; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fde68a; }
+        
+        .status-open { background-color: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+        .status-urgent { background-color: #fef2f2; color: #b91c1c; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; animation: pulse 2s infinite; }
+        .status-closed { background-color: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+
+        /* Modal Overlay & Base */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+
+        /* Tab Styles */
+        .tab-btn { position: relative; color: #64748b; font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { color: #005bac; }
+        .tab-btn.active { color: #005bac; font-weight: 800; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: #005bac;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">효빈의 내일을 함께 열어갈 인재를 찾습니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 (사이드바 + 메인 컨텐츠) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민 광장
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 광장</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">구인구직참여</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">구인구직참여</h2>
+                <p class="text-slate-600">공공일자리부터 민간 우수기업 채용까지, 효빈시의 다양한 일자리 정보를 제공합니다.</p>
+            </div>
+
+            <!-- 안내 박스 -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm flex gap-4 items-start">
+                <div class="bg-white p-3 rounded-full shadow-sm text-amber-600 shrink-0">
+                    <i data-lucide="briefcase" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[14px] text-slate-700 space-y-2 leading-relaxed">
+                    <p><strong class="text-amber-800">구인/구직 게시판 이용 시 유의사항</strong></p>
+                    <ul class="list-disc list-inside space-y-1 ml-1 text-slate-600">
+                        <li>본 게시판은 <strong>무료 일자리 정보 제공</strong>을 목적으로 하며, 등록된 채용 정보의 사실 여부는 구직자가 직접 확인해야 합니다.</li>
+                        <li>다단계, 불법 영업, 과장 광고, 최저임금법 위반 소지가 있는 게시물은 <strong>통보 없이 삭제 및 영구 차단</strong>됩니다.</li>
+                        <li>효빈시 공무원 및 산하기관 정규직 채용 공고는 <a href="recruit.html" class="text-amber-600 underline font-bold">시험/채용 게시판</a>을 확인해 주시기 바랍니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 탭 메뉴 (전체 / 공공·기관 / 민간기업) -->
+            <div class="flex border-b border-slate-300 w-full">
+                <button id="tab-all" onclick="switchTab('all')" class="tab-btn active w-1/3 py-3.5 text-center text-[15px] sm:text-base">전체 채용</button>
+                <button id="tab-public" onclick="switchTab('public')" class="tab-btn w-1/3 py-3.5 text-center text-[15px] sm:text-base">공공·기관 일자리</button>
+                <button id="tab-private" onclick="switchTab('private')" class="tab-btn w-1/3 py-3.5 text-center text-[15px] sm:text-base">민간기업 일자리</button>
+            </div>
+
+            <!-- 검색 및 필터 영역 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center text-sm font-medium text-slate-600">
+                    검색 결과 <span id="total-count" class="text-hyobin-blue font-bold ml-1 mr-1">0</span>건
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <select class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <option value="title">채용제목</option>
+                        <option value="company">기업/기관명</option>
+                    </select>
+                    <div class="relative flex-1 md:w-64">
+                        <input type="text" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <button class="absolute right-2 top-1.5 text-slate-400 hover:text-hyobin-blue">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 게시판 테이블 -->
+            <div class="table-container shadow-sm min-h-[400px]">
+                <table class="w-full">
+                    <colgroup>
+                        <col style="width: 8%">
+                        <col style="width: 12%">
+                        <col style="width: 35%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>구분</th>
+                            <th>채용 제목</th>
+                            <th>기업/기관명</th>
+                            <th>마감일</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="board-tbody" class="divide-y divide-slate-100">
+                        <!-- JS Rendered -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 하단 버튼 및 페이지네이션 -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mt-6">
+                <!-- 빈 공간 (모바일 정렬용) -->
+                <div class="hidden md:block w-24"></div>
+                
+                <!-- 페이지네이션 -->
+                <div class="flex gap-1" id="pagination-container">
+                    <!-- JS Rendered -->
+                </div>
+
+                <!-- 글쓰기 버튼 -->
+                <button onclick="openWriteModal()" class="bg-hyobin-blue text-white px-5 py-2.5 rounded-lg flex items-center font-bold hover:bg-blue-800 transition shadow-md w-full md:w-auto justify-center">
+                    <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 채용 등록
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 1. 채용 공고 상세 모달 -->
+    <div id="job-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeViewModal()">
+        <div id="job-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b bg-slate-50 rounded-t-xl shrink-0 flex justify-between items-start">
+                <div class="pr-6 w-full">
+                    <div class="flex gap-2 mb-3 items-center">
+                        <span id="modal-badge" class="tag-public">공공</span>
+                        <span id="modal-status" class="status-open ml-1">모집중</span>
+                        <span class="text-slate-500 text-sm font-bold ml-2" id="modal-company">기업/기관명</span>
+                    </div>
+                    <h3 id="modal-title" class="font-black text-xl md:text-2xl text-slate-800 break-keep leading-tight mb-3">채용 제목</h3>
+                    <div class="bg-white border border-slate-200 rounded-lg p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span class="block text-slate-400 text-xs mb-1">근무형태</span>
+                            <span class="font-bold text-slate-700" id="modal-job-type">정규직</span>
+                        </div>
+                        <div>
+                            <span class="block text-slate-400 text-xs mb-1">급여</span>
+                            <span class="font-bold text-slate-700" id="modal-salary">회사내규</span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="block text-slate-400 text-xs mb-1">마감일자</span>
+                            <span class="font-bold text-red-600" id="modal-deadline">2026.00.00</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600 transition p-1 absolute top-6 right-6">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 모달 바디 (상세 내용) -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed text-[15px] flex-grow">
+                <h4 class="font-bold text-lg text-slate-800 mb-4 border-b pb-2"><i data-lucide="file-text" class="w-5 h-5 inline mr-1 text-blue-600"></i>상세 모집요강</h4>
+                <div id="modal-body" class="whitespace-pre-wrap">내용</div>
+            </div>
+            
+            <div class="p-5 border-t bg-slate-50 rounded-b-xl flex justify-between items-center shrink-0">
+                <div class="text-xs text-slate-500">등록일: <span id="modal-date"></span> | 조회수: <span id="modal-views"></span></div>
+                <div class="flex gap-2">
+                    <button onclick="closeViewModal()" class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition shadow-sm">닫기</button>
+                    <button onclick="alert('이력서 제출 및 입사 지원 페이지로 이동합니다.')" id="btn-apply" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition shadow-sm flex items-center">
+                        <i data-lucide="send" class="w-4 h-4 mr-2"></i> 지원하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 채용 등록 모달 -->
+    <div id="write-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4 transition-opacity duration-300" onclick="closeWriteModal()">
+        <div id="write-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <form onsubmit="submitJob(event)" class="flex flex-col h-full">
+                <!-- 헤더 -->
+                <div class="p-6 border-b bg-slate-50 rounded-t-xl shrink-0 flex justify-between items-center">
+                    <h3 class="font-black text-xl text-slate-800 flex items-center"><i data-lucide="pen-tool" class="text-amber-500 mr-2"></i> 구인 공고 등록</h3>
+                    <button type="button" onclick="closeWriteModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <!-- 바디 -->
+                <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">구분 <span class="text-red-500">*</span></label>
+                            <select id="write-type" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                <option value="private">민간기업 일자리</option>
+                                <option value="public">공공·기관 일자리</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">기업/기관명 <span class="text-red-500">*</span></label>
+                            <input type="text" id="write-company" required placeholder="예: 칠양여객고속(주)" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">근무형태 <span class="text-red-500">*</span></label>
+                            <input type="text" id="write-job-type" required placeholder="예: 정규직, 계약직, 아르바이트" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">마감일자 <span class="text-red-500">*</span></label>
+                            <input type="date" id="write-deadline" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-slate-600">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">공고 제목 <span class="text-red-500">*</span></label>
+                        <input type="text" id="write-title" required placeholder="예: 2026년 하반기 신입사원 공개 채용" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">상세 모집요강 <span class="text-red-500">*</span></label>
+                        <textarea id="write-content" required rows="6" placeholder="담당 업무, 자격 요건, 우대 사항, 근무 조건 등을 상세히 적어주세요." class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none custom-scrollbar"></textarea>
+                    </div>
+                </div>
+
+                <!-- 푸터 -->
+                <div class="p-5 border-t bg-slate-50 rounded-b-xl flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeWriteModal()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition shadow-sm">취소</button>
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition shadow-sm flex items-center">
+                        <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i> 공고 등록
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 더미 데이터 (효빈시 로어 반영)
+        let jobData = [
+            {
+                id: 1520, type: 'public', company: '효빈광역시청', title: '[긴급] 2026년 하반기 제3기 \'블루 버드 멘토단\' 행정실무 인턴 모집', deadline: '2026.04.30', status: '모집중',
+                date: '2026.04.10', views: 3205, jobType: '인턴(계약직)', salary: '생활임금의 1.2배 적용',
+                content: '박효빈 시장의 핵심 청년 정책인 \'블루 버드 멘토단\' 3기를 모집합니다.\n\n[모집 개요]\n- 대상: 효빈시에 거주하는 취약계층 대학생 및 가족돌봄청년(영 케어러) 우대\n- 근무처: 효빈시청 본청 및 직속기관 주요 부서\n- 업무: 단순 노무가 아닌 실질적 행정 실무 보조 및 기획 참여\n- 혜택: 근무 기간 내 H-Pass 무료 지원, 문화생활(성지순례 등) 특별 지원금 별도 지급\n\n청년들의 희생을 방치하지 않겠습니다. 많은 지원 바랍니다.'
+            },
+            {
+                id: 1519, type: 'public', company: '효빈교통공사', title: '1호선 마스코트 \'고나미\' 테마 열차 및 팝업스토어 안내 스태프 채용', deadline: '2026.04.15', status: '마감임박',
+                date: '2026.04.09', views: 1840, jobType: '단기 아르바이트', salary: '시급 13,000원',
+                content: '파란색 1호선 마스코트인 기타리스트 \'고나미\'(하나조노 타에 콜라보 기획) 팝업스토어 오픈에 따른 단기 스태프를 모집합니다.\n\n[담당 업무]\n- 1호선 주요 환승역 및 효빈종합터미널 내 굿즈 팝업스토어 판매 및 고객 안내\n- 인파 밀집 시 안전선 통제 및 질서 유지\n\n[우대 사항]\n- 서브컬처 문화에 대한 이해도가 높으신 분 (뱅드림! 프로젝트 지식 보유자 우대)\n- 밝고 활기찬 응대가 가능하신 분'
+            },
+            {
+                id: 1518, type: 'private', company: '칠양여객고속(주)', title: '효빈종합터미널 2층 콜라보 카페 \'Ani-Station\' 바리스타 및 점장 후보생 채용', deadline: '2026.04.20', status: '모집중',
+                date: '2026.04.08', views: 950, jobType: '정규직', salary: '연 3,200만원 이상',
+                content: '효빈의 랜드마크, 명품 터미널을 운영하는 칠양여객에서 직영하는 애니메이션 콜라보 카페 Ani-Station의 가족을 찾습니다.\n\n[담당 업무]\n- 캐릭터 테마 음료 및 디저트 제조\n- 매장 내 굿즈존 관리 및 이벤트(생일 카페 등) 기획 보조\n\n[자격 요건]\n- 바리스타 자격증 소지자\n- 서브컬처 이벤트 기획 경험자 우대\n\n덕업일치를 꿈꾸는 여러분의 많은 지원을 기다립니다.'
+            },
+            {
+                id: 1517, type: 'private', company: '당가동 파스텔블루 상인회', title: '당가동 굿즈샵 \'오타쿠의 꿈\' 주말 파트타임 구인 (일본어 능통자 우대)', deadline: '2026.04.18', status: '모집중',
+                date: '2026.04.07', views: 420, jobType: '주말 아르바이트', salary: '시급 11,000원',
+                content: 'L-Project로 부활한 당가동 파스텔 블루 거리의 중심, \'오타쿠의 꿈\'에서 주말 알바생을 구합니다.\n\n- 근무일시: 토, 일 (13:00 ~ 21:00)\n- 주요업무: 일본 수입 굿즈 재고 관리, 외국인 관광객 응대, 매장 청소\n- 우대사항: 일본어 회화(N2 이상) 가능자 우대. (최근 일본인 성지순례객 방문이 많습니다.)\n- 복리후생: 신상 굿즈 원가 구매 찬스 부여!'
+            },
+            {
+                id: 1516, type: 'public', company: '효빈문화공사', title: 'HAF 2026 (효빈 애니메이션 페스티벌) 야간 코스프레 퍼레이드 안전요원 모집', deadline: '2026.05.31', status: '모집중',
+                date: '2026.04.06', views: 2105, jobType: '단기 계약직', salary: '일급 120,000원',
+                content: '올해 8월 개최되는 전 세계 덕후들의 축제, HAF 2026을 안전하게 이끌어갈 안전요원을 대규모 모집합니다.\n\n[담당 업무]\n- 고송대로 4대 테마 구역(Zone A~D) 차량 통제 보조\n- 야간 코스프레 퍼레이드 인파 관리 및 폴리스 라인 유지\n- 혐오 세력(특정 정치 낭인 등) 난입 시 초기 대응 및 경찰 인계\n\n경호 경력자 및 무술 유단자를 적극 우대합니다.'
+            },
+            {
+                id: 1515, type: 'private', company: '사능동 엠마 빵집', title: '사능역 명물 베이커리 \'엠마 빵집\' 제빵 보조 직원 구함', deadline: '2026.04.10', status: '마감임박',
+                date: '2026.04.05', views: 340, jobType: '계약직', salary: '월 250만원',
+                content: '사능역 앞 명물 빵집에서 함께 일할 제빵 보조 직원을 구합니다.\n최근 성우분 방문과 시장님의 적극적인 홍보 덕분에 전국에서 성지순례 손님이 끊이지 않아 일손이 부족합니다.\n\n- 업무: 반죽 보조, 오븐 관리, 매대 진열 및 고객 응대\n- 자격: 제빵기능사 우대, 초보자도 열정만 있으면 환영합니다.\n- 혜택: 매일 갓 구운 빵 무제한 시식 가능. 시장님도 자주 오십니다.'
+            },
+            {
+                id: 1514, type: 'public', company: '효빈경찰청', title: '효빈항 야간 해안도로 폭주족 전담 단속 보조 및 민원 콜센터 직원 채용', deadline: '2026.04.08', status: '마감',
+                date: '2026.04.01', views: 890, jobType: '계약직 (1년)', salary: '월 280만원',
+                content: '효빈항 일대 심야 오토바이 굉음 및 폭주족 민원이 급증함에 따라, 교통안전과 소속으로 단속 보조 업무를 수행할 직원을 채용합니다.\n\n- 근무: 주야간 교대 근무 (야간수당 별도 지급)\n- 업무: 무인 단속 카메라 영상 모니터링, 폭주족 관련 112 민원 1차 응대 및 분류\n- 필수: 경찰서 범죄경력 조회 결격사유 없는 자.'
+            },
+            {
+                id: 1513, type: 'private', company: '(주)효빈신세계', title: '효빈종합터미널점 보안/안전 관리 요원 채용', deadline: '2026.04.25', status: '모집중',
+                date: '2026.04.04', views: 650, jobType: '정규직', salary: '회사내규 (면접 후 결정)',
+                content: '효빈종합터미널 및 복합쇼핑몰(신세계백화점, 이마트 연결 구역)의 안전을 책임질 든든한 보안 요원을 모십니다.\n\n[주요 업무]\n- 터미널 1/2층 승차장 및 백화점 연결통로 순찰\n- 시설물 기물 파손 행위 감시 및 주취자 제지\n- 위급 상황 시 초동 대처\n\n과거 터미널 오물 투척 등 불미스러운 사건에 대비해 책임감 강한 분을 원합니다.'
+            },
+            {
+                id: 1512, type: 'public', company: '효빈환경공사', title: '효빈천변 쓰레기 무단투기 야간 단속반 모집', deadline: '2026.04.12', status: '모집중',
+                date: '2026.04.03', views: 512, jobType: '기간제 근로자', salary: '일급 90,000원',
+                content: '봄철 야간 피크닉 인파 증가로 효빈천변 쓰레기 무단투기가 심각합니다. 이에 환경 정화 및 단속 업무를 수행할 분을 찾습니다.\n\n- 근무시간: 19:00 ~ 24:00 (일 5시간)\n- 담당구역: 효빈천 1구간 ~ 3구간\n- 업무내용: 취식 후 쓰레기 방치 계도, 불법 투기 과태료 부과 보조, 대형 분리수거함 상태 점검'
+            },
+            {
+                id: 1511, type: 'private', company: 'Fun City 효빈점', title: '터미널 내 리듬게임 특화 오락실 기기 관리 매니저 모집', deadline: '2026.04.20', status: '모집중',
+                date: '2026.04.02', views: 770, jobType: '정규직', salary: '월 260만원',
+                content: '터미널 내 입점한 성지급 오락실 \'Fun City\'에서 기기 관리 매니저를 채용합니다.\nmaimai, 츄니즘 등 최신 리듬게임 기기 점검 및 매장 질서 유지가 주 업무입니다. 리듬게임 고수 및 기기 수리 경력자 대환영입니다.'
+            },
+            {
+                id: 1510, type: 'public', company: '도시재생과', title: '청년 안심 주택 \'효빈 하우스\' 1층 공유 공간 커뮤니티 매니저', deadline: '2026.04.15', status: '모집중',
+                date: '2026.04.01', views: 480, jobType: '계약직', salary: '월 240만원',
+                content: '박효빈 시장의 주거 정책인 \'효빈 하우스\' 1호점의 공유 라운지 및 스터디 카페를 관리할 매니저를 모집합니다.\n입주 청년들과의 소통 프로그램 기획 및 굿즈 전시관 관리가 주 업무입니다.'
+            },
+            {
+                id: 1509, type: 'private', company: '교보문고 효빈터미널점', title: '라이트노벨 및 코믹스 섹션 전담 북마스터 채용', deadline: '2026.04.05', status: '마감',
+                date: '2026.03.25', views: 820, jobType: '정규직', salary: '회사내규',
+                content: '전국 최대 규모를 자랑하는 교보문고 효빈터미널점 라노벨/코믹스 구역을 관리할 북마스터를 모십니다. 신간 트렌드 분석 및 큐레이션 기획력이 필수입니다.'
+            }
+        ];
+
+        let currentTab = 'all'; 
+        let currentPage = 1;
+        const itemsPerPage = 8;
+
+        // 탭 전환 로직
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            
+            // 탭 스타일 변경
+            document.getElementById('tab-all').classList.remove('active');
+            document.getElementById('tab-public').classList.remove('active');
+            document.getElementById('tab-private').classList.remove('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            // 1페이지 렌더링
+            renderTable(1);
+        }
+
+        // 총 게시물 수 업데이트
+        function updateTotalCount(filteredData) {
+            document.getElementById('total-count').innerText = filteredData.length.toLocaleString();
+        }
+
+        // 테이블 렌더링
+        function renderTable(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('board-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            // 탭 필터링
+            let filteredData = jobData;
+            if (currentTab === 'public') filteredData = jobData.filter(item => item.type === 'public');
+            if (currentTab === 'private') filteredData = jobData.filter(item => item.type === 'private');
+            
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentData = filteredData.slice(startIdx, endIdx);
+
+            currentData.forEach(item => {
+                let typeClass = item.type === 'public' ? 'tag-public' : 'tag-private';
+                let typeName = item.type === 'public' ? '공공' : '민간';
+
+                let statusClass = 'status-open';
+                if(item.status === '마감임박') statusClass = 'status-urgent';
+                if(item.status === '마감') statusClass = 'status-closed';
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => openViewModal(item);
+                
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td><span class="${typeClass}">${typeName}</span></td>
+                    <td class="title-col font-bold text-slate-800">
+                        <span class="hover:underline">${item.title}</span>
+                    </td>
+                    <td class="text-sm font-medium text-slate-600">${item.company}</td>
+                    <td class="text-sm ${item.status === '마감' ? 'text-slate-400' : 'text-red-500 font-bold'}">${item.deadline}</td>
+                    <td><span class="${statusClass}">${item.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateTotalCount(filteredData);
+            renderPagination(filteredData.length);
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(totalItems) {
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            container.innerHTML = '';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === 1 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) renderTable(currentPage - 1); };
+            container.appendChild(prevBtn);
+
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if(i === currentPage) {
+                    pageBtn.className = 'w-8 h-8 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else {
+                    pageBtn.className = 'w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition';
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => renderTable(i);
+                container.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === totalPages || totalPages === 0 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) renderTable(currentPage + 1); };
+            container.appendChild(nextBtn);
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // --- 모달 로직 ---
+        window.openViewModal = function(item) {
+            document.getElementById('modal-badge').className = item.type === 'public' ? 'tag-public' : 'tag-private';
+            document.getElementById('modal-badge').innerText = item.type === 'public' ? '공공' : '민간';
+            
+            let statusClass = 'status-open';
+            if(item.status === '마감임박') statusClass = 'status-urgent';
+            if(item.status === '마감') statusClass = 'status-closed';
+            
+            document.getElementById('modal-status').className = `${statusClass} ml-1`;
+            document.getElementById('modal-status').innerText = item.status;
+            
+            document.getElementById('modal-company').innerText = item.company;
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-job-type').innerText = item.jobType;
+            document.getElementById('modal-salary').innerText = item.salary;
+            document.getElementById('modal-deadline').innerText = item.deadline;
+            
+            item.views += 1; 
+            document.getElementById('modal-views').innerText = item.views;
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-body').innerText = item.content;
+
+            const applyBtn = document.getElementById('btn-apply');
+            if(item.status === '마감') {
+                applyBtn.classList.add('hidden');
+            } else {
+                applyBtn.classList.remove('hidden');
+            }
+
+            const modal = document.getElementById('job-modal');
+            const content = document.getElementById('job-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            renderTable(currentPage);
+        }
+
+        window.closeViewModal = function() {
+            const modal = document.getElementById('job-modal');
+            const content = document.getElementById('job-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        window.openWriteModal = function() {
+            document.getElementById('write-type').value = currentTab === 'private' ? 'private' : 'public';
+            document.getElementById('write-company').value = '';
+            document.getElementById('write-job-type').value = '';
+            document.getElementById('write-deadline').value = '';
+            document.getElementById('write-title').value = '';
+            document.getElementById('write-content').value = '';
+
+            const modal = document.getElementById('write-modal');
+            const content = document.getElementById('write-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeWriteModal = function() {
+            const modal = document.getElementById('write-modal');
+            const content = document.getElementById('write-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        window.submitJob = function(event) {
+            event.preventDefault();
+
+            const type = document.getElementById('write-type').value;
+            const company = document.getElementById('write-company').value.trim();
+            const jobType = document.getElementById('write-job-type').value.trim();
+            const deadlineRaw = document.getElementById('write-deadline').value;
+            const title = document.getElementById('write-title').value.trim();
+            const content = document.getElementById('write-content').value.trim();
+
+            if(!company || !jobType || !deadlineRaw || !title || !content) {
+                alert("필수 항목을 모두 입력해주세요.");
+                return;
+            }
+
+            const deadline = deadlineRaw.replace(/-/g, '.');
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+            const maxId = jobData.length > 0 ? Math.max(...jobData.map(item => item.id)) : 1000;
+            
+            const newPost = {
+                id: maxId + 1,
+                type: type,
+                company: company,
+                title: title,
+                deadline: deadline,
+                status: '모집중',
+                date: dateStr,
+                views: 0,
+                jobType: jobType,
+                salary: '회사내규/면접 후 결정',
+                content: content
+            };
+
+            jobData.unshift(newPost);
+
+            alert('채용 공고가 등록되었습니다.');
+            closeWriteModal();
+            switchTab('all');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            switchTab('all');
+        });
+    </script>
+</body>
+</html>

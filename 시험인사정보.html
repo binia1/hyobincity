@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험정보 - 효빈광역시 시정소식</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED', // 간선버스 도색 컬러 포인트
+                            red: '#D81C2F' // 급행버스/경고 컬러 포인트
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.9), rgba(26, 54, 93, 0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 게시판 테이블 스타일 */
+        .board-table-wrap {
+            border-top: 2px solid #1a365d;
+            background: #fff;
+            overflow-x: auto;
+        }
+        .board-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+        .board-table th {
+            padding: 1rem 0.5rem;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: center;
+            border-bottom: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .board-table td {
+            padding: 1rem 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: background-color 0.2s;
+            vertical-align: middle;
+        }
+        .board-table tr:hover td {
+            background-color: #f8fafc;
+        }
+        .board-table td.subject {
+            text-align: left;
+            padding-left: 1rem;
+        }
+        .board-table td.subject a {
+            display: block;
+            color: #334155;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .board-table td.subject a:hover {
+            text-decoration: underline;
+            color: #005bac;
+        }
+
+        /* 분류 뱃지 스타일 */
+        .badge-type {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            text-align: center;
+            min-width: 65px;
+        }
+        .badge-type.recruit { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; } /* 채용공고 */
+        .badge-type.result { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; } /* 합격자발표 */
+        .badge-type.info { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; } /* 시험안내 */
+        
+        /* 상세 뷰 타이틀 영역 박스 */
+        .detail-info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #board-detail-view, #board-detail-view * { visibility: visible; }
+            #board-detail-view {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+
+        /* 공고문 내 테이블 스타일 (에디터 본문용) */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .content-table th {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .content-table td {
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem;
+            color: #475569;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">시정소식</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">효빈의 오늘과 내일을 투명하고 바르게 알려드립니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <div>
+                    <div class="mb-6">
+                        <h4 class="font-black text-hyobin-dark mb-4 border-b-2 border-slate-200 pb-3 text-lg flex items-center">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-2 text-hyobin-blue"></i>
+                            시정소식 일반
+                        </h4>
+                        <ul class="space-y-2 text-[15px] break-keep lnb-menu ml-1">
+                            <li><a href="공지사항.html">공지사항</a></li>
+                            <li><a href="보도자료.html">보도자료</a></li>
+                            <li><a href="언론보도사실은이렇습니다.html">언론보도 사실은 이렇습니다</a></li>
+                            <li><a href="news.html">고시·공고</a></li>
+                            <li><a href="입법예고.html">입법예고</a></li>
+                            <li><a href="시험인사정보.html" class="active">시험정보</a></li>
+                            <li><a href="인사정보.html">인사정보</a></li>
+                            <li><a href="공무직채용.html">공무직 채용정보</a></li>
+                            <li><a href="입찰소식.html">입찰소식</a></li>
+                            <li><a href="주요업무계획.html">주요업무계획</a></li>
+                            <li><a href="주요업무계획과거.html">주요업무계획 (과거자료)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="시정소식.html" class="hover:text-slate-700">시정소식</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">시정소식 일반</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">시험정보</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8 no-print">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">시험정보</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">효빈광역시청 및 산하 공공기관의 공무원 채용, 합격자 발표 등 각종 시험·채용 정보를 안내합니다.</p>
+            </div>
+
+            <!-- ==============================
+                 [1] 게시글 목록 뷰 (List View)
+                 ============================== -->
+            <div id="board-list-view">
+                <!-- 검색 및 필터 영역 -->
+                <div class="bg-slate-50 border border-slate-200 p-5 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-[15px] text-slate-700 font-medium">
+                        전체 <span class="text-hyobin-blue font-bold" id="total-count">0</span>건 (<span id="current-page">1</span>/<span id="total-pages">1</span> 페이지)
+                    </div>
+                    <form class="flex flex-wrap gap-2 w-full md:w-auto" onsubmit="handleSearch(event)">
+                        <select id="search-type-badge" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">구분 전체</option>
+                            <option value="채용공고">채용공고</option>
+                            <option value="합격자발표">합격자발표</option>
+                            <option value="시험안내">시험안내</option>
+                        </select>
+                        <select id="search-type" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">제목+내용</option>
+                            <option value="title">시험명/제목</option>
+                            <option value="dept">담당부서</option>
+                        </select>
+                        <div class="flex flex-1 md:w-64 relative">
+                            <input type="text" id="search-keyword" placeholder="검색어를 입력하세요." class="w-full border border-slate-300 border-r-0 h-10 pl-3 pr-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                            <button type="submit" class="bg-hyobin-dark text-white px-4 h-10 hover:bg-slate-800 transition flex items-center justify-center font-medium">
+                                <i data-lucide="search" class="w-4 h-4 mr-1"></i> 검색
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 게시판 테이블 -->
+                <div class="board-table-wrap mb-8">
+                    <table class="board-table">
+                        <colgroup>
+                            <col style="width: 7%">
+                            <col style="width: 10%">
+                            <col style="width: auto">
+                            <col style="width: 14%">
+                            <col style="width: 12%">
+                            <col style="width: 8%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>구분</th>
+                                <th>제목</th>
+                                <th>담당부서</th>
+                                <th>등록일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-tbody">
+                            <!-- JS 렌더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 컨테이너 -->
+                <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-12">
+                    <!-- JS 렌더링 영역 -->
+                </div>
+            </div>
+
+            <!-- ==============================
+                 [2] 게시글 상세 뷰 (Detail View)
+                 ============================== -->
+            <div id="board-detail-view" class="hidden">
+                <div id="pdf-content" class="border-t-2 border-hyobin-dark bg-white shadow-sm mb-6">
+                    <!-- 상세 헤더 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span id="detail-type" class="badge-type recruit">채용공고</span>
+                            <span class="text-slate-300">|</span>
+                            <span id="detail-dept" class="text-hyobin-blue font-bold text-sm">담당부서</span>
+                        </div>
+                        <h3 id="detail-title" class="text-2xl font-black text-slate-800 mb-5 break-keep leading-tight">게시글 제목</h3>
+                        
+                        <div class="detail-info-box flex flex-wrap gap-x-8 gap-y-3 text-[15px]">
+                            <div><strong class="text-slate-500 mr-2">작성자</strong> <span id="detail-writer" class="text-slate-800 font-bold">인사과</span></div>
+                            <div><strong class="text-slate-500 mr-2">등록일</strong> <span id="detail-date" class="text-slate-800">2026.00.00</span></div>
+                            <div><strong class="text-slate-500 mr-2">조회수</strong> <span id="detail-views" class="text-slate-800">0</span></div>
+                            <div><strong class="text-slate-500 mr-2">문의전화</strong> <span id="detail-contact" class="text-slate-800 font-bold text-blue-700">079-0000-0000</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 첨부파일 렌더링 영역 -->
+                    <div id="detail-attachments-container" class="px-6 md:px-8 py-5 border-b border-slate-200 bg-slate-50/50 hidden">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="paperclip" class="w-5 h-5 text-slate-400 mt-0.5"></i>
+                            <div class="w-full">
+                                <p class="text-[15px] font-bold text-slate-700 mb-2">첨부파일</p>
+                                <ul id="detail-attachments-list" class="space-y-1.5">
+                                    <!-- 첨부파일 목록 동적 생성 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 상세 본문 -->
+                    <div class="p-6 md:p-8 min-h-[300px]">
+                        <div id="detail-content" class="text-slate-700 leading-relaxed text-[16px] whitespace-pre-wrap break-keep">
+                            본문 내용이 여기에 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-12 action-buttons no-print">
+                    <button onclick="goBackToList()" class="w-full md:w-auto px-6 py-3 bg-white border border-slate-300 text-slate-700 rounded font-bold hover:bg-slate-50 hover:border-slate-400 transition flex justify-center items-center shadow-sm">
+                        <i data-lucide="list" class="w-4 h-4 mr-2"></i> 목록으로
+                    </button>
+                    <div class="flex w-full md:w-auto gap-2">
+                        <button onclick="downloadNativePDF()" class="flex-1 md:flex-none px-6 py-3 bg-hyobin-blue text-white rounded font-bold hover:bg-blue-800 transition flex justify-center items-center shadow-sm">
+                            <i data-lucide="file-down" class="w-4 h-4 mr-2"></i> PDF 인쇄
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 필수 스크립트 로드 순서 엄수 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        /* * ========================================================
+           [실제 데이터 연동 위치] 
+           효빈광역시 세계관 설정이 반영된 "시험인사정보" 10개 데이터 세트 
+         ======================================================== */
+        let RAW_DATA = [
+            {
+                id: 2060,
+                type: '시험안내',
+                department: '소방본부',
+                title: '2026년 효빈광역시 소방공무원 채용 필기시험 장소 및 응시자 유의사항 공고',
+                date: '2026-04-03',
+                views: 8940,
+                contact: '079-119-0119',
+                attachments: [
+                    { name: '2026년_소방공무원_필기시험_장소안내.pdf', size: '540 KB' },
+                    { name: '코로나19_등_감염병_관련_응시자_유의사항.hwp', size: '125 KB' }
+                ],
+                content: `효빈광역시 소방본부 공고 제2026-052호
+
+2026년도 효빈광역시 소방공무원 채용 필기시험 장소 및 응시자 유의사항을 다음과 같이 공고합니다.
+
+<strong>1. 시험일시</strong> : 2026. 4. 18.(토) 10:00 ~ 11:40 (100분)
+   ※ 응시자는 시험 당일 오전 09:30까지 해당 시험실에 입실 완료해야 합니다.
+
+<strong>2. 시험장소</strong> : 총 3개교
+<table class="content-table">
+    <thead>
+        <tr><th>응시번호</th><th>시험장소</th><th>주소</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>10001 ~ 10800</td><td>효빈제일고등학교</td><td>효빈광역시 중구 중앙로 123</td></tr>
+        <tr><td>10801 ~ 11600</td><td>당가중학교</td><td>효빈광역시 서구 당가로 45</td></tr>
+        <tr><td>11601 ~ 20000</td><td>탄성고등학교</td><td>효빈광역시 탄성군 탄성읍 평야로 77</td></tr>
+    </tbody>
+</table>
+
+<strong>3. 응시자 유의사항</strong>
+  가. 본인 확인을 위해 응시표와 신분증(주민등록증, 운전면허증, 여권 중 1)을 반드시 지참하십시오.
+  나. 답안지 작성은 반드시 '컴퓨터용 흑색 사인펜'만 사용해야 합니다.
+  다. 시험 중 전자기기(스마트폰, 스마트워치, 무선이어폰 등) 소지가 적발될 경우 부정행위로 간주하여 즉시 퇴실 조치됩니다.`
+            },
+            {
+                id: 2059,
+                type: '채용공고',
+                department: '대중교통과',
+                title: '대중교통과 「3세대 시내버스 준공영제」 현장 지도·감독관(시간선택제임기제 다급) 채용',
+                date: '2026-04-02',
+                views: 5210,
+                contact: '079-222-1111',
+                attachments: [
+                    { name: '시간선택제임기제_다급_채용공고.hwp', size: '280 KB' }
+                ],
+                content: `효빈광역시 인사위원회 공고 제2026-045호
+
+효빈광역시의 핵심 정책인 '3세대 시내버스 완전 준공영제'의 투명한 운영을 위해 권역별 현장 지도 및 감독 업무를 수행할 역량 있는 인재를 모집합니다.
+
+<strong>1. 임용분야 및 인원</strong>
+  - 임용분야: 시내버스 운송사업자 현장 감독 및 보조금 집행 실사
+  - 직급: 시간선택제임기제공무원(다급) (주 35시간 근무)
+  - 인원: 3명
+
+<strong>2. 주요 담당업무</strong>
+  - 9개 권역 지정 도색(<span style="color:#01B7ED; font-weight:bold;">간선 #01B7ED</span>, <span style="color:#37B484; font-weight:bold;">지선 #37B484</span> 등) 준수 여부 점검
+  - 운수종사자 근로기준법 준수 실태조사 및 사모펀드 유착 등 불법행위 감시
+  - 버스 공영차고지 환경 개선 및 민원 현장 조사
+
+<strong>3. 응시요건 (다음 중 하나 이상 충족)</strong>
+  - 학사학위 취득 후 관련 분야(교통, 회계, 노무 등) 실무경력 1년 이상
+  - 관련 분야 전문대학 졸업 후 실무경력 3년 이상
+  - 교통기사, 공인노무사, 공인회계사 자격증 소지자 특별 우대
+
+<strong>4. 전형일정</strong>
+  - 원서접수: 2026. 4. 6.(월) ~ 4. 10.(금) 18:00
+  - 서류합격자 발표: 2026. 4. 15.(수)
+  - 면접시험: 2026. 4. 20.(월)`
+            },
+            {
+                id: 2058,
+                type: '시험안내',
+                department: '효빈교통공사',
+                title: '2026년도 하반기 효빈교통공사 도시철도 8호선 역무원(무기계약직) 채용 사전안내',
+                date: '2026-04-01',
+                views: 14500,
+                contact: '079-333-8888',
+                attachments: [
+                    { name: '8호선_역무원_채용_사전안내.pdf', size: '310 KB' }
+                ],
+                content: `개통 1년 만에 일평균 이용객 15만 명을 돌파하며 시민의 발로 자리매김한 도시철도 8호선(<span style="color:#9856FF; font-weight:bold;">노선색상 #9856FF 연보라색</span>)의 서비스 품질 향상을 위해 2026년 하반기 신규 역무원(무기계약직) 채용 일정을 사전 안내합니다.
+
+<strong>1. 채용예정 인원</strong>
+  - 분야: 역무 (무기계약직)
+  - 인원: 00명 (주야 교대근무 가능자)
+
+<strong>2. 응시자격</strong>
+  - 연령: 18세 이상 (정년 60세 미만)
+  - 학력, 성별 제한 없음
+  - 공고일 전일 기준 효빈광역시에 주민등록상 주소지를 두고 있는 자
+
+<strong>3. 전형절차 및 시험과목</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>구분</th><th>시험과목 및 내용</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>1차 필기시험</td><td>NCS 직업기초능력평가(50%), 일반상식 및 효빈시정의 이해(50%)</td></tr>
+        <tr><td>2차 인성검사</td><td>직무수행에 필요한 인성 및 적격성 검증 (온라인)</td></tr>
+        <tr><td>3차 면접시험</td><td>경험 및 상황 기반 블라인드 면접</td></tr>
+    </tbody>
+</table>
+
+<strong>4. 진행 일정(안)</strong>
+  - 본 공고 및 원서접수: 2026년 7월 중순
+  - 필기시험: 2026년 8월 초
+
+자세한 사항은 7월 중 효빈교통공사 채용 홈페이지에 게시될 확정 공고문을 참고하시기 바랍니다.`
+            },
+            {
+                id: 2057,
+                type: '채용공고',
+                department: '총무과',
+                title: '2026년도 효빈광역시청 공무직(환경미화원·도로보수원) 공개경쟁채용 공고',
+                date: '2026-03-30',
+                views: 7850,
+                contact: '079-111-3333',
+                attachments: [
+                    { name: '2026년_공무직_채용공고문.pdf', size: '450 KB' },
+                    { name: '응시원서_및_이력서_양식.hwp', size: '85 KB' }
+                ],
+                content: `효빈광역시청 및 직속기관에서 근무할 공무직 근로자(환경미화원, 도로보수원)를 다음과 같이 공개 모집합니다.
+
+<strong>1. 채용 분야 및 인원</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>직종</th><th>채용인원</th><th>담당업무</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>환경미화원</td><td>15명</td><td>가로청소, 종량제 봉투 수거 및 불법투기 폐기물 처리</td></tr>
+        <tr><td>도로보수원</td><td>5명</td><td>관내 도로 파손(포트홀) 보수 및 도로 부속물 유지관리</td></tr>
+    </tbody>
+</table>
+
+<strong>2. 응시자격</strong>
+  - 공고일 현재 18세 이상으로서 효빈광역시에 주민등록이 되어 있는 자
+  - 신체 건강하고 야외 및 교대 근무에 지장이 없는 자 (도로보수원은 1종 보통 이상 운전면허 소지 필수)
+
+<strong>3. 체력시험 종목 및 기준 (1차 전형)</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>구분</th><th>종목 1</th><th>종목 2</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>환경미화원</td><td>모래주머니(남자 20kg, 여자 10kg) 메고 50m 달리기</td><td>윗몸일으키기 (1분)</td></tr>
+        <tr><td>도로보수원</td><td>20kg 포대 양손으로 들고 오래 버티기</td><td>제자리멀리뛰기</td></tr>
+    </tbody>
+</table>
+   ※ 체력시험 합격자에 한해 2차 면접시험 응시 자격 부여
+
+<strong>4. 접수기간</strong> : 2026. 4. 8.(수) ~ 4. 10.(금) 18:00 (방문 및 우편 접수)`
+            },
+            {
+                id: 2056,
+                type: '합격자발표',
+                department: '인사과',
+                title: '2026년 제1회 효빈광역시 지방공무원 임용시험 최종합격자 및 임용후보자 등록 공고',
+                date: '2026-03-28',
+                views: 12540,
+                contact: '079-111-2222',
+                attachments: [
+                    { name: '[공고문]_최종합격자_명단_및_등록안내.pdf', size: '320 KB' },
+                    { name: '[서식]_임용후보자_등록원서_및_구비서류.hwp', size: '145 KB' }
+                ],
+                content: `효빈광역시 인사위원회 공고 제2026-041호
+
+2026년 제1회 효빈광역시 지방공무원 임용시험 최종합격자 명단 및 임용후보자 등록 일정을 다음과 같이 공고합니다.
+
+<strong>1. 최종합격자 명단: 총 185명</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>직렬</th><th>합격인원</th><th>비고</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>일반행정 (9급)</td><td>110명</td><td>장애인 5명, 저소득층 3명 포함</td></tr>
+        <tr><td>교통행정 (9급)</td><td>35명</td><td>대중교통 혁신 전담 부서 최우선 배치</td></tr>
+        <tr><td>토목/건축 (9급)</td><td>40명</td><td>5도심 다핵구조 인프라 확충 인력</td></tr>
+    </tbody>
+</table>
+  ※ 상세 수험번호는 첨부파일 확인 요망.
+
+<strong>2. 임용후보자 등록</strong>
+  - 등록기간 : 2026. 4. 15.(수) ~ 4. 17.(금) 09:00~18:00
+  - 등록장소 : 효빈시청 대강당 (1층)
+  - 제출서류 : 임용후보자 등록원서, 기본증명서, 채용신체검사서 등 (첨부 서식 참조)
+
+<strong>3. 유의사항</strong>
+  - 기간 내에 임용후보자 등록을 하지 않을 경우 임용될 의사가 없는 것으로 간주합니다.
+  - 신원조회 결과 결격사유가 발견될 경우 합격이 취소될 수 있습니다.`
+            },
+            {
+                id: 2055,
+                type: '채용공고',
+                department: '도시철도건설본부',
+                title: '효빈교통공사 제2차 도시철도 7호선(노면전차) 전담 기관사 경력경쟁채용 공고',
+                date: '2026-03-25',
+                views: 8905,
+                contact: '079-222-3333',
+                attachments: [
+                    { name: '7호선_기관사_경력경쟁채용_공고문.pdf', size: '410 KB' }
+                ],
+                content: `효빈교통공사 제2026-15호
+
+시민의 애환과 역사가 담긴 부활한 전차, 도시철도 7호선(<span style="color:#FF8899; font-weight:bold;">노선색상 #FF8899 분홍색</span>)의 최신형 무가선 저상 트램을 운행할 역량 있는 전담 기관사를 공개 모집합니다.
+
+<strong>1. 채용분야 및 인원</strong>
+  - 분야: 노면전차(저상트램) 운전 실무
+  - 직급: 기술직 8급 (기관사)
+  - 인원: 12명
+
+<strong>2. 자격요건</strong>
+  - 제2종 전기차량 운전면허 소지자
+  - 철도차량 운전 경력 2년 이상인 자 (노면전차 운전 유경험자 가산점 5% 부여)
+  - 철도안전법에 따른 신체검사 합격 기준을 충족하는 자
+
+<strong>3. 전형절차 및 시험과목</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>전형</th><th>과목 및 내용</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>필기시험</td><td>철도관련법(안전법, 사업법 등), 기계공학개론, 전동차 구조 및 기능</td></tr>
+        <tr><td>면접시험</td><td>운전 실무 대처 능력 및 안전 의식 평가 (PT 면접 포함)</td></tr>
+    </tbody>
+</table>
+
+<strong>4. 원서접수</strong>
+  - 접수기간: 2026. 4. 1.(수) ~ 4. 10.(금) 18:00 (효빈교통공사 홈페이지 온라인 접수)`
+            },
+            {
+                id: 2054,
+                type: '합격자발표',
+                department: '청년정책담당관',
+                title: '제3기 효빈시청 청년 행정인턴 「블루 버드 멘토단」 서류전형 합격자 및 면접 일정 공고',
+                date: '2026-03-20',
+                views: 5420,
+                contact: '079-333-4444',
+                attachments: [
+                    { name: '제3기_블루버드멘토단_서류합격자_및_면접조편성.pdf', size: '120 KB' }
+                ],
+                content: `박효빈 시장의 핵심 청년 정책, 제3기 「블루 버드 멘토단」 행정인턴 모집 서류전형 합격자 명단 및 면접 일정을 아래와 같이 공고합니다.
+
+<strong>1. 서류전형 합격자: 총 150명</strong> (최종 선발 50명의 3배수)
+   ※ 블라인드 심사를 원칙으로 하되, 가족돌봄청년(영 케어러) 및 취약계층 우대 가점이 적용되었습니다. 상세 명단은 첨부파일 확인.
+
+<strong>2. 면접시험 일정 안내</strong>
+  - 일시: 2026. 3. 27.(금) 10:00 ~ 17:00
+  - 장소: 효빈시청 청년정책담당관 회의실 (본관 3층)
+  - 지참물: 신분증(주민등록증, 운전면허증, 여권 중 1), 수험표
+
+<strong>3. 면접 평가 기준</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>평가 항목</th><th>주요 내용</th><th>배점</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>시정 이해도</td><td>효빈시 주요 정책(대중교통, 구도심 재생 등)에 대한 관심도</td><td>30점</td></tr>
+        <tr><td>문제 해결력</td><td>부여된 행정 실무 과제에 대한 창의적 대안 제시</td><td>40점</td></tr>
+        <tr><td>소통 및 인성</td><td>팀워크, 적극성, 시민을 대하는 태도</td><td>30점</td></tr>
+    </tbody>
+</table>
+   *단순 노무가 아닌 실질적 행정 참여를 위한 심층 면접이 진행됩니다.`
+            },
+            {
+                id: 2053,
+                type: '시험안내',
+                department: '인사과',
+                title: '2026년도 효빈광역시 산하 공공기관(효빈애니메이션본부 등) 통합채용 일정 사전안내',
+                date: '2026-03-15',
+                views: 10250,
+                contact: '079-444-5555',
+                attachments: [
+                    { name: '2026년도_공공기관_통합채용_기관별_채용예정인원(가안).pdf', size: '205 KB' }
+                ],
+                content: `효빈광역시 산하 25개 공공기관의 공정하고 투명한 인재 채용을 위한 「2026년도 상반기 공공기관 통합채용」 일정을 사전 안내합니다.
+
+<strong>1. 참여 기관 및 주요 채용 예정 분야</strong>
+  - 효빈교통공사 (운전, 차량, 시설 등)
+  - 효빈애니메이션본부 (HAF 기획운영, 글로벌 IP 라이선싱 전담, 굿즈사업 기획 등)
+  - 효빈도시공사 (도시계획, 토목, 건축 등)
+  - 기타 22개 기관 (첨부파일 참조)
+
+<strong>2. 주요 일정(안)</strong>
+  - 채용 공고: 2026년 4월 중순
+  - 원서 접수: 2026년 4월 말 ~ 5월 초 (통합채용 홈페이지 온라인 접수)
+  - 필기 시험: 2026년 5월 중순 (통합 실시, NCS 직업기초능력 공통)
+  - 면접 시험: 2026년 6월 초 (기관별 실시)
+
+<strong>3. 유의사항</strong>
+  - 본 안내는 수험생 편의를 돕기 위한 사전 안내이므로, 추후 발표될 확정 공고문을 반드시 확인하시기 바랍니다.
+  - <strong>효빈애니메이션본부</strong>의 경우, HAF 축제 추진 확대로 인하여 서브컬처 문화 산업 트렌드 분석 능력 및 관련 행사 기획 유경험자를 적극 우대할 예정입니다.`
+            },
+            {
+                id: 2052,
+                type: '채용공고',
+                department: '농업기술센터',
+                title: '[탄성군] 효빈농업기술센터 스마트팜 전문 연구사(지방농업연구사) 경력경쟁채용',
+                date: '2026-03-05',
+                views: 2100,
+                contact: '079-555-6666',
+                attachments: [
+                    { name: '지방농업연구사_경력경쟁채용_공고문.hwp', size: '188 KB' }
+                ],
+                content: `효빈광역시 인사위원회 공고 제2026-022호
+
+8구 1군 메가시티 체제 내 탄성군의 미래 농업 발전을 이끌어갈 스마트팜 및 디지털 농업 전문 연구인력을 공개 모집합니다.
+
+<strong>1. 채용직급 및 인원</strong>
+  - 직급: 지방농업연구사 (작물)
+  - 인원: 2명
+  - 근무지: 효빈농업기술센터 (탄성군 본소)
+
+<strong>2. 응시자격 및 시험과목</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>응시자격 (필수)</th><th>필기시험 과목 (3과목)</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>농학, 원예학, 스마트농업 등 관련 분야 <strong>석사 학위 이상</strong> 소지자로서 관련 실무 경력 3년 이상인 자</td><td>재배학, 실험통계학, 스마트농업개론</td></tr>
+    </tbody>
+</table>
+
+<strong>3. 담당업무</strong>
+  - 탄성군 맞춤형 기후 변화 대응 스마트팜 데이터 모델링
+  - 지역 특화 작물 재배 기술 연구 및 보급 지원
+
+<strong>4. 전형일정</strong>
+  - 원서접수 기간: 2026. 3. 16.(월) ~ 3. 20.(금)
+  - 필기시험: 2026. 4. 25.(토)`
+            },
+            {
+                id: 2051,
+                type: '채용공고',
+                department: '서남해안경제자유구역청',
+                title: '서남해안경제자유구역청 투자유치 전담 일반임기제 공무원(행정6급) 채용 공고',
+                date: '2026-02-28',
+                views: 1850,
+                contact: '079-666-7777',
+                attachments: [
+                    { name: '투자유치전담_임기제공무원_채용공고.pdf', size: '250 KB' }
+                ],
+                content: `서남해안경제자유구역청 공고 제2026-008호
+
+효빈광역시의 신성장 동력 확보 및 해외 자본 유치를 위해 서남해안경제자유구역청에서 근무할 역량 있는 일반임기제 공무원을 채용합니다.
+
+<strong>1. 임용분야 및 직급</strong>
+  - 임용분야: 외국인 투자 유치 및 기업 지원
+  - 직급: 일반임기제 행정6급 (주 40시간)
+  - 임용기간: 2년 (근무 실적에 따라 총 5년 범위 내 연장 가능)
+
+<strong>2. 연봉 한계액</strong>
+<table class="content-table">
+    <thead>
+        <tr><th>직급</th><th>연봉 하한액</th><th>연봉 상한액</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>일반임기제 행정6급</td><td>52,000,000원</td><td>75,000,000원</td></tr>
+    </tbody>
+</table>
+  ※ 구체적인 연봉은 경력 및 자격에 따라 산정되며, 각종 수당은 별도 지급됩니다.
+
+<strong>3. 응시자격 및 우대사항</strong>
+  - 필수: 외국어(영어, 중국어, 일본어 중 택 1) 비즈니스 회화 능통자 (공인어학성적 기준점수 이상)
+  - 우대: 국제통상, 다국적 기업 마케팅 및 투자유치 실무 경력 5년 이상인 자
+
+자세한 자격 기준 및 제출 서류는 첨부된 공고문을 확인하시기 바랍니다.`
+            }
+        ];
+
+        // 상태 관리
+        let state = {
+            data: [...RAW_DATA],
+            filteredData: [...RAW_DATA],
+            currentPage: 1,
+            itemsPerPage: 10,
+            searchType: 'all',
+            searchBadge: 'all',
+            searchKeyword: ''
+        };
+
+        // 초기화
+        function init() {
+            renderList();
+        }
+
+        // 검색 처리
+        function handleSearch(e) {
+            e.preventDefault();
+            const searchType = document.getElementById('search-type').value;
+            const searchBadge = document.getElementById('search-type-badge').value;
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+
+            state.searchType = searchType;
+            state.searchBadge = searchBadge;
+            state.searchKeyword = keyword;
+            state.currentPage = 1;
+
+            state.filteredData = state.data.filter(item => {
+                // 키워드 필터링
+                let keywordMatch = true;
+                if (keyword) {
+                    const titleMatch = item.title.toLowerCase().includes(keyword);
+                    const contentMatch = item.content.toLowerCase().includes(keyword);
+                    const deptMatch = item.department.toLowerCase().includes(keyword);
+
+                    if (searchType === 'all') keywordMatch = titleMatch || contentMatch || deptMatch;
+                    else if (searchType === 'title') keywordMatch = titleMatch;
+                    else if (searchType === 'dept') keywordMatch = deptMatch;
+                }
+
+                // 뱃지 구분 필터링
+                let badgeMatch = true;
+                if (searchBadge !== 'all') {
+                    badgeMatch = item.type === searchBadge;
+                }
+
+                return keywordMatch && badgeMatch;
+            });
+            
+            renderList();
+        }
+
+        // 뱃지 렌더링 헬퍼
+        function getTypeBadgeHtml(type) {
+            if(type === '채용공고') return `<span class="badge-type recruit">채용공고</span>`;
+            if(type === '합격자발표') return `<span class="badge-type result">합격자발표</span>`;
+            if(type === '시험안내') return `<span class="badge-type info">시험안내</span>`;
+            return `<span class="badge-type">${type}</span>`;
+        }
+
+        // 목록 렌더링
+        function renderList() {
+            const tbody = document.getElementById('notice-tbody');
+            const totalCountEl = document.getElementById('total-count');
+            
+            const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+            const endIndex = startIndex + state.itemsPerPage;
+            const paginatedData = state.filteredData.slice(startIndex, endIndex);
+
+            totalCountEl.textContent = state.filteredData.length.toLocaleString();
+            
+            let html = '';
+            
+            if (paginatedData.length === 0) {
+                html = `<tr><td colspan="6" class="py-10 text-center text-slate-500">검색 결과가 없습니다.</td></tr>`;
+            } else {
+                paginatedData.forEach(post => {
+                    html += `
+                        <tr class="cursor-pointer" onclick="viewDetail(${post.id})">
+                            <td>${post.id}</td>
+                            <td>${getTypeBadgeHtml(post.type)}</td>
+                            <td class="subject">
+                                <a href="#none" onclick="event.preventDefault();" class="text-slate-700 font-bold hover:text-hyobin-blue">
+                                    ${post.title}
+                                </a>
+                            </td>
+                            <td>${post.department}</td>
+                            <td>${post.date}</td>
+                            <td>${post.views.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tbody.innerHTML = html;
+            renderPagination();
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            const totalPages = Math.ceil(state.filteredData.length / state.itemsPerPage) || 1;
+            
+            document.getElementById('current-page').textContent = state.currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+
+            let html = '';
+            const prevDisabled = state.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(1)" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${prevDisabled}" title="처음 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${state.currentPage - 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 mr-2 ${prevDisabled}" title="이전 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+
+            let startPage = Math.max(1, state.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === state.currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-hyobin-blue bg-hyobin-blue text-white font-bold">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-600 hover:bg-slate-50">${i}</button>`;
+                }
+            }
+
+            const nextDisabled = state.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(${state.currentPage + 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ml-2 ${nextDisabled}" title="다음 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${totalPages})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${nextDisabled}" title="마지막 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>`;
+
+            container.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(state.filteredData.length / state.itemsPerPage)) return;
+            state.currentPage = page;
+            renderList();
+        }
+
+        // ==========================================
+        // 상세 뷰 관련 로직
+        // ==========================================
+        function viewDetail(id) {
+            const item = state.data.find(n => n.id === id);
+            if (!item) return;
+
+            item.views += 1;
+
+            // 상세 상단
+            document.getElementById('detail-type').outerHTML = getTypeBadgeHtml(item.type);
+            const badges = document.querySelectorAll('.badge-type');
+            badges[badges.length-1].id = 'detail-type'; 
+
+            document.getElementById('detail-dept').textContent = item.department;
+            document.getElementById('detail-title').textContent = item.title;
+            
+            // 상세 박스
+            document.getElementById('detail-writer').textContent = item.department;
+            document.getElementById('detail-date').textContent = item.date;
+            document.getElementById('detail-views').textContent = item.views.toLocaleString();
+            document.getElementById('detail-contact').textContent = item.contact;
+            
+            // 내용
+            document.getElementById('detail-content').innerHTML = item.content;
+
+            // 첨부파일 영역
+            const attachContainer = document.getElementById('detail-attachments-container');
+            const attachList = document.getElementById('detail-attachments-list');
+            attachList.innerHTML = '';
+            
+            if (item.attachments && item.attachments.length > 0) {
+                attachContainer.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    attachList.innerHTML += `
+                        <li>
+                            <a href="#none" onclick="alert('${file.name} 다운로드를 시작합니다.'); event.preventDefault();" class="text-[15px] text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 transition font-medium">
+                                <i data-lucide="file-text" class="w-4 h-4"></i> ${file.name} <span class="text-xs text-slate-400 ml-1">(${file.size})</span> <i data-lucide="download" class="w-3 h-3 ml-1"></i>
+                            </a>
+                        </li>
+                    `;
+                });
+            } else {
+                attachContainer.classList.add('hidden');
+            }
+
+            document.getElementById('board-list-view').classList.add('hidden');
+            document.getElementById('board-detail-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function goBackToList() {
+            renderList();
+            document.getElementById('board-detail-view').classList.add('hidden');
+            document.getElementById('board-list-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // PDF 다운로드 로직 (네이티브 방식)
+        // ==========================================
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

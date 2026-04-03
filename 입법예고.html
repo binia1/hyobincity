@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입법예고 - 효빈광역시 시정소식</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED', // 간선버스 도색 컬러 포인트
+                            red: '#D81C2F' // 급행버스/경고 컬러 포인트
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.9), rgba(26, 54, 93, 0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 게시판 테이블 스타일 */
+        .board-table-wrap {
+            border-top: 2px solid #1a365d;
+            background: #fff;
+            overflow-x: auto;
+        }
+        .board-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+        .board-table th {
+            padding: 1rem 0.5rem;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: center;
+            border-bottom: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .board-table td {
+            padding: 1rem 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: background-color 0.2s;
+            vertical-align: middle;
+        }
+        .board-table tr:hover td {
+            background-color: #f8fafc;
+        }
+        .board-table td.subject {
+            text-align: left;
+            padding-left: 1rem;
+        }
+        .board-table td.subject a {
+            display: block;
+            color: #334155;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .board-table td.subject a:hover {
+            text-decoration: underline;
+            color: #005bac;
+        }
+
+        /* 분류 및 상태 뱃지 스타일 */
+        .badge-type {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 45px;
+        }
+        .badge-type.ordinance { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; } /* 조례 */
+        .badge-type.rule { background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; } /* 규칙 */
+        
+        .badge-status {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            text-align: center;
+            min-width: 55px;
+        }
+        .badge-status.active { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; animation: pulse-soft 2s infinite; } /* 진행중 */
+        .badge-status.closed { background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; } /* 마감 */
+
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* 상세 뷰 타이틀 영역 박스 */
+        .detail-info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #board-detail-view, #board-detail-view * { visibility: visible; }
+            #board-detail-view {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">시정소식</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">효빈의 오늘과 내일을 투명하고 바르게 알려드립니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <div>
+                    <div class="mb-6">
+                        <h4 class="font-black text-hyobin-dark mb-4 border-b-2 border-slate-200 pb-3 text-lg flex items-center">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-2 text-hyobin-blue"></i>
+                            시정소식 일반
+                        </h4>
+                        <ul class="space-y-2 text-[15px] break-keep lnb-menu ml-1">
+                            <li><a href="공지사항.html">공지사항</a></li>
+                            <li><a href="보도자료.html">보도자료</a></li>
+                            <li><a href="언론보도사실은이렇습니다.html">언론보도 사실은 이렇습니다</a></li>
+                            <li><a href="news.html">고시·공고</a></li>
+                            <li><a href="입법예고.html" class="active">입법예고</a></li>
+                            <li><a href="시험인사정보.html">시험정보</a></li>
+                            <li><a href="인사정보.html">인사정보</a></li>
+                            <li><a href="공무직채용.html">공무직 채용정보</a></li>
+                            <li><a href="입찰소식.html">입찰소식</a></li>
+                            <li><a href="주요업무계획.html">주요업무계획</a></li>
+                            <li><a href="주요업무계획과거.html">주요업무계획 (과거자료)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="시정소식.html" class="hover:text-slate-700">시정소식</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">시정소식 일반</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">입법예고</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8 no-print">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">입법예고</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">효빈광역시 자치법규(조례, 규칙)의 제정·개정 및 폐지안을 시민 여러분께 미리 알려드리고 다양한 의견을 수렴합니다.</p>
+            </div>
+
+            <!-- ==============================
+                 [1] 게시글 목록 뷰 (List View)
+                 ============================== -->
+            <div id="board-list-view">
+                <!-- 검색 및 필터 영역 -->
+                <div class="bg-slate-50 border border-slate-200 p-5 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-[15px] text-slate-700 font-medium">
+                        전체 <span class="text-hyobin-blue font-bold" id="total-count">0</span>건 (<span id="current-page">1</span>/<span id="total-pages">1</span> 페이지)
+                    </div>
+                    <form class="flex flex-wrap gap-2 w-full md:w-auto" onsubmit="handleSearch(event)">
+                        <select id="search-status" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">상태 전체</option>
+                            <option value="active">진행중</option>
+                            <option value="closed">마감</option>
+                        </select>
+                        <select id="search-type" class="border border-slate-300 bg-white h-10 px-3 text-sm text-slate-700 focus:outline-none focus:border-hyobin-blue">
+                            <option value="all">제목+내용</option>
+                            <option value="title">입법예고명</option>
+                            <option value="dept">담당부서</option>
+                        </select>
+                        <div class="flex flex-1 md:w-64 relative">
+                            <input type="text" id="search-keyword" placeholder="검색어를 입력하세요." class="w-full border border-slate-300 border-r-0 h-10 pl-3 pr-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                            <button type="submit" class="bg-hyobin-dark text-white px-4 h-10 hover:bg-slate-800 transition flex items-center justify-center font-medium">
+                                <i data-lucide="search" class="w-4 h-4 mr-1"></i> 검색
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 게시판 테이블 -->
+                <div class="board-table-wrap mb-8">
+                    <table class="board-table">
+                        <colgroup>
+                            <col style="width: 7%">
+                            <col style="width: 8%">
+                            <col style="width: auto">
+                            <col style="width: 14%">
+                            <col style="width: 18%">
+                            <col style="width: 9%">
+                            <col style="width: 8%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>구분</th>
+                                <th>입법예고명</th>
+                                <th>담당부서</th>
+                                <th>예고기간</th>
+                                <th>상태</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-tbody">
+                            <!-- JS 렌더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 컨테이너 -->
+                <div id="pagination-container" class="flex justify-center items-center gap-1 mt-8 mb-12">
+                    <!-- JS 렌더링 영역 -->
+                </div>
+            </div>
+
+            <!-- ==============================
+                 [2] 게시글 상세 뷰 (Detail View)
+                 ============================== -->
+            <div id="board-detail-view" class="hidden">
+                <div id="pdf-content" class="border-t-2 border-hyobin-dark bg-white shadow-sm mb-6">
+                    <!-- 상세 헤더 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span id="detail-type" class="badge-type ordinance">조례</span>
+                            <span id="detail-status" class="badge-status active">진행중</span>
+                            <span class="text-slate-300">|</span>
+                            <span id="detail-dept" class="text-hyobin-blue font-bold text-sm">담당부서</span>
+                        </div>
+                        <h3 id="detail-title" class="text-2xl font-black text-slate-800 mb-5 break-keep leading-tight">입법예고명</h3>
+                        
+                        <div class="detail-info-box grid grid-cols-1 md:grid-cols-2 gap-4 text-[15px]">
+                            <div><strong class="text-slate-500 w-20 inline-block">예고기간</strong> <span id="detail-period" class="font-bold text-slate-800">2026.00.00 ~ 2026.00.00</span></div>
+                            <div><strong class="text-slate-500 w-20 inline-block">제출방법</strong> <span class="text-slate-800">서면, 팩스, 이메일, 직접방문</span></div>
+                            <div><strong class="text-slate-500 w-20 inline-block">담당부서</strong> <span id="detail-dept-info" class="text-slate-800">담당부서명</span></div>
+                            <div><strong class="text-slate-500 w-20 inline-block">문의전화</strong> <span id="detail-contact" class="text-slate-800">079-0000-0000</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 첨부파일 렌더링 영역 -->
+                    <div id="detail-attachments-container" class="px-6 md:px-8 py-5 border-b border-slate-200 bg-slate-50/50 hidden">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="paperclip" class="w-5 h-5 text-slate-400 mt-0.5"></i>
+                            <div class="w-full">
+                                <p class="text-[15px] font-bold text-slate-700 mb-2">첨부파일 (입법예고문 및 개정안)</p>
+                                <ul id="detail-attachments-list" class="space-y-1.5">
+                                    <!-- 첨부파일 목록 동적 생성 -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 상세 본문 -->
+                    <div class="p-6 md:p-8 min-h-[300px]">
+                        <h4 class="font-bold text-lg text-blue-800 mb-4 border-l-4 border-blue-500 pl-3">입법예고문 내용</h4>
+                        <div id="detail-content" class="text-slate-700 leading-relaxed text-[16px] whitespace-pre-wrap break-keep">
+                            본문 내용이 여기에 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 버튼 -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-12 action-buttons no-print">
+                    <button onclick="goBackToList()" class="w-full md:w-auto px-6 py-3 bg-white border border-slate-300 text-slate-700 rounded font-bold hover:bg-slate-50 hover:border-slate-400 transition flex justify-center items-center shadow-sm">
+                        <i data-lucide="list" class="w-4 h-4 mr-2"></i> 목록으로
+                    </button>
+                    <div class="flex w-full md:w-auto gap-2">
+                        <button onclick="alert('의견 제출 폼으로 이동합니다. (현재 페이지는 데모입니다.)')" class="flex-1 md:flex-none px-6 py-3 bg-[#1a365d] text-white rounded font-bold hover:bg-slate-800 transition flex justify-center items-center shadow-sm">
+                            <i data-lucide="edit-3" class="w-4 h-4 mr-2"></i> 의견 제출하기
+                        </button>
+                        <button onclick="downloadNativePDF()" class="flex-1 md:flex-none px-6 py-3 bg-hyobin-blue text-white rounded font-bold hover:bg-blue-800 transition flex justify-center items-center shadow-sm">
+                            <i data-lucide="file-down" class="w-4 h-4 mr-2"></i> PDF 인쇄
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 필수 스크립트 로드 순서 엄수 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        /* * ========================================================
+           [실제 데이터 연동 위치] 
+           효빈광역시 세계관 설정이 반영된 "입법예고" 데이터 세트 
+           * 기준일자: 2026년 4월 3일 (진행중/마감 상태 결정용)
+         ======================================================== */
+        let RAW_DATA = [
+            {
+                id: 1042,
+                type: '조례',
+                department: '대중교통과',
+                title: '효빈광역시 시내버스 준공영제 운영에 관한 조례 일부개정조례안 입법예고',
+                startDate: '2026-03-25',
+                endDate: '2026-04-14',
+                views: 1250,
+                contact: '079-123-4567',
+                status: 'active', // 4월 14일 마감 (현재 4월 3일)
+                attachments: [{ name: '[입법예고문]_시내버스_준공영제_일부개정조례안.hwp', size: '154 KB' }],
+                content: `1. 개정이유
+과거 사모펀드 유입으로 인한 노선 사유화 및 서비스 질 저하를 근본적으로 차단하고, 완전한 공공성을 확보하는 '3세대 완전 준공영제' 도입의 법적 근거를 마련하고자 함. 또한, 버스 권역별 도색(간선 #01B7ED, 지선 #37B484, 순환 #E7D600 등 9개 색상)의 통일성을 기하여 시민의 이용 편의를 제고하고자 함.
+
+2. 주요내용
+가. 사모펀드 등 투기성 자본의 버스 운송사업자 지분 인수 제한 및 사전 승인 의무화 (안 제4조)
+나. 시내버스 9개 권역별 역할 및 고유 도색(Hex 코드 지정) 의무 조항 신설 (안 제7조)
+다. 글로벌 IP 연계 래핑 버스 광고 수익의 재정 지원금 상계 처리 비율 조정 (안 제12조)
+라. 운수종사자 처우 개선 및 임금 체불 발생 시 사업 면허 취소 근거 마련 (안 제15조)
+
+3. 의견제출
+이 개정조례안에 대하여 의견이 있는 기관·단체 또는 개인은 2026년 4월 14일까지 다음 사항을 기재한 의견서를 효빈광역시장(참조: 대중교통과장)에게 제출하여 주시기 바랍니다.`
+            },
+            {
+                id: 1041,
+                type: '조례',
+                department: '문화관광체육국',
+                title: '효빈광역시 애니메이션 및 서브컬처 산업 육성 조례안 입법예고',
+                startDate: '2026-03-20',
+                endDate: '2026-04-09',
+                views: 2104,
+                contact: '079-234-5678',
+                status: 'active',
+                attachments: [{ name: '[입법예고문]_애니메이션_육성_조례제정안.pdf', size: '320 KB' }],
+                content: `1. 제정이유
+효빈광역시를 아시아 최고의 서브컬처 및 애니메이션 산업 메카로 육성하기 위해, '효빈 애니메이션 페스티벌(HAF)'의 체계적인 지원과 국내외 지식재산권(IP) 보유 기업과의 파트너십 구축, 그리고 지역 크리에이터 양성을 위한 제도적 기반을 마련하고자 함.
+
+2. 주요내용
+가. 애니메이션 및 서브컬처 산업 육성을 위한 시장의 책무 및 기본계획 수립 (안 제3조~제5조)
+나. '효빈 애니메이션 페스티벌(HAF)'의 매년 개최 명문화 및 예산 지원 근거 (안 제7조)
+다. 글로벌 IP(BanG Dream!, 러브라이브 등)와의 명예 홍보대사 위촉 및 콜라보레이션 사업 지원 근거 마련 (안 제9조)
+라. 구도심(당가동 '파스텔블루 거리' 등)을 서브컬처 특화 거리로 지정 및 환경 개선 지원 (안 제11조)
+마. 효빈만화특화도서관 등 유관 기관의 설립 및 운영 지원 (안 제14조)
+
+3. 의견제출
+이 제정조례안에 대하여 의견이 있는 기관·단체 또는 개인은 2026년 4월 9일까지 의견서를 제출하여 주시기 바랍니다.`
+            },
+            {
+                id: 1040,
+                type: '규칙',
+                department: '도시철도운영과',
+                title: '효빈광역시 노면전차(트램) 운영 및 지원 규칙 일부개정규칙안 입법예고',
+                startDate: '2026-03-10',
+                endDate: '2026-03-30',
+                views: 890,
+                contact: '079-345-6789',
+                status: 'closed', // 3월 30일 마감완료
+                attachments: [{ name: '[입법예고문]_노면전차_운영_규칙개정안.hwp', size: '89 KB' }],
+                content: `1. 개정이유
+시민의 힘으로 지켜낸 효빈광역시 도시철도 7호선(효빈전차, 노선색상 #FF8899 분홍색)의 성공적인 운영에 발맞추어, 교통 약자의 이동 편의를 증진하고 도시 미관을 개선하기 위해 '무가선 저상 트램' 차량 교체 및 잔디 궤도 조성 사업의 세부 기준을 정하고자 함.
+
+2. 주요내용
+가. 신규 도입되는 노면전차 차량의 규격을 '무가선 100% 저상 트램'으로 의무화 (안 제3조)
+나. 전차 궤도 주변 녹화(잔디 궤도) 조성 및 유지보수 의무 규정 신설 (안 제5조)
+다. 도로교통법 개정에 따른 트램과 일반 차량 간의 교차로 통행 우선순위 세부 안내 (안 제8조)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1039,
+                type: '조례',
+                department: '청년정책담당관',
+                title: '효빈광역시 청년 멘토단(블루 버드) 운영 및 지원 조례안 입법예고',
+                startDate: '2026-03-05',
+                endDate: '2026-03-25',
+                views: 1102,
+                contact: '079-456-7890',
+                status: 'closed',
+                attachments: [],
+                content: `1. 제정이유
+청년들이 시정에 직접 참여하여 행정 실무 경험을 쌓고 정책을 기획하는 '청년 멘토단(블루 버드)' 사업의 안정적인 운영을 도모하고, 참여 청년들에게 합당한 대우(생활임금 적용 등)를 보장하여 이른바 '열정페이' 논란을 원천 차단하기 위함.
+
+2. 주요내용
+가. '블루 버드 멘토단'의 자격 요건(19~34세, 가족돌봄청년 우대 등) 및 선발 기준 (안 제4조)
+나. 단순 노무 금지 및 부서별 전담 멘토 공무원 지정 의무화 (안 제6조)
+다. 참여 청년에게 효빈광역시 생활임금의 1.2배 지급 명문화 (안 제8조)
+라. 근무 기간 내 대중교통 무제한 이용권(H-Pass) 및 월 15만 원의 문화생활 특별 지원금 지급 근거 (안 제9조)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1038,
+                type: '조례',
+                department: '자치행정과',
+                title: '효빈광역시 탄성군 균형발전 특별지원 조례 일부개정조례안 입법예고',
+                startDate: '2026-02-20',
+                endDate: '2026-03-12',
+                views: 640,
+                contact: '079-567-8901',
+                status: 'closed',
+                attachments: [{ name: '[입법예고문]_탄성군_지원조례안.pdf', size: '210 KB' }],
+                content: `1. 개정이유
+1995년 도농복합형태로 효빈광역시에 편입된 '탄성군'이 8구 1군 체제 내에서 타 도심권 구(구역)에 비해 인프라 등에서 소외받지 않도록, 기존 농어촌 혜택을 항구적으로 보장하고 대중교통망 확충을 위한 특별 예산 지원 비율을 상향하고자 함.
+
+2. 주요내용
+가. 탄성군민에 대한 농어촌 특별전형, 건강보험료 지원 등 기존 혜택의 100% 유지 보장 조항 강화 (안 제2조)
+나. 광역전철 빈효선(#6677CC 연청색)의 탄성군 지선 연장 사업에 대한 시비 우선 배정 근거 신설 (안 제5조)
+다. 탄성군 내 스마트 농업 및 도농 교류 거점 센터 건립 지원 확대 (안 제7조)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1037,
+                type: '규칙',
+                department: '대중교통과',
+                title: '효빈광역시 대중교통 색상 지정에 관한 시행규칙 제정안 입법예고',
+                startDate: '2026-02-15',
+                endDate: '2026-03-07',
+                views: 2450,
+                contact: '079-678-9012',
+                status: 'closed',
+                attachments: [],
+                content: `1. 제정이유
+도시 미관을 해치고 이용객의 혼란을 초래했던 무분별한 버스 및 지하철 도색을 체계화하여, 시민들이 직관적으로 노선의 특성을 파악할 수 있는 유니버설 디자인 환경을 조성하고자 함. (2008년 제정된 고유 색상을 명문화함)
+
+2. 주요내용
+가. 시내버스 9개 권역 색상(Hex Code) 엄격 지정 (안 제3조)
+- 간선버스: #01B7ED
+- 순환버스: #E7D600
+- 지선버스: #37B484
+- 광역버스: #485EC6
+- 좌석버스: #FF5800
+- 마을버스: #A664A0
+- 공항버스: #84C36E
+- 시티투어: #7777AA
+- 급행버스: #D81C2F
+
+나. 도시철도 1~8호선 및 빈효선 색상 지정 (안 제4조)
+- 1호선(#0077DD), 2호선(#00CCAA), 3호선(#FFCC11), 4호선(#FF5522), 5호선(#EE0022), 6호선(#881188), 7호선(#FF8899), 8호선(#9856FF), 빈효선(#6677CC)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1036,
+                type: '조례',
+                department: '도시계획과',
+                title: '효빈광역시 5도심 다핵구조 조성을 위한 도시계획 조례 일부개정조례안 입법예고',
+                startDate: '2026-02-01',
+                endDate: '2026-02-21',
+                views: 750,
+                contact: '079-789-0123',
+                status: 'closed',
+                attachments: [],
+                content: `1. 개정이유
+과거 특정 구도심에만 집중되었던 도시 기능을 분산하고, 8구 1군 전역이 고르게 발전하는 '5도심 다핵구조'를 완성하기 위해, 광역 교통의 결절점인 안천구 일원의 복합환승센터 건립 등 핵심 인프라 조성에 필요한 도시계획 규제(용적률 등)를 합리적으로 완화하고자 함.
+
+2. 주요내용
+가. 안천 복합환승센터 부지 일대를 '특별계획구역'으로 지정하는 근거 마련 (안 제15조)
+나. 해당 구역 내 랜드마크 건물(대형 복합쇼핑몰 등) 건립 시 용적률 상한 20% 상향 (안 제18조)
+다. 개발 이익의 일부를 구도심(당가동 일대) 도시재생 기금으로 환원하는 의무 부과 (안 제22조)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1035,
+                type: '규칙',
+                department: '기후환경국',
+                title: '효빈광역시 시조(기러기) 서식지 보호구역 지정 규칙안 입법예고',
+                startDate: '2026-01-20',
+                endDate: '2026-02-10',
+                views: 420,
+                contact: '079-890-1234',
+                status: 'closed',
+                attachments: [],
+                content: `1. 제정이유
+우리 시의 자랑스러운 시조이자 시민 소통 캐릭터 '히버히'의 모티브인 '기러기'의 주요 서식지(남구 해안 생태공원 일대)가 최근 무분별한 개발과 관광객 유입으로 훼손될 우려가 있어, 철새 도래 시기에 맞추어 집중 보호구역을 지정하고 관리를 강화하고자 함.
+
+2. 주요내용
+가. 남구 해안 생태공원 일대 30만 제곱미터를 '시조 특별보호구역'으로 지정 (안 제2조)
+나. 기러기 산란 및 월동기(매년 4월~5월, 11월~12월) 중 일부 구역 출입 전면 통제 (안 제4조)
+다. 출입 통제 위반 및 서식지 훼손 행위 시 과태료 부과 세부 기준 (안 제6조)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1034,
+                type: '조례',
+                department: '대중교통과',
+                title: '효빈광역시 대중교통 이용 촉진 조례 일부개정조례안 입법예고',
+                startDate: '2026-01-10',
+                endDate: '2026-01-30',
+                views: 1802,
+                contact: '079-901-2345',
+                status: 'closed',
+                attachments: [],
+                content: `1. 개정이유
+신규 개통된 도시철도 8호선(연보라색 노선 #9856FF)의 초기 이용객 확보 및 대중교통 분담률 제고를 위해, 8호선과 연계되는 지선버스 및 마을버스 환승 시 추가 할인 혜택을 제공하고, 임산부 등 교통약자의 무임승차 제도를 확대 적용하고자 함.
+
+2. 주요내용
+가. 8호선 하차 후 30분 이내 지선버스(#37B484) 및 마을버스(#A664A0) 환승 시 기본요금 전액 면제 (안 제5조)
+나. 임산부, 다자녀 가구에 대한 '효빈 프리미엄 교통카드' 발급 근거 신설 (안 제8조)
+
+3. 의견제출
+마감되었습니다.`
+            },
+            {
+                id: 1033,
+                type: '조례',
+                department: '자치행정과',
+                title: '효빈광역시 공공시설 내 불법행위(오물투척 등) 엄단에 관한 조례안 입법예고',
+                startDate: '2025-12-15',
+                endDate: '2026-01-05',
+                views: 5600,
+                contact: '079-012-3456',
+                status: 'closed',
+                attachments: [],
+                content: `1. 제정이유
+과거 특정 정치 인사 및 기업 사주(윤재훈 등)가 시내버스 및 공공 기물에 오물을 투척하려 하거나 위협을 가한 사건과 관련하여, 다수의 시민이 이용하는 공공시설 내에서의 악의적 테러 행위를 원천 차단하고 시민의 안전을 강력히 보호하기 위함.
+
+2. 주요내용
+가. 대중교통(버스, 전차 등) 및 공공청사 내 오물 투척, 방화, 파손 행위에 대한 무관용 원칙 천명 (안 제3조)
+나. 해당 불법행위 적발 시 형사 고발과 별도로, 원상복구 비용의 3배에 해당하는 징벌적 손해배상 청구 근거 신설 (안 제5조)
+다. 공익 신고자(블랙박스 제보 등)에 대한 포상금 최대 1천만 원 지급 조항 (안 제7조)
+
+3. 의견제출
+마감되었습니다.`
+            }
+        ];
+
+        // 상태 관리
+        let state = {
+            data: [...RAW_DATA],
+            filteredData: [...RAW_DATA],
+            currentPage: 1,
+            itemsPerPage: 10,
+            searchType: 'all',
+            searchStatus: 'all',
+            searchKeyword: ''
+        };
+
+        // 초기화
+        function init() {
+            renderList();
+        }
+
+        // 검색 처리
+        function handleSearch(e) {
+            e.preventDefault();
+            const searchType = document.getElementById('search-type').value;
+            const searchStatus = document.getElementById('search-status').value;
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+
+            state.searchType = searchType;
+            state.searchStatus = searchStatus;
+            state.searchKeyword = keyword;
+            state.currentPage = 1;
+
+            state.filteredData = state.data.filter(item => {
+                // 키워드 필터링
+                let keywordMatch = true;
+                if (keyword) {
+                    const titleMatch = item.title.toLowerCase().includes(keyword);
+                    const contentMatch = item.content.toLowerCase().includes(keyword);
+                    const deptMatch = item.department.toLowerCase().includes(keyword);
+
+                    if (searchType === 'all') keywordMatch = titleMatch || contentMatch || deptMatch;
+                    else if (searchType === 'title') keywordMatch = titleMatch;
+                    else if (searchType === 'dept') keywordMatch = deptMatch;
+                }
+
+                // 상태 필터링
+                let statusMatch = true;
+                if (searchStatus !== 'all') {
+                    statusMatch = item.status === searchStatus;
+                }
+
+                return keywordMatch && statusMatch;
+            });
+            
+            renderList();
+        }
+
+        // 뱃지 렌더링 헬퍼
+        function getTypeBadgeHtml(type) {
+            if(type === '조례') return `<span class="badge-type ordinance">조례</span>`;
+            if(type === '규칙') return `<span class="badge-type rule">규칙</span>`;
+            return `<span class="badge-type">${type}</span>`;
+        }
+        
+        function getStatusBadgeHtml(status) {
+            if(status === 'active') return `<span class="badge-status active">진행중</span>`;
+            if(status === 'closed') return `<span class="badge-status closed">마감</span>`;
+            return `<span>-</span>`;
+        }
+
+        // 목록 렌더링
+        function renderList() {
+            const tbody = document.getElementById('notice-tbody');
+            const totalCountEl = document.getElementById('total-count');
+            
+            const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+            const endIndex = startIndex + state.itemsPerPage;
+            const paginatedData = state.filteredData.slice(startIndex, endIndex);
+
+            totalCountEl.textContent = state.filteredData.length.toLocaleString();
+            
+            let html = '';
+            
+            if (paginatedData.length === 0) {
+                html = `<tr><td colspan="7" class="py-10 text-center text-slate-500">검색 결과가 없습니다.</td></tr>`;
+            } else {
+                paginatedData.forEach(post => {
+                    const periodStr = `${post.startDate} ~ ${post.endDate}`;
+                    
+                    html += `
+                        <tr class="cursor-pointer" onclick="viewDetail(${post.id})">
+                            <td>${post.id}</td>
+                            <td>${getTypeBadgeHtml(post.type)}</td>
+                            <td class="subject">
+                                <a href="#none" onclick="event.preventDefault();" class="text-slate-700 font-bold hover:text-hyobin-blue">
+                                    ${post.title}
+                                </a>
+                            </td>
+                            <td>${post.department}</td>
+                            <td class="text-[14px] text-slate-600">${periodStr}</td>
+                            <td>${getStatusBadgeHtml(post.status)}</td>
+                            <td>${post.views.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tbody.innerHTML = html;
+            renderPagination();
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            const totalPages = Math.ceil(state.filteredData.length / state.itemsPerPage) || 1;
+            
+            document.getElementById('current-page').textContent = state.currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+
+            let html = '';
+            const prevDisabled = state.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(1)" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${prevDisabled}" title="처음 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${state.currentPage - 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 mr-2 ${prevDisabled}" title="이전 페이지" ${state.currentPage === 1 ? 'disabled' : ''}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+
+            let startPage = Math.max(1, state.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === state.currentPage) {
+                    html += `<button class="w-8 h-8 flex items-center justify-center border border-hyobin-blue bg-hyobin-blue text-white font-bold">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-600 hover:bg-slate-50">${i}</button>`;
+                }
+            }
+
+            const nextDisabled = state.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-hyobin-blue cursor-pointer';
+            html += `<button onclick="changePage(${state.currentPage + 1})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ml-2 ${nextDisabled}" title="다음 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            html += `<button onclick="changePage(${totalPages})" class="w-8 h-8 flex items-center justify-center border border-slate-300 bg-white text-slate-500 ${nextDisabled}" title="마지막 페이지" ${state.currentPage === totalPages ? 'disabled' : ''}><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>`;
+
+            container.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(state.filteredData.length / state.itemsPerPage)) return;
+            state.currentPage = page;
+            renderList();
+        }
+
+        // ==========================================
+        // 상세 뷰 관련 로직
+        // ==========================================
+        function viewDetail(id) {
+            const item = state.data.find(n => n.id === id);
+            if (!item) return;
+
+            item.views += 1;
+
+            // 상세 상단
+            document.getElementById('detail-type').outerHTML = getTypeBadgeHtml(item.type);
+            // 뱃지가 재생성되었으므로 다시 id를 부여 (tailwindcss 클래스 적용 위해)
+            const badges = document.querySelectorAll('.badge-type');
+            badges[badges.length-1].id = 'detail-type'; // 꼼수: 마지막에 삽입된 뱃지에 id 부여. 실제론 querySelector로 찾는게 좋음
+
+            document.getElementById('detail-status').outerHTML = getStatusBadgeHtml(item.status);
+            const statuses = document.querySelectorAll('.badge-status');
+            statuses[statuses.length-1].id = 'detail-status';
+
+            document.getElementById('detail-dept').textContent = item.department;
+            document.getElementById('detail-title').textContent = item.title;
+            
+            // 상세 박스
+            document.getElementById('detail-period').textContent = `${item.startDate} ~ ${item.endDate}`;
+            document.getElementById('detail-dept-info').textContent = item.department;
+            document.getElementById('detail-contact').textContent = item.contact;
+            
+            // 내용
+            document.getElementById('detail-content').innerHTML = item.content;
+
+            // 첨부파일 영역
+            const attachContainer = document.getElementById('detail-attachments-container');
+            const attachList = document.getElementById('detail-attachments-list');
+            attachList.innerHTML = '';
+            
+            if (item.attachments && item.attachments.length > 0) {
+                attachContainer.classList.remove('hidden');
+                item.attachments.forEach(file => {
+                    attachList.innerHTML += `
+                        <li>
+                            <a href="#none" onclick="alert('${file.name} 다운로드를 시작합니다.'); event.preventDefault();" class="text-[15px] text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 transition font-medium">
+                                <i data-lucide="file-text" class="w-4 h-4"></i> ${file.name} <span class="text-xs text-slate-400 ml-1">(${file.size})</span> <i data-lucide="download" class="w-3 h-3 ml-1"></i>
+                            </a>
+                        </li>
+                    `;
+                });
+            } else {
+                attachContainer.classList.add('hidden');
+            }
+
+            document.getElementById('board-list-view').classList.add('hidden');
+            document.getElementById('board-detail-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function goBackToList() {
+            renderList();
+            document.getElementById('board-detail-view').classList.add('hidden');
+            document.getElementById('board-list-view').classList.remove('hidden');
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // PDF 다운로드 로직 (라이브러리 충돌 방지용 네이티브 방식)
+        // ==========================================
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

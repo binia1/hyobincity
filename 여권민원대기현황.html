@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여권민원 대기현황 - 효빈광역시 종합민원</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.9), rgba(26, 54, 93, 0.8)), url('이미지/민원배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 상태 뱃지 스타일 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .status-smooth { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; } /* 원활 */
+        .status-normal { background-color: #e0f2fe; color: #1e40af; border: 1px solid #bae6fd; } /* 보통 */
+        .status-congested { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; } /* 혼잡 */
+        .status-closed { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; } /* 업무종료 */
+
+        /* 애니메이션 */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .refreshing .refresh-icon {
+            animation: spin-slow 1s linear infinite;
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">종합민원</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">빠르고 편리한 효빈광역시 민원 서비스</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center">
+                    <i data-lucide="plane-takeoff" class="w-5 h-5 mr-2"></i> 여권안내
+                </h4>
+                <ul class="space-y-2 text-[13px] lnb-menu">
+                    <li><a href="여권개요.html">여권개요</a></li>
+                    <li><a href="여권민원대기현황.html" class="active">여권민원 대기현황</a></li>
+                    <li><a href="여권발급.html">여권발급</a></li>
+                    <li><a href="여권재발급.html">여권재발급</a></li>
+                    <li><a href="여권기재사항변경.html">여권기재사항변경</a></li>
+                    <li><a href="여권사진규정.html">여권사진규정</a></li>
+                    <li><a href="여권민원서식.html">여권민원서식</a></li>
+                    <li><a href="국제운전면허증발급.html">국제운전면허증발급</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative" id="print-area">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">종합민원</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">여권안내</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">여권민원 대기현황</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">여권민원 대기현황</h2>
+                    <p class="text-slate-600 leading-relaxed text-[15px]">효빈광역시청 및 산하 8구 1군 민원실의 실시간 여권 발급 대기 인원을 안내합니다.</p>
+                </div>
+                
+                <!-- 컨트롤 패널 -->
+                <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-3 rounded-lg shadow-sm no-print">
+                    <div class="flex flex-col text-right">
+                        <span class="text-xs text-slate-500 font-medium mb-0.5">최근 업데이트</span>
+                        <span id="last-updated" class="text-sm font-bold text-blue-700">2026.04.03 13:23:45</span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-300 mx-1"></div>
+                    <button id="refresh-btn" onclick="refreshStatus()" class="flex items-center justify-center bg-white border border-slate-300 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 text-slate-700 px-4 py-2 rounded-md font-bold transition shadow-sm">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 refresh-icon"></i> 새로고침
+                    </button>
+                </div>
+            </div>
+
+            <!-- 혼잡도 범례 -->
+            <div class="flex flex-wrap items-center gap-4 mb-6 bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+                <span class="font-bold text-slate-700 mr-2"><i data-lucide="info" class="w-4 h-4 inline mr-1 text-slate-400"></i>혼잡도 안내</span>
+                <div class="flex items-center gap-1.5 text-sm">
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span> <span class="text-slate-600">원활 (대기 10명 미만)</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-sm">
+                    <span class="w-3 h-3 rounded-full bg-blue-500"></span> <span class="text-slate-600">보통 (대기 10~20명)</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-sm">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span> <span class="text-slate-600">혼잡 (대기 21명 이상)</span>
+                </div>
+            </div>
+
+            <!-- 대기현황 카드 그리드 -->
+            <div id="status-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
+                <!-- JS로 렌더링될 카드 영역 -->
+            </div>
+
+            <!-- 주의사항 -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-10 shadow-sm">
+                <h3 class="text-lg font-bold text-amber-800 mb-3 flex items-center">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> 유의사항
+                </h3>
+                <ul class="list-disc list-inside text-[14px] text-amber-700 space-y-2 leading-relaxed ml-1">
+                    <li>본 대기현황은 실시간으로 업데이트되나, <strong>민원인의 이동 시간 및 창구 사정에 따라 실제 방문 시 대기인원과 차이가 발생</strong>할 수 있습니다.</li>
+                    <li>여권 접수는 <span class="font-bold">평일 09:00 ~ 18:00</span>에 가능하며, 야간 연장 근무(시청 본청 매주 화요일 18:00~20:00) 일정을 미리 확인하시기 바랍니다.</li>
+                    <li>대기 인원이 많을 경우 업무 종료 시간(18:00) 이전에 번호표 발권이 조기 마감될 수 있습니다.</li>
+                </ul>
+            </div>
+
+            <!-- 하단 인쇄 버튼 -->
+            <div class="flex justify-end no-print">
+                <button onclick="downloadNativePDF()" class="px-6 py-3 bg-[#1a365d] text-white rounded-lg font-bold hover:bg-slate-800 transition flex items-center shadow-md">
+                    <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 현재 대기현황 인쇄
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 효빈시 산하 여권 발급 기관 목록 (8구 1군 + 시청)
+        const AGENCIES = [
+            { id: 'city', name: '효빈광역시청', dept: '종합민원실 (본관 1층)', tel: '079-111-2222', time: '09:00~18:00 (화 20:00)' },
+            { id: 'jung', name: '중구청', dept: '민원여권과', tel: '079-222-3333', time: '09:00~18:00' },
+            { id: 'dong', name: '동구청', dept: '민원봉사과', tel: '079-333-4444', time: '09:00~18:00' },
+            { id: 'seo', name: '서구청', dept: '민원봉사과', tel: '079-444-5555', time: '09:00~18:00' },
+            { id: 'nam', name: '남구청', dept: '종합민원과', tel: '079-555-6666', time: '09:00~18:00' },
+            { id: 'buk', name: '북구청', dept: '민원여권과', tel: '079-666-7777', time: '09:00~18:00' },
+            { id: 'ancheon', name: '안천구청', dept: '민원봉사과', tel: '079-777-8888', time: '09:00~18:00' },
+            { id: 'changjeon', name: '창전구청', dept: '민원여권과', tel: '079-888-9999', time: '09:00~18:00' },
+            { id: 'cheongyeop', name: '청엽구청', dept: '종합민원실', tel: '079-999-0000', time: '09:00~18:00' },
+            { id: 'tanseong', name: '탄성군청', dept: '민원봉사과', tel: '079-123-4567', time: '09:00~18:00' }
+        ];
+
+        // 난수 생성 함수
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 현재 시간 포맷팅
+        function getFormattedTime() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const h = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const sec = String(now.getSeconds()).padStart(2, '0');
+            return `${y}.${m}.${d} ${h}:${min}:${sec}`;
+        }
+
+        // 상태 배지 HTML 생성
+        function getStatusBadge(waitCount) {
+            // 현재 시간을 가져와서 업무 종료 여부 판단 (단순 예시: 18시 이후면 무조건 종료 처리 - 야간연장 예외 생략)
+            const hour = new Date().getHours();
+            if (hour >= 18 || hour < 9) {
+                return `<span class="status-badge status-closed"><i data-lucide="moon" class="w-3.5 h-3.5 mr-1"></i>업무종료</span>`;
+            }
+
+            if (waitCount < 10) {
+                return `<span class="status-badge status-smooth"><i data-lucide="smile" class="w-3.5 h-3.5 mr-1"></i>원활</span>`;
+            } else if (waitCount <= 20) {
+                return `<span class="status-badge status-normal"><i data-lucide="meh" class="w-3.5 h-3.5 mr-1"></i>보통</span>`;
+            } else {
+                return `<span class="status-badge status-congested"><i data-lucide="frown" class="w-3.5 h-3.5 mr-1 animate-pulse"></i>혼잡</span>`;
+            }
+        }
+
+        // 현황 카드 렌더링
+        function renderStatusCards() {
+            const grid = document.getElementById('status-grid');
+            let html = '';
+
+            // 업무 시간(09~18) 여부
+            const hour = new Date().getHours();
+            const isClosed = (hour >= 18 || hour < 9);
+
+            AGENCIES.forEach(agency => {
+                // 시청 메인은 사람이 조금 더 많은 편, 군청은 적은 편으로 가중치 부여
+                let waitCount = 0;
+                if (!isClosed) {
+                    if(agency.id === 'city') waitCount = getRandomInt(15, 35);
+                    else if(agency.id === 'tanseong') waitCount = getRandomInt(0, 8);
+                    else waitCount = getRandomInt(2, 25);
+                }
+
+                const badgeHtml = getStatusBadge(waitCount);
+                const countDisplay = isClosed ? '-' : `<span class="text-3xl font-black text-slate-800 mr-1">${waitCount}</span><span class="text-sm font-bold text-slate-500">명</span>`;
+                const waitTimeEst = isClosed ? '-' : `약 ${waitCount * 3}분`;
+
+                const highlightBorder = agency.id === 'city' ? 'border-purple-300 ring-2 ring-purple-100' : 'border-slate-200';
+                const iconBg = agency.id === 'city' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600';
+
+                html += `
+                    <div class="bg-white rounded-xl shadow-sm border ${highlightBorder} p-6 transition-all hover:shadow-md flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full ${iconBg} flex items-center justify-center shrink-0">
+                                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg text-slate-800 leading-tight">${agency.name}</h4>
+                                    <p class="text-xs text-slate-500">${agency.dept}</p>
+                                </div>
+                            </div>
+                            <div>
+                                ${badgeHtml}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-50 rounded-lg p-4 mb-4 flex justify-between items-center border border-slate-100">
+                            <div class="text-slate-600 font-medium text-sm">현재 대기인원</div>
+                            <div class="text-right">
+                                ${countDisplay}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-[13px] text-slate-600 border-t border-slate-100 pt-4">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">예상 대기시간</span>
+                                <span class="font-bold text-slate-700">${waitTimeEst}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">전화번호</span>
+                                <span>${agency.tel}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">운영시간</span>
+                                <span>${agency.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 새로고침 로직
+        function refreshStatus() {
+            const btn = document.getElementById('refresh-btn');
+            btn.classList.add('refreshing');
+            btn.disabled = true;
+
+            // 시뮬레이션 지연 (0.6초)
+            setTimeout(() => {
+                renderStatusCards();
+                document.getElementById('last-updated').innerText = getFormattedTime();
+                
+                btn.classList.remove('refreshing');
+                btn.disabled = false;
+            }, 600);
+        }
+
+        // PDF 다운로드 / 네이티브 인쇄
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center no-print`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+
+        // 초기 실행
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStatusCards();
+            document.getElementById('last-updated').innerText = getFormattedTime();
+        });
+    </script>
+</body>
+</html>

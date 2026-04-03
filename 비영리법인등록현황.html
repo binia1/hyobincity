@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비영리법인등록현황 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS (미리 분리해 둔 스타일) -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Table Styles */
+        .data-table { width: 100%; border-top: 2px solid #1a365d; background: white; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.9rem; padding: 1rem 0.5rem; text-align: center; white-space: nowrap; border-bottom: 1px solid #cbd5e1; }
+        .data-table td { padding: 1rem 0.5rem; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #475569; text-align: center; }
+        .data-table td.align-left { text-align: left; }
+        .data-table tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+        .data-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+
+        /* 소제목(Bullet Title) 스타일 */
+        .bullet-title {
+            position: relative;
+            padding-left: 1.2rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        .bullet-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 18px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">투명하고 열린 시정, 효빈광역시가 시민과 함께합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    민간단체 및 기타
+                </h2>
+                <ul class="lnb-depth1">
+                    <li class="active current"><a href="비영리법인등록현황.html">비영리법인등록현황 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="비영리민간단체등록및지원.html">비영리민간단체등록및지원 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="어린이시청.html">어린이시청 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>정보공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>민간단체 및 기타</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">비영리법인등록현황</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2 content-title">비영리법인 등록현황</h2>
+                <p class="text-slate-600">효빈광역시에 등록된 소관 비영리법인(사단법인, 재단법인)의 등록 현황을 안내해 드립니다.</p>
+            </div>
+
+            <!-- 관공서 스타일 안내 박스 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm flex gap-4 items-start">
+                <div class="bg-white p-3 rounded-full shadow-sm text-blue-600 shrink-0 mt-1">
+                    <i data-lucide="info" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[14px] text-slate-700 space-y-2 leading-relaxed w-full">
+                    <p><strong class="text-blue-800 text-base">비영리법인이란?</strong></p>
+                    <p>학술, 종교, 자선, 기예, 사교 기타 영리 아닌 사업을 목적으로 하는 사단 또는 재단으로 주무관청의 허가를 얻어 설립된 법인을 말합니다. (민법 제32조)</p>
+                    <ul class="list-disc list-inside space-y-1 ml-1 text-slate-600 mt-2">
+                        <li>본 현황표는 효빈광역시청 소관 부서에서 인가한 비영리법인 기준입니다.</li>
+                        <li>목록을 <strong class="text-blue-600">클릭</strong>하시면 해당 법인의 연락처 및 상세 설립 목적을 확인하실 수 있습니다.</li>
+                        <li>정보공개 청구 및 세부 사항 문의는 각 <strong>소관부서</strong>로 연락해 주시기 바랍니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 검색 및 필터 영역 -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center text-sm font-medium text-slate-600">
+                    전체 <span id="total-count" class="text-hyobin-blue font-bold ml-1 mr-1">0</span>건의 등록법인이 있습니다.
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <select id="search-type" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <option value="all">전체</option>
+                        <option value="name">법인명</option>
+                        <option value="dept">소관부서</option>
+                        <option value="gu">소재지(구/군)</option>
+                    </select>
+                    <div class="relative flex-1 md:w-64">
+                        <input type="text" id="search-input" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue" onkeyup="if(event.key==='Enter') renderTable(1)">
+                        <button class="absolute right-2 top-1.5 text-slate-400 hover:text-hyobin-blue" onclick="renderTable(1)">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 현황 데이터 테이블 -->
+            <div>
+                <div class="flex justify-between items-end mb-3">
+                    <h3 class="bullet-title mb-0">비영리법인 등록 목록</h3>
+                    <span class="text-xs text-slate-500">* 행을 클릭하면 상세 정보를 볼 수 있습니다.</span>
+                </div>
+                <div class="overflow-x-auto shadow-sm rounded-t-lg">
+                    <table class="data-table min-w-[800px]">
+                        <colgroup>
+                            <col style="width: 6%">
+                            <col style="width: 10%">
+                            <col style="width: 25%">
+                            <col style="width: 10%">
+                            <col style="width: 14%">
+                            <col style="width: 12%">
+                            <col style="width: 23%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>순번</th>
+                                <th>구분</th>
+                                <th>법인명</th>
+                                <th>대표자</th>
+                                <th>소관부서</th>
+                                <th>설립일자</th>
+                                <th>소재지</th>
+                            </tr>
+                        </thead>
+                        <tbody id="board-tbody" class="divide-y divide-slate-100">
+                            <!-- JavaScript로 렌더링 됩니다. -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="flex justify-center mt-8">
+                <div class="flex gap-1" id="pagination-container">
+                    <!-- JavaScript로 렌더링 됩니다. -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 법인 상세 정보 모달 -->
+    <div id="npo-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeNpoModal()">
+        <div id="npo-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10 overflow-hidden" onclick="event.stopPropagation()">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b bg-slate-50 flex justify-between items-start shrink-0">
+                <div>
+                    <span id="modal-type" class="px-2 py-1 text-xs font-bold border rounded bg-indigo-50 text-indigo-700 border-indigo-200 mb-2 inline-block">사단법인</span>
+                    <h3 id="modal-name" class="font-black text-2xl text-slate-800 break-keep leading-tight">법인명</h3>
+                </div>
+                <button onclick="closeNpoModal()" class="text-slate-400 hover:text-slate-600 transition p-1 rounded-full hover:bg-slate-200">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 모달 내용 -->
+            <div class="p-6 overflow-y-auto custom-scrollbar text-slate-700 text-[15px] flex-grow">
+                <table class="w-full text-left border-collapse border-t-2 border-hyobin-dark">
+                    <colgroup>
+                        <col class="w-1/4 sm:w-1/5 bg-slate-50">
+                        <col class="w-3/4 sm:w-4/5">
+                    </colgroup>
+                    <tbody class="divide-y divide-slate-200 border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold text-slate-600 border-r border-slate-200 align-middle">대표자</th>
+                            <td class="py-3.5 px-4 font-medium" id="modal-rep"></td>
+                        </tr>
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold text-slate-600 border-r border-slate-200 align-middle">소관부서</th>
+                            <td class="py-3.5 px-4" id="modal-dept"></td>
+                        </tr>
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold text-slate-600 border-r border-slate-200 align-middle">설립일자</th>
+                            <td class="py-3.5 px-4" id="modal-date"></td>
+                        </tr>
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold text-slate-600 border-r border-slate-200 align-middle">전화번호</th>
+                            <td class="py-3.5 px-4" id="modal-phone"></td>
+                        </tr>
+                        <tr>
+                            <th class="py-3.5 px-4 font-bold text-slate-600 border-r border-slate-200 align-middle">소재지</th>
+                            <td class="py-3.5 px-4" id="modal-loc"></td>
+                        </tr>
+                        <tr>
+                            <th class="py-4 px-4 font-bold text-slate-600 border-r border-slate-200 align-top pt-4">설립목적</th>
+                            <td class="py-4 px-4 leading-relaxed whitespace-pre-wrap text-slate-600" id="modal-purpose"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 모달 푸터 -->
+            <div class="p-5 border-t bg-slate-50 flex justify-end shrink-0">
+                <button onclick="closeNpoModal()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition shadow-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 실제 행정구역이 철저히 반영된 효빈광역시 비영리법인 더미 데이터 (25개)
+        const npoData = [
+            { id: 25, type: '사단법인', name: '효빈대중교통시민연대', rep: '김상훈', dept: '대중교통과', date: '2023.05.18', loc: '효빈광역시 남구 평당동 12', phone: '050-1234-5678', purpose: '과거 버스 업체의 횡포를 극복한 역사적 교훈을 바탕으로, 시내버스 3세대 완전 준공영제 정착 및 노면전차 복원 등 대중교통 혁신을 위한 시민 참여 확대 및 정책 연구' },
+            { id: 24, type: '재단법인', name: '효빈애니메이션진흥원 (HAP)', rep: '박지연', dept: '문화예술과', date: '2024.08.01', loc: '효빈광역시 안천구 당가동 45', phone: '050-2345-6789', purpose: 'HAF(효빈 애니메이션 페스티벌)의 성공적 개최 지원 및 당가동 파스텔블루길을 거점으로 한 글로벌 서브컬처 IP 유치, 지역 청년 애니메이터 육성' },
+            { id: 23, type: '사단법인', name: '한바다환경보호단', rep: '이정호', dept: '환경생태과', date: '2021.03.12', loc: '효빈광역시 북구 고송동 88', phone: '050-3456-7890', purpose: '효빈광역시 마스코트 \'한바다\'의 모티브가 된 해양 생태계를 보호하고, 서남해안 반도 지형의 갯벌 및 수자원 정화 활동 전개' },
+            { id: 22, type: '사단법인', name: '무안반도문화교류협회', rep: '강민석', dept: '문화유산과', date: '2019.09.10', loc: '효빈광역시 서구 청덕동 77', phone: '050-4567-8901', purpose: '무안반도 이서에 위치한 효빈시의 지정학적 특성을 살려 인접 지역 간의 향토 문화 교류 및 역사 발굴, 학술대회 개최' },
+            { id: 21, type: '재단법인', name: '탄성군스마트농업연구소', rep: '최영진', dept: '농업정책과', date: '2022.11.05', loc: '효빈광역시 탄성군 탄성읍 탄성리 33', phone: '050-5678-9012', purpose: '도농복합도시인 효빈시 탄성군 지역의 농업 경쟁력 강화를 위한 스마트팜 기술 보급 및 귀농 청년 정착 지원 사업' },
+            { id: 20, type: '사단법인', name: '청엽구청년자립지원센터', rep: '윤성호', dept: '청년정책과', date: '2024.04.15', loc: '효빈광역시 청엽구 비마리동 101', phone: '050-6789-0123', purpose: '박효빈 시장의 주요 정책인 \'블루 버드 멘토단\'과 연계하여 가족돌봄청년(영 케어러) 및 자립준비청년의 심리상담, 주거 지원, 취업 연계 사업 수행' },
+            { id: 19, type: '사단법인', name: '효빈노면전차사랑모임', rep: '정민수', dept: '철도정책과', date: '2025.01.20', loc: '효빈광역시 중구 중앙로1가 55', phone: '050-7890-1234', purpose: '부활한 노면전차 7호선(분홍색)의 성공적인 개통을 기념하며, 트램 중심의 친환경 보행 도시 설계 모델 연구 및 대시민 홍보' },
+            { id: 18, type: '사단법인', name: '효빈시민권익위원회', rep: '임현주', dept: '자치행정과', date: '2020.02.28', loc: '효빈광역시 창전구 쌍엽동 1', phone: '050-8901-2345', purpose: '시민의 기본권 보호 및 행정 불만 사항 접수, 공공정책 수립 과정에서의 시민 참여 확대와 투명한 시정 운영 감시' },
+            { id: 17, type: '사단법인', name: '서브컬처관광활성화협회', rep: '최동민', dept: '관광진흥과', date: '2025.07.07', loc: '효빈광역시 동구 사가당동 45', phone: '050-9012-3456', purpose: '애니메이션, 게임 등 서브컬처 성지순례 관광객 유치를 위한 가이드북 제작, 당가동 상인회와의 상생 협력 모델 구축' },
+            { id: 16, type: '재단법인', name: '북구다문화가족지원재단', rep: '이수진', dept: '여성가족과', date: '2018.12.11', loc: '효빈광역시 북구 사능동 2', phone: '050-0123-4567', purpose: '북구 공단 지역에 거주하는 외국인 근로자 및 결혼이민자의 안정적인 한국 사회 정착을 위한 한국어 교육 및 다문화 소통 프로그램 운영' },
+            { id: 15, type: '사단법인', name: '구 윤대환시장 버스횡포 피해자연대', rep: '송기욱', dept: '시민소통과', date: '2023.01.15', loc: '효빈광역시 안천구 악부동 5', phone: '050-1111-2222', purpose: '전임 윤대환 시장 시절의 전차 폐지 및 버스 독점 횡포로 인한 피해자들의 권리 구제 및 당시의 역사적 사실을 기록하여 후대에 알림' },
+            { id: 14, type: '재단법인', name: '효빈기러기생태연구소', rep: '조민경', dept: '환경생태과', date: '2015.05.05', loc: '효빈광역시 북구 채산동 7', phone: '050-2222-3333', purpose: '효빈시의 시조인 기러기(\'히버히\')의 서식지 보호 및 철새 도래지 생태 모니터링, 어린이 대상 환경 교육 실시' },
+            { id: 13, type: '사단법인', name: '중구소상공인연합회', rep: '백승철', dept: '소상공인과', date: '2017.08.20', loc: '효빈광역시 중구 고도동 8', phone: '050-3333-4444', purpose: '5도심 다핵구조의 중심인 중구 지역 골목상권 활성화 및 영세 상인 대상 법률/세무 상담 지원' },
+            { id: 12, type: '사단법인', name: '효빈장애인생활체육협회', rep: '서지윤', dept: '체육진흥과', date: '2016.11.11', loc: '효빈광역시 창전구 칠심동 1', phone: '050-4444-5555', purpose: '장애인의 생활체육 참여 기회 확대 및 효빈시 맞춤형 재활 체육 프로그램 개발 보급' },
+            { id: 11, type: '사단법인', name: '안천구자원봉사센터협의회', rep: '한경수', dept: '복지정책과', date: '2014.04.04', loc: '효빈광역시 안천구 안천동 22', phone: '050-5555-6666', purpose: '지역 사회 내 자원봉사 단체 간의 네트워크 구축 및 체계적인 취약계층 자원봉사 활동 기획' },
+            { id: 10, type: '재단법인', name: '효빈미래교육장학회', rep: '오승우', dept: '교육지원과', date: '2019.01.09', loc: '효빈광역시 남구 어간동 22', phone: '050-6666-7777', purpose: '지역 내 우수 인재 발굴 및 저소득층 청소년 대상 장학금 지급, 진로 진학 멘토링 사업 수행' },
+            { id: 9, type: '사단법인', name: '청엽구상권활성화재단', rep: '신지훈', dept: '경제정책과', date: '2021.10.10', loc: '효빈광역시 청엽구 청엽동 44', phone: '050-7777-8888', purpose: '구도심인 청엽구의 지역 경제 부흥을 위한 상점가 환경 개선 및 특화 거리 조성 사업 추진' },
+            { id: 8, type: '사단법인', name: '효빈여성인권연대', rep: '안수민', dept: '여성가족과', date: '2018.03.08', loc: '효빈광역시 동구 덕현동 10', phone: '050-8888-9999', purpose: '여성 폭력 예방 캠페인 및 피해자 긴급 쉼터 운영, 성평등한 지역 사회 문화 조성' },
+            { id: 7, type: '사단법인', name: '탄성군해양레저협회', rep: '유태영', dept: '해양수산과', date: '2023.07.15', loc: '효빈광역시 탄성군 도변읍 앵내리 50', phone: '050-9999-0000', purpose: '효빈 앞바다를 활용한 요트, 서핑 등 친환경 해양 레저 스포츠 인프라 확충 및 관광 상품 개발' },
+            { id: 6, type: '재단법인', name: '효빈스마트시티연구원', rep: '장민우', dept: '정보통신과', date: '2022.05.20', loc: '효빈광역시 동구 전천동 100', phone: '050-1212-3434', purpose: 'AI 및 빅데이터 기반의 교통 지능화(스마트 신호제어, 버스 노선 최적화 등) 및 첨단 도시 문제 해결 방안 연구' },
+            { id: 5, type: '사단법인', name: '효빈자전거출퇴근운동본부', rep: '하동준', dept: '기후환경과', date: '2020.09.22', loc: '효빈광역시 서구 과진동 15', phone: '050-2323-4545', purpose: '탄소 중립 실천을 위한 효빈천 자전거 도로 정비 제안 및 대시민 자전거 출퇴근 캠페인 운영' },
+            { id: 4, type: '사단법인', name: '창전구의료복지생활협동조합', rep: '박성현', dept: '보건건강과', date: '2015.12.01', loc: '효빈광역시 창전구 창전동 30', phone: '050-3434-5656', purpose: '시민 주도형 의료 복지 서비스 제공 및 독거 노인, 의료 취약계층 대상 방문 간호/주치의 사업' },
+            { id: 3, type: '사단법인', name: '효빈독립영화제조직위원회', rep: '송건우', dept: '문화예술과', date: '2021.06.30', loc: '효빈광역시 남구 항동1가 1', phone: '050-4545-6767', purpose: '지역 독립 영화인 창작 지원 및 효빈독립영화제 정기 개최를 통한 영상 문화 다양성 확보' },
+            { id: 2, type: '사단법인', name: '안천구안전마을만들기협의회', rep: '김유진', dept: '재난안전과', date: '2017.02.14', loc: '효빈광역시 서구 북성동 99', phone: '050-5656-7878', purpose: '범죄 예방 환경 설계(CPTED) 도입 자문 및 민관 합동 골목길 야간 자율 방범대 운영' },
+            { id: 1, type: '재단법인', name: '효빈시민장학재단', rep: '최병수', dept: '교육지원과', date: '2010.03.01', loc: '효빈광역시 중구 궁영동 13', phone: '050-6767-8989', purpose: '효빈시 출연금을 바탕으로 학업 성적이 우수하거나 경제적 어려움을 겪는 학생들에게 체계적인 장학 지원' }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // 테이블 렌더링 함수
+        function renderTable(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('board-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            // 검색 필터링 로직
+            const searchType = document.getElementById('search-type').value;
+            const searchInput = document.getElementById('search-input').value.trim().toLowerCase();
+            
+            let filteredData = npoData;
+            if (searchInput !== '') {
+                filteredData = npoData.filter(item => {
+                    if (searchType === 'all') {
+                        return item.name.toLowerCase().includes(searchInput) || 
+                               item.dept.toLowerCase().includes(searchInput) || 
+                               item.loc.toLowerCase().includes(searchInput) ||
+                               item.rep.toLowerCase().includes(searchInput);
+                    } else if (searchType === 'name') {
+                        return item.name.toLowerCase().includes(searchInput);
+                    } else if (searchType === 'dept') {
+                        return item.dept.toLowerCase().includes(searchInput);
+                    } else if (searchType === 'gu') {
+                        return item.loc.toLowerCase().includes(searchInput);
+                    }
+                });
+            }
+
+            // 총 건수 업데이트
+            document.getElementById('total-count').innerText = filteredData.length.toLocaleString();
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentData = filteredData.slice(startIdx, endIdx);
+
+            if (currentData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-slate-500">검색된 비영리법인 등록 내역이 없습니다.</td></tr>`;
+            } else {
+                currentData.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    // 클릭 시 모달 오픈 이벤트 추가
+                    tr.onclick = () => openNpoModal(item);
+                    
+                    // 구분 뱃지 색상 다르게
+                    const typeBadgeClass = item.type === '사단법인' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                    
+                    tr.innerHTML = `
+                        <td>${filteredData.length - startIdx - index}</td>
+                        <td><span class="px-2 py-1 text-xs font-bold border rounded ${typeBadgeClass}">${item.type}</span></td>
+                        <td class="align-left font-bold text-slate-800">${item.name}</td>
+                        <td>${item.rep}</td>
+                        <td class="text-sm text-slate-600">${item.dept}</td>
+                        <td class="text-sm">${item.date}</td>
+                        <td class="align-left text-sm text-slate-600 truncate max-w-[200px]" title="${item.loc}">${item.loc}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            renderPagination(filteredData.length);
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(totalItems) {
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            container.innerHTML = '';
+
+            if (totalPages === 0) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === 1 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) renderTable(currentPage - 1); };
+            container.appendChild(prevBtn);
+
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if(i === currentPage) {
+                    pageBtn.className = 'w-8 h-8 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else {
+                    pageBtn.className = 'w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition';
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => renderTable(i);
+                container.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === totalPages ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) renderTable(currentPage + 1); };
+            container.appendChild(nextBtn);
+        }
+
+        // --- 모달 로직 ---
+        function openNpoModal(item) {
+            // 데이터 바인딩
+            const typeBadgeClass = item.type === '사단법인' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            document.getElementById('modal-type').className = `px-2 py-1 text-xs font-bold border rounded mb-2 inline-block ${typeBadgeClass}`;
+            document.getElementById('modal-type').innerText = item.type;
+            
+            document.getElementById('modal-name').innerText = item.name;
+            document.getElementById('modal-rep').innerText = item.rep;
+            document.getElementById('modal-dept').innerText = item.dept;
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-loc').innerText = item.loc;
+            document.getElementById('modal-phone').innerText = item.phone || '등록된 번호가 없습니다.';
+            document.getElementById('modal-purpose').innerText = item.purpose || '상세 설립 목적이 등록되지 않았습니다.';
+
+            // 모달 열기 애니메이션
+            const modal = document.getElementById('npo-modal');
+            const content = document.getElementById('npo-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNpoModal() {
+            const modal = document.getElementById('npo-modal');
+            const content = document.getElementById('npo-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // 초기 렌더링
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTable(1);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>칭찬합니다(효빈온) - 효빈광역시 소통·참여</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Table Styles (게시판 전용) */
+        .table-container { overflow-x: auto; border-top: 2px solid #1a365d; background: white; }
+        th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.875rem; padding: 1rem; text-align: center; white-space: nowrap; border-bottom: 1px solid #cbd5e1; }
+        td { padding: 1rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; text-align: center; }
+        td.title-col { text-align: left; }
+        tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+        tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+
+        /* Target Tags */
+        .tag-citizen { background-color: #fef2f2; color: #b91c1c; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fecaca; }
+        .tag-official { background-color: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid #bfdbfe; }
+
+        /* Modal Overlay & Base */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+
+        /* Tab Styles */
+        .tab-btn { position: relative; color: #64748b; font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { color: #005bac; }
+        .tab-btn.active { color: #005bac; font-weight: 800; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: #005bac;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">따뜻한 마음을 나누는 칭찬 릴레이, 효빈온(ON)입니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 (사이드바 + 메인 컨텐츠) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민 광장
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 광장</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">칭찬합니다(효빈온)</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">칭찬합니다(효빈온)</h2>
+                <p class="text-slate-600">이웃의 따뜻한 선행이나 친절하고 적극적인 공직자를 칭찬해주세요.</p>
+            </div>
+
+            <!-- 안내 박스 -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 shadow-sm flex gap-4 items-start">
+                <div class="bg-white p-3 rounded-full shadow-sm text-indigo-600 shrink-0">
+                    <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[14px] text-slate-700 space-y-2 leading-relaxed">
+                    <p><strong class="text-indigo-800">게시판 이용 안내</strong></p>
+                    <ul class="list-disc list-inside space-y-1 ml-1 text-slate-600">
+                        <li>본 게시판은 이웃 시민의 선행이나 민원 처리에 수고한 공무원을 <strong>칭찬하고 격려하는 공간</strong>입니다.</li>
+                        <li>단순 질의, 건의, 불편 신고 등 민원 사항은 <strong>[시민의 소리]</strong> 게시판을 이용해 주시기 바랍니다.</li>
+                        <li>게시판 성격에 맞지 않는 비방, 욕설, 광고성 게시물은 통보 없이 삭제되거나 이동될 수 있습니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 탭 메뉴 (시민 칭찬 / 공무원 칭찬) -->
+            <div class="flex border-b border-slate-300 w-full">
+                <button id="tab-citizen" onclick="switchTab('citizen')" class="tab-btn active w-1/2 py-3.5 text-center text-[15px] sm:text-base">이웃·시민 칭찬</button>
+                <button id="tab-official" onclick="switchTab('official')" class="tab-btn w-1/2 py-3.5 text-center text-[15px] sm:text-base">공직자 칭찬</button>
+            </div>
+
+            <!-- 검색 및 필터 영역 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center text-sm font-medium text-slate-600">
+                    전체 게시물 <span id="total-count" class="text-hyobin-blue font-bold ml-1 mr-1">0</span>건
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <select class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <option value="title">제목</option>
+                        <option value="content">내용</option>
+                        <option value="target">칭찬대상</option>
+                        <option value="author">작성자</option>
+                    </select>
+                    <div class="relative flex-1 md:w-64">
+                        <input type="text" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue">
+                        <button class="absolute right-2 top-1.5 text-slate-400 hover:text-hyobin-blue">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 게시판 테이블 -->
+            <div class="table-container shadow-sm min-h-[400px]">
+                <table class="w-full">
+                    <colgroup>
+                        <col style="width: 8%">
+                        <col style="width: 15%">
+                        <col style="width: 42%">
+                        <col style="width: 10%">
+                        <col style="width: 15%">
+                        <col style="width: 10%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>칭찬대상</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>작성일</th>
+                            <th>조회</th>
+                        </tr>
+                    </thead>
+                    <tbody id="board-tbody" class="divide-y divide-slate-100">
+                        <!-- JS Rendered -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 하단 버튼 및 페이지네이션 -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mt-6">
+                <!-- 빈 공간 (모바일 정렬용) -->
+                <div class="hidden md:block w-24"></div>
+                
+                <!-- 페이지네이션 -->
+                <div class="flex gap-1" id="pagination-container">
+                    <!-- JS Rendered -->
+                </div>
+
+                <!-- 글쓰기 버튼 -->
+                <button onclick="openWriteModal()" class="bg-hyobin-blue text-white px-5 py-2.5 rounded-lg flex items-center font-bold hover:bg-blue-800 transition shadow-md w-full md:w-auto justify-center">
+                    <i data-lucide="heart" class="w-4 h-4 mr-2"></i> 칭찬하기
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 1. 게시글 조회 모달 -->
+    <div id="board-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeViewModal()">
+        <div id="board-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <!-- 모달 헤더 -->
+            <div class="p-6 border-b bg-slate-50 rounded-t-xl shrink-0 flex justify-between items-start">
+                <div class="pr-6">
+                    <div class="flex gap-2 mb-3">
+                        <span class="text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full text-xs font-bold border border-indigo-200 flex items-center">
+                            <i data-lucide="award" class="w-3.5 h-3.5 mr-1"></i> 칭찬대상: <span id="modal-target" class="ml-1 text-indigo-900"></span>
+                        </span>
+                    </div>
+                    <h3 id="modal-title" class="font-black text-xl md:text-2xl text-slate-800 break-keep leading-tight">제목</h3>
+                    <div class="flex flex-wrap gap-4 text-sm text-slate-500 mt-3">
+                        <span class="flex items-center"><i data-lucide="user" class="w-4 h-4 mr-1"></i><span id="modal-author">작성자</span></span>
+                        <span class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1"></i><span id="modal-date">작성일</span></span>
+                        <span class="flex items-center"><i data-lucide="eye" class="w-4 h-4 mr-1"></i>조회 <span id="modal-views" class="ml-1">0</span></span>
+                    </div>
+                </div>
+                <button onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 모달 바디 (원문 내용) -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar text-slate-700 leading-relaxed text-[15px] flex-grow">
+                <div id="modal-body" class="whitespace-pre-wrap min-h-[150px]">내용</div>
+            </div>
+            
+            <div class="p-5 border-t bg-slate-50 rounded-b-xl flex justify-end shrink-0">
+                <button onclick="closeViewModal()" class="px-6 py-2.5 bg-slate-600 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm">목록으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 칭찬 글쓰기 모달 -->
+    <div id="write-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4 transition-opacity duration-300" onclick="closeWriteModal()">
+        <div id="write-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <form onsubmit="submitPost(event)" class="flex flex-col h-full">
+                <!-- 헤더 -->
+                <div class="p-6 border-b bg-slate-50 rounded-t-xl shrink-0 flex justify-between items-center">
+                    <h3 class="font-black text-xl text-slate-800 flex items-center"><i data-lucide="heart" class="text-pink-500 mr-2"></i> 칭찬 글쓰기</h3>
+                    <button type="button" onclick="closeWriteModal()" class="text-slate-400 hover:text-slate-600 transition p-1">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <!-- 바디 -->
+                <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">칭찬 구분 <span class="text-red-500">*</span></label>
+                            <select id="write-category" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                <option value="citizen">이웃·시민 칭찬</option>
+                                <option value="official">공직자 칭찬</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">칭찬 대상자 (이름/소속) <span class="text-red-500">*</span></label>
+                            <input type="text" id="write-target" required placeholder="예: 김철수 주무관, 버스 기사님 등" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">제목 <span class="text-red-500">*</span></label>
+                        <input type="text" id="write-title" required placeholder="칭찬 제목을 입력해주세요." class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">작성자 <span class="text-red-500">*</span></label>
+                        <input type="text" id="write-author" required placeholder="홍*동" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">내용 <span class="text-red-500">*</span></label>
+                        <textarea id="write-content" required rows="8" placeholder="따뜻한 사연이나 감사의 마음을 담아 상세히 적어주세요.&#13;&#10;※ 주민등록번호 등 과도한 개인정보 노출에 주의 바랍니다." class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none custom-scrollbar"></textarea>
+                    </div>
+                </div>
+
+                <!-- 푸터 -->
+                <div class="p-5 border-t bg-slate-50 rounded-b-xl flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeWriteModal()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition shadow-sm">취소</button>
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition shadow-sm flex items-center">
+                        <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i> 칭찬 등록
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 칭찬 게시판 데이터 (대폭 추가)
+        let boardData = [
+            // ================= 박효빈 시장 칭찬 데이터 (8개) =================
+            {
+                id: 880, category: 'official', target: '박효빈 시장님',
+                title: '저를 쓰레기집에서 꺼내주신 시장님, H-Pass와 올빼미 버스 정말 감사합니다!',
+                author: '김*우', date: '2026.04.09', views: 15420,
+                content: '저는 효빈대학교에 재학 중이며, 시장님의 대학 시절처럼 아르바이트 3개를 뛰며 아픈 가족을 돌보는 가족돌봄청년입니다.\n\n매일 밤 자정이 넘어 편의점 야간 알바가 끝나면 막차가 끊겨 2시간을 걸어가야 했는데, 시장님께서 만들어주신 \'심야 안심 귀가 버스(올빼미 버스)\'와 대중교통 무제한 \'효빈 패스(H-Pass)\' 덕분에 이제는 안전하고 따뜻하게 귀가하고 있습니다.\n과거 편의점 폐기 도시락으로 끼니를 때우시며 지독한 가난을 딛고 일어나신 시장님의 일대기는 제게 큰 희망이 되었습니다. 청년의 삶에 실질적인 숨통을 틔워주셔서 진심으로 감사드립니다.'
+            },
+            {
+                id: 879, category: 'official', target: '박효빈 시장님',
+                title: '블루 버드 멘토단 덕분에 공무원의 꿈을 꾸게 되었습니다.',
+                author: '이*진', date: '2026.04.09', views: 1240,
+                content: '집안 형편이 어려워 학업과 알바를 병행하느라 스펙은커녕 문화생활(덕질)은 꿈도 못 꿨습니다. 그러다 \'블루 버드 멘토단\'에 선발되어 시청 행정 실무를 경험하며 생활임금의 1.2배를 지원받게 되었습니다.\n\n단순한 알바가 아니라 실제 행정 업무를 배우면서 공무원이라는 새로운 꿈을 꾸게 되었고, 주말에는 당가동 굿즈샵에 가서 제가 좋아하는 캐릭터 굿즈도 살 수 있는 여유가 생겼습니다.\n"청년의 희생을 방치하는 사회는 병든 사회"라며 청년들에게 든든한 버팀목이 되어주신 박효빈 시장님! 정말 훌륭한 제도를 만들어주셔서 감사합니다.'
+            },
+            {
+                id: 878, category: 'official', target: '박효빈 시장님',
+                title: '구도심 골목을 환하게 밝혀준 카스밍 로드(골든 로드), 안전해서 너무 좋아요!',
+                author: '박*영', date: '2026.04.08', views: 980,
+                content: '예전 구도심 뒷골목은 가로등이 너무 어두워 밤에 퇴근할 때마다 무서웠습니다.\n그런데 시장님께서 추진하신 \'골든 로드\' 사업 이후, 온 동네 가로등이 파스텔 옐로우(노란색) 빛으로 환하게 바뀌고 보도블록도 깔끔해져서 동네 범죄율이 뚝 떨어졌다는 게 체감됩니다.\n인터넷을 보니 시장님의 최애 캐릭터(나카스 카스미) 상징색을 반영한 \'카스밍 로드\'라고 하던데, 시장님의 덕심(?) 덕분에 우리 동네가 이렇게 안전하고 예뻐졌다니 그저 감사할 따름입니다!'
+            },
+            {
+                id: 877, category: 'official', target: '박효빈 시장님',
+                title: '베르데 홀에서 괴한을 맨몸으로 제압하시던 그 용기, 평생 잊지 않겠습니다.',
+                author: '최*민', date: '2026.04.08', views: 18450,
+                content: '작년 효빈대 베르데 홀 행사장 난동 사건 때 현장에 있었습니다. 정치 낭인 윤 모 씨 일당이 쇠파이프를 들고 행사장 기물(치카리코 패널)과 결식아동들을 위협했을 때, 경호원들의 만류에도 불구하고 앞장서서 아이들을 등 뒤로 숨기시며 "내 시민과 내 문화를 건드리면 가만두지 않겠다"고 사자후를 토하시던 시장님의 모습은 정말 압도적이었습니다.\n\n혐오와 폭력에 타협하지 않고, 온몸으로 시민을 지켜내는 우리 시장님이 계셔서 효빈 시민이라는 사실이 몹시 자랑스럽습니다.'
+            },
+            {
+                id: 876, category: 'official', target: '박효빈 시장님',
+                title: 'L-Project 덕분에 죽어가던 당가동 상권이 부활했습니다! 감사합니다.',
+                author: '김*호', date: '2026.04.07', views: 765,
+                content: '당가동에서 작은 카페를 운영하는 자영업자입니다. 상권이 죽어 폐업을 고민하던 중, 시장님께서 L-Project(서브컬처 특화거리)를 추진하시면서 거리가 파스텔 블루로 예쁘게 꾸며지고 애니메이션 페스티벌(HAF)이 열리며 상황이 180도 바뀌었습니다.\n\n요즘은 전국에서 젊은 관광객들이 몰려와 주말이면 발 디딜 틈이 없습니다. 덕후가 세상을 바꾼다더니, 저희 상인들에게는 시장님이 정말 구세주입니다. "효빈 시장 만세! 애니 만세!"를 외치고 싶습니다.'
+            },
+            {
+                id: 875, category: 'official', target: '박효빈 시장님',
+                title: '청년 안심 주택 \'효빈 하우스\' 입주민입니다. 정말 살맛 납니다.',
+                author: '정*훈', date: '2026.04.07', views: 654,
+                content: '곰팡이 피는 반지하 자취방에서 살다가, 지난달 보증금 없이 월세 10만 원인 \'효빈 하우스\'에 입주한 청년 창업가입니다.\n쾌적한 주거 환경은 물론이고, 1층에 마련된 공유 주방과 굿즈 전시관에서 비슷한 취미(덕질)를 가진 청년들과 교류하며 매일매일 영감을 얻고 있습니다.\n시장님께서 겪으셨던 아픔을 행정으로 보듬어 주셔서, 저희 같은 청년들이 이제야 제대로 된 꿈을 꿀 수 있게 되었습니다. 감사합니다!'
+            },
+            {
+                id: 874, category: 'official', target: '박효빈 시장님',
+                title: '출근길 6호선 전철에서 시장님을 뵙고 건의사항을 말씀드렸는데...',
+                author: '윤*석', date: '2026.04.06', views: 2430,
+                content: '며칠 전 아침, 6호선(보라색/라세나 테마) 열차를 타고 출근하다가 혼잡한 전철 안에 서서 수첩에 무언가를 빼곡히 적고 계신 시장님을 우연히 뵈었습니다.\n조심스레 다가가서 역 주변 버스정류장 환승 대기시간이 길다고 짧게 말씀드렸는데, 그 자리에서 바로 수첩에 적으시더니 불과 3일 만에 그 정류장 노선 배차가 조정되었다는 공지를 보았습니다.\n매일 관용차 대신 대중교통으로 출근하시며 시민들과 격의 없이 소통하는 헌정 사상 최고의 소통 시장님을 무한 칭찬합니다.'
+            },
+            {
+                id: 873, category: 'official', target: '박효빈 시장님',
+                title: '스마트 시정 게시대 덕분에 최애 캐릭터 생일 광고를 저렴하게 걸었어요!',
+                author: '강*희', date: '2026.04.05', views: 890,
+                content: '불법 현수막으로 지저분했던 거리가 \'스마트 시정 게시대\' 도입 후 정말 깨끗해졌습니다.\n무엇보다 저희 같은 서브컬처 팬들이 비싼 지하철 전광판 대신, 합법적이고 저렴한 비용으로 최애 캐릭터의 생일 축하 광고를 시내 한복판에 당당하게 걸 수 있게 해주셔서 너무 행복합니다.\n도시 미관도 살리고 팬들의 덕질 문화도 존중해 주시는 시장님의 디테일하고 열린 행정에 무한한 감동을 받았습니다.'
+            },
+
+            // ================= 기타 공직자 칭찬 데이터 =================
+            {
+                id: 860, category: 'official', target: '비서실 천 비서실장님',
+                title: '베르데 홀에서 아이들과 전시물을 지켜주신 천 비서실장님, 진정한 영웅이십니다!',
+                author: '이*진', date: '2026.04.07', views: 8842,
+                content: '얼마 전 효빈대 베르데 홀 행사장에 난입한 괴한(윤 모 씨)이 쇠파이프를 휘두르며 결식아동들과 치카리코 패널을 위협했을 때, 망설임 없이 몸을 던져 막아내신 천 비서실장님의 모습에 깊은 감동을 받았습니다.\n뼈가 부러지는 중상(전치 2주)을 입으셨음에도 "애들 건들지 마!"라며 끝까지 아이들과 시민들의 소중한 문화를 지켜주신 헌신과 용기는 모든 공직자의 귀감이 될 것입니다.\n\n악의적인 언론 보도에도 굴하지 않고 깁스를 한 채 묵묵히 업무에 복귀하셨다는 기사를 보고 눈물이 났습니다.\n효빈시의 영원한 \'우치우라의 기사\'이자 든든한 보디가드이신 천 비서실장님의 빠른 쾌유를 기원하며, 진심으로 감사와 칭찬의 박수를 보냅니다!'
+            },
+            {
+                id: 859, category: 'official', target: '도시재생과 김*수 주무관',
+                title: '당가동 파스텔 블루 거리 미관 개선에 힘써주신 김*수 주무관님 칭찬합니다.',
+                author: '정*호', date: '2026.04.07', views: 521,
+                content: '당가동 상인회 소속 상인입니다. 최근 거리에 불법 현수막과 쓰레기가 늘어 골머리를 앓고 있었는데, 담당 주무관님께서 주말에도 나오셔서 저희 상인회와 직접 소통해주셨습니다.\n특히 단순한 쓰레기통 배치가 아니라, \'파스텔 블루 거리\'라는 우리 동네 테마에 맞게 예쁜 디자인의 쓰레기통과 가로등 래핑을 손수 기획하고 설치해 주셨습니다.\n덕분에 관광객들도 더 늘고 거리가 훨씬 환해졌습니다. 현장의 목소리를 듣고 실천하는 적극행정의 표본이십니다!'
+            },
+            {
+                id: 851, category: 'official', target: '효빈교통공사 김*철 역무원',
+                title: '빈효선 광역전철 효빈대역 김*철 역무원님의 친절함에 감동했습니다.',
+                author: '유*학생', date: '2026.04.05', views: 156,
+                content: '저는 효빈대학교에 재학 중인 휠체어 이용 학생입니다.\n어제 비가 많이 와서 전동 휠체어 조작이 어려워 전철 승강장 단차를 넘기 힘든 상황이었습니다.\n그때 빈효선(연청색/전노아 마스코트) 효빈대역에 근무하시는 김*철 역무원님께서 멀리서 보시고는 바로 이동식 발판을 가져와 안전하게 탑승할 수 있도록 도와주셨습니다.\n옷이 비에 다 젖으시는데도 밝게 웃으시며 목적지 역에도 미리 연락 취해두겠다고 하셔서 너무 든든했습니다. 최고의 공직자이십니다!'
+            },
+            {
+                id: 850, category: 'official', target: '대중교통과 이*민 주무관',
+                title: '대중교통과 이*민 주무관님의 신속한 민원 처리에 칭찬의 박수를 보냅니다.',
+                author: '강*수', date: '2026.04.04', views: 201,
+                content: '얼마 전 시내버스 노선 개편과 관련하여 정류장 위치 조정 민원을 넣었으나, 복잡한 사안이라 큰 기대는 안 하고 있었습니다.\n하지만 이*민 주무관님께서 직접 현장에 나와 주민들의 동선을 꼼꼼히 확인하시고, 운수업체 및 도로부서와 적극적으로 협의하여 단 일주일 만에 정류장 위치를 안전한 곳으로 이설해 주셨습니다.\n책상머리 행정이 아닌, 발로 뛰는 진정한 적극행정을 보여주신 이 주무관님께 동네 주민을 대표하여 감사드립니다.'
+            },
+            {
+                id: 848, category: 'official', target: '효빈경찰청 교통안전과',
+                title: '효빈항 야간 폭주족 집중 단속해주신 경찰관님들 수고하셨습니다.',
+                author: '홍*기', date: '2026.04.02', views: 355,
+                content: '지난주 시민의 소리 게시판에 효빈항 일대 심야 폭주족 관련 민원을 제기했던 사람입니다.\n주말 밤에 민원 넣자마자 바로 이번 주말에 효빈경찰청 교통안전과에서 순찰차 4대를 동원해 그물망식 집중 단속을 벌여주셨더군요.\n덕분에 몇 달 만에 처음으로 오토바이 굉음 없이 가족들과 창문 열어놓고 편안한 주말 밤을 보냈습니다. 즉각적인 조치와 밤샘 단속에 고생하신 경찰관 여러분, 진심으로 감사드립니다.'
+            },
+            {
+                id: 847, category: 'official', target: '보건위생과 박*진 주무관',
+                title: '난임 시술비 지원 관련 친절하게 상담해주신 보건위생과 박*진 주무관님 칭찬합니다.',
+                author: '한*엄마', date: '2026.04.01', views: 190,
+                content: '난임 시술비 지원 신청 자격이 너무 복잡해서 전화로 여러 번 귀찮게 여쭤봤는데, 보건위생과 박*진 주무관님께서 처음부터 끝까지 정말 상냥한 목소리로 안내해 주셨습니다.\n특히 제가 서류 준비에 어려움을 겪고 있자, 필요한 양식과 발급처를 문자로 하나하나 요약해서 보내주시기까지 했습니다.\n주무관님의 친절한 응대 덕분에 마음의 위안을 많이 얻었습니다. 이런 훌륭한 공무원 분은 시장님께서 꼭 표창 주셨으면 좋겠습니다!'
+            },
+            {
+                id: 845, category: 'official', target: '안천구청 공원녹지과',
+                title: '어린이공원 가로등 교체 및 신속한 조치에 감사드립니다.',
+                author: '송*미', date: '2026.03.30', views: 82,
+                content: '안천구 3어린이공원 가로등이 어둡다는 민원을 제기한 지 이틀 만에 바로 나무 가지치기를 해주시고, 조명 교체 일정도 명확히 안내받았습니다.\n민원에 대해 형식적인 답변만 달리지 않을까 걱정했는데, 발 빠른 조치에 놀랐습니다. 안천구청 공원녹지과 직원분들의 노고에 칭찬을 보냅니다.'
+            },
+            {
+                id: 844, category: 'official', target: '7호선 (분홍색) 열차 기관사님',
+                title: '7호선 임세정 래핑 열차 기관사님의 따뜻한 안내방송 감사합니다.',
+                author: '문*별', date: '2026.03.29', views: 412,
+                content: '어제 퇴근길에 분홍색 7호선 열차를 탔습니다. 피곤한 하루였는데, 기관사님께서 "오늘 하루도 수고 많으셨습니다. 가족들이 기다리는 집으로 임세정 열차가 안전하게 모시겠습니다"라며 직접 육성으로 부드럽게 방송해주셔서 코끝이 찡했습니다. 덕분에 큰 위로를 받았습니다.'
+            },
+            {
+                id: 842, category: 'official', target: '효빈종합버스터미널 환경미화원 여사님',
+                title: '터미널 2층 애니메이션 콜라보 카페 앞을 청소해주시는 여사님을 칭찬합니다.',
+                author: '이*현', date: '2026.03.28', views: 156,
+                content: '터미널 2층 Ani-Station 카페 주변에 사람들이 많이 몰리는데도 불구하고 항상 깨끗하게 유지되는 비결은 묵묵히 땀 흘리며 쓰레기통을 비우시고 바닥을 닦아주시는 환경미화원 여사님 덕분입니다. 수줍게 건넨 캔커피에 환하게 웃어주시던 모습이 잊히지 않네요. 항상 고생 많으십니다!'
+            },
+            
+            // ================= 시민 칭찬 데이터 =================
+            {
+                id: 858, category: 'citizen', target: '비 오는 날 우산을 씌워주신 신사분',
+                title: '갑작스러운 폭우에 아이에게 우산을 씌워주신 분을 찾습니다.',
+                author: '오*희', date: '2026.04.06', views: 420,
+                content: '지난 화요일 하원길에 갑자기 비가 쏟아졌습니다. 아이와 저 둘 다 비를 쫄딱 맞고 정류장으로 뛰어가고 있었는데, 지나가시던 정장 차림의 신사분께서 본인이 쓰시던 우산을 선뜻 아이에게 씌워주셨습니다.\n본인 어깨와 가방은 다 젖으시면서도 끝까지 아이가 비를 맞지 않도록 배려해주시고는, 정류장에 도착하자마자 쿨하게 웃으며 뛰어가셨습니다.\n경황이 없어 제대로 감사하다는 말씀도 못 드렸네요. 이 공간을 빌려 그 따뜻한 분께 꼭 감사하다는 말씀을 전하고 싶습니다.'
+            },
+            {
+                id: 857, category: 'citizen', target: '7호선 임세정 래핑 열차에서 만난 학생',
+                title: '무거운 짐을 들어주고 자리 양보해준 교복 입은 학생 고마워요',
+                author: '최*순', date: '2026.04.06', views: 310,
+                content: '어제 오후 7호선 핑크색 열차(임세정 캐릭터가 크게 그려진 칸)를 타고 가던 중이었습니다.\n시장에서 장을 너무 많이 봐서 양손에 짐이 무거웠는데, 곁에 있던 교복 입은 남학생이 선뜻 짐을 받아 들어주고 자신의 자리까지 양보해 주었습니다.\n제가 내릴 역이 되자 문 앞까지 짐을 옮겨주며 꾸벅 인사까지 하더군요.\n이름도 모르는 학생이지만, 그 착한 심성 덕분에 하루 종일 기분이 좋았습니다. 우리 효빈시에 이렇게 예의 바른 청년들이 많아 참 든든합니다.'
+            },
+            {
+                id: 852, category: 'citizen', target: '당가동 시민 (치카리코 수호기사님)',
+                title: '당가동 파스텔 블루 거리에서 지갑 찾아주신 분 정말 감사합니다!',
+                author: '최*민', date: '2026.04.06', views: 342,
+                content: '어제 HAF 준비 행사 보러 당가동 파스텔 블루 거리에 갔다가 지갑을 떨어뜨렸습니다.\n현금도 현금이지만 안에 1호선 고나미(하나조노 타에 콜라보) 한정판 포토카드가 들어있어서 눈앞이 캄캄했거든요.\n다행히 어떤 시민분이 주워서 안전하게 인근 파출소에 맡겨주셨습니다.\n경찰관님 말씀으로는 예전에 탕쿠쿠 등신대를 몸 던져 지켜내셨다던 \'치카리코 수호기사\'님과 인상착의가 비슷했다고 하시던데... 맞으시다면 정말 머리 숙여 감사드립니다!\n효빈시민들의 따뜻한 마음에 감동받고 갑니다.'
+            },
+            {
+                id: 849, category: 'citizen', target: '효빈천 산책로 어르신',
+                title: '이른 아침마다 효빈천변 쓰레기 주우시는 어르신을 칭찬합니다.',
+                author: '이*정', date: '2026.04.03', views: 128,
+                content: '저는 효빈천을 따라 자전거로 출퇴근하는 직장인입니다.\n요즘 날씨가 좋아 야간에 배달 음식을 먹고 쓰레기를 그냥 두고 가는 사람들이 많은데, 매일 아침 6시쯤 되면 파란 조끼를 입으신 어르신 한 분이 묵묵히 벤치 주변 쓰레기를 치워주십니다.\n누가 시킨 일도 아닐 텐데, 땀 흘리며 봉사하시는 모습에 항상 감사함과 죄송함을 느낍니다.\n어르신의 선행 덕분에 우리 동네가 깨끗해집니다. 늘 건강하시길 바랍니다!'
+            },
+            {
+                id: 846, category: 'citizen', target: '도시철도 3호선 탑승객',
+                title: '어제 3호선 노란색 열차 안에서 길 잃은 저희 아이 달래주신 학생분들 고맙습니다.',
+                author: '박*엄마', date: '2026.03.31', views: 412,
+                content: '어제 오후 3시경, 3호선(노란색/사아야 테마) 고속버스터미널역에서 제가 짐을 챙기는 사이 5살짜리 딸아이가 먼저 열차에 타버려 문이 닫히는 아찔한 사고가 있었습니다.\n다음 역에서 아이를 찾을 때까지 너무 무서웠는데, 교복을 입은 학생 세 분이 울고 있는 아이를 달래주며 역무원에게 안전하게 인계해주고 계셨습니다.\n경황이 없어 제대로 감사 인사도 못 드렸네요. 그 여학생 분들 덕분에 무사히 아이를 찾았습니다. 정말 훌륭한 학생들입니다. 감사합니다!'
+            },
+            {
+                id: 843, category: 'citizen', target: '신세계 터미널점 굿즈샵 시민분',
+                title: '터미널 굿즈샵에서 떨어뜨린 아크릴 스탠드 주워주신 분 감사합니다!',
+                author: '김*현', date: '2026.03.29', views: 188,
+                content: '신세계 효빈터미널점 7층 굿즈샵에서 결제하고 나오다가 쇼핑백이 찢어져서 막 산 한정판 아크릴 스탠드를 바닥에 떨어뜨렸습니다. 굴러가는 굿즈를 보고 패닉이 왔는데, 옆에 지나가시던 시민 한 분이 재빨리 주워주시고는 본인이 가지고 계시던 튼튼한 에코백까지 하나 내어주셨습니다. 럽라 동지로서 너무 따뜻한 배려에 감동했습니다. 복 받으실 거예요!'
+            },
+            {
+                id: 841, category: 'citizen', target: '익명의 청년',
+                title: '무거운 짐을 들고 계단 오르던 할머니를 도와준 청년을 칭찬합니다.',
+                author: '정*현', date: '2026.03.25', views: 88,
+                content: '남구청 앞 육교 계단에서 폐지를 잔뜩 실은 리어카를 낑낑대며 끌고 올라가시는 할머니를 보았습니다.\n제가 도와드리려 다가가려던 찰나, 바쁘게 걸어가던 정장 차림의 청년이 망설임 없이 다가가 리어카를 끝까지 밀어 올려주더군요.\n요즘 삭막한 세상이라고들 하지만, 이런 분들 덕분에 아직 세상은 살만한 것 같습니다. 멋진 청년의 앞날을 응원합니다.'
+            },
+            {
+                id: 840, category: 'citizen', target: '사능동 엠마 빵집 사장님',
+                title: '비 오는 날 배고픈 학생들에게 무료로 엠마 빵을 주신 사장님 최고입니다.',
+                author: '고*학생', date: '2026.03.24', views: 530,
+                content: '지난주 하굣길에 사능역 근처에서 친구들이랑 비를 피하고 있었는데, 역 앞에 있는 명물 \'엠마 빵\' 베이커리 사장님께서 나오시더니 학생들 배고프겠다며 갓 구운 빵을 두 봉지나 가득 챙겨주셨습니다.\n"시장님도 옛날에 알바하면서 고생하셨다는데, 너희들도 많이 먹고 힘내서 훌륭한 사람 되어라" 하시던 사장님의 말씀에 정말 큰 힘을 얻었습니다. 나중에 돈 많이 벌면 꼭 보답하러 가겠습니다!'
+            },
+            {
+                id: 838, category: 'citizen', target: '스카이블루(간선) 버스 기사님과 승객분들',
+                title: '거동이 불편한 어르신을 끝까지 기다려주신 기사님과 시민분들 감동입니다.',
+                author: '윤*성', date: '2026.03.21', views: 215,
+                content: '출근길 만원인 스카이블루(간선) 버스 안이었습니다. 정류장에서 거동이 많이 불편하신 어르신이 힘겹게 버스에 오르려 하시자, 기사님께서 서두르지 않으시고 천천히 기다려주셨습니다. 뿐만 아니라 앞자리에 앉아계시던 직장인 분이 벌떡 일어나 자리를 양보해 주셨습니다. 바쁜 출근 시간이었지만 버스 안 누구 하나 불평하지 않고 훈훈한 미소를 지었습니다. 참 살기 좋은 효빈시입니다.'
+            }
+        ];
+
+        let currentTab = 'official'; // 기본 탭: 공직자 칭찬
+        let currentPage = 1;
+        const itemsPerPage = 8; // 한 페이지당 8개 표시
+
+        // 탭 전환 로직
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            
+            // 탭 스타일 변경
+            document.getElementById('tab-citizen').classList.remove('active');
+            document.getElementById('tab-official').classList.remove('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            // 1페이지부터 다시 렌더링
+            renderTable(1);
+        }
+
+        // 총 게시물 수 업데이트
+        function updateTotalCount(filteredData) {
+            document.getElementById('total-count').innerText = filteredData.length.toLocaleString();
+        }
+
+        // 테이블 렌더링
+        function renderTable(page = 1) {
+            currentPage = page;
+            const tbody = document.getElementById('board-tbody');
+            if(!tbody) return;
+            
+            tbody.innerHTML = '';
+
+            // 탭에 맞는 데이터 필터링
+            const filteredData = boardData.filter(item => item.category === currentTab);
+            
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentData = filteredData.slice(startIdx, endIdx);
+
+            currentData.forEach(item => {
+                let badgeClass = item.category === 'citizen' ? 'tag-citizen' : 'tag-official';
+                let categoryName = item.category === 'citizen' ? '시민' : '공직자';
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => openViewModal(item);
+                
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>
+                        <div class="flex flex-col items-center justify-center">
+                            <span class="${badgeClass} mb-1">${categoryName}</span>
+                            <span class="text-xs text-slate-500 max-w-[120px] truncate" title="${item.target}">${item.target}</span>
+                        </div>
+                    </td>
+                    <td class="title-col font-bold text-slate-800">
+                        <span class="hover:underline">${item.title}</span>
+                    </td>
+                    <td>${item.author}</td>
+                    <td>${item.date}</td>
+                    <td>${item.views}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateTotalCount(filteredData);
+            renderPagination(filteredData.length);
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(totalItems) {
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            container.innerHTML = '';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === 1 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) renderTable(currentPage - 1); };
+            container.appendChild(prevBtn);
+
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if(i === currentPage) {
+                    pageBtn.className = 'w-8 h-8 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else {
+                    pageBtn.className = 'w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition';
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => renderTable(i);
+                container.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-8 h-8 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === totalPages || totalPages === 0 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-slate-100 text-slate-600 bg-white'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) renderTable(currentPage + 1); };
+            container.appendChild(nextBtn);
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // --- 글 조회 모달 로직 ---
+        window.openViewModal = function(item) {
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-target').innerText = item.target;
+            document.getElementById('modal-author').innerText = item.author;
+            document.getElementById('modal-date').innerText = item.date;
+            item.views += 1; 
+            document.getElementById('modal-views').innerText = item.views;
+            document.getElementById('modal-body').innerText = item.content;
+
+            const modal = document.getElementById('board-modal');
+            const content = document.getElementById('board-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            renderTable(currentPage);
+        }
+
+        window.closeViewModal = function() {
+            const modal = document.getElementById('board-modal');
+            const content = document.getElementById('board-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // --- 글 작성 모달 로직 ---
+        window.openWriteModal = function() {
+            document.getElementById('write-category').value = currentTab;
+            document.getElementById('write-target').value = '';
+            document.getElementById('write-title').value = '';
+            document.getElementById('write-author').value = '';
+            document.getElementById('write-content').value = '';
+
+            const modal = document.getElementById('write-modal');
+            const content = document.getElementById('write-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeWriteModal = function() {
+            const modal = document.getElementById('write-modal');
+            const content = document.getElementById('write-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // 폼 제출 이벤트 처리
+        window.submitPost = function(event) {
+            event.preventDefault();
+
+            const category = document.getElementById('write-category').value;
+            const target = document.getElementById('write-target').value.trim();
+            const title = document.getElementById('write-title').value.trim();
+            const authorInput = document.getElementById('write-author').value.trim();
+            const content = document.getElementById('write-content').value.trim();
+
+            if(!target || !title || !authorInput || !content) {
+                alert("필수 항목을 모두 입력해주세요.");
+                return;
+            }
+
+            let author = authorInput;
+            if(author.length > 2) {
+                author = author[0] + '*' + author.slice(2);
+            } else if(author.length === 2) {
+                author = author[0] + '*';
+            }
+
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+            const maxId = boardData.length > 0 ? Math.max(...boardData.map(item => item.id)) : 1000;
+            
+            const newPost = {
+                id: maxId + 1,
+                category: category,
+                target: target,
+                title: title,
+                author: author,
+                date: dateStr,
+                views: 0,
+                content: content
+            };
+
+            boardData.unshift(newPost);
+
+            alert('칭찬의 글이 등록되었습니다. 따뜻한 마음을 나누어 주셔서 감사합니다.');
+            closeWriteModal();
+            
+            // 작성한 카테고리의 탭으로 자동 이동 후 1페이지 렌더링
+            switchTab(category);
+        }
+
+        // 초기 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            // 변경된 탭(official) 상태를 반영하기 위해 명시적으로 호출
+            switchTab('official');
+        });
+    </script>
+</body>
+</html>

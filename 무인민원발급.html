@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무인민원발급 - 효빈광역시 종합민원</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/민원안내배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Table Styles */
+        .data-table { width: 100%; border-top: 2px solid #1a365d; background: white; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.95rem; padding: 1rem 0.5rem; text-align: center; border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; }
+        .data-table td { padding: 1rem 0.5rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; text-align: center; border-right: 1px solid #e2e8f0; vertical-align: middle; }
+        .data-table th:last-child, .data-table td:last-child { border-right: none; }
+        .data-table td.align-left { text-align: left; padding-left: 1.5rem; }
+        .data-table tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+        
+        .data-table tbody tr:hover td { background-color: #f8fafc; }
+        
+        /* 테이블 내 뱃지 및 색상 */
+        .badge-24h { display: inline-block; background-color: #dbeafe; color: #1e40af; font-size: 0.75rem; font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 999px; border: 1px solid #bfdbfe; }
+        .badge-limit { display: inline-block; background-color: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 999px; border: 1px solid #fde68a; }
+        .text-discount { color: #16a34a; font-weight: bold; } /* 할인 요금 초록색 */
+
+        /* 소제목(Bullet Title) 스타일 */
+        .bullet-title {
+            position: relative;
+            padding-left: 1.2rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        .bullet-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 18px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">종합민원</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 소리를 가장 가까이에서 듣겠습니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0 flex items-center gap-2">
+                    <i data-lucide="headphones" class="w-5 h-5"></i> 민원안내 및 발급
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="민원업무안내.html">민원업무안내 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="자격증교부.html">자격증교부 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원제증명수수료.html">민원 제증명 수수료 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active current"><a href="무인민원발급.html">무인민원발급 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="사전심사청구제.html">사전심사청구제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원후견인제.html">민원후견인제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원편람.html">민원편람 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원전화번호.html">민원전화번호 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="민원신청.html">민원신청 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 pb-10">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>종합민원</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>민원안내 및 발급</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">무인민원발급</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-black text-slate-800 mb-2 content-title">무인민원발급기 안내</h2>
+                <p class="text-slate-600">신분증 없이 지문만으로 빠르고 편리하게! 효빈광역시 관내 무인민원발급기 이용을 안내해 드립니다.</p>
+            </div>
+
+            <!-- 요약 박스 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm text-center">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="fingerprint" class="w-6 h-6"></i></div>
+                    <h4 class="font-bold text-slate-800 mb-1">신분증 불필요</h4>
+                    <p class="text-sm text-slate-500">오른쪽 엄지손가락<br>지문 확인으로 발급</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm text-center">
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="banknote" class="w-6 h-6"></i></div>
+                    <h4 class="font-bold text-slate-800 mb-1">수수료 최대 50% 감면</h4>
+                    <p class="text-sm text-slate-500">창구 발급 대비<br>저렴한 수수료 (카드/현금)</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm text-center">
+                    <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="clock-4" class="w-6 h-6"></i></div>
+                    <h4 class="font-bold text-slate-800 mb-1">365일 24시간</h4>
+                    <p class="text-sm text-slate-500">관공서 업무시간 외에도<br>심야, 주말 발급 가능 (일부 기기)</p>
+                </div>
+            </div>
+
+            <!-- Section 1: 주요 발급 서류 및 수수료 -->
+            <section class="mb-12">
+                <div class="flex items-end justify-between mb-4">
+                    <h3 class="bullet-title mb-0">주요 발급 서류 및 수수료</h3>
+                    <span class="text-xs text-slate-500">* 총 119종 발급 가능 (일부 증명은 본인 지문확인 필수)</span>
+                </div>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200 bg-white">
+                    <table class="data-table min-w-[700px]">
+                        <colgroup>
+                            <col style="width: 25%">
+                            <col style="width: 35%">
+                            <col style="width: 20%">
+                            <col style="width: 20%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>발급 증명서명</th>
+                                <th>창구 발급</th>
+                                <th>무인발급기 (혜택)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td rowspan="2" class="font-bold text-slate-700 bg-slate-50 border-b border-slate-200">주민등록</td>
+                                <td class="align-left font-bold text-slate-800">주민등록표 등·초본</td>
+                                <td>400원</td>
+                                <td><span class="text-discount">200원</span></td>
+                            </tr>
+                            <tr>
+                                <td class="align-left font-bold text-slate-800 border-b border-slate-200">가족관계증명서, 기본증명서 등</td>
+                                <td class="border-b border-slate-200">1,000원</td>
+                                <td class="border-b border-slate-200"><span class="text-discount">500원</span></td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2" class="font-bold text-slate-700 bg-slate-50 border-b border-slate-200">토지 / 지적</td>
+                                <td class="align-left font-bold text-slate-800">토지대장, 건축물대장</td>
+                                <td>500원</td>
+                                <td><span class="text-discount">무료</span> (효빈시 자체 감면)</td>
+                            </tr>
+                            <tr>
+                                <td class="align-left font-bold text-slate-800 border-b border-slate-200">개별공시지가 확인원</td>
+                                <td class="border-b border-slate-200">800원</td>
+                                <td class="border-b border-slate-200"><span class="text-discount">500원</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-700 bg-slate-50 border-b border-slate-200">국세 / 지방세</td>
+                                <td class="align-left font-bold text-slate-800 border-b border-slate-200">소득금액증명, 납세증명서, 세목별과세증명</td>
+                                <td class="border-b border-slate-200">무료/800원</td>
+                                <td class="border-b border-slate-200"><span class="text-discount">무료</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-700 bg-slate-50 border-b border-slate-200">교육 / 보건</td>
+                                <td class="align-left font-bold text-slate-800 border-b border-slate-200">졸업증명서, 성적증명서, 건강진단결과서(보건증)</td>
+                                <td class="border-b border-slate-200">건별 상이</td>
+                                <td class="border-b border-slate-200"><span class="text-discount">무료</span> (단, 대학교는 1,000원)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 2: 관내 설치 장소 안내 -->
+            <section class="mb-12">
+                <div class="flex items-end justify-between mb-4">
+                    <h3 class="bullet-title mb-0">관내 무인민원발급기 설치 장소 (8구 1군 전체 반영)</h3>
+                </div>
+                
+                <!-- 필터 셀렉트 -->
+                <div class="bg-slate-100 p-4 rounded-t-xl border border-b-0 border-slate-300 flex items-center justify-between">
+                    <label for="district-filter" class="font-bold text-slate-700 mr-4 shrink-0">지역 검색:</label>
+                    <select id="district-filter" onchange="filterLocations()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue bg-white font-medium">
+                        <option value="all">효빈광역시 전체보기</option>
+                        <option value="시청">효빈광역시청</option>
+                        <option value="남구">남구</option>
+                        <option value="북구">북구</option>
+                        <option value="동구">동구</option>
+                        <option value="서구">서구</option>
+                        <option value="중구">중구</option>
+                        <option value="청엽구">청엽구</option>
+                        <option value="창전구">창전구</option>
+                        <option value="안천구">안천구</option>
+                        <option value="탄성군">탄성군</option>
+                    </select>
+                </div>
+
+                <div class="overflow-x-auto shadow-sm rounded-b-xl border border-slate-300 border-t-0 bg-white max-h-[600px] overflow-y-auto custom-scrollbar relative">
+                    <table class="data-table min-w-[900px] !border-t-0 relative">
+                        <colgroup>
+                            <col style="width: 10%">
+                            <col style="width: 25%">
+                            <col style="width: 32%">
+                            <col style="width: 15%">
+                            <col style="width: 18%">
+                        </colgroup>
+                        <thead class="sticky top-0 shadow-sm z-10">
+                            <tr>
+                                <th>구/군</th>
+                                <th>설치 장소 (청사/역명/동)</th>
+                                <th>상세 주소</th>
+                                <th>운영 시간</th>
+                                <th>가족관계/등기부 발급</th>
+                            </tr>
+                        </thead>
+                        <tbody id="location-tbody" class="divide-y divide-slate-100">
+                            <!-- JS로 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 3: 지문인식 및 유의사항 -->
+            <section>
+                <h3 class="bullet-title">무인민원발급기 이용 시 유의사항</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
+                        <h4 class="font-bold text-lg text-amber-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="fingerprint" class="w-5 h-5"></i> 올바른 지문인식 방법
+                        </h4>
+                        <div class="bg-white p-4 rounded-lg border border-amber-100 mb-3">
+                            <p class="text-sm text-slate-700 leading-relaxed font-medium">
+                                무인민원발급기는 <strong>주민등록증 발급 시 등록된 오른쪽 엄지손가락 지문</strong>으로 본인을 확인합니다.
+                            </p>
+                        </div>
+                        <ul class="text-sm text-slate-600 space-y-2 list-disc list-inside ml-1">
+                            <li>오른쪽 엄지손가락 지문 중심이 인식기에 정확히 닿도록 대어 주세요.</li>
+                            <li>지문에 이물질이 묻거나 땀/물이 묻은 경우 잘 닦고 인식해 주세요.</li>
+                            <li>건조할 경우 입김을 살짝 불어 대시면 인식이 잘 됩니다.</li>
+                            <li class="text-red-600 font-bold">주민등록증 미발급자(미성년자 등) 및 지문 훼손자는 창구를 이용해 주시기 바랍니다.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-800 mb-3 flex items-center gap-2">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500"></i> 가족관계 및 등기부등본 발급 유의사항
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                            가족관계 등록사항 증명서 및 부동산 등기부등본은 대법원 전산망을 경유하므로 <strong>대법원 시스템 운영 시간에만 발급이 가능</strong>합니다.
+                        </p>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <ul class="text-sm text-slate-600 space-y-2 list-none">
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="clock" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0"></i>
+                                    <span><strong>평일:</strong> 09:00 ~ 18:00 (또는 관공서 업무시간 내)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="x-circle" class="w-4 h-4 text-red-400 mt-0.5 shrink-0"></i>
+                                    <span><strong>주말 및 공휴일:</strong> 발급 불가</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="info" class="w-4 h-4 text-blue-400 mt-0.5 shrink-0"></i>
+                                    <span>* 24시간 기기라도 위 시간에는 해당 증명서 메뉴가 활성화되지 않습니다.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 무인민원발급기 위치 데이터 (사용자 제공 데이터 100% 반영)
+        const locationData = [
+            // 1. 시청 및 구/군청
+            { district: '시청', place: '효빈광역시청', address: '효빈광역시 북구 효빈로 79', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '중구청', address: '효빈광역시 중구 중앙로 101', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '북구청', address: '효빈광역시 북구 중탄로 2', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '동구청', address: '효빈광역시 동구 덕성로 12', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '남구청', address: '효빈광역시 남구 평당관통로 33', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '서구청', address: '효빈광역시 서구 당선동 77', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽구청', address: '효빈광역시 청엽구 청엽로 51', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '창전구청', address: '효빈광역시 창전구 모포로 21', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천구청', address: '효빈광역시 안천구 안천중앙로 52', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천구청 이자출장소', address: '효빈광역시 안천구 이자로 3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '탄성군청', address: '효빈광역시 탄성군 탄성읍 공리 24', hours: '24시간', is24h: true, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (남구)
+            { district: '남구', place: '곽산1동 행정복지센터', address: '효빈광역시 남구 곽산동 142-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '곽산2동 행정복지센터', address: '효빈광역시 남구 곽산동 88', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당2동 행정복지센터', address: '효빈광역시 남구 평당동 315-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당3동 행정복지센터', address: '효빈광역시 남구 평당동 74', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당4동 행정복지센터', address: '효빈광역시 남구 평당동 201-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당5동 행정복지센터', address: '효빈광역시 남구 평당동 19', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당6동 행정복지센터', address: '효빈광역시 남구 평당동 452-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당7동 행정복지센터', address: '효빈광역시 남구 평당동 91', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '어간1동 행정복지센터', address: '효빈광역시 남구 어간동 33-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '어간2동 행정복지센터', address: '효빈광역시 남구 어간동 120', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '어간3동 행정복지센터', address: '효빈광역시 남구 어간동 258-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '월천동 행정복지센터', address: '효빈광역시 남구 월천동 5-11', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '평당1동 행정복지센터', address: '효빈광역시 남구 평당동 112', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '항1동 행정복지센터', address: '효빈광역시 북구 항동1가 42', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '항2동 행정복지센터', address: '효빈광역시 북구 항동1가 89-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '항3동 행정복지센터', address: '효빈광역시 북구 항동2가 17', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '남구', place: '항4동 행정복지센터', address: '효빈광역시 북구 항동3가 204-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (북구)
+            { district: '북구', place: '고송1동 행정복지센터', address: '효빈광역시 북구 고송동 55-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송2동 행정복지센터', address: '효빈광역시 북구 고송동 198', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송3동 행정복지센터', address: '효빈광역시 북구 고송동 301-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송4동 행정복지센터', address: '효빈광역시 북구 고송동 82', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송5동 행정복지센터', address: '효빈광역시 북구 고송동 415-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송6동 행정복지센터', address: '효빈광역시 북구 고송동 27', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송7동 행정복지센터', address: '효빈광역시 북구 고송동 110-9', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '남전동 행정복지센터', address: '효빈광역시 북구 남전동 63', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '오내1동 행정복지센터', address: '효빈광역시 북구 오내동 221-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '오내2동 행정복지센터', address: '효빈광역시 북구 오내동 44', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '중수2동 행정복지센터', address: '효빈광역시 북구 중수동 158-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '중수3동 행정복지센터', address: '효빈광역시 북구 중수동 90', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '중수4동 행정복지센터', address: '효빈광역시 북구 중수동 312-7', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '채산동 행정복지센터', address: '효빈광역시 북구 채산동 18', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '고송8동 행정복지센터', address: '효빈광역시 북구 고송동 502-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '사능1동 행정복지센터', address: '효빈광역시 북구 사능동3가 77', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '사능2동 행정복지센터', address: '효빈광역시 북구 사능동2가 134-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '산고동 행정복지센터', address: '효빈광역시 북구 추산동 9', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '소조동 행정복지센터', address: '효빈광역시 북구 소조동 265-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '중수1동 행정복지센터', address: '효빈광역시 북구 중수동 41', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '진희동 행정복지센터', address: '효빈광역시 북구 진희동 188-9', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '천왕사동 행정복지센터', address: '효빈광역시 북구 천왕사동 32', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '청능동 행정복지센터', address: '효빈광역시 북구 청능동 105-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '북구', place: '포산동 행정복지센터', address: '효빈광역시 북구 포산동 514', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (서구)
+            { district: '서구', place: '과진1동 행정복지센터', address: '효빈광역시 서구 과진동 88-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '과진2동 행정복지센터', address: '효빈광역시 서구 과진동 150', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '과진3동 행정복지센터', address: '효빈광역시 서구 과진동 304-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '과진4동 행정복지센터', address: '효빈광역시 서구 과진동 21', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '과진5동 행정복지센터', address: '효빈광역시 서구 과진동 412-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '과진6동 행정복지센터', address: '효빈광역시 서구 과진동 76', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '과진7동 행정복지센터', address: '효빈광역시 서구 과진동 189-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '당선1동 행정복지센터', address: '효빈광역시 서구 당선동 53', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '당선2동 행정복지센터', address: '효빈광역시 서구 당선동 227-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '당선3동 행정복지센터', address: '효빈광역시 서구 당선동 110', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '당선4동 행정복지센터', address: '효빈광역시 서구 당선동 385-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '북성동 행정복지센터', address: '효빈광역시 서구 북문동2가 40', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '사복1동 행정복지센터', address: '효빈광역시 서구 사복동 166-7', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '사복2동 행정복지센터', address: '효빈광역시 서구 사복동 8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '청덕1동 행정복지센터', address: '효빈광역시 서구 청덕동 291-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '청덕2동 행정복지센터', address: '효빈광역시 서구 청덕동 65', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '서구', place: '청덕3동 행정복지센터', address: '효빈광역시 서구 청덕동 104-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (안천구)
+            { district: '안천구', place: '뇌전동 행정복지센터', address: '효빈광역시 안천구 뇌전동 33', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '당가1동 행정복지센터', address: '효빈광역시 안천구 당가동 152-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '당가2동 행정복지센터', address: '효빈광역시 안천구 당가동 70', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '백합동 행정복지센터', address: '효빈광역시 안천구 백합동 218-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '북택동 행정복지센터', address: '효빈광역시 안천구 북택동 11', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천1동 행정복지센터', address: '효빈광역시 안천구 안천동 405-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천2동 행정복지센터', address: '효빈광역시 안천구 안천동 88', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천3동 행정복지센터', address: '효빈광역시 안천구 안천동 173-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천4동 행정복지센터', address: '효빈광역시 안천구 안천동 22', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천5동 행정복지센터', address: '효빈광역시 안천구 안천동 310-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천6동 행정복지센터', address: '효빈광역시 안천구 안천동 95', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '안천7동 행정복지센터', address: '효빈광역시 안천구 안천동 427-6', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '성저동 행정복지센터', address: '효빈광역시 안천구 성저동 50', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '악부동 행정복지센터', address: '효빈광역시 안천구 악부동 188-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '이십기동 행정복지센터', address: '효빈광역시 안천구 이십기동 6', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '이자1동 행정복지센터', address: '효빈광역시 안천구 이자동 254-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '이자2동 행정복지센터', address: '효빈광역시 안천구 이자동 81', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '이자3동 행정복지센터', address: '효빈광역시 안천구 이자동 119-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '이자4동 행정복지센터', address: '효빈광역시 안천구 이자동 302', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '창건동 행정복지센터', address: '효빈광역시 안천구 창건동 47-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '안천구', place: '칠채동 행정복지센터', address: '효빈광역시 안천구 능릉동 165', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (중구)
+            { district: '중구', place: '고도동 행정복지센터', address: '효빈광역시 중구 우이동 28-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '궁영동 행정복지센터', address: '효빈광역시 중구 영동1가 110', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '내조1동 행정복지센터', address: '효빈광역시 중구 내조동 305-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '내조2동 행정복지센터', address: '효빈광역시 중구 내조동 72', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '내항동 행정복지센터', address: '효빈광역시 중구 내항동 144-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '신덕동 행정복지센터', address: '효빈광역시 중구 신덕동 55', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '약맥동 행정복지센터', address: '효빈광역시 중구 목동 219-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '유내동 행정복지센터', address: '효빈광역시 중구 유내동 90', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '조유동 행정복지센터', address: '효빈광역시 중구 조유동5가 411-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '중앙동 행정복지센터', address: '효빈광역시 중구 중앙로3가 18', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '중구', place: '중정동 행정복지센터', address: '효빈광역시 중구 완동1가 277-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (동구)
+            { district: '동구', place: '덕현11동 행정복지센터', address: '효빈광역시 동구 덕현동 83', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현1동 행정복지센터', address: '효빈광역시 동구 덕현동 102-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현2동 행정복지센터', address: '효빈광역시 동구 덕현동 45', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현3동 행정복지센터', address: '효빈광역시 동구 덕현동 318-6', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현4동 행정복지센터', address: '효빈광역시 동구 덕현동 17', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현5동 행정복지센터', address: '효빈광역시 동구 덕현동 250-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현6동 행정복지센터', address: '효빈광역시 동구 덕현동 99', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현7동 행정복지센터', address: '효빈광역시 동구 덕현동 411-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '덕현9동 행정복지센터', address: '효빈광역시 동구 덕현동 22', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '사가당1동 행정복지센터', address: '효빈광역시 동구 사가당동 135-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '사가당2동 행정복지센터', address: '효빈광역시 동구 사가당동 60', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '사가당3동 행정복지센터', address: '효빈광역시 동구 사가당동 288-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '사가당4동 행정복지센터', address: '효빈광역시 동구 사가당동 14', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '동구', place: '전천동 행정복지센터', address: '효빈광역시 동구 전천동 170-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (창전구)
+            { district: '창전구', place: '광정동 행정복지센터', address: '효빈광역시 동구 광정동 82', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '동곡동 행정복지센터', address: '효빈광역시 동구 동곡동 309-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '진백동 행정복지센터', address: '효빈광역시 동구 진백동 55', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '창전5동 행정복지센터', address: '효빈광역시 창전구 창전동 421-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '칠심1동 행정복지센터', address: '효빈광역시 창전구 칠심동 90', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '칠심2동 행정복지센터', address: '효빈광역시 창전구 칠심동 115-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '칠심3동 행정복지센터', address: '효빈광역시 창전구 칠심동 27', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '쌍엽1동 행정복지센터', address: '효빈광역시 창전구 쌍엽동 250-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '쌍엽2동 행정복지센터', address: '효빈광역시 창전구 쌍엽동 63', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '유류동 행정복지센터', address: '효빈광역시 창전구 유류동 314-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '창전1동 행정복지센터', address: '효빈광역시 창전구 창전동 18', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '창전2동 행정복지센터', address: '효빈광역시 창전구 창전동 199-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '창전3동 행정복지센터', address: '효빈광역시 창전구 창전동 77', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '창전4동 행정복지센터', address: '효빈광역시 창전구 창전동 405-6', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '창전구', place: '팔조동 행정복지센터', address: '효빈광역시 창전구 팔조동 32', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (청엽구)
+            { district: '청엽구', place: '우전1동 행정복지센터', address: '효빈광역시 청엽구 우전동 155-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '우전2동 행정복지센터', address: '효빈광역시 청엽구 우전동 80', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '우전3동 행정복지센터', address: '효빈광역시 청엽구 우전동 210-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '우택동 행정복지센터', address: '효빈광역시 청엽구 우택동 14', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽1동 행정복지센터', address: '효빈광역시 청엽구 청엽동 332-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽2동 행정복지센터', address: '효빈광역시 청엽구 청엽동 91', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽3동 행정복지센터', address: '효빈광역시 청엽구 청엽동 188-4', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽4동 행정복지센터', address: '효빈광역시 청엽구 청엽동 25', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '동리동 행정복지센터', address: '효빈광역시 청엽구 동리동 401-7', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '등동 행정복지센터', address: '효빈광역시 청엽구 등동 50', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '마잡1동 행정복지센터', address: '효빈광역시 청엽구 마잡동 173-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '마잡2동 행정복지센터', address: '효빈광역시 청엽구 마잡동 8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '비마리동 행정복지센터', address: '효빈광역시 청엽구 비마동 255-9', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '입빈동 행정복지센터', address: '효빈광역시 청엽구 입동3가 62', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽5동 행정복지센터', address: '효빈광역시 청엽구 청엽동 114-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '청엽구', place: '청엽6동 행정복지센터', address: '효빈광역시 청엽구 청엽동 30', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 2. 행정복지센터 (탄성군)
+            { district: '탄성군', place: '고해읍 행정복지센터', address: '효빈광역시 탄성군 고해읍 고해리 142-3', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '도변읍 행정복지센터', address: '효빈광역시 탄성군 도변읍 도변리 88', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '도변읍 앵내출장소', address: '효빈광역시 탄성군 도변읍 앵내리 215-1', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '도향면 행정복지센터', address: '효빈광역시 탄성군 도향면 분음리 74', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '서목읍 행정복지센터', address: '효빈광역시 탄성군 서목읍 서목리 301-8', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '소원면 행정복지센터', address: '효빈광역시 탄성군 소원면 소원리 19', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '야진읍 행정복지센터', address: '효빈광역시 탄성군 야진읍 야진리 452-2', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '정근면 행정복지센터', address: '효빈광역시 탄성군 정근면 층부리 91', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '탄성읍 행정복지센터', address: '효빈광역시 탄성군 탄성읍 탄성리 133-5', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+            { district: '탄성군', place: '흑택면 행정복지센터', address: '효빈광역시 탄성군 흑택면 흑택리 120', hours: '09:00 ~ 18:00', is24h: false, family: '가능 (평일 09-18시)' },
+
+            // 3. 지하철 역 (환승역 + 사용자가 지정한 역)
+            { district: '남구', place: '곽산역 (1,8호선)', address: '효빈 남구 곽산동 220-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '평당역', address: '효빈 남구 평당동 567-5', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '남구청역 (1,4,8호선)', address: '효빈 남구 평당동 1708', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '신거역 (1,8호선)', address: '효빈 남구 운양동 325', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '효빈항역 (1,7호선,빈효,일반)', address: '효빈 남구 항동3가 1213', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '효빈항물류지구역 (1,빈효)', address: '효빈 남구 항동1가 239-3', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '월천역 (1,2,7호선)', address: '효빈 남구 월천동 929', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '박산역 (2,8호선)', address: '효빈 남구 박산동 198', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '신흥역 (2,4,8호선)', address: '효빈 남구 신흥동 345', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '어간중앙역 (2,7호선)', address: '효빈 남구 어간동 220-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '남구', place: '진월천역 (4호선,빈효)', address: '효빈 남구 월천동 524', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            
+            { district: '중구', place: '창선역 (1호선)', address: '효빈 중구 창선동3가 221-6', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '중앙로역 (1,2,7호선)', address: '효빈 중구 중앙로 5가 7-9', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '중구청역 (1,7호선)', address: '효빈 중구 조유동2가 830', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '내조역 (7호선)', address: '효빈 중구 내조동 2190', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '오석역 (1,4호선)', address: '효빈 중구 오석동 54', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '장원역 (1,4호선,빈효)', address: '효빈 중구 정동 542', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '내항역 (2,7호선)', address: '효빈 중구 내항동 929', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '중구', place: '신덕역 (4호선,빈효)', address: '효빈 중구 신덕동 563', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            
+            { district: '동구', place: '효빈역 (1,3,7호선,빈효,일반)', address: '효빈 동구 사가당동 1079-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '전천역 (1,5호선)', address: '효빈 동구 전천동 1-1', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '사가당역 (3,4호선)', address: '효빈 동구 사가당동 462', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '덕현역 (3,6호선)', address: '효빈 동구 덕현동 676', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '가동사거리역 (4,6호선)', address: '효빈 동구 사가당동 654-1', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '동덕현역 (4,5호선)', address: '효빈 동구 덕현동 144', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '전천중앙역 (5,6호선)', address: '효빈 동구 전천동 886-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '동구', place: '전덕역 (6호선,빈효)', address: '효빈 동구 전천동 134', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+
+            { district: '북구', place: '입희역 (1,2호선)', address: '효빈 북구 입희동 8-9', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '북구청역 (1,6호선)', address: '효빈 북구 중수동 79-12', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '중수역 (2,6호선)', address: '효빈 북구 중수동 1-23', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '북효빈역 (2,3호선,일반)', address: '효빈 북구 청능동 642', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '시청역 (2,6호선)', address: '효빈 북구 고송동 79-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '고송교차로역 (2,6호선)', address: '효빈 북구 고송동 112-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '사능역 (7호선)', address: '효빈 북구 사능동3가 432', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '고속버스터미널역 (3,5호선)', address: '효빈 북구 해서동 322-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '고송나루역 (3,6호선)', address: '효빈 북구 고송동 323', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '소조역', address: '효빈 북구 소조동 912', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '북구', place: '고송역', address: '효빈 북구 고송동 431', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+
+            { district: '서구', place: '청덕역 (2,3호선)', address: '효빈 서구 청덕동 3413', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '서구', place: '당선역 (2,5호선)', address: '효빈 서구 당선동 281-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '서구', place: '효빈대학교역 (7호선)', address: '효빈 서구 당선동 231-2', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '서구', place: '칠천역 (7호선)', address: '효빈 서구 칠천동 7000', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+
+            { district: '안천구', place: '안천역 (1호선,빈효,일반)', address: '효빈 안천구 안천동 1031', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '안천구', place: '이자공원역 (1,4호선)', address: '효빈 안천구 이자동 244', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '안천구', place: '영색무역 (1호선,빈효)', address: '효빈 안천구 영색무동 211', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '안천구', place: '하가역 (2,4호선)', address: '효빈 안천구 하가동 859', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '안천구', place: '당가역 (2호선,빈효)', address: '효빈 안천구 당가동 717', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '안천구', place: '이자역 (4호선,빈효)', address: '효빈 안천구 이자동 9-19', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+
+            { district: '청엽구', place: '사노역 (1,6호선)', address: '효빈 청엽구 사노동 697', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '청엽구', place: '청엽구청역 (1,3호선)', address: '효빈 청엽구 청엽동 93', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '청엽구', place: '우전역 (1,2호선)', address: '효빈 청엽구 우전동 4-15', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '청엽구', place: '마잡역 (2,6호선)', address: '효빈 청엽구 마잡동 3', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+
+            { district: '창전구', place: '창전구청역', address: '효빈 창전구 창전동 2-19', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '창전구', place: '동곡역 (2,3호선)', address: '효빈 창전구 동곡동 16', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '창전구', place: '시로역 (2,5호선)', address: '효빈 창전구 시로동 46', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+
+            { district: '탄성군', place: '고해역 (1호선,빈효,일반)', address: '효빈 탄성군 고해읍 이와리 81', hours: '05:00 ~ 24:00', is24h: false, family: '불가' },
+            { district: '탄성군', place: '도변역 (4,5호선)', address: '효빈 탄성군 도변읍 도변리 381-21', hours: '05:00 ~ 24:00', is24h: false, family: '불가' }
+        ];
+
+        function renderLocations(data) {
+            const tbody = document.getElementById('location-tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500 font-medium">검색된 무인민원발급기 설치 장소가 없습니다.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // 시간 뱃지 처리
+                const timeHtml = item.is24h 
+                    ? `<span class="badge-24h">24시간</span>` 
+                    : `<span class="badge-limit">${item.hours}</span>`;
+                
+                // 구/군 분류에 따른 텍스트 렌더링
+                const districtText = item.district === '시청' ? '<strong class="text-hyobin-blue">효빈광역시청</strong>' : `<strong>${item.district}</strong>`;
+
+                // 가족관계 발급 뱃지
+                const familyHtml = item.family.includes('가능') 
+                    ? `<span class="text-emerald-600 font-bold text-sm">${item.family}</span>`
+                    : `<span class="text-slate-400 text-sm">불가</span>`;
+
+                tr.innerHTML = `
+                    <td>${districtText}</td>
+                    <td class="align-left font-bold text-slate-800">${item.place}</td>
+                    <td class="align-left text-sm text-slate-600 truncate max-w-[200px]" title="${item.address}">${item.address}</td>
+                    <td>${timeHtml}</td>
+                    <td>${familyHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 필터 로직
+        window.filterLocations = function() {
+            const selectedDistrict = document.getElementById('district-filter').value;
+            if (selectedDistrict === 'all') {
+                renderLocations(locationData);
+            } else {
+                const filtered = locationData.filter(item => item.district === selectedDistrict);
+                renderLocations(filtered);
+            }
+        };
+
+        // 초기 렌더링 및 아이콘 세팅
+        window.addEventListener('DOMContentLoaded', () => {
+            renderLocations(locationData);
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
