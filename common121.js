@@ -618,7 +618,7 @@ const headerHTML = `
                                     <li><a href="업무추진비.html" class="hover:text-blue-600">업무추진비</a></li>
                                     <li><a href="업무제휴협약.html" class="hover:text-blue-600">업무제휴·협약</a></li>
                                     <li><strong class="text-slate-800 block mt-2 mb-1">조직정보</strong></li>
-                                    <li><a href="공무원정원.html" class="hover:text-blue-600">공무원 정원</a></li>
+                                    <li><a href="정원기구현황.html" class="hover:text-blue-600">공무원 정원</a></li>
                                     <li><a href="상위직비율.html" class="hover:text-blue-600">과장급 이상 상위직 비율</a></li>
                                     <li><a href="주민수비율.html" class="hover:text-blue-600">공무원 1인당 주민 수</a></li>
                                     <li><a href="현장공무원.html" class="hover:text-blue-600">현장공무원 비율</a></li>
