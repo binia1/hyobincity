@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원문정보목록 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+        .content-table td.center { text-align: center; }
+        
+        .list-row { cursor: pointer; transition: background-color 0.2s; }
+        .list-row:hover { background-color: #f1f5f9; }
+
+        /* 페이징 */
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a:hover:not(.pointer-events-none) { background: #f1f5f9; color: #005bac; border-color: #cbd5e1; }
+        .pagination a.active { background: #005bac; color: #fff; border-color: #005bac; }
+
+        /* 검색 폼 그룹 */
+        .search-group label { display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; }
+        .search-input { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; focus:outline-none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #005bac; outline: none; box-shadow: 0 0 0 2px rgba(0,91,172,0.1); }
+
+        /* 원문 뷰어 스타일 시뮬레이션 */
+        .doc-viewer {
+            background-color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            min-height: 500px;
+            display: flex;
+            justify-content: center;
+        }
+        .doc-page {
+            background-color: #fff;
+            width: 100%;
+            max-width: 800px;
+            min-height: 842px; /* A4 ratio */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 3rem;
+        }
+
+        /* 인쇄 전용 (PDF 다운로드용) 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #detail-view-container, #detail-view-container * { visibility: visible; }
+            #detail-view-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+            }
+            .doc-viewer { background-color: transparent; padding: 0; }
+            .doc-page { box-shadow: none; padding: 0; max-width: 100%; }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, #print-action-area {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center">
+                    <i data-lucide="folder-open" class="w-5 h-5 mr-2"></i> 행정/원문 정보공개
+                </h4>
+                <ul class="space-y-1.5 text-[13px] lnb-menu">
+                    <li><a href="행정정보공개.html">정보공개제도안내</a></li>
+                    <li><a href="정보공개청구현황.html">정보공개청구현황</a></li>
+                    <li><a href="정보공개청구.html">정보공개청구</a></li>
+                    <li><a href="비공개세부기준.html">비공개세부기준</a></li>
+                    <li><a href="정보공개수수료.html">정보공개수수료</a></li>
+                    <li><a href="불복처리절차.html">불복처리절차</a></li>
+                    <li><a href="관련법령및서식.html">관련법령 및 서식</a></li>
+                    <li><a href="정보공개편람.html">정보공개편람</a></li>
+                    <li><a href="예산재정정보.html">예산·재정정보</a></li>
+                    <li><a href="사전정보공표목록.html">사전정보공표목록</a></li>
+                    <li><a href="즐겨찾는사전정보.html">즐겨찾는사전정보</a></li>
+                    <li><a href="원문정보공개안내.html">원문정보공개안내</a></li>
+                    <li><a href="원문정보목록.html" class="active">원문정보목록</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">행정/원문 정보공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">원문정보목록</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">원문정보목록</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시 본청(국장급 이상), 직속기관, 사업소, 8구 1군청(부구청장/부군수 이상)에서 기안 및 결재 완료된 문서의 원문을 별도 청구 없이 실시간으로 조회하고 열람할 수 있습니다.
+                </p>
+            </div>
+
+            <!-- 목록 뷰 (List View) -->
+            <div id="list-view-container">
+                <!-- 고급 검색 및 필터 영역 -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 mb-8 shadow-sm">
+                    <form class="space-y-4" onsubmit="event.preventDefault(); alert('문서 검색 결과가 갱신되었습니다.');">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="search-group">
+                                <label>결재일자 (기간 설정)</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="date" class="search-input text-slate-600" value="2026-03-01">
+                                    <span class="text-slate-400">~</span>
+                                    <input type="date" class="search-input text-slate-600" value="2026-04-03">
+                                </div>
+                            </div>
+                            <div class="search-group">
+                                <label>담당 기관 및 부서</label>
+                                <select class="search-input bg-white text-slate-700">
+                                    <option value="">효빈광역시 전체</option>
+                                    <option value="본청">본청 (실/국)</option>
+                                    <option value="도시철도건설본부">직속기관 (도시철도건설본부 등)</option>
+                                    <option value="자치구군">8구 1군 자치구/군청</option>
+                                </select>
+                            </div>
+                            <div class="search-group">
+                                <label>결재권자 (직위/성명)</label>
+                                <input type="text" class="search-input" placeholder="예: 시장, 국장, 박효빈">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                            <div class="search-group md:col-span-3">
+                                <label>문서 제목 및 내용 검색</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="검색어를 입력하세요 (예: 트램, 준공영제, HAF, 도색)" class="search-input pl-10">
+                                    <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full bg-[#1a365d] text-white font-bold py-2.5 px-4 rounded-lg hover:bg-slate-800 transition flex items-center justify-center h-[42px]">
+                                    <i data-lucide="search" class="w-4 h-4 mr-2"></i> 검색하기
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 전체 건수 표시 -->
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <span class="text-sm font-bold text-slate-700">총 <span class="text-blue-600" id="total-count">0</span>건의 원문 문서가 검색되었습니다.</span>
+                    <select class="border border-slate-300 rounded p-1 text-sm bg-white focus:outline-none">
+                        <option>결재일 최신순</option>
+                        <option>관련도순</option>
+                    </select>
+                </div>
+
+                <!-- 원문정보 목록 테이블 -->
+                <div class="overflow-x-auto rounded-t-xl border-x border-t border-slate-200 mb-8">
+                    <table class="content-table !mt-0 !mb-0 min-w-[900px]">
+                        <colgroup>
+                            <col style="width: 6%;">
+                            <col style="width: 14%;">
+                            <col style="width: auto;">
+                            <col style="width: 12%;">
+                            <col style="width: 10%;">
+                            <col style="width: 8%;">
+                        </colgroup>
+                        <thead>
+                            <tr class="bg-slate-50">
+                                <th>번호</th>
+                                <th>담당 부서</th>
+                                <th>원문 문서 제목</th>
+                                <th>결재권자</th>
+                                <th>결재일자</th>
+                                <th>원문</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-list-body">
+                            <!-- JS 렌더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이징 (Pagination) -->
+                <div class="flex justify-center mb-10">
+                    <nav class="pagination flex gap-1" id="pagination-container">
+                        <!-- JS 렌더링 영역 -->
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 상세 뷰 (Detail View - 동적 전환) -->
+            <div id="detail-view-container" class="hidden">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                    
+                    <!-- 상세 헤더 (메타데이터 영역) -->
+                    <div class="bg-slate-50 p-6 md:p-8 border-b border-slate-200 print:bg-white print:border-none print:p-0 print:mb-6">
+                        <div class="flex items-center justify-between mb-4 print:hidden">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold border border-blue-200"><i data-lucide="check-circle" class="w-3 h-3 inline mr-1 -mt-0.5"></i> 원문 공개 완료</span>
+                            <span class="text-sm font-medium text-slate-500 flex items-center"><i data-lucide="file-key" class="w-4 h-4 mr-1"></i> 공개 구분: <strong class="text-blue-600 ml-1">부분공개 (개인정보 마스킹)</strong></span>
+                        </div>
+                        
+                        <h3 class="text-2xl font-black text-slate-800 mb-6 leading-tight" id="detail-title">문서 제목</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm text-slate-600 border-t border-slate-200 pt-4 print:border-t-2 print:border-black print:pt-2">
+                            <div class="flex"><strong class="w-24 text-slate-800">생산등록번호</strong> <span id="detail-doc-no">효빈-대중교통-2026-0042</span></div>
+                            <div class="flex"><strong class="w-24 text-slate-800">기안일자</strong> <span id="detail-draft-date">2026-03-29</span></div>
+                            <div class="flex"><strong class="w-24 text-slate-800">담당기관(부서)</strong> <span id="detail-dept">대중교통과</span></div>
+                            <div class="flex"><strong class="w-24 text-slate-800">최종결재일자</strong> <span id="detail-date">2026-04-01</span></div>
+                            <div class="flex"><strong class="w-24 text-slate-800">최종결재권자</strong> <span id="detail-approver" class="font-bold text-blue-700">효빈광역시장 (박효빈)</span></div>
+                            <div class="flex"><strong class="w-24 text-slate-800">문서 종류</strong> <span>전자결재 기안문</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 원문 뷰어 (가상 시뮬레이션) -->
+                    <div class="doc-viewer" id="print-content-area">
+                        <div class="doc-page relative" id="detail-content">
+                            <!-- 문서 원문 내용 바인딩 영역 -->
+                        </div>
+                    </div>
+
+                    <!-- 하단 첨부물 영역 -->
+                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 print:hidden" id="print-action-area">
+                        <strong class="flex items-center text-sm text-slate-700 mb-2"><i data-lucide="paperclip" class="w-4 h-4 mr-1"></i> 관련 첨부물 목록</strong>
+                        <div id="detail-attachments" class="flex flex-col gap-2">
+                            <!-- 첨부파일 버튼 위치 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3 no-print">
+                    <button onclick="hideDetail()" class="px-8 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로 돌아가기
+                    </button>
+                    <button onclick="triggerNativePrint()" class="px-8 py-3 bg-[#1a365d] text-white font-bold rounded-lg hover:bg-slate-800 transition flex items-center shadow-md">
+                        <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 원문 인쇄 / PDF 저장
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 원문정보 데이터 (총 12건의 풍성한 시정 기안문 데이터)
+        const originalDocsData = [
+            {
+                id: 12,
+                docNo: '효빈-도시철도-2026-0150',
+                dept: '도시철도건설본부',
+                title: '빈효선 광역전철 탄성군 연장 및 역세권 복합환승센터 건립 기본계획안',
+                approver: '시장 (박효빈)',
+                date: '2026-04-03',
+                draftDate: '2026-03-30',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 도시철도건설본부</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <div class="grid grid-cols-[100px_1fr] gap-2 mb-8">
+                            <strong class="text-justify">문서번호 :</strong> <span>효빈-도시철도-2026-0150</span>
+                            <strong class="text-justify">보 존 :</strong> <span>영구</span>
+                            <strong class="text-justify">결재권자 :</strong> <span>시장 박효빈</span>
+                        </div>
+                        
+                        <p class="font-bold text-lg mb-4">제 목 : 빈효선 광역전철 탄성군 연장 및 역세권 복합환승센터 기본계획 수립</p>
+                        
+                        <p>1. 효빈-외곽 광역교통망 확충을 위한 빈효선(연청색, <span class="font-bold text-blue-400">#6677CC</span>)의 탄성군 연장 사업 관련입니다.</p>
+                        <p>2. 예비타당성 조사 통과에 따라, 8구 1군 대중교통망 완성을 위한 역세권 복합환승센터(가칭 탄성광역환승센터) 건립 기본계획을 수립하여 보고합니다.</p>
+                        
+                        <div class="pl-4 mt-4">
+                            <p class="font-bold mb-2">가. 사업 개요</p>
+                            <ul class="list-disc list-inside mb-4 ml-2">
+                                <li>위치: 탄성군 읍내리 일원 (빈효선 신설 종착역 예정지)</li>
+                                <li>규모: 지하 2층, 지상 4층 (환승주차장, 버스 환승 터미널, 문화시설)</li>
+                                <li>연계 노선: 간선, 급행, 탄성군 농어촌 버스 등 총 12개 노선</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="mt-8">붙임: 탄성광역환승센터 건립 기본계획서 1부. 끝.</p>
+                        
+                        <div class="mt-16 text-right">
+                            <p class="text-xl font-bold tracking-widest">효 빈 광 역 시 장</p>
+                            <div class="inline-block mt-4 border-2 border-red-600 text-red-600 font-bold px-4 py-2 transform -rotate-12">전 결 (박효빈)</div>
+                        </div>
+                    </div>
+                `,
+                files: [{ name: '환승센터_기본계획.pdf', size: '15.5MB' }]
+            },
+            {
+                id: 11,
+                docNo: '효빈-대중교통-2026-0092',
+                dept: '대중교통과',
+                title: '도시철도 7호선(트램) 개통 대비 연계 시내버스 지선 노선 신설 및 개편안',
+                approver: '국장 (이OO)',
+                date: '2026-04-02',
+                draftDate: '2026-03-28',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 대중교통과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <div class="grid grid-cols-[100px_1fr] gap-2 mb-8">
+                            <strong class="text-justify">문서번호 :</strong> <span>효빈-대중교통-2026-0092</span>
+                            <strong class="text-justify">보 존 :</strong> <span>5년</span>
+                            <strong class="text-justify">결재권자 :</strong> <span>교통건설국장 이OO</span>
+                        </div>
+                        
+                        <p class="font-bold text-lg mb-4">제 목 : 7호선 트램 연계 지선 시내버스 노선 신설 승인 건</p>
+                        
+                        <p>1. 7호선(분홍색, <span class="font-bold text-pink-500">#FF8899</span>) 무가선 저상 트램 완공에 따른 대중교통 접근성 강화 목적입니다.</p>
+                        <p>2. 구도심 및 주거밀집지역(서구, 남구) 시민들의 트램 환승 편의를 높이기 위하여 지선버스(에코 그린, <span class="font-bold text-green-600">#37B484</span>) 3개 노선을 신설하고자 합니다.</p>
+                        
+                        <div class="pl-4 mt-4">
+                            <table class="w-full border-collapse border border-slate-400 text-sm mt-2 mb-4 text-center">
+                                <thead>
+                                    <tr class="bg-slate-100">
+                                        <th class="border border-slate-400 p-2">구분</th>
+                                        <th class="border border-slate-400 p-2">노선번호</th>
+                                        <th class="border border-slate-400 p-2">주요 경유지</th>
+                                        <th class="border border-slate-400 p-2">인가대수</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="border border-slate-400 p-2 font-bold text-green-600">지선</td><td class="border border-slate-400 p-2">남구31</td><td class="border border-slate-400 p-2 text-left">남구청 - 효빈역 - 7호선 중앙역</td><td class="border border-slate-400 p-2">8대</td></tr>
+                                    <tr><td class="border border-slate-400 p-2 font-bold text-green-600">지선</td><td class="border border-slate-400 p-2">서구45</td><td class="border border-slate-400 p-2 text-left">서구주민센터 - 파스텔블루 거리</td><td class="border border-slate-400 p-2">6대</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p class="mt-8">붙임: 신설 지선 노선도 1부. 끝.</p>
+                    </div>
+                `,
+                files: [{ name: '신설_지선버스_노선도.pdf', size: '3.1MB' }]
+            },
+            {
+                id: 10,
+                docNo: '효빈-대중교통-2026-0042',
+                dept: '대중교통과',
+                title: '제3세대 시내버스 준공영제 시행에 따른 권역별 노선 지정 도색 유지 및 재정비 기안',
+                approver: '시장 (박효빈)',
+                date: '2026-04-01',
+                draftDate: '2026-03-25',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 대중교통과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <div class="grid grid-cols-[100px_1fr] gap-2 mb-8">
+                            <strong class="text-justify">문서번호 :</strong> <span>효빈-대중교통-2026-0042</span>
+                            <strong class="text-justify">보 존 :</strong> <span>영구</span>
+                            <strong class="text-justify">결재권자 :</strong> <span>시장 박효빈</span>
+                        </div>
+                        
+                        <p class="font-bold text-lg mb-4">제 목 : 제3세대 시내버스 준공영제 권역별 지정 도색 매뉴얼 승인 건</p>
+                        
+                        <p>1. 시민 중심의 대중교통 체계 확립을 위한 「제3세대 완전 준공영제」의 성공적인 안착과 관련입니다.</p>
+                        <p>2. 우리 시 시내버스의 시인성 강화 및 노선 식별 혼선 방지를 위하여, 2008년에 제정된 권역별/등급별 버스 지정 도색 가이드라인을 엄격히 유지 및 적용하고자 하오니 재가하여 주시기 바랍니다.</p>
+                        
+                        <div class="pl-4 mt-4">
+                            <p class="font-bold mb-2">가. 적용 대상 및 시기</p>
+                            <ul class="list-disc list-inside mb-4 ml-2">
+                                <li>대상: 2026년 하반기 신규 출고 차량 및 정기 검사 도래 기존 차량</li>
+                                <li>시기: 2026. 7. 1.부터 순차 적용</li>
+                            </ul>
+                            
+                            <p class="font-bold mb-2">나. 2008년 제정 등급별 도색 기준 (유지 확정안)</p>
+                            <table class="w-full border-collapse border border-slate-400 text-sm mt-2 mb-4 text-center">
+                                <thead>
+                                    <tr class="bg-slate-100">
+                                        <th class="border border-slate-400 p-2">등급명</th>
+                                        <th class="border border-slate-400 p-2">지정 색상 코드</th>
+                                        <th class="border border-slate-400 p-2">비고 (명칭)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="border border-slate-400 p-2">간선버스</td><td class="border border-slate-400 p-2 font-mono text-blue-600">#01B7ED</td><td class="border border-slate-400 p-2">효빈 블루</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">순환버스</td><td class="border border-slate-400 p-2 font-mono" style="color:#E7D600">#E7D600</td><td class="border border-slate-400 p-2">개나리 옐로우</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">지선버스</td><td class="border border-slate-400 p-2 font-mono text-green-600">#37B484</td><td class="border border-slate-400 p-2">에코 그린</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">급행버스</td><td class="border border-slate-400 p-2 font-mono text-red-600">#D81C2F</td><td class="border border-slate-400 p-2">혁신 레드</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">광역버스</td><td class="border border-slate-400 p-2 font-mono text-indigo-600">#485EC6</td><td class="border border-slate-400 p-2">메가시티 네이비</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">좌석버스</td><td class="border border-slate-400 p-2 font-mono text-orange-600">#FF5800</td><td class="border border-slate-400 p-2">오렌지</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">마을버스</td><td class="border border-slate-400 p-2 font-mono text-purple-600">#A664A0</td><td class="border border-slate-400 p-2">퍼플</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">공항버스</td><td class="border border-slate-400 p-2 font-mono" style="color:#84C36E">#84C36E</td><td class="border border-slate-400 p-2">라이트 그린</td></tr>
+                                    <tr><td class="border border-slate-400 p-2">시티투어</td><td class="border border-slate-400 p-2 font-mono text-slate-500">#7777AA</td><td class="border border-slate-400 p-2">투어 그레이</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p class="mt-8">붙임: 시내버스 지정도색 세부 가이드라인 1부. 끝.</p>
+                        
+                        <div class="mt-16 text-right">
+                            <p class="text-xl font-bold tracking-widest">효 빈 광 역 시 장</p>
+                            <div class="inline-block mt-4 border-2 border-red-600 text-red-600 font-bold px-4 py-2 transform -rotate-12">전 결 (박효빈)</div>
+                        </div>
+                    </div>
+                `,
+                files: [{ name: '붙임1_시내버스_지정도색_가이드라인.pdf', size: '2.1MB' }]
+            },
+            {
+                id: 9,
+                docNo: '효빈-문관체-2026-0105',
+                dept: '문화관광체육국',
+                title: '제17회 HAF(효빈 애니메이션 페스티벌) 글로벌 IP 명예 홍보대사 위촉 계획',
+                approver: '국장 (김OO)',
+                date: '2026-03-28',
+                draftDate: '2026-03-20',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 문화관광체육국</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <div class="grid grid-cols-[100px_1fr] gap-2 mb-8">
+                            <strong class="text-justify">문서번호 :</strong> <span>효빈-문관체-2026-0105</span>
+                            <strong class="text-justify">보 존 :</strong> <span>5년</span>
+                            <strong class="text-justify">결재권자 :</strong> <span>문화관광체육국장 김OO</span>
+                        </div>
+                        
+                        <p class="font-bold text-lg mb-4">제 목 : 제17회 HAF 공식 명예 홍보대사 위촉 및 연계 마케팅 계획</p>
+                        
+                        <p>1. 아시아 최대 규모 서브컬처 문화 축제인 '제17회 HAF(효빈 애니메이션 페스티벌)'의 성공적인 개최와 관련입니다.</p>
+                        <p>2. 행사의 글로벌 위상 강화 및 국내외 관람객 유치를 극대화하기 위하여, 세계적인 인기 캐릭터 IP를 공식 명예 홍보대사로 위촉하고 연계 마케팅을 추진하고자 합니다.</p>
+                        
+                        <div class="pl-4 mt-4">
+                            <p class="font-bold mb-2">가. 홍보대사 위촉 대상 IP</p>
+                            <ul class="list-disc list-inside mb-4 ml-2">
+                                <li>BanG Dream! (뱅드림) 프로젝트</li>
+                                <li>러브라이브! 시리즈 프로젝트 그룹</li>
+                            </ul>
+                            
+                            <p class="font-bold mb-2">나. 주요 연계 마케팅 방안</p>
+                            <ul class="list-decimal list-inside mb-4 ml-2 space-y-1">
+                                <li>도시철도 7호선 (트램, <span class="font-bold text-pink-500">#FF8899</span>) 특별 랩핑 및 캐릭터 안내방송 송출</li>
+                                <li>당가동 파스텔블루 거리 내 공식 한정판 굿즈 팝업스토어 특별 부스 운영</li>
+                                <li>효빈종합운동장 주경기장 글로벌 아티스트 초청 개막식 공연</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="mt-8">붙임: 제17회 HAF 마스터플랜 1부. 끝.</p>
+                    </div>
+                `,
+                files: [{ name: '제17회_HAF_마스터플랜.pdf', size: '12.5MB' }]
+            },
+            {
+                id: 8,
+                docNo: '효빈-안전실-2026-0033',
+                dept: '시민안전실',
+                title: '풍수해 대비 도시철도 지하역사(1~6호선, 8호선) 침수 방지 대책 수립',
+                approver: '국장 (박OO)',
+                date: '2026-03-27',
+                draftDate: '2026-03-25',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 시민안전실</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : 여름철 자연재난 대비 지하차도 및 도시철도 침수 방지 종합대책</p>
+                        <p>1. 국지성 집중호우에 대비하여 지하역사의 침수 예방 시설물 일제 점검을 실시하고자 합니다.</p>
+                        <ul class="list-disc list-inside mb-4 ml-2">
+                            <li>점검 대상: 지하 운행 노선 7개선 (1호선 <span class="font-bold text-[#0077DD]">#0077DD</span>, 2호선 <span class="font-bold text-[#00CCAA]">#00CCAA</span>, 3호선 <span class="font-bold text-[#FFCC11]">#FFCC11</span>, 4호선 <span class="font-bold text-[#FF5522]">#FF5522</span>, 5호선 <span class="font-bold text-[#EE0022]">#EE0022</span>, 6호선 <span class="font-bold text-[#881188]">#881188</span>, 8호선 <span class="font-bold text-[#9856FF]">#9856FF</span>) 전 역사.</li>
+                            <li>점검 내용: 차수판 작동 여부, 배수펌프 용량 확인 및 비상 발전기 가동 테스트.</li>
+                        </ul>
+                    </div>
+                `,
+                files: [{ name: '침수방지대책안.pdf', size: '1.2MB' }]
+            },
+            {
+                id: 7,
+                docNo: '효빈-도시철도-2026-0088',
+                dept: '도시철도건설본부',
+                title: '도시철도 7호선(분홍색) 무가선 저상 트램 도입 및 궤도 개량 공사 착공 승인',
+                approver: '본부장 (이OO)',
+                date: '2026-03-25',
+                draftDate: '2026-03-15',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 도시철도건설본부</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : 7호선 무가선 저상 트램 도입 및 궤도 개량 공사 착공안</p>
+                        <p>1. 효빈 시민의 참여로 보존된 7호선(분홍색, <span class="font-bold text-pink-500">#FF8899</span>)의 현대화 사업 실시설계 완료에 따른 착공 계획입니다.</p>
+                        <p>2. 구형 노면전차를 친환경 무가선 저상 트램으로 전면 교체하고, 도심 미관 개선을 위해 전 구간을 친환경 잔디 궤도로 개량하고자 합니다.</p>
+                    </div>
+                `,
+                files: [{ name: '7호선_트램_설계도.pdf', size: '8.4MB' }]
+            },
+            {
+                id: 6,
+                docNo: '효빈-도시계획-2026-0112',
+                dept: '도시계획과',
+                title: '5도심 다핵구조 개편을 위한 청엽구-창전구 연결 광역도로망 타당성 조사 착수',
+                approver: '시장 (박효빈)',
+                date: '2026-03-24',
+                draftDate: '2026-03-20',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 도시계획과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <div class="grid grid-cols-[100px_1fr] gap-2 mb-8">
+                            <strong class="text-justify">문서번호 :</strong> <span>효빈-도시계획-2026-0112</span>
+                            <strong class="text-justify">보 존 :</strong> <span>영구</span>
+                            <strong class="text-justify">결재권자 :</strong> <span>시장 박효빈</span>
+                        </div>
+                        <p class="font-bold text-lg mb-4">제 목 : 효빈시 5도심 다핵구조 연결 광역도로 개설 예비타당성 조사 용역 발주</p>
+                        <p>1. 도심 간 불균형 해소 및 원활한 물류 이동을 위한 청엽구와 창전구 간 직통 광역도로망 건설을 추진하고자 합니다.</p>
+                        <div class="mt-16 text-right">
+                            <p class="text-xl font-bold tracking-widest">효 빈 광 역 시 장</p>
+                            <div class="inline-block mt-4 border-2 border-red-600 text-red-600 font-bold px-4 py-2 transform -rotate-12">전 결 (박효빈)</div>
+                        </div>
+                    </div>
+                `,
+                files: [{ name: '타당성_조사_용역발주안.pdf', size: '4.2MB' }]
+            },
+            {
+                id: 5,
+                docNo: '효빈-경찰청-2026-0044',
+                dept: '경찰청 교통과',
+                title: '제17회 HAF 당가동 파스텔블루 거리 교통통제 및 우회도로 지정 안내',
+                approver: '청장 (김OO)',
+                date: '2026-03-22',
+                draftDate: '2026-03-18',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 경찰청</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : HAF 개최 관련 구도심 교통통제 및 안전 확보 계획</p>
+                        <p>1. 효빈 애니메이션 페스티벌 기간 내 당가동 파스텔블루 거리 차량 전면 통제 (버스 우회 포함) 계획입니다.</p>
+                    </div>
+                `,
+                files: []
+            },
+            {
+                id: 4,
+                docNo: '효빈-총무-2026-0211',
+                dept: '총무과',
+                title: '2026년 3월 효빈광역시장(박효빈) 월간 업무추진비 집행내역 공개',
+                approver: '국장 (최OO)',
+                date: '2026-03-20',
+                draftDate: '2026-03-18',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 기획조정실 총무과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : 2026년 3월 효빈광역시장 업무추진비 집행내역 정보공개 포털 게재</p>
+                        <p>야간 재난상황실 특근매식비 (피자 등) 180,000원 등 총 14건 1,245,000원 집행.</p>
+                    </div>
+                `,
+                files: [{ name: '26년_3월_시장_업무추진비.pdf', size: '1.4MB' }]
+            },
+            {
+                id: 3,
+                docNo: '효빈-청년-2026-0021',
+                dept: '청년정책과',
+                title: '효빈드림 하우스(청년임대주택) 제2차 건립 부지 선정 심의 결과',
+                approver: '시장 (박효빈)',
+                date: '2026-03-15',
+                draftDate: '2026-03-10',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 청년정책과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : 청년 주거 안정을 위한 제2차 효빈드림 하우스 입지 선정 승인</p>
+                        <p>1. 심의 결과: 청엽구 대학가 인근 유휴 부지 최종 선정.</p>
+                        <div class="mt-16 text-right">
+                            <p class="text-xl font-bold tracking-widest">효 빈 광 역 시 장</p>
+                            <div class="inline-block mt-4 border-2 border-red-600 text-red-600 font-bold px-4 py-2 transform -rotate-12">전 결 (박효빈)</div>
+                        </div>
+                    </div>
+                `,
+                files: [{ name: '효빈드림하우스_부지선정_결과.pdf', size: '2.2MB' }]
+            },
+            {
+                id: 2,
+                docNo: '효빈-환경-2026-0041',
+                dept: '환경생태과',
+                title: '탄성군 생태보존구역 시조(히버히) 보호를 위한 민관 합동 밀렵 단속반 편성',
+                approver: '국장 (정OO)',
+                date: '2026-03-12',
+                draftDate: '2026-03-10',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 환경생태과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : 시조(기러기/히버히) 서식지 특별 보호 및 불법 밀렵행위 단속반 운영</p>
+                        <p>1. 동절기 철새 도래기를 맞아 탄성군 일대의 불법 밀렵 방지를 위한 24시간 특별 감시반을 편성합니다.</p>
+                    </div>
+                `,
+                files: []
+            },
+            {
+                id: 1,
+                docNo: '효빈-총무-2026-0155',
+                dept: '총무과',
+                title: '2026년 상반기 시청 본관 및 8구 1군청 구내식당 식단 개선 지원비 교부',
+                approver: '과장 (한OO)',
+                date: '2026-03-05',
+                draftDate: '2026-03-01',
+                content: `
+                    <div class="text-center mb-10 border-b-2 border-black pb-4">
+                        <h1 class="text-3xl font-black mb-2">기 안 문</h1>
+                        <p class="text-sm font-bold text-slate-500">효빈광역시 기획조정실 총무과</p>
+                    </div>
+                    <div class="space-y-6 text-[14.5px] leading-relaxed">
+                        <p class="font-bold text-lg mb-4">제 목 : 물가 상승에 따른 구내식당 식재료 품질 유지 예산 추가 지원</p>
+                        <p>1. 효빈시청 본관 및 8개 자치구, 탄성군 구내식당의 질 좋은 식단 제공을 위한 예산 교부안입니다.</p>
+                    </div>
+                `,
+                files: [{ name: '예산교부내역서.pdf', size: '500KB' }]
+            }
+        ];
+
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-count').innerText = originalDocsData.length;
+            renderList();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        // 목록 렌더링 함수
+        function renderList() {
+            const tbody = document.getElementById('data-list-body');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = originalDocsData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'list-row';
+                tr.onclick = () => showDetail(item.id);
+                
+                tr.innerHTML = `
+                    <td class="center font-medium text-slate-500">${item.id}</td>
+                    <td class="center text-[13px] font-bold text-slate-700">${item.dept}</td>
+                    <td class="font-bold text-[#005bac] transition py-4 hover:underline">${item.title}</td>
+                    <td class="center text-sm font-medium">${item.approver}</td>
+                    <td class="center text-sm">${item.date}</td>
+                    <td class="center"><button class="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-slate-600 hover:bg-slate-200 transition" onclick="event.stopPropagation(); showDetail(${item.id})"><i data-lucide="file-search" class="w-4 h-4 mx-auto"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const totalPages = Math.ceil(originalDocsData.length / itemsPerPage);
+            const nav = document.getElementById('pagination-container');
+            nav.innerHTML = '';
+
+            const prevClass = currentPage === 1 ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage - 1}); return false;" class="text-slate-500 ${prevClass}" aria-label="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                nav.innerHTML += `<a href="#" onclick="changePage(${i}); return false;" class="${activeClass}">${i}</a>`;
+            }
+
+            const nextClass = currentPage === totalPages ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage + 1}); return false;" class="text-slate-500 ${nextClass}" aria-label="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></a>`;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(originalDocsData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderList();
+            
+            const listContainer = document.getElementById('list-view-container');
+            window.scrollTo({ top: listContainer.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // 상세 뷰 표시
+        function showDetail(id) {
+            const item = originalDocsData.find(d => d.id === id);
+            if(!item) return;
+
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-doc-no').innerText = item.docNo;
+            document.getElementById('detail-dept').innerText = item.dept;
+            document.getElementById('detail-date').innerText = item.date;
+            document.getElementById('detail-draft-date').innerText = item.draftDate;
+            
+            // 결재권자가 '시장'이 포함되어 있으면 강조
+            const approverEl = document.getElementById('detail-approver');
+            approverEl.innerText = item.approver;
+            if(item.approver.includes('시장') || item.approver.includes('박효빈')) {
+                approverEl.className = 'font-bold text-blue-700';
+            } else {
+                approverEl.className = 'font-bold text-slate-800';
+            }
+
+            document.getElementById('detail-content').innerHTML = item.content;
+
+            const fileContainer = document.getElementById('detail-attachments');
+            fileContainer.innerHTML = '';
+            if(item.files && item.files.length > 0) {
+                item.files.forEach(file => {
+                    const btn = document.createElement('button');
+                    btn.className = 'flex justify-between items-center px-4 py-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 hover:border-blue-300 transition text-sm text-left w-full max-w-md group';
+                    
+                    btn.innerHTML = `
+                        <span class="flex items-center text-blue-700 font-bold truncate"><i data-lucide="paperclip" class="w-4 h-4 mr-2 flex-shrink-0"></i> ${file.name}</span>
+                        <span class="text-xs text-slate-400 ml-4 whitespace-nowrap bg-slate-100 px-2 py-0.5 rounded">${file.size}</span>
+                    `;
+                    btn.onclick = () => alert(`'${file.name}' 파일을 다운로드합니다.`);
+                    
+                    fileContainer.appendChild(btn);
+                });
+            } else {
+                fileContainer.innerHTML = '<span class="text-sm text-slate-400">첨부된 문서가 없습니다.</span>';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 목록으로 돌아가기
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            const listTop = document.getElementById('list-view-container').offsetTop - 100;
+            window.scrollTo({ top: listTop > 0 ? listTop : 0, behavior: 'smooth' });
+        }
+
+        // 네이티브 인쇄 기능
+        function triggerNativePrint() {
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <i data-lucide="printer" class="w-6 h-6 mb-2"></i>
+                    <strong class="text-lg">원문 PDF 저장 / 인쇄 모드</strong>
+                    <span class="text-sm font-normal mt-1 text-slate-200">브라우저 인쇄 창이 열립니다. 대상에서 'PDF로 저장'을 선택해 주세요.</span>
+                </div>
+            `;
+            toast.className = `fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-6 rounded-xl shadow-2xl text-white transition-all duration-300 z-[9999] bg-[#1a365d] flex items-center text-center no-print`;
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => toast.remove(), 300);
+                }, 500);
+            }, 800);
+        }
+    </script>
+</body>
+</html>

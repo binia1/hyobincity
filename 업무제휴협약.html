@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업무제휴협약 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem 0.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0.75rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.5;
+        }
+        .content-table td.center { text-align: center; }
+        
+        .list-row { cursor: pointer; transition: background-color 0.2s; }
+        .list-row:hover { background-color: #f1f5f9; }
+
+        /* 공문서용 내부 상세 테이블 */
+        .official-doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            border-top: 2px solid #1e293b;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        .official-doc-table th, .official-doc-table td {
+            border: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            vertical-align: middle;
+        }
+        .official-doc-table th {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            text-align: left;
+            width: 18%;
+        }
+        .official-doc-table td { background-color: #ffffff; color: #475569; }
+
+        /* 섹션 타이틀 포인트 */
+        .section-title {
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 24px;
+            background-color: #005bac;
+            border-radius: 3px;
+        }
+
+        /* 페이징 */
+        .pagination a {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2.25rem; height: 2.25rem;
+            border: 1px solid #e2e8f0; background: #fff; color: #475569;
+            border-radius: 0.375rem; font-weight: 500; transition: all 0.2s;
+        }
+        .pagination a:hover:not(.pointer-events-none) { background: #f1f5f9; color: #005bac; border-color: #cbd5e1; }
+        .pagination a.active { background: #005bac; color: #fff; border-color: #005bac; }
+
+        /* 검색 폼 그룹 */
+        .search-group label { display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; }
+        .search-input { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; focus:outline-none; transition: border-color 0.2s; background-color: white; }
+        .search-input:focus { border-color: #005bac; outline: none; box-shadow: 0 0 0 2px rgba(0,91,172,0.1); }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #detail-view-container, #detail-view-container * { visibility: visible; }
+            #detail-view-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 10mm; box-shadow: none; border: none; }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb { display: none !important; }
+            .official-doc-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-break-avoid { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <div id="common-header"></div>
+
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28 no-print">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block no-print">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center text-lg">
+                    <i data-lucide="building-2" class="w-5 h-5 mr-2"></i> 행정·감사·조직
+                </h4>
+                <ul class="space-y-1.5 text-[13px] lnb-menu">
+                    <li><a href="감사결과공개.html">감사결과공개</a></li>
+                    <li><a href="계약365코너.html">계약365코너</a></li>
+                    <li><a href="업무추진비.html">업무추진비</a></li>
+                    <li><a href="업무제휴협약.html" class="active">업무제휴·협약</a></li>
+                    <li><strong class="text-slate-800 block mt-3 mb-1 px-3">조직정보</strong></li>
+                    <li><a href="정원기구현황.html">공무원 정원</a></li>
+                    <li><a href="상위직비율.html">과장급 이상 상위직 비율</a></li>
+                    <li><a href="주민수비율.html">공무원 1인당 주민 수</a></li>
+                    <li><a href="현장공무원.html">현장공무원 비율</a></li>
+                    <li><a href="인건비운영비율.html">재정규모 대비 인건비 운영 비율</a></li>
+                    <li><a href="실국본부설치수.html">실국본부 설치 수</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8 no-print">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="정보공개.html" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">행정·감사·조직</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">업무제휴·협약</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10 no-print">
+                <div class="inline-flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full mb-3 border border-indigo-200">
+                    상생과 협력의 글로벌 행정 거버넌스
+                </div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-4 tracking-tight leading-tight">효빈광역시 업무제휴·협약(MOU) 현황</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시가 국내외 공공기관, 민간 기업, 학계 및 시민 단체와 상호 발전을 위해 체결한 주요 업무제휴 및 협약(MOU/MOA) 내역을 시민 여러분께 투명하게 100% 공개합니다. 박효빈 시장 취임 이후 <strong>단순한 보여주기식 협약을 근절하고, 글로벌 IP(애니메이션) 유지 등 시민 편익 증대와 지역 경제 활성화에 실질적으로 기여하는 '실용적 상생 협약'</strong>만을 엄선하여 강력하게 추진하고 있습니다.
+                </p>
+            </div>
+
+            <!-- 대시보드 통계 요약 -->
+            <section class="mb-10 no-print">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
+                        <h3 class="font-bold text-slate-800"><i data-lucide="handshake" class="w-5 h-5 inline mr-2 text-indigo-600"></i> 2026년 주요 업무제휴 체결 통계 (글로벌 IP 협력 포함)</h3>
+                        <span class="text-xs font-bold text-slate-500">기준일: 2026.04.04</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="p-4 border border-slate-100 bg-slate-50 rounded-xl hover:bg-blue-50 transition">
+                            <span class="block text-xs font-bold text-slate-500 mb-1">총 체결 건수 (누적)</span>
+                            <div class="text-2xl font-black text-slate-800">48<span class="text-sm font-medium ml-1 text-slate-500">건</span></div>
+                        </div>
+                        <div class="p-4 border border-slate-100 bg-slate-50 rounded-xl hover:bg-pink-50 transition">
+                            <span class="block text-xs font-bold text-slate-500 mb-1">글로벌 IP / 문화관광</span>
+                            <div class="text-2xl font-black text-pink-600">16<span class="text-sm font-medium ml-1 text-slate-500">건</span></div>
+                        </div>
+                        <div class="p-4 border border-slate-100 bg-slate-50 rounded-xl hover:bg-emerald-50 transition">
+                            <span class="block text-xs font-bold text-slate-500 mb-1">대중교통 / 스마트도시</span>
+                            <div class="text-2xl font-black text-emerald-600">17<span class="text-sm font-medium ml-1 text-slate-500">건</span></div>
+                        </div>
+                        <div class="p-4 border border-slate-100 bg-slate-50 rounded-xl hover:bg-amber-50 transition">
+                            <span class="block text-xs font-bold text-slate-500 mb-1">청년 복지 / 민생 경제</span>
+                            <div class="text-2xl font-black text-amber-600">15<span class="text-sm font-medium ml-1 text-slate-500">건</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 목록 뷰 (List View) -->
+            <div id="list-view-container">
+                
+                <!-- 검색 및 필터 영역 -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8 shadow-sm">
+                    <form class="space-y-4" onsubmit="event.preventDefault(); alert('검색 결과가 갱신되었습니다.');">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                            <div class="search-group">
+                                <label>체결 연도</label>
+                                <select class="search-input bg-white">
+                                    <option value="">전체 연도</option>
+                                    <option value="2026">2026년</option>
+                                    <option value="2025">2025년</option>
+                                </select>
+                            </div>
+                            <div class="search-group">
+                                <label>협약 분류</label>
+                                <select class="search-input bg-white">
+                                    <option value="">전체 분류</option>
+                                    <option value="문화/관광">문화/관광 (글로벌 IP 등)</option>
+                                    <option value="교통/안전">교통/안전 (철도, 버스 등)</option>
+                                    <option value="도시/재생">도시/재생 (스마트시티, 상권 등)</option>
+                                    <option value="청년/복지">청년/복지 (블루버드 등)</option>
+                                </select>
+                            </div>
+                            <div class="search-group md:col-span-2">
+                                <label>협약명 및 체결기관 검색</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="검색어를 입력하세요 (예: 선라이즈, 부시로드, 7호선, JR도카이)" class="search-input pl-10">
+                                    <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                    <button type="submit" class="absolute right-1 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-[#1a365d] text-white font-bold rounded hover:bg-slate-800 transition text-sm">
+                                        조회
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 전체 건수 표시 -->
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <span class="text-sm font-bold text-slate-700">검색 결과 총 <span class="text-blue-600 text-lg" id="total-count">0</span>건</span>
+                    <span class="text-xs text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded border border-slate-200"><i data-lucide="mouse-pointer-click" class="w-3 h-3 inline mr-1"></i>항목을 클릭하여 협약 상세 내용(원문) 조회</span>
+                </div>
+
+                <!-- MOU 목록 테이블 -->
+                <div class="overflow-x-auto rounded-t-xl border-x border-t border-slate-300 mb-8 shadow-sm">
+                    <table class="content-table !mt-0 !mb-0 min-w-[1000px]">
+                        <colgroup>
+                            <col style="width: 5%;">
+                            <col style="width: 10%;">
+                            <col style="width: auto;">
+                            <col style="width: 20%;">
+                            <col style="width: 10%;">
+                            <col style="width: 8%;">
+                        </colgroup>
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-800 border-b-2 border-slate-300">
+                                <th>NO</th>
+                                <th>체결일자</th>
+                                <th>업무협약명 (MOU Title)</th>
+                                <th>주요 체결기관 (Partner)</th>
+                                <th>주관부서</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-list-body" class="divide-y divide-slate-200">
+                            <!-- JS를 통해 데이터가 렌더링됩니다 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이징 (Pagination) -->
+                <div class="flex justify-center mb-10">
+                    <nav class="pagination flex gap-1" id="pagination-container">
+                        <!-- JS 렌더링 영역 -->
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 상세 뷰 (Detail View - 공문서/보도자료 폼) -->
+            <div id="detail-view-container" class="hidden">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2 print:hidden">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 업무제휴 및 협약 상세 정보
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-300 shadow-md overflow-hidden mb-8 print:border-none print:shadow-none print-break-avoid">
+                    
+                    <!-- 상세 헤더 -->
+                    <div class="p-8 border-b border-slate-200 bg-slate-50 print:p-0 print:border-none print:bg-white print:mb-6">
+                        <div class="flex items-center justify-between mb-6 print:hidden">
+                            <span id="detail-category" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold border border-blue-200 shadow-sm">분류</span>
+                            <span class="text-sm font-medium text-slate-500 bg-white px-3 py-1 rounded border border-slate-200 shadow-sm">체결일: <span class="font-bold text-slate-700" id="detail-date-top">0000.00.00</span></span>
+                        </div>
+                        
+                        <div class="text-center mb-8">
+                            <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-2 leading-tight px-4" id="detail-title">협약명</h2>
+                            <p class="text-sm font-bold text-slate-600 mt-3" id="detail-dept-header">효빈광역시 OOO</p>
+                        </div>
+                        
+                        <div class="print-only hidden print:block text-lg font-bold mb-4 border-b-2 border-black pb-2">■ 업무제휴·협약 세부 내역서</div>
+                    </div>
+
+                    <!-- 본문: 상세 테이블 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200">
+                        <table class="official-doc-table">
+                            <colgroup><col style="width: 18%;"><col style="width: 32%;"><col style="width: 18%;"><col style="width: 32%;"></colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>협 약 명</th>
+                                    <td colspan="3" id="detail-title-table" class="font-bold text-slate-900 text-[16px]">협약명</td>
+                                </tr>
+                                <tr>
+                                    <th>체 결 일 자</th>
+                                    <td id="detail-date" class="font-bold text-slate-800">0000.00.00.</td>
+                                    <th>주 관 부 서</th>
+                                    <td id="detail-dept" class="font-bold text-slate-800">부서명</td>
+                                </tr>
+                                <tr>
+                                    <th>체 결 기 관<br>(당사자)</th>
+                                    <td colspan="3" id="detail-partner" class="font-bold text-blue-700 text-[15px] leading-relaxed bg-blue-50/20">체결기관 목록</td>
+                                </tr>
+                                <tr>
+                                    <th>협 약 배 경<br>및 목 적</th>
+                                    <td id="detail-purpose" colspan="3" class="leading-loose text-[15px] text-slate-800 py-5">배경 및 목적</td>
+                                </tr>
+                                <tr>
+                                    <th>주 요 체 결<br>조 항 (내 용)</th>
+                                    <td id="detail-content" colspan="3" class="leading-loose text-[15px] text-slate-800 py-5 bg-slate-50/50">체결 내용</td>
+                                </tr>
+                                <tr>
+                                    <th>기 대 효 과</th>
+                                    <td id="detail-effect" colspan="3" class="leading-loose text-[15px] text-slate-800 py-5">기대 효과</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- 증빙 사진 부착란 (가상) -->
+                        <div class="mt-8 border-2 border-dashed border-slate-300 rounded-lg p-6 bg-slate-50 text-center relative print-break-avoid">
+                            <span class="absolute top-3 left-4 text-xs font-bold text-slate-400">[업무협약식 현장 기록 사진]</span>
+                            <div class="flex flex-col md:flex-row gap-6 justify-center items-center mt-6">
+                                <div class="w-full max-w-md h-64 bg-white border border-slate-300 shadow-sm flex flex-col items-center justify-center text-slate-400 p-2">
+                                    <div class="w-full h-full bg-slate-100 flex flex-col items-center justify-center border border-slate-200">
+                                        <i data-lucide="camera" class="w-10 h-10 mb-2 text-slate-300"></i>
+                                        <span class="text-sm font-bold text-slate-400"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-4">* 본 사진은 시정 홍보용 보도자료 및 행정 기록 영구 보존용으로 등록되었습니다.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 첨부파일 및 안내 문구 -->
+                    <div class="p-6 md:px-8 md:py-6 bg-slate-50 print:px-0 print:bg-white print:border-none">
+                        <strong class="flex items-center text-sm text-slate-700 mb-3 print:hidden"><i data-lucide="paperclip" class="w-4 h-4 mr-1"></i> 협약서 원문(PDF) 다운로드</strong>
+                        <div id="detail-attachments" class="flex flex-col gap-2 mb-6 print:hidden">
+                            <!-- 첨부파일 버튼 위치 -->
+                        </div>
+                        
+                        <div class="flex items-start gap-3 text-[13px] text-slate-600 bg-white p-4 rounded-lg border border-slate-200 shadow-sm print:border-none print:shadow-none print:p-0">
+                            <i data-lucide="info" class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="mb-1"><strong class="text-blue-700">효빈광역시 업무협약 관리 지침:</strong> 본 페이지에 공표된 업무협약(MOU/MOA)은 시민의 알 권리 보장 및 시정 투명성 제고를 위해 체결 후 14일 이내에 원문과 함께 투명하게 공개됩니다.</p>
+                                <p>단, 국가기밀, 협력 기업의 중대한 영업비밀(세부 로열티 산정 비율 등) 등 정보공개법 제9조 제1항에 해당하는 사항은 부분 삭제(마스킹) 처리 후 공개될 수 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3 no-print">
+                    <button onclick="hideDetail()" class="px-8 py-3.5 bg-white border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 전체 협약 목록으로
+                    </button>
+                    <button onclick="triggerNativePrint()" class="px-8 py-3.5 bg-[#1a365d] text-white font-bold rounded-xl hover:bg-slate-800 transition flex items-center shadow-md">
+                        <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 세부내역서 인쇄 및 PDF 저장
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 효빈시 세계관을 철저히 반영한 초상세 업무제휴협약(MOU) 데이터 총 14건 (단 하나도 생략 없음)
+        // Syntax Error 방지를 위해 모든 텍스트 값은 백틱(`)으로 감쌌습니다.
+        const mouData = [
+            {
+                id: 14,
+                date: `2026-03-25`,
+                category: `문화/관광`,
+                color: `pink`,
+                title: `글로벌 메가 IP 「러브라이브! 시리즈」 특화 성지(Sanctuary) 조성 및 대중교통 전면 래핑 라이선스·로열티 계약`,
+                partner: `효빈광역시, 반다이남코 필름웍스(선라이즈), 카도카와`,
+                dept: `문화관광체육국`,
+                status: `유효`,
+                purpose: `효빈시를 전 세계적인 서브컬처 성지(아시아의 아키하바라)로 도약시키기 위해, 일본의 메가 히트 IP인 "러브라이브! 시리즈(LoveLive! Series)"를 시정 홍보 및 관광 인프라에 공식적으로 도입하고, 합법적인 초고화질 이미지 라이선스 사용권 및 그에 따른 합리적인 로열티 지급 기준을 명확히 확립하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (제3세대 시내버스 대규모 래핑):</strong> 급행버스(<span class="font-bold text-[#D81C2F]">#D81C2F</span>) 및 간선버스(<span class="font-bold text-[#01B7ED]">#01B7ED</span>) 총 50대에 μ's, Aqours, Nijigasaki, Liella! 등 역대 시리즈 주역 캐릭터 전면 래핑 라이선스 독점 확보.</li>
+                        <li><strong>제2조 (공식 성지 Sanctuary 조성):</strong> 효빈종합터미널 및 당가동 일대에 일본 누마즈시(Aqours 성지) 수준의 전용 굿즈 스토어를 개설하고, 스탬프 랠리 공식 인증 스팟 10개소를 특화 지정.</li>
+                        <li><strong>제3조 (로열티 및 수익금 셰어):</strong> 효빈시 관내에서 벌어들이는 관련 콜라보 굿즈 수익의 일부(영업비밀 마스킹)를 원작사인 선라이즈에 지급하는 상생 로열티 계약 체결 및 파격적 인센티브 협상.</li>
+                    </ul>
+                `,
+                effect: `전 세계 러브라이브 팬덤의 대규모 오프라인 유입을 통한 폭발적인 관광 수입 창출. 시내버스 탑승률 수직 상승 유도 및 효빈 도시 브랜드 가치의 글로벌화 조기 달성.`,
+                files: [{ name: `러브라이브_성지조성_및_라이선스계약서.pdf`, size: `4.5MB` }]
+            },
+            {
+                id: 13,
+                date: `2026-03-15`,
+                category: `교통/안전`,
+                color: `emerald`,
+                title: `「BanG Dream!(뱅드림)」 도시철도 7호선(#FF8899) 테마 전동차 래핑 및 역명 병기 콜라보레이션 업무협약`,
+                partner: `효빈광역시, (주)부시로드(Bushiroad), 효빈교통공사`,
+                dept: `도시철도건설본부`,
+                status: `유효`,
+                purpose: `효빈 시민의 힘으로 부활시킨 무가선 저상 트램 7호선의 상징색(분홍색, <span class="font-bold text-[#FF8899]">#FF8899</span>)이 뱅드림 캐릭터 '치하야 아논(Chihaya Anon)'의 이미지 컬러와 완벽히 일치하는 점을 영리하게 활용하여, 대중교통 인프라 자체를 거대한 글로벌 문화 콘텐츠로 승화시키기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (트램 전 구간 래핑 및 '아논선' 별명 공식화):</strong> 7호선 15.2km 구간을 운행하는 신형 트램 전체 외벽을 뱅드림 캐릭터(MyGO!!!!! 등)로 래핑하고, 대내외 마케팅 명칭으로 '아논선' 사용 권한 취득.</li>
+                        <li><strong>제2조 (성우 특별 안내방송 송출):</strong> 치하야 아논 役(타테이시 린) 등 주요 일본 성우를 직접 초청하여 7호선 주요 환승역 및 기종점 도착 안내방송(한국어/일본어 믹스) 독점 녹음 및 전동차 내 송출.</li>
+                        <li><strong>제3조 (테마 역사 조성):</strong> 청엽구 아논타워(가칭) 역을 뱅드림 테마 파크형 역사로 전면 리모델링 및 상설 팝업 스토어 라이선스 5년간 확보.</li>
+                    </ul>
+                `,
+                effect: `일반적인 지하철을 국내외 덕후들의 필수 순례 코스로 완벽히 탈바꿈시켜 철도 공기업의 비운수 수익(굿즈 판매, 광고 등)을 천문학적으로 증대시키는 흑자 전환의 기틀 마련.`,
+                files: [{ name: `뱅드림_7호선_콜라보_업무협약서.pdf`, size: `3.8MB` }]
+            },
+            {
+                id: 12,
+                date: `2026-02-28`,
+                category: `청년/복지`,
+                color: `blue`,
+                title: `「걸즈 밴드 크라이」 청년 음악 예술 활성화 및 당가동 버스킹 존 공식 라이선스 제휴`,
+                partner: `효빈광역시, 토에이 애니메이션(Toei Animation)`,
+                dept: `청년정책과`,
+                status: `유효`,
+                purpose: `도전을 두려워하지 않는 청년들의 록 스피릿(Rock Spirit)을 상징하는 인기 애니메이션 「걸즈 밴드 크라이(Girls Band Cry)」의 테마를 구도심 재생 구역인 당가동 파스텔블루 거리에 이식하여, 지역 청년 인디 밴드와 예술가들을 전폭적으로 지원하고 쇠락한 거리에 문화적 역동성을 불어넣기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (공식 테마 버스킹 존 조성):</strong> 당가동 특화거리 중앙 광장 내에 애니메이션 작중 라이브 무대(가와사키역 앞 등) 및 배경을 완벽하게 고증하여 구현한 상설 인디 밴드 버스킹 존 신설.</li>
+                        <li><strong>제2조 (청년 뮤지션 창작 지원):</strong> 걸밴크 라이선스 곡(TOGE TOGE) 커버 콘테스트 정기 개최 및, 우수 입상 청년 밴드에게 효빈시 '블루버드 정책'과 연계된 창작 지원금 및 앨범 제작비 지급.</li>
+                        <li><strong>제3조 (한정판 로컬 굿즈 판매):</strong> 토에이 애니메이션과 공동 기획한 효빈시 한정 걸밴크 콜라보레이션 굿즈(기타 픽, 스트랩, 티셔츠 등) 독점 판매권 획득.</li>
+                    </ul>
+                `,
+                effect: `쇠락했던 구도심을 청년들의 뜨거운 열정과 밴드 음악이 흐르는 예술 특구로 변모시키고, 애니메이션 팬덤과 음악 팬덤을 동시에 사로잡는 강력한 시너지 창출.`,
+                files: [{ name: `걸즈밴드크라이_청년문화지원_협약서.pdf`, size: `2.1MB` }]
+            },
+            {
+                id: 11,
+                date: `2026-02-20`,
+                category: `문화/관광`,
+                color: `pink`,
+                title: `한·일 대중교통-콘텐츠 융합 관광(오시타비) 벤치마킹 및 철도 관광 상호 교류 협약`,
+                partner: `효빈광역시, 일본 도카이여객철도주식회사(JR 도카이), 효빈교통공사`,
+                dept: `문화관광체육국`,
+                status: `유효`,
+                purpose: `도카이도 신칸센 등 광역 철도망을 활용하여 전 세계적으로 메가 히트한 일본 JR 도카이(JR Central)의 애니메이션 콜라보레이션 캠페인인 '오시타비(推し旅, 최애 추천여행)'의 성공 노하우를, 효빈시 빈효선 광역전철(연청색, <span class="font-bold text-[#6677CC]">#6677CC</span>) 및 도시철도망에 이식하기 위한 선진 기술 파트너십 구축.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (오시타비 캠페인 노하우 전수):</strong> GPS 및 비콘(Beacon) 기술을 활용하여, 승객이 특정 지하철역 반경 100m 내에 도착했을 때만 스마트폰 앱을 통해 한정판 캐릭터 보이스가 개방되는 기술적 제휴 및 도입.</li>
+                        <li><strong>제2조 (한·일 철도 관광 상호 마케팅):</strong> JR 도카이 주요 역사(도쿄, 나고야 등) 내 효빈시 HAF 및 철도 관광 홍보물 비치, 효빈종합터미널 대합실 내 신칸센 여행 상품 공동 홍보 교환.</li>
+                        <li><strong>제3조 (실무진 교환 연수):</strong> 효빈교통공사 및 JR 도카이 기획 부서 간 철도-서브컬처 융합 사업 실무진 단기 파견 및 서비스 매뉴얼 연수 프로그램 운영.</li>
+                    </ul>
+                `,
+                effect: `단순한 이동 수단이었던 철도를 체험형 엔터테인먼트 공간으로 완벽히 혁신하고, 글로벌 수준의 선진 철도 관광 마케팅 기법을 대한민국 지방 지자체 최초로 선제 도입.`,
+                files: [{ name: `JR도카이_오시타비_벤치마킹_교류협약.pdf`, size: `3.5MB` }]
+            },
+            {
+                id: 10,
+                date: `2026-02-12`,
+                category: `교통/안전`,
+                color: `emerald`,
+                title: `한·일 자매도시(효빈-누마즈) 대중교통 래핑버스 운영 노하우 공유 및 자매결연 협약`,
+                partner: `효빈광역시, 일본 도카이자동차주식회사(도카이버스), 칠양여객고속`,
+                dept: `대중교통과`,
+                status: `유효`,
+                purpose: `러브라이브! 선샤인!! 래핑버스의 영원한 성지로 불리는 일본 누마즈시의 핵심 대중교통 운수업체인 '도카이버스(Tokai Bus)'와, 효빈시 3세대 준공영제 주력 업체인 '칠양여객고속' 간의 직접적인 자매결연을 통해, 도색 훼손 없는 완벽한 래핑 버스 운영 시스템을 구축하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (초고화질 래핑 시공 및 유지보수 가이드라인 공유):</strong> 차량 외부 세차 시 래핑 필름의 스크래치 손상을 최소화하는 특수 코팅 기술 및 버스 창문/캐릭터 얼굴 부위의 패널 분할 시공 노하우 전수.</li>
+                        <li><strong>제2조 (다이캐스트 1:1 상호 교환 전시):</strong> 효빈종합버스터미널 대합실 1층 중앙에 도카이버스의 러브라이브 래핑버스 정밀 다이캐스트(모형)와 칠양여객의 시내버스 다이캐스트를 공동 전시하는 특별관 상설 운영.</li>
+                        <li><strong>제3조 (승무원 CS 고객만족 교육 제휴):</strong> 열정적인 덕후 관광객(순례객)을 맞이하는 양국 버스 승무원들의 성숙하고 친화적인 서비스 마인드 함양을 위한 응대 서비스 매뉴얼 상호 교환.</li>
+                    </ul>
+                `,
+                effect: `국내 최고 수준의 래핑 버스 퀄리티를 장기간 유지하여 도시 미관을 해치지 않고 글로벌 팬들의 극찬을 이끌어내며, 양국 운수업체 간의 모범적인 민간 외교 실현.`,
+                files: [{ name: `도카이버스_칠양여객_자매결연협약.pdf`, size: `1.8MB` }]
+            },
+            {
+                id: 9,
+                date: `2026-01-30`,
+                category: `도시/재생`,
+                color: `amber`,
+                title: `효빈동신도시 '스쿨아이돌 힐스' 스마트홈 IoT 및 실감형 메타버스 플랫폼 구축 업무협약`,
+                partner: `효빈광역시, 삼성전자, 네이버클라우드, 효빈도시공사`,
+                dept: `도시계획과`,
+                status: `유효`,
+                purpose: `과거의 흑역사였던 행정구역 명칭을 변경(구 언동 → 효빈동)하며 천지개벽 중인 효빈동신도시의 핵심 주거지 '스쿨아이돌 힐스(뮤즈, 아쿠아, 레인보우 아파트 등)' 단지에 대한민국 최고의 대기업 IT 기술력을 결합하여, 거주 가능한 최첨단 성지(Live-able Sanctuary)를 실현하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (캐릭터 음성 인식 AI 홈비서 탑재):</strong> 삼성전자 스마트싱스(SmartThings) 생태계를 기반으로, 입주민이 설정한 최애 캐릭터의 음성(실제 성우 녹음)으로 집안의 조명, 온도 제어 및 엘리베이터 호출을 수행하는 특화 월패드 기본 적용.</li>
+                        <li><strong>제2조 ('버추얼 효빈' 가상 커뮤니티 호스팅):</strong> 네이버클라우드의 대규모 인프라를 활용하여, 입주민 전용 메타버스 내에 아파트 단지와 동일한 가상 공간(야자와 니코의 아이돌 연구부 등)을 구축하고 실시간 소통망 제공.</li>
+                        <li><strong>제3조 (디지털 트윈 기반 아파트 관리):</strong> 아파트 단지의 전력 사용량 및 지하 주차장 현황을 3D 디지털 트윈으로 구현하여 에너지 관리 효율성 극대화.</li>
+                    </ul>
+                `,
+                effect: `단순한 아파트 네이밍을 뛰어넘어, 하드웨어(주거 공간)와 소프트웨어(IT/콘텐츠)가 융합된 세계 최초의 혁신적 테마파크형 주거 모델을 제시하여 글로벌 스마트시티의 표준 정립.`,
+                files: [{ name: `스쿨아이돌힐스_스마트홈_메타버스_MOU.pdf`, size: `5.6MB` }]
+            },
+            {
+                id: 8,
+                date: `2026-01-15`,
+                category: `교통/안전`,
+                color: `emerald`,
+                title: `도시철도 7호선(트램) 친환경 잔디궤도 및 무가선 시스템 공동 기술개발 MOU`,
+                partner: `효빈광역시 도시철도건설본부, 한국철도기술연구원(KRRI)`,
+                dept: `도시철도건설본부`,
+                status: `유효`,
+                purpose: `과거 전임 윤대환 시장 시절 버스 수입 독점을 위해 고철로 폐지될 뻔했던 7호선 노면전차를 시민의 품으로 완전히 돌려주기 위하여, 세계 최고 수준의 배리어프리(단차 제로) 무가선 저상 트램을 도입하고 도심 열섬 현상 완화를 위한 '친환경 잔디궤도' 시공 기술을 공동 연구하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (무가선 시스템 고도화):</strong> 거미줄 같은 전선 가선이 없는 배터리 구동 방식 트램의 효빈시 기후(혹서기/혹한기) 맞춤형 주행 배터리 최적화 공동 기술 연구.</li>
+                        <li><strong>제2조 (스마트 잔디궤도 자동 살수):</strong> 15.2km 전 구간 잔디 궤도 하부에 IoT(사물인터넷) 온습도 센서를 10m 단위로 매설하여 인공지능 기반 수분 자동 살수 시스템 구축.</li>
+                        <li><strong>제3조 (소음 및 진동 저감):</strong> 구형 전차 대비 궤도 마찰 소음을 15dB 이상 획기적으로 낮추기 위한 최신 방음 패드 소재 실증 테스트 베드를 효빈시 구간에 무상 제공.</li>
+                    </ul>
+                `,
+                effect: `도시철도 7호선을 단순 교통수단을 넘어 도심 미관을 혁신하는 친환경 랜드마크로 완성하며, 대한민국의 성공적인 트램 상용화 표준 모델을 선도.`,
+                files: [{ name: `7호선_트램_기술개발_공동협약서.pdf`, size: `2.8MB` }]
+            },
+            {
+                id: 7,
+                date: `2025-12-20`,
+                category: `청년/복지`,
+                color: `blue`,
+                title: `「블루버드 정책(Bluebird Policy)」 취약계층 청년 금융·법률 통합 멘토링 업무협약`,
+                partner: `효빈광역시, 대한법률구조공단 효빈지부, 효빈지방변호사회`,
+                dept: `금융복지지원센터`,
+                status: `유효`,
+                purpose: `박효빈 시장의 자비로운 청년 복지 시책인 '블루버드 정책'의 일환으로, 보호종료아동(자립준비청년) 및 은둔형 청년들이 불법 사금융(휴대폰 깡 등)의 덫에 빠지지 않도록 돕고, 위기 발생 시 즉각적인 법률 구조망을 촘촘히 가동하여 청년들의 안전한 사회 진출을 보호하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (채무자 대리인 무료 선임):</strong> 불법 고금리 대출 및 악질적 채권 추심 피해를 입은 청년 발생 시, 효빈지방변호사회 변호사를 즉각 1:1 채무자 대리인으로 무료 선임하여 가족 및 직장으로의 협박 원천 차단.</li>
+                        <li><strong>제2조 (파산 및 개인회생 패스트트랙):</strong> 대한법률구조공단을 통한 소송 구조 전면 지원 및 효빈시 예산을 통한 법원 파산 예납금 전액 무상 지원.</li>
+                        <li><strong>제3조 (마이 멘토제 운영):</strong> 청년 1인당 2년간 금융 전문가를 전담 배치하여 건전한 금융 생활(적금, 가계부 작성) 및 문화 바우처 활용 코칭 제공.</li>
+                    </ul>
+                `,
+                effect: `사회적 보호망이 얇은 자립준비청년들의 금융 범죄 피해를 획기적으로 예방하고, 부채 청산 후 정상적인 사회인으로 온전히 복귀할 수 있는 튼튼한 동아줄 역할 수행.`,
+                files: [{ name: `블루버드_금융법률지원_통합협약서.pdf`, size: `1.9MB` }]
+            },
+            {
+                id: 6,
+                date: `2025-11-10`,
+                category: `도시/재생`,
+                color: `amber`,
+                title: `구(舊) 방직공장 부지 "효빈 그랜드 라이브러리" 건립 민간투자 및 설계 협약`,
+                partner: `효빈광역시, 스튜디오 H-Line(덴마크), (주)효빈건축사사무소, 효빈건설`,
+                dept: `도시계획과`,
+                status: `유효`,
+                purpose: `과거 흉물스러운 아파트 단지로 전락할 뻔한 난개발 위기에서 시민의 힘으로 보존해낸 동구 사가당동 옛 방직공장 부지(약 28만㎡)를, 서브컬처 중심의 거대한 미래형 융복합 문화 랜드마크로 재탄생시키기 위한 마스터플랜 당선작 "The Weaving City"의 본격적인 설계 및 성공적 민간 투자 시공을 확약하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (근대 산업유산 원형 보존 원칙):</strong> 기존 방직공장의 상징인 50m 붉은 벽돌 굴뚝과 메인 생산동의 트러스 지붕을 훼손하지 않고 설계의 뼈대로 보존 활용 (Weaving 기법).</li>
+                        <li><strong>제2조 (공공 서브컬처 도서관 구축):</strong> 전 세계의 만화, 라이트노벨, 게임 원화 아카이브를 집대성한 대한민국 최초 "효빈 그랜드 라이브러리" 건립 및 가변형 전시장 설계 반영.</li>
+                        <li><strong>제3조 (폐수로 생태 공원화):</strong> 부지 중앙을 관통하던 악취 발생 폐수로를 친환경 수변 생태공원으로 복원하여 동구 주민들의 쾌적한 휴식처 조성.</li>
+                    </ul>
+                `,
+                effect: `도시의 아픈 역사가 서린 폐산업 시설을 아시아 최고 수준의 글로벌 IP 특화 도서관 및 청년 혁신 타운으로 부활시켜 압도적인 도시 재생 성공 모델 확보.`,
+                files: [{ name: `방직공장부지_마스터플랜_민간투자협약.pdf`, size: `5.4MB` }]
+            },
+            {
+                id: 5,
+                date: `2025-10-05`,
+                category: `교통/안전`,
+                color: `emerald`,
+                title: `제3세대 시내버스 완전 준공영제 정착 및 대중교통 노사정 상생 협약`,
+                partner: `효빈광역시, 칠양여객고속 외 4개 시내버스 운송사업자, 전국자동차노동조합연맹 효빈지부`,
+                dept: `대중교통과`,
+                status: `유효`,
+                purpose: `과거 오로지 사모펀드와 특정 일가 기업(구 두청운수)의 이윤 극대화 도구로 전락하여 시민들에게 "가축 수송" 및 "플라스틱 의자"의 끔찍한 고통을 안겼던 야만적 시내버스 체계를 청산하고, 공공성이 대폭 강화된 '3세대 완전 준공영제'의 성공적 안착과 굳건한 노사정 신뢰를 구축하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (투명한 정산제 및 사모펀드 퇴출):</strong> 시 재정지원금의 부당 편취를 원천 차단하기 위한 외부 회계 감사 의무화 및 원스트라이크 아웃(면허 취소) 제도 도입.</li>
+                        <li><strong>제2조 (지정 도색 매뉴얼 엄수):</strong> 2008년 제정 권역별 노선 지정 도색(간선 <span class="font-bold text-[#01B7ED]">#01B7ED</span>, 지선 <span class="font-bold text-[#37B484]">#37B484</span>, 급행 <span class="font-bold text-[#D81C2F]">#D81C2F</span>, 광역 <span class="font-bold text-[#485EC6]">#485EC6</span> 등)을 전사적으로 복원 및 준수.</li>
+                        <li><strong>제3조 (가축 수송 철폐 및 처우 개선):</strong> 45인승 버스 정원 초과 승차 금지, 전 차량 최고급 쿠션 시트 적용 의무화 및 운수 종사자 1일 2교대제 전면 정착.</li>
+                    </ul>
+                `,
+                effect: `과거의 대중교통 사유화 적폐를 완전히 뿌리 뽑고, 시민에게는 쾌적한 이동권을, 노동자에게는 안전한 근로 환경을 보장하여 노사정 화합의 진정한 공공 대중교통 모델 실현.`,
+                files: [{ name: `3세대_준공영제_노사정_상생협약서.pdf`, size: `2.5MB` }]
+            },
+            {
+                id: 4,
+                date: `2025-09-15`,
+                category: `도시/재생`,
+                color: `amber`,
+                title: `당가동 파스텔블루 특화거리 젠트리피케이션 방지 및 상권 부흥 상생 협약`,
+                partner: `효빈광역시, 안천구청, 당가동 상인연합회(사아야 가드), 효빈신용보증재단`,
+                dept: `도시재생과`,
+                status: `유효`,
+                purpose: `과거 7호선 폐차고지 일대의 쇠퇴하던 골목이 글로벌 아티스트 방문 및 방송 노출로 단숨에 글로벌 디저트 및 서브컬처 특화 상권으로 급부상함에 따라, 급격한 임대료 상승으로 원주민과 청년 창업가들이 쫓겨나는 젠트리피케이션(Gentrification) 현상을 미연에 방지하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (상생 임대료 가이드라인 체결):</strong> 당가동 건물주 90% 이상 동참, 향후 5년간 임대료 인상률을 상가임대차보호법 기준보다 현저히 낮은 2% 이내로 동결.</li>
+                        <li><strong>제2조 (청년 팝업스토어 창업 지원):</strong> 효빈신용보증재단을 통한 특화거리 입점 청년 창업가 대상 무담보·저금리 특례 보증 대출(당가동 119 리스타트 연계) 전폭 지원.</li>
+                        <li><strong>제3조 (민간 자치 방어 조직 지원):</strong> 외부 혐오 세력의 간판 훼손 등에 맞서 상인들이 자발적으로 결성한 상권 자위대('사아야 가드')에 야간 순찰 물품 및 행정·치안 핫라인 지원.</li>
+                    </ul>
+                `,
+                effect: `청년 창업가들이 임대료 걱정 없이 창의적인 비즈니스를 전개할 수 있는 든든한 방파제를 구축하여, 당가동 파스텔블루 거리를 지속 가능한 글로벌 상권으로 육성.`,
+                files: [{ name: `당가동_특화거리_상생협약서.pdf`, size: `1.4MB` }]
+            },
+            {
+                id: 3,
+                date: `2025-08-20`,
+                category: `문화/관광`,
+                color: `pink`,
+                title: `대규모 문화행사(HAF 등) 혐오범죄 원천차단 및 안전보장(쿠쿠스 배리어) 공조 협약`,
+                partner: `효빈광역시 시민안전실, 효빈지방경찰청, 효빈소방본부`,
+                dept: `시민안전실`,
+                status: `유효`,
+                purpose: `HAF 행사 기간 중 발생했던 전임 시장 직계 가족의 오물 투척 테러 미수 등 이른바 '탕쿠쿠 대첩'의 참담한 폭력적 훼손 시도가 다시는 효빈 땅에 발붙이지 못하도록, 시청-경찰-소방 간의 유기적이고 압도적인 현장 물리력 동원 및 치안 공조 체계를 확립하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (「쿠쿠스 배리어」 조례 현장 즉각 집행):</strong> 문화 행사 시 랩핑 버스, 팝업 스토어, 아티스트 숙소 주변에 불순한 목적으로 접근하는 특정 혐오 세력 발견 시, 경찰특공대(KNP868)의 즉각적인 무관용 물리적 제압 합의.</li>
+                        <li><strong>제2조 (핫라인 Hot-Line 구축):</strong> HAF 조직위원회 및 시민안전실과 경찰청 112 상황실 간 전용 무전기 지급 및 CCTV 실시간 공유망 개설.</li>
+                        <li><strong>제3조 (응급 구조 신속 대응):</strong> 대규모 인파 밀집 지역(효빈종합운동장, 토모리 로드 등)에 구급차 전진 배치 및 압사 사고 대비 특별 소방 안전 점검단 상시 순찰.</li>
+                    </ul>
+                `,
+                effect: `국내외 관광객과 글로벌 아티스트들이 100% 안전하게 축제를 즐길 수 있는 세계 최고 수준의 치안 환경을 조성하여, "효빈시는 덕후들의 철옹성"이라는 굳건한 신뢰를 전 세계에 각인.`,
+                files: [{ name: `대규모행사_안전보장_치안공조_MOU.pdf`, size: `2.1MB` }]
+            },
+            {
+                id: 2,
+                date: `2025-07-10`,
+                category: `환경/생태`,
+                color: `emerald`,
+                title: `탄성군 시조(히버히) 서식지 보호 및 생태 관광 활성화 다자간 업무협약`,
+                partner: `효빈광역시, 환경부, 탄성군청, 효빈환경기러기연합(시민단체)`,
+                dept: `환경생태과`,
+                status: `유효`,
+                purpose: `효빈시의 상징이자 오랜 친구인 시조 기러기(히버히)의 최대 도래지인 탄성군 일대의 생태보존구역을 각종 무분별한 난개발로부터 철저히 지켜내고, 드론 AI 기술을 활용한 선제적 방역체계를 구축하여 사람과 자연이 완벽하게 공존하는 스마트 생태 도시를 조성하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (난개발 원천 배제 및 완충구역 조성):</strong> 탄성군 읍내리 일원 철새도래지 주변을 '개발행위 허가 제한구역'으로 강력히 묶고, 외부 소음 및 불빛을 차단하는 20만 평 규모의 대규모 수목 차폐림 생태공원 합동 조성.</li>
+                        <li><strong>제2조 (초저소음 드론 관찰 및 조류인플루엔자 선제 방역):</strong> 새들이 놀라지 않는 초저소음(40dB 이하) 특수 설계 열화상 드론을 투입하여 개체군 이동 궤적을 모니터링하고, 환경부와 연계한 분변 신속 검사 체계 상시 가동.</li>
+                        <li><strong>제3조 (탄성군 '요소로 광장' 연계 생태 관광):</strong> 탄성군 도변읍 요우리(요소로 광장) 일대 특산물 장터와 생태 관찰 탐방로를 연결하여, 생태계를 훼손하지 않는 공정 여행 프로그램 개발.</li>
+                    </ul>
+                `,
+                effect: `히버히 서식지의 항구적 보존을 이루어내고 조류인플루엔자(AI) 청정 구역을 유지함과 동시에, 도농복합지역인 탄성군의 지속 가능한 생태 관광 수익 모델 창출 기여.`,
+                files: [{ name: `시조_히버히_생태보호_다자간협약.pdf`, size: `1.7MB` }]
+            },
+            {
+                id: 1,
+                date: `2025-05-05`,
+                category: `청년/복지`,
+                color: `blue`,
+                title: `효빈드림 하우스 입주 청년 대상 일자리 연계 및 중소기업 취업 지원 협약`,
+                partner: `효빈광역시, 효빈상공회의소, 효빈고용복지플러스센터`,
+                dept: `청년정책과`,
+                status: `완료`,
+                purpose: `청년임대주택 '효빈드림 하우스' 입주자들에게 단순히 안정적인 주거 공간을 제공하는 것에 그치지 않고, 지역 내 우수 강소기업과의 맞춤형 일자리를 매칭시켜 효빈시에 정착하여 완전한 경제적 자립을 이루도록 지원하기 위함.`,
+                content: `
+                    <ul class="list-decimal list-inside space-y-3">
+                        <li><strong>제1조 (찾아가는 취업 박람회):</strong> 효빈드림 하우스 커뮤니티 센터 내에 정기적인 찾아가는 미니 취업 박람회 개최 및 현장 면접 지원.</li>
+                        <li><strong>제2조 (채용 기업 인센티브):</strong> 입주 청년을 정규직으로 채용한 관내 중소기업 대상 지방세 감면 혜택 부여 및 우수 기업 인증 행정 인센티브 제공.</li>
+                        <li><strong>제3조 (직업 훈련 수당 연계):</strong> 미취업 입주 청년 대상 국민취업지원제도 훈련 수당 추가 지급 및 코딩/디자인 등 특화 교육 과정 우선 배정.</li>
+                    </ul>
+                `,
+                effect: `청년 실업률을 획기적으로 감소시키고, 수도권으로 유출되던 우수 인재의 지역 사회 정착률을 극대화하여 활기찬 젊은 도시 구현.`,
+                files: [{ name: `드림하우스_청년일자리_연계협약서.pdf`, size: `1.1MB` }]
+            }
+        ];
+
+        const itemsPerPage = 6;
+        let currentPage = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-count').innerText = mouData.length.toLocaleString();
+            renderList();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 목록 렌더링 함수
+        function renderList() {
+            const tbody = document.getElementById('data-list-body');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = mouData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'list-row hover:bg-slate-50 cursor-pointer transition';
+                tr.onclick = () => showDetail(item.id);
+                
+                // 분류 뱃지 색상 동적 바인딩
+                let catClass = `bg-${item.color}-100 text-${item.color}-700 border-${item.color}-200`;
+
+                tr.innerHTML = `
+                    <td class="center font-medium text-slate-500">${item.id}</td>
+                    <td class="center text-[13px] text-slate-600 font-bold">${item.date}</td>
+                    <td class="font-bold text-slate-800 py-4 transition hover:text-[#005bac] truncate max-w-[350px]" title="${item.title}">
+                        <span class="inline-block px-2 py-0.5 rounded text-[11px] font-bold border shadow-sm ${catClass} mr-1 mb-1">${item.category}</span><br>
+                        ${item.title}
+                    </td>
+                    <td class="text-[13px] font-medium text-slate-700 truncate max-w-[200px]" title="${item.partner}">${item.partner.split(',')[1] || item.partner} 외</td>
+                    <td class="center text-[13px] text-slate-600">${item.dept}</td>
+                    <td class="center text-xs font-bold text-blue-600 whitespace-nowrap">
+                        <span class="bg-blue-50 border border-blue-200 px-2 py-1 rounded-full">${item.status}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const totalPages = Math.ceil(mouData.length / itemsPerPage);
+            const nav = document.getElementById('pagination-container');
+            nav.innerHTML = '';
+
+            const prevClass = currentPage === 1 ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage - 1}); return false;" class="text-slate-500 ${prevClass}" aria-label="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                nav.innerHTML += `<a href="#" onclick="changePage(${i}); return false;" class="${activeClass}">${i}</a>`;
+            }
+
+            const nextClass = currentPage === totalPages ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage + 1}); return false;" class="text-slate-500 ${nextClass}" aria-label="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></a>`;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(mouData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderList();
+            
+            const listContainer = document.getElementById('list-view-container');
+            window.scrollTo({ top: listContainer.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // 상세 뷰 표시 로직
+        function showDetail(id) {
+            const item = mouData.find(d => d.id === id);
+            if(!item) return;
+
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            // 카테고리 뱃지 세팅
+            const catEl = document.getElementById('detail-category');
+            catEl.className = `px-3 py-1 bg-${item.color}-100 text-${item.color}-800 rounded-full text-xs font-bold border border-${item.color}-200 shadow-sm`;
+            catEl.innerText = item.category;
+
+            // 기본 텍스트 바인딩
+            document.getElementById('detail-date-top').innerText = item.date;
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-dept-header').innerText = '효빈광역시 ' + item.dept;
+            
+            document.getElementById('detail-title-table').innerText = item.title;
+            document.getElementById('detail-date').innerText = item.date;
+            document.getElementById('detail-dept').innerText = item.dept;
+            document.getElementById('detail-partner').innerText = item.partner;
+            
+            document.getElementById('detail-purpose').innerHTML = item.purpose;
+            document.getElementById('detail-content').innerHTML = item.content;
+            document.getElementById('detail-effect').innerHTML = item.effect;
+
+            // 첨부파일 영역 세팅
+            const fileContainer = document.getElementById('detail-attachments');
+            fileContainer.innerHTML = '';
+            if(item.files && item.files.length > 0) {
+                item.files.forEach(file => {
+                    const btn = document.createElement('button');
+                    btn.className = 'flex justify-between items-center px-4 py-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 hover:border-blue-300 transition text-sm text-left w-full max-w-md group';
+                    btn.innerHTML = `
+                        <span class="flex items-center text-blue-700 font-bold truncate group-hover:text-blue-800"><i data-lucide="download" class="w-4 h-4 mr-2 flex-shrink-0"></i> ${file.name}</span>
+                        <span class="text-xs text-slate-400 ml-4 whitespace-nowrap bg-slate-100 px-2 py-0.5 rounded">${file.size}</span>
+                    `;
+                    btn.onclick = () => alert(`'${file.name}' 파일을 다운로드합니다.`);
+                    fileContainer.appendChild(btn);
+                });
+            }
+
+            // 스크롤 맨 위로
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 목록으로 돌아가기
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            
+            const listTop = document.getElementById('list-view-container').offsetTop - 120;
+            window.scrollTo({ top: listTop > 0 ? listTop : 0, behavior: 'smooth' });
+        }
+
+        // 네이티브 인쇄(PDF) 기능
+        function triggerNativePrint() {
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <i data-lucide="printer" class="w-6 h-6 mb-2"></i>
+                    <strong class="text-lg">MOU 내역서 PDF 다운로드 모드</strong>
+                    <span class="text-sm font-normal mt-1 text-slate-200">브라우저 인쇄 창이 열립니다. 대상에서 'PDF로 저장'을 선택해 주세요.</span>
+                </div>
+            `;
+            toast.className = `fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-6 rounded-xl shadow-2xl text-white transition-all duration-300 z-[9999] bg-[#1a365d] flex items-center text-center no-print`;
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => toast.remove(), 300);
+                }, 500);
+            }, 800);
+        }
+    </script>
+</body>
+</html>

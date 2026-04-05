@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빅데이터 통합플랫폼 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 아키텍처 다이어그램 연결선 */
+        .arch-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 2rem;
+        }
+        @media (max-width: 1024px) {
+            .arch-arrow { transform: rotate(90deg); margin: 1rem 0; }
+        }
+
+        /* 데이터셋 카드 호버 효과 */
+        .data-card {
+            transition: all 0.3s ease;
+            border-top: 3px solid transparent;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .data-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px -5px rgba(0, 91, 172, 0.15);
+        }
+        
+        /* 상세 뷰 내부 데이터 소스 뱃지 */
+        .ds-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="database" class="w-5 h-5 mr-2"></i> 정책이력 및 공공데이터
+                </h4>
+                <ul class="space-y-1 text-[14px] lnb-menu">
+                    <li><a href="정책이력제안내.html">정책이력제안내</a></li>
+                    <li><a href="국민신청실명제.html">국민신청실명제</a></li>
+                    <li><a href="중점관리대상사업.html">중점관리대상사업</a></li>
+                    <li><a href="정책이력제심의위원회.html">정책이력제 심의위원회</a></li>
+                    <li><a href="공공데이터개방안내.html">공공데이터 개방안내</a></li>
+                    <li><a href="공공데이터수요조사.html">공공데이터 수요조사</a></li>
+                    <li><a href="공공데이터설문조사.html">공공데이터 설문조사</a></li>
+                    <li><a href="빅데이터통합플랫폼.html" class="active">빅데이터 통합플랫폼</a></li>
+                    <li><a href="스마트도시분석포털.html">스마트도시분석포털</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">정책이력 및 공공데이터</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">빅데이터 통합플랫폼</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">효빈광역시 빅데이터 통합플랫폼 (Data Hub)</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈시 전역에서 생성되는 방대한 행정·민간 데이터를 하나로 모아 분석하고 융합하여, 시민 삶의 질을 높이는 <strong class="text-blue-700">'데이터 기반 과학행정'</strong>의 핵심 인프라입니다.
+                </p>
+            </div>
+
+            <!-- 리스트 뷰 영역 (기본 화면) -->
+            <div id="list-view-container">
+                <!-- 1. 플랫폼 비전 박스 -->
+                <section class="mb-14">
+                    <div class="bg-[#1a365d] rounded-2xl p-8 md:p-10 shadow-lg text-white relative overflow-hidden">
+                        <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-10 -translate-y-4">
+                            <i data-lucide="cpu" class="w-64 h-64"></i>
+                        </div>
+                        <div class="relative z-10 max-w-3xl">
+                            <span class="inline-block px-3 py-1 bg-blue-500/30 border border-blue-400/50 text-blue-200 font-bold text-xs rounded-full mb-4">
+                                Hyobin Smart City Data Hub
+                            </span>
+                            <h3 class="text-2xl md:text-3xl font-black mb-4 leading-tight">
+                                데이터가 흐르는 스마트 도시,<br>시민과 함께 그리는 효빈의 내일
+                            </h3>
+                            <p class="text-blue-100/90 text-[15px] leading-relaxed mb-6">
+                                부서별로 흩어져 있던 데이터를 클라우드 기반의 통합 저장소(Data Lake)로 일원화하였습니다.<br>
+                                대중교통 위치 정보, 통신사 유동인구, 카드 매출 데이터 등 공공과 민간의 데이터를 융합 분석하여 박효빈 시장의 시정 목표인 '초연결 스마트시티'를 현실로 만들어갑니다.
+                            </p>
+                            <div class="flex flex-wrap gap-3 mt-4">
+                                <div class="flex items-center bg-white/10 px-4 py-2 rounded-lg border border-white/20">
+                                    <i data-lucide="server" class="w-5 h-5 mr-2 text-blue-300"></i>
+                                    <span class="font-bold text-sm">데이터 수집 2,000+ 종</span>
+                                </div>
+                                <div class="flex items-center bg-white/10 px-4 py-2 rounded-lg border border-white/20">
+                                    <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-emerald-300"></i>
+                                    <span class="font-bold text-sm">강력한 비식별화 암호보안</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. 빅데이터 플랫폼 아키텍처 (시스템 구성도) -->
+                <section class="mb-16">
+                    <div class="flex items-center justify-between mb-8 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 통합플랫폼 시스템 아키텍처
+                        </h3>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row items-stretch justify-between w-full">
+                        
+                        <!-- 1단계: 수집 -->
+                        <div class="flex-1 bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative group hover:border-blue-300 transition">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-xs font-bold border border-blue-200">
+                                STEP 1. 수집
+                            </div>
+                            <div class="text-center mt-2 mb-4">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="hard-drive-download" class="w-6 h-6"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800">원천 데이터 연계</h4>
+                            </div>
+                            <div class="space-y-2 text-[13px] text-slate-600">
+                                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center"><span class="font-bold text-slate-700">공공데이터</span> (행정, 교통, 환경)</div>
+                                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center"><span class="font-bold text-slate-700">IoT 센서</span> (트램 잔디궤도, 대기질)</div>
+                                <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center"><span class="font-bold text-slate-700">민간데이터</span> (통신사, 카드사 등)</div>
+                            </div>
+                        </div>
+
+                        <div class="arch-arrow"><i data-lucide="arrow-right" class="w-8 h-8"></i></div>
+
+                        <!-- 2단계: 저장 및 융합 -->
+                        <div class="flex-1 bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative group hover:border-indigo-300 transition">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 text-indigo-700 px-4 py-1 rounded-full text-xs font-bold border border-indigo-200">
+                                STEP 2. 저장/융합
+                            </div>
+                            <div class="text-center mt-2 mb-4">
+                                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="database" class="w-6 h-6"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800">클라우드 데이터 레이크</h4>
+                            </div>
+                            <div class="space-y-2 text-[13px] text-slate-600">
+                                <div class="bg-indigo-50/50 p-2 rounded border border-indigo-50 text-center">정형/비정형 데이터 적재</div>
+                                <div class="bg-indigo-50/50 p-2 rounded border border-indigo-50 text-center">개인정보 철저한 비식별화</div>
+                                <div class="bg-indigo-50/50 p-2 rounded border border-indigo-50 text-center">주제별 데이터 마트(Mart) 생성</div>
+                            </div>
+                        </div>
+
+                        <div class="arch-arrow"><i data-lucide="arrow-right" class="w-8 h-8"></i></div>
+
+                        <!-- 3단계: 분석 및 활용 -->
+                        <div class="flex-1 bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative group hover:border-emerald-300 transition">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-xs font-bold border border-emerald-200">
+                                STEP 3. 분석/활용
+                            </div>
+                            <div class="text-center mt-2 mb-4">
+                                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800">맞춤형 서비스 제공</h4>
+                            </div>
+                            <div class="space-y-2 text-[13px] text-slate-600">
+                                <div class="bg-emerald-50/50 p-2 rounded border border-emerald-50 text-center"><strong>스마트도시 분석포털 (시민)</strong></div>
+                                <div class="bg-emerald-50/50 p-2 rounded border border-emerald-50 text-center">AI 시정 의사결정 대시보드 (행정)</div>
+                                <div class="bg-emerald-50/50 p-2 rounded border border-emerald-50 text-center">OpenAPI 및 데이터 개방 (기업)</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 3. 핵심 융합 분석 사례 목록 -->
+                <section class="mb-14">
+                    <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 효빈광역시 핵심 융합 분석 사례
+                        </h3>
+                        <span class="text-sm text-blue-600 font-bold">* 카드를 클릭하시면 상세 분석 리포트를 확인하실 수 있습니다.</span>
+                    </div>
+
+                    <!-- JS를 통해 렌더링될 카드 목록 영역 -->
+                    <div id="cases-list-section" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Data cards rendered by JS -->
+                    </div>
+                </section>
+            </div>
+            <!-- // 리스트 뷰 영역 끝 -->
+
+            <!-- 상세 뷰 영역 (동적 전환) -->
+            <div id="detail-view-container" class="hidden mb-14">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 빅데이터 융합 분석 상세 리포트
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden mb-8">
+                    <!-- 헤더 -->
+                    <div class="p-8 border-b border-slate-200" id="detail-header-bg" style="background-color: #f8fafc;">
+                        <div class="flex items-center mb-4">
+                            <span id="detail-category" class="px-3 py-1 rounded-md text-xs font-bold bg-white shadow-sm border border-slate-200">분류</span>
+                            <span class="ml-3 text-sm font-bold text-slate-600"><i data-lucide="building-2" class="w-4 h-4 inline mr-1 -mt-0.5"></i> <span id="detail-dept">부서</span></span>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-black text-slate-800 mb-4 leading-tight" id="detail-title">제목</h3>
+                        <p class="text-slate-600 font-medium" id="detail-summary">요약</p>
+                    </div>
+
+                    <!-- 본문 -->
+                    <div class="p-8 space-y-10">
+                        <!-- 융합 데이터 소스 -->
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="database" class="w-5 h-5 mr-2 text-indigo-600"></i> 융합 분석에 활용된 주요 데이터 소스
+                            </h4>
+                            <div class="flex flex-wrap gap-2 bg-slate-50 p-4 rounded-lg border border-slate-100" id="detail-sources">
+                                <!-- 데이터 소스 뱃지 렌더링 -->
+                            </div>
+                        </div>
+
+                        <!-- 상세 설명 -->
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="file-search" class="w-5 h-5 mr-2 text-blue-600"></i> 분석 배경 및 주요 내용
+                            </h4>
+                            <div class="text-[15px] text-slate-700 leading-loose" id="detail-desc">
+                                <!-- 상세 설명 -->
+                            </div>
+                        </div>
+
+                        <!-- 기대 효과 -->
+                        <div>
+                            <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                                <i data-lucide="lightbulb" class="w-5 h-5 mr-2 text-amber-500"></i> 행정 활용 및 기대 효과
+                            </h4>
+                            <div class="bg-blue-50/50 border-l-4 border-blue-500 p-5 text-[15px] text-slate-700 leading-relaxed" id="detail-effect">
+                                <!-- 기대 효과 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3">
+                    <button onclick="hideDetail()" class="px-8 py-4 bg-[#1a365d] text-white font-bold rounded-xl hover:bg-slate-800 transition flex items-center shadow-md">
+                        <i data-lucide="list-tree" class="w-5 h-5 mr-2"></i> 다른 분석 사례 목록 보기
+                    </button>
+                </div>
+            </div>
+            <!-- // 상세 뷰 영역 끝 -->
+
+            <!-- 4. 관련 서비스 이동 배너 (항상 하단에 유지) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left mt-4">
+                <div>
+                    <h4 class="text-xl font-bold text-slate-800 mb-2">데이터의 실제 시각화 결과를 보고 싶으신가요?</h4>
+                    <p class="text-[15px] text-slate-600">
+                        통합플랫폼에 적재된 데이터를 시각화 대시보드 형태로 제공하는 대시민 서비스 <strong class="text-blue-700">'스마트도시 분석포털'</strong>을 이용해 보세요.
+                    </p>
+                </div>
+                <div class="shrink-0 w-full md:w-auto">
+                    <a href="스마트도시분석포털.html" class="inline-flex items-center justify-center w-full px-8 py-4 bg-[#005bac] text-white font-bold rounded-xl hover:bg-blue-800 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 group">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2"></i> 스마트도시 분석포털 가기
+                    </a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 빅데이터 분석 사례 데이터 (효빈시 세계관 8건 확장)
+        const analysisCasesData = [
+            {
+                id: 1,
+                title: '제3세대 준공영제 시내버스 노선 최적화 및 배차 분석',
+                category: '대중교통',
+                dept: '대중교통과',
+                icon: 'bus',
+                color: '#01B7ED', // 간선버스 도색
+                bgColor: 'bg-sky-50',
+                borderClass: 'card-blue',
+                summary: '교통카드 승하차 이력과 통신사 유동인구 데이터를 융합 분석하여, 시간대별 수요에 맞춘 배차 간격 조정 및 노선 중복도를 최소화합니다.',
+                desc: '과거 사모펀드 개입 당시 수익성 위주로 운영되던 노선의 불균형을 해소하기 위해 기획된 분석입니다. 간선(<span class="font-bold text-[#01B7ED]">#01B7ED</span>)과 지선(<span class="font-bold text-[#37B484]">#37B484</span>) 버스의 교통카드 태그 승하차 이력 수억 건과 통신사 기지국 기반의 실시간 유동인구 데이터를 클라우드 데이터 레이크에서 결합했습니다. 이를 통해 출퇴근 시간대 특정 정류장의 병목 현상을 파악하고, 최적의 배차 간격과 노선 직선화 방안을 도출했습니다.',
+                effect: '시민 대기 시간 평균 15% 단축, 급행노선(<span class="font-bold text-[#D81C2F]">#D81C2F</span>) 추가 배치 구역 도출, 운수업체 재정지원금의 효율적이고 투명한 집행 근거 마련.',
+                sources: ['교통카드 승하차 데이터', '통신사 유동인구 맵', '버스 실시간 위치(BIS) API']
+            },
+            {
+                id: 2,
+                title: '도시철도 7호선(트램) 친환경 잔디궤도 IoT 스마트 관리',
+                category: '도시철도',
+                dept: '도시철도건설본부',
+                icon: 'train-track',
+                color: '#FF8899', // 7호선 컬러
+                bgColor: 'bg-pink-50',
+                borderClass: 'card-pink',
+                summary: '7호선 전 구간에 부설된 친환경 잔디궤도의 IoT 온습도 센서 데이터와 기상청 예보를 결합하여 자동 살수 및 열섬 완화 효과를 관리합니다.',
+                desc: '시민의 힘으로 부활한 무가선 저상 트램 7호선(<span class="font-bold text-[#FF8899]">#FF8899</span>)의 핵심 상징인 15.2km 구간의 친환경 잔디궤도를 스마트하게 유지·관리하기 위한 모델입니다. 궤도 밑에 설치된 수백 개의 토양 수분 및 온도 IoT 센서가 실시간으로 데이터를 송출하며, 기상청의 강수 및 폭염 예보 API와 결합하여 인공지능이 잔디의 상태를 예측합니다. 수분이 부족하거나 열대야가 예상될 때 자동으로 스프링클러 시스템이 가동되도록 설계되었습니다.',
+                effect: '잔디 폐사율 0% 달성 목표, 도심 열섬 현상 완화(주변 온도 평균 2도 저감), 살수용 상수도 사용량 30% 최적화(예산 절감).',
+                sources: ['궤도 내 매설 IoT 온습도 센서', '기상청 단기예보 OpenAPI', '살수 장치 가동 이력 데이터']
+            },
+            {
+                id: 3,
+                title: '제17회 HAF(효빈 애니메이션 페스티벌) 상권 경제성 파급효과 분석',
+                category: '문화관광',
+                dept: '문화관광체육국',
+                icon: 'party-popper',
+                color: '#6677CC', // 빈효선 컬러 차용 (문화/도시)
+                bgColor: 'bg-indigo-50',
+                borderClass: 'card-indigo',
+                summary: 'HAF 개최 기간 동안 구도심 당가동 일대의 통신사 유동인구 맵과 카드사 매출액(비식별)을 결합하여 축제의 실질적인 경제 파급 효과를 입증합니다.',
+                desc: '글로벌 IP(BanG Dream!, 러브라이브! 시리즈) 홍보대사 위촉으로 사상 최대 인파가 몰린 HAF 축제의 경제적 가치를 정량화하는 분석입니다. 행사장인 효빈종합운동장과 파스텔블루 특화거리가 위치한 당가동 일대의 시간대별 방문객 유입 패턴을 통신사 데이터로 파악하고, 방문객들이 어떤 업종(숙박, 요식업, 굿즈 팝업스토어 등)에서 주로 카드를 결제했는지 카드사 가명 정보와 융합하여 상권 활성화 지수를 산출했습니다.',
+                effect: '차기 HAF 행사 예산 편성 및 글로벌 IP 제휴를 위한 객관적 타당성 데이터 확보, 구도심 상인들을 위한 타겟 마케팅 전략 수립 지원.',
+                sources: ['통신사 기지국 유동인구', '카드사 비식별 가명 결제 데이터', '시티투어버스(#7777AA) 탑승 이력']
+            },
+            {
+                id: 4,
+                title: '탄성군 시조(히버히) 생태 서식지 모니터링 및 AI 방역 예측',
+                category: '환경생태',
+                dept: '환경생태과',
+                icon: 'leaf',
+                color: '#37B484', // 지선/환경 그린
+                bgColor: 'bg-teal-50',
+                borderClass: 'card-green',
+                summary: '탄성군 생태보존구역의 수질 센서, 드론 영상 분석 데이터를 통합하여 기러기(히버히)의 개체수 변화를 추적하고 조류인플루엔자(AI) 선제 방역 모델을 구축합니다.',
+                desc: '도농복합지역인 탄성군 철새도래지에 서식하는 효빈시의 시조 \'기러기(히버히)\'를 보호하기 위한 친환경 모니터링 체계입니다. 기존 수기 관찰에서 벗어나 자율 비행 드론이 촬영한 열화상 영상을 인공지능(Vision AI) 알고리즘으로 분석해 철새의 정확한 개체수와 군집 밀도를 파악합니다. 이와 함께 생태공원의 수질, 미세먼지 측정망 데이터를 융합하여 조류인플루엔자 바이러스 확산의 위험 징후를 조기에 감지합니다.',
+                effect: '생태 교란을 최소화하는 비접촉 모니터링 실현, 조류인플루엔자 발생 시 선제적 반경 통제선 구축으로 인근 농가 피해 제로화.',
+                sources: ['드론 열화상 AI 분석 데이터', '생태공원 수질/대기질 센서', '농림축산식품부 방역 이력 API']
+            },
+            {
+                id: 5,
+                title: '청년임대주택 "효빈드림 하우스" 제2차 최적 입지 선정 모델',
+                category: '청년복지',
+                dept: '도시계획과',
+                icon: 'home',
+                color: '#9856FF', // 8호선 연보라
+                bgColor: 'bg-purple-50',
+                borderClass: 'card-indigo',
+                summary: '청년 인구 전입/전출 데이터와 대중교통 접근성, 주변 임대료 시세를 융합하여 효빈드림 하우스 2차 건립을 위한 최적의 유휴 부지를 도출합니다.',
+                desc: '효빈시 청년 주거 안정을 위한 "효빈드림 하우스"의 2차 건립지를 과학적으로 선정하기 위한 공간 데이터(GIS) 융합 분석입니다. 2030 세대의 주민등록 전입·전출 데이터 기반의 인구 이동 패턴, 빈효선 광역전철(<span class="font-bold text-[#6677CC]">#6677CC</span>) 및 지하철 8호선(<span class="font-bold text-[#9856FF]">#9856FF</span>)과의 도보 도달 거리, 그리고 국토교통부 실거래가 기반 주변 원룸 임대료 데이터를 다중 레이어로 겹쳐 분석했습니다. 그 결과 대학가와 상업지구가 인접하면서 대중교통 접근성이 우수한 청엽구 내 시유지가 1순위로 도출되었습니다.',
+                effect: '주거지 미스매칭 해소, 1차 사업 대비 청년 입주자 대중교통 이용 편의성 30% 상승 예상, 부지 선정 과정의 행정 투명성 제고.',
+                sources: ['주민등록 인구 이동 통계', '국토부 실거래가 API', '도시철도 노선도 공간정보(SHP)']
+            },
+            {
+                id: 6,
+                title: '당가동 파스텔블루 특화거리 보행 환경 및 상권 활성화 분석',
+                category: '도시재생',
+                dept: '도시재생과',
+                icon: 'store',
+                color: '#FFCC11', // 3호선 노란색
+                bgColor: 'bg-amber-50',
+                borderClass: 'card-blue',
+                summary: '상권이 쇠퇴한 구도심 일대의 스마트 가로등 유동인구 센서와 대기오염 정보를 분석하여, 보행자 친화적 거리 조성 방안을 모색합니다.',
+                desc: '과거 7호선 차고지가 있던 당가동 일대가 서브컬처 중심의 파스텔블루 특화거리로 재생되는 과정에서, 보행 환경을 개선하기 위한 데이터 분석입니다. 거리에 설치된 스마트 가로등에서 수집되는 시간대별 유동인구 및 방향 데이터, 그리고 IoT 기반 미세먼지/소음 측정 데이터를 교차 분석했습니다. 이를 바탕으로 보행자가 가장 많이 몰리는 핫스팟에 팝업스토어를 유치하고, 차량 통행을 통제하여 보행자 전용 도로로 지정할 구간을 과학적으로 획정했습니다.',
+                effect: '보행자 체류 시간 평균 40분 연장 입증, 유동인구 동선 기반의 청년 창업가 맞춤형 상점 입지 컨설팅 제공.',
+                sources: ['스마트 가로등 유동인구 센서', 'IoT 복합 대기질 센서', '구도심 건축물 노후도 공간정보']
+            },
+            {
+                id: 7,
+                title: '집중호우 대비 지하차도 및 1~6호선 침수 조기 경보 시스템',
+                category: '재난안전',
+                dept: '시민안전실',
+                icon: 'siren',
+                color: '#0077DD', // 1호선 파란색
+                bgColor: 'bg-blue-50',
+                borderClass: 'card-blue',
+                summary: '기상청 강수 레이더 데이터와 관내 하천 수위, 지하역사 배수 펌프 가동률을 실시간 융합하여 침수 위험을 조기에 경고합니다.',
+                desc: '여름철 국지성 집중호우로 인한 지하차도 및 초기 건설 노선인 1호선(<span class="font-bold text-[#0077DD]">#0077DD</span>), 2호선(<span class="font-bold text-[#00CCAA]">#00CCAA</span>) 지하역사의 침수 피해를 예방하기 위한 안전 분석 모델입니다. 기상청의 동네예보 및 레이더 강수량 OpenAPI를 10분 단위로 수집하고, 효빈시 주요 하천 수위계 및 지하역사 배수 펌프의 실시간 가동률(RPM) 데이터와 융합합니다. 인공지능이 특정 시간 내 침수 한계 수위 도달을 예측하면 재난안전상황실과 각 구청에 자동으로 사이렌 경보를 발송합니다.',
+                effect: '골든타임 30분 전 사전 도로 통제 및 지하철 무정차 통과 의사결정 지원, 인명 및 재산 피해 원천 차단.',
+                sources: ['기상청 강수 레이더 OpenAPI', '관내 주요 하천 수위계 데이터', '지하철 역사 배수펌프 IoT 로그']
+            },
+            {
+                id: 8,
+                title: '친환경 무상급식 로컬푸드 수요 예측 및 수급 최적화',
+                category: '일반행정',
+                dept: '교육청소년과',
+                icon: 'apple',
+                color: '#EE0022', // 5호선 빨간색 계열
+                bgColor: 'bg-rose-50',
+                borderClass: 'card-pink',
+                summary: '초·중·고교의 월별 식단 데이터와 잔반량, 탄성군 농가 생산량 데이터를 결합하여 친환경 로컬푸드의 수급 불균형을 해소합니다.',
+                desc: '효빈시 관내 학생들에게 양질의 무상급식을 제공하고, 도농복합지역인 탄성군 농가의 안정적인 수익을 보장하기 위한 식자재 밸류체인 분석입니다. 각 학교의 나이스(NEIS) 기반 월별 급식 식단표 및 영양 정보 API와 학교별 일일 잔반량 처리 데이터를 수집합니다. 이를 탄성군 친환경 로컬푸드 농가의 작물 재배 면적 및 예상 수확량 데이터와 매칭시켜, 특정 식재료의 초과 공급이나 품귀 현상을 사전에 예측하고 대체 식단 구성을 권고합니다.',
+                effect: '학생들의 잔반 배출량 15% 감소(선호 식단 반영), 탄성군 로컬푸드 폐기율 최소화 및 농가 계약 재배 안정성 100% 확보.',
+                sources: ['나이스(NEIS) 학교급식 식단 API', '학교별 일일 잔반 수거 데이터', '탄성군 농가 재배 작물 등록 현황']
+            }
+        ];
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCases();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        // 리스트 뷰 렌더링
+        function renderCases() {
+            const container = document.getElementById('cases-list-section');
+            container.innerHTML = '';
+
+            analysisCasesData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `data-card ${item.borderClass} bg-white p-6 rounded-xl border border-slate-200`;
+                card.onclick = () => showDetail(item.id);
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 ${item.bgColor} text-slate-800 rounded-lg flex items-center justify-center mr-3" style="color: ${item.color};">
+                                <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-lg transition">${item.title}</h4>
+                        </div>
+                    </div>
+                    <p class="text-[14px] text-slate-600 leading-relaxed mb-4 line-clamp-3">
+                        ${item.summary}
+                    </p>
+                    <div class="flex flex-wrap gap-2 mt-auto">
+                        ${item.sources.slice(0,2).map(src => `<span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded border border-slate-200">${src}</span>`).join('')}
+                        ${item.sources.length > 2 ? `<span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded border border-slate-200">+${item.sources.length - 2}</span>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 상세 뷰 표시
+        function showDetail(id) {
+            const item = analysisCasesData.find(d => d.id === id);
+            if(!item) return;
+
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            document.getElementById('detail-category').innerText = item.category;
+            document.getElementById('detail-category').style.color = item.color;
+            document.getElementById('detail-dept').innerText = item.dept;
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-summary').innerText = item.summary;
+            document.getElementById('detail-desc').innerHTML = item.desc;
+            document.getElementById('detail-effect').innerHTML = item.effect;
+
+            // 데이터 소스 뱃지 렌더링
+            const sourcesContainer = document.getElementById('detail-sources');
+            sourcesContainer.innerHTML = item.sources.map(src => `<span class="ds-badge"><i data-lucide="link-2" class="w-3 h-3 mr-1"></i>${src}</span>`).join('');
+
+            // 상단으로 스크롤
+            window.scrollTo({ top: document.getElementById('detail-view-container').offsetTop - 120, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 목록으로 돌아가기
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            
+            // 리스트가 위치한 곳으로 스크롤 복구
+            window.scrollTo({ top: document.getElementById('cases-list-section').offsetTop - 150, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

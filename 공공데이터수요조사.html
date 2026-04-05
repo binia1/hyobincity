@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공공데이터 수요조사 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+        .content-table td.center { text-align: center; }
+
+        /* 폼 입력 필드 스타일 */
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #334155;
+            transition: all 0.2s;
+            background-color: #ffffff;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #005bac;
+            box-shadow: 0 0 0 3px rgba(0, 91, 172, 0.15);
+        }
+        .form-label {
+            display: block;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        /* 커스텀 라디오/체크박스 */
+        .custom-radio {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 1.5rem;
+        }
+        .custom-radio input[type="radio"], .custom-radio input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            accent-color: #005bac;
+        }
+
+        /* 페이징 */
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a:hover:not(.pointer-events-none) { background: #f1f5f9; color: #005bac; border-color: #cbd5e1; }
+        .pagination a.active { background: #005bac; color: #fff; border-color: #005bac; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="database" class="w-5 h-5 mr-2"></i> 정책이력 및 공공데이터
+                </h4>
+                <ul class="space-y-1 text-[14px] lnb-menu">
+                    <li><a href="정책이력제안내.html">정책이력제안내</a></li>
+                    <li><a href="국민신청실명제.html">국민신청실명제</a></li>
+                    <li><a href="중점관리대상사업.html">중점관리대상사업</a></li>
+                    <li><a href="정책이력제심의위원회.html">정책이력제 심의위원회</a></li>
+                    <li><a href="공공데이터개방안내.html">공공데이터 개방안내</a></li>
+                    <li><a href="공공데이터수요조사.html" class="active">공공데이터 수요조사</a></li>
+                    <li><a href="공공데이터설문조사.html">공공데이터 설문조사</a></li>
+                    <li><a href="빅데이터통합플랫폼.html">빅데이터 통합플랫폼</a></li>
+                    <li><a href="스마트도시분석포털.html">스마트도시분석포털</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">정책이력 및 공공데이터</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">공공데이터 수요조사</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">공공데이터 수요조사</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시가 개방해주기를 원하는 공공데이터가 있으신가요? 시민과 기업의 의견을 수렴하여 데이터 개방 정책에 적극 반영하겠습니다.
+                </p>
+            </div>
+
+            <!-- 리스트 및 폼 영역 (상세 뷰 진입 시 숨김 처리) -->
+            <div id="list-view-container">
+                <!-- 1. 안내 박스 -->
+                <section class="mb-10">
+                    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center gap-6">
+                        <div class="hidden md:flex w-20 h-20 bg-white rounded-full shadow flex-shrink-0 items-center justify-center text-blue-600">
+                            <i data-lucide="file-question" class="w-10 h-10"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-blue-900 mb-2">원하시는 공공데이터를 직접 신청해 주세요!</h3>
+                            <p class="text-slate-700 text-[14.5px] leading-relaxed mb-3">
+                                본 수요조사는 효빈시가 보유한 데이터 중 아직 개방되지 않았거나, 기존 개방 데이터에 추가적인 항목(컬럼) 또는 형태(API 연계 등)가 필요한 경우 누구나 상시로 신청할 수 있는 창구입니다. 접수된 의견은 관련 부서의 검토를 거쳐 순차적으로 개방됩니다.
+                            </p>
+                            <p class="text-sm font-bold text-red-600">
+                                ※ 단, 개인정보, 국가기밀, 영업비밀 등 정보공개법 제9조에 따른 비공개 대상 정보는 개방이 제한될 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. 수요조사 폼 영역 -->
+                <section class="mb-16">
+                    <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 공공데이터 개방 신청 작성
+                        </h3>
+                        <span class="text-sm text-red-500 font-bold">* 필수 입력 항목</span>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8">
+                        <form id="data-demand-form" onsubmit="submitForm(event)">
+                            
+                            <!-- 신청인 정보 -->
+                            <h4 class="font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center">
+                                <i data-lucide="user" class="w-5 h-5 mr-2 text-slate-400"></i> 신청인(기관) 정보
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div>
+                                    <label class="form-label">이름 또는 기관명<span class="required">*</span></label>
+                                    <input type="text" class="form-input" placeholder="예: 홍길동 또는 (주)효빈소프트" required>
+                                </div>
+                                <div>
+                                    <label class="form-label">연락처<span class="required">*</span></label>
+                                    <input type="tel" class="form-input" placeholder="예: 010-1234-5678" required>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label">이메일 주소<span class="required">*</span></label>
+                                    <input type="email" class="form-input" placeholder="예: user@example.com (개방 여부 결과 통보용)" required>
+                                </div>
+                            </div>
+
+                            <!-- 신청 데이터 정보 -->
+                            <h4 class="font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center">
+                                <i data-lucide="database" class="w-5 h-5 mr-2 text-slate-400"></i> 요청 데이터 상세 정보
+                            </h4>
+                            <div class="space-y-6 mb-8">
+                                <div>
+                                    <label class="form-label">필요한 공공데이터 명칭<span class="required">*</span></label>
+                                    <input type="text" class="form-input" placeholder="예: 7호선 트램 정류장별 승하차 인원 통계, 효빈드림 하우스 입주율 데이터 등" required>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="form-label">데이터 분류 (해당 분야)<span class="required">*</span></label>
+                                        <select class="form-input" required>
+                                            <option value="" disabled selected>분야를 선택해 주세요</option>
+                                            <option value="교통/물류">교통 / 물류 (버스, 지하철, 도로 등)</option>
+                                            <option value="문화/관광">문화 / 관광 / 체육 (HAF, 축제, 시설 등)</option>
+                                            <option value="환경/기상">환경 / 기상 (시조 생태, 대기질, 공원 등)</option>
+                                            <option value="보건/복지">보건 / 복지 (청년 주거, 병원, 다자녀 등)</option>
+                                            <option value="경제/상권">경제 / 상권 (당가동 상권, 일자리 등)</option>
+                                            <option value="일반행정">일반행정 (예산, 시설현황 등)</option>
+                                            <option value="기타">기타</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">희망 제공 형태<span class="required">*</span></label>
+                                        <div class="pt-2">
+                                            <label class="custom-radio"><input type="radio" name="format" value="OpenAPI" required> OpenAPI (REST)</label>
+                                            <label class="custom-radio"><input type="radio" name="format" value="CSV"> CSV/Excel (파일)</label>
+                                            <label class="custom-radio"><input type="radio" name="format" value="상관없음"> 상관없음</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">데이터 활용 목적<span class="required">*</span></label>
+                                    <div class="pt-2 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <label class="custom-radio"><input type="radio" name="purpose" value="앱/웹 서비스 개발" required> 앱/웹 서비스 개발</label>
+                                        <label class="custom-radio"><input type="radio" name="purpose" value="학술/연구 분석"> 학술 / 연구 분석</label>
+                                        <label class="custom-radio"><input type="radio" name="purpose" value="상업/비즈니스 창출"> 상업 / 비즈니스 창출</label>
+                                        <label class="custom-radio"><input type="radio" name="purpose" value="일반 정보 확인"> 일반 정보 확인</label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">요청 사유 및 구체적 활용 방안<span class="required">*</span></label>
+                                    <textarea class="form-input h-32 resize-none" placeholder="어떤 목적으로 이 데이터가 필요한지, 어떤 항목(컬럼)들이 포함되었으면 하는지 구체적으로 작성해 주시면 개방 검토에 큰 도움이 됩니다." required></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 개인정보 동의 -->
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-8">
+                                <label class="custom-radio !mr-0 flex items-start">
+                                    <input type="checkbox" required class="mt-1"> 
+                                    <span class="text-sm text-slate-600 leading-relaxed">
+                                        <strong class="text-slate-800 block mb-1">개인정보 수집 및 이용 동의 <span class="text-red-500">*</span></strong>
+                                        공공데이터 수요조사 접수 및 처리 결과 안내를 위하여 위의 개인정보(이름, 연락처, 이메일)를 수집·이용하는 것에 동의합니다. (보유기간: 처리 완료 후 1년 보관 뒤 파기)
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- 제출 버튼 -->
+                            <div class="flex justify-center">
+                                <button type="submit" id="submit-btn" class="px-12 py-4 bg-[#005bac] text-white font-bold text-lg rounded-xl hover:bg-blue-800 transition shadow-lg flex items-center justify-center min-w-[240px]">
+                                    <i data-lucide="send" class="w-5 h-5 mr-2"></i> 수요조사 신청하기
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- 3. 최근 신청 게시판 (동적 테이블) -->
+                <section class="mb-14">
+                    <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 최근 공공데이터 수요조사 신청 현황
+                        </h3>
+                        <span class="text-sm font-bold text-slate-500">총 <span id="total-count" class="text-blue-600">0</span>건</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border-x border-t border-slate-200 mb-8">
+                        <table class="content-table !mt-0 !mb-0 min-w-[800px]">
+                            <colgroup>
+                                <col style="width: 8%;">
+                                <col style="width: 12%;">
+                                <col style="width: auto;">
+                                <col style="width: 12%;">
+                                <col style="width: 12%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-slate-50">
+                                    <th>번호</th>
+                                    <th>분류</th>
+                                    <th>신청 데이터명</th>
+                                    <th>신청일자</th>
+                                    <th>진행상태</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demand-list-body">
+                                <!-- JS 렌더링 영역 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 페이징 -->
+                    <div class="flex justify-center mb-10">
+                        <nav class="pagination flex gap-1" id="pagination-container">
+                            <!-- JS 렌더링 영역 -->
+                        </nav>
+                    </div>
+                </section>
+            </div>
+            <!-- // 리스트 뷰 영역 끝 -->
+
+            <!-- 상세 뷰 영역 (동적 전환) -->
+            <div id="detail-view-container" class="hidden mb-14">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 수요조사 신청 상세 내역
+                    </h3>
+                </div>
+                
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                    <!-- 상세 헤더 -->
+                    <div class="bg-slate-50 p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <span id="detail-status" class="px-3 py-1 rounded-full text-xs font-bold border">상태</span>
+                            <span class="text-sm text-slate-500 font-bold">신청인: <span id="detail-applicant" class="text-slate-800">홍O동</span></span>
+                        </div>
+                        <div class="mb-2">
+                            <span id="detail-category" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">분류</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4 leading-tight" id="detail-title">제목</h3>
+                        <div class="text-sm text-slate-500">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1 -mt-0.5"></i> 신청일자: <span id="detail-date" class="font-bold text-slate-700">2026-00-00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 상세 본문 -->
+                    <div class="p-6 md:p-8">
+                        <h4 class="font-bold text-lg text-blue-900 mb-3 flex items-center">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-2 text-blue-600"></i> 데이터 신청 사유 및 활용 목적
+                        </h4>
+                        <div class="text-[15px] text-slate-700 leading-relaxed mb-10 bg-white p-5 rounded-lg border border-slate-200 shadow-inner" id="detail-content">
+                            <!-- 내용 -->
+                        </div>
+
+                        <h4 class="font-bold text-lg text-emerald-800 mb-3 flex items-center">
+                            <i data-lucide="check-circle" class="w-5 h-5 mr-2 text-emerald-600"></i> 담당 부서 검토 결과
+                        </h4>
+                        <div class="text-[15px] text-slate-700 leading-relaxed border-l-4 border-emerald-500 pl-4 py-3 bg-emerald-50/50" id="detail-reply">
+                            <!-- 답변 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3 no-print">
+                    <button onclick="hideDetail()" class="px-8 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로 돌아가기
+                    </button>
+                </div>
+            </div>
+            <!-- // 상세 뷰 영역 끝 -->
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 공공데이터 수요조사 내역 (효빈시 세계관 상세 내용 포함)
+        const demandData = [
+            { 
+                id: 10, category: '도시/철도', title: '도시철도 7호선(트램) 정류장별 시간대별 승하차 인원 통계 (CSV)', date: '2026-04-02', status: '검토중', statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                applicant: '김O석',
+                content: '최근 새롭게 부활한 7호선(분홍색 트램 #FF8899) 주변 상권을 분석하여 스타트업 창업 아이템을 구상 중입니다. 이를 위해 트램의 각 정류장별, 시간대별 상세 승하차 인원 통계 데이터(CSV 형태) 개방을 요청합니다.',
+                reply: '<strong>[데이터정책담당관 / 도시철도건설본부]</strong><br>신청해 주신 소중한 의견에 감사드립니다. 현재 도시철도건설본부에서 교통카드 승하차 단말기 데이터를 수집 중이며, 개인정보 비식별화 및 데이터 정제 작업 가능 여부를 면밀히 검토하고 있습니다.' 
+            },
+            { 
+                id: 9, category: '문화/관광', title: '제17회 HAF 홍보대사 연계 시티투어버스(#7777AA) 실시간 배차 데이터 (API)', date: '2026-03-28', status: '개방예정', statusClass: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                applicant: '이O진',
+                content: 'HAF 축제 기간 동안 운행되는 BanG Dream!, 러브라이브! 시리즈 캐릭터 랩핑 시티투어버스의 위치를 팬들이 실시간으로 확인할 수 있는 서드파티 앱을 개발하려고 합니다. 관련 위치 정보의 API 개방을 부탁드립니다.',
+                reply: '<strong>[문화관광체육국 관광진흥과]</strong><br>귀하의 앱 개발 계획을 환영합니다! 현재 대중교통과 및 정보통신과와 협력하여 해당 시티투어버스 노선의 실시간 GPS 데이터 OpenAPI 연계 테스트를 진행 중이며, 4월 셋째 주 중으로 스마트도시 분석포털을 통해 개방될 예정입니다.' 
+            },
+            { 
+                id: 8, category: '교통/물류', title: '3세대 시내버스 급행노선(#D81C2F) 정류장 도착 예정 시간 제공', date: '2026-03-15', status: '개방완료', statusClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                applicant: '박O훈',
+                content: '3세대 완전 준공영제 시행 후 급행버스(혁신 레드)를 이용하여 출퇴근하고 있습니다. 정류장 버스 정보 안내 단말기(BIT)에 나오는 도착 예정 시간을 스마트폰 위젯으로 만들고 싶어 API 제공을 요청합니다.',
+                reply: '<strong>[대중교통과 BIS운영팀]</strong><br>해당 데이터는 효빈광역시 스마트도시 분석포털 및 공공데이터포털(DATA.GO.KR)에 REST API 형태로 정상적으로 개방 완료되었습니다. 많은 활용 바랍니다.' 
+            },
+            { 
+                id: 7, category: '환경/기상', title: '탄성군 생태보존구역 히버히(시조) 주요 관찰 지점 GPS 데이터 (JSON)', date: '2026-03-02', status: '개방완료', statusClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                applicant: '정O우',
+                content: '지역 대학교 생물학과 연구팀입니다. 효빈시 시조인 기러기(히버히)의 생태 보호 연구를 위해, 모니터링 요원들이 기록한 주요 관찰 지점의 GPS 좌표 데이터셋이 필요합니다.',
+                reply: '<strong>[환경생태과]</strong><br>효빈시 자연 환경 보존을 위한 학술 연구 목적에 부합하여, 모니터링 위치 로그 데이터를 분기별 JSON 포맷으로 개방 조치하였습니다.' 
+            },
+            { 
+                id: 6, category: '경제/상권', title: '당가동 파스텔블루 특화거리 개별 상점 일일 매출액 데이터', date: '2026-02-20', status: '개방불가', statusClass: 'bg-red-100 text-red-700 border-red-200',
+                note: '개별 기업의 영업 비밀에 해당하여 비식별화된 구역 단위 매출액으로 대체 개방 예정',
+                applicant: '최O미',
+                content: '구도심 당가동 상권에 서브컬처 관련 상점을 내려고 합니다. 기존에 입점해 있는 파스텔블루 거리 개별 상점들의 일일 상세 매출액 데이터를 볼 수 있을까요?',
+                reply: '<strong>[데이터정책담당관]</strong><br>죄송합니다. 요청하신 개별 상점의 매출액 정보는 「공공데이터법」 및 정보공개법상 특정 기업 및 개인의 <strong>영업 비밀에 해당하여 개방이 불가</strong>합니다.<br>대신, 블록(구역) 단위로 비식별화된 전체 카드 매출 통계 자료로 대체 개방을 추진 중입니다.' 
+            },
+            { 
+                id: 5, category: '도시/철도', title: '빈효선 광역전철(#6677CC) 탄성군 신설역 예상 유동인구 분석 자료', date: '2026-02-12', status: '검토중', statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                applicant: '강O성',
+                content: '최근 탄성군까지 지선이 연장된 빈효선 광역전철(#6677CC 연청색) 주변 상업 지역을 분석하고자 합니다. 타당성 조사 단계에서 산출된 신설역(탄성광역환승센터 등)의 예상 승하차 및 유동인구 통계 자료를 CSV로 받고 싶습니다.',
+                reply: '<strong>[도시철도건설본부]</strong><br>요청하신 예상 유동인구 데이터는 현재 예비타당성 조사 결과 보고서에 포함되어 있습니다. 공공데이터 포털 형태(CSV)로 데이터베이스화하여 정식 개방이 가능한지 여부를 실무 검토 중입니다.' 
+            },
+            { 
+                id: 4, category: '보건/복지', title: '청년임대주택 "효빈드림 하우스" 입주 경쟁률 및 평균 가점 통계', date: '2026-01-30', status: '개방완료', statusClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                applicant: '윤O진',
+                content: '효빈드림 하우스 2차 공고 지원을 준비 중인 청년입니다. 내 집 마련 계획을 세우기 위해, 지난 1차 입주 당시의 면적별 경쟁률과 당첨 커트라인(가점) 통계 정보를 쉽게 열람할 수 있었으면 합니다.',
+                reply: '<strong>[청년정책과]</strong><br>청년들의 정보 접근성을 높이기 위하여, 효빈드림 하우스 1차 모집 시의 경쟁률 및 커트라인 데이터를 시 홈페이지 공지사항 및 공공데이터포털을 통해 개방 완료하였습니다.' 
+            },
+            { 
+                id: 3, category: '일반행정', title: '초중고 무상급식 친환경 로컬푸드 조달 업체 목록 및 단가 정보', date: '2026-01-15', status: '개방완료', statusClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                applicant: '임O철',
+                content: '올해부터 효빈시 초중고 무상급식의 로컬푸드(탄성군 일대 생산) 비율이 상향되었다고 들었습니다. 식재료의 투명성 확인을 위해 친환경 식재료 조달 업체 목록과 품목별 단가 정보 개방을 요청합니다.',
+                reply: '<strong>[교육청소년과]</strong><br>학교 급식의 투명한 운영과 학부모님의 알 권리를 보장하기 위하여, 매월 변동되는 로컬푸드 조달 업체 및 단가 현황을 오픈 API로 개방하였습니다.' 
+            },
+            { 
+                id: 2, category: '교통/물류', title: '공항버스(#84C36E) 및 좌석버스(#FF5800) 수하물 적재칸 여유 공간 정보', date: '2025-12-10', status: '불가(센서미비)', statusClass: 'bg-red-100 text-red-700 border-red-200',
+                note: '현재 운행 차량 내 수하물 적재 공간 인식 IoT 센서 미비',
+                applicant: '송O현',
+                content: '공항버스(#84C36E)나 좌석버스(#FF5800)를 탈 때 캐리어 실을 공간이 꽉 차서 다음 버스를 기다린 적이 있습니다. 잔여 좌석처럼 버스 하단 적재칸 여유 공간 정보도 앱에서 볼 수 있게 API로 제공해 주세요.',
+                reply: '<strong>[대중교통과]</strong><br>시민님의 훌륭한 제안에 감사드립니다. 다만 안타깝게도 현재 운행 중인 효빈시 시내버스 차량에는 하단 수하물 적재 공간을 실시간으로 스캔할 수 있는 IoT 센서가 장착되어 있지 않아 <strong>데이터 수집 및 개방이 불가</strong>합니다. 향후 신형 차량 도입 시 센서 부착을 적극 검토하겠습니다.' 
+            },
+            { 
+                id: 1, category: '문화/관광', title: 'HAF 역대 참여 부스(BanG Dream!, 러브라이브! 등) 공식 굿즈 판매량', date: '2025-11-20', status: '개방불가', statusClass: 'bg-red-100 text-red-700 border-red-200',
+                note: 'IP 라이선스 협약에 따른 대외비 사항으로 개방 불가',
+                applicant: '안O호',
+                content: '역대 HAF(효빈 애니메이션 페스티벌)에 참여했던 유명 IP 부스들의 일자별 공식 굿즈 판매량(수량, 매출액) 데이터를 요청합니다. 향후 유사 행사 참가 기획용으로 쓰려 합니다.',
+                reply: '<strong>[문화관광체육국]</strong><br>요청하신 개별 부스의 공식 굿즈 판매 데이터는 각 IP 라이선스 권리자 측과의 업무협약 상 철저한 <strong>비밀유지(대외비) 조항에 해당</strong>하여 공공데이터로 개방이 불가함을 알려드립니다.' 
+            }
+        ];
+
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-count').innerText = demandData.length;
+            renderList();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 목록 렌더링 함수
+        function renderList() {
+            const tbody = document.getElementById('demand-list-body');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = demandData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition cursor-pointer';
+                tr.onclick = () => showDetail(item.id);
+                
+                const titleAttr = item.note ? `title="개방불가 사유: ${item.note}"` : '';
+
+                tr.innerHTML = `
+                    <td class="center font-medium text-slate-500">${item.id}</td>
+                    <td class="center text-sm font-bold text-slate-700">${item.category}</td>
+                    <td class="font-bold text-slate-800 py-4 transition hover:text-[#005bac]" ${titleAttr}>
+                        ${item.title}
+                        ${item.note ? '<i data-lucide="info" class="w-4 h-4 inline text-red-400 ml-1 mb-0.5"></i>' : ''}
+                    </td>
+                    <td class="center text-sm text-slate-600">${item.date}</td>
+                    <td class="center">
+                        <span class="px-2.5 py-1.5 rounded text-xs font-bold border ${item.statusClass}" ${titleAttr}>
+                            ${item.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const totalPages = Math.ceil(demandData.length / itemsPerPage);
+            const nav = document.getElementById('pagination-container');
+            nav.innerHTML = '';
+
+            const prevClass = currentPage === 1 ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage - 1}); return false;" class="text-slate-500 ${prevClass}" aria-label="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                nav.innerHTML += `<a href="#" onclick="changePage(${i}); return false;" class="${activeClass}">${i}</a>`;
+            }
+
+            const nextClass = currentPage === totalPages ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage + 1}); return false;" class="text-slate-500 ${nextClass}" aria-label="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></a>`;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(demandData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderList();
+        }
+
+        // 상세 뷰 표시 로직
+        function showDetail(id) {
+            const item = demandData.find(d => d.id === id);
+            if(!item) return;
+
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            const statusEl = document.getElementById('detail-status');
+            statusEl.className = `px-3 py-1 rounded-full text-xs font-bold border ${item.statusClass}`;
+            statusEl.innerText = item.status;
+            
+            document.getElementById('detail-applicant').innerText = item.applicant;
+            document.getElementById('detail-category').innerText = item.category;
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-date').innerText = item.date;
+            document.getElementById('detail-content').innerText = item.content;
+            document.getElementById('detail-reply').innerHTML = item.reply;
+
+            window.scrollTo({ top: document.getElementById('detail-view-container').offsetTop - 120, behavior: 'smooth' });
+        }
+
+        // 목록으로 돌아가기 로직
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            
+            const listTop = document.getElementById('list-view-container').offsetTop - 50;
+            window.scrollTo({ top: listTop > 0 ? listTop : 0, behavior: 'smooth' });
+        }
+
+        // 폼 제출 시뮬레이션
+        function submitForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 mr-2 animate-spin"></i> 접수 중...';
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                alert('🎉 공공데이터 수요조사 신청이 완료되었습니다!\n\n효빈시의 스마트 행정에 기여해 주셔서 감사합니다. 접수된 안건은 관련 부서의 검토를 거쳐 개방 여부가 결정되며, 기재해주신 이메일로 결과를 안내해 드립니다.');
+                document.getElementById('data-demand-form').reset();
+                
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

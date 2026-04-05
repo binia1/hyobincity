@@ -52,8 +52,8 @@ const headerHTML = `
                     <div class="absolute left-1/2 -translate-x-1/2 top-full mt-0 w-40 bg-white text-slate-800 font-normal shadow-lg border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-y-0 group-hover:scale-y-100 flex flex-col z-50">
                         <a href="news.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">새소식</a>
                         <a href="official_notice.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">고시&공고</a>
-                        <a href="press_release.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">보도자료</a>
-                        <a href="construction.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">공사알림</a>
+                        <a href="보도자료.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] border-b border-slate-100 transition">보도자료</a>
+                        <a href="news.html" class="px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 text-[14px] transition rounded-b-lg">공사알림</a>
                     </div>
                 </li>
                 <li class="text-slate-600 text-xs hidden md:block">|</li>
@@ -394,8 +394,8 @@ const modalsHTML = `
                             <li><a href="news.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-blue-700 dark:text-blue-400">시정소식 홈 바로가기</a></li>
                             <li><a href="news.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">새소식</a></li>
                             <li><a href="official_notice.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">고시&공고</a></li>
-                            <li><a href="press_release.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">보도자료</a></li>
-                            <li><a href="construction.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">공사알림</a></li>
+                            <li><a href="보도자료.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">보도자료</a></li>
+                            <li><a href="news.html" class="block p-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">공사알림</a></li>
                         </ul>
                     </li>
 

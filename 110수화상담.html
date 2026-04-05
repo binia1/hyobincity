@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>110수화(화상)상담 - 효빈광역시 민원처리공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+
+        /* 탭 버튼 스타일 */
+        .tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            font-weight: 700;
+            color: #64748b;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-bottom: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn:first-child { border-top-left-radius: 0.75rem; border-left: 1px solid #e2e8f0; }
+        .tab-btn:last-child { border-top-right-radius: 0.75rem; border-right: 1px solid #e2e8f0; }
+        .tab-btn.active {
+            color: #005bac;
+            background-color: #ffffff;
+            border-top: 2px solid #005bac;
+            border-bottom: 2px solid #ffffff;
+            border-left: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+        }
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 서비스 카드 호버 효과 */
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px -5px rgba(0, 91, 172, 0.15);
+            border-color: #93c5fd;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28 no-print">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">민원처리공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 작은 목소리도 데이터로 새겨듣고 시정에 반영합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block no-print">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="headphones" class="w-5 h-5 mr-2"></i> 민원처리공개
+                </h4>
+                <ul class="space-y-1.5 text-[14px] lnb-menu">
+                    <li><a href="한눈에보는민원빅데이터.html">한눈에 보는 민원 빅데이터</a></li>
+                    <li><a href="금융복지지원센터.html">금융복지지원센터</a></li>
+                    <li><a href="110수화상담.html" class="active">110수화(화상)상담</a></li>
+                    <li><a href="110채팅상담.html">110채팅상담</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8 no-print">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">민원/참여</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">민원처리공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">110수화(화상)상담</span>
+            </div>
+
+            <!-- Page Title & Intro -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight flex items-center">
+                    효빈광역시 110 수어(화상) 상담 <i data-lucide="video" class="w-8 h-8 ml-3 text-blue-600"></i>
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    청각·언어 장애가 있는 효빈 시민 여러분이 시정 전반에 대해 불편함 없이 상담받으실 수 있도록, <strong>전문 수어 통역사가 1:1 화상 수어 상담 및 문자 상담 서비스</strong>를 제공합니다. 효빈시는 장벽 없는(Barrier-Free) 스마트 행정을 실천합니다.
+                </p>
+            </div>
+
+            <!-- 1. 서비스 개요 -->
+            <section class="mb-12">
+                <div class="bg-gradient-to-r from-[#1a365d] to-[#005bac] rounded-2xl p-8 shadow-lg text-white relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4">
+                        <i data-lucide="webcam" class="w-48 h-48"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold mb-4 flex items-center">
+                            <i data-lucide="info" class="w-5 h-5 mr-2 text-blue-300"></i> 수어(화상) 상담 서비스 이용 안내
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm">
+                                <span class="block text-blue-200 text-sm font-bold mb-1">운영 시간</span>
+                                <div class="text-lg font-bold">평일 09:00 ~ 18:00</div>
+                                <p class="text-xs text-blue-100 mt-1">※ 점심시간(12:00~13:00) 및 주말, 공휴일 제외</p>
+                            </div>
+                            <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm">
+                                <span class="block text-blue-200 text-sm font-bold mb-1">상담 분야</span>
+                                <div class="text-lg font-bold">효빈시 시정 및 민원 전 분야</div>
+                                <p class="text-xs text-blue-100 mt-1">여권, 교통, 세무, 복지, 일반 민원 등</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 리스트 뷰 영역 (주요 상담 분야 목록) -->
+            <div id="list-view-container">
+                <section class="mb-14">
+                    <div class="flex items-end justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-[#005bac] inline-block mr-3 rounded-sm"></span> 효빈시 맞춤형 주요 상담 분야
+                        </h3>
+                        <span class="text-sm font-bold text-blue-600 hidden sm:block">* 카드를 클릭하시면 세부 상담 내용 및 FAQ를 확인하실 수 있습니다.</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="service-card bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col group" onclick="showCounselingDetail('traffic')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-blue-50 text-[#01B7ED] rounded-xl flex items-center justify-center shrink-0 group-hover:bg-[#01B7ED] group-hover:text-white transition-colors">
+                                        <i data-lucide="bus" class="w-7 h-7"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-blue-700 transition-colors">교통 및 무장애 이동</h4>
+                                </div>
+                                <i data-lucide="arrow-up-right" class="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed flex-1">
+                                3세대 저상 시내버스(간선 <span class="font-bold text-[#01B7ED]">#01B7ED</span> 등) 휠체어 리프트 예약 및 도시철도 7호선(<span class="font-bold text-[#FF8899]">#FF8899</span>) 트램 단차 제로 이용 방법 등 배리어프리 대중교통 상담.
+                            </p>
+                        </div>
+
+                        <div class="service-card bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col group" onclick="showCounselingDetail('welfare')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="home" class="w-7 h-7"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-indigo-700 transition-colors">복지 및 주거 지원</h4>
+                                </div>
+                                <i data-lucide="arrow-up-right" class="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed flex-1">
+                                장애인 수당, 활동지원서비스 신청 안내 및 청년/장애인 특별공급 대상 '효빈드림 하우스' 입주 자격 요건 수어 맞춤형 상담.
+                            </p>
+                        </div>
+
+                        <div class="service-card bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col group" onclick="showCounselingDetail('culture')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                                        <i data-lucide="ticket" class="w-7 h-7"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-pink-700 transition-colors">문화·관광 행사 정보</h4>
+                                </div>
+                                <i data-lucide="arrow-up-right" class="w-5 h-5 text-slate-300 group-hover:text-pink-500 transition-colors"></i>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed flex-1">
+                                HAF(효빈 애니메이션 페스티벌) 등 시 주관 주요 행사의 수어 통역 배치 구역 안내 및 당가동 특화거리 무장애 투어 코스 안내.
+                            </p>
+                        </div>
+
+                        <div class="service-card bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col group" onclick="showCounselingDetail('admin')">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="file-text" class="w-7 h-7"></i>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 text-lg group-hover:text-emerald-700 transition-colors">일반 행정 및 민원</h4>
+                                </div>
+                                <i data-lucide="arrow-up-right" class="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors"></i>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed flex-1">
+                                주민등록등본 발급, 자동차세 납부 안내, 여권 발급 절차 등 시청(1호선 <span class="font-bold text-[#0077DD]">#0077DD</span> 연계) 및 8구 1군청 민원실 예약 업무.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 상세 뷰 영역 (동적 전환) -->
+            <div id="detail-view-container" class="hidden mb-14">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-[#005bac] inline-block mr-3 rounded-sm"></span> 분야별 수어 상담 상세 안내
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                    <!-- 상세 헤더 -->
+                    <div class="bg-slate-50 p-8 border-b border-slate-200 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div id="detail-icon-wrapper" class="w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                            <i id="detail-icon" data-lucide="info" class="w-10 h-10"></i>
+                        </div>
+                        <div class="flex-1">
+                            <span id="detail-category" class="px-3 py-1 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-sm text-slate-600 mb-3 inline-block">카테고리</span>
+                            <h3 class="text-2xl md:text-3xl font-black text-slate-800 mb-3" id="detail-title">상담 분야 제목</h3>
+                            <p class="text-[15px] text-slate-600 leading-relaxed" id="detail-desc">
+                                세부 설명
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 세부 상담 내용 (FAQ 형태) -->
+                    <div class="p-8">
+                        <h4 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                            <i data-lucide="message-circle-question" class="w-5 h-5 mr-2 text-blue-600"></i> 자주 묻는 수어 상담 사례 (FAQ)
+                        </h4>
+                        <div class="space-y-4" id="detail-faq-list">
+                            <!-- JS 렌더링 -->
+                        </div>
+
+                        <!-- 해당 분야 다이렉트 콜 -->
+                        <div class="mt-8 bg-blue-50 p-6 rounded-xl border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div>
+                                <h5 class="font-bold text-blue-900 mb-1">상담원 연결이 필요하신가요?</h5>
+                                <p class="text-sm text-blue-800">이 분야에 대해 110 전문 수어 통역사와 실시간 화상으로 궁금증을 해결해 보세요.</p>
+                            </div>
+                            <button onclick="startVideoCounseling()" class="px-6 py-3 bg-[#1a365d] text-white font-bold rounded-lg hover:bg-slate-800 transition flex items-center shrink-0 shadow-md">
+                                <i data-lucide="video" class="w-5 h-5 mr-2"></i> 이 분야 화상 상담 연결
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3">
+                    <button onclick="hideDetail()" class="px-8 py-4 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i> 이전 화면으로
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- 3. 이용 매체별 상세 안내 (Tab UI) -->
+            <section class="mb-14">
+                <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-[#005bac] inline-block mr-3 rounded-sm"></span> 매체별 화상 상담 연결 방법
+                    </h3>
+                </div>
+
+                <div class="w-full">
+                    <!-- Tab Buttons -->
+                    <div class="flex flex-row w-full mb-0">
+                        <div class="tab-btn active flex flex-col items-center justify-center gap-2" onclick="openTab('tab-pc')">
+                            <i data-lucide="monitor" class="w-6 h-6"></i> PC (웹카메라)
+                        </div>
+                        <div class="tab-btn flex flex-col items-center justify-center gap-2" onclick="openTab('tab-mobile')">
+                            <i data-lucide="smartphone" class="w-6 h-6"></i> 스마트폰 (앱)
+                        </div>
+                        <div class="tab-btn flex flex-col items-center justify-center gap-2" onclick="openTab('tab-phone')">
+                            <i data-lucide="phone-call" class="w-6 h-6"></i> 전용 화상전화기
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: PC -->
+                    <div id="tab-pc" class="tab-content active">
+                        <div class="flex flex-col md:flex-row gap-8 items-center">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-slate-800 mb-3 flex items-center">
+                                    <i data-lucide="monitor-play" class="w-5 h-5 mr-2 text-blue-600"></i> PC 홈페이지 화상 상담
+                                </h4>
+                                <p class="text-[14.5px] text-slate-600 leading-relaxed mb-4">
+                                    웹카메라(웹캠)가 설치된 PC에서 별도의 프로그램 설치 없이 바로 상담원과 화상 연결을 진행할 수 있습니다.
+                                </p>
+                                <ol class="space-y-3 text-sm text-slate-700 bg-slate-50 p-5 rounded-lg border border-slate-100">
+                                    <li class="flex items-start">
+                                        <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0 mr-2 mt-0.5">1</span>
+                                        본 페이지 하단의 <strong>[수화(화상) 상담 연결하기]</strong> 버튼 클릭
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0 mr-2 mt-0.5">2</span>
+                                        브라우저의 '카메라 및 마이크 접근 허용' 팝업에서 <strong>[허용]</strong> 클릭
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0 mr-2 mt-0.5">3</span>
+                                        화면 접속 후 대기하면 전문 수어 통역사와 1:1 연결 완료
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="shrink-0 w-full md:w-1/3">
+                                <div class="aspect-video bg-slate-200 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-slate-300 text-slate-400">
+                                    <i data-lucide="webcam" class="w-12 h-12 mb-2"></i>
+                                    <span class="text-sm font-bold">웹캠 필수</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Mobile -->
+                    <div id="tab-mobile" class="tab-content">
+                        <div class="flex flex-col md:flex-row gap-8 items-center">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-slate-800 mb-3 flex items-center">
+                                    <i data-lucide="smartphone" class="w-5 h-5 mr-2 text-indigo-600"></i> 스마트폰 전용 앱 상담
+                                </h4>
+                                <p class="text-[14.5px] text-slate-600 leading-relaxed mb-4">
+                                    이동 중이거나 외부에서도 스마트폰의 영상통화 기능을 통해 편리하게 수어 상담을 받을 수 있습니다.
+                                </p>
+                                <ol class="space-y-3 text-sm text-slate-700 bg-slate-50 p-5 rounded-lg border border-slate-100">
+                                    <li class="flex items-start">
+                                        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 mr-2 mt-0.5">1</span>
+                                        구글 플레이스토어 또는 애플 앱스토어에서 <strong>'효빈시 110 수화상담'</strong> 검색 후 앱 설치
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 mr-2 mt-0.5">2</span>
+                                        앱 실행 후 메인 화면에서 <strong>[화상 통화 연결]</strong> 터치
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0 mr-2 mt-0.5">3</span>
+                                        상담사 연결 후 스마트폰 전면 카메라를 이용해 수어 상담 진행
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="shrink-0 w-full md:w-1/3 flex justify-center">
+                                <div class="w-32 h-48 bg-slate-800 rounded-2xl border-4 border-slate-300 relative flex items-center justify-center text-white">
+                                    <i data-lucide="smartphone-nfc" class="w-10 h-10"></i>
+                                    <div class="absolute bottom-2 w-10 h-1 bg-slate-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Phone -->
+                    <div id="tab-phone" class="tab-content">
+                        <div class="flex flex-col md:flex-row gap-8 items-center">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-bold text-slate-800 mb-3 flex items-center">
+                                    <i data-lucide="phone" class="w-5 h-5 mr-2 text-emerald-600"></i> 씨토크(SeeTalk) 화상전화기
+                                </h4>
+                                <p class="text-[14.5px] text-slate-600 leading-relaxed mb-4">
+                                    청각·언어 장애인 전용 화상 단말기(씨토크 등)가 설치된 경우, 고화질 전용망을 통해 끊김 없는 통화가 가능합니다.
+                                </p>
+                                <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+                                    <span class="block text-emerald-800 text-sm font-bold mb-2">효빈시 110 수화상담 전용 번호</span>
+                                    <div class="text-3xl font-black text-emerald-600 tracking-wider">070-7947-XXXX</div>
+                                    <p class="text-xs text-emerald-700 mt-2">* 전용 화상전화기에서 위 번호를 누르시면 바로 연결됩니다.</p>
+                                </div>
+                            </div>
+                            <div class="shrink-0 w-full md:w-1/3">
+                                <div class="aspect-video bg-slate-100 rounded-lg flex flex-col items-center justify-center border border-slate-200 text-slate-500">
+                                    <i data-lucide="phone-call" class="w-10 h-10 mb-2"></i>
+                                    <span class="text-sm font-bold">전용 단말기 연결</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <div class="mt-12 bg-white border-2 border-[#1a365d] rounded-2xl p-10 text-center shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-black mb-3 text-slate-800">지금 바로 전문 수어 통역사와 연결하시겠습니까?</h3>
+                    <p class="text-slate-600 mb-8 text-[15px]">PC 카메라 권한을 허용해 주시면 실시간 화상 상담 창으로 이동합니다.</p>
+                    <div class="flex justify-center">
+                        <button onclick="startVideoCounseling()" class="px-10 py-5 bg-[#005bac] text-white font-bold text-lg rounded-xl hover:bg-blue-800 transition shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center justify-center w-full max-w-md">
+                            <i data-lucide="video" class="w-6 h-6 mr-3"></i> 수화(화상) 상담 즉시 연결
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 가상 화상 상담 모달 (시뮬레이션) -->
+    <div id="video-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/80">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col h-[80vh]">
+            <!-- 헤더 -->
+            <div class="bg-slate-900 p-4 text-white flex justify-between items-center shrink-0">
+                <div class="flex items-center">
+                    <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse mr-2"></span>
+                    <h3 class="text-lg font-bold">효빈시 110 수화(화상) 상담 연결 중...</h3>
+                </div>
+                <button onclick="closeVideoCounseling()" class="hover:bg-slate-700 p-1.5 rounded-lg transition text-slate-300 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <!-- 영상 영역 -->
+            <div class="flex-1 relative bg-black flex items-center justify-center p-4">
+                <!-- 상담사 화면 (메인) -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                    <i data-lucide="user-check" class="w-24 h-24 mb-4 opacity-50"></i>
+                    <p class="text-xl font-bold animate-pulse text-white">상담사를 연결하고 있습니다. 잠시만 기다려 주세요.</p>
+                </div>
+                
+                <!-- 내 화면 (우측 하단 PIP) -->
+                <div class="absolute bottom-6 right-6 w-48 h-64 bg-slate-800 rounded-lg border-2 border-slate-600 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div class="text-center text-slate-400">
+                        <i data-lucide="camera" class="w-8 h-8 mx-auto mb-2"></i>
+                        <span class="text-xs font-bold">내 카메라 확인 중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 컨트롤 패널 -->
+            <div class="bg-slate-900 p-4 flex items-center justify-center gap-6 shrink-0">
+                <button class="w-14 h-14 rounded-full bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center transition" title="마이크 켜기/끄기">
+                    <i data-lucide="mic-off" class="w-6 h-6"></i>
+                </button>
+                <button onclick="closeVideoCounseling()" class="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition shadow-lg" title="상담 종료">
+                    <i data-lucide="phone-off" class="w-7 h-7"></i>
+                </button>
+                <button class="w-14 h-14 rounded-full bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center transition" title="카메라 켜기/끄기">
+                    <i data-lucide="video" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 상담 분야 세부 데이터 (효빈시 세계관 적용)
+        const counselingData = {
+            'traffic': {
+                title: '교통 및 무장애 이동 수어 안내',
+                category: '교통 지원',
+                icon: 'bus',
+                themeColor: 'blue',
+                desc: '효빈시의 대중교통을 장애물 없이 이용할 수 있도록, 3세대 저상버스와 트램 이용에 대한 상세한 수어 상담과 예약 대행을 지원합니다.',
+                faqs: [
+                    { q: '3세대 저상 시내버스 휠체어 리프트 이용은 어떻게 예약하나요?', a: '효빈시 3세대 준공영제 도입으로 간선버스(<span class="font-bold text-[#01B7ED]">#01B7ED</span>), 지선버스(<span class="font-bold text-[#37B484]">#37B484</span>) 등에 저상버스가 대거 투입되었습니다. 수화 상담을 통해 탑승 예정 정류장과 노선 번호를 알려주시면, 상담원이 해당 버스 기사님께 리프트 전개 및 공간 확보를 사전 요청해 드립니다.' },
+                    { q: '도시철도 7호선 무가선 트램의 배리어프리(단차 제로) 이용 방법을 알려주세요.', a: '7호선 트램(분홍색, <span class="font-bold text-[#FF8899]">#FF8899</span>)은 전 구간 승강장과 열차 내부의 높이 차이가 없는 완전 평면(단차 제로) 구조입니다. 휠체어 전용석 위치(열차 두 번째 칸) 및 교통약자 전용 스마트 쉘터 승강장 위치를 화상으로 상세히 안내해 드립니다.' },
+                    { q: '광역전철이나 타 지역으로 갈 때 이동 지원이 되나요?', a: '탄성군으로 연장된 빈효선 광역전철(<span class="font-bold text-[#6677CC]">#6677CC</span>) 역사의 교통약자 엘리베이터 동선 도면을 화면으로 공유해 드리며, 시외 이동 시 중증장애인 전용 콜택시(새빛콜) 배차를 대행 접수해 드립니다.' }
+                ]
+            },
+            'welfare': {
+                title: '복지 및 청년 주거 지원 수어 상담',
+                category: '주거/복지',
+                icon: 'home',
+                themeColor: 'indigo',
+                desc: '장애인 연금, 복지 혜택 및 효빈시 특화 청년 주거 지원인 "효빈드림 하우스"의 장애인 특별 공급에 대해 전문적인 수어 설명을 제공합니다.',
+                faqs: [
+                    { q: '청년임대주택 "효빈드림 하우스"의 장애인 특별공급 자격이 궁금합니다.', a: '청엽구 8호선(<span class="font-bold text-[#9856FF]">#9856FF</span>) 대학가 인근에 조성 중인 효빈드림 하우스 2차는 청각장애인 등 교통약자를 위한 특화 세대(시각 알림 초인종, 단차 제거 등)가 마련되어 있습니다. 무주택 요건과 소득 기준 산정 방법을 수어로 알기 쉽게 상담해 드립니다.' },
+                    { q: '장애인 활동지원 서비스 시간 추가 신청 절차가 복잡해요.', a: '기존에 받고 계신 활동지원 시간에 추가 시간이 필요하신 경우, 주민센터 방문 없이도 화상 상담을 통해 상담원이 대리로 신청서를 작성해 드리고 관할 구청 복지과로 전송해 드리는 서비스를 제공하고 있습니다.' },
+                    { q: '청각장애인용 통신비 감면 혜택은 어떻게 받나요?', a: '기초생활수급자 및 차상위계층 등에 해당하는 경우, 상담 시 본인 인증(신분증 카메라 비춤)을 거치면 통신 3사 및 알뜰폰 통신비 감면 전산 등록을 즉시 대행해 드립니다.' }
+                ]
+            },
+            'culture': {
+                title: '문화/관광 행사 무장애 투어 안내',
+                category: '문화 행사',
+                icon: 'ticket',
+                themeColor: 'pink',
+                desc: 'HAF 등 대형 축제와 효빈시 관광 명소를 청각장애인 분들도 제약 없이 즐기실 수 있도록 수어 통역 배치 및 편의 시설을 안내합니다.',
+                faqs: [
+                    { q: '제17회 HAF(효빈 애니메이션 페스티벌) 개막식에 수어 통역이 있나요?', a: '네, 효빈종합운동장 주경기장에서 열리는 HAF 개막식(글로벌 IP 뱅드림 등 초청 공연)에는 대형 스크린 양측에 전담 수어 통역사가 배치되며, 청각장애인을 위한 최전열 무장애(Barrier-Free) 지정석 예매를 화상 상담으로 대행해 드립니다.' },
+                    { q: '당가동 파스텔블루 특화거리에서 무장애 관광 코스가 있나요?', a: '구도심 당가동 파스텔블루 거리는 전 구간 보행자 전용 도로로 턱이 없습니다. 화상 상담 시 해당 거리의 휠체어 접근 가능 팝업스토어 목록과 장애인 전용 화장실 위치가 표시된 특별 지도를 화면에 띄워 설명해 드립니다.' },
+                    { q: '효빈시립박물관 관람 시 수어 해설기 대여가 가능한가요?', a: '시립박물관 및 미술관 안내 데스크에서 신분증을 제시하시면, 작품 해설이 수어 영상으로 나오는 태블릿 PC를 무료로 대여하실 수 있습니다. 대여 예약도 상담원이 도와드립니다.' }
+                ]
+            },
+            'admin': {
+                title: '일반 행정 및 민원 서류 지원',
+                category: '일반 행정',
+                icon: 'file-text',
+                themeColor: 'emerald',
+                desc: '복잡한 세금 납부나 여권 발급, 등본 등 각종 행정 민원을 시청 방문 없이도 수어 상담사가 원격으로 보조해 드립니다.',
+                faqs: [
+                    { q: '여권 만료가 다가오는데, 시청 민원실 방문 예약을 할 수 있나요?', a: '효빈시청(1호선 <span class="font-bold text-[#0077DD]">#0077DD</span> 시청역 앞) 종합민원실 방문 날짜와 시간을 수어로 예약해 드립니다. 방문 시 창구에 비치된 전용 태블릿을 통해 110 화상 상담사와 3자(민원인-공무원-통역사) 통역도 지원됩니다.' },
+                    { q: '지방세(자동차세, 재산세) 고지서를 받았는데 납부 방법을 모르겠어요.', a: '화상 카메라로 고지서를 비춰주시면 상담원이 가상계좌 번호와 납부 금액을 확인하여 수어로 알려드립니다. 또한 시각적 안내가 필요한 경우 ARS 납부 번호 이용 절차를 상세히 설명해 드립니다.' },
+                    { q: '집 앞 불법 주정차를 신고하고 싶은데 문자로도 가능한가요?', a: '네, 화상 상담 중에 화면 채팅창을 통해 불법 주정차 차량 번호와 위치(사진 첨부 가능)를 넘겨주시면, 상담원이 즉시 효빈시 주차단속반(안전신문고)으로 대리 신고를 접수해 드립니다.' }
+                ]
+            }
+        };
+
+        // 초기화 시 아이콘 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 탭 UI 제어 로직
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 상세 뷰 표시 로직
+        function showCounselingDetail(id) {
+            const data = counselingData[id];
+            if(!data) return;
+
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            const colors = {
+                'blue': { bg: 'bg-blue-50', text: 'text-[#005bac]' },
+                'emerald': { bg: 'bg-emerald-50', text: 'text-emerald-600' },
+                'pink': { bg: 'bg-pink-50', text: 'text-pink-600' },
+                'indigo': { bg: 'bg-indigo-50', text: 'text-indigo-600' }
+            };
+            const theme = colors[data.themeColor] || colors['blue'];
+
+            const iconWrapper = document.getElementById('detail-icon-wrapper');
+            iconWrapper.className = `w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${theme.bg} ${theme.text}`;
+            
+            const iconEl = document.getElementById('detail-icon');
+            iconEl.setAttribute('data-lucide', data.icon);
+            
+            document.getElementById('detail-category').innerText = data.category;
+            document.getElementById('detail-title').innerText = data.title;
+            document.getElementById('detail-desc').innerHTML = data.desc;
+
+            // FAQ 렌더링
+            const faqContainer = document.getElementById('detail-faq-list');
+            faqContainer.innerHTML = '';
+            
+            data.faqs.forEach((faq, index) => {
+                const item = document.createElement('div');
+                item.className = 'bg-slate-50 border border-slate-200 rounded-xl p-5';
+                item.innerHTML = `
+                    <h5 class="font-bold text-slate-800 mb-3 flex items-start">
+                        <span class="w-6 h-6 bg-slate-800 text-white rounded-full flex items-center justify-center text-xs shrink-0 mr-3 mt-0.5">Q</span>
+                        <span>${faq.q}</span>
+                    </h5>
+                    <div class="flex items-start">
+                        <span class="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mr-3 mt-0.5 border border-blue-200">A</span>
+                        <p class="text-[14.5px] text-slate-700 leading-relaxed">${faq.a}</p>
+                    </div>
+                `;
+                faqContainer.appendChild(item);
+            });
+
+            window.scrollTo({ top: document.getElementById('detail-view-container').offsetTop - 120, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 목록으로 돌아가기 로직
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            window.scrollTo({ top: document.getElementById('list-view-container').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // 화상 상담 모달 오픈 (시뮬레이션)
+        function startVideoCounseling() {
+            const now = new Date();
+            const hour = now.getHours();
+            const day = now.getDay();
+            
+            if (day === 0 || day === 6 || hour < 9 || hour >= 18) {
+                const proceed = confirm("현재는 수어(화상) 상담 운영 시간(평일 09:00~18:00)이 아닙니다.\n(※ 웹 시연을 위해 강제로 연결 화면을 테스트하시겠습니까?)");
+                if (!proceed) return;
+            }
+
+            const modal = document.getElementById('video-modal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 화상 상담 모달 닫기
+        function closeVideoCounseling() {
+            const modal = document.getElementById('video-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>
+</html>

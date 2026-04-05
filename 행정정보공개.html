@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행정정보공개 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 섹션 타이틀 포인트 */
+        .section-title {
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 20px;
+            background-color: #005bac; /* hyobin-blue */
+            border-radius: 3px;
+        }
+
+        /* 절차 스텝 다이어그램 화살표 */
+        .step-arrow::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -24px;
+            transform: translateY(-50%);
+            border-width: 12px;
+            border-style: solid;
+            border-color: transparent transparent transparent #e2e8f0;
+            z-index: 10;
+        }
+        @media (max-width: 768px) {
+            .step-arrow::after {
+                top: auto;
+                bottom: -24px;
+                right: 50%;
+                transform: translateX(50%);
+                border-color: #e2e8f0 transparent transparent transparent;
+            }
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 (요청하신 메뉴 구조 적용) -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center">
+                    <i data-lucide="folder-open" class="w-5 h-5 mr-2"></i> 행정/원문 정보공개
+                </h4>
+                <ul class="space-y-1.5 text-[13px] lnb-menu">
+                    <li><a href="행정정보공개.html" class="active">정보공개제도안내</a></li>
+                    <li><a href="정보공개청구현황.html">정보공개청구현황</a></li>
+                    <li><a href="정보공개청구.html">정보공개청구</a></li>
+                    <li><a href="비공개세부기준.html">비공개세부기준</a></li>
+                    <li><a href="정보공개수수료.html">정보공개수수료</a></li>
+                    <li><a href="불복처리절차.html">불복처리절차</a></li>
+                    <li><a href="관련법령및서식.html">관련법령 및 서식</a></li>
+                    <li><a href="정보공개편람.html">정보공개편람</a></li>
+                    <li><a href="예산재정정보.html">예산·재정정보</a></li>
+                    <li><a href="사전정보공표목록.html">사전정보공표목록</a></li>
+                    <li><a href="즐겨찾는사전정보.html">즐겨찾는사전정보</a></li>
+                    <li><a href="원문정보공개안내.html">원문정보공개안내</a></li>
+                    <li><a href="원문정보목록.html">원문정보목록</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative" id="print-area">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">행정/원문 정보공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">정보공개제도안내</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">정보공개제도 안내</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">국가기관, 지방자치단체 등 공공기관이 업무 수행 중 생산·접수하여 보유·관리하는 정보를 국민에게 공개하는 제도입니다.</p>
+            </div>
+
+            <!-- 정보공개포털 퀵 배너 -->
+            <div class="bg-gradient-to-r from-[#1a365d] to-blue-800 rounded-2xl p-6 md:p-8 text-white shadow-lg mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-5">
+                    <div class="bg-white/20 p-4 rounded-full shrink-0 hidden sm:block">
+                        <i data-lucide="monitor-stop" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <div>
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-sm mb-2">대한민국 정보공개포털</span>
+                        <h3 class="text-2xl font-black mb-2">빠르고 편리한 인터넷 정보공개 청구</h3>
+                        <p class="text-blue-100 text-sm leading-relaxed">
+                            효빈광역시청 및 직속기관을 방문하지 않고도<br class="hidden md:block">언제 어디서나 인터넷을 통해 정보공개를 청구하실 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <a href="https://www.open.go.kr" target="_blank" class="shrink-0 bg-white text-[#1a365d] font-bold py-3 px-6 rounded-xl shadow-md hover:bg-slate-50 transition flex items-center group">
+                    정보공개포털 바로가기 <i data-lucide="external-link" class="w-5 h-5 ml-2 group-hover:scale-110 transition-transform"></i>
+                </a>
+            </div>
+
+            <!-- 제도 목적 및 의의 -->
+            <section class="mb-12">
+                <h3 class="text-xl font-bold text-slate-800 mb-5 section-title">제도의 목적 및 의의</h3>
+                <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm text-[15px] text-slate-700 leading-relaxed">
+                    <p class="mb-3">
+                        <strong class="text-blue-800">정보공개제도</strong>는 국민의 알 권리를 보장하고 국정에 대한 국민의 참여와 국정 운영의 투명성을 확보하기 위하여 공공기관이 보유·관리하는 정보를 국민의 청구에 의하여 공개하거나, 공공기관이 자발적으로 제공하는 제도입니다.
+                    </p>
+                    <p>
+                        효빈광역시는 과거 폐쇄적이고 불투명했던 행정 관행을 완전히 타파하고, 모든 행정 정보를 원칙적으로 공개하여 시민 중심의 열린 시정을 구현하고 있습니다.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 청구권자 -->
+            <section class="mb-12">
+                <h3 class="text-xl font-bold text-slate-800 mb-5 section-title">정보공개 청구권자</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 국민 -->
+                    <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl flex flex-col items-center text-center hover:border-blue-300 transition">
+                        <div class="bg-blue-100 text-blue-700 p-4 rounded-full mb-4">
+                            <i data-lucide="users" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 mb-2">모든 국민</h4>
+                        <p class="text-sm text-slate-600">모든 국민은 청구인 본인 또는 그 대리인을 통하여 공공기관에 정보공개를 청구할 수 있습니다.</p>
+                    </div>
+                    <!-- 법인, 단체 -->
+                    <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl flex flex-col items-center text-center hover:border-blue-300 transition">
+                        <div class="bg-blue-100 text-blue-700 p-4 rounded-full mb-4">
+                            <i data-lucide="building" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 mb-2">법인 및 단체</h4>
+                        <p class="text-sm text-slate-600">법인과 단체의 경우 대표자의 명의로 정보공개를 청구할 수 있습니다.</p>
+                    </div>
+                    <!-- 외국인 -->
+                    <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl flex flex-col items-center text-center hover:border-blue-300 transition">
+                        <div class="bg-blue-100 text-blue-700 p-4 rounded-full mb-4">
+                            <i data-lucide="globe" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-800 mb-2">외국인</h4>
+                        <p class="text-sm text-slate-600">국내에 일정한 주소를 두고 거주하거나 학술·연구를 위하여 일시적으로 체류하는 자 등 일정한 요건을 갖춘 경우에 한합니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 청구 방법 -->
+            <section class="mb-12">
+                <h3 class="text-xl font-bold text-slate-800 mb-5 section-title">청구 방법</h3>
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <ul class="divide-y divide-slate-200">
+                        <li class="p-5 flex items-start gap-4">
+                            <i data-lucide="mouse-pointer-click" class="w-6 h-6 text-slate-400 mt-0.5 shrink-0"></i>
+                            <div>
+                                <strong class="block text-slate-800 text-[15px] mb-1">인터넷 청구 (가장 편리함)</strong>
+                                <p class="text-sm text-slate-600">대한민국 정보공개포털(<a href="https://www.open.go.kr" target="_blank" class="text-blue-600 hover:underline">www.open.go.kr</a>)에 접속하여 청구서를 작성 및 제출합니다.</p>
+                            </div>
+                        </li>
+                        <li class="p-5 flex items-start gap-4">
+                            <i data-lucide="file-text" class="w-6 h-6 text-slate-400 mt-0.5 shrink-0"></i>
+                            <div>
+                                <strong class="block text-slate-800 text-[15px] mb-1">서면 청구 (방문, 우편, 팩스)</strong>
+                                <p class="text-sm text-slate-600">정보공개청구서를 작성하여 효빈광역시청 민원실 또는 정보를 보유한 처리 부서에 직접 제출하거나 우편, 팩스로 발송합니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 업무 처리 절차 (다이어그램) -->
+            <section class="mb-12">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 section-title">정보공개 처리 절차</h3>
+                
+                <div class="flex flex-col md:flex-row gap-6 relative">
+                    <!-- Step 1 -->
+                    <div class="flex-1 bg-white border border-slate-200 rounded-xl p-5 text-center shadow-sm relative md:step-arrow">
+                        <div class="w-12 h-12 mx-auto bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-black text-xl mb-3">1</div>
+                        <h4 class="font-bold text-slate-800 mb-2">청구서 제출</h4>
+                        <p class="text-xs text-slate-500 break-keep">청구인 작성 및 접수처(정보공개포털, 민원실 등) 제출</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="flex-1 bg-white border border-slate-200 rounded-xl p-5 text-center shadow-sm relative md:step-arrow">
+                        <div class="w-12 h-12 mx-auto bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-black text-xl mb-3">2</div>
+                        <h4 class="font-bold text-slate-800 mb-2">접수 및 배부</h4>
+                        <p class="text-xs text-slate-500 break-keep">접수처에서 접수증 교부 및 소관 처리 부서로 이송</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="flex-1 bg-white border border-slate-200 rounded-xl p-5 text-center shadow-sm relative md:step-arrow">
+                        <div class="w-12 h-12 mx-auto bg-[#1a365d] text-white rounded-full flex items-center justify-center font-black text-xl mb-3">3</div>
+                        <h4 class="font-bold text-slate-800 mb-2">공개 여부 결정</h4>
+                        <p class="text-xs text-slate-500 break-keep">청구일로부터 <strong class="text-red-600">10일 이내</strong> 공개/비공개/부분공개 심사 및 결정 (필요시 10일 연장)</p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="flex-1 bg-white border border-slate-200 rounded-xl p-5 text-center shadow-sm">
+                        <div class="w-12 h-12 mx-auto bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-black text-xl mb-3">4</div>
+                        <h4 class="font-bold text-slate-800 mb-2">결과 통지</h4>
+                        <p class="text-xs text-slate-500 break-keep">청구인에게 결정 통지서 발송 및 수수료 납부 후 정보 교부</p>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg mt-6 text-sm text-slate-600 flex items-start gap-2">
+                    <i data-lucide="info" class="w-5 h-5 shrink-0 text-slate-400"></i>
+                    <p>공공기관은 청구를 받은 날부터 10일 이내에 공개 여부를 결정해야 하며, 부득이한 경우 10일의 범위 내에서 연장할 수 있습니다. 비공개 결정 시 불복구제 절차(이의신청, 행정심판, 행정소송)를 안내해 드립니다.</p>
+                </div>
+            </section>
+
+            <!-- 하단 인쇄 버튼 -->
+            <div class="flex justify-end action-buttons no-print mt-12 pt-6 border-t border-slate-200">
+                <button onclick="downloadNativePDF()" class="px-6 py-3 bg-[#1a365d] text-white rounded-lg font-bold hover:bg-slate-800 transition flex items-center shadow-md">
+                    <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 안내 페이지 인쇄
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 초기화 시 아이콘 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // PDF 다운로드 / 네이티브 인쇄
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center no-print`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

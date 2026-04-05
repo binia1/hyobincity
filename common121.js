@@ -31,10 +31,10 @@ const headerHTML = `
                     <div class="absolute left-0 top-full w-full bg-white text-slate-800 shadow-2xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex p-6 z-50 whitespace-normal">
                         <div class="grid grid-cols-4 gap-8 w-full font-normal leading-normal">
                             <div>
-                                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">행정통합 및 참여</h4>
+                                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">시민 경청</h4>
                                 <ul class="space-y-2 text-[13px]">
-                                    <li><a href="효빈덕빈행정통합의견수렴.html" class="hover:text-blue-600">효빈·덕빈 행정통합 의견수렴</a></li>
-                                    <li><a href="행정통합QA.html" class="hover:text-blue-600">행정통합 Q&A</a></li>
+                                    <li><a href="mayor.html" class="hover:text-blue-600">시장실</a></li>
+                                    <li><a href="petition.html" class="hover:text-blue-600">시장에게 바란다</a></li>
                                     <li><a href="통합자료실.html" class="hover:text-blue-600">통합자료실</a></li>
                                     <li><a href="질의답변.html" class="hover:text-blue-600">질의답변</a></li>
                                     <li><a href="일일브리핑.html" class="hover:text-blue-600">일일 브리핑</a></li>
@@ -136,377 +136,419 @@ const headerHTML = `
                                                     <li class="pl-2"><a href="자치경찰관리과.html" class="hover:text-blue-600 block">자치경찰관리과</a></li>
                                                 </ul>
                                             </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">감사위원회</div>
-                                                <ul class="pl-2 mt-1 space-y-1 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">위원장실</strong></li>
-                                                    <li class="pl-2"><a href="감사_상임위원실.html" class="hover:text-blue-600 block">상임위원실</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">사무국</strong></li>
-                                                    <li class="pl-2"><a href="감사담당관.html" class="hover:text-blue-600 block">감사담당관</a></li>
-                                                    <li class="pl-2"><a href="청렴담당관.html" class="hover:text-blue-600 block">청렴담당관</a></li>
-                                                    <li class="pl-2"><a href="권익보호담당관.html" class="hover:text-blue-600 block">권익보호담당관</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">서남해안경제자유구역청</div>
-                                                <ul class="pl-2 mt-1 space-y-1 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">청장실</strong></li>
-                                                    <li class="pl-2"><a href="차장실.html" class="hover:text-blue-600 block">차장실</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">기획행정본부</strong></li>
-                                                    <li class="pl-2"><a href="총무팀.html" class="hover:text-blue-600 block">총무팀</a></li>
-                                                    <li class="pl-2"><a href="기획예산팀.html" class="hover:text-blue-600 block">기획예산팀</a></li>
-                                                    <li class="pl-2"><a href="홍보팀.html" class="hover:text-blue-600 block">홍보팀</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">개발투자본부</strong></li>
-                                                    <li class="pl-2"><a href="개발계획팀.html" class="hover:text-blue-600 block">개발계획팀</a></li>
-                                                    <li class="pl-2"><a href="민자유치팀.html" class="hover:text-blue-600 block">민자유치팀</a></li>
-                                                    <li class="pl-2"><a href="인프라조성팀.html" class="hover:text-blue-600 block">인프라조성팀</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">기업지원본부</strong></li>
-                                                    <li class="pl-2"><a href="기업입주지원팀.html" class="hover:text-blue-600 block">기업입주지원팀</a></li>
-                                                    <li class="pl-2"><a href="행정지원팀.html" class="hover:text-blue-600 block">행정지원팀</a></li>
-                                                    <li class="pl-2"><a href="노무환경팀.html" class="hover:text-blue-600 block">노무환경팀</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">감사위원회</div>
+                                <ul class="pl-2 mt-1 space-y-1 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">위원장실</strong></li>
+                                    <li class="pl-2"><a href="감사_상임위원실.html" class="hover:text-blue-600 block">상임위원실</a></li>
+                                    <li><strong class="text-blue-600 block mt-2 mb-1">사무국</strong></li>
+                                    <li class="pl-2"><a href="감사담당관.html" class="hover:text-blue-600 block">감사담당관</a></li>
+                                    <li class="pl-2"><a href="청렴담당관.html" class="hover:text-blue-600 block">청렴담당관</a></li>
+                                    <li class="pl-2"><a href="권익보호담당관.html" class="hover:text-blue-600 block">권익보호담당관</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">서남해안경제자유구역청</div>
+                                <ul class="pl-2 mt-1 space-y-1 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">청장실</strong></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#차장실" class="hover:text-blue-600 block">차장실</a></li>
+                                    <li><strong class="text-blue-600 block mt-2 mb-1">기획행정본부</strong></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#총무팀" class="hover:text-blue-600 block">총무팀</a></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#기획예산팀" class="hover:text-blue-600 block">기획예산팀</a></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#홍보팀" class="hover:text-blue-600 block">홍보팀</a></li>
+                                    <li><strong class="text-blue-600 block mt-2 mb-1">개발투자본부</strong></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#개발계획팀" class="hover:text-blue-600 block">개발계획팀</a></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#민자유치팀" class="hover:text-blue-600 block">민자유치팀</a></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#인프라조성팀" class="hover:text-blue-600 block">인프라조성팀</a></li>
+                                    <li><strong class="text-blue-600 block mt-2 mb-1">기업지원본부</strong></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#기업입주지원팀" class="hover:text-blue-600 block">기업입주지원팀</a></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#행정지원팀" class="hover:text-blue-600 block">행정지원팀</a></li>
+                                    <li class="pl-2"><a href="서남해안경제자유구역청.html#노무환경팀" class="hover:text-blue-600 block">노무환경팀</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-                                <div>
-                                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">시 본청 (1)</h4>
-                                    <ul class="space-y-4 text-[12px] break-keep">
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시장 직속</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">시장실</strong></li>
-                                                <li class="pl-2"><a href="비서실.html" class="hover:text-blue-600 block">비서실</a></li>
-                                                <li><strong class="text-blue-600 block mt-2 mb-1">대변인</strong></li>
-                                                <li class="pl-2"><a href="홍보담당관.html" class="hover:text-blue-600 block">홍보담당관</a></li>
-                                                <li class="pl-2"><a href="공보담당관.html" class="hover:text-blue-600 block">공보담당관</a></li>
-                                                <li class="pl-2"><a href="미디어담당관.html" class="hover:text-blue-600 block">미디어담당관</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">부시장 직속</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">행정부시장실</strong></li>
-                                                <li class="pl-2"><a href="행정부시장실.html" class="hover:text-blue-600 block">행정부시장실</a></li>
-                                                <li><strong class="text-blue-600 block mt-2 mb-1">미래혁신부시장실</strong></li>
-                                                <li class="pl-2"><a href="미래혁신부시장실.html" class="hover:text-blue-600 block">미래혁신부시장실</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">기획조정실</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">기획담당관실</strong></li>
-                                                <li class="pl-2"><a href="기획관.html" class="hover:text-blue-600 block">기획관</a></li>
-                                                <li class="pl-2"><a href="기획담당관.html" class="hover:text-blue-600 block">기획담당관</a></li>
-                                                <li class="pl-2"><a href="조직담당관.html" class="hover:text-blue-600 block">조직담당관</a></li>
-                                                <li class="pl-2"><a href="인구정책담당관.html" class="hover:text-blue-600 block">인구정책담당관</a></li>
-                                                <li class="pl-2"><a href="법무담당관.html" class="hover:text-blue-600 block">법무담당관</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">재정관</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">재정담당관실</strong></li>
-                                                <li class="pl-2"><a href="예산담당관.html" class="hover:text-blue-600 block">예산담당관</a></li>
-                                                <li class="pl-2"><a href="공공기관담당관.html" class="hover:text-blue-600 block">공공기관담당관</a></li>
-                                                <li class="pl-2"><a href="세정정책담당관.html" class="hover:text-blue-600 block">세정정책담당관</a></li>
-                                                <li class="pl-2"><a href="세정운영담당관.html" class="hover:text-blue-600 block">세정운영담당관</a></li>
-                                                <li class="pl-2"><a href="회계재산담당관.html" class="hover:text-blue-600 block">회계재산담당관</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시민안전실</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">안전재난담당</strong></li>
-                                                <li class="pl-2"><a href="안전정책중대재해예방과.html" class="hover:text-blue-600 block">안전정책중대재해예방과</a></li>
-                                                <li class="pl-2"><a href="자연재난과.html" class="hover:text-blue-600 block">자연재난과</a></li>
-                                                <li class="pl-2"><a href="사회재난과.html" class="hover:text-blue-600 block">사회재난과</a></li>
-                                                <li class="pl-2"><a href="원자력안전과.html" class="hover:text-blue-600 block">원자력안전과</a></li>
-                                                <li class="pl-2"><a href="특별사법경찰과.html" class="hover:text-blue-600 block">특별사법경찰과</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
+                <div>
+                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">시 본청 (1)</h4>
+                    <ul class="space-y-4 text-[12px] break-keep">
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시장 직속</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">시장실</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#비서실" class="hover:text-blue-600 block">비서실</a></li>
+                                <li><strong class="text-blue-600 block mt-2 mb-1">대변인</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#홍보담당관" class="hover:text-blue-600 block">홍보담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#공보담당관" class="hover:text-blue-600 block">공보담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#미디어담당관" class="hover:text-blue-600 block">미디어담당관</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">부시장 직속</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">행정부시장실</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#행정부시장실" class="hover:text-blue-600 block">행정부시장실</a></li>
+                                <li><strong class="text-blue-600 block mt-2 mb-1">미래혁신부시장실</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#미래혁신부시장실" class="hover:text-blue-600 block">미래혁신부시장실</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">기획조정실</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">기획담당관실</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#기획관" class="hover:text-blue-600 block">기획관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#기획담당관" class="hover:text-blue-600 block">기획담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#조직담당관" class="hover:text-blue-600 block">조직담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#인구정책담당관" class="hover:text-blue-600 block">인구정책담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#법무담당관" class="hover:text-blue-600 block">법무담당관</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">재정관</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">재정담당관실</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#예산담당관" class="hover:text-blue-600 block">예산담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#공공기관담당관" class="hover:text-blue-600 block">공공기관담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#세정정책담당관" class="hover:text-blue-600 block">세정정책담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#세정운영담당관" class="hover:text-blue-600 block">세정운영담당관</a></li>
+                                <li class="pl-2"><a href="조직안내.html#회계재산담당관" class="hover:text-blue-600 block">회계재산담당관</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시민안전실</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">안전재난담당</strong></li>
+                                <li class="pl-2"><a href="조직안내.html#안전정책중대재해예방과" class="hover:text-blue-600 block">안전정책중대재해예방과</a></li>
+                                <li class="pl-2"><a href="조직안내.html#자연재난과" class="hover:text-blue-600 block">자연재난과</a></li>
+                                <li class="pl-2"><a href="조직안내.html#사회재난과" class="hover:text-blue-600 block">사회재난과</a></li>
+                                <li class="pl-2"><a href="조직안내.html#원자력안전과" class="hover:text-blue-600 block">원자력안전과</a></li>
+                                <li class="pl-2"><a href="조직안내.html#특별사법경찰과" class="hover:text-blue-600 block">특별사법경찰과</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
 
-                                <div>
-                                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">시 본청 (2)</h4>
-                                    <ul class="space-y-4 text-[12px] break-keep">
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">문화체육국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">문화체육담당</strong></li>
-                                                <li class="pl-2"><a href="문화예술유산과.html" class="hover:text-blue-600 block">문화예술유산과</a></li>
-                                                <li class="pl-2"><a href="애니메이션산업과.html" class="hover:text-blue-600 block">애니메이션산업과</a></li>
-                                                <li class="pl-2"><a href="영상콘텐츠산업과.html" class="hover:text-blue-600 block">영상콘텐츠산업과</a></li>
-                                                <li class="pl-2"><a href="체육정책과.html" class="hover:text-blue-600 block">체육정책과</a></li>
-                                                <li class="pl-2"><a href="생활체육과.html" class="hover:text-blue-600 block">생활체육과</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">사회복지여성가족국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">복지여성담당</strong></li>
-                                                <li class="pl-2"><a href="복지정책과.html" class="hover:text-blue-600 block">복지정책과</a></li>
-                                                <li class="pl-2"><a href="돌봄복지과.html" class="hover:text-blue-600 block">돌봄복지과</a></li>
-                                                <li class="pl-2"><a href="장애인복지과.html" class="hover:text-blue-600 block">장애인복지과</a></li>
-                                                <li class="pl-2"><a href="노인복지과.html" class="hover:text-blue-600 block">노인복지과</a></li>
-                                                <li class="pl-2"><a href="여성가족과.html" class="hover:text-blue-600 block">여성가족과</a></li>
-                                                <li class="pl-2"><a href="출산보육과.html" class="hover:text-blue-600 block">출산보육과</a></li>
-                                                <li class="pl-2"><a href="아동청소년과.html" class="hover:text-blue-600 block">아동청소년과</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시민건강국 / 행정자치국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">보건행정담당</strong></li>
-                                                <li class="pl-2"><a href="건강정책과.html" class="hover:text-blue-600 block">건강정책과</a></li>
-                                                <li class="pl-2"><a href="보건위생과.html" class="hover:text-blue-600 block">보건위생과</a></li>
-                                                <li class="pl-2"><a href="감염병관리과.html" class="hover:text-blue-600 block">감염병관리과</a></li>
-                                                <li class="pl-2"><a href="자치행정과.html" class="hover:text-blue-600 block">자치행정과</a></li>
-                                                <li class="pl-2"><a href="총무과.html" class="hover:text-blue-600 block">총무과</a></li>
-                                                <li class="pl-2"><a href="인사과.html" class="hover:text-blue-600 block">인사과</a></li>
-                                                <li class="pl-2"><a href="정보화정책과.html" class="hover:text-blue-600 block">정보화정책과</a></li>
-                                                <li class="pl-2"><a href="통합민원과.html" class="hover:text-blue-600 block">통합민원과</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">디지털경제실</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">경제투자담당</strong></li>
-                                                <li class="pl-2"><a href="경제정책과.html" class="hover:text-blue-600 block">경제정책과</a></li>
-                                                <li class="pl-2"><a href="일자리노동과.html" class="hover:text-blue-600 block">일자리노동과</a></li>
-                                                <li class="pl-2"><a href="중소상공인지원과.html" class="hover:text-blue-600 block">중소상공인지원과</a></li>
-                                                <li class="pl-2"><a href="금융창업정책과.html" class="hover:text-blue-600 block">금융창업정책과</a></li>
-                                                <li class="pl-2"><a href="벤처과.html" class="hover:text-blue-600 block">벤처과</a></li>
-                                                <li class="pl-2"><a href="투자유치과.html" class="hover:text-blue-600 block">투자유치과</a></li>
-                                                <li class="pl-2"><a href="기업지원과.html" class="hover:text-blue-600 block">기업지원과</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
+                <div>
+                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">시 본청 (2)</h4>
+                    <ul class="space-y-4 text-[12px] break-keep">
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">문화체육국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">문화체육담당</strong></li>
+                                <li class="pl-2"><a href="시본청2.html#문화예술유산과" class="hover:text-blue-600 block">문화예술유산과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#애니메이션산업과" class="hover:text-blue-600 block">애니메이션산업과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#영상콘텐츠산업과" class="hover:text-blue-600 block">영상콘텐츠산업과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#체육정책과" class="hover:text-blue-600 block">체육정책과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#생활체육과" class="hover:text-blue-600 block">생활체육과</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">사회복지여성가족국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">복지여성담당</strong></li>
+                                <li class="pl-2"><a href="시본청2.html#복지정책과" class="hover:text-blue-600 block">복지정책과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#돌봄복지과" class="hover:text-blue-600 block">돌봄복지과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#장애인복지과" class="hover:text-blue-600 block">장애인복지과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#노인복지과" class="hover:text-blue-600 block">노인복지과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#여성가족과" class="hover:text-blue-600 block">여성가족과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#출산보육과" class="hover:text-blue-600 block">출산보육과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#아동청소년과" class="hover:text-blue-600 block">아동청소년과</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시민건강국 / 행정자치국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">보건행정담당</strong></li>
+                                <li class="pl-2"><a href="시본청2.html#건강정책과" class="hover:text-blue-600 block">건강정책과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#보건위생과" class="hover:text-blue-600 block">보건위생과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#감염병관리과" class="hover:text-blue-600 block">감염병관리과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#자치행정과" class="hover:text-blue-600 block">자치행정과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#총무과" class="hover:text-blue-600 block">총무과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#인사과" class="hover:text-blue-600 block">인사과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#정보화정책과" class="hover:text-blue-600 block">정보화정책과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#통합민원과" class="hover:text-blue-600 block">통합민원과</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">디지털경제실</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">경제투자담당</strong></li>
+                                <li class="pl-2"><a href="시본청2.html#경제정책과" class="hover:text-blue-600 block">경제정책과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#일자리노동과" class="hover:text-blue-600 block">일자리노동과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#중소상공인지원과" class="hover:text-blue-600 block">중소상공인지원과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#금융창업정책과" class="hover:text-blue-600 block">금융창업정책과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#벤처과" class="hover:text-blue-600 block">벤처과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#투자유치과" class="hover:text-blue-600 block">투자유치과</a></li>
+                                <li class="pl-2"><a href="시본청2.html#기업지원과" class="hover:text-blue-600 block">기업지원과</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
 
-                                <div>
-                                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">시 본청 (3)</h4>
-                                    <ul class="space-y-4 text-[12px] break-keep">
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">미래기술/첨단산업국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">미래산업담당</strong></li>
-                                                <li class="pl-2"><a href="산업정책과.html" class="hover:text-blue-600 block">산업정책과</a></li>
-                                                <li class="pl-2"><a href="반도체신소재과.html" class="hover:text-blue-600 block">반도체신소재과</a></li>
-                                                <li class="pl-2"><a href="미래에너지산업과.html" class="hover:text-blue-600 block">미래에너지산업과</a></li>
-                                                <li class="pl-2"><a href="인공지능SW과.html" class="hover:text-blue-600 block">인공지능SW과</a></li>
-                                                <li class="pl-2"><a href="빅데이터과.html" class="hover:text-blue-600 block">빅데이터과</a></li>
-                                                <li class="pl-2"><a href="연구개발과.html" class="hover:text-blue-600 block">연구개발과</a></li>
-                                                <li class="pl-2"><a href="바이오헬스과.html" class="hover:text-blue-600 block">바이오헬스과</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">교통혁신국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">교통물류담당</strong></li>
-                                                <li class="pl-2"><a href="교통혁신과.html" class="hover:text-blue-600 block">교통혁신과</a></li>
-                                                <li class="pl-2"><a href="대중교통과.html" class="hover:text-blue-600 block">대중교통과</a></li>
-                                                <li class="pl-2"><a href="도시철도운영과.html" class="hover:text-blue-600 block">도시철도운영과</a></li>
-                                                <li class="pl-2"><a href="택시운수과.html" class="hover:text-blue-600 block">택시운수과</a></li>
-                                                <li class="pl-2"><a href="효빈국제공항관리본부.html" class="hover:text-blue-600 block">효빈국제공항관리본부</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">도시혁신균형/계획국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">도시인프라담당</strong></li>
-                                                <li class="pl-2"><a href="미래혁신기획과.html" class="hover:text-blue-600 block">미래혁신기획과</a></li>
-                                                <li class="pl-2"><a href="도시인프라개발과.html" class="hover:text-blue-600 block">도시인프라개발과</a></li>
-                                                <li class="pl-2"><a href="건설행정과.html" class="hover:text-blue-600 block">건설행정과</a></li>
-                                                <li class="pl-2"><a href="도시계획과.html" class="hover:text-blue-600 block">도시계획과</a></li>
-                                                <li class="pl-2"><a href="시설계획과.html" class="hover:text-blue-600 block">시설계획과</a></li>
-                                                <li class="pl-2"><a href="도로계획과.html" class="hover:text-blue-600 block">도로계획과</a></li>
-                                                <li class="pl-2"><a href="주택정책과.html" class="hover:text-blue-600 block">주택정책과</a></li>
-                                                <li class="pl-2"><a href="건축과.html" class="hover:text-blue-600 block">건축과</a></li>
-                                                <li class="pl-2"><a href="도시정비과.html" class="hover:text-blue-600 block">도시정비과</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">관광마이스/청년산학국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">관광청년담당</strong></li>
-                                                <li class="pl-2"><a href="관광정책과.html" class="hover:text-blue-600 block">관광정책과</a></li>
-                                                <li class="pl-2"><a href="마이스산업과.html" class="hover:text-blue-600 block">마이스산업과</a></li>
-                                                <li class="pl-2"><a href="국제협력과.html" class="hover:text-blue-600 block">국제협력과</a></li>
-                                                <li class="pl-2"><a href="청년정책과.html" class="hover:text-blue-600 block">청년정책과</a></li>
-                                                <li class="pl-2"><a href="창조교육과.html" class="hover:text-blue-600 block">창조교육과</a></li>
-                                                <li class="pl-2"><a href="지산학협력과.html" class="hover:text-blue-600 block">지산학협력과</a></li>
-                                            </ul>
-                                        </li>
-                                        <li>
-                                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">환경/해양농수산국</div>
-                                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                <li><strong class="text-blue-600 block mb-1">환경해양농수산담당</strong></li>
-                                                <li class="pl-2"><a href="환경과.html" class="hover:text-blue-600 block">환경과</a></li>
-                                                <li class="pl-2"><a href="맑은물과.html" class="hover:text-blue-600 block">맑은물과</a></li>
-                                                <li class="pl-2"><a href="탄소중립과.html" class="hover:text-blue-600 block">탄소중립과</a></li>
-                                                <li class="pl-2"><a href="공원여가과.html" class="hover:text-blue-600 block">공원여가과</a></li>
-                                                <li class="pl-2"><a href="반려동물과.html" class="hover:text-blue-600 block">반려동물과</a></li>
-                                                <li class="pl-2"><a href="해양수도과.html" class="hover:text-blue-600 block">해양수도과</a></li>
-                                                <li class="pl-2"><a href="해운항만과.html" class="hover:text-blue-600 block">해운항만과</a></li>
-                                                <li class="pl-2"><a href="수산정책과.html" class="hover:text-blue-600 block">수산정책과</a></li>
-                                                <li class="pl-2"><a href="농축산유통과.html" class="hover:text-blue-600 block">농축산유통과</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
+                <div>
+                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">시 본청 (3)</h4>
+                    <ul class="space-y-4 text-[12px] break-keep">
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">미래기술/첨단산업국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">미래산업담당</strong></li>
+                                <li class="pl-2"><a href="시본청3.html#산업정책과" class="hover:text-blue-600 block">산업정책과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#반도체신소재과" class="hover:text-blue-600 block">반도체신소재과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#미래에너지산업과" class="hover:text-blue-600 block">미래에너지산업과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#인공지능SW과" class="hover:text-blue-600 block">인공지능SW과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#빅데이터과" class="hover:text-blue-600 block">빅데이터과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#연구개발과" class="hover:text-blue-600 block">연구개발과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#바이오헬스과" class="hover:text-blue-600 block">바이오헬스과</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">교통혁신국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">교통물류담당</strong></li>
+                                <li class="pl-2"><a href="시본청3.html#교통혁신과" class="hover:text-blue-600 block">교통혁신과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#대중교통과" class="hover:text-blue-600 block">대중교통과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#도시철도운영과" class="hover:text-blue-600 block">도시철도운영과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#택시운수과" class="hover:text-blue-600 block">택시운수과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#효빈국제공항관리본부" class="hover:text-blue-600 block">효빈국제공항관리본부</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">도시혁신균형/계획국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">도시인프라담당</strong></li>
+                                <li class="pl-2"><a href="시본청3.html#미래혁신기획과" class="hover:text-blue-600 block">미래혁신기획과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#도시인프라개발과" class="hover:text-blue-600 block">도시인프라개발과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#건설행정과" class="hover:text-blue-600 block">건설행정과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#도시계획과" class="hover:text-blue-600 block">도시계획과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#시설계획과" class="hover:text-blue-600 block">시설계획과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#도로계획과" class="hover:text-blue-600 block">도로계획과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#주택정책과" class="hover:text-blue-600 block">주택정책과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#건축과" class="hover:text-blue-600 block">건축과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#도시정비과" class="hover:text-blue-600 block">도시정비과</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">관광마이스/청년산학국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">관광청년담당</strong></li>
+                                <li class="pl-2"><a href="시본청3.html#관광정책과" class="hover:text-blue-600 block">관광정책과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#마이스산업과" class="hover:text-blue-600 block">마이스산업과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#국제협력과" class="hover:text-blue-600 block">국제협력과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#청년정책과" class="hover:text-blue-600 block">청년정책과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#창조교육과" class="hover:text-blue-600 block">창조교육과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#지산학협력과" class="hover:text-blue-600 block">지산학협력과</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">환경/해양농수산국</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">환경해양농수산담당</strong></li>
+                                <li class="pl-2"><a href="시본청3.html#환경과" class="hover:text-blue-600 block">환경과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#맑은물과" class="hover:text-blue-600 block">맑은물과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#탄소중립과" class="hover:text-blue-600 block">탄소중립과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#공원여가과" class="hover:text-blue-600 block">공원여가과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#반려동물과" class="hover:text-blue-600 block">반려동물과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#해양수도과" class="hover:text-blue-600 block">해양수도과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#해운항만과" class="hover:text-blue-600 block">해운항만과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#수산정책과" class="hover:text-blue-600 block">수산정책과</a></li>
+                                <li class="pl-2"><a href="시본청3.html#농축산유통과" class="hover:text-blue-600 block">농축산유통과</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
 
-                                <div>
-                                    <div class="mb-6">
-                                        <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">직속기관</h4>
-                                        <ul class="space-y-4 text-[12px] break-keep">
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">효빈소방재난본부 / 소방학교</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">본부장실</strong></li>
-                                                    <li class="pl-2"><a href="소방행정과.html" class="hover:text-blue-600 block">소방행정과</a></li>
-                                                    <li class="pl-2"><a href="방호조사과.html" class="hover:text-blue-600 block">방호조사과</a></li>
-                                                    <li class="pl-2"><a href="구조구급과.html" class="hover:text-blue-600 block">구조구급과</a></li>
-                                                    <li class="pl-2"><a href="119종합상황실.html" class="hover:text-blue-600 block">119종합상황실</a></li>
-                                                    <li class="pl-2"><a href="재난예방담당관.html" class="hover:text-blue-600 block">재난예방담당관</a></li>
-                                                    <li class="pl-2"><a href="소방감사담당관.html" class="hover:text-blue-600 block">소방감사담당관</a></li>
-                                                    <li class="pl-2"><a href="회계장비담당관.html" class="hover:text-blue-600 block">회계장비담당관</a></li>
-                                                    <li class="pl-2"><a href="119특수대응단.html" class="hover:text-blue-600 block">119특수대응단</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">학교장실</strong></li>
-                                                    <li class="pl-2"><a href="교육기획과.html" class="hover:text-blue-600 block">교육기획과</a></li>
-                                                    <li class="pl-2"><a href="교수운영과.html" class="hover:text-blue-600 block">교수운영과</a></li>
-                                                    <li class="pl-2"><a href="현장훈련센터.html" class="hover:text-blue-600 block">현장훈련센터</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">일선 소방서 (9개소)</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><a href="중부소방서.html" class="hover:text-blue-600 block">중부소방서</a></li>
-                                                    <li><a href="동부소방서.html" class="hover:text-blue-600 block">동부소방서</a></li>
-                                                    <li><a href="서부소방서.html" class="hover:text-blue-600 block">서부소방서</a></li>
-                                                    <li><a href="남부소방서.html" class="hover:text-blue-600 block">남부소방서</a></li>
-                                                    <li><a href="북부소방서.html" class="hover:text-blue-600 block">북부소방서</a></li>
-                                                    <li><a href="안천소방서.html" class="hover:text-blue-600 block">안천소방서</a></li>
-                                                    <li><a href="창전소방서.html" class="hover:text-blue-600 block">창전소방서</a></li>
-                                                    <li><a href="청엽소방서.html" class="hover:text-blue-600 block">청엽소방서</a></li>
-                                                    <li><a href="탄성소방서.html" class="hover:text-blue-600 block">탄성소방서</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">보건환경연구원</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">원장실</strong></li>
-                                                    <li class="pl-2"><a href="보건_총무과.html" class="hover:text-blue-600 block">총무과</a></li>
-                                                    <li class="pl-2"><a href="감염병연구부.html" class="hover:text-blue-600 block">감염병연구부</a></li>
-                                                    <li class="pl-2"><a href="식약연구부.html" class="hover:text-blue-600 block">식약연구부</a></li>
-                                                    <li class="pl-2"><a href="대기환경연구부.html" class="hover:text-blue-600 block">대기환경연구부</a></li>
-                                                    <li class="pl-2"><a href="물환경연구부.html" class="hover:text-blue-600 block">물환경연구부</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">인재개발원</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">원장실</strong></li>
-                                                    <li class="pl-2"><a href="인재_교육기획과.html" class="hover:text-blue-600 block">교육기획과</a></li>
-                                                    <li class="pl-2"><a href="역량개발과.html" class="hover:text-blue-600 block">역량개발과</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">농업기술센터</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">소장실</strong></li>
-                                                    <li class="pl-2"><a href="지도정책과.html" class="hover:text-blue-600 block">지도정책과</a></li>
-                                                    <li class="pl-2"><a href="기술보급과.html" class="hover:text-blue-600 block">기술보급과</a></li>
-                                                    <li class="pl-2"><a href="농기계임대사업소.html" class="hover:text-blue-600 block">탄성군 농기계임대사업소</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">서울본부/세종사무소</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">본부장실</strong></li>
-                                                    <li class="pl-2"><a href="대외협력팀.html" class="hover:text-blue-600 block">대외협력팀</a></li>
-                                                    <li class="pl-2"><a href="국회협력팀.html" class="hover:text-blue-600 block">국회협력팀</a></li>
-                                                    <li class="pl-2"><a href="세종사무소팀.html" class="hover:text-blue-600 block">세종사무소팀</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">사업소 (32개소)</h4>
-                                        <ul class="space-y-4 text-[12px] break-keep">
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">상수도사업본부</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">본부장실</strong></li>
-                                                    <li class="pl-2"><a href="수도_관리부.html" class="hover:text-blue-600 block">관리부</a></li>
-                                                    <li class="pl-2"><a href="수도_급수부.html" class="hover:text-blue-600 block">급수부</a></li>
-                                                    <li class="pl-2"><a href="수도_시설부.html" class="hover:text-blue-600 block">시설부</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">각 소장실 (행정/요금/누수복구)</strong></li>
-                                                    <li class="pl-2"><a href="중부수도사업소.html" class="hover:text-blue-600 block">중부수도사업소</a></li>
-                                                    <li class="pl-2"><a href="동부수도사업소.html" class="hover:text-blue-600 block">동부수도사업소</a></li>
-                                                    <li class="pl-2"><a href="서부수도사업소.html" class="hover:text-blue-600 block">서부수도사업소</a></li>
-                                                    <li class="pl-2"><a href="남부수도사업소.html" class="hover:text-blue-600 block">남부수도사업소</a></li>
-                                                    <li class="pl-2"><a href="북부수도사업소.html" class="hover:text-blue-600 block">북부수도사업소</a></li>
-                                                    <li class="pl-2"><a href="안천수도사업소.html" class="hover:text-blue-600 block">안천수도사업소</a></li>
-                                                    <li class="pl-2"><a href="창전수도사업소.html" class="hover:text-blue-600 block">창전수도사업소</a></li>
-                                                    <li class="pl-2"><a href="청엽수도사업소.html" class="hover:text-blue-600 block">청엽수도사업소</a></li>
-                                                    <li class="pl-2"><a href="탄성수도사업소.html" class="hover:text-blue-600 block">탄성수도사업소</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">건설본부 / 차량등록사업소</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">건설본부장실</strong></li>
-                                                    <li class="pl-2"><a href="건설_총무부.html" class="hover:text-blue-600 block">총무부</a></li>
-                                                    <li class="pl-2"><a href="건설_토목부.html" class="hover:text-blue-600 block">토목부</a></li>
-                                                    <li class="pl-2"><a href="건설_건축시설부.html" class="hover:text-blue-600 block">건축시설부</a></li>
-                                                    <li class="pl-2"><a href="건설_보상부.html" class="hover:text-blue-600 block">보상부</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">차량등록 소장실</strong></li>
-                                                    <li class="pl-2"><a href="등록1팀.html" class="hover:text-blue-600 block">등록1팀</a></li>
-                                                    <li class="pl-2"><a href="등록2팀.html" class="hover:text-blue-600 block">등록2팀</a></li>
-                                                    <li class="pl-2"><a href="차량_검사팀.html" class="hover:text-blue-600 block">검사팀</a></li>
-                                                    <li class="pl-2"><a href="차량_특사경팀.html" class="hover:text-blue-600 block">특별사법경찰팀</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시립박물관 / 시립미술관</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">각 관장실</strong></li>
-                                                    <li class="pl-2"><a href="박물관_관리팀.html" class="hover:text-blue-600 block">관리팀</a></li>
-                                                    <li class="pl-2"><a href="박물관_학예연구팀.html" class="hover:text-blue-600 block">학예연구팀</a></li>
-                                                    <li class="pl-2"><a href="박물관_전시운영팀.html" class="hover:text-blue-600 block">전시운영팀</a></li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">도서관 (18개소)</div>
-                                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
-                                                    <li><strong class="text-blue-600 block mb-1">지역 시립도서관 (관장실)</strong></li>
-                                                    <li class="pl-2"><a href="효빈중앙도서관.html" class="hover:text-blue-600 block">효빈중앙도서관</a></li>
-                                                    <li class="pl-2"><a href="중구시립도서관.html" class="hover:text-blue-600 block">중구시립도서관</a></li>
-                                                    <li class="pl-2"><a href="동구시립도서관.html" class="hover:text-blue-600 block">동구시립도서관</a></li>
-                                                    <li class="pl-2"><a href="서구시립도서관.html" class="hover:text-blue-600 block">서구시립도서관</a></li>
-                                                    <li class="pl-2"><a href="남구시립도서관.html" class="hover:text-blue-600 block">남구시립도서관</a></li>
-                                                    <li class="pl-2"><a href="북구시립도서관.html" class="hover:text-blue-600 block">북구시립도서관</a></li>
-                                                    <li class="pl-2"><a href="안천시립도서관.html" class="hover:text-blue-600 block">안천시립도서관</a></li>
-                                                    <li class="pl-2"><a href="창전시립도서관.html" class="hover:text-blue-600 block">창전시립도서관</a></li>
-                                                    <li class="pl-2"><a href="청엽시립도서관.html" class="hover:text-blue-600 block">청엽시립도서관</a></li>
-                                                    <li class="pl-2"><a href="탄성시립도서관.html" class="hover:text-blue-600 block">탄성시립도서관</a></li>
-                                                    <li><strong class="text-blue-600 block mt-2 mb-1">효빈 특화도서관 (관장실)</strong></li>
-                                                    <li class="pl-2"><a href="효빈만화특화도서관.html" class="hover:text-blue-600 block">효빈만화특화도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈어린이도서관.html" class="hover:text-blue-600 block">효빈어린이도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈청년도서관.html" class="hover:text-blue-600 block">효빈청년도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈과학도서관.html" class="hover:text-blue-600 block">효빈과학도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈음악도서관.html" class="hover:text-blue-600 block">효빈음악도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈점자도서관.html" class="hover:text-blue-600 block">효빈점자도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈해양도서관.html" class="hover:text-blue-600 block">효빈해양도서관</a></li>
-                                                    <li class="pl-2"><a href="효빈지산학도서관.html" class="hover:text-blue-600 block">효빈지산학도서관</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
+                <div>
+                    <div class="mb-6">
+                        <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">직속기관</h4>
+                        <ul class="space-y-4 text-[12px] break-keep">
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">효빈소방재난본부 / 소방학교</div>
+                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">본부장실</strong></li>
+                                    <li class="pl-2"><a href="직속기관.html#소방행정과" class="hover:text-blue-600 block">소방행정과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#방호조사과" class="hover:text-blue-600 block">방호조사과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#구조구급과" class="hover:text-blue-600 block">구조구급과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#119종합상황실" class="hover:text-blue-600 block">119종합상황실</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#재난예방담당관" class="hover:text-blue-600 block">재난예방담당관</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#소방감사담당관" class="hover:text-blue-600 block">소방감사담당관</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#회계장비담당관" class="hover:text-blue-600 block">회계장비담당관</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#119특수대응단" class="hover:text-blue-600 block">119특수대응단</a></li>
+                                    <li><strong class="text-blue-600 block mt-2 mb-1">학교장실</strong></li>
+                                    <li class="pl-2"><a href="직속기관.html#교육기획과_인재" class="hover:text-blue-600 block">교육기획과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#교수운영과" class="hover:text-blue-600 block">교수운영과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#현장훈련센터" class="hover:text-blue-600 block">현장훈련센터</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">일선 소방서 (9개소)</div>
+                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                    <li><a href="직속기관.html#중부소방서" class="hover:text-blue-600 block">중부소방서</a></li>
+                                    <li><a href="직속기관.html#동부소방서" class="hover:text-blue-600 block">동부소방서</a></li>
+                                    <li><a href="직속기관.html#서부소방서" class="hover:text-blue-600 block">서부소방서</a></li>
+                                    <li><a href="직속기관.html#남부소방서" class="hover:text-blue-600 block">남부소방서</a></li>
+                                    <li><a href="직속기관.html#북부소방서" class="hover:text-blue-600 block">북부소방서</a></li>
+                                    <li><a href="직속기관.html#안천소방서" class="hover:text-blue-600 block">안천소방서</a></li>
+                                    <li><a href="직속기관.html#창전소방서" class="hover:text-blue-600 block">창전소방서</a></li>
+                                    <li><a href="직속기관.html#청엽소방서" class="hover:text-blue-600 block">청엽소방서</a></li>
+                                    <li><a href="직속기관.html#탄성소방서" class="hover:text-blue-600 block">탄성소방서</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">보건환경연구원</div>
+                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">원장실</strong></li>
+                                    <li class="pl-2"><a href="직속기관.html#총무과_보건" class="hover:text-blue-600 block">총무과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#감염병연구부" class="hover:text-blue-600 block">감염병연구부</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#식약연구부" class="hover:text-blue-600 block">식약연구부</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#대기환경연구부" class="hover:text-blue-600 block">대기환경연구부</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#물환경연구부" class="hover:text-blue-600 block">물환경연구부</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">인재개발원</div>
+                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">원장실</strong></li>
+                                    <li class="pl-2"><a href="직속기관.html#교육기획과_인재" class="hover:text-blue-600 block">교육기획과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#역량개발과" class="hover:text-blue-600 block">역량개발과</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">농업기술센터</div>
+                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">소장실</strong></li>
+                                    <li class="pl-2"><a href="직속기관.html#지도정책과" class="hover:text-blue-600 block">지도정책과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#기술보급과" class="hover:text-blue-600 block">기술보급과</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#농기계임대사업소" class="hover:text-blue-600 block">탄성군 농기계임대사업소</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">서울본부/세종사무소</div>
+                                <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                    <li><strong class="text-blue-600 block mb-1">본부장실</strong></li>
+                                    <li class="pl-2"><a href="직속기관.html#대외협력팀" class="hover:text-blue-600 block">대외협력팀</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#국회협력팀" class="hover:text-blue-600 block">국회협력팀</a></li>
+                                    <li class="pl-2"><a href="직속기관.html#세종사무소팀" class="hover:text-blue-600 block">세종사무소팀</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">사업소 (32개소)</h4>
+                    <ul class="space-y-4 text-[12px] break-keep">
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">상수도사업본부</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">본부장실</strong></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#수도관리부" class="hover:text-blue-600 block">관리부</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#수도급수부" class="hover:text-blue-600 block">급수부</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#수도시설부" class="hover:text-blue-600 block">시설부</a></li>
+                                <li><strong class="text-blue-600 block mt-2 mb-1">각 소장실 (행정/요금/누수복구)</strong></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#중부수도사업소" class="hover:text-blue-600 block">중부수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#동부수도사업소" class="hover:text-blue-600 block">동부수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#서부수도사업소" class="hover:text-blue-600 block">서부수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#남부수도사업소" class="hover:text-blue-600 block">남부수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#북부수도사업소" class="hover:text-blue-600 block">북부수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#안천수도사업소" class="hover:text-blue-600 block">안천수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#창전수도사업소" class="hover:text-blue-600 block">창전수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#청엽수도사업소" class="hover:text-blue-600 block">청엽수도사업소</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#탄성수도사업소" class="hover:text-blue-600 block">탄성수도사업소</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">건설본부 / 차량등록사업소</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">건설본부장실</strong></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#건설총무부" class="hover:text-blue-600 block">총무부</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#건설토목부" class="hover:text-blue-600 block">토목부</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#건축시설부" class="hover:text-blue-600 block">건축시설부</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#보상부" class="hover:text-blue-600 block">보상부</a></li>
+                                <li><strong class="text-blue-600 block mt-2 mb-1">차량등록 소장실</strong></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#등록1팀" class="hover:text-blue-600 block">등록1팀</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#등록2팀" class="hover:text-blue-600 block">등록2팀</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#검사팀" class="hover:text-blue-600 block">검사팀</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#차량특사경팀" class="hover:text-blue-600 block">특별사법경찰팀</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">시립박물관 / 시립미술관</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">각 관장실</strong></li>
+                                <li class="pl-2"><a href="박물관_관리팀.html" class="hover:text-blue-600 block">관리팀</a></li>
+                                <li class="pl-2"><a href="박물관_학예연구팀.html" class="hover:text-blue-600 block">학예연구팀</a></li>
+                                <li class="pl-2"><a href="박물관_전시운영팀.html" class="hover:text-blue-600 block">전시운영팀</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">도서관 (18개소)</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li><strong class="text-blue-600 block mb-1">지역 시립도서관 (관장실)</strong></li>
+                                <li class="pl-2"><a href="효빈중앙도서관.html" class="hover:text-blue-600 block">효빈중앙도서관</a></li>
+                                <li class="pl-2"><a href="중구시립도서관.html" class="hover:text-blue-600 block">중구시립도서관</a></li>
+                                <li class="pl-2"><a href="동구시립도서관.html" class="hover:text-blue-600 block">동구시립도서관</a></li>
+                                <li class="pl-2"><a href="서구시립도서관.html" class="hover:text-blue-600 block">서구시립도서관</a></li>
+                                <li class="pl-2"><a href="남구시립도서관.html" class="hover:text-blue-600 block">남구시립도서관</a></li>
+                                <li class="pl-2"><a href="북구시립도서관.html" class="hover:text-blue-600 block">북구시립도서관</a></li>
+                                <li class="pl-2"><a href="안천시립도서관.html" class="hover:text-blue-600 block">안천시립도서관</a></li>
+                                <li class="pl-2"><a href="창전시립도서관.html" class="hover:text-blue-600 block">창전시립도서관</a></li>
+                                <li class="pl-2"><a href="청엽시립도서관.html" class="hover:text-blue-600 block">청엽시립도서관</a></li>
+                                <li class="pl-2"><a href="탄성시립도서관.html" class="hover:text-blue-600 block">탄성시립도서관</a></li>
+                                <li><strong class="text-blue-600 block mt-2 mb-1">효빈 특화도서관 (관장실)</strong></li>
+                                <li class="pl-2"><a href="효빈만화특화도서관.html" class="hover:text-blue-600 block">효빈만화특화도서관</a></li>
+                                <li class="pl-2"><a href="효빈어린이도서관.html" class="hover:text-blue-600 block">효빈어린이도서관</a></li>
+                                <li class="pl-2"><a href="효빈청년도서관.html" class="hover:text-blue-600 block">효빈청년도서관</a></li>
+                                <li class="pl-2"><a href="효빈과학도서관.html" class="hover:text-blue-600 block">효빈과학도서관</a></li>
+                                <li class="pl-2"><a href="효빈음악도서관.html" class="hover:text-blue-600 block">효빈음악도서관</a></li>
+                                <li class="pl-2"><a href="효빈점자도서관.html" class="hover:text-blue-600 block">효빈점자도서관</a></li>
+                                <li class="pl-2"><a href="효빈해양도서관.html" class="hover:text-blue-600 block">효빈해양도서관</a></li>
+                                <li class="pl-2"><a href="효빈지산학도서관.html" class="hover:text-blue-600 block">효빈지산학도서관</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mb-6 mt-6">
+                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">공사·공단 및 출연기관</h4>
+                    <ul class="space-y-4 text-[12px] break-keep">
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">공기업 (공사/공단)</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈교통공사" class="hover:text-blue-600 block">효빈교통공사</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈시설공단" class="hover:text-blue-600 block">효빈시설공단</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈도시공사" class="hover:text-blue-600 block">효빈도시공사</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈환경공단" class="hover:text-blue-600 block">효빈환경공단</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#관광공사" class="hover:text-blue-600 block">효빈관광공사</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#문화공사" class="hover:text-blue-600 block">효빈문화공사</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#상하수도공사" class="hover:text-blue-600 block">효빈상·하수도공사</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="font-bold text-slate-700 bg-slate-50 p-1.5 rounded inline-block w-full">출연기관 및 재단</div>
+                            <ul class="pl-2 mt-1 space-y-1.5 border-l-2 border-slate-200">
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈의료원" class="hover:text-blue-600 block">효빈의료원</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#만화애니전당" class="hover:text-blue-600 block">만화애니메이션의전당</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈애니본부" class="hover:text-blue-600 block">효빈애니본부</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#테크노파크" class="hover:text-blue-600 block">테크노파크</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#정보산업진흥원" class="hover:text-blue-600 block">정보산업진흥원</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#경제진흥원" class="hover:text-blue-600 block">경제진흥원 / 신용보증재단</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#효빈연구원" class="hover:text-blue-600 block">효빈연구원</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#산업과학혁신원" class="hover:text-blue-600 block">산업과학혁신원</a></li>
+                                <li class="pl-2"><a href="사업소_출연기관.html#사회서비스원" class="hover:text-blue-600 block">사회서비스원 외 기타 산하기관</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-black text-blue-800 mb-3 border-b-2 border-blue-200 pb-2 text-[15px]">효빈 관내 유관기관</h4>
+                    <ul class="space-y-2 text-[12px] break-keep">
+                        <li><a href="사업소_출연기관.html#유관_경찰소방사법" class="hover:text-blue-600 block px-2 py-1 bg-slate-50 rounded">경찰청 / 소방서 / 사법기관</a></li>
+                        <li><a href="사업소_출연기관.html#유관_세무교육우정" class="hover:text-blue-600 block px-2 py-1 bg-slate-50 rounded">세무서 / 교육청 / 우체국</a></li>
+                        <li><a href="사업소_출연기관.html#유관_국가공공기관" class="hover:text-blue-600 block px-2 py-1 bg-slate-50 rounded">국가공기업 및 지역본부</a></li>
+                    </ul>
+                                                </div>
                             </div>
                         </div>
                     </div>
@@ -656,11 +698,9 @@ const headerHTML = `
                             <div>
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">시의상징</h4>
                                 <ul class="space-y-1.5 text-[12px] mb-4">
-                                    <li><a href="시조.html" class="hover:text-blue-600">시조 (기러기)</a></li>
-                                    <li><a href="시화.html" class="hover:text-blue-600">시화 (해바라기)</a></li>
-                                    <li><a href="시목.html" class="hover:text-blue-600">시목 (오동나무)</a></li>
+                                    <li><a href="시조시화시목.html" class="hover:text-blue-600">시조시화시목</a></li>
                                     <li><a href="상징물.html" class="hover:text-blue-600">상징물</a></li>
-                                    <li><a href="소통캐릭터.html" class="hover:text-blue-600">소통캐릭터 (히버히)</a></li>
+                                    <li><a href="mascot.html" class="hover:text-blue-600">소통캐릭터 (한바다)</a></li>
                                     <li><a href="시민의날.html" class="hover:text-blue-600">시민의날</a></li>
                                     <li><a href="효빈문화울림체.html" class="hover:text-blue-600">효빈문화울림체</a></li>
                                     <li><a href="시민의노래.html" class="hover:text-blue-600">시민의노래</a></li>

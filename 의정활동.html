@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의정활동 - 효빈광역시의회</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 미리 분리해 둔 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('이미지/시의회배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* 본문 타이틀 스타일 */
+        .content-title {
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1a365d;
+            color: #1e293b;
+        }
+        
+        .bullet-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #005bac;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .bullet-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 3px;
+        }
+
+        /* 동적 사이드바 LNB 스타일 */
+        .lnb-list > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-list > li > a:hover,
+        .lnb-list > li.active > a {
+            background-color: #f8fafc;
+            color: #005bac;
+            font-weight: 800;
+            border-left: 4px solid #005bac;
+        }
+        .lnb-list > li:last-child > a { border-bottom: none; }
+        .lnb-list > li.active i { color: #005bac; }
+
+        /* 테이블 스타일 */
+        .data-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem; background: white; border-top: 2px solid #1a365d; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; padding: 1.1rem 0.5rem; border-bottom: 1px solid #cbd5e1; white-space: nowrap; }
+        .data-table td { padding: 1.1rem 0.5rem; border-bottom: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        .data-table tbody tr:hover td { background-color: #f1f5f9; cursor: pointer;}
+        .title-col { text-align: left !important; padding-left: 1.5rem !important; font-weight: bold; color: #1e293b !important; }
+        
+        /* 탭 애니메이션 */
+        #dynamic-content-area { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 상태 뱃지 */
+        .status-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; }
+        .status-pass { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-mod-pass { background-color: #e0f2fe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .status-pending { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .status-reject { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* 모달 오버레이 */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+
+        /* 인쇄(PDF 변환) 전용 CSS - 외부 배경 겹침 방지 */
+        @media print {
+            body { background-color: white; }
+            body * { visibility: hidden; }
+            #bill-modal, #bill-modal * { visibility: visible; }
+            #bill-modal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: transparent;
+            }
+            #bill-modal-content {
+                width: 100%;
+                max-width: none;
+                box-shadow: none;
+                transform: none !important;
+                border: none;
+            }
+            .custom-scrollbar { overflow: visible !important; max-height: none !important; }
+            .print-hide { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 전용 헤더 (효빈광역시의회 전용) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm print-hide">
+        <div class="bg-slate-50 border-b border-slate-200 py-1.5 text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+                <span class="font-medium">시민 중심의 역동적으로 일하는 효빈광역시의회</span>
+                <div class="flex gap-4">
+                    <a href="메인.html" class="hover:text-hyobin-blue font-bold text-hyobin-dark">효빈광역시청 바로가기</a>
+                    <span class="text-slate-300">|</span>
+                    <a href="#" class="hover:text-hyobin-blue">로그인</a>
+                    <span class="text-slate-300">|</span>
+                    <a href="#" class="hover:text-hyobin-blue">사이트맵</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <a href="시의회.html" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-hyobin-dark rounded-full flex items-center justify-center text-white font-serif font-black text-xl shadow-md border-2 border-hyobin-blue">議</div>
+                <div class="flex flex-col">
+                    <span class="text-2xl font-black text-slate-800 tracking-tight leading-none">효빈광역시의회</span>
+                    <span class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-0.5">Hyobin Metropolitan Council</span>
+                </div>
+            </a>
+            <!-- 헤더 네비게이션 -->
+            <nav class="hidden lg:flex h-full font-bold text-slate-800 text-[17px]">
+                <!-- 의회소개 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="시의회.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의회소개 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="인사말.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">인사말</a>
+                        <a href="의장실.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의장단</a>
+                        <a href="총무담당관.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회사무처</a>
+                        <a href="의회연혁.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회연혁</a>
+                        <a href="기구표.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">기구표</a>
+                        <a href="찾아오시는길.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">찾아오시는길</a>
+                    </div>
+                </div>
+                <!-- 의정활동 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="의정활동.html" class="text-hyobin-blue flex items-center gap-1 h-full">의정활동 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="본회의.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">본회의</a>
+                        <a href="상임위원회.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">상임위원회</a>
+                        <a href="특별위원회.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">특별위원회</a>
+                        <a href="의안정보.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의안정보</a>
+                    </div>
+                </div>
+                <!-- 의원안내 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="의원안내.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의원안내 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="의원명단.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의원명단</a>
+                        <a href="교섭단체.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">교섭단체</a>
+                        <a href="의원동정.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의원동정</a>
+                    </div>
+                </div>
+                <!-- 회의록 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="회의록.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">회의록 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-44 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="본회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">본회의록</a>
+                        <a href="위원회회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">위원회 회의록</a>
+                        <a href="시정질문.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">시정질문</a>
+                        <a href="5분자유발언.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">5분 자유발언</a>
+                    </div>
+                </div>
+                <!-- 시민소통 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="시민소통.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">시민소통 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="의회에바란다.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회에 바란다</a>
+                        <a href="공지사항.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">공지사항</a>
+                        <a href="의회소식.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회소식</a>
+                        <a href="견학신청.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">견학신청</a>
+                    </div>
+                </div>
+            </nav>
+            <button class="lg:hidden text-slate-800"><i data-lucide="menu" class="w-6 h-6"></i></button>
+        </div>
+    </header>
+
+    <!-- 서브 비주얼 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden print-hide">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">의정활동</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 뜻을 받들어 더 나은 효빈의 내일을 만듭니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10 print-hide">
+        
+        <!-- 좌측 고정 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block sticky top-8 h-fit">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    의정활동
+                </h2>
+                <ul class="lnb-list">
+                    <li id="nav-intro" class="active"><a href="#" onclick="event.preventDefault(); loadContent('intro')">의정활동 안내 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-plenary"><a href="#" onclick="event.preventDefault(); loadContent('plenary')">본회의 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-standing"><a href="#" onclick="event.preventDefault(); loadContent('standing')">상임위원회 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-special"><a href="#" onclick="event.preventDefault(); loadContent('special')">특별위원회 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-bills"><a href="#" onclick="event.preventDefault(); loadContent('bills')">의안정보 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 동적 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0" id="dynamic-content-area">
+            <!-- JavaScript를 통해 초기 화면(의정활동 안내)이 여기에 렌더링됩니다. -->
+        </main>
+    </div>
+
+    <!-- 의안 상세 보기 모달 (세부 페이지 역할) -->
+    <div id="bill-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeBillModal()">
+        <div id="bill-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="p-6 md:p-8 border-b border-slate-200 bg-slate-50 rounded-t-xl shrink-0">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="modal-bill-no" class="text-hyobin-blue font-black text-lg">의안번호: -</span>
+                    <button onclick="closeBillModal()" class="text-slate-400 hover:text-slate-700 transition bg-white rounded-full p-1 border border-slate-200 shadow-sm print-hide">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <h3 id="modal-bill-title" class="font-black text-2xl md:text-3xl text-slate-800 break-keep leading-tight mb-5">의안 제목</h3>
+                <div class="flex flex-wrap gap-x-6 gap-y-3 text-[15px] text-slate-600 bg-white p-4 rounded-lg border border-slate-200">
+                    <div class="w-full md:w-auto"><span class="font-bold text-slate-800 mr-2 border-r border-slate-300 pr-2">제안자</span> <span id="modal-bill-proposer"></span></div>
+                    <div class="w-full md:w-auto"><span class="font-bold text-slate-800 mr-2 border-r border-slate-300 pr-2">소관위원회</span> <span id="modal-bill-committee"></span></div>
+                    <div class="w-full md:w-auto"><span class="font-bold text-slate-800 mr-2 border-r border-slate-300 pr-2">제안일</span> <span id="modal-bill-date"></span></div>
+                    <div class="w-full md:w-auto"><span class="font-bold text-slate-800 mr-2 border-r border-slate-300 pr-2">처리결과</span> <span id="modal-bill-status"></span></div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow bg-white">
+                <h4 class="text-lg font-bold text-hyobin-dark border-b-2 border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-5 h-5"></i> 제안 이유 및 주요 내용
+                </h4>
+                <div class="text-[15px] md:text-[16px] text-slate-700 leading-relaxed font-medium whitespace-pre-wrap bg-slate-50 p-5 rounded-lg border border-slate-100" id="modal-bill-content">
+                    의안 상세 내용...
+                </div>
+
+                <div class="mt-8 print-hide">
+                    <h4 class="text-lg font-bold text-hyobin-dark border-b-2 border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                        <i data-lucide="paperclip" class="w-5 h-5"></i> 첨부 파일
+                    </h4>
+                    <div class="bg-white border border-slate-300 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-center text-slate-700 font-bold">
+                            <i data-lucide="file-pdf" class="w-5 h-5 mr-2 text-red-500"></i>
+                            <span id="modal-bill-file">의안원문.pdf</span>
+                        </div>
+                        <!-- 인쇄 및 PDF 저장 기능으로 변경 -->
+                        <button onclick="window.print()" class="bg-white border border-hyobin-blue text-hyobin-blue px-4 py-2 rounded font-bold hover:bg-blue-50 transition flex items-center w-full sm:w-auto justify-center">
+                            <i data-lucide="printer" class="w-4 h-4 mr-2"></i> 인쇄 및 PDF 저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-center shrink-0 rounded-b-xl print-hide">
+                <button onclick="closeBillModal()" class="px-8 py-3 bg-hyobin-dark text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-md flex items-center">
+                    <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 전용 푸터 (효빈광역시의회 전용) -->
+    <footer class="bg-slate-800 text-slate-300 py-10 mt-auto border-t-4 border-hyobin-blue print-hide">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-slate-700 pb-6 mb-6">
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 font-bold text-[15px]">
+                    <a href="#" class="text-white hover:text-blue-300 transition">개인정보처리방침</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">저작권정책</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">이메일무단수집거부</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">찾아오시는길</a>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-8 items-center md:items-start text-sm text-center md:text-left">
+                <div class="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 font-serif font-black text-3xl shadow-inner shrink-0">議</div>
+                <div class="leading-relaxed">
+                    <p class="mb-1 text-slate-400">[우편번호: 00000] 효빈광역시 북구 효빈로 79 (고송8동) 효빈광역시의회</p>
+                    <p class="mb-3 text-[15px]">
+                        대표전화 : <strong class="text-white text-lg tracking-wide">079-591-2322</strong> 
+                        <span class="mx-3 text-slate-600">|</span> 
+                        팩스 : 079-591-2329
+                    </p>
+                    <p class="text-slate-500">Copyright © Hyobin Metropolitan Council. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 동적 콘텐츠 및 데이터 렌더링 스크립트 -->
+    <script>
+        // ============================================================================
+        // [데이터 추가 위치]
+        // 나중에 의안 데이터를 직접 추가하실 때는 아래 배열(billData)에 객체 형식으로 추가해 주세요.
+        // 상태(status) 종류: '원안가결', '수정가결', '계류중', '폐기'
+        // ============================================================================
+        const billData = [
+            {
+                no: 2450,
+                title: "효빈광역시 민원 처리 담당자 보호 및 악성 민원 근절 조례안 (쿠쿠스 배리어)",
+                proposer: "오지대 의원 등 12명",
+                committee: "운영위원회",
+                date: "2026.03.01",
+                status: "원안가결",
+                summary: "최근 행정 현장 및 온라인 게시판에서 지속적으로 발생하는 폭언, 협박, 특정 문화 혐오 발언 등으로부터 민원 처리 담당 공무원의 인권을 보호하기 위한 조례안입니다.\n\n주요 내용:\n1. 악성 민원인의 폭언·폭행 시 즉각적인 법적 조치 의무화\n2. 온라인 게시판 내 혐오·욕설 민원에 대한 '차단됨' 상태 전환 및 실명 보존 근거 마련\n3. 피해 공무원 대상 심리 치료 및 법률 자문 비용 전액 시비 지원",
+                file: "조례안_제2450호_원문.pdf"
+            },
+            {
+                no: 2449,
+                title: "효빈광역시 가족돌봄청년(영 케어러) 지원에 관한 조례 일부개정조례안",
+                proposer: "박성임 의원 등 8명",
+                committee: "보건복지위원회",
+                date: "2026.02.25",
+                status: "수정가결",
+                summary: "전국 최초로 시행 중인 가족돌봄청년 지원 조례의 실효성을 더욱 높이고자 하는 개정안입니다.\n\n주요 내용:\n1. '효빈 하우스' 등 청년 주거 정책 지원 시 가족돌봄청년 최우선 가산점(10점) 부여 조항 신설\n2. '블루 버드 멘토단' 선발 우대 및 생활임금 적용 근거 법제화\n3. 긴급 가사 돌봄 바우처 지원 한도를 월 50시간에서 80시간으로 상향 (위원회 심사 중 일부 재정 한도 수정됨)",
+                file: "조례개정안_제2449호.pdf"
+            },
+            {
+                no: 2448,
+                title: "효빈광역시 글로벌 IP 관광 활성화 및 상표권 도용 방지 조례안",
+                proposer: "지은민 의원 등 5명",
+                committee: "경제산업위원회",
+                date: "2026.02.20",
+                status: "계류중",
+                summary: "효빈시의 주력 산업인 서브컬처 문화 관광을 진흥하고, 불법 굿즈 및 상표권 도용 노점상으로부터 정품 상권을 보호하기 위한 제정안입니다.\n\n주요 내용:\n1. '파스텔 블루 거리' 등 특화 상권 내 불법 복제 굿즈 단속 권한 강화\n2. 글로벌 IP 판권사(부시로드, 선라이즈 등)와의 협약에 따른 상표권 보호 및 정식 창업가(Start-up Otaku) 행정 지원\n* 현재 경제산업위원회에서 일부 규제의 범위 상충 문제를 두고 추가 논의 진행 중.",
+                file: "관광활성화조례안_검토본.pdf"
+            },
+            {
+                no: 2447,
+                title: "효빈광역시 노면전차(7호선) 보존 및 심야 운행 연장 조례안",
+                proposer: "우지남 의원 등 10명",
+                committee: "도시교통위원회",
+                date: "2026.02.15",
+                status: "원안가결",
+                summary: "대한민국 근대 교통의 살아있는 역사인 노면전차 7호선(분홍색)의 영구 보존을 명문화하고, 야간 교대 노동자 및 시민 편의를 위해 심야 연장 운행을 의무화하는 조례입니다.\n\n주요 내용:\n1. 7호선 노면전차의 시 지정 문화재급 인프라 보존 원칙 수립\n2. 막차 운행 종료 시간을 기존 23:30에서 익일 01:00로 연장\n3. 연장 운행에 따른 효빈교통공사 적자 보전분 시 예산 편성 근거 마련",
+                file: "7호선_보존및운행연장.pdf"
+            },
+            {
+                no: 2446,
+                title: "효빈광역시 서브컬처 특화거리 지정 및 지원 조례안",
+                proposer: "효빈광역시장 (박효빈)",
+                committee: "행정기획위원회",
+                date: "2026.02.10",
+                status: "원안가결",
+                summary: "구도심 경제 부활을 이끈 'L-Project'의 성공을 바탕으로, 시 내 특정 구역을 서브컬처 특화거리로 공식 지정하고 행정적·재정적 지원을 제공하기 위한 시장 발의 조례입니다.\n\n주요 내용:\n1. 안천구 당가동 및 서구 사능역(제과제빵 거리) 일대를 1호 특화구역으로 지정\n2. 구역 내 청년 창업 시 최대 5천만 원 자금 지원 및 임대료 감면\n3. 해당 구역 내 지역화폐(효빈페이) 결제 시 5% 추가 할인 적용 예산 근거 마련",
+                file: "서브컬처특화거리지정안.pdf"
+            },
+            {
+                no: 2445,
+                title: "효빈광역시 대중교통 무제한 이용권(H-Pass) 운영 동의안",
+                proposer: "효빈광역시장 (박효빈)",
+                committee: "도시교통위원회",
+                date: "2026.02.05",
+                status: "원안가결",
+                summary: "월 3만 원으로 효빈시 관내 모든 궤도 인프라 및 시내버스를 무제한 이용할 수 있는 'H-Pass' 사업의 지속적인 운영을 위해 시의회의 동의를 구하는 안건입니다.\n\n주요 내용:\n1. 대중교통 이용률 증대에 따른 탄소 배출 저감 지표 달성 보고\n2. H-Pass 시스템 고도화 및 빈효선 광역전철 추가 연동에 따른 예산 승인\n3. 청년 및 저소득층 교통 복지 지표 향상 효과 검증",
+                file: "HPASS_운영동의안_설명서.pdf"
+            },
+            {
+                no: 2444,
+                title: "효빈광역시 청년 안심 주택(효빈 하우스) 공급 조례안",
+                proposer: "조성일 의원 등 7명",
+                committee: "안전건설위원회",
+                date: "2026.01.28",
+                status: "수정가결",
+                summary: "취약계층 청년 및 창업가들의 주거 안정을 도모하기 위해 도심 유휴 시설을 매입하여 월 5~10만 원 수준의 초저가 공공 임대 주택인 '효빈 하우스'를 공급하는 조례입니다.\n\n주요 내용:\n1. 입주 자격 명문화 (덕업일치 창업가, 가족돌봄청년 등 우선 배정)\n2. 건물 1층 공유 라운지(커뮤니티 센터, 전시관 등) 의무 설치\n* 심사 과정에서 임대차 보호 기간을 최장 4년에서 6년으로 연장하는 수정안 가결",
+                file: "청년주택_공급조례안_수정본.pdf"
+            },
+            {
+                no: 2443,
+                title: "효빈 컬쳐레스풀(Culture-Respool) 공공 출자 동의안",
+                proposer: "효빈광역시장 (박효빈)",
+                committee: "행정기획위원회",
+                date: "2026.01.10",
+                status: "원안가결",
+                summary: "과거 불법 유흥 특혜 건축물이었던 '두청 팰리스' 부지를 시가 전면 매입하여, 청년 창작 지원 및 심리 치유 복합 시설인 산하 공공 출자기관 '효빈 컬쳐레스풀'을 설립하기 위한 동의안입니다.\n\n주요 내용:\n1. 시 출자금 300억 원 투입 및 향후 운영 보조금 편성 동의\n2. 부패 방지 교육관 존치 및 창작 지원 센터(Cos-Lab 등) 운영 승인",
+                file: "컬쳐레스풀_출자동의안.pdf"
+            },
+            {
+                no: 2442,
+                title: "효빈 애니메이션 페스티벌(HAF) 조직위원회 지원 조례안",
+                proposer: "주방선 의원 등 9명",
+                committee: "문화환경위원회",
+                date: "2025.12.15",
+                status: "원안가결",
+                summary: "매년 여름 개최되어 전국적인 경제 유발 효과를 내고 있는 HAF(효빈 애니메이션 페스티벌)의 체계적이고 안정적인 운영을 위해 상설 조직위원회를 구성하고 지원하는 조례입니다.",
+                file: "HAF조직위_지원조례안.pdf"
+            },
+            {
+                no: 2441,
+                title: "과거 시내버스 사유화 사태 진상규명 및 피해 구제 특별위원회 구성 결의안",
+                proposer: "윤월선 의원 등 20명",
+                committee: "의회운영위원회",
+                date: "2025.11.01",
+                status: "원안가결",
+                summary: "전임 시장 및 특정 의원(윤재훈 등)이 주도했던 대중교통 민영화(사유화) 시도와 노선 무단 단절 사태의 진상을 규명하고, 피해를 입은 시민들을 구제하기 위한 한시적 특별위원회를 구성하는 결의안입니다.\n* 해당 특위는 조사를 마치고 부패 책임자 고발 조치를 완료함.",
+                file: "버스사유화_특위구성결의안.pdf"
+            }
+        ];
+        // ============================================================================
+
+        // 전역 상태 변수
+        let currentFilteredBills = [...billData];
+        const billsPerPage = 8;
+        let billsCurrentPage = 1;
+
+        // 콘텐츠 템플릿
+        const pageContents = {
+            'intro': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의정활동 안내</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">의정활동 안내</h2>
+                <section class="mb-12">
+                    <p class="text-slate-700 leading-relaxed font-medium mb-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
+                        효빈광역시의회는 조례 제·개정, 예산안 심의, 행정사무감사 등 다방면의 의정활동을 통해 시민의 대변자 역할을 충실히 수행하고 있습니다. 회기 중 진행되는 본회의 및 각 위원회의 활동 내역과 의안 처리 현황을 투명하게 공개합니다.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('plenary')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="users" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">본회의</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">의회의 최종 의사를 결정하는 최고 의결 기구입니다. 조례안, 예산안 등 위원회에서 심사한 안건을 최종적으로 심의·의결합니다.</p>
+                        </div>
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('standing')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="layers" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">상임위원회</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">소관 부서별로 나뉘어 소관 의안과 청원 등을 전문적이고 능률적으로 심사합니다.</p>
+                        </div>
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('special')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="star" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">특별위원회</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">예산결산, 윤리 강령 심사 등 특정 현안을 일시적으로 심사하기 위해 구성되는 위원회입니다.</p>
+                        </div>
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('bills')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="file-text" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">의안정보</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">접수된 각종 조례안, 규칙안, 예산안 등의 발의 내용과 처리 현황을 투명하게 검색할 수 있습니다.</p>
+                        </div>
+                    </div>
+                </section>
+                <section class="mb-10">
+                    <div class="flex justify-between items-end mb-4 border-b-2 border-hyobin-dark pb-2">
+                        <h3 class="text-2xl font-black text-slate-800">최근 의안 처리 현황</h3>
+                        <a href="#" onclick="event.preventDefault(); loadContent('bills')" class="text-sm font-bold text-hyobin-blue hover:underline">전체보기 +</a>
+                    </div>
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200">
+                        <table class="data-table !border-t-0">
+                            <colgroup><col style="width: 10%;"><col style="width: auto;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 12%;"><col style="width: 10%;"></colgroup>
+                            <thead class="bg-slate-50">
+                                <tr><th>의안번호</th><th>의안명</th><th>제안자</th><th>소관위원회</th><th>제안일</th><th>처리상태</th></tr>
+                            </thead>
+                            <tbody class="text-[14.5px]" id="recent-bills-tbody">
+                                <!-- JS 동적 렌더링 영역 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            `,
+            'plenary': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">의정활동</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">본회의</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">본회의 안내</h2>
+                <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
+                    <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-hyobin-blue shrink-0">
+                        <i data-lucide="users" class="w-12 h-12"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-3">효빈광역시의회의 최고 의사결정 기구</h3>
+                        <p class="text-slate-600 leading-relaxed text-[15px]">
+                            본회의는 의회에 부여된 각종 권한을 행사하고 의사를 최종적으로 결정하는 회의체입니다. 전체 재적의원 38명으로 구성되며, 조례안 제·개정, 예산안 및 결산 승인, 행정사무감사 결과 보고 등 핵심 의안들을 다루며 효빈시의 더 나은 미래를 결정짓습니다.
+                        </p>
+                    </div>
+                </div>
+                <h3 class="bullet-title">제9대 후반기 본회의 일정 (예정)</h3>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-10">
+                    <table class="data-table !border-t-0">
+                        <thead class="bg-slate-50">
+                            <tr><th>회기구분</th><th>회기명</th><th>일정</th><th>주요 안건</th><th>상태</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="font-bold">제282회</td><td class="text-hyobin-blue font-bold">제1차 정례회</td><td>2026.06.01 ~ 06.25 (25일간)</td><td class="text-left px-4">2025회계연도 결산 승인, 시정질문 등</td><td><span class="text-slate-400 font-bold border border-slate-200 px-2 py-1 rounded text-xs">예정</span></td></tr>
+                            <tr><td class="font-bold">제281회</td><td class="text-hyobin-blue font-bold">임시회</td><td>2026.04.15 ~ 04.29 (15일간)</td><td class="text-left px-4">주요 시정 현안 조례안 심의, 추가경정예산안</td><td><span class="text-blue-600 font-bold border border-blue-200 bg-blue-50 px-2 py-1 rounded text-xs">진행중</span></td></tr>
+                            <tr><td class="font-bold">제280회</td><td class="text-hyobin-blue font-bold">임시회</td><td>2026.02.10 ~ 02.24 (15일간)</td><td class="text-left px-4">2026년도 주요업무계획 보고, 특별위원회 구성</td><td><span class="text-green-600 font-bold border border-green-200 bg-green-50 px-2 py-1 rounded text-xs">종료</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `,
+            'standing': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">의정활동</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">상임위원회</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">상임위원회 안내</h2>
+                <p class="text-slate-700 leading-relaxed font-medium mb-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
+                    효빈광역시의회는 시정 업무의 전문성과 효율성을 높이기 위해 분야별로 6개의 상임위원회를 구성하여 심도 있는 예비 심사를 진행합니다. 각 위원회를 클릭하시면 소관 부서와 위원 명단을 상세히 확인하실 수 있습니다.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='의회운영위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="settings" class="w-5 h-5 text-hyobin-blue"></i> 의회운영위원회</h3>
+                        <p class="text-slate-500 text-sm">의사일정 기획 및 의회사무처 소관 총괄</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='행정기획위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="briefcase" class="w-5 h-5 text-hyobin-blue"></i> 행정기획위원회</h3>
+                        <p class="text-slate-500 text-sm">시정 기획, 인사, 시민 안전 및 자치 행정 감시</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='보건복지위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="heart-pulse" class="w-5 h-5 text-hyobin-blue"></i> 보건복지위원회</h3>
+                        <p class="text-slate-500 text-sm">청년·가족 정책 및 보건 복지, 의료망 구축</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='경제산업위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="trending-up" class="w-5 h-5 text-hyobin-blue"></i> 경제산업위원회</h3>
+                        <p class="text-slate-500 text-sm">일자리 창출, 소상공인 지원 및 스마트 도시 개발</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='문화환경위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="leaf" class="w-5 h-5 text-hyobin-blue"></i> 문화환경위원회</h3>
+                        <p class="text-slate-500 text-sm">서브컬처 축제(HAF) 지원 및 기후·생태 환경 조성</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='안전건설위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="hard-hat" class="w-5 h-5 text-hyobin-blue"></i> 안전건설위원회</h3>
+                        <p class="text-slate-500 text-sm">도시 인프라, 주택 재개발 및 재난 예방 대책</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='도시교통위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="tram-front" class="w-5 h-5 text-hyobin-blue"></i> 도시교통위원회</h3>
+                        <p class="text-slate-500 text-sm">대중교통(H-Pass, 7호선) 혁신 및 궤도망 구축</p>
+                    </div>
+                    <div class="border border-slate-200 bg-white rounded-xl p-5 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer" onclick="location.href='교육위원회.html'">
+                        <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center gap-2"><i data-lucide="graduation-cap" class="w-5 h-5 text-hyobin-blue"></i> 교육위원회</h3>
+                        <p class="text-slate-500 text-sm">효빈광역시교육청 소관 예산 및 교육 정책 총괄</p>
+                    </div>
+                </div>
+            `,
+            'special': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">의정활동</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">특별위원회</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">특별위원회 안내</h2>
+                <p class="text-slate-700 leading-relaxed font-medium mb-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
+                    특별위원회는 특정 안건을 일시적으로 심사하기 위하여 본회의 의결로 설치되는 위원회입니다. 특히 예산과 결산, 그리고 의원의 윤리 문제는 상설 특별위원회를 두어 집중적으로 관리하고 있습니다.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-8 shadow-sm flex flex-col items-center text-center hover:border-hyobin-blue hover:shadow-md transition cursor-pointer" onclick="location.href='예산결산특별위원회.html'">
+                        <div class="w-20 h-20 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-5">
+                            <i data-lucide="calculator" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 mb-3">예산결산특별위원회</h3>
+                        <p class="text-slate-600 text-[15px] leading-relaxed">
+                            시청 및 교육청의 예산안과 결산을 종합적으로 심사하여 시민의 혈세가 낭비 없이 적재적소에 쓰이도록 감시합니다.<br>
+                            <span class="block mt-3 text-hyobin-blue font-bold">위원장: 용서민 (무소속)</span>
+                        </p>
+                    </div>
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-8 shadow-sm flex flex-col items-center text-center hover:border-hyobin-blue hover:shadow-md transition cursor-pointer" onclick="location.href='윤리특별위원회.html'">
+                        <div class="w-20 h-20 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-5">
+                            <i data-lucide="scale" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 mb-3">윤리특별위원회</h3>
+                        <p class="text-slate-600 text-[15px] leading-relaxed">
+                            의원의 윤리 강령 및 실천 규범 준수 여부를 심사하고 징계에 관한 사항을 처리하여 청렴한 의회 상을 확립합니다.<br>
+                            <span class="block mt-3 text-hyobin-blue font-bold">위원장: 유증민 (더불어민주당)</span>
+                        </p>
+                    </div>
+                </div>
+            `,
+            'bills': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">의정활동</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의안정보</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">의안 검색 및 현황</h2>
+                <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-inner flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div class="text-slate-700 font-medium">
+                        총 <span id="bill-total-count" class="text-hyobin-blue font-bold text-lg">0</span>건의 의안이 검색되었습니다.
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <select id="bill-search-type" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue h-10 bg-white">
+                            <option value="title">의안명</option>
+                            <option value="proposer">제안자</option>
+                            <option value="committee">소관위원회</option>
+                        </select>
+                        <div class="relative flex-1 md:w-64">
+                            <input type="text" id="bill-search-input" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue h-10 shadow-sm" onkeyup="if(event.key === 'Enter') filterBills()">
+                            <button onclick="filterBills()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition">
+                                <i data-lucide="search" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8">
+                    <table class="data-table !border-t-0">
+                        <colgroup><col style="width: 10%;"><col style="width: auto;"><col style="width: 15%;"><col style="width: 15%;"><col style="width: 12%;"><col style="width: 10%;"></colgroup>
+                        <thead class="bg-slate-50">
+                            <tr><th>의안번호</th><th>의안명</th><th>제안자</th><th>소관위원회</th><th>제안일</th><th>처리상태</th></tr>
+                        </thead>
+                        <tbody class="text-[14.5px]" id="all-bills-tbody">
+                            <!-- JS 동적 렌더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="flex justify-center mb-16" id="bills-pagination-container">
+                    <!-- JS 렌더링 영역 -->
+                </div>
+            `
+        };
+
+        // 상태 뱃지 생성 함수
+        function getStatusBadge(status) {
+            switch(status) {
+                case '원안가결': return `<span class="status-badge status-pass">원안가결</span>`;
+                case '수정가결': return `<span class="status-badge status-mod-pass">수정가결</span>`;
+                case '계류중': return `<span class="status-badge status-pending">계류중</span>`;
+                case '폐기': return `<span class="status-badge status-reject">폐기</span>`;
+                default: return `<span class="status-badge status-pending">${status}</span>`;
+            }
+        }
+
+        // 3. 콘텐츠 전환 함수
+        function loadContent(sectionId) {
+            // 사이드바 상태 변경
+            document.querySelectorAll('.lnb-list li').forEach(li => {
+                li.classList.remove('active');
+                const icon = li.querySelector('i');
+                if(icon) { icon.classList.remove('text-hyobin-blue'); icon.classList.add('text-slate-400'); }
+            });
+            
+            const activeLi = document.getElementById('nav-' + sectionId);
+            if(activeLi) {
+                activeLi.classList.add('active');
+                const activeIcon = activeLi.querySelector('i');
+                if(activeIcon) { activeIcon.classList.remove('text-slate-400'); activeIcon.classList.add('text-hyobin-blue'); }
+            }
+
+            // 본문 교체 및 렌더링
+            const contentArea = document.getElementById('dynamic-content-area');
+            contentArea.style.animation = 'none';
+            contentArea.offsetHeight; // 브라우저 리플로우 강제
+            contentArea.style.animation = null;
+            contentArea.innerHTML = pageContents[sectionId] || pageContents['intro'];
+            
+            // 동적 스크립트 실행 분기
+            if (sectionId === 'intro') {
+                renderRecentBills();
+            } else if (sectionId === 'bills') {
+                currentFilteredBills = [...billData]; // 검색 초기화
+                billsCurrentPage = 1;
+                renderAllBills();
+            }
+
+            // Lucide 아이콘 재렌더링
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // [메인화면] 최근 5개 의안 렌더링
+        function renderRecentBills() {
+            const tbody = document.getElementById('recent-bills-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            const recent = billData.slice(0, 5); // 최신 5개만
+            recent.forEach(bill => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openBillModal(bill.no);
+                tr.innerHTML = `
+                    <td>${bill.no}</td>
+                    <td class="title-col text-hyobin-blue hover:underline">${bill.title}</td>
+                    <td>${bill.proposer}</td>
+                    <td>${bill.committee}</td>
+                    <td>${bill.date}</td>
+                    <td>${getStatusBadge(bill.status)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // [의안정보] 의안 검색 로직
+        function filterBills() {
+            const type = document.getElementById('bill-search-type').value;
+            const keyword = document.getElementById('bill-search-input').value.toLowerCase();
+            
+            currentFilteredBills = billData.filter(bill => {
+                if(!keyword) return true;
+                if(type === 'title') return bill.title.toLowerCase().includes(keyword);
+                if(type === 'proposer') return bill.proposer.toLowerCase().includes(keyword);
+                if(type === 'committee') return bill.committee.toLowerCase().includes(keyword);
+                return true;
+            });
+            billsCurrentPage = 1;
+            renderAllBills();
+        }
+
+        // [의안정보] 전체 의안 렌더링 (페이지네이션)
+        function renderAllBills() {
+            const tbody = document.getElementById('all-bills-tbody');
+            const totalCountEl = document.getElementById('bill-total-count');
+            if(!tbody || !totalCountEl) return;
+            
+            totalCountEl.innerText = currentFilteredBills.length.toLocaleString();
+            tbody.innerHTML = '';
+
+            if (currentFilteredBills.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-slate-500">검색된 의안이 없습니다.</td></tr>`;
+                document.getElementById('bills-pagination-container').innerHTML = '';
+                return;
+            }
+
+            const startIndex = (billsCurrentPage - 1) * billsPerPage;
+            const endIndex = startIndex + billsPerPage;
+            const pageData = currentFilteredBills.slice(startIndex, endIndex);
+
+            pageData.forEach(bill => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openBillModal(bill.no);
+                tr.innerHTML = `
+                    <td>${bill.no}</td>
+                    <td class="title-col text-hyobin-blue hover:underline">${bill.title}</td>
+                    <td>${bill.proposer}</td>
+                    <td>${bill.committee}</td>
+                    <td>${bill.date}</td>
+                    <td>${getStatusBadge(bill.status)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderBillsPagination();
+        }
+
+        // [의안정보] 페이지네이션 렌더링
+        function renderBillsPagination() {
+            const container = document.getElementById('bills-pagination-container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(currentFilteredBills.length / billsPerPage);
+            if (totalPages <= 1) return;
+
+            const nav = document.createElement('nav');
+            nav.className = "flex items-center gap-1.5";
+
+            const createBtn = (text, targetPage, isDisabled, isActive) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = text;
+                btn.disabled = isDisabled;
+                
+                if (isActive) {
+                    btn.className = 'w-9 h-9 mx-1 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else if (isDisabled) {
+                    btn.className = 'w-9 h-9 mx-1 rounded border border-slate-200 text-slate-300 bg-slate-50 flex items-center justify-center cursor-not-allowed';
+                } else {
+                    btn.className = 'w-9 h-9 mx-1 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition';
+                }
+                
+                if (!isDisabled) {
+                    btn.onclick = () => { 
+                        billsCurrentPage = targetPage; 
+                        renderAllBills(); 
+                    };
+                }
+                return btn;
+            };
+
+            nav.appendChild(createBtn('<i data-lucide="chevron-left" class="w-4 h-4"></i>', billsCurrentPage - 1, billsCurrentPage === 1, false));
+            for(let i = 1; i <= totalPages; i++) {
+                nav.appendChild(createBtn(i, i, false, i === billsCurrentPage));
+            }
+            nav.appendChild(createBtn('<i data-lucide="chevron-right" class="w-4 h-4"></i>', billsCurrentPage + 1, billsCurrentPage === totalPages, false));
+            
+            container.appendChild(nav);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 세부 의안 모달 열기
+        function openBillModal(billNo) {
+            const bill = billData.find(b => b.no === billNo);
+            if(!bill) return;
+
+            document.getElementById('modal-bill-no').innerText = `의안번호: ${bill.no}`;
+            document.getElementById('modal-bill-title').innerText = bill.title;
+            document.getElementById('modal-bill-proposer').innerText = bill.proposer;
+            document.getElementById('modal-bill-committee').innerText = bill.committee;
+            document.getElementById('modal-bill-date').innerText = bill.date;
+            document.getElementById('modal-bill-status').innerHTML = getStatusBadge(bill.status);
+            document.getElementById('modal-bill-content').innerText = bill.summary;
+            document.getElementById('modal-bill-file').innerText = bill.file;
+
+            const modal = document.getElementById('bill-modal');
+            const content = document.getElementById('bill-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 세부 의안 모달 닫기
+        function closeBillModal() {
+            const modal = document.getElementById('bill-modal');
+            const content = document.getElementById('bill-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeBillModal();
+            }
+        });
+
+        // 초기 로드 시 '의정활동 안내' 렌더링
+        document.addEventListener("DOMContentLoaded", function() {
+            loadContent('intro');
+        });
+    </script>
+</body>
+</html>

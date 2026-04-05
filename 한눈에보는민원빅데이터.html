@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한눈에 보는 민원 빅데이터 - 효빈광역시 민원처리공개</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 시각화 차트 요소 */
+        .bar-chart-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            height: 0.85rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .bar-chart-fill {
+            height: 100%;
+            border-radius: 9999px;
+            width: 0%; /* JS로 애니메이션 처리 */
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .donut-chart {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background 1.5s ease-in-out;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .donut-inner {
+            width: 110px;
+            height: 110px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        /* 키워드 클라우드 스타일 */
+        .keyword-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .kw-1 { font-size: 2.2rem; font-weight: 900; color: #005bac; }
+        .kw-2 { font-size: 1.8rem; font-weight: 800; color: #D81C2F; }
+        .kw-3 { font-size: 1.5rem; font-weight: 700; color: #37B484; }
+        .kw-4 { font-size: 1.2rem; font-weight: 600; color: #f59e0b; }
+        .kw-5 { font-size: 1rem; font-weight: 500; color: #64748b; }
+        
+        .keyword-item {
+            transition: transform 0.2s, text-shadow 0.2s;
+            cursor: default;
+        }
+        .keyword-item:hover {
+            transform: scale(1.1);
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* 라이브 깜빡임 인디케이터 */
+        .live-dot {
+            width: 8px; height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            display: inline-block;
+            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <div id="common-header"></div>
+
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">민원처리공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 작은 목소리도 데이터로 새겨듣고 시정에 반영합니다.</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="headphones" class="w-5 h-5 mr-2"></i> 민원처리공개
+                </h4>
+                <ul class="space-y-1.5 text-[14px] lnb-menu">
+                    <li><a href="한눈에보는민원빅데이터.html" class="active">한눈에 보는 민원 빅데이터</a></li>
+                    <li><a href="금융복지지원센터.html">금융복지지원센터</a></li>
+                    <li><a href="110수화상담.html">110수화(화상)상담</a></li>
+                    <li><a href="110채팅상담.html">110채팅상담</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">민원/참여</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">민원처리공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">한눈에 보는 민원 빅데이터</span>
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">한눈에 보는 민원 빅데이터</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시 시민참여포털, 120 콜센터, 구·군청 민원실에 접수된 모든 민원 데이터를 AI로 통합 분석하여,<br>시민의 주요 관심사와 생활 불편 사항을 실시간으로 파악하고 투명하게 공개합니다.
+                </p>
+            </div>
+
+            <section class="mb-12">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <i data-lucide="activity" class="w-6 h-6 mr-2 text-blue-600"></i> 효빈시 실시간 민원 발생 동향
+                    </h3>
+                    <div class="text-sm font-bold text-slate-500 flex items-center bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                        <span class="live-dot mr-2"></span>최근 업데이트: <span id="current-time">2026.04.03 13:00</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-br from-[#1a365d] to-[#005bac] p-6 rounded-2xl shadow-md text-white text-center relative overflow-hidden">
+                        <i data-lucide="inbox" class="absolute -right-4 -bottom-4 w-24 h-24 opacity-10"></i>
+                        <span class="block text-blue-100 text-sm font-bold mb-2">금일 접수된 민원</span>
+                        <div class="text-4xl font-black">1,482<span class="text-lg font-bold text-blue-200 ml-1">건</span></div>
+                        <div class="mt-2 text-xs text-blue-200"><i data-lucide="trending-up" class="w-3 h-3 inline"></i> 전일 대비 2.4% 증가</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                        <span class="block text-slate-500 text-sm font-bold mb-2">주간 누적 민원</span>
+                        <div class="text-3xl font-black text-slate-800">8,504<span class="text-base font-bold text-slate-500 ml-1">건</span></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                        <span class="block text-slate-500 text-sm font-bold mb-2">현재 답변(처리) 완료율</span>
+                        <div class="text-3xl font-black text-emerald-600">92.5<span class="text-base font-bold text-emerald-500 ml-1">%</span></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                        <span class="block text-slate-500 text-sm font-bold mb-2">평균 처리 소요 시간</span>
+                        <div class="text-3xl font-black text-indigo-600">1.8<span class="text-base font-bold text-indigo-400 ml-1">일</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-14">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+                    <div class="p-8 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50 md:w-1/3 flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2 flex items-center">
+                            <i data-lucide="hash" class="w-6 h-6 mr-2 text-blue-600"></i> 주간 핵심 키워드
+                        </h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            이번 주 효빈 시민들이 가장 많이 언급한 민원 및 시정 건의 키워드를 AI 형태소 분석기로 추출한 결과입니다.
+                        </p>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200">
+                            <strong class="block text-xs text-slate-500 mb-2">급상승 키워드 TOP 3</strong>
+                            <ol class="space-y-2 text-sm font-bold">
+                                <li><span class="text-red-500 w-4 inline-block">1</span> 7호선 현대화 공사</li>
+                                <li><span class="text-orange-500 w-4 inline-block">2</span> 3세대 준공영제 배차</li>
+                                <li><span class="text-amber-500 w-4 inline-block">3</span> HAF 주차/통제</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="p-8 md:w-2/3 flex items-center justify-center min-h-[250px]">
+                        <div class="keyword-cloud">
+                            <span class="keyword-item kw-1">7호선 트램 공사</span>
+                            <span class="keyword-item kw-2">3세대 버스 배차</span>
+                            <span class="keyword-item kw-3">HAF 교통통제</span>
+                            <span class="keyword-item kw-1">효빈드림 하우스</span>
+                            <span class="keyword-item kw-4">탄성군 연장</span>
+                            <span class="keyword-item kw-5">잔디궤도 소음</span>
+                            <span class="keyword-item kw-2">파스텔블루 거리</span>
+                            <span class="keyword-item kw-3">히버히 서식지</span>
+                            <span class="keyword-item kw-5">스마트 쉘터</span>
+                            <span class="keyword-item kw-4">미세먼지</span>
+                            <span class="keyword-item kw-5">불법주정차</span>
+                            <span class="keyword-item kw-2">다자녀 혜택</span>
+                            <span class="keyword-item kw-5">공공 와이파이</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-14">
+                <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 분야 및 지역별 민원 현황 분석
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-800 mb-6 flex items-center justify-center">
+                            <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-indigo-600"></i> 분야별 접수 현황 (최근 1개월)
+                        </h4>
+                        <div class="flex flex-col items-center">
+                            <div class="donut-chart mb-6" id="category-donut">
+                                <div class="donut-inner">
+                                    <span class="text-xs font-bold text-slate-400">Total</span>
+                                    <span class="text-xl font-black text-slate-800">100%</span>
+                                </div>
+                            </div>
+                            <div class="w-full grid grid-cols-2 gap-x-4 gap-y-3 px-4 text-sm font-medium text-slate-700">
+                                <div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 bg-[#01B7ED]"></span>교통/도로 (42%)</div>
+                                <div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 bg-[#FF8899]"></span>도시/건설 (25%)</div>
+                                <div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 bg-[#37B484]"></span>환경/생태 (15%)</div>
+                                <div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 bg-[#6677CC]"></span>문화/관광 (10%)</div>
+                                <div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 bg-[#9856FF]"></span>복지/보건 (8%)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                        <h4 class="font-bold text-lg text-slate-800 mb-6 flex items-center">
+                            <i data-lucide="map-pin" class="w-5 h-5 mr-2 text-rose-600"></i> 구·군별 접수 현황 (Top 5)
+                        </h4>
+                        <div class="flex-1 flex flex-col justify-center space-y-5" id="district-bars">
+                            </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-10">
+                <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> AI 민원 동향 분석 리포트
+                    </h3>
+                    <span class="text-sm text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+                        <i data-lucide="sparkles" class="w-4 h-4 inline mr-1 text-amber-500"></i> AI 자동 추출
+                    </span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center shrink-0 border border-blue-100">
+                            <i data-lucide="train-track" class="w-8 h-8"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2.5 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">관심 집중</span>
+                                <h4 class="text-lg font-bold text-slate-800">도시철도 7호선 현대화 공사 구간 불편 및 기대 교차</h4>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed mb-4">
+                                전임 시장의 폐지 위기를 넘기고 공영화·현대화 공사 중인 <strong>7호선(분홍색 <span class="font-bold text-[#FF8899]">#FF8899</span>)</strong> 무가선 저상 트램과 관련하여, 잔디궤도 굴착 공사로 인한 소음 및 교통 통제 민원이 주를 이룹니다. 반면, 노후 전차 교체에 따른 대중교통 환경 개선에 대한 기대 민원도 동반 상승하고 있습니다.
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-blue-500 text-sm text-slate-700">
+                                <strong class="text-blue-800"><i data-lucide="check-circle" class="w-4 h-4 inline mr-1 -mt-0.5"></i>시정 조치:</strong> 
+                                도시철도건설본부 주관으로 공사 야간 할증 시간을 조정하고, 잔디궤도 인근 주거지에 친환경 방음벽 임시 설치를 선제적으로 조치 중입니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+                        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0 border border-emerald-100">
+                            <i data-lucide="bus" class="w-8 h-8"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">안정화 단계</span>
+                                <h4 class="text-lg font-bold text-slate-800">제3세대 시내버스 준공영제 개편 및 도색 정착</h4>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed mb-4">
+                                3세대 완전 준공영제 도입 초기 빈발했던 <strong>노선 개편 및 배차 간격 불만 민원이 전월 대비 45% 급감</strong>했습니다. 2008년 제정안에 따른 권역별 지정 도색(간선 <span class="font-bold text-[#01B7ED]">#01B7ED</span>, 지선 <span class="font-bold text-[#37B484]">#37B484</span> 등)이 정착되면서 시인성 관련 긍정적 피드백이 증가하고 있습니다.
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-emerald-500 text-sm text-slate-700">
+                                <strong class="text-emerald-800"><i data-lucide="check-circle" class="w-4 h-4 inline mr-1 -mt-0.5"></i>시정 조치:</strong> 
+                                대중교통과에서는 데이터 분석을 바탕으로, 수요가 집중되는 출퇴근 시간대에 급행버스(<span class="font-bold text-[#D81C2F]">#D81C2F</span>)를 추가 투입하여 배차 간격을 탄력적으로 단축 운영하고 있습니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+                        <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center shrink-0 border border-indigo-100">
+                            <i data-lucide="home" class="w-8 h-8"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2.5 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">신규 동향</span>
+                                <h4 class="text-lg font-bold text-slate-800">청년임대주택 '효빈드림 하우스' 자격 요건 문의 급증</h4>
+                            </div>
+                            <p class="text-[14.5px] text-slate-600 leading-relaxed mb-4">
+                                청엽구 일대에 조성되는 효빈드림 하우스 2차 입주 공고가 발표됨에 따라, 청년 및 신혼부부의 소득/자산 기준 등 <strong>신청 자격 문의가 주간 800건 이상 폭증</strong>하고 있습니다.
+                            </p>
+                            <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-indigo-500 text-sm text-slate-700">
+                                <strong class="text-indigo-800"><i data-lucide="check-circle" class="w-4 h-4 inline mr-1 -mt-0.5"></i>시정 조치:</strong> 
+                                청년정책과와 120 콜센터를 연계하여 '효빈드림 하우스 전용 상담 창구'를 임시 개설하였으며, 자격 요건 자가진단 웹페이지를 신속히 오픈하여 시민 편의를 도모했습니다.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 현재 시간 업데이트 (라이브 효과)
+        function updateTime() {
+            const now = new Date();
+            const formatted = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            document.getElementById('current-time').innerText = formatted;
+        }
+        setInterval(updateTime, 60000);
+        updateTime();
+
+        // 아이콘 및 동적 차트 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            renderCharts();
+        });
+
+        // 차트 데이터 및 렌더링
+        function renderCharts() {
+            // 1. 도넛 차트 (분야별 민원)
+            const donutData = [
+                { val: 42, color: '#01B7ED' }, // 교통 (버스/트램)
+                { val: 25, color: '#FF8899' }, // 도시건설 (7호선 공사 등)
+                { val: 15, color: '#37B484' }, // 환경 (히버히, 미세먼지)
+                { val: 10, color: '#6677CC' }, // 문화관광 (HAF)
+                { val: 8, color: '#9856FF' }   // 복지 (드림하우스)
+            ];
+            
+            let gradientStops = [];
+            let currentPercent = 0;
+            donutData.forEach(d => {
+                gradientStops.push(`${d.color} ${currentPercent}% ${currentPercent + d.val}%`);
+                currentPercent += d.val;
+            });
+            
+            // 약간의 딜레이를 주어 부드럽게 렌더링되게 함
+            setTimeout(() => {
+                const donut = document.getElementById('category-donut');
+                if(donut) donut.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+            }, 300);
+
+
+            // 2. 바 차트 (구·군별 접수 현황 Top 5)
+            const districtData = [
+                { label: '중구 (도심/교통)', val: 95, num: '2,410', color: '#005bac' },
+                { label: '서구 (7호선 공사 구간)', val: 78, num: '1,980', color: '#FF8899' },
+                { label: '청엽구 (드림하우스 2차)', val: 65, num: '1,650', color: '#9856FF' },
+                { label: '당가동(특화거리 일대)', val: 42, num: '1,065', color: '#6677CC' },
+                { label: '탄성군 (빈효선 연장/환경)', val: 25, num: '634', color: '#37B484' }
+            ];
+
+            const barContainer = document.getElementById('district-bars');
+            barContainer.innerHTML = '';
+
+            districtData.forEach(d => {
+                const barHtml = `
+                    <div class="w-full">
+                        <div class="flex justify-between text-sm font-bold text-slate-700 mb-1.5">
+                            <span>${d.label}</span>
+                            <span>${d.num}건</span>
+                        </div>
+                        <div class="bar-chart-container">
+                            <div class="bar-chart-fill" style="background-color: ${d.color};" data-width="${d.val}%"></div>
+                        </div>
+                    </div>
+                `;
+                barContainer.innerHTML += barHtml;
+            });
+
+            // 바 차트 애니메이션 실행
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.bar-chart-fill');
+                bars.forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-width');
+                });
+            }, 300);
+        }
+    </script>
+</body>
+</html>

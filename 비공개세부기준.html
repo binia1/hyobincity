@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비공개세부기준 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 섹션 타이틀 포인트 */
+        .section-title {
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 20px;
+            background-color: #005bac; /* hyobin-blue */
+            border-radius: 3px;
+        }
+
+        /* 아코디언/카드용 스타일 */
+        .criteria-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            background-color: #ffffff;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+        .criteria-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .criteria-header {
+            background-color: #f8fafc;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .criteria-num {
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: 900;
+            font-size: 1.1rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            flex-shrink: 0;
+        }
+        .criteria-body {
+            padding: 1.5rem;
+        }
+        .example-box {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            text-align: center;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .content-table td {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+        }
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background-color: #eff6ff; 
+            color: #1d4ed8; 
+            border: 1px solid #bfdbfe;
+            transition: all 0.2s;
+        }
+        .btn-download:hover {
+            background-color: #dbeafe; 
+        }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center">
+                    <i data-lucide="folder-open" class="w-5 h-5 mr-2"></i> 행정/원문 정보공개
+                </h4>
+                <ul class="space-y-1.5 text-[13px] lnb-menu">
+                    <li><a href="행정정보공개.html">정보공개제도안내</a></li>
+                    <li><a href="정보공개청구현황.html">정보공개청구현황</a></li>
+                    <li><a href="정보공개청구.html">정보공개청구</a></li>
+                    <li><a href="비공개세부기준.html" class="active">비공개세부기준</a></li>
+                    <li><a href="정보공개수수료.html">정보공개수수료</a></li>
+                    <li><a href="불복처리절차.html">불복처리절차</a></li>
+                    <li><a href="관련법령및서식.html">관련법령 및 서식</a></li>
+                    <li><a href="정보공개편람.html">정보공개편람</a></li>
+                    <li><a href="예산재정정보.html">예산·재정정보</a></li>
+                    <li><a href="사전정보공표목록.html">사전정보공표목록</a></li>
+                    <li><a href="즐겨찾는사전정보.html">즐겨찾는사전정보</a></li>
+                    <li><a href="원문정보공개안내.html">원문정보공개안내</a></li>
+                    <li><a href="원문정보목록.html">원문정보목록</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative" id="print-area">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">행정/원문 정보공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">비공개세부기준</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">비공개 대상 정보 세부기준</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">효빈광역시는 모든 정보의 공개를 원칙으로 하나, 「공공기관의 정보공개에 관한 법률」 제9조 제1항 각 호에 해당하는 정보는 공공의 이익과 시민의 사생활 보호를 위해 예외적으로 비공개하고 있습니다.</p>
+            </div>
+
+            <!-- 법적 근거 요약 박스 -->
+            <div class="bg-blue-50 border border-blue-200 p-6 rounded-xl mb-12 flex items-start gap-4">
+                <i data-lucide="scale" class="w-8 h-8 text-blue-600 shrink-0 mt-1"></i>
+                <div>
+                    <h3 class="text-lg font-bold text-blue-900 mb-2">공공기관의 정보공개에 관한 법률 제9조(비공개 대상 정보)</h3>
+                    <p class="text-sm text-blue-800 leading-relaxed">
+                        공공기관이 보유·관리하는 정보는 공개 대상이 된다. 다만, 다음 각 호의 어느 하나에 해당하는 정보는 공개하지 아니할 수 있다.<br>
+                        (아래 1호부터 8호까지의 기준에 따라 효빈광역시 실정에 맞는 세부 기준을 수립하여 적용합니다.)
+                    </p>
+                </div>
+            </div>
+
+            <!-- 비공개 세부기준 8가지 항목 -->
+            <section class="mb-12">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 section-title">항목별 비공개 대상 정보 및 효빈시 적용 사례</h3>
+                
+                <div class="space-y-6">
+                    
+                    <!-- 1호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">1호</div>
+                            <h4 class="text-lg font-bold text-slate-800">법령상의 비밀·비공개 정보</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">다른 법률 또는 법률에서 위임한 명령(국회규칙·대법원규칙·헌법재판소규칙·중앙선거관리위원회규칙·대통령령 및 조례로 한정한다)에 따라 비밀이나 비공개 사항으로 규정된 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>재산세, 취득세 등 지방세 과세 정보 및 체납자 개인 신용 정보 (지방세기본법)</li>
+                                    <li>주민등록표 등·초본 원장 및 가족관계 등록 사항 (주민등록법)</li>
+                                    <li>통계 작성을 위하여 수집된 개인 또는 법인 등의 비밀에 속하는 기초 자료 (통계법)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">2호</div>
+                            <h4 class="text-lg font-bold text-slate-800">국가안보·국방·통일·외교 관련 정보</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">국가안전보장·국방·통일·외교관계 등에 관한 사항으로서 공개될 경우 국가의 중대한 이익을 현저히 해칠 우려가 있다고 인정되는 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>충무계획, 을지태극연습 등 비상대비 훈련 관련 비밀 문건</li>
+                                    <li>국가기반시설(효빈시청, 상수도사업본부 등)의 대테러 방호 계획서</li>
+                                    <li>효빈항 국제여객터미널 통합 방위 및 보안 경비 체계도</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">3호</div>
+                            <h4 class="text-lg font-bold text-slate-800">국민의 생명·신체·재산 및 공공안전 관련 정보</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">공개될 경우 국민의 생명·신체 및 재산의 보호에 현저한 지장을 초래할 우려가 있다고 인정되는 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li><strong>제17회 HAF(효빈 애니메이션 페스티벌)</strong> 행사장 VIP 경호 및 인파 통제 세부 동선도</li>
+                                    <li>효빈시 관내 방범용·교통단속용 CCTV의 정밀 위치 좌표 및 사각지대 현황</li>
+                                    <li>시장 관사 내부 도면 및 보안 시스템 설계도 (범죄 예방 목적)</li>
+                                    <li>정수장 등 상수도 시설의 핵심 제어망 설계도 (과거 단수 테러 방지 및 수질 테러 대비)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">4호</div>
+                            <h4 class="text-lg font-bold text-slate-800">재판·수사 등 관련 정보</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">진행 중인 재판에 관련된 정보와 범죄의 예방, 수사, 공소의 제기 및 유지, 형의 집행, 교정, 보안처분에 관한 사항으로서 공개될 경우 그 직무수행을 현저히 그르치거나 형사피고인의 공정한 재판 받을 권리를 침해한다고 인정할 만한 상당한 이유가 있는 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>과거 윤대환 전 시장의 6호선 설계도 파쇄 및 직권남용 관련 <strong>현재 진행 중인 민·형사 소송 대응 내부 전략 문서</strong></li>
+                                    <li>광역철도(빈효선) 분담금 미납 관련 타 지자체와의 소송 법률 자문 내용</li>
+                                    <li>효빈경찰서 등 수사기관에서 압수수색 또는 수사 협조 요청을 의뢰한 관련 서류 일체</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">5호</div>
+                            <h4 class="text-lg font-bold text-slate-800">감사·감독·계약·의사결정 관련 정보</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">감사·감독·검사·시험·규제·입찰계약·기술개발·인사관리에 관한 사항이나 의사결정 과정 또는 내부검토 과정에 있는 사항 등으로서 공개될 경우 업무의 공정한 수행이나 연구·개발에 현저한 지장을 초래한다고 인정할 만한 상당한 이유가 있는 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>도시철도 7호선(트램) 현대화 공사 입찰 등에 참여한 <strong>평가위원의 개인별 채점표 및 위원 명단</strong></li>
+                                    <li>공무원 채용, 청년 멘토단 '블루 버드' 선발 면접 시험의 출제 문항 및 채점 기준표</li>
+                                    <li>3세대 준공영제 노선 개편 및 5도심 다핵구조 도시계획 관련 <strong>내부 의사결정(검토) 중인 미확정 문서</strong></li>
+                                    <li>직원 인사 교류안, 근무성적평정 결과, 특정 감사 대상 기관의 선정 및 진행 상황 자료</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">6호</div>
+                            <h4 class="text-lg font-bold text-slate-800">개인정보 (이름, 주민등록번호 등)</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">해당 정보에 포함되어 있는 성명·주민등록번호 등 개인에 관한 사항으로서 공개될 경우 사생활의 비밀 또는 자유를 침해할 우려가 있다고 인정되는 정보 (단, 공익 목적 공개 예외 등은 법령 참조)</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>국민신문고, 시 홈페이지 등을 통해 <strong>민원을 제기하거나 진정, 신고를 한 민원인의 인적사항 일체</strong></li>
+                                    <li>청년 주거혁신 '효빈 하우스' 입주자 및 기초생활수급자, 장애인 등 취약계층의 개인 신상 정보</li>
+                                    <li>공무원 및 공무직 근로자의 급여 명세서, 자택 주소, 휴대폰 번호, 징계 내역 등 사적 정보</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">7호</div>
+                            <h4 class="text-lg font-bold text-slate-800">법인 등의 영업상 비밀</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">법인·단체 또는 개인의 경영상·영업상 비밀에 관한 사항으로서 공개될 경우 법인 등의 정당한 이익을 현저히 해칠 우려가 있다고 인정되는 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>시내버스 준공영제 참여 운수업체의 세부 영업 기밀(원가 산출 내역, 부품 매입 단가표 등)</li>
+                                    <li>제17회 HAF 명예 홍보대사로 위촉된 글로벌 IP(BanG Dream!, 러브라이브 등) 측과의 <strong>비공개 조항이 포함된 로열티 및 계약 세부 조건</strong></li>
+                                    <li>관내 기업체의 제조 원가, 설계 도면, 특허 등 신기술 관련 신청 서류</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8호 -->
+                    <div class="criteria-card">
+                        <div class="criteria-header">
+                            <div class="criteria-num">8호</div>
+                            <h4 class="text-lg font-bold text-slate-800">부동산 투기·매점매석 등 우려 정보</h4>
+                        </div>
+                        <div class="criteria-body">
+                            <p class="text-[15px] text-slate-600 leading-relaxed mb-4">공개될 경우 부동산 투기, 매점매석 등으로 특정인에게 이익 또는 불이익을 줄 우려가 있다고 인정되는 정보</p>
+                            <div class="example-box">
+                                <strong class="text-green-800 text-sm flex items-center mb-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 mr-1.5"></i> 효빈시 주요 비공개 사례</strong>
+                                <ul class="list-disc list-inside text-sm text-green-700 space-y-1">
+                                    <li>광역전철 빈효선(연청색 #6677CC) 탄성군 지선 연장에 따른 <strong>미발표 신설 역세권 위치 및 수용 예정 토지 조서</strong></li>
+                                    <li>안천 복합환승센터 부지 인근의 토지 매입 계획 및 도시계획시설 결정 전 구상도</li>
+                                    <li>공공택지 개발 등과 관련하여 고시 전의 개발계획안 및 지가 변동을 유발할 수 있는 내부 정보</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 부서별 다운로드 영역 -->
+            <section class="mb-12">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 section-title">부서별 비공개 세부기준 다운로드</h3>
+                <p class="text-sm text-slate-600 mb-4">효빈광역시 각 실·국·본부 및 직속기관의 업무 특성을 반영한 상세 비공개 기준 편람을 다운로드하실 수 있습니다.</p>
+                
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table class="content-table !mt-0 !mb-0">
+                        <colgroup>
+                            <col style="width: 60%;">
+                            <col style="width: 40%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>자료명</th>
+                                <th>다운로드</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">2026년도 효빈광역시 전 부서 비공개 세부기준 종합편람</td>
+                                <td>
+                                    <div class="flex justify-center gap-2">
+                                        <button onclick="simulateDownload()" class="btn-download"><i data-lucide="file-text" class="w-4 h-4"></i> HWP</button>
+                                        <button onclick="simulateDownload()" class="btn-download"><i data-lucide="file" class="w-4 h-4"></i> PDF</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">효빈교통공사 (도시철도 및 대중교통) 비공개 세부기준</td>
+                                <td>
+                                    <div class="flex justify-center gap-2">
+                                        <button onclick="simulateDownload()" class="btn-download"><i data-lucide="file-text" class="w-4 h-4"></i> HWP</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">효빈애니메이션본부 (HAF 등 문화행사) 비공개 세부기준</td>
+                                <td>
+                                    <div class="flex justify-center gap-2">
+                                        <button onclick="simulateDownload()" class="btn-download"><i data-lucide="file-text" class="w-4 h-4"></i> HWP</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 하단 인쇄 버튼 -->
+            <div class="flex justify-end action-buttons no-print mt-12 pt-6 border-t border-slate-200">
+                <button onclick="downloadNativePDF()" class="px-6 py-3 bg-[#1a365d] text-white rounded-lg font-bold hover:bg-slate-800 transition flex items-center shadow-md">
+                    <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 페이지 인쇄 / PDF 저장
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 초기화 시 아이콘 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 파일 다운로드 시뮬레이션
+        function simulateDownload() {
+            // 기존 팝업이 있다면 제거
+            const existingToast = document.getElementById('download-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.id = 'download-toast';
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                    <div>
+                        <strong class="block text-[15px] mb-0.5">다운로드 시작</strong>
+                        <span class="text-sm opacity-90">비공개_세부기준_자료.zip</span>
+                    </div>
+                </div>
+            `;
+            
+            toast.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-blue-600 no-print`;
+            
+            document.body.appendChild(toast);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // PDF 다운로드 / 네이티브 인쇄
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center no-print`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

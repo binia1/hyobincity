@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일일 브리핑 - 효빈광역시 시민 경청</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 미리 분리해 둔 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('이미지/일일브리핑배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Board Table Styles */
+        .board-container { border-top: 2px solid #1a365d; background: white; }
+        .board-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .board-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; font-size: 0.95rem; padding: 1.1rem 0.5rem; border-bottom: 1px solid #cbd5e1; white-space: nowrap; }
+        .board-table td { padding: 1.1rem 0.5rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; vertical-align: middle; }
+        .board-table td.title-col { text-align: left; padding-left: 1rem; }
+        .board-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+        .board-table tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+
+        /* Badge Styles */
+        .badge-news { background-color: #e0f2fe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-policy { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-clarify { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-event { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+
+        .badge-common {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 목소리가 효빈의 역사가 됩니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민 경청
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="시장실.html">시장실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시장에게바란다.html">시장에게 바란다 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="통합자료실.html">통합자료실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="질의답변.html">질의답변 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="일일브리핑.html">일일 브리핑 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 경청</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">일일 브리핑</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8 flex justify-between items-end">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800 mb-3 content-title border-none !mb-2 !pb-0">일일 브리핑</h2>
+                    <p class="text-slate-600 leading-relaxed">
+                        효빈광역시의 주요 정책 발표, 언론 보도 해명자료, 시정 주요 행사 소식을 매일 투명하게 공개합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Search & Filter Area -->
+            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4 mb-6">
+                <!-- 분류 필터 -->
+                <div class="flex flex-wrap gap-2 w-full lg:w-auto" id="category-filters">
+                    <button class="filter-btn active bg-hyobin-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="all">전체</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="시정소식">시정소식</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="정책발표">정책발표</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="해명/반박">해명/반박</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="행사/동정">행사/동정</button>
+                </div>
+                <!-- 검색창 -->
+                <div class="flex w-full lg:w-auto gap-2">
+                    <select id="search-type" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue bg-white">
+                        <option value="title">제목</option>
+                        <option value="content">내용</option>
+                        <option value="dept">담당부서</option>
+                    </select>
+                    <div class="relative flex-1 lg:w-64">
+                        <input type="text" id="search-input" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue shadow-sm" onkeyup="if(event.key === 'Enter') filterBriefings()">
+                        <button onclick="filterBriefings()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Board List (목록형 테이블) -->
+            <div class="board-container overflow-x-auto shadow-sm rounded-b-xl mb-8">
+                <table class="board-table min-w-[750px]">
+                    <colgroup>
+                        <col style="width: 7%">
+                        <col style="width: 13%">
+                        <col style="width: auto">
+                        <col style="width: 14%">
+                        <col style="width: 12%">
+                        <col style="width: 8%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>분류</th>
+                            <th>제목</th>
+                            <th>담당부서</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                        </tr>
+                    </thead>
+                    <tbody id="board-tbody" class="divide-y divide-slate-100">
+                        <!-- JS 렌더링 영역 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-10 mb-16" id="pagination-container">
+                <!-- JS로 렌더링 -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 문서 상세 보기 모달 -->
+    <div id="briefing-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeBriefingModal()">
+        <div id="briefing-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="p-6 md:p-8 border-b border-slate-200 bg-slate-50 rounded-t-xl shrink-0">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="modal-category" class="badge-common bg-white text-slate-800 border-slate-300">분류</span>
+                    <button onclick="closeBriefingModal()" class="text-slate-400 hover:text-slate-700 transition bg-white rounded-full p-1 border border-slate-200 shadow-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <h3 id="modal-title" class="font-black text-2xl md:text-3xl text-slate-800 break-keep leading-tight mb-5">브리핑 제목</h3>
+                <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 bg-white p-3 rounded-lg border border-slate-200">
+                    <div><span class="font-bold text-slate-800 mr-1">담당부서:</span> <span id="modal-dept"></span></div>
+                    <div><span class="font-bold text-slate-800 mr-1">담당자:</span> <span id="modal-manager"></span></div>
+                    <div><span class="font-bold text-slate-800 mr-1">등록일:</span> <span id="modal-date"></span></div>
+                    <div><span class="font-bold text-slate-800 mr-1">조회수:</span> <span id="modal-views"></span></div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow bg-white text-[15px] md:text-[16px] text-slate-800 leading-relaxed font-medium whitespace-pre-wrap" id="modal-content">
+                브리핑 내용...
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-center shrink-0 rounded-b-xl">
+                <button onclick="closeBriefingModal()" class="px-8 py-3 bg-hyobin-dark text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-md flex items-center">
+                    <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script>
+        // 효빈광역시 설정 기반 브리핑 데이터 (총 25건 상세 확충)
+        const briefingData = [
+            {
+                id: 25,
+                category: "해명/반박",
+                title: "['글로벌 IP 래핑 버스 예산 낭비' 관련 일부 언론 보도에 대한 효빈시의 입장]",
+                dept: "대변인실",
+                manager: "홍보담당관",
+                date: "2026.04.18",
+                views: 5450,
+                content: `[해명자료] 글로벌 IP 래핑 버스는 예산 낭비가 아닌 '황금알을 낳는 거위'입니다.
+
+최근 일부 언론에서 보도된 "효빈시 시내버스 글로벌 IP(부시로드, 선라이즈 등) 라이선스 체결 및 래핑 비용에 과도한 시 예산이 낭비되고 있다"는 주장에 대하여 객관적 지표를 바탕으로 다음과 같이 바로잡습니다.
+
+1. 로열티 지급 대비 압도적 경제적 파급 효과
+효빈광역시는 정식 업무 협약을 통해 글로벌 IP를 도입하였으며, 초기 라이선스 계약금 및 차량 래핑 비용으로 약 15억 원이 소요된 것은 사실입니다. 그러나 해당 차량 운행 및 '파스텔 블루 거리(L-Project)' 연계 이후, 전국 및 해외에서 몰려든 성지순례 관광객으로 인해 관련 지역 상권 매출이 전년 대비 420% 폭증하였습니다. 
+
+2. 세수 증대 및 대중교통 운송수입 흑자 전환
+현재 래핑 버스 운행 노선의 탑승객 수는 비래핑 노선 대비 18% 높게 나타나고 있습니다. 이에 따른 대중교통 운송 수입금 증가분과 효빈교통공사가 독점 기획한 '한정판 콜라보 교통카드 및 굿즈' 판매 수익만으로도 이미 누적 로열티 지급액의 3.5배를 환수하며 흑자 전환을 달성하였습니다.
+
+효빈시는 이를 단순한 '비용'이 아닌, 쇠퇴하던 지역 경제 부활을 이끈 가장 성공적인 '문화 복지 투자'로 평가하고 있습니다. 시민 여러분께서는 악의적인 프레임 씌우기식 비방 보도에 흔들림 없이 효빈의 문화 정책을 지지해 주시기를 당부드립니다.`
+            },
+            {
+                id: 24,
+                category: "정책발표",
+                title: "[7호선(노면전차) 심야 연장 운행 전격 시행... 밤 1시까지 달린다]",
+                dept: "대중교통과",
+                manager: "도시철도운영팀",
+                date: "2026.04.15",
+                views: 5120,
+                content: `[보도자료] 효빈의 상징 7호선 노면전차, 시민의 밤을 가장 안전하게 지킵니다.
+
+효빈교통공사는 시민들의 지속적인 심야 교통 편의 확충 건의를 적극 수용하여, 대한민국 근대 교통의 살아있는 상징인 7호선(노면전차)의 심야 연장 운행을 전격 시행합니다.
+
+■ 시행 일자: 2026년 4월 15일 (수) 부터 전면 시행
+■ 연장 내용: 막차 운행 종료 시간 기존 23:30 → 익일 01:00 (1시간 30분 연장)
+■ 연계 교통망: 종착역 하차 시 '심야 안심 귀가 버스(N1~N4)' 노선과 대기 시간 없이 즉시 환승 가능하도록 타임테이블 조정 완료.
+
+박효빈 시장은 "과거 폐선 위기에 처했던 7호선 전차가 시민의 뜨거운 연대로 살아남아, 이제는 심야 퇴근길 시민들의 가장 든든한 발이 되었다"며, "앞으로도 시민의 일상과 직결된 대중교통의 공공성을 최우선 과제로 삼아 정책을 추진하겠다"고 밝혔습니다.`
+            },
+            {
+                id: 23,
+                category: "행사/동정",
+                title: "[박효빈 시장, '효빈 컬쳐레스풀' 개관 3주년 기념 현장 간담회 참석]",
+                dept: "문화체육관광국",
+                manager: "문화기반조성팀",
+                date: "2026.04.14",
+                views: 2890,
+                content: `[동정자료] "부패의 웅덩이에서 창조의 둥지로, 청년들의 쉼표를 응원합니다."
+
+박효빈 효빈시장은 14일 오전, 청엽구 입동2가에 위치한 시 산하 출자기관 '효빈 컬쳐레스풀(Hyobin Culture-Respool)' 본부에서 열린 개관 3주년 기념 간담회에 참석했습니다.
+
+해당 부지는 과거 불법 유흥 특혜가 난무했던 '두청 팰리스' 자리로, 민선 8기 출범 이후 청년들을 위한 서브컬처 기반 창작 지원 및 심리 치유 복합 공간으로 역설적으로 탈바꿈한 상징적인 장소입니다.
+
+이날 박 시장은 강토리 초대 센터장과 함께 의상 제작실(Cos-Lab) 및 ASMR 청음실을 차례로 점검하며, "과거 기득권의 어두운 역사를 통쾌하게 뒤집어낸 이곳이, 이제는 상처받은 은둔형 청년들과 열정 넘치는 창작자들에게 가장 안전하고 생산적인 도피처가 되었다"고 실무진들을 격려했습니다.`
+            },
+            {
+                id: 22,
+                category: "시정소식",
+                title: "['효빈 하우스' 1호점 전 세대 입주 완료... 가족돌봄청년 특별 배정]",
+                dept: "청년정책담당관",
+                manager: "청년주거팀",
+                date: "2026.04.10",
+                views: 3100,
+                content: `[시정소식] 청년 주거 혁신 '효빈 하우스', 1호점 입주자 150세대 최종 확정
+
+효빈시가 청년 주거난의 근본적 해소를 위해 구도심 노후 시설을 전면 매입해 조성한 '효빈 하우스' 1호점(북구 고송신도시 내)의 입주자 선정이 완료되어 본격적인 입주가 시작되었습니다.
+
+■ 주요 입주 혜택 및 조건
+이번 입주 심사에서는 복지 사각지대에 놓인 '가족돌봄청년(영 케어러)'에게 전체 공급 물량의 30%를 최우선 배정하였습니다. 모든 세대는 보증금 전액 면제 및 월 5~10만 원의 파격적인 임대료 혜택을 받게 됩니다.
+
+■ 커뮤니티 공간 '덕업일치 라운지' 운영
+특히 1호점 1층 전체를 개방형 공유 라운지(스터디 카페, 굿즈 전시관, 소규모 3D프린팅 랩 포함)로 조성하였으며, 전담 커뮤니티 매니저를 배치하여 입주 청년들 간의 취미 기반 네트워킹과 창업 스터디를 적극 지원할 예정입니다.`
+            },
+            {
+                id: 21,
+                category: "정책발표",
+                title: "[대중교통 시인성 강화를 위한 '도시철도망 공식 지정 색상' 전면 공포]",
+                dept: "도시계획과",
+                manager: "교통인프라팀",
+                date: "2026.04.08",
+                views: 4200,
+                content: `[정책발표] 더 직관적인 대중교통 환승을 위한 노선별 고유 색상(HEX Code) 전면 적용
+
+효빈광역시는 고령자 및 외부 관광객들의 직관적이고 편리한 환승 연계를 위해, 관내 도시철도망 및 광역전철망의 공식 지정 색상을 확정하고 연말까지 역내 모든 안내 사인물 및 스크린도어 인디케이터 교체 작업을 추진합니다.
+
+■ 효빈 도시철도 공식 색상표
+- 1호선: 파란색 (#0077DD)
+- 2호선: 초록색 (#00CCAA)
+- 3호선: 노란색 (#FFCC11)
+- 4호선: 주황색 (#FF5522)
+- 5호선: 빨간색 (#EE0022)
+- 6호선: 보라색 (#881188)
+- 7호선 (노면전차): 분홍색 (#FF8899)
+- 8호선: 연보라색 (#9856FF)
+- 빈효선 (광역전철): 연청색 (#6677CC)
+
+이번 지정 색상은 효빈시 고유의 정체성을 살려 서울 등 타 지자체 노선 색상과의 혼동을 철저히 방지하고 시각적 인지성을 극대화하는 데 중점을 두었습니다.`
+            },
+            {
+                id: 20,
+                category: "정책발표",
+                title: "[제3기 '블루 버드 멘토단' 본격 가동... 청년 일자리·행정 실무 완벽 융합]",
+                dept: "행정지원국",
+                manager: "인사기획팀",
+                date: "2026.04.05",
+                views: 2900,
+                content: `[정책발표] 예비 공직자 육성을 위한 '블루 버드 멘토단' 3기 출범
+
+효빈시 취약계층 대학생 및 가족돌봄청년에게 시청 핵심 부서에서의 실무 행정 경험을 제공하는 '블루 버드 멘토단' 제3기가 선발 과정을 마치고 오늘부터 현업 부서에 투입되었습니다.
+
+총 120명이 선발된 이번 3기 멘토단은 기존의 단순 노무 보조나 복사 업무에서 탈피하여, 시의 문화관광, 대중교통, 복지기획 등 실무 핵심 부서에 담당 주무관과 1:1 멘토링 방식으로 배치됩니다.
+
+■ 획기적 처우 개선
+멘토단 전원에게 시 생활임금의 1.2배에 달하는 급여가 지급되며, 대중교통 무제한 정기권(H-Pass) 무료 제공은 물론, 지역 내 문화생활 및 성지순례를 독려하기 위한 '문화 활력 특별 지원금'이 매월 별도로 지급됩니다. 효빈시는 청년들이 경제적 짐을 덜고 진로 탐색에 매진할 수 있도록 행정적 지원을 아끼지 않겠습니다.`
+            },
+            {
+                id: 19,
+                category: "정책발표",
+                title: "[2026 HAF 종합 안전대책... 'Kuku Guard' 안면인식 AI 시스템 전면 가동]",
+                dept: "시민안전실",
+                manager: "재난대응팀",
+                date: "2026.04.01",
+                views: 3150,
+                content: `[보도자료] "전 세계 관람객의 안전, 빈틈없는 첨단 기술로 완벽하게 지킵니다."
+
+올여름 전 세계 서브컬처 팬들이 운집하는 역대 최대 규모의 축제 'HAF(효빈 애니메이션 페스티벌)' 개최를 앞두고, 효빈시 시민안전실은 경찰청, 소방본부 등 유관기관과 합동으로 '초밀착 종합 안전대책'을 발표했습니다.
+
+■ 'Kuku Guard(쿠쿠 가드)' 전면 가동
+과거 행사장 내 특정 인물의 난입 및 성우 대상 혐오 범죄를 원천 차단하기 위해, 행사장 출입구 및 주요 동선에 안면 인식 기반 지능형 치안 시스템 'Kuku Guard'를 배치합니다. 과거 난동을 피워 영구 추방(블랙리스트) 처리된 요주의 인물 접근 시, 경호팀에 실시간 알람이 전송되어 즉각 격리 조치됩니다. (※ 생체 데이터는 행사 종료 후 즉시 파기하여 개인정보 보호 규정을 철저히 준수합니다.)
+
+또한 고송대로 야간 퍼레이드 구간에는 무술 유단자로 구성된 특수 안전요원 500명을 다중 배치하여 단 한 건의 안전사고도 발생하지 않도록 총력을 기울이겠습니다.`
+            },
+            {
+                id: 18,
+                category: "시정소식",
+                title: "[당가동 '파스텔 블루 거리' 도시재생 완료... 유동인구 400% 증가 쾌거]",
+                dept: "도시재생과",
+                manager: "상권활성화팀",
+                date: "2026.03.28",
+                views: 3400,
+                content: `[시정소식] 원도심의 위대한 부활, 'L-Project' 성과 종합 분석
+
+상권 침체로 텅 비어가던 안천구 당가동 구 중앙상가거리를 서브컬처 특화 상권으로 재탄생시킨 'L-Project(파스텔 블루 상권 부활 프로젝트)'의 1주년 성과 분석 결과가 발표되었습니다.
+
+사업 시행 전 빈 점포율이 35%에 달했던 이 거리는, 초대형 굿즈샵 '오타쿠의 꿈' 입점을 기점으로 총 150억 원의 민간 창업 자본 유치에 성공하며 현재 빈 점포율이 2%대로 급감하였습니다. 보행 환경 전면 정비 및 야간 경관 조명 개선 사업이 완료됨에 따라, 월평균 유동인구가 전년 동기 대비 420% 폭증하며 침체된 지역 경제 부활의 최고 모범 사례로 평가받고 있습니다.
+
+효빈시는 이 여세를 몰아 관내 특화 상권 방문객을 위해 지역화폐(효빈페이) 결제 시 캐시백 외 추가 5% 특별 할인을 연말까지 연장 지원할 계획입니다.`
+            },
+            {
+                id: 17,
+                category: "해명/반박",
+                title: "[사능역 제과제빵 특화거리 내 '주정차 단속 완화 요구' 수용 불가 입장 안내]",
+                dept: "교통정책과",
+                manager: "주차지도팀",
+                date: "2026.03.25",
+                views: 2750,
+                content: `[해명자료] 사능역 제과제빵 특화거리 불법 주정차 단속은 '보행자 절대 안전'을 위한 필수 타협 불가 조치입니다.
+
+최근 시민 게시판을 통해 제기된 '사능역 엠마빵집 일대 상권 활성화를 위한 불법 주정차 10분 유예 단속 완화' 요구에 대한 시의 공식 입장을 명확히 알려드립니다.
+
+해당 구간은 최근 성지순례 관광객의 급증으로 보행자 통행량이 시내 최고 수준에 달해, 단 5분의 불법 주차(차량 정차)만으로도 연쇄적인 심각한 교통 체증과 보행자(특히 어린이 및 관광객) 안전사고 위험이 직결되는 곳입니다. 따라서 해당 구역의 '상시 즉시 단속 구역' 지정은 해제되거나 완화될 수 없습니다.
+
+빵집 및 인근 상가를 방문하시는 시민 및 관광객 여러분께서는 불법 주정차 대신 도보 3분 거리에 새롭게 정비된 '사능역 공영주차장(최초 30분 무료 회차 적용)'을 적극 이용해 주시기를 강력히 당부드립니다.`
+            },
+            {
+                id: 16,
+                category: "정책발표",
+                title: "[H-Pass(효빈 패스) 누적 이용자 100만 명 돌파... 대중교통비 40% 절감 입증]",
+                dept: "대중교통과",
+                manager: "교통기획팀",
+                date: "2026.03.20",
+                views: 4800,
+                content: `[보도자료] 시민의 일상을 바꾼 월 3만 원의 기적, H-Pass 100만 명 돌파!
+
+효빈시 관내 모든 궤도 및 버스 대중교통을 무제한 이용할 수 있는 혁신적 교통 기본권 보장 정책 'H-Pass(효빈 패스)'의 정기 구독 가입자가 제도 시행 1년 만에 100만 명을 돌파했습니다.
+
+효빈시 정책연구원의 분석 결과, H-Pass 도입 이후 가입자(특히 만 19~34세 청년 및 대학생층)의 월평균 교통비 부담이 40% 이상 대폭 경감된 것으로 나타났습니다. 이는 실질적인 가처분 소득 증대로 이어져 지역 상권 소비 촉진에도 긍정적 영향을 미치고 있습니다. 
+
+현재 효빈시의 대중교통 수송 분담률은 타 광역시를 15% 이상 압도하는 전국 1위 수치를 달성했으며, 시 대중교통과는 지속적인 궤도 인프라 확충으로 전국에서 가장 이동이 편리한 도시의 명성을 굳건히 이어가겠습니다.`
+            },
+            {
+                id: 15,
+                category: "시정소식",
+                title: "[제3세대 권역별 시내버스 9개 등급별 공식 도색 지정 완료]",
+                dept: "대중교통과",
+                manager: "버스운영팀",
+                date: "2026.03.18",
+                views: 2900,
+                content: `[시정소식] 9개 권역, 9가지 색상으로 시내버스의 기능과 시인성을 획기적으로 높입니다.
+
+효빈시는 3세대 완전 준공영제 노선 전면 개편과 발맞추어, 시민들이 목적에 맞는 버스를 멀리서도 쉽게 식별할 수 있도록 등급별 고유 도색(HEX Code) 가이드라인을 최종 확정하고 전면 도입에 나섰습니다.
+
+■ 버스 등급별 지정 도색
+- 간선버스: #01B7ED (파란색)
+- 지선버스: #37B484 (초록색)
+- 순환버스: #E7D600 (노란색)
+- 광역버스: #485EC6 (진파랑색)
+- 급행버스: #D81C2F (빨간색)
+- 좌석버스: #FF5800 (주황색)
+- 마을버스: #A664A0 (보라색)
+- 공항버스: #84C36E (연두색)
+- 시티투어: #7777AA (회청색)
+
+해당 공식 도색은 이달 신규 출고되는 전기·수소 저상버스부터 순차적으로 100% 의무 적용됩니다.`
+            },
+            {
+                id: 14,
+                category: "시정소식",
+                title: "[효빈교통공사-시내버스 운송조합 통합, 대중교통 '통합 유실물 센터' 오픈]",
+                dept: "대중교통과",
+                manager: "대중교통팀",
+                date: "2026.03.15",
+                views: 2200,
+                content: `[시정소식] 잃어버린 소중한 물건, 이제 기관 구분 없이 한 곳에서 빠르고 편리하게 찾으세요.
+
+효빈시는 기존에 도시철도(교통공사)와 시내버스(운송조합)로 이원화되어 시민 불편을 초래했던 유실물 관리 체계를 일원화하여, 시청 홈페이지 내 '대중교통 통합 분실물 찾기' 온라인 포털을 개편·오픈했습니다.
+
+이제 매일 각 호선별 주요 역(중앙로, 사가당, 곽산, 중수, 도변역) 관제실 및 동부/서부 권역별 버스 유실물 센터로 인계되는 습득물의 상세 사진과 습득 위치 정보가 실시간(1시간 단위)으로 데이터베이스에 통합 업데이트됩니다. 시민들은 모바일로 손쉽게 본인의 물건을 조회하고 수령 예약을 진행할 수 있습니다.`
+            },
+            {
+                id: 13,
+                category: "행사/동정",
+                title: "[박효빈 시장, 필리핀 케손시티 시장단 접견... 자매결연 1주년 기념]",
+                dept: "국제교류과",
+                manager: "국제협력팀",
+                date: "2026.03.10",
+                views: 2300,
+                content: `[동정자료] 혐오를 넘어선 굳건한 국제 연대, 필리핀 케손시티와 함께 걷다.
+
+박효빈 시장은 10일 효빈시청 외빈 접견실에서 시를 공식 방문한 필리핀 케손시티 '조세피나 벨몬테' 시장 및 대표단을 접견하고, 양 도시 간 자매결연 1주년 기념행사를 성대하게 개최했습니다.
+
+양 도시의 자매결연은 과거 효빈시 출신의 특정 악성 정치 세력(윤 모 씨)이 필리핀 세부 현지에서 벌인 인종차별적 난동 사건 당시, 어머니의 고향을 향해 박 시장이 필리핀 언론에 유창한 타갈로그어로 직접 진정성 있는 사과와 수습에 나선 것을 계기로 극적으로 맺어진 바 있습니다.
+
+박 시장은 환영사에서 "소수의 불미스러운 혐오 범죄가 오히려 두 도시를 가장 끈끈하게 이해하는 형제 도시로 만들었다"며, 향후 양 도시 간 관광, 서브컬처 문화 교류, 청년 행정 교환 근무 등 다방면의 교류 확대를 공식 약속했습니다.`
+            },
+            {
+                id: 12,
+                category: "정책발표",
+                title: "[악성 민원 근절 및 공직자 인권 보호를 위한 '무관용 원칙' 및 조례 제정]",
+                dept: "감사위원회",
+                manager: "조사담당관",
+                date: "2026.03.05",
+                views: 4500,
+                content: `[보도자료] 폭언과 혐오 발언으로 얼룩진 악성 민원, 효빈시 행정에서는 절대 선처하지 않습니다.
+
+효빈광역시는 최근 시청 열린 게시판 및 오프라인 현장에서 지속적으로 발생하는 특정 문화 비하, 담당 공무원 대상 폭언, 기물 훼손 등의 악성 행위에 대해 '선처 없는 무관용 원칙'을 공식 선포했습니다.
+
+이에 따라 제정된 '효빈광역시 민원 처리 담당자 보호 및 악성 민원 근절 조례(일명 쿠쿠스 배리어 조례)'가 시의회를 통과하여 오늘부터 전면 시행됩니다.
+
+앞으로 상습적인 욕설 및 혐오 민원은 내부 시스템 규정에 따라 즉각 '차단됨(실명 박제)' 상태로 전환되며, 업무 방해나 인격 모독 소지가 다분한 경우 경고 없이 즉각적인 IP 위치 추적 및 경찰 고발 조치가 이루어짐을 분명히 밝힙니다.`
+            },
+            {
+                id: 11,
+                category: "시정소식",
+                title: "[전국 최초 '가족돌봄청년(영 케어러)' 실태조사 완료 및 심리지원 확대]",
+                dept: "복지건강국",
+                manager: "청년복지팀",
+                date: "2026.02.28",
+                views: 1800,
+                content: `[시정소식] 복지 사각지대 없는 따뜻한 효빈, 청년의 무거운 짐을 시가 함께 나눕니다.
+
+효빈시는 전국 지자체 최초로 선제적으로 제정한 '가족돌봄청년(영 케어러) 지원 조례'를 근거로, 관내 복지 사각지대에 놓인 영 케어러의 실태 파악을 위한 심층 전수 조사를 완료하였습니다.
+
+조사 분석 결과를 바탕으로, 효빈시는 이들을 위한 긴급 가사 돌봄 바우처 지급 한도를 대폭 상향 조정합니다. 아울러 돌봄 부담으로 인한 번아웃과 우울증 예방을 위해, 각 보건소 및 새롭게 개관한 '효빈 컬쳐레스풀' 라운지 내에 전담 심리 상담사를 상시 배치하여 청년들의 정서적 회복을 다각도로 지원할 예정입니다. 박효빈 시장은 "청년 개인의 희생을 칭찬으로 포장하고 당연하게 여기는 사회적 구조를 바꾸기 위해 지자체가 가장 먼저 나서겠다"고 강조했습니다.`
+            },
+            {
+                id: 10,
+                category: "행사/동정",
+                title: "[효빈종합터미널 2층 복합문화공간 콜라보 카페 'Ani-Station' 개관식]",
+                dept: "관광마케팅과",
+                manager: "관광자원팀",
+                date: "2026.02.20",
+                views: 2600,
+                content: `[동정자료] 효빈의 관문 터미널, 머물고 싶은 '덕업일치' 랜드마크로 재탄생하다.
+
+효빈시 관문인 효빈종합터미널 2층 유휴 공간에 지역 대중교통 운영사인 칠양여객고속(주)이 직영하는 대형 서브컬처 테마 복합 콜라보 카페 'Ani-Station'이 오늘 정식 개관했습니다.
+
+이날 개관식에는 박효빈 시장과 칠양여객 노조위원장 등이 참석해 제막식을 가졌습니다. Ani-Station은 캐릭터 테마 시그니처 음료와 효빈 특산물 디저트를 판매하며, 매장 내 상설 굿즈 존과 소규모 팬 이벤트(생일 카페 등) 공간을 무상으로 대관합니다.
+
+이 사업은 지역 청년 바리스타 15명을 정규직으로 신규 채용하는 일자리 창출 효과는 물론, 터미널 이용객의 체류 시간을 늘려 인접 복합쇼핑몰(백화점 등) 상권의 동반 매출 상승을 견인할 핵심 시설로 기대를 모으고 있습니다.`
+            },
+            {
+                id: 9,
+                category: "정책발표",
+                title: "[효빈 심야 안심 귀가 버스 '올빼미 노선(N1~N4)' 확정 및 운행 개시]",
+                dept: "대중교통과",
+                manager: "노선운영팀",
+                date: "2026.02.15",
+                views: 4100,
+                content: `[정책발표] 늦은 밤 시민의 안전한 귀갓길, 효빈 올빼미 버스가 책임집니다.
+
+효빈시는 야간 경제 활동 종사자, 심야 아르바이트 청년 및 학생들의 안전한 귀가를 지원하기 위해 심야 전용 안심 귀가 버스인 '효빈 올빼미 버스(노선번호 N1~N4)' 4개 핵심 노선을 최종 확정하고 오늘 자정부터 본격 운행을 개시합니다.
+
+- 운행 시간: 매일 00:00 ~ 새벽 04:00
+- 노선 특징: 관내 주요 대학가, 구도심 유흥가 밀집 지역, 7호선 전차 종착역, 그리고 외곽 신규 주거 밀집 지역(과진지구 등)을 십자형으로 교차 연결.
+- 안전 인프라: 차량 내부 고화질 CCTV 및 비상 안심 벨 100% 장착 완료. 각 정류장 하차 시 사전 예약한 '안심 귀가 스카우트' 대원과 연계하여 자택 앞까지 도보 동행 서비스를 무료로 제공받으실 수 있습니다.`
+            },
+            {
+                id: 8,
+                category: "시정소식",
+                title: "[효빈시 모든 시내버스 및 도시철도 내 '무료 5G 공공 와이파이' 구축 완료]",
+                dept: "정보통신담당관",
+                manager: "스마트시티팀",
+                date: "2026.02.08",
+                views: 2900,
+                content: `[시정소식] 대중교통 이동 중에도 끊김 없는 데이터 복지, 무상으로 누리세요.
+
+효빈광역시는 시민들의 가계 통신비 절감과 쾌적한 대중교통 이용 환경 조성을 위해 추진해 온 '대중교통 무료 5G 공공 와이파이 구축 사업'을 당초 목표보다 1개월 앞당겨 100% 완료했습니다.
+
+오늘부터 관내 도시철도 1~8호선 전동차 내부 및 승강장, 그리고 9개 등급의 모든 시내버스(광역 및 마을버스 포함)에 설치된 고속 5G 공유기를 통해 무료 인터넷 서비스가 제공됩니다.
+
+시민 및 관광객 여러분은 스마트폰 설정에서 별도의 복잡한 회원가입이나 인증 절차 없이, 개방형 네트워크인 'Public WiFi Free_Hyobin'를 선택하시면 즉시 고속 데이터를 무제한으로 즐기실 수 있습니다.`
+            },
+            {
+                id: 7,
+                category: "정책발표",
+                title: "[불법 현수막 대체할 '스마트 시정 게시대(팬클럽 광고 전용 포함)' 운영 개시]",
+                dept: "도시계획과",
+                manager: "경관디자인팀",
+                date: "2026.02.01",
+                views: 2500,
+                content: `[정책발표] 도시 미관을 해치는 불법 현수막 0(제로)에 도전합니다.
+
+효빈시는 도로변 시야를 가리고 도시 미관을 저해하는 불법 전단지 및 현수막을 근절하기 위해, 디지털 LED 기반의 '스마트 시정 게시대' 50개소를 관내 주요 교차로와 지하철역 입구에 설치하고 정식 운영에 들어갑니다.
+
+본 게시대는 영세 소상공인의 상업 광고뿐만 아니라, 효빈시만의 문화적 특성을 반영하여 '최애 캐릭터 생일 축하 광고', '아이돌 데뷔 기념 광고' 등 팬덤 문화를 지원하는 민간 광고물도 합법적이고 저렴하게(월 3만 원 수준) 송출할 수 있도록 개방됩니다.
+
+광고 신청은 시청 '공공시설 예약 시스템'을 통해 선착순 투명하게 진행되며, 불법으로 거리에 게시된 옥외 광고물에 대해서는 계도 없이 즉각적인 철거 및 최고액 과태료 부과 처분이 내려집니다.`
+            },
+            {
+                id: 6,
+                category: "시정소식",
+                title: "[지역화폐 '효빈페이' 특화 상권 내 결제 시 총 15% 특별 추가 할인 혜택 적용]",
+                dept: "경제일자리과",
+                manager: "소상공인팀",
+                date: "2026.01.25",
+                views: 3800,
+                content: `[시정소식] 지갑은 가볍게, 상권은 활기차게! 효빈페이 특화 상권 프로모션
+
+효빈시는 지속되는 내수 침체를 극복하고 시 지정 특화 상권으로의 방문객 유입을 극대화하기 위해, 지역화폐인 '효빈페이'의 파격적인 추가 할인 프로모션을 연말까지 진행합니다.
+
+소비자가 안천구 당가동 '파스텔 블루 거리(L-Project)' 및 서구 '사능역 제과제빵 특화거리(엠마 빵집 등)' 구역 내로 등록된 공식 가맹점에서 효빈페이로 결제할 경우, 기존에 제공되는 기본 캐시백 10%에 더해 '특화 상권 지원 특별 할인 5%'가 결제 즉시 실시간으로 자동 차감 적용(총 15% 할인 체감 효과)됩니다.
+
+본 추가 할인 혜택의 개인당 한도는 월 최대 5만 원이며, 시 예산 소진 시 조기 종료될 수 있으니 시민 여러분의 많은 이용 바랍니다.`
+            },
+            {
+                id: 5,
+                category: "해명/반박",
+                title: "[사능역 '엠마 빵집' 상표권 무단 도용 및 불량식품 노점상 강력 단속 결과]",
+                dept: "식품위생과",
+                manager: "위생안전팀",
+                date: "2026.01.18",
+                views: 2100,
+                content: `[보도자료] 짝퉁 굿즈와 불량 식품, 효빈의 청정 관광 문화를 훼손할 수 없습니다.
+
+최근 전국적인 빵지순례 명소로 떠오른 서구 사능역 일대 '엠마 빵집' 주변에서, 해당 상호와 글로벌 IP 이미지를 무단 도용한 불법 짝퉁 굿즈 및 출처 불명의 불량 베이커리를 판매하는 노점상들이 적발되었다는 민원에 대하여 즉각적인 합동 단속 결과를 발표합니다.
+
+효빈시 식품위생과와 서구청 특별사법경찰단은 지난 주말 3차례에 걸친 기습 합동 단속을 통해, 무허가로 상표를 도용하고 위생 상태가 불량한 원료로 식품을 조제·판매한 불법 노점상 8개소를 적발, 전면 철거 및 형사 고발 조치하였습니다.
+
+효빈시는 건전한 서브컬처 상권 보호와 성지순례 관광객들의 먹거리 안전을 위해, 앞으로도 짝퉁 상품 판매 및 위생 불량 업소에 대해 정기적인 암행 단속을 펼칠 계획입니다.`
+            },
+            {
+                id: 4,
+                category: "정책발표",
+                title: "['덕업일치 창업 지원센터(Start-up Otaku)' 제1기 입주 청년 기업 모집]",
+                dept: "일자리경제과",
+                manager: "창업지원팀",
+                date: "2026.01.12",
+                views: 2700,
+                content: `[정책발표] 취미가 직업이 되고, 덕질이 산업이 되는 도시. 청년 창업가 여러분을 모십니다.
+
+효빈광역시는 서브컬처 콘텐츠를 지역 경제의 핵심 미래 산업으로 집중 육성하기 위해, 안천구 당가동 일대에 새롭게 리모델링 구축된 '덕업일치 창업 지원센터(Start-up Otaku)'의 제1기 입주 청년 창업 기업을 아래와 같이 공개 모집합니다.
+
+■ 모집 대상: 굿즈 기획/제작, 동인지 출판, 코스프레 의상 디자인, 메이드/테마 카페, 버튜버 MCN 등 서브컬처 관련 전 업종 (만 39세 이하 청년 창업자 우대)
+■ 파격적 지원 혜택:
+  - 심사 통과 시 사업화 육성 자금 기업당 최대 5,000만 원 무상 지원.
+  - 센터 내 개별 사무 공간 및 공용 회의실, 3D 프린터 작업실 최초 1년간 임대료 전액 면제.
+  - 전문 회계/법률 멘토링 및 유명 IP 판권사와의 네트워킹 데이 주선.
+효빈시는 청년 여러분의 번뜩이는 아이디어가 곧 글로벌 콘텐츠 기업으로 성장할 수 있도록 든든한 날개가 되어 드리겠습니다.`
+            },
+            {
+                id: 3,
+                category: "시정소식",
+                title: "[2026 HAF(효빈 애니메이션 페스티벌) 공식 자원봉사자 1,000명 선발 및 직무 교육 실시]",
+                dept: "관광마케팅과",
+                manager: "축제기획팀",
+                date: "2026.01.08",
+                views: 1950,
+                content: `[시정소식] 세계인을 맞이할 효빈의 미소, HAF 자원봉사자 발대식 개최
+
+올여름 개최되는 아시아 최대 규모의 서브컬처 축제 'HAF 2026'의 원활한 운영을 책임질 공식 자원봉사자 1,000명의 최종 선발이 완료되어, 금일 시청 대강당에서 발대식 및 1차 직무 안전 교육이 실시되었습니다.
+
+이번 모집에는 관내 대학생뿐만 아니라 전국 각지의 열혈 팬들이 대거 지원하여 5:1의 높은 경쟁률을 기록했습니다. 선발된 자원봉사자들은 행사장 통역 보조, 관람객 동선 안전 통제 지원, 부스 안내 등의 핵심 임무를 수행하게 됩니다.
+
+봉사자 전원에게는 한정판 스태프 유니폼(굿즈)이 지급되며, 1365 포털을 통해 공식 자원봉사 실적(일 최대 8시간)이 인정됩니다. 또한 관내 대학교 재학생의 경우 학교의 교내 사회봉사 학점으로 연계 인정 처리될 예정입니다.`
+            },
+            {
+                id: 2,
+                category: "행사/동정",
+                title: "[박효빈 시장, 관내 청소년수련관 배드민턴 동호회 방문 및 생활체육 현장 간담회]",
+                dept: "체육진흥과",
+                manager: "생활체육팀",
+                date: "2026.01.05",
+                views: 1540,
+                content: `[동정자료] 현장에 답이 있다. 땀 흘리는 시민들과 함께하는 시장실.
+
+박효빈 시장은 주말인 지난 5일 오전, 효빈시 청소년수련관 실내 체육관을 예고 없이 방문하여, 체육관을 대관해 운동 중이던 지역 청년 배드민턴 동호회 회원들과 현장 소통 간담회를 가졌습니다.
+
+박 시장은 회원들과 직접 배드민턴 시범 경기를 즐기며 격의 없이 땀을 흘린 뒤, 이어진 간담회에서 주말 공공 체육시설 대관의 어려움과 낡은 샤워 시설 개선 요구 등 현장의 생생한 애로사항을 청취했습니다.
+
+박 시장은 현장에 동행한 담당 국장에게 "시민들이 운동 후 쾌적하게 씻고 귀가할 수 있도록, 관내 노후 공공 체육시설의 샤워장 및 락커룸 리모델링 예산을 즉각 추경에 편성할 것"을 지시하며 발 빠른 행정 조치를 약속했습니다.`
+            },
+            {
+                id: 1,
+                category: "시정소식",
+                title: "[효빈시 공식 특산품 및 콜라보 굿즈 온라인 쇼핑몰 '효빈장터' 전면 개편 오픈]",
+                dept: "경제일자리과",
+                manager: "마케팅지원팀",
+                date: "2026.01.02",
+                views: 3200,
+                content: `[시정소식] 효빈의 맛과 멋, 이제 전국 어디서나 안방에서 편하게 클릭하세요!
+
+효빈광역시는 지리적 여건으로 방문이 어려운 타 지역 시민들과 해외 팬들을 위해, 기존 지역 농수산물 위주로 운영되던 시 공식 온라인 쇼핑몰을 전면 개편하여 '효빈장터(Hyobin Market)'라는 새 이름으로 오늘 그랜드 오픈했습니다.
+
+■ 주요 판매 품목 확대
+새 단장한 효빈장터에서는 기존 특산품 외에도, 연일 매진 행렬을 기록하는 사능역 '엠마 빵집'의 시그니처 베이커리 직배송 세트, 지역 청년 창업가들이 직접 디자인한 공예품, 효빈교통공사가 발행하는 글로벌 IP 한정판 콜라보 교통카드, 그리고 시 공식 마스코트 '한바다' 봉제 인형 등을 다양하게 구비하였습니다.
+
+오픈 기념으로 이달 말까지 전 품목 무료 배송 및 신규 가입자 대상 10% 웰컴 할인 쿠폰 증정 이벤트를 진행하오니, 시민 및 팬 여러분의 많은 이용 바랍니다.`
+            }
+        ];
+
+        let activeCategory = 'all';
+        let currentKeyword = '';
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let filteredData = [];
+
+        // 뱃지 스타일 매핑 함수
+        function getBadgeClass(category) {
+            switch(category) {
+                case '시정소식': return 'badge-news';
+                case '정책발표': return 'badge-policy';
+                case '해명/반박': return 'badge-clarify';
+                case '행사/동정': return 'badge-event';
+                default: return 'bg-slate-200 text-slate-700 border-slate-300';
+            }
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFilterButtons();
+            filterBriefings();
+        });
+
+        // 필터 버튼 이벤트 셋업
+        function setupFilterButtons() {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // 활성 상태 스타일 변경
+                    buttons.forEach(b => {
+                        b.classList.remove('bg-hyobin-dark', 'text-white');
+                        b.classList.add('bg-white', 'text-slate-600', 'border-slate-300');
+                    });
+                    e.target.classList.remove('bg-white', 'text-slate-600', 'border-slate-300');
+                    e.target.classList.add('bg-hyobin-dark', 'text-white');
+                    
+                    activeCategory = e.target.dataset.category;
+                    filterBriefings(); 
+                });
+            });
+        }
+
+        // 검색 및 필터링 적용 로직
+        function filterBriefings() {
+            const searchType = document.getElementById('search-type').value;
+            currentKeyword = document.getElementById('search-input').value.toLowerCase();
+            
+            filteredData = briefingData.filter(item => {
+                // 카테고리 필터
+                const matchCategory = activeCategory === 'all' || item.category === activeCategory;
+                
+                // 검색어 필터
+                let matchKeyword = true;
+                if(currentKeyword !== '') {
+                    if(searchType === 'title') {
+                        matchKeyword = item.title.toLowerCase().includes(currentKeyword);
+                    } else if(searchType === 'dept') {
+                        matchKeyword = item.dept.toLowerCase().includes(currentKeyword);
+                    } else if(searchType === 'content') {
+                        matchKeyword = item.content.toLowerCase().includes(currentKeyword);
+                    }
+                }
+                
+                return matchCategory && matchKeyword;
+            });
+
+            currentPage = 1; 
+            renderBoard();
+        }
+
+        // 게시판 렌더링 (페이지네이션 적용)
+        function renderBoard() {
+            const tbody = document.getElementById('board-tbody');
+            tbody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-500 font-medium">해당 조건의 브리핑 자료가 없습니다.</td></tr>`;
+                renderPagination();
+                return;
+            }
+
+            // 페이지 데이터 슬라이싱
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const badgeClass = getBadgeClass(item.category);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition cursor-pointer";
+                tr.onclick = () => openBriefingModal(item.id);
+                
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td><span class="badge-common ${badgeClass}">${item.category}</span></td>
+                    <td class="title-col font-bold text-slate-800 hover:text-hyobin-blue transition truncate max-w-xs md:max-w-md">${item.title}</td>
+                    <td class="text-sm font-medium">${item.dept}</td>
+                    <td class="text-sm">${item.date}</td>
+                    <td class="text-sm">${item.views.toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            renderPagination(); 
+        }
+
+        // 페이지네이션 렌더링 로직
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (totalPages <= 1) return; // 1페이지 이하면 버튼 숨김
+
+            const nav = document.createElement('nav');
+            nav.className = "flex items-center gap-1.5";
+
+            // 버튼 생성 헬퍼
+            const createBtn = (text, targetPage, isDisabled, isActive) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = text;
+                btn.disabled = isDisabled;
+                
+                if (isActive) {
+                    btn.className = 'w-9 h-9 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else if (isDisabled) {
+                    btn.className = 'w-9 h-9 rounded border border-slate-200 text-slate-300 bg-slate-50 flex items-center justify-center cursor-not-allowed';
+                } else {
+                    btn.className = 'w-9 h-9 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition font-medium';
+                }
+                
+                if (!isDisabled) {
+                    btn.onclick = () => {
+                        currentPage = targetPage;
+                        renderBoard();
+                        // 페이지 전환 시 스크롤 상단으로 부드럽게 이동
+                        document.querySelector('.board-container').scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    };
+                }
+                return btn;
+            };
+
+            nav.appendChild(createBtn('<i data-lucide="chevron-left" class="w-4 h-4"></i>', currentPage - 1, currentPage === 1, false));
+            for (let i = 1; i <= totalPages; i++) {
+                nav.appendChild(createBtn(i, i, false, i === currentPage));
+            }
+            nav.appendChild(createBtn('<i data-lucide="chevron-right" class="w-4 h-4"></i>', currentPage + 1, currentPage === totalPages, false));
+
+            container.appendChild(nav);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 브리핑 모달 열기
+        function openBriefingModal(id) {
+            const item = briefingData.find(d => d.id === id);
+            if(!item) return;
+
+            const badgeEl = document.getElementById('modal-category');
+            badgeEl.className = `badge-common ${getBadgeClass(item.category)}`;
+            badgeEl.innerText = item.category;
+
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-dept').innerText = item.dept;
+            document.getElementById('modal-manager').innerText = item.manager;
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-views').innerText = item.views.toLocaleString();
+            document.getElementById('modal-content').innerText = item.content;
+
+            const modal = document.getElementById('briefing-modal');
+            const content = document.getElementById('briefing-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+
+            // 시각적 조회수 증가
+            item.views++;
+            renderBoard();
+        }
+
+        // 브리핑 모달 닫기
+        function closeBriefingModal() {
+            const modal = document.getElementById('briefing-modal');
+            const content = document.getElementById('briefing-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeBriefingModal();
+            }
+        });
+    </script>
+
+    <!-- 필수 스크립트 로드 (지침 준수) -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>

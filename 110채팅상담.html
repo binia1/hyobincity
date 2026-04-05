@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>110채팅상담 - 효빈광역시 민원처리공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 카드 호버 효과 */
+        .info-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px -5px rgba(0, 91, 172, 0.15);
+        }
+
+        /* 챗봇 메뉴 카드 */
+        .faq-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .faq-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px -5px rgba(0, 91, 172, 0.1);
+            border-color: #93c5fd;
+        }
+
+        /* 채팅 UI 관련 스타일 */
+        .chat-modal-overlay {
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .chat-window {
+            height: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background-color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-track { background: transparent; }
+        .chat-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        .msg-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-word;
+        }
+        .msg-bot {
+            background-color: #ffffff;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            border-top-left-radius: 0.25rem;
+            align-self: flex-start;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .msg-user {
+            background-color: #005bac;
+            color: #ffffff;
+            border-top-right-radius: 0.25rem;
+            align-self: flex-end;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .quick-reply-btn {
+            display: inline-block;
+            padding: 0.5rem 0.8rem;
+            margin: 0.25rem 0.25rem 0 0;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #005bac;
+            background-color: #f3f8fd;
+            border: 1px solid #bfdbfe;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-reply-btn:hover {
+            background-color: #005bac;
+            color: #ffffff;
+        }
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.75rem 1rem;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            border-top-left-radius: 0.25rem;
+            align-self: flex-start;
+        }
+        .dot {
+            width: 6px; height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28 no-print">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">민원처리공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 작은 목소리도 데이터로 새겨듣고 시정에 반영합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block no-print">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="headphones" class="w-5 h-5 mr-2"></i> 민원처리공개
+                </h4>
+                <ul class="space-y-1.5 text-[14px] lnb-menu">
+                    <li><a href="한눈에보는민원빅데이터.html">한눈에 보는 민원 빅데이터</a></li>
+                    <li><a href="금융복지지원센터.html">금융복지지원센터</a></li>
+                    <li><a href="110수화상담.html">110수화(화상)상담</a></li>
+                    <li><a href="110채팅상담.html" class="active">110채팅상담</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8 no-print">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">민원/참여</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">민원처리공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">110채팅상담</span>
+            </div>
+
+            <!-- Page Title & Intro -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight flex items-center">
+                    효빈광역시 110 채팅상담 (효빈톡) <i data-lucide="message-circle" class="w-8 h-8 ml-3 text-blue-600"></i>
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    전화 연결을 기다릴 필요 없이, 언제 어디서나 스마트폰과 PC로 편리하게 시정 문의 및 민원 상담을 받아보세요. <strong>AI 챗봇 '효봇'은 24시간, 전문 상담사는 평일 업무시간 내 실시간 답변</strong>을 제공합니다.
+                </p>
+            </div>
+
+            <!-- 1. 서비스 개요 및 이용시간 -->
+            <section class="mb-12">
+                <div class="bg-gradient-to-r from-slate-800 to-[#1a365d] rounded-2xl p-8 shadow-lg text-white relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4">
+                        <i data-lucide="message-square" class="w-48 h-48"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold mb-4 flex items-center">
+                            <i data-lucide="clock" class="w-5 h-5 mr-2 text-blue-300"></i> 채팅 상담 운영 시간 안내
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm flex items-center">
+                                <div class="w-12 h-12 bg-blue-500/30 rounded-full flex items-center justify-center mr-4 shrink-0">
+                                    <i data-lucide="bot" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-blue-200 text-sm font-bold mb-1">AI 챗봇 (효봇) 자동 상담</span>
+                                    <div class="text-lg font-bold">365일 24시간 연중무휴</div>
+                                </div>
+                            </div>
+                            <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm flex items-center">
+                                <div class="w-12 h-12 bg-emerald-500/30 rounded-full flex items-center justify-center mr-4 shrink-0">
+                                    <i data-lucide="headphones" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-emerald-200 text-sm font-bold mb-1">전문 상담사 1:1 연결</span>
+                                    <div class="text-lg font-bold">평일 09:00 ~ 18:00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 이용 매체 선택 (카카오톡 vs 웹채팅) -->
+            <section class="mb-14">
+                <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-[#005bac] inline-block mr-3 rounded-sm"></span> 상담 채널 선택하기
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 카카오톡 채널 안내 -->
+                    <div class="info-card bg-[#FEE500] p-8 rounded-2xl shadow-sm flex flex-col justify-between border border-[#FEE500]">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-2xl font-black text-[#391B1B]">카카오톡 채널 상담</h4>
+                                <div class="w-12 h-12 bg-[#391B1B] text-[#FEE500] rounded-full flex items-center justify-center">
+                                    <i data-lucide="message-circle" class="w-6 h-6"></i>
+                                </div>
+                            </div>
+                            <p class="text-[#391B1B]/80 font-medium mb-6 leading-relaxed">
+                                카카오톡을 통해 평소 메시지를 주고받듯 간편하게 시정 문의를 할 수 있습니다. <strong>'효빈시 110'</strong> 채널을 추가하시면 각종 시정 소식도 알림톡으로 받아보실 수 있습니다.
+                            </p>
+                            <ul class="space-y-2 text-sm text-[#391B1B] font-medium mb-8">
+                                <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i> 카카오톡 상단 검색창에 <strong>'효빈시 110'</strong> 검색</li>
+                                <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i> 채널 추가 후 <strong>'상담원 채팅'</strong> 클릭</li>
+                                <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2"></i> 사진 및 파일 전송 상담 가능</li>
+                            </ul>
+                        </div>
+                        <button onclick="connectKakao()" class="w-full py-4 bg-[#391B1B] text-[#FEE500] font-bold rounded-xl hover:bg-black transition text-lg flex items-center justify-center shadow-md">
+                            카카오톡으로 연결하기 <i data-lucide="external-link" class="w-5 h-5 ml-2"></i>
+                        </button>
+                    </div>
+
+                    <!-- PC/모바일 웹 채팅 (동적 모달 트리거) -->
+                    <div class="info-card bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between" onclick="openChatModal()">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-2xl font-black text-slate-800">효빈톡 (Web 채팅)</h4>
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100">
+                                    <i data-lucide="monitor-smartphone" class="w-6 h-6"></i>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 font-medium mb-6 leading-relaxed">
+                                별도의 앱 설치나 로그인 없이 현재 보고 계신 홈페이지 웹 브라우저에서 즉시 채팅 상담을 시작할 수 있습니다. 
+                            </p>
+                            <ul class="space-y-2 text-sm text-slate-600 font-medium mb-8">
+                                <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-blue-500"></i> 하단 버튼 클릭 시 우측 하단에 채팅창 팝업</li>
+                                <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-blue-500"></i> AI 챗봇 '효봇'의 빠른 자동 응답 지원</li>
+                                <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 mr-2 text-blue-500"></i> 필요시 전문 상담원 1:1 라이브 채팅 전환</li>
+                            </ul>
+                        </div>
+                        <button class="w-full py-4 bg-[#005bac] text-white font-bold rounded-xl hover:bg-blue-800 transition text-lg flex items-center justify-center shadow-md pointer-events-none">
+                            효빈톡 (웹 채팅) 시작하기 <i data-lucide="message-square" class="w-5 h-5 ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 리스트 뷰 영역 (자주 묻는 챗봇 메뉴) -->
+            <div id="list-view-container">
+                <section class="mb-14">
+                    <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-[#005bac] inline-block mr-3 rounded-sm"></span> 시민들이 자주 묻는 챗봇 상담 사례
+                        </h3>
+                        <span class="text-sm font-bold text-blue-600 hidden sm:block">* 카드를 클릭하시면 세부 답변 내용을 확인할 수 있습니다.</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="faq-card" onclick="showFaqDetail('tram')">
+                            <div class="w-14 h-14 bg-pink-50 text-[#FF8899] rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="train-track" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">7호선 트램 현황</h4>
+                        </div>
+                        
+                        <div class="faq-card" onclick="showFaqDetail('bus')">
+                            <div class="w-14 h-14 bg-sky-50 text-[#01B7ED] rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="bus" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">3세대 버스 환승</h4>
+                        </div>
+                        
+                        <div class="faq-card" onclick="showFaqDetail('haf')">
+                            <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="party-popper" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">HAF 축제 안내</h4>
+                        </div>
+                        
+                        <div class="faq-card" onclick="showFaqDetail('house')">
+                            <div class="w-14 h-14 bg-purple-50 text-[#9856FF] rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="home" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">드림하우스 자격</h4>
+                        </div>
+
+                        <div class="faq-card" onclick="showFaqDetail('subway')">
+                            <div class="w-14 h-14 bg-blue-50 text-[#6677CC] rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="train-front" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">빈효선 연장선</h4>
+                        </div>
+
+                        <div class="faq-card" onclick="showFaqDetail('eco')">
+                            <div class="w-14 h-14 bg-emerald-50 text-[#37B484] rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="leaf" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">시조(히버히) 보호</h4>
+                        </div>
+
+                        <div class="faq-card" onclick="showFaqDetail('market')">
+                            <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="store" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">파스텔블루 거리</h4>
+                        </div>
+
+                        <div class="faq-card" onclick="showFaqDetail('agent')">
+                            <div class="w-14 h-14 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center mb-3">
+                                <i data-lucide="headphones" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px]">상담원 연결</h4>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- // 리스트 뷰 영역 끝 -->
+
+            <!-- 상세 뷰 영역 (동적 전환) -->
+            <div id="detail-view-container" class="hidden mb-14">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-[#005bac] inline-block mr-3 rounded-sm"></span> 챗봇 상세 답변 미리보기
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                    <!-- 상세 헤더 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200 flex items-center gap-4 bg-slate-50">
+                        <div id="detail-icon-wrapper" class="w-16 h-16 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-slate-200 bg-white">
+                            <i id="detail-icon" data-lucide="info" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-slate-500 mb-1 block">자주 묻는 질문(FAQ)</span>
+                            <h3 class="text-2xl font-black text-slate-800" id="detail-title">질문 제목</h3>
+                        </div>
+                    </div>
+                    
+                    <!-- 챗봇 모의 화면 -->
+                    <div class="p-6 md:p-8 bg-[#f1f5f9]">
+                        <!-- 사용자 질문 모의 -->
+                        <div class="flex justify-end mb-6">
+                            <div class="msg-bubble msg-user" id="detail-user-msg">
+                                질문 내용
+                            </div>
+                        </div>
+
+                        <!-- 챗봇 답변 모의 -->
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-bold text-slate-500 ml-2">효봇 (AI)</span>
+                            <div class="msg-bubble msg-bot" id="detail-bot-msg">
+                                답변 내용
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 액션 -->
+                    <div class="p-6 border-t border-slate-200 bg-white flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <p class="text-[14.5px] text-slate-600 font-medium">이 주제에 대해 더 궁금한 점이 있으신가요?</p>
+                        <button id="btn-start-chat" class="px-6 py-3 bg-[#1a365d] text-white font-bold rounded-lg hover:bg-slate-800 transition flex items-center shadow-md whitespace-nowrap">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-2"></i> 이 주제로 채팅 시작하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 하단 목록으로 돌아가기 버튼 -->
+                <div class="flex justify-center gap-3">
+                    <button onclick="hideFaqDetail()" class="px-8 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 전체 메뉴로 돌아가기
+                    </button>
+                </div>
+            </div>
+            <!-- // 상세 뷰 영역 끝 -->
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 가상 웹 채팅 모달 (효빈톡) -->
+    <div id="chat-modal" class="fixed inset-0 z-[100] hidden chat-modal-overlay flex items-end md:items-center justify-center md:justify-end p-0 md:p-6 md:pr-10">
+        <!-- 챗봇 컨테이너 -->
+        <div class="chat-window bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden relative flex flex-col">
+            
+            <!-- 헤더 -->
+            <div class="bg-[#1a365d] p-4 flex items-center justify-between text-white shrink-0">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3 border-2 border-blue-300">
+                        <img src="이미지/효빈로고.png" alt="효빈로고" class="w-6 h-6 object-contain" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDViYWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMmMtNS41IDAtMTAgNC41LTEwIDEwczQuNSAxMCAxMCAxMCAxMC00LjUgMTAtMTAtNC41LTEwLTEwLTEwek0xMiAxMWEzIDMgMCAxIDAgMC02IDMgMyAwIDAgMCAwIDZ6TTguNSAxOGE1IDUgMCAwIDEgNyAweiIvPjwvc3ZnPg=='">
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg leading-tight">효빈톡 (110 채팅상담)</h4>
+                        <p class="text-xs text-blue-200">AI 챗봇 상담 진행 중 <span class="inline-block w-2 h-2 bg-green-400 rounded-full ml-1"></span></p>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-slate-300 hover:text-white transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- 대화창 본문 -->
+            <div id="chat-messages" class="chat-body">
+                <!-- 시스템 시간 표시 -->
+                <div class="text-center">
+                    <span class="text-xs text-slate-400 bg-slate-200 px-3 py-1 rounded-full" id="chat-today-date">2026년 4월 3일 금요일</span>
+                </div>
+
+                <!-- 봇 환영 메시지 -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-xs font-bold text-slate-500 ml-2">효봇 (AI)</span>
+                    <div class="msg-bubble msg-bot">
+                        안녕하세요! 효빈광역시 스마트 챗봇 <strong>'효봇'</strong>입니다.<br><br>
+                        시정, 교통, 복지 등 궁금하신 내용을 아래 버튼에서 선택하시거나, 하단 입력창에 질문해 주세요.
+                        <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap">
+                            <button onclick="sendQuickReply('7호선 트램 노선')" class="quick-reply-btn"># 7호선 트램 노선</button>
+                            <button onclick="sendQuickReply('3세대 버스 환승')" class="quick-reply-btn"># 3세대 버스 환승</button>
+                            <button onclick="sendQuickReply('HAF 축제 안내')" class="quick-reply-btn"># HAF 축제 안내</button>
+                            <button onclick="sendQuickReply('드림하우스 입주')" class="quick-reply-btn"># 드림하우스 입주</button>
+                            <button onclick="sendQuickReply('상담원 연결')" class="quick-reply-btn !border-slate-300 !text-slate-600 hover:!bg-slate-600 hover:!text-white">상담원 연결</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 입력창 -->
+            <div class="p-4 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
+                <button class="w-10 h-10 rounded-full text-slate-400 hover:bg-slate-100 hover:text-blue-600 flex items-center justify-center transition shrink-0">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </button>
+                <input type="text" id="chat-input" placeholder="질문을 입력해 주세요." class="flex-1 bg-slate-100 border-none rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onkeypress="handleKeyPress(event)">
+                <button onclick="handleSendClick()" class="w-10 h-10 rounded-full bg-[#005bac] text-white flex items-center justify-center hover:bg-blue-800 transition shrink-0 shadow">
+                    <i data-lucide="send" class="w-5 h-5 ml-0.5 mt-0.5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 초기화 시 아이콘 렌더링 및 채팅방 날짜 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            const now = new Date();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            document.getElementById('chat-today-date').innerText = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
+        });
+
+        // 챗봇 시나리오 데이터 (효빈시 세계관 디테일 융합)
+        const botScenarios = {
+            '7호선 트램 노선': `새롭게 공영화·현대화된 <strong>도시철도 7호선(분홍색, <span style="color:#FF8899">#FF8899</span>)</strong> 무가선 트램에 대해 안내해 드립니다.<br><br>
+            7호선은 전임 윤대환 시장의 일방적인 폐지 시도를 시민의 힘으로 막아내고 공영화에 성공한 효빈시 대중교통의 상징입니다.<br>중앙역부터 청엽대역까지 구도심과 주요 생활권을 연결하며, 전 구간이 친환경 잔디 궤도로 이루어져 있습니다. 단차 제로(Barrier-Free) 설계로 휠체어 이용객도 안전하게 탑승 가능합니다.<br><br>
+            <a href="스마트도시분석포털.html" class="text-blue-600 underline font-bold">👉 실시간 7호선 트램 위치 확인하기</a>`,
+            
+            '3세대 버스 환승': `효빈시 <strong>제3세대 시내버스 준공영제</strong> 지정 도색 및 환승 규정 안내입니다.<br><br>
+            사모펀드를 퇴출하고 공공성을 강화한 3세대 버스는 2008년 제정된 지정 도색 매뉴얼을 엄격히 따릅니다.<br>
+            - 간선버스: <span style="color:#01B7ED; font-weight:bold;">#01B7ED</span> (효빈 블루)<br>
+            - 지선버스: <span style="color:#37B484; font-weight:bold;">#37B484</span> (에코 그린)<br>
+            - 급행버스: <span style="color:#D81C2F; font-weight:bold;">#D81C2F</span> (혁신 레드)<br><br>
+            ※ 하차 후 30분 이내(심야 60분) 최대 3회까지 타 노선/지하철 무료 환승이 가능합니다.`,
+            
+            'HAF 축제 안내': `아시아 최대 서브컬처 축제 <strong>제17회 HAF(효빈 애니메이션 페스티벌)</strong> 안내입니다.<br><br>
+            - 기간: 2026. 5. 1 ~ 5. 5<br>
+            - 장소: 당가동 파스텔블루 특화거리 및 효빈종합운동장<br>
+            - 글로벌 공식 홍보대사: BanG Dream!(뱅드림), 러브라이브! 시리즈<br><br>
+            축제 기간 중 당가동 일대는 차량이 전면 통제되오니, 홍보대사 캐릭터 랩핑이 적용된 특별 시티투어버스(<span style="color:#7777AA; font-weight:bold;">#7777AA</span>)를 이용해 주시기 바랍니다.`,
+            
+            '드림하우스 입주': `청년 주거지원 <strong>'효빈드림 하우스' 제2차 입주</strong> 안내입니다.<br><br>
+            청엽구 대학가 인근(8호선 연보라색 <span style="color:#9856FF; font-weight:bold;">#9856FF</span> 연계)에 조성된 2차 부지 입주 모집이 곧 시작됩니다. 만 19세~39세 효빈시 거주 무주택 청년이라면 누구나 신청 가능하며, 보증금 대출 이자가 지원됩니다.<br><br>
+            <a href="금융복지지원센터.html" class="text-blue-600 underline font-bold">👉 청년 금융 클리닉 상담 예약하기</a>`,
+
+            '빈효선 연장선': `광역 교통망의 핵심, <strong>빈효선 광역전철(연청색, <span style="color:#6677CC">#6677CC</span>)</strong> 탄성군 연장 현황 안내입니다.<br><br>
+            기존 도심 위주로 운행되던 빈효선이 도농복합지역인 탄성군 읍내리까지 약 6km 연장됩니다. 최근 예비타당성 조사를 통과하였으며, 신설 종착역 인근에는 농어촌 버스 및 직행좌석(<span style="color:#FF5800; font-weight:bold;">#FF5800</span>) 환승을 위한 대규모 '탄성광역환승센터'가 건립될 예정입니다.`,
+
+            '시조 보호': `효빈시 시조(市鳥)인 <strong>기러기(히버히)</strong> 생태 보호구역 안내입니다.<br><br>
+            탄성군 일대 철새도래지는 우리 시의 상징인 '히버히'의 핵심 서식지입니다. 조류인플루엔자(AI) 예방과 서식지 보호를 위해 AI 드론 방역이 실시 중이며, 시민 여러분은 지정된 탐방로(생태공원 관찰 데크)를 통해서만 관찰해 주시기 바랍니다.`,
+
+            '특화거리 상권': `구도심 재생의 성공 모델, <strong>당가동 파스텔블루 특화거리</strong> 안내입니다.<br><br>
+            과거 7호선 노면전차 차고지 일대를 청년과 서브컬처 중심 상권으로 재단장했습니다. 청년 팝업스토어 창업 지원금 제도가 운영 중이며, 보행자 전용 도로로 지정되어 안전하게 즐기실 수 있습니다.<br><br>
+            <a href="중점관리대상사업.html" class="text-blue-600 underline font-bold">👉 파스텔블루 거리 조성 마스터플랜 확인하기</a>`,
+            
+            '상담원 연결': `전문 상담원 1:1 라이브 채팅 연결을 준비 중입니다.<br><br>
+            운영 시간(평일 09:00~18:00) 내에는 평균 1~3분 이내에 연결되며, 현재 대기 인원은 <strong>2명</strong>입니다.<br><br>
+            <span class="text-xs text-slate-500"><em>(※ 현재 웹 시연 모드에서는 실제 상담원이 연결되지 않습니다.)</em></span>`
+        };
+
+        // 상세 뷰 데이터 매핑 키
+        const faqMap = {
+            'tram': { title: '7호선 트램 노선', icon: 'train-track', color: '#FF8899' },
+            'bus': { title: '3세대 버스 환승', icon: 'bus', color: '#01B7ED' },
+            'haf': { title: 'HAF 축제 안내', icon: 'party-popper', color: '#6677CC' },
+            'house': { title: '드림하우스 입주', icon: 'home', color: '#9856FF' },
+            'subway': { title: '빈효선 연장선', icon: 'train-front', color: '#6677CC' },
+            'eco': { title: '시조 보호', icon: 'leaf', color: '#37B484' },
+            'market': { title: '특화거리 상권', icon: 'store', color: '#f59e0b' },
+            'agent': { title: '상담원 연결', icon: 'headphones', color: '#64748b' }
+        };
+
+        // 상세 뷰 표시 로직
+        function showFaqDetail(key) {
+            const data = faqMap[key];
+            if (!data) return;
+
+            // 목록 숨기고 상세 보이기
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            // 헤더 정보 바인딩
+            document.getElementById('detail-icon').setAttribute('data-lucide', data.icon);
+            document.getElementById('detail-icon-wrapper').style.color = data.color;
+            document.getElementById('detail-title').innerText = data.title;
+
+            // 채팅 메시지 바인딩
+            document.getElementById('detail-user-msg').innerText = `${data.title}에 대해 알려주세요.`;
+            document.getElementById('detail-bot-msg').innerHTML = botScenarios[data.title] || defaultReply;
+
+            // 채팅 시작 버튼 이벤트 덮어쓰기
+            const chatBtn = document.getElementById('btn-start-chat');
+            chatBtn.onclick = () => {
+                openChatModal(data.title);
+            };
+
+            // 스크롤 및 아이콘 갱신
+            window.scrollTo({ top: document.getElementById('detail-view-container').offsetTop - 80, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 상세 뷰 닫기 로직
+        function hideFaqDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            window.scrollTo({ top: document.getElementById('list-view-container').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // 카카오톡 연결 시뮬레이션
+        function connectKakao() {
+            const proceed = confirm("카카오톡 [효빈시 110] 채널로 이동하시겠습니까?\n(확인 시 카카오톡 웹페이지로 연결됩니다.)");
+            if (proceed) {
+                window.open('https://pf.kakao.com/', '_blank');
+            }
+        }
+
+        // 채팅창 열기 (키워드 매개변수 추가)
+        function openChatModal(keyword = null) {
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+            
+            // 포커스 입력창으로
+            setTimeout(() => {
+                const inputEl = document.getElementById('chat-input');
+                inputEl.focus();
+                
+                // 키워드가 전달된 경우 즉시 챗봇 트리거
+                if (keyword) {
+                    inputEl.value = `${keyword}에 대해 알려주세요.`;
+                    handleSendClick();
+                }
+            }, 300);
+        }
+
+        // 채팅창 닫기
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+            document.body.style.overflow = ''; 
+        }
+
+        // 퀵 리플라이 클릭 처리
+        function sendQuickReply(text) {
+            appendUserMessage(text);
+            processBotResponse(text);
+        }
+
+        // 텍스트 입력 후 엔터 처리
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                handleSendClick();
+            }
+        }
+
+        // 전송 버튼 클릭 처리
+        function handleSendClick() {
+            const inputEl = document.getElementById('chat-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+            
+            appendUserMessage(text);
+            inputEl.value = ''; // 입력창 초기화
+            processBotResponse(text);
+        }
+
+        // 사용자 메시지 화면에 추가
+        function appendUserMessage(text) {
+            const chatBody = document.getElementById('chat-messages');
+            const msgHtml = `
+                <div class="msg-bubble msg-user">
+                    ${text}
+                </div>
+            `;
+            chatBody.insertAdjacentHTML('beforeend', msgHtml);
+            scrollToBottom();
+        }
+
+        // 봇 응답 처리 (타이핑 인디케이터 포함)
+        function processBotResponse(userText) {
+            const chatBody = document.getElementById('chat-messages');
+            
+            // 타이핑 인디케이터 추가
+            const typingId = 'typing-' + Date.now();
+            const typingHtml = `
+                <div class="flex flex-col gap-1" id="${typingId}">
+                    <span class="text-xs font-bold text-slate-500 ml-2">효봇 (AI)</span>
+                    <div class="typing-indicator">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+            `;
+            chatBody.insertAdjacentHTML('beforeend', typingHtml);
+            scrollToBottom();
+
+            // 답변 지연 시뮬레이션 (1~1.5초)
+            setTimeout(() => {
+                // 인디케이터 제거
+                document.getElementById(typingId).remove();
+
+                // 키워드 매칭 로직
+                let replyText = defaultReply;
+                
+                // 완벽 일치 (퀵메뉴)
+                if (botScenarios[userText]) {
+                    replyText = botScenarios[userText];
+                } else {
+                    // 부분 일치 (키워드)
+                    if (userText.includes('트램') || userText.includes('7호선')) replyText = botScenarios['7호선 트램 노선'];
+                    else if (userText.includes('버스') || userText.includes('환승') || userText.includes('도색')) replyText = botScenarios['3세대 버스 환승'];
+                    else if (userText.includes('HAF') || userText.includes('축제') || userText.includes('애니') || userText.includes('홍보대사') || userText.includes('뱅드림') || userText.includes('러브라이브')) replyText = botScenarios['HAF 축제 안내'];
+                    else if (userText.includes('주거') || userText.includes('청년') || userText.includes('집') || userText.includes('드림하우스')) replyText = botScenarios['드림하우스 입주'];
+                    else if (userText.includes('탄성') || userText.includes('빈효선') || userText.includes('연장')) replyText = botScenarios['빈효선 연장선'];
+                    else if (userText.includes('시조') || userText.includes('히버히') || userText.includes('생태') || userText.includes('기러기')) replyText = botScenarios['시조 보호'];
+                    else if (userText.includes('파스텔블루') || userText.includes('상권') || userText.includes('특화거리') || userText.includes('구도심') || userText.includes('당가동')) replyText = botScenarios['특화거리 상권'];
+                    else if (userText.includes('상담원') || userText.includes('사람') || userText.includes('연결')) replyText = botScenarios['상담원 연결'];
+                }
+
+                // 봇 메시지 추가
+                const botMsgHtml = `
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-500 ml-2">효봇 (AI)</span>
+                        <div class="msg-bubble msg-bot">
+                            ${replyText}
+                        </div>
+                    </div>
+                `;
+                chatBody.insertAdjacentHTML('beforeend', botMsgHtml);
+                scrollToBottom();
+
+            }, 1000 + Math.random() * 500); // 1~1.5초 랜덤 지연
+        }
+
+        // 스크롤 맨 아래로
+        function scrollToBottom() {
+            const chatBody = document.getElementById('chat-messages');
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    </script>
+</body>
+</html>

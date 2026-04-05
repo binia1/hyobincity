@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의원안내 - 효빈광역시의회</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 미리 분리해 둔 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('이미지/시의회배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* 본문 타이틀 스타일 */
+        .content-title {
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1a365d;
+            color: #1e293b;
+        }
+
+        /* 동적 사이드바 LNB 스타일 */
+        .lnb-list > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-list > li > a:hover,
+        .lnb-list > li.active > a {
+            background-color: #f8fafc;
+            color: #005bac;
+            font-weight: 800;
+            border-left: 4px solid #005bac;
+        }
+        .lnb-list > li:last-child > a { border-bottom: none; }
+        .lnb-list > li.active i { color: #005bac; }
+
+        /* 뱃지 및 정당 컬러 */
+        .badge-minju { background-color: #1A28B3; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-jinbo { background-color: #D6001C; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-joguk { background-color: #0073CF; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-gaehyuk { background-color: #FF7920; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-gukhim { background-color: #E61E2B; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .badge-indep { background-color: #64748B; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        
+        .color-minju { color: #1A28B3; }
+        .color-jinbo { color: #D6001C; }
+        .color-joguk { color: #0073CF; }
+        .color-gaehyuk { color: #FF7920; }
+        .color-gukhim { color: #E61E2B; }
+        .color-indep { color: #64748B; }
+
+        .bg-minju { background-color: #1A28B3; }
+        .bg-jinbo { background-color: #D6001C; }
+        .bg-joguk { background-color: #0073CF; }
+        .bg-gaehyuk { background-color: #FF7920; }
+        .bg-gukhim { background-color: #E61E2B; }
+        .bg-indep { background-color: #64748B; }
+
+        /* 테이블 스타일 */
+        .data-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem; background: white; border-top: 2px solid #1a365d; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; padding: 1.1rem 0.5rem; border-bottom: 1px solid #cbd5e1; white-space: nowrap; }
+        .data-table td { padding: 1.1rem 0.5rem; border-bottom: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        .data-table tbody tr:hover td { background-color: #f1f5f9; cursor: pointer;}
+        .title-col { text-align: left !important; padding-left: 1.5rem !important; font-weight: bold; color: #1e293b !important; }
+        
+        /* 탭 애니메이션 */
+        #dynamic-content-area { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 전용 헤더 (효빈광역시의회 전용) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="bg-slate-50 border-b border-slate-200 py-1.5 text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+                <span class="font-medium">시민 중심의 역동적으로 일하는 효빈광역시의회</span>
+                <div class="flex gap-4">
+                    <a href="메인.html" class="hover:text-hyobin-blue font-bold text-hyobin-dark">효빈광역시청 바로가기</a>
+                    <span class="text-slate-300">|</span>
+                    <a href="#" class="hover:text-hyobin-blue">로그인</a>
+                    <span class="text-slate-300">|</span>
+                    <a href="#" class="hover:text-hyobin-blue">사이트맵</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <a href="시의회.html" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-hyobin-dark rounded-full flex items-center justify-center text-white font-serif font-black text-xl shadow-md border-2 border-hyobin-blue">議</div>
+                <div class="flex flex-col">
+                    <span class="text-2xl font-black text-slate-800 tracking-tight leading-none">효빈광역시의회</span>
+                    <span class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-0.5">Hyobin Metropolitan Council</span>
+                </div>
+            </a>
+            <!-- 헤더 네비게이션 드롭다운 -->
+            <nav class="hidden lg:flex h-full font-bold text-slate-800 text-[17px]">
+                <!-- 의회소개 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="시의회.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의회소개 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="인사말.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">인사말</a>
+                        <a href="의장실.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의장단</a>
+                        <a href="총무담당관.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회사무처</a>
+                        <a href="의회연혁.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회연혁</a>
+                        <a href="기구표.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">기구표</a>
+                        <a href="찾아오시는길.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">찾아오시는길</a>
+                    </div>
+                </div>
+                <!-- 의정활동 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="의정활동.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의정활동 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="본회의.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">본회의</a>
+                        <a href="상임위원회.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">상임위원회</a>
+                        <a href="특별위원회.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">특별위원회</a>
+                        <a href="의안정보.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의안정보</a>
+                    </div>
+                </div>
+                <!-- 의원안내 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="의원안내.html" class="text-hyobin-blue flex items-center gap-1 h-full">의원안내 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="#" onclick="loadContent('members'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의원명단</a>
+                        <a href="#" onclick="loadContent('groups'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">교섭단체</a>
+                        <a href="#" onclick="loadContent('news'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의원동정</a>
+                    </div>
+                </div>
+                <!-- 회의록 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="회의록.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">회의록 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-44 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="본회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">본회의록</a>
+                        <a href="위원회회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">위원회 회의록</a>
+                        <a href="시정질문.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">시정질문</a>
+                        <a href="5분자유발언.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">5분 자유발언</a>
+                    </div>
+                </div>
+                <!-- 시민소통 -->
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="시민소통.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">시민소통 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="의회에바란다.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회에 바란다</a>
+                        <a href="공지사항.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">공지사항</a>
+                        <a href="의회소식.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회소식</a>
+                        <a href="견학신청.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">견학신청</a>
+                    </div>
+                </div>
+            </nav>
+            <button class="lg:hidden text-slate-800"><i data-lucide="menu" class="w-6 h-6"></i></button>
+        </div>
+    </header>
+
+    <!-- 서브 비주얼 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">의원안내</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민을 위해 뛰는 38명의 일꾼들입니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 고정 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block sticky top-8 h-fit">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    의원안내
+                </h2>
+                <ul class="lnb-list">
+                    <li id="nav-members" class="active"><a href="#" onclick="event.preventDefault(); loadContent('members')">의원명단 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-groups"><a href="#" onclick="event.preventDefault(); loadContent('groups')">교섭단체 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-news"><a href="#" onclick="event.preventDefault(); loadContent('news')">의원동정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 동적 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0" id="dynamic-content-area">
+            <!-- JavaScript를 통해 초기 화면이 여기에 렌더링됩니다. -->
+        </main>
+    </div>
+
+    <!-- 전용 푸터 (효빈광역시의회 전용) -->
+    <footer class="bg-slate-800 text-slate-300 py-10 mt-auto border-t-4 border-hyobin-blue">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-slate-700 pb-6 mb-6">
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 font-bold text-[15px]">
+                    <a href="#" class="text-white hover:text-blue-300 transition">개인정보처리방침</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">저작권정책</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">이메일무단수집거부</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">찾아오시는길</a>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-8 items-center md:items-start text-sm text-center md:text-left">
+                <div class="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 font-serif font-black text-3xl shadow-inner shrink-0">議</div>
+                <div class="leading-relaxed">
+                    <p class="mb-1 text-slate-400">[우편번호: 00000] 효빈광역시 북구 효빈로 79 (고송8동) 효빈광역시의회</p>
+                    <p class="mb-3 text-[15px]">
+                        대표전화 : <strong class="text-white text-lg tracking-wide">079-591-2322</strong> 
+                        <span class="mx-3 text-slate-600">|</span> 
+                        팩스 : 079-591-2329
+                    </p>
+                    <p class="text-slate-500">Copyright © Hyobin Metropolitan Council. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 동적 콘텐츠 렌더링 스크립트 -->
+    <script>
+        // ============================================================================
+        // 요청하신 완벽한 의원 데이터 (총 38명)
+        // ============================================================================
+        const memberData = [
+            { name: "강상현", party: "더불어민주당", district: "남구 제1선거구", comm: "후반기 예산결산특별위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "원상민", party: "더불어민주당", district: "남구 제2선거구", comm: "의원", term: "재선", badge: "badge-minju", note: "*2023 재보궐선거(국민의힘 곽두환 당선무효)" },
+            { name: "지소현", party: "진보당", district: "남구 제3선거구", comm: "전반기 의회운영위원장", term: "초선", badge: "badge-jinbo", note: "" },
+            { name: "주방선", party: "더불어민주당", district: "남구 제4선거구", comm: "후반기 교육문화위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "오서영", party: "더불어민주당", district: "북구 제1선거구", comm: "전반기 예산결산특별위원장", term: "5선", badge: "badge-minju", note: "" },
+            { name: "우지남", party: "더불어민주당", district: "북구 제2선거구", comm: "전반기 제1부의장", term: "4선", badge: "badge-minju", note: "" },
+            { name: "구정원", party: "더불어민주당", district: "북구 제3선거구", comm: "후반기 윤리특별위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "원수현", party: "더불어민주당", district: "북구 제4선거구", comm: "전반기 행정자치위원장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "지민성", party: "더불어민주당", district: "북구 제5선거구", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "박성임", party: "진보당", district: "북구 제6선거구", comm: "후반기 행정자치위원장", term: "초선", badge: "badge-jinbo", note: "" },
+            { name: "유원민", party: "개혁신당", district: "서구 제1선거구", comm: "전반기 조례정비특별위원장", term: "초선", badge: "badge-gaehyuk", note: "*2024.2.28 국민의힘 탈당 2024.3.2 개혁신당 입당" },
+            { name: "오지대", party: "더불어민주당", district: "서구 제2선거구", comm: "후반기 의회운영위원장", term: "3선", badge: "badge-minju", note: "" },
+            { name: "윤월선", party: "더불어민주당", district: "서구 제3선거구", comm: "전반기 교육문화위원장", term: "7선", badge: "badge-minju", note: "" },
+            { name: "고현민", party: "더불어민주당", district: "안천구 제1선거구", comm: "후반기 의장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "안일암", party: "더불어민주당", district: "안천구 제2선거구", comm: "전반기 환경복지위원장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "용서민", party: "무소속", district: "안천구 제3선거구", comm: "후반기 예산결산특별위원장", term: "초선", badge: "badge-indep", note: "" },
+            { name: "성지언", party: "더불어민주당", district: "안천구 제4선거구", comm: "전반기 산업건설위원장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "구상민", party: "더불어민주당", district: "안천구 제5선거구", comm: "후반기 환경복지위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "조청남", party: "더불어민주당", district: "중구 제1선거구", comm: "전반기 의장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "구상원", party: "더불어민주당", district: "중구 제2선거구", comm: "전반기 기후특별위원장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "지은민", party: "조국혁신당", district: "동구 제1선거구", comm: "후반기 산업건설위원장", term: "재선", badge: "badge-joguk", note: "*2024.2.14 조국혁신당 입당" },
+            { name: "고사인", party: "더불어민주당", district: "동구 제2선거구", comm: "전반기 제2부의장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "유증민", party: "더불어민주당", district: "창전구 제1선거구", comm: "후반기 윤리특별위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "성선민", party: "더불어민주당", district: "창전구 제2선거구", comm: "전반기 새로운노동특별위원장", term: "9선", badge: "badge-minju", note: "" },
+            { name: "옥산민", party: "더불어민주당", district: "창전구 제3선거구", comm: "후반기 제2부의장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "유신민", party: "더불어민주당", district: "창전구 제4선거구", comm: "전반기 윤리특별위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "오상원", party: "더불어민주당", district: "청엽구 제1선거구", comm: "의원", term: "재선", badge: "badge-minju", note: "" },
+            { name: "조성일", party: "더불어민주당", district: "청엽구 제2선거구", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "원지현", party: "더불어민주당", district: "청엽구 제3선거구", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "신단성", party: "더불어민주당", district: "청엽구 제4선거구", comm: "후반기 제1부의장", term: "재선", badge: "badge-minju", note: "" },
+            { name: "소상리", party: "더불어민주당", district: "청엽구 제5선거구", comm: "전반기 제2부의장", term: "3선", badge: "badge-minju", note: "" },
+            { name: "고상면", party: "더불어민주당", district: "탄성군 제1선거구", comm: "의원", term: "재선", badge: "badge-minju", note: "" },
+            { name: "문언성", party: "더불어민주당", district: "탄성군 제2선거구", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "주옥현", party: "더불어민주당", district: "탄성군 제3선거구", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "원기덕", party: "더불어민주당", district: "비례대표", comm: "전반기 새로운노동특별위원장", term: "초선", badge: "badge-minju", note: "" },
+            { name: "이수라남", party: "더불어민주당", district: "비례대표", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "원개현", party: "더불어민주당", district: "비례대표", comm: "의원", term: "초선", badge: "badge-minju", note: "" },
+            { name: "조병진", party: "국민의힘", district: "비례대표", comm: "의원", term: "초선", badge: "badge-gukhim", note: "임기시작전에 비례1번이었던 여주연이 사퇴하여 조병진이 승계" }
+        ];
+
+        // 의원 동정 (뉴스)
+        const newsData = [
+            { id: 10, title: "[포토] 고현민 의장, 제281회 임시회 개회사", date: "2026.04.15", views: 320 },
+            { id: 9, title: "우지남 도시교통위원장, 7호선 심야운행 현장 점검 및 관계자 격려", date: "2026.04.14", views: 280 },
+            { id: 8, title: "박성임 행정자치위원장, '청년 마음건강 지원' 관련 조례안 대표 발의", date: "2026.04.12", views: 410 },
+            { id: 7, title: "지은민 산업건설위원장, 사능역 상인회 초청 간담회 개최", date: "2026.04.10", views: 505 },
+            { id: 6, title: "용서민 예결위원장, 2025회계연도 결산검사위원 위촉식 참석", date: "2026.04.05", views: 210 },
+            { id: 5, title: "주방선 교육문화위원장, 파스텔 블루 거리 1주년 성과보고회 축사", date: "2026.03.28", views: 390 },
+            { id: 4, title: "효빈시의회 의장단, 지역 보육원 자원봉사 및 위문품 전달", date: "2026.03.20", views: 650 },
+            { id: 3, title: "성지언 전반기 산업건설위원장, 해빙기 노후 건축물 안전 점검 실시", date: "2026.03.15", views: 240 },
+            { id: 2, title: "윤월선 교육문화위원장, 관내 초등학교 통학로 안전 간담회 개최", date: "2026.03.10", views: 310 },
+            { id: 1, title: "[동정] 신단성 부의장, 효빈상공회의소 신년교례회 참석", date: "2026.01.05", views: 420 }
+        ];
+
+        let filteredMembers = [...memberData];
+        let activeParty = 'all';
+
+        // 템플릿 데이터
+        const pageContents = {
+            'members': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의원안내</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의원명단</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">제9대 효빈광역시의회 의원명단</h2>
+                
+                <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col xl:flex-row justify-between items-center gap-4 mb-8">
+                    <div class="flex flex-wrap gap-2 w-full xl:w-auto" id="party-filters">
+                        <button class="party-btn active bg-hyobin-dark text-white px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="all">전체</button>
+                        <button class="party-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="더불어민주당">더불어민주당</button>
+                        <button class="party-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="진보당">진보당</button>
+                        <button class="party-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="개혁신당">개혁신당</button>
+                        <button class="party-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="조국혁신당">조국혁신당</button>
+                        <button class="party-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="국민의힘">국민의힘</button>
+                        <button class="party-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-3 py-2 rounded-lg text-sm font-bold shadow-sm" data-party="무소속">무소속</button>
+                    </div>
+                    <div class="relative w-full xl:w-64">
+                        <input type="text" id="member-search" placeholder="의원명 또는 선거구 검색" class="w-full border border-slate-300 rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue focus:ring-1 focus:ring-hyobin-blue shadow-sm" onkeyup="if(event.key === 'Enter') filterMembers()">
+                        <button onclick="filterMembers()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 의원 카드 그리드 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16" id="members-grid">
+                    <!-- JS Rendering -->
+                </div>
+            `,
+            'groups': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의원안내</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">교섭단체</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">교섭단체 안내</h2>
+                
+                <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm mb-10">
+                    <h3 class="text-xl font-black text-slate-800 mb-4 border-b-2 border-slate-100 pb-2"><i data-lucide="info" class="w-5 h-5 inline-block text-hyobin-blue mr-1"></i> 교섭단체란?</h3>
+                    <p class="text-slate-600 leading-relaxed text-[15px]">
+                        효빈광역시의회는 효율적인 의사진행과 정당 간의 원활한 의견 조율을 위해 소속 의원 <strong>5명 이상</strong>을 가진 정당을 교섭단체로 규정하고 있습니다. 다른 교섭단체에 속하지 아니하는 5명 이상의 의원으로도 교섭단체를 구성할 수 있습니다.
+                    </p>
+                </div>
+
+                <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center border-l-4 border-hyobin-blue pl-4">
+                    제9대 효빈광역시의회 정당별 의석수 (총 38석)
+                </h3>
+                
+                <!-- 의석 분포 바 -->
+                <div class="bg-white border border-slate-200 rounded-xl p-6 md:p-8 shadow-sm mb-12">
+                    <div class="flex h-12 rounded-lg overflow-hidden shadow-inner mb-6">
+                        <div class="bg-minju h-full flex items-center justify-center text-white font-black text-sm transition-all duration-500" style="width: 84.2%" title="더불어민주당: 32석">32석 (84.2%)</div>
+                        <div class="bg-jinbo h-full flex items-center justify-center text-white font-black text-sm transition-all duration-500" style="width: 5.3%" title="진보당: 2석">2</div>
+                        <div class="bg-gaehyuk h-full flex items-center justify-center text-white font-black text-sm transition-all duration-500" style="width: 2.6%" title="개혁신당: 1석">1</div>
+                        <div class="bg-joguk h-full flex items-center justify-center text-white font-black text-sm transition-all duration-500" style="width: 2.6%" title="조국혁신당: 1석">1</div>
+                        <div class="bg-gukhim h-full flex items-center justify-center text-white font-black text-sm transition-all duration-500" style="width: 2.6%" title="국민의힘: 1석">1</div>
+                        <div class="bg-indep h-full flex items-center justify-center text-white font-black text-sm transition-all duration-500" style="width: 2.6%" title="무소속: 1석">1</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
+                        <div class="p-3 border border-slate-200 rounded-lg">
+                            <span class="block text-sm font-bold color-minju mb-1">더불어민주당</span>
+                            <span class="text-xl font-black text-slate-800">32석</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg">
+                            <span class="block text-sm font-bold color-jinbo mb-1">진보당</span>
+                            <span class="text-xl font-black text-slate-800">2석</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg">
+                            <span class="block text-sm font-bold color-gaehyuk mb-1">개혁신당</span>
+                            <span class="text-xl font-black text-slate-800">1석</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg">
+                            <span class="block text-sm font-bold color-joguk mb-1">조국혁신당</span>
+                            <span class="text-xl font-black text-slate-800">1석</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg">
+                            <span class="block text-sm font-bold color-gukhim mb-1">국민의힘</span>
+                            <span class="text-xl font-black text-slate-800">1석</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg">
+                            <span class="block text-sm font-bold color-indep mb-1">무소속</span>
+                            <span class="text-xl font-black text-slate-800">1석</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center border-l-4 border-hyobin-blue pl-4">
+                    구성 현황
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                    <div class="bg-white border-t-4 border-t-[#1A28B3] border-l border-r border-b border-slate-200 p-6 rounded-b-xl shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-black text-xl text-[#1A28B3]">더불어민주당</h4>
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded font-bold text-sm">교섭단체 (32명)</span>
+                        </div>
+                        <ul class="text-slate-600 space-y-2 text-[15px]">
+                            <li><strong>의장:</strong> 고현민 (안천구 제1선거구)</li>
+                            <li><strong>부의장:</strong> 신단성, 옥산민</li>
+                            <li><strong>원내대표단:</strong> 우지남, 주방선, 구상민 등</li>
+                            <li class="pt-2 mt-2 border-t border-slate-100 text-sm">제9대 의회의 다수당으로서 '시민 중심의 역동적 의회'를 구현하기 위해 정책의 방향성을 주도하고 있습니다.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border-t-4 border-t-slate-400 border-l border-r border-b border-slate-200 p-6 rounded-b-xl shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-black text-xl text-slate-700">비교섭단체</h4>
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded font-bold text-sm">기타 (6명)</span>
+                        </div>
+                        <ul class="text-slate-600 space-y-2 text-[15px]">
+                            <li><strong class="color-jinbo">진보당:</strong> 지소현, 박성임 (2명)</li>
+                            <li><strong class="color-gaehyuk">개혁신당:</strong> 유원민 (1명)</li>
+                            <li><strong class="color-joguk">조국혁신당:</strong> 지은민 (1명)</li>
+                            <li><strong class="color-gukhim">국민의힘:</strong> 조병진 (1명)</li>
+                            <li><strong class="color-indep">무소속:</strong> 용서민 (1명)</li>
+                            <li class="pt-2 mt-2 border-t border-slate-100 text-sm">다양한 정치적 목소리를 대변하며 시정 감시와 균형 발전에 기여하고 있습니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            `,
+            'news': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의원안내</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의원동정</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">의원동정</h2>
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    효빈광역시의회 의원들의 지역 현장 방문, 간담회, 정책 토론회 등 생생한 의정활동 소식을 전해드립니다.
+                </p>
+
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-16">
+                    <table class="data-table !border-t-0">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: auto;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th>번호</th>
+                                <th>제목</th>
+                                <th>등록일</th>
+                                <th>조회수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="news-tbody" class="text-[14.5px] divide-y divide-slate-100">
+                            <!-- JS 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            `
+        };
+
+        function loadContent(sectionId) {
+            // 사이드바 상태 변경
+            document.querySelectorAll('.lnb-list li').forEach(li => {
+                li.classList.remove('active');
+                const icon = li.querySelector('i');
+                if(icon) { icon.classList.remove('text-hyobin-blue'); icon.classList.add('text-slate-400'); }
+            });
+            
+            const activeLi = document.getElementById('nav-' + sectionId);
+            if(activeLi) {
+                activeLi.classList.add('active');
+                const activeIcon = activeLi.querySelector('i');
+                if(activeIcon) { activeIcon.classList.remove('text-slate-400'); activeIcon.classList.add('text-hyobin-blue'); }
+            }
+
+            // 본문 렌더링
+            const contentArea = document.getElementById('dynamic-content-area');
+            contentArea.style.animation = 'none';
+            contentArea.offsetHeight; // Reflow
+            contentArea.style.animation = null;
+            contentArea.innerHTML = pageContents[sectionId];
+            
+            // 추가 스크립트 실행
+            if (sectionId === 'members') {
+                setupPartyFilters();
+                filterMembers();
+            } else if (sectionId === 'news') {
+                renderNews();
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // --- 의원명단 로직 ---
+        function setupPartyFilters() {
+            const buttons = document.querySelectorAll('.party-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    buttons.forEach(b => {
+                        b.classList.remove('bg-hyobin-dark', 'text-white');
+                        b.classList.add('bg-white', 'text-slate-600', 'border-slate-300');
+                    });
+                    e.target.classList.remove('bg-white', 'text-slate-600', 'border-slate-300');
+                    e.target.classList.add('bg-hyobin-dark', 'text-white');
+                    
+                    activeParty = e.target.dataset.party;
+                    filterMembers(); 
+                });
+            });
+        }
+
+        function filterMembers() {
+            const keyword = document.getElementById('member-search').value.toLowerCase();
+            
+            filteredMembers = memberData.filter(member => {
+                const matchParty = activeParty === 'all' || member.party === activeParty;
+                const matchKeyword = member.name.toLowerCase().includes(keyword) || member.district.toLowerCase().includes(keyword);
+                return matchParty && matchKeyword;
+            });
+
+            renderMembersGrid();
+        }
+
+        function renderMembersGrid() {
+            const container = document.getElementById('members-grid');
+            if(!container) return;
+            container.innerHTML = '';
+
+            if (filteredMembers.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-500 font-medium bg-white rounded-xl border border-slate-200">검색된 의원이 없습니다.</div>`;
+                return;
+            }
+
+            filteredMembers.forEach(member => {
+                // 비고 내용이 있으면 노출, 없으면 공백
+                const noteHtml = member.note ? `<p class="text-xs text-red-500 font-medium mt-1.5 px-2 bg-red-50 py-1 rounded break-keep leading-tight">${member.note}</p>` : '';
+                
+                const card = `
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 cursor-pointer group">
+                        <div class="p-6 flex flex-col items-center border-b border-slate-100 relative">
+                            <span class="${member.badge} absolute top-4 left-4">${member.party}</span>
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-slate-200 mb-4 mt-6 shadow-sm bg-slate-100 group-hover:border-hyobin-blue transition">
+                                <img src="이미지/${member.name}.png" alt="${member.name} 의원" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/150x150?text=Profile'">
+                            </div>
+                            <h4 class="text-2xl font-black text-slate-800">${member.name} <span class="text-sm text-slate-500 font-bold ml-1">${member.term}</span></h4>
+                        </div>
+                        <div class="p-4 bg-slate-50 flex flex-col items-center justify-center gap-1.5 text-[14.5px] text-center min-h-[100px]">
+                            <p class="text-slate-600 font-bold w-full truncate"><i data-lucide="map-pin" class="w-4 h-4 inline-block text-hyobin-blue -mt-1 mr-1"></i> ${member.district}</p>
+                            <p class="text-slate-500 font-medium w-full break-keep">${member.comm}</p>
+                            ${noteHtml}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // --- 의원동정 로직 ---
+        function renderNews() {
+            const tbody = document.getElementById('news-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            newsData.forEach(item => {
+                const tr = `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td class="title-col hover:text-hyobin-blue transition font-medium">${item.title}</td>
+                        <td>${item.date}</td>
+                        <td>${item.views}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', tr);
+            });
+        }
+
+        // 초기 로드 시 '의원명단' 렌더링
+        document.addEventListener("DOMContentLoaded", function() {
+            loadContent('members');
+        });
+    </script>
+</body>
+</html>

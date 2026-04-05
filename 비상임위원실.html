@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비상임위원실 - 효빈광역시 자치경찰위원회</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                        serif: ['"Nanum Myeongjo"', 'serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 43, 89, 0.85), rgba(26, 54, 93, 0.9)), url('이미지/경찰배경.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-container {
+            background-color: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: sticky;
+            top: 2rem;
+        }
+        .lnb-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: white;
+            background-color: #005bac;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+        .lnb-body {
+            padding: 1rem;
+        }
+        
+        /* 트리 구조 스타일링 */
+        .tree-menu .node-title {
+            font-weight: 700;
+            color: #334155;
+            background-color: #f8fafc;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+        .tree-menu .branch-title {
+            color: #005bac;
+            font-weight: 700;
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        .tree-menu ul {
+            padding-left: 0.75rem;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .tree-menu li a {
+            display: block;
+            padding: 0.4rem 0.5rem 0.4rem 1rem;
+            color: #475569;
+            font-size: 0.95rem;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .tree-menu li a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 1px;
+            background-color: #cbd5e1;
+        }
+        .tree-menu li a:hover, .tree-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+        }
+        .tree-menu li a.active::before {
+            background-color: #005bac;
+            height: 2px;
+        }
+
+        /* 본문 타이틀 및 안내 박스 */
+        .content-title { position: relative; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .content-title::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 4px; background-color: #005bac; }
+        
+        .info-box {
+            background: #f8fafc;
+            border-left: 4px solid #005bac;
+            padding: 1.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* 비상임위원 프로필 카드 */
+        .commissioner-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 640px) {
+            .commissioner-card { flex-direction: row; }
+        }
+        .commissioner-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .card-img-wrap {
+            width: 100%;
+            background-color: #f1f5f9;
+            position: relative;
+            flex-shrink: 0;
+        }
+        @media (min-width: 640px) {
+            .card-img-wrap { width: 200px; }
+        }
+        .card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            aspect-ratio: 3/4;
+        }
+        .card-name-tag {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(26, 54, 93, 0.85);
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            backdrop-filter: blur(4px);
+        }
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1a365d;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .card-list li {
+            position: relative;
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        .card-list li::before {
+            content: '·';
+            position: absolute;
+            left: 0;
+            color: #005bac;
+            font-weight: 900;
+            font-size: 1.2rem;
+            line-height: 1;
+            top: 2px;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">자치경찰위원회</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 평온한 일상, 효빈 자치경찰이 지키겠습니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 (사이드바 + 메인 컨텐츠) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="lnb-container">
+                <h2 class="lnb-title">
+                    <i data-lucide="shield-check" class="w-6 h-6 mr-2 text-blue-200"></i> 자치경찰위원회
+                </h2>
+                <div class="lnb-body tree-menu">
+                    <ul>
+                        <li>
+                            <div class="node-title">자치경찰위원회</div>
+                            <ul>
+                                <li><strong class="branch-title">위원장실</strong></li>
+                                <li><a href="상임위원실.html">상임위원실</a></li>
+                                <li><a href="비상임위원실.html" class="active">비상임위원실</a></li>
+                                
+                                <li><strong class="branch-title">사무국</strong></li>
+                                <li><a href="자치경찰행정과.html">자치경찰행정과</a></li>
+                                <li><a href="자치경찰관리과.html">자치경찰관리과</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>자치경찰위원회</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>위원장실</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">비상임위원실</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 content-title">비상임위원실</h2>
+            </div>
+
+            <!-- 안내 텍스트 -->
+            <div class="info-box">
+                <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center">
+                    <i data-lucide="users" class="w-5 h-5 mr-2 text-hyobin-blue"></i>
+                    다양한 목소리를 대변하는 효빈 자치경찰위원회 비상임위원입니다.
+                </h3>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시 자치경찰위원회는 법조계, 학계, 시민사회, 교육계, 전직 경찰관 등 각계각층의 전문가로 구성된 비상임위원 5인과 함께합니다. 
+                    다양한 전문성과 경험을 바탕으로 296만 시민의 눈높이에 맞는 합리적이고 따뜻한 치안 정책을 심의·의결하고 있습니다.
+                </p>
+            </div>
+
+            <!-- 비상임위원 목록 (Grid Layout) -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                
+                <!-- 1. 법조계 -->
+                <div class="commissioner-card">
+                    <div class="card-img-wrap">
+                        <img src="이미지/비상임위원_김태원.png" alt="김태원 비상임위원" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23cbd5e1\' stroke-width=\'1\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'/%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/%3E%3Cpolyline points=\'21 15 16 10 5 21\'/%3E%3C/svg%3E'; this.style.padding='3rem';">
+                        <div class="card-name-tag">김 태 원</div>
+                    </div>
+                    <div class="card-content">
+                        <h4 class="card-title">주요 약력 <span class="ml-2 text-sm text-slate-400 font-normal">(법조계)</span></h4>
+                        <ul class="card-list">
+                            <li><strong>현) 효빈지방변호사회 인권부회장</strong></li>
+                            <li>현) 김태원 법률사무소 대표변호사</li>
+                            <li>전) 효빈지방법원 부장판사</li>
+                            <li>전) 효빈광역시 인권위원회 자문위원</li>
+                            <li>효빈대학교 법학전문대학원 졸업</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. 학계 -->
+                <div class="commissioner-card">
+                    <div class="card-img-wrap">
+                        <img src="이미지/비상임위원_이수진.png" alt="이수진 비상임위원" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23cbd5e1\' stroke-width=\'1\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'/%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/%3E%3Cpolyline points=\'21 15 16 10 5 21\'/%3E%3C/svg%3E'; this.style.padding='3rem';">
+                        <div class="card-name-tag">이 수 진</div>
+                    </div>
+                    <div class="card-content">
+                        <h4 class="card-title">주요 약력 <span class="ml-2 text-sm text-slate-400 font-normal">(학계)</span></h4>
+                        <ul class="card-list">
+                            <li><strong>현) 효빈대학교 경찰행정학과 교수</strong></li>
+                            <li>현) 한국치안행정학회 상임이사</li>
+                            <li>전) 효빈광역시 자치분권협의회 위원</li>
+                            <li>경찰청 범죄예방정책 자문위원 (셉테드 CPTED)</li>
+                            <li>동구대학교 행정학 박사 (경찰행정 전공)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 3. 시민사회 -->
+                <div class="commissioner-card">
+                    <div class="card-img-wrap">
+                        <img src="이미지/비상임위원_박영희.png" alt="박영희 비상임위원" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23cbd5e1\' stroke-width=\'1\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'/%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/%3E%3Cpolyline points=\'21 15 16 10 5 21\'/%3E%3C/svg%3E'; this.style.padding='3rem';">
+                        <div class="card-name-tag">박 영 희</div>
+                    </div>
+                    <div class="card-content">
+                        <h4 class="card-title">주요 약력 <span class="ml-2 text-sm text-slate-400 font-normal">(시민사회)</span></h4>
+                        <ul class="card-list">
+                            <li><strong>현) 효빈 시민사회연대 공동대표</strong></li>
+                            <li>전) 효빈 여성안전네트워크 운영위원장</li>
+                            <li>전) HAF(효빈 애니메이션 페스티벌) 시민안전위원회 자문위원</li>
+                            <li>효빈광역시 아동·여성폭력방지 위원</li>
+                            <li>엽월대학교 사회복지학과 졸업</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 4. 전직 경찰 -->
+                <div class="commissioner-card">
+                    <div class="card-img-wrap">
+                        <img src="이미지/비상임위원_최동수.png" alt="최동수 비상임위원" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23cbd5e1\' stroke-width=\'1\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'/%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/%3E%3Cpolyline points=\'21 15 16 10 5 21\'/%3E%3C/svg%3E'; this.style.padding='3rem';">
+                        <div class="card-name-tag">최 동 수</div>
+                    </div>
+                    <div class="card-content">
+                        <h4 class="card-title">주요 약력 <span class="ml-2 text-sm text-slate-400 font-normal">(전직 경찰)</span></h4>
+                        <ul class="card-list">
+                            <li><strong>전) 효빈 중부경찰서장 (총경)</strong></li>
+                            <li>전) 효빈경찰청 수사과장</li>
+                            <li>전) 안천경찰서 생활안전과장</li>
+                            <li>중앙로·중보로(원도심) 기초질서 확립 공로 표창</li>
+                            <li>경찰간부후보생 출신 (제45기)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 5. 교육계 (단독 행) -->
+                <div class="commissioner-card xl:col-span-2">
+                    <div class="card-img-wrap">
+                        <img src="이미지/비상임위원_정민준.png" alt="정민준 비상임위원" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23cbd5e1\' stroke-width=\'1\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'/%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/%3E%3Cpolyline points=\'21 15 16 10 5 21\'/%3E%3C/svg%3E'; this.style.padding='3rem';">
+                        <div class="card-name-tag">정 민 준</div>
+                    </div>
+                    <div class="card-content">
+                        <h4 class="card-title">주요 약력 <span class="ml-2 text-sm text-slate-400 font-normal">(교육계)</span></h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                            <ul class="card-list mb-0">
+                                <li><strong>현) 효빈광역시 교육청 학교폭력대책심의위원</strong></li>
+                                <li>전) 효빈고등학교 교장</li>
+                                <li>전) 청엽구 청소년 상담복지센터 운영위원</li>
+                            </ul>
+                            <ul class="card-list mb-0">
+                                <li>전) 효빈교육지원청 장학사</li>
+                                <li>청소년 선도 및 학교폭력 예방 교육부장관 표창</li>
+                                <li>효빈교육대학교 교육대학원 졸업 (교육학 석사)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+    <script>
+        // Lucide 아이콘 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

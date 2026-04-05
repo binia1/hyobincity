@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공공데이터 설문조사 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+        .content-table td.center { text-align: center; }
+
+        /* 페이징 */
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a:hover:not(.pointer-events-none) { background: #f1f5f9; color: #005bac; border-color: #cbd5e1; }
+        .pagination a.active { background: #005bac; color: #fff; border-color: #005bac; }
+
+        /* 폼 요소 스타일 */
+        .survey-radio {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        .survey-radio:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .survey-radio input[type="radio"], .survey-radio input[type="checkbox"] {
+            width: 1.2rem; height: 1.2rem;
+            margin-right: 0.75rem;
+            accent-color: #005bac;
+            cursor: pointer;
+        }
+        .survey-radio:has(input:checked) {
+            border-color: #005bac;
+            background: #f0f7ff;
+            font-weight: 700;
+            color: #005bac;
+        }
+        
+        /* 결과 바 차트 애니메이션 */
+        .result-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 1s ease-out;
+            width: 0%;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="database" class="w-5 h-5 mr-2"></i> 정책이력 및 공공데이터
+                </h4>
+                <ul class="space-y-1 text-[14px] lnb-menu">
+                    <li><a href="정책이력제안내.html">정책이력제안내</a></li>
+                    <li><a href="국민신청실명제.html">국민신청실명제</a></li>
+                    <li><a href="중점관리대상사업.html">중점관리대상사업</a></li>
+                    <li><a href="정책이력제심의위원회.html">정책이력제 심의위원회</a></li>
+                    <li><a href="공공데이터개방안내.html">공공데이터 개방안내</a></li>
+                    <li><a href="공공데이터수요조사.html">공공데이터 수요조사</a></li>
+                    <li><a href="공공데이터설문조사.html" class="active">공공데이터 설문조사</a></li>
+                    <li><a href="빅데이터통합플랫폼.html">빅데이터 통합플랫폼</a></li>
+                    <li><a href="스마트도시분석포털.html">스마트도시분석포털</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">정책이력 및 공공데이터</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">공공데이터 설문조사</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">공공데이터 설문조사</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시 공공데이터 개방 서비스의 품질 향상 및 신규 데이터 발굴을 위해 정기/수시 설문조사를 실시하고 있습니다. 시민 여러분의 소중한 의견을 시정에 적극 반영하겠습니다.
+                </p>
+            </div>
+
+            <!-- 리스트 뷰 영역 -->
+            <div id="list-view-container">
+                <!-- 진행 중인 설문조사 하이라이트 -->
+                <section class="mb-12">
+                    <div class="bg-gradient-to-r from-[#1a365d] to-[#005bac] rounded-2xl p-1 shadow-lg">
+                        <div class="bg-white rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                            <div class="absolute right-0 bottom-0 opacity-5 pointer-events-none transform translate-x-10 translate-y-10">
+                                <i data-lucide="bar-chart" class="w-64 h-64"></i>
+                            </div>
+                            <div class="relative z-10 flex-1">
+                                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 font-bold text-xs rounded-full mb-3 border border-blue-200 animate-pulse">
+                                    현재 진행중인 정기 설문
+                                </span>
+                                <h3 class="text-2xl font-black text-slate-800 mb-2">2026년 상반기 효빈광역시 공공데이터 통합 만족도 및 수요조사</h3>
+                                <p class="text-slate-600 text-sm mb-4">효빈 시민 맞춤형 스마트 행정(빅데이터 플랫폼 등) 구현을 위해 평소 필요하셨던 데이터 의견을 들려주세요. 참여자 중 추첨을 통해 HAF 한정판 기념품을 드립니다.</p>
+                                <div class="flex items-center text-sm font-bold text-slate-500">
+                                    <i data-lucide="calendar-clock" class="w-4 h-4 mr-1.5"></i> 조사기간: 2026. 04. 01. ~ 2026. 04. 30.
+                                </div>
+                            </div>
+                            <div class="relative z-10 shrink-0 w-full md:w-auto">
+                                <button onclick="showSurveyDetail(12)" class="w-full px-8 py-4 bg-[#005bac] text-white font-bold rounded-xl hover:bg-blue-800 transition shadow-md flex items-center justify-center group">
+                                    설문 참여하기 <i data-lucide="arrow-right" class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. 설문조사 목록 게시판 -->
+                <section class="mb-14">
+                    <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 전체 설문조사 목록
+                        </h3>
+                        <span class="text-sm font-bold text-slate-500">총 <span id="total-count" class="text-blue-600">0</span>건</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border-x border-t border-slate-200 mb-8">
+                        <table class="content-table !mt-0 !mb-0 min-w-[800px]">
+                            <colgroup>
+                                <col style="width: 8%;">
+                                <col style="width: auto;">
+                                <col style="width: 25%;">
+                                <col style="width: 15%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-slate-50">
+                                    <th>번호</th>
+                                    <th>설문조사명</th>
+                                    <th>조사 기간</th>
+                                    <th>상태/결과</th>
+                                </tr>
+                            </thead>
+                            <tbody id="survey-list-body">
+                                <!-- JS 렌더링 영역 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 페이징 -->
+                    <div class="flex justify-center mb-10">
+                        <nav class="pagination flex gap-1" id="pagination-container">
+                            <!-- JS 렌더링 영역 -->
+                        </nav>
+                    </div>
+                </section>
+            </div>
+            <!-- // 리스트 뷰 영역 끝 -->
+
+
+            <!-- 상세/참여 뷰 영역 (동적 전환) -->
+            <div id="survey-view-container" class="hidden mb-14">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> <span id="view-section-title">설문조사 참여</span>
+                    </h3>
+                </div>
+                
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                    <!-- 헤더 -->
+                    <div class="bg-slate-50 p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center mb-4">
+                            <span id="detail-status" class="px-3 py-1 rounded-full text-xs font-bold border">상태</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4 leading-tight" id="detail-title">제목</h3>
+                        <div class="text-sm text-slate-600 font-medium">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1 -mt-0.5"></i> 조사기간: <span id="detail-period">2026.00.00 ~ 2026.00.00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 설문 폼 (진행중일 때 표시) -->
+                    <div id="survey-form-area" class="p-6 md:p-8 hidden">
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-8 text-sm text-blue-800 leading-relaxed">
+                            본 설문조사는 효빈광역시 공공데이터 개방 정책 수립을 위한 기초 자료로만 활용되며, 통계법 제33조(비밀의 보호)에 의거하여 비밀이 철저히 보장됩니다. 솔직한 답변을 부탁드립니다.
+                        </div>
+                        
+                        <form onsubmit="submitSurvey(event)" class="space-y-10">
+                            
+                            <!-- 응답자 기본 정보 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-slate-200 pb-8">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 mb-3"><span class="text-blue-600 mr-1">Q1.</span> 귀하의 연령대는 어떻게 되십니까?</h4>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="survey-radio"><input type="radio" name="age" value="10대" required> 10대 이하</label>
+                                        <label class="survey-radio"><input type="radio" name="age" value="20대"> 20대</label>
+                                        <label class="survey-radio"><input type="radio" name="age" value="30대"> 30대</label>
+                                        <label class="survey-radio"><input type="radio" name="age" value="40대"> 40대</label>
+                                        <label class="survey-radio"><input type="radio" name="age" value="50대"> 50대</label>
+                                        <label class="survey-radio"><input type="radio" name="age" value="60대이상"> 60대 이상</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 mb-3"><span class="text-blue-600 mr-1">Q2.</span> 귀하의 직업(소속)은 무엇입니까?</h4>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="survey-radio"><input type="radio" name="job" value="학생" required> 학생</label>
+                                        <label class="survey-radio"><input type="radio" name="job" value="IT개발자"> IT 개발자/엔지니어</label>
+                                        <label class="survey-radio"><input type="radio" name="job" value="연구원"> 학계/연구원</label>
+                                        <label class="survey-radio"><input type="radio" name="job" value="일반회사원"> 일반 회사원</label>
+                                        <label class="survey-radio"><input type="radio" name="job" value="자영업"> 자영업/소상공인</label>
+                                        <label class="survey-radio"><input type="radio" name="job" value="기타"> 기타</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Q3 -->
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 mb-4"><span class="text-blue-600 mr-1">Q3.</span> 귀하께서 평소 가장 많이 활용하시거나 개방을 희망하는 효빈시 공공데이터 분야는 무엇입니까?</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <label class="survey-radio"><input type="radio" name="category" value="교통물류" required> 교통/철도 (3세대 버스, 7호선 등)</label>
+                                    <label class="survey-radio"><input type="radio" name="category" value="문화관광"> 문화/관광 (HAF 축제, 관광지 등)</label>
+                                    <label class="survey-radio"><input type="radio" name="category" value="환경생태"> 환경/생태 (시조 히버히, 미세먼지)</label>
+                                    <label class="survey-radio"><input type="radio" name="category" value="청년복지"> 청년/복지 (효빈드림 하우스 등)</label>
+                                    <label class="survey-radio"><input type="radio" name="category" value="일반행정"> 시정/행정 (예산, 정책이력 등)</label>
+                                    <label class="survey-radio"><input type="radio" name="category" value="도시재생"> 도시재생 (당가동 특화거리 등)</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Q4 -->
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 mb-4"><span class="text-blue-600 mr-1">Q4.</span> 현재 제공되고 있는 효빈광역시 스마트도시 데이터 포털 서비스에 대한 전반적인 만족도는 어떠하십니까?</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                                    <label class="survey-radio justify-center text-center"><input type="radio" name="satisfaction" value="5" required> 매우 만족</label>
+                                    <label class="survey-radio justify-center text-center"><input type="radio" name="satisfaction" value="4"> 만족</label>
+                                    <label class="survey-radio justify-center text-center"><input type="radio" name="satisfaction" value="3"> 보통</label>
+                                    <label class="survey-radio justify-center text-center"><input type="radio" name="satisfaction" value="2"> 불만족</label>
+                                    <label class="survey-radio justify-center text-center"><input type="radio" name="satisfaction" value="1"> 매우 불만족</label>
+                                </div>
+                            </div>
+
+                            <!-- Q5 -->
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 mb-4"><span class="text-blue-600 mr-1">Q5.</span> 공공데이터 활용 시 가장 선호하는 제공 형태는 무엇입니까? (복수 선택 가능)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <label class="survey-radio"><input type="checkbox" name="format" value="REST API"> REST API (실시간 연계)</label>
+                                    <label class="survey-radio"><input type="checkbox" name="format" value="CSV/Excel"> CSV / Excel 파일</label>
+                                    <label class="survey-radio"><input type="checkbox" name="format" value="JSON/XML"> JSON / XML 파일</label>
+                                    <label class="survey-radio"><input type="checkbox" name="format" value="시각화 차트"> 시각화 대시보드 (차트)</label>
+                                    <label class="survey-radio"><input type="checkbox" name="format" value="지도 공간정보"> 공간정보 (SHP, 위치기반)</label>
+                                    <label class="survey-radio"><input type="checkbox" name="format" value="PDF보고서"> PDF 행정 보고서</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Q6 -->
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-800 mb-4"><span class="text-blue-600 mr-1">Q6.</span> 기타 효빈광역시 공공데이터 개방 정책 및 포털 기능 개선에 대한 건의사항을 자유롭게 작성해 주십시오.</h4>
+                                <textarea class="w-full p-4 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none h-32 text-sm" placeholder="예: 빈효선 광역전철 배차 정보 API가 더 자주 업데이트 되었으면 좋겠습니다."></textarea>
+                            </div>
+
+                            <div class="flex justify-center border-t border-slate-200 pt-8">
+                                <button type="submit" id="submit-btn" class="px-12 py-4 bg-[#1a365d] text-white font-bold text-lg rounded-xl hover:bg-slate-800 transition shadow-lg flex items-center">
+                                    <i data-lucide="check-square" class="w-5 h-5 mr-2"></i> 설문 제출하기
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 결과 뷰 (완료 상태일 때 표시) -->
+                    <div id="survey-result-area" class="p-6 md:p-8 hidden">
+                        <div class="bg-slate-100 rounded-lg p-5 mb-8 text-center">
+                            <p class="font-bold text-slate-800 mb-1">설문 참여 인원</p>
+                            <div class="text-3xl font-black text-blue-700">총 <span id="result-participants">0</span>명 참여</div>
+                        </div>
+
+                        <div id="result-charts" class="space-y-10">
+                            <!-- 차트가 JS로 동적 삽입됩니다 -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3">
+                    <button onclick="hideSurveyDetail()" class="px-8 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로 돌아가기
+                    </button>
+                </div>
+            </div>
+            <!-- // 상세 뷰 영역 끝 -->
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 설문조사 데이터 (효빈시 세계관 12건 확장 반영)
+        const surveyData = [
+            { 
+                id: 12, 
+                title: '2026년도 상반기 효빈광역시 공공데이터 활용 만족도 및 통합 수요조사', 
+                period: '2026. 04. 01. ~ 2026. 04. 30.', 
+                status: '진행중', 
+                statusClass: 'bg-blue-100 text-blue-700 border-blue-200' 
+            },
+            { 
+                id: 11, 
+                title: '제3세대 준공영제 시내버스 개편에 따른 교통 데이터 활용 실태조사', 
+                period: '2026. 02. 15. ~ 2026. 02. 28.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '5,120',
+                results: [
+                    {
+                        question: 'Q. 3세대 시내버스 관련, 개방된 데이터 중 가장 유용한 것은 무엇입니까?',
+                        answers: [
+                            { label: '간선(#01B7ED), 지선(#37B484) 등 지정 도색 연계 노선 API', percent: 45, color: '#01B7ED' }, 
+                            { label: '버스 내 잔여 좌석 수 실시간 정보', percent: 32, color: '#37B484' },
+                            { label: '급행버스(#D81C2F) 정류장 정시 도착률 통계', percent: 15, color: '#D81C2F' },
+                            { label: '기타 운수 종사자 친절도 데이터 등', percent: 8, color: '#94a3b8' }
+                        ]
+                    },
+                    {
+                        question: 'Q. 교통 데이터 수집 및 업데이트 주기(현재 10초)에 만족하십니까?',
+                        answers: [
+                            { label: '매우 만족 (앱 개발 시 실시간 연동 원활)', percent: 62, color: '#005bac' },
+                            { label: '만족', percent: 28, color: '#3b82f6' },
+                            { label: '보통', percent: 8, color: '#cbd5e1' },
+                            { label: '불만족 이하', percent: 2, color: '#ef4444' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 10, 
+                title: '스마트도시 분석포털(대시보드) 신규 UI/UX 시민 만족도 조사', 
+                period: '2026. 01. 10. ~ 2026. 01. 24.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '3,890',
+                results: [
+                    {
+                        question: 'Q. 분석포털에서 제공하는 시각화 차트 중 가장 직관적인 형태는?',
+                        answers: [
+                            { label: '지도 기반 공간정보(GIS) 시각화', percent: 55, color: '#4f46e5' },
+                            { label: '시계열 변화를 보여주는 꺾은선 그래프', percent: 25, color: '#6366f1' },
+                            { label: '비율을 나타내는 파이/도넛 차트', percent: 15, color: '#818cf8' },
+                            { label: '데이터 그리드(표)', percent: 5, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 9, 
+                title: '청년 주거지원 "효빈드림 하우스" 관련 공공데이터 개방 수요조사', 
+                period: '2025. 12. 01. ~ 2025. 12. 15.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '8,450',
+                results: [
+                    {
+                        question: 'Q. 청년 주거 정책 관련 가장 필요한 데이터는 무엇입니까?',
+                        answers: [
+                            { label: '효빈드림 하우스 1·2차 입주 경쟁률 및 평균 커트라인 가점', percent: 65, color: '#8b5cf6' },
+                            { label: '지역별(8구 1군) 1인 가구 청년 주택 시세 통계', percent: 20, color: '#a855f7' },
+                            { label: '임차보증금 이자 지원 사업 잔여 예산 정보', percent: 12, color: '#c084fc' },
+                            { label: '기타', percent: 3, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 8, 
+                title: '제16회 HAF 연계 문화/관광 상권 분석 데이터 개방 선호도 조사', 
+                period: '2025. 11. 01. ~ 2025. 11. 20.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '12,302',
+                results: [
+                    {
+                        question: 'Q. HAF 축제 관련 공공데이터 중 가장 유용했던 정보는?',
+                        answers: [
+                            { label: '행사장(당가동 일대) 주변 상권 및 유동인구 맵 데이터', percent: 58, color: '#6677CC' },
+                            { label: '행사 임시 우회 노선 및 특별 시티투어버스(#7777AA) API', percent: 25, color: '#7777AA' },
+                            { label: '주차장 및 편의시설 위치 공간정보(SHP)', percent: 12, color: '#10b981' },
+                            { label: '기타', percent: 5, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 7, 
+                title: '구도심(당가동) 파스텔블루 특화거리 창업 지원 데이터 수요조사', 
+                period: '2025. 09. 10. ~ 2025. 09. 25.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '2,150',
+                results: [
+                    {
+                        question: 'Q. 당가동 상권 분석을 위해 우선적으로 제공되어야 할 데이터셋은?',
+                        answers: [
+                            { label: '블록 단위 시간대별 카드 매출(비식별) 통계', percent: 48, color: '#f59e0b' },
+                            { label: '상가 공실률 및 임대료 변동 추이', percent: 30, color: '#fbbf24' },
+                            { label: '팝업스토어 및 청년 창업 지원금 현황', percent: 18, color: '#fcd34d' },
+                            { label: '기타', percent: 4, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 6, 
+                title: '탄성군 생태보존구역(시조 히버히) 환경 센서 데이터 활용도 조사', 
+                period: '2025. 07. 05. ~ 2025. 07. 20.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '1,840',
+                results: [
+                    {
+                        question: 'Q. 환경/생태 분야에서 학술 및 서비스 개발에 가장 유용한 데이터는?',
+                        answers: [
+                            { label: '시조(히버히) 월별 도래 현황 및 관찰지점 궤적(JSON)', percent: 60, color: '#10b981' },
+                            { label: '철새도래지 수질 및 대기 환경 센서 실시간 자료', percent: 28, color: '#34d399' },
+                            { label: '생태공원 조류인플루엔자(AI) 예찰 결과', percent: 10, color: '#6ee7b7' },
+                            { label: '기타', percent: 2, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 5, 
+                title: '도시철도 1·2호선 노후 전동차 교체에 따른 안전 데이터 개방 설문', 
+                period: '2025. 05. 15. ~ 2025. 05. 30.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '4,560',
+                results: [
+                    {
+                        question: 'Q. 신규 도입되는 전동차 관련 알고 싶은 데이터는?',
+                        answers: [
+                            { label: '신형 전동차 내 공기질(미세먼지) 정화 데이터', percent: 45, color: '#0077DD' }, // 1호선 색상
+                            { label: '열차 내 객실별 혼잡 여유도 통계', percent: 35, color: '#00CCAA' }, // 2호선 색상
+                            { label: '차량 고장 및 지연 운행 이력', percent: 15, color: '#f87171' },
+                            { label: '기타', percent: 5, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 4, 
+                title: '초중고 무상급식 친환경 로컬푸드 식재료 정보 개방 수요조사', 
+                period: '2025. 03. 10. ~ 2025. 03. 24.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '6,210',
+                results: [
+                    {
+                        question: 'Q. 자녀들의 급식과 관련하여 학부모로서 가장 보고 싶은 정보는?',
+                        answers: [
+                            { label: '탄성군 로컬푸드 조달 농가 및 식재료 납품 단가표', percent: 55, color: '#84cc16' },
+                            { label: '학교별 월간 식단표 및 영양 정보 API', percent: 30, color: '#a3e635' },
+                            { label: '식자재 방사능 및 잔류 농약 검사 결과', percent: 12, color: '#bef264' },
+                            { label: '기타', percent: 3, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 3, 
+                title: '여름철 집중호우 대비 지하차도 및 트램 궤도 침수 데이터 개방 설문', 
+                period: '2024. 11. 01. ~ 2024. 11. 15.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '3,420',
+                results: [
+                    {
+                        question: 'Q. 재난 안전 데이터 중 실시간 알림 서비스로 구축되었으면 하는 것은?',
+                        answers: [
+                            { label: '7호선(분홍색) 트램 잔디궤도 수위 센서 이상 알림', percent: 42, color: '#FF8899' },
+                            { label: '관내 주요 지하차도 침수 위험 경보 API', percent: 38, color: '#38bdf8' },
+                            { label: '상습 침수 구역 대피소 여유 공간 정보', percent: 15, color: '#7dd3fc' },
+                            { label: '기타', percent: 5, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 2, 
+                title: '효빈광역시 공공 와이파이(Public WiFi) 위치 데이터 활용 실태조사', 
+                period: '2024. 09. 05. ~ 2024. 09. 19.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '5,580',
+                results: [
+                    {
+                        question: 'Q. 공공 와이파이 위치 데이터를 활용한 경험이 있으십니까?',
+                        answers: [
+                            { label: '데이터 포털에서 다운로드하여 위치를 확인해봄', percent: 45, color: '#0ea5e9' },
+                            { label: '해당 데이터로 위치 안내 앱/웹을 개발해봄', percent: 15, color: '#38bdf8' },
+                            { label: '데이터가 있는지 몰랐으나 향후 활용 의사 있음', percent: 35, color: '#7dd3fc' },
+                            { label: '활용할 생각 없음', percent: 5, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 1, 
+                title: '2024년도 하반기 효빈광역시 공공데이터 활용 만족도 조사', 
+                period: '2024. 07. 01. ~ 2024. 07. 15.', 
+                status: '완료 (결과공개)', 
+                statusClass: 'bg-slate-100 text-slate-600 border-slate-200',
+                participants: '3,105',
+                results: [
+                    {
+                        question: 'Q. 공공데이터를 주로 활용하는 목적은 무엇입니까?',
+                        answers: [
+                            { label: '학술 논문 및 학교 과제 연구용', percent: 40, color: '#6366f1' },
+                            { label: '앱/웹 서비스 개발 및 비즈니스 모델 구축', percent: 35, color: '#818cf8' },
+                            { label: '단순 정보 확인 및 관심', percent: 20, color: '#a5b4fc' },
+                            { label: '기타', percent: 5, color: '#94a3b8' }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-count').innerText = surveyData.length;
+            renderList();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+
+        // 목록 렌더링
+        function renderList() {
+            const tbody = document.getElementById('survey-list-body');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = surveyData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition cursor-pointer';
+                tr.onclick = () => showSurveyDetail(item.id);
+                
+                // 진행중인 설문 강조
+                const titleClass = item.status === '진행중' ? 'text-[#005bac] font-black' : 'text-slate-800 font-bold';
+
+                tr.innerHTML = `
+                    <td class="center font-medium text-slate-500">${item.id}</td>
+                    <td class="${titleClass} py-4 hover:underline transition">
+                        ${item.title}
+                        ${item.status === '진행중' ? '<span class="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full animate-ping"></span>' : ''}
+                    </td>
+                    <td class="center text-sm text-slate-600">${item.period}</td>
+                    <td class="center">
+                        <span class="px-2.5 py-1.5 rounded text-xs font-bold border ${item.statusClass}">
+                            ${item.status === '진행중' ? '<i data-lucide="edit-3" class="w-3 h-3 inline mr-1 -mt-0.5"></i> 참여하기' : '<i data-lucide="bar-chart-2" class="w-3 h-3 inline mr-1 -mt-0.5"></i> 결과보기'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이징
+        function renderPagination() {
+            const totalPages = Math.ceil(surveyData.length / itemsPerPage);
+            const nav = document.getElementById('pagination-container');
+            nav.innerHTML = '';
+
+            const prevClass = currentPage === 1 ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage - 1}); return false;" class="text-slate-500 ${prevClass}" aria-label="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                nav.innerHTML += `<a href="#" onclick="changePage(${i}); return false;" class="${activeClass}">${i}</a>`;
+            }
+
+            const nextClass = currentPage === totalPages ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage + 1}); return false;" class="text-slate-500 ${nextClass}" aria-label="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></a>`;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(surveyData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderList();
+        }
+
+        // 상세(참여/결과) 뷰 표시
+        function showSurveyDetail(id) {
+            const item = surveyData.find(d => d.id === id);
+            if(!item) return;
+
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('survey-view-container').classList.remove('hidden');
+
+            const statusEl = document.getElementById('detail-status');
+            statusEl.className = `px-3 py-1 rounded-full text-xs font-bold border ${item.statusClass}`;
+            statusEl.innerText = item.status;
+            
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-period').innerText = item.period;
+
+            const formArea = document.getElementById('survey-form-area');
+            const resultArea = document.getElementById('survey-result-area');
+            
+            if (item.status === '진행중') {
+                document.getElementById('view-section-title').innerText = '설문조사 참여';
+                formArea.classList.remove('hidden');
+                resultArea.classList.add('hidden');
+                
+                // 폼 초기화
+                formArea.querySelector('form').reset();
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="check-square" class="w-5 h-5 mr-2"></i> 설문 제출하기';
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+
+            } else {
+                document.getElementById('view-section-title').innerText = '설문조사 결과 통계';
+                formArea.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+
+                document.getElementById('result-participants').innerText = item.participants;
+                
+                // 결과 차트 렌더링
+                const chartContainer = document.getElementById('result-charts');
+                chartContainer.innerHTML = '';
+                
+                if(item.results) {
+                    item.results.forEach((res, qIndex) => {
+                        let answersHtml = '';
+                        res.answers.forEach(ans => {
+                            // 인라인 스타일로 색상 강제 적용 (Tailwind 동적 클래스 컴파일 이슈 방지)
+                            answersHtml += `
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span class="font-bold text-slate-700">${ans.label}</span>
+                                        <span class="font-black text-slate-800">${ans.percent}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden">
+                                        <div class="result-bar" style="width: 0%; background-color: ${ans.color};" data-width="${ans.percent}%"></div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        chartContainer.innerHTML += `
+                            <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                                <h4 class="font-bold text-lg text-slate-800 mb-5 pb-2 border-b border-slate-100">${res.question}</h4>
+                                ${answersHtml}
+                            </div>
+                        `;
+                    });
+                }
+
+                // 바 애니메이션 실행 (약간 지연 후)
+                setTimeout(() => {
+                    const bars = document.querySelectorAll('.result-bar');
+                    bars.forEach(bar => {
+                        bar.style.width = bar.getAttribute('data-width');
+                    });
+                }, 100);
+            }
+
+            window.scrollTo({ top: document.getElementById('survey-view-container').offsetTop - 120, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 목록으로 돌아가기
+        function hideSurveyDetail() {
+            document.getElementById('survey-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            
+            window.scrollTo({ top: document.getElementById('list-view-container').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // 설문 제출 시뮬레이션
+        function submitSurvey(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 mr-2 animate-spin"></i> 처리 중...';
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                alert('🎉 설문 참여가 완료되었습니다!\n\n시민님의 소중한 의견은 효빈광역시 스마트 행정 발전을 위해 소중히 사용하겠습니다.\n(HAF 기념품 당첨 여부는 추후 기재하신 연락처로 개별 안내됩니다.)');
+                hideSurveyDetail(); // 목록으로 돌아가기
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

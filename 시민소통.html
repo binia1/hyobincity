@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시민소통 - 효빈광역시의회</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('이미지/시의회배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* 본문 타이틀 스타일 */
+        .content-title {
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1a365d;
+            color: #1e293b;
+        }
+
+        /* 동적 사이드바 LNB 스타일 */
+        .lnb-list > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-list > li > a:hover,
+        .lnb-list > li.active > a {
+            background-color: #f8fafc;
+            color: #005bac;
+            font-weight: 800;
+            border-left: 4px solid #005bac;
+        }
+        .lnb-list > li:last-child > a { border-bottom: none; }
+        .lnb-list > li.active i { color: #005bac; }
+
+        /* 테이블 스타일 */
+        .data-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem; background: white; border-top: 2px solid #1a365d; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; padding: 1.1rem 0.5rem; border-bottom: 1px solid #cbd5e1; white-space: nowrap; }
+        .data-table td { padding: 1.1rem 0.5rem; border-bottom: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        .data-table tbody tr:hover td { background-color: #f1f5f9; cursor: pointer;}
+        .title-col { text-align: left !important; padding-left: 1.5rem !important; font-weight: bold; color: #1e293b !important; }
+        
+        /* 탭 애니메이션 */
+        #dynamic-content-area { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 모달 오버레이 */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+
+        /* 상태 뱃지 */
+        .status-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; }
+        .status-done { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-ing { background-color: #e0f2fe; color: #1e40af; border: 1px solid #bfdbfe; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 전용 헤더 (효빈광역시의회 전용) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm print-hide">
+        <div class="bg-slate-50 border-b border-slate-200 py-1.5 text-xs text-slate-500">
+            <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+                <span class="font-medium">시민 중심의 역동적으로 일하는 효빈광역시의회</span>
+                <div class="flex gap-4">
+                    <a href="메인.html" class="hover:text-hyobin-blue font-bold text-hyobin-dark">효빈광역시청 바로가기</a>
+                    <span class="text-slate-300">|</span>
+                    <a href="#" class="hover:text-hyobin-blue">로그인</a>
+                    <span class="text-slate-300">|</span>
+                    <a href="#" class="hover:text-hyobin-blue">사이트맵</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <a href="시의회.html" class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-hyobin-dark rounded-full flex items-center justify-center text-white font-serif font-black text-xl shadow-md border-2 border-hyobin-blue">議</div>
+                <div class="flex flex-col">
+                    <span class="text-2xl font-black text-slate-800 tracking-tight leading-none">효빈광역시의회</span>
+                    <span class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-0.5">Hyobin Metropolitan Council</span>
+                </div>
+            </a>
+            <!-- 헤더 네비게이션 드롭다운 -->
+            <nav class="hidden lg:flex h-full font-bold text-slate-800 text-[17px]">
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="시의회.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의회소개 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="인사말.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">인사말</a>
+                        <a href="의장실.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의장단</a>
+                        <a href="총무담당관.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회사무처</a>
+                        <a href="기구표.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">기구표</a>
+                        <a href="찾아오시는길.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">찾아오시는길</a>
+                    </div>
+                </div>
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="의정활동.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의정활동 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="본회의.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">본회의</a>
+                        <a href="상임위원회.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">상임위원회</a>
+                        <a href="특별위원회.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">특별위원회</a>
+                        <a href="의안정보.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의안정보</a>
+                    </div>
+                </div>
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="의원안내.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">의원안내 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="의원안내.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의원명단</a>
+                        <a href="의원안내.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">교섭단체</a>
+                        <a href="의원안내.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의원동정</a>
+                    </div>
+                </div>
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="회의록.html" class="hover:text-hyobin-blue transition flex items-center gap-1 h-full">회의록 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-44 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">본회의록</a>
+                        <a href="회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">위원회 회의록</a>
+                        <a href="회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">시정질문</a>
+                        <a href="회의록.html" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">5분 자유발언</a>
+                    </div>
+                </div>
+                <div class="group relative h-full flex items-center px-4">
+                    <a href="시민소통.html" class="text-hyobin-blue flex items-center gap-1 h-full">시민소통 <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full w-40 bg-white border-t-2 border-hyobin-blue shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                        <a href="#" onclick="loadContent('wish'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회에 바란다</a>
+                        <a href="#" onclick="loadContent('notice'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">공지사항</a>
+                        <a href="#" onclick="loadContent('news'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">의회소식</a>
+                        <a href="#" onclick="loadContent('tour'); return false;" class="px-4 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50 hover:text-hyobin-blue text-center">견학신청</a>
+                    </div>
+                </div>
+            </nav>
+            <button class="lg:hidden text-slate-800"><i data-lucide="menu" class="w-6 h-6"></i></button>
+        </div>
+    </header>
+
+    <!-- 서브 비주얼 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden print-hide">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">시민소통</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 작은 목소리도 크게 듣겠습니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10 print-hide">
+        
+        <!-- 좌측 고정 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block sticky top-8 h-fit">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민소통
+                </h2>
+                <ul class="lnb-list">
+                    <li id="nav-intro" class="active"><a href="#" onclick="event.preventDefault(); loadContent('intro')">소통 안내 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-wish"><a href="#" onclick="event.preventDefault(); loadContent('wish')">의회에 바란다 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-notice"><a href="#" onclick="event.preventDefault(); loadContent('notice')">공지사항 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-news"><a href="#" onclick="event.preventDefault(); loadContent('news')">의회소식 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li id="nav-tour"><a href="#" onclick="event.preventDefault(); loadContent('tour')">견학신청 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 동적 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0" id="dynamic-content-area">
+            <!-- JavaScript를 통해 초기 화면이 여기에 렌더링됩니다. -->
+        </main>
+    </div>
+
+    <!-- 모달 영역 (의회에 바란다 - 상세) -->
+    <div id="wish-view-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeModal('wish-view-modal')">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()" id="wish-view-content">
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center shrink-0 rounded-t-xl">
+                <h3 class="font-bold text-lg flex items-center"><i data-lucide="message-square" class="w-5 h-5 mr-2"></i> 민원 상세 보기</h3>
+                <button onclick="closeModal('wish-view-modal')" class="hover:bg-slate-700 p-1.5 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow">
+                <div class="border-b border-slate-200 pb-5 mb-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span id="wish-status" class="status-badge status-done">답변완료</span>
+                        <span id="wish-date" class="text-slate-500 text-sm font-medium">2026.00.00</span>
+                    </div>
+                    <h4 id="wish-title" class="text-2xl font-black text-slate-800 leading-snug">제목</h4>
+                    <p id="wish-writer" class="text-sm text-slate-600 mt-2 font-medium">작성자: 홍*동</p>
+                </div>
+                <div class="bg-white border border-slate-200 p-6 rounded-xl mb-6 text-slate-800 leading-relaxed min-h-[120px] text-[15px] whitespace-pre-wrap" id="wish-content">
+                    내용
+                </div>
+                <!-- 답변 영역 -->
+                <div id="wish-answer-box" class="bg-blue-50 border border-blue-200 p-6 rounded-xl shadow-inner hidden">
+                    <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-hyobin-blue text-white text-xs px-2.5 py-1 rounded font-bold">답변</span>
+                            <span class="font-black text-blue-900">효빈광역시의회 사무처</span>
+                        </div>
+                    </div>
+                    <div class="text-slate-800 text-[15px] leading-relaxed whitespace-pre-wrap" id="wish-answer">
+                        답변 내용
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-center shrink-0 rounded-b-xl">
+                <button onclick="closeModal('wish-view-modal')" class="px-8 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 font-bold transition shadow-md">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달 영역 (의회에 바란다 - 글쓰기) -->
+    <div id="wish-write-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeModal('wish-write-modal')">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()" id="wish-write-content">
+            <div class="bg-hyobin-blue p-5 text-white flex justify-between items-center shrink-0 rounded-t-xl">
+                <h3 class="font-bold text-lg flex items-center"><i data-lucide="pen-tool" class="w-5 h-5 mr-2"></i> 의회에 바란다 작성</h3>
+                <button onclick="closeModal('wish-write-modal')" class="hover:bg-blue-700 p-1.5 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">제목 <span class="text-red-500">*</span></label>
+                    <input type="text" id="w-title" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none focus:border-hyobin-blue shadow-sm" placeholder="제목을 입력하세요">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">작성자 <span class="text-red-500">*</span></label>
+                        <input type="text" id="w-author" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none focus:border-hyobin-blue shadow-sm" placeholder="이름을 입력하세요">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">비밀번호 <span class="text-red-500">*</span></label>
+                        <input type="password" id="w-pw" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 outline-none focus:border-hyobin-blue shadow-sm" placeholder="4자리 숫자">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">내용 <span class="text-red-500">*</span></label>
+                    <textarea id="w-content" class="w-full border border-slate-300 rounded-lg px-4 py-3 h-40 outline-none focus:border-hyobin-blue resize-none shadow-sm custom-scrollbar" placeholder="의회에 건의하실 내용을 상세히 적어주세요."></textarea>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button onclick="closeModal('wish-write-modal')" class="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-700 hover:bg-white font-bold transition shadow-sm">취소</button>
+                <button onclick="submitWish()" class="px-6 py-2.5 bg-hyobin-blue text-white rounded-lg hover:bg-blue-800 font-bold transition shadow-md flex items-center">
+                    <i data-lucide="check" class="w-4 h-4 mr-2"></i> 등록완료
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일반 공통 모달 (공지사항/의회소식 상세 보기) -->
+    <div id="common-view-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeModal('common-view-modal')">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()" id="common-view-content">
+            <div class="p-6 md:p-8 border-b border-slate-200 bg-slate-50 rounded-t-xl shrink-0">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="cv-category" class="bg-hyobin-blue text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">분류</span>
+                    <button onclick="closeModal('common-view-modal')" class="text-slate-400 hover:text-slate-700 transition bg-white rounded-full p-1 border border-slate-200 shadow-sm print-hide">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <h3 id="cv-title" class="font-black text-2xl md:text-3xl text-slate-800 break-keep leading-tight mb-4">제목</h3>
+                <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 bg-white p-3 rounded-lg border border-slate-200">
+                    <div><span class="font-bold text-slate-800 mr-1">등록일:</span> <span id="cv-date"></span></div>
+                    <div><span class="font-bold text-slate-800 mr-1">조회수:</span> <span id="cv-views"></span></div>
+                </div>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow bg-white text-[15px] md:text-[16px] text-slate-800 leading-relaxed font-medium whitespace-pre-wrap" id="cv-content">
+                내용
+            </div>
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-center shrink-0 rounded-b-xl print-hide">
+                <button onclick="closeModal('common-view-modal')" class="px-8 py-3 bg-hyobin-dark text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-md">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 견학 신청 모달 -->
+    <div id="tour-apply-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeModal('tour-apply-modal')">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()" id="tour-apply-content">
+            <div class="bg-hyobin-blue p-5 text-white flex justify-between items-center shrink-0 rounded-t-xl">
+                <h3 class="font-bold text-lg flex items-center"><i data-lucide="calendar-check" class="w-5 h-5 mr-2"></i> 의회 견학 신청</h3>
+                <button onclick="closeModal('tour-apply-modal')" class="hover:bg-blue-700 p-1.5 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">단체명/기관명 <span class="text-red-500">*</span></label>
+                    <input type="text" class="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:border-hyobin-blue" placeholder="예: 효빈동초등학교">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">신청자 성명 <span class="text-red-500">*</span></label>
+                    <input type="text" class="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:border-hyobin-blue" placeholder="홍길동">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">방문 희망일 <span class="text-red-500">*</span></label>
+                    <input type="date" class="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:border-hyobin-blue">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">예상 인원 (명) <span class="text-red-500">*</span></label>
+                    <input type="number" class="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:border-hyobin-blue" placeholder="최소 10명 이상">
+                </div>
+                <p class="text-xs text-red-500 font-bold">* 견학 승인 여부는 신청 후 3일 이내에 담당자가 개별 연락드립니다.</p>
+            </div>
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button onclick="closeModal('tour-apply-modal')" class="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-700 font-bold hover:bg-white">취소</button>
+                <button onclick="alert('견학 신청이 접수되었습니다. 담당자 확인 후 연락드리겠습니다.'); closeModal('tour-apply-modal');" class="px-6 py-2.5 bg-hyobin-blue text-white rounded-lg font-bold hover:bg-blue-800">신청하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 전용 푸터 (효빈광역시의회 전용) -->
+    <footer class="bg-slate-800 text-slate-300 py-10 mt-auto border-t-4 border-hyobin-blue print-hide">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-slate-700 pb-6 mb-6">
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 font-bold text-[15px]">
+                    <a href="#" class="text-white hover:text-blue-300 transition">개인정보처리방침</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">저작권정책</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">이메일무단수집거부</a>
+                    <span class="text-slate-600">|</span>
+                    <a href="#" class="hover:text-white transition">찾아오시는길</a>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-8 items-center md:items-start text-sm text-center md:text-left">
+                <div class="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 font-serif font-black text-3xl shadow-inner shrink-0">議</div>
+                <div class="leading-relaxed">
+                    <p class="mb-1 text-slate-400">[우편번호: 00000] 효빈광역시 북구 효빈로 79 (고송8동) 효빈광역시의회</p>
+                    <p class="mb-3 text-[15px]">
+                        대표전화 : <strong class="text-white text-lg tracking-wide">079-591-2322</strong> 
+                        <span class="mx-3 text-slate-600">|</span> 
+                        팩스 : 079-591-2329
+                    </p>
+                    <p class="text-slate-500">Copyright © Hyobin Metropolitan Council. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 동적 콘텐츠 및 데이터 렌더링 스크립트 -->
+    <script>
+        // ============================================================================
+        // 1. 데이터 정의
+        // ============================================================================
+        
+        // [의회에 바란다 데이터]
+        let wishData = [
+            { id: 312, status: "답변완료", title: "효빈 하우스 청년 입주 조건 완화 건의", writer: "김*진", date: "2026.04.28", content: "효빈 하우스 입주 조건 중 소득 기준이 다소 엄격합니다. 프리랜서나 단기 알바를 전전하는 청년들을 위해 심사 기준을 유연하게 적용해 주시길 바랍니다.", answer: "귀하의 소견에 감사드립니다. 현재 안전건설위원회에서 효빈 하우스 입주 소득 기준을 탄력적으로 적용하는 조례 개정안을 논의 중입니다. 조속히 처리하여 더 많은 청년이 혜택을 받도록 하겠습니다." },
+            { id: 311, status: "접수중", title: "7호선 전차 주말 배차 간격 단축 요청", writer: "이*석", date: "2026.04.25", content: "최근 7호선 심야 연장 운행은 매우 환영합니다만, 주말 낮 시간에 관광객이 몰려 탑승이 어렵습니다. 배차 간격을 줄여주세요.", answer: null },
+            { id: 310, status: "답변완료", title: "HAF 축제 기간 중 시의회 개방 및 화장실 이용 건의", writer: "박*영", date: "2026.04.20", content: "다가오는 HAF 행사 때 시청뿐만 아니라 시의회 1층 로비와 화장실도 개방해 주시면 시민과 관광객 편의에 큰 도움이 될 것 같습니다.", answer: "제안에 감사드립니다. 의회운영위원회 협의 결과, HAF 행사 기간 중 시의회 1층 로비 홍보관 및 화장실을 시민과 방문객을 위해 전면 개방하기로 결정하였습니다." },
+            { id: 309, status: "답변완료", title: "청엽구 사거리 우회전 신호등 설치 건의", writer: "최*호", date: "2026.04.15", content: "청엽구 3선거구 삼거리 우회전 시 횡단보도 사고 위험이 큽니다. 우회전 전용 신호등 설치를 검토해 주세요.", answer: "해당 구역의 교통량 및 보행자 데이터 분석 결과, 우회전 신호등 설치 요건을 충족하여 효빈경찰서와 협의 후 5월 중으로 설치를 완료할 예정입니다." }
+        ];
+
+        // [공지사항 데이터]
+        const noticeData = [
+            { id: 105, category: "안내", title: "제282회 효빈광역시의회 제1차 정례회 개회 및 방청 안내", date: "2026.05.20", views: 450, content: "제282회 효빈광역시의회 제1차 정례회가 2026년 6월 1일부터 6월 25일까지 25일간 개회됩니다. 이번 정례회에서는 2025회계연도 결산 승인 및 주요 시정질문이 진행됩니다. 본회의 방청을 원하시는 시민께서는 신분증을 지참하여 회의 당일 의회 1층 안내데스크에서 신청해 주시기 바랍니다." },
+            { id: 104, category: "채용", title: "2026년 효빈광역시의회 청원경찰(방호요원) 공개 채용 공고", date: "2026.05.15", views: 1200, content: "효빈광역시의회 청사 방호 및 질서 유지를 담당할 청원경찰을 공개 채용합니다.\n\n- 채용인원: 2명\n- 원서접수: 2026.05.20 ~ 05.25\n- 자격요건: 무술 유단자(태권도, 유도 등 2단 이상) 우대\n자세한 사항은 첨부된 공고문을 확인하시기 바랍니다." },
+            { id: 103, category: "모집", title: "제5기 효빈광역시의회 의정모니터단 모집 공고", date: "2026.04.10", views: 890, content: "시민의 눈으로 의정활동을 지켜보고 정책을 제안할 '제5기 의정모니터단'을 모집합니다. 효빈시 거주 만 19세 이상 시민이라면 누구나 지원 가능합니다. 우수 활동자에게는 연말 의장 표창이 수여됩니다." },
+            { id: 102, category: "안내", title: "의회 홈페이지 시스템 서버 점검 안내 (4.5 새벽)", date: "2026.04.01", views: 230, content: "안정적인 서비스 제공을 위해 시의회 홈페이지 서버 점검을 실시합니다.\n점검 일시: 2026년 4월 5일(일) 01:00 ~ 05:00 (4시간)\n해당 시간 동안 의안 검색 및 회의록 열람 서비스가 일시 중단되오니 양해 부탁드립니다." },
+            { id: 101, category: "안내", title: "의원 연구단체 '미래교통혁신연구회' 정책 토론회 개최 안내", date: "2026.03.15", views: 560, content: "도시교통위원회 소속 의원들로 구성된 연구단체에서 '노면전차 연장과 신교통수단 도입'을 주제로 정책 토론회를 개최합니다. 시민 여러분의 많은 참석과 의견 개진 부탁드립니다.\n- 일시: 2026.03.25 14:00\n- 장소: 시의회 대회의실" }
+        ];
+
+        // [의회소식 데이터]
+        const newsData = [
+            { id: 55, title: "효빈시의회, '대중교통 H-Pass 전면 확대' 관련 예산안 원안 가결", date: "2026.04.29", views: 1540, content: "효빈광역시의회(의장 고현민)는 제281회 임시회 제2차 본회의를 열고, 시민들의 열띤 호응을 얻고 있는 'H-Pass(대중교통 무제한 이용권)'의 대상 확대 및 연장 운영을 위한 추가경정예산안을 원안대로 최종 가결했습니다. 이로써 하반기부터 혜택 범위가 더욱 넓어질 전망입니다." },
+            { id: 54, title: "보건복지위원회, 가족돌봄청년 지원 우수사례 타 지자체 전파", date: "2026.04.18", views: 890, content: "효빈시의회 보건복지위원회(위원장 구상민)가 전국 최초로 이끌어낸 '가족돌봄청년(영 케어러) 지원 조례'가 국회 및 타 광역단체의 벤치마킹 대상이 되고 있습니다. 위원회는 오늘 시의회를 방문한 타 시도 의원단을 대상으로 정책 성공 요인과 향후 개선 방안을 브리핑했습니다." },
+            { id: 53, title: "안전건설위원회, 해빙기 대비 취약 시설 및 대형 공사장 현장 점검", date: "2026.03.20", views: 670, content: "안전건설위원회(위원장 성지언) 소속 의원들은 해빙기를 맞아 지반 약화로 인한 사고를 예방하고자, 북구 고송신도시 대규모 아파트 건설 현장 및 노후 옹벽 지대를 집중 점검하고 현장 관계자들에게 철저한 안전 매뉴얼 준수를 당부했습니다." },
+            { id: 52, title: "효빈시의회, '악성 민원 근절' 쿠쿠스 배리어 조례 본회의 통과", date: "2026.03.02", views: 2100, content: "일선 공무원을 폭언과 혐오성 악성 민원으로부터 보호하기 위한 일명 '쿠쿠스 배리어 조례'가 시의회 본회의를 통과했습니다. 의회운영위원회 오지대 위원장은 \"시민의 권리만큼이나 행정 실무자들의 인권과 안전도 철저히 보장되어야 한다\"며 조례 제정 취지를 밝혔습니다." }
+        ];
+
+        // ============================================================================
+        // 2. 렌더링 로직 (SPA 라우팅 및 테이블 생성)
+        // ============================================================================
+        let currentTab = 'intro';
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let currentData = [];
+
+        // 템플릿 데이터 (사이드바 메뉴 클릭 시 보여질 HTML 구조)
+        const pageTemplates = {
+            'intro': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">시민소통</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">시민소통 안내</h2>
+                <section class="mb-12">
+                    <p class="text-slate-700 leading-relaxed font-medium mb-8 bg-slate-100 p-6 rounded-xl border border-slate-200">
+                        효빈광역시의회는 시민 여러분의 작은 목소리에도 귀 기울입니다. 의정활동에 대한 건의사항을 남기거나, 의회의 주요 일정 및 소식을 확인하고, 직접 의회를 방문하여 체험할 수 있는 소통의 창구가 활짝 열려 있습니다.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('wish')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="message-square-edit" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">의회에 바란다</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">의정활동에 대한 의견, 건의사항, 지역 불편사항 등을 자유롭게 남겨주시면 시의원이 직접 살펴보고 의정에 반영합니다.</p>
+                        </div>
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('notice')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="bell" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">공지사항</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">효빈광역시의회의 회기 일정, 방청 안내, 직원 채용, 입찰 공고 등 행정 전반에 걸친 주요 알림을 확인하실 수 있습니다.</p>
+                        </div>
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('news')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="newspaper" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">의회소식</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">의안 가결 현황, 조례안 발의 소식, 상임위원회 현장 방문 등 역동적으로 일하는 의회의 최신 소식을 전해드립니다.</p>
+                        </div>
+                        <div class="border border-slate-200 bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:border-hyobin-blue transition duration-300 group cursor-pointer" onclick="loadContent('tour')">
+                            <div class="w-14 h-14 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="map" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800 mb-2">견학신청</h3>
+                            <p class="text-slate-600 text-[15px] leading-relaxed">초·중·고등학생 및 일반 단체를 대상으로 본회의장 관람 및 모의의회 체험 등 생생한 민주주의 교육의 장을 제공합니다.</p>
+                        </div>
+                    </div>
+                </section>
+            `,
+            'wish': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">시민소통</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의회에 바란다</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">의회에 바란다</h2>
+                <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div class="w-full md:w-auto">
+                        <button onclick="openWriteModal()" class="bg-hyobin-blue text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-800 transition shadow-md flex items-center">
+                            <i data-lucide="pen-tool" class="w-4 h-4 mr-2"></i> 글쓰기
+                        </button>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <input type="text" id="search-input" placeholder="제목 또는 내용 검색" class="w-full border border-slate-300 rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue shadow-sm" onkeyup="if(event.key === 'Enter') handleSearch()">
+                        <button onclick="handleSearch()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition"><i data-lucide="search" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8">
+                    <table class="data-table !border-t-0 min-w-[650px]">
+                        <colgroup><col style="width: 10%;"><col style="width: 15%;"><col style="width: auto;"><col style="width: 12%;"><col style="width: 12%;"></colgroup>
+                        <thead class="bg-slate-50"><tr><th>번호</th><th>진행상태</th><th>제목</th><th>작성자</th><th>작성일</th></tr></thead>
+                        <tbody id="table-body" class="text-[14.5px]"></tbody>
+                    </table>
+                </div>
+                <div id="pagination-container" class="flex justify-center mb-16"></div>
+            `,
+            'notice': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">시민소통</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">공지사항</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">공지사항</h2>
+                <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div class="text-slate-700 font-medium">검색 결과 총 <span id="list-total" class="text-hyobin-blue font-bold text-lg">0</span>건</div>
+                    <div class="relative w-full md:w-72">
+                        <input type="text" id="search-input" placeholder="제목 검색" class="w-full border border-slate-300 rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue shadow-sm" onkeyup="if(event.key === 'Enter') handleSearch()">
+                        <button onclick="handleSearch()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition"><i data-lucide="search" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8">
+                    <table class="data-table !border-t-0 min-w-[650px]">
+                        <colgroup><col style="width: 10%;"><col style="width: 15%;"><col style="width: auto;"><col style="width: 15%;"><col style="width: 10%;"></colgroup>
+                        <thead class="bg-slate-50"><tr><th>번호</th><th>분류</th><th>제목</th><th>등록일</th><th>조회수</th></tr></thead>
+                        <tbody id="table-body" class="text-[14.5px]"></tbody>
+                    </table>
+                </div>
+                <div id="pagination-container" class="flex justify-center mb-16"></div>
+            `,
+            'news': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">시민소통</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">의회소식</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">의회소식</h2>
+                <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div class="text-slate-700 font-medium">검색 결과 총 <span id="list-total" class="text-hyobin-blue font-bold text-lg">0</span>건</div>
+                    <div class="relative w-full md:w-72">
+                        <input type="text" id="search-input" placeholder="제목 검색" class="w-full border border-slate-300 rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue shadow-sm" onkeyup="if(event.key === 'Enter') handleSearch()">
+                        <button onclick="handleSearch()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition"><i data-lucide="search" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200 mb-8">
+                    <table class="data-table !border-t-0 min-w-[650px]">
+                        <colgroup><col style="width: 10%;"><col style="width: auto;"><col style="width: 15%;"><col style="width: 10%;"></colgroup>
+                        <thead class="bg-slate-50"><tr><th>번호</th><th>제목</th><th>등록일</th><th>조회수</th></tr></thead>
+                        <tbody id="table-body" class="text-[14.5px]"></tbody>
+                    </table>
+                </div>
+                <div id="pagination-container" class="flex justify-center mb-16"></div>
+            `,
+            'tour': `
+                <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                    <a href="시의회.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <a href="#" onclick="event.preventDefault(); loadContent('intro')" class="hover:text-hyobin-blue">시민소통</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                    <span class="text-hyobin-blue font-bold">견학신청</span>
+                </div>
+                <h2 class="text-3xl font-black content-title">의회 견학신청</h2>
+                <section class="mb-12">
+                    <div class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-8 mb-8">
+                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-hyobin-blue shrink-0">
+                            <i data-lucide="map" class="w-12 h-12"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-800 mb-3">살아있는 민주주의 체험, 효빈광역시의회가 함께합니다.</h3>
+                            <p class="text-slate-600 leading-relaxed text-[15px]">
+                                시의회에서는 관내 초·중·고등학생 및 일반 단체를 대상으로 의회 시설(본회의장, 상임위원회실, 홍보관 등) 견학 프로그램을 운영하고 있습니다. 시민을 위해 일하는 의회의 생생한 현장을 직접 경험해 보세요.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+                        <div class="border border-slate-200 bg-slate-50 rounded-xl p-6">
+                            <i data-lucide="clock" class="w-8 h-8 mx-auto text-hyobin-blue mb-3"></i>
+                            <h4 class="font-bold text-lg text-slate-800 mb-1">견학 일시</h4>
+                            <p class="text-sm text-slate-600">평일 10:00 ~ 16:00<br>(토·일, 공휴일 휴관)</p>
+                        </div>
+                        <div class="border border-slate-200 bg-slate-50 rounded-xl p-6">
+                            <i data-lucide="users" class="w-8 h-8 mx-auto text-hyobin-blue mb-3"></i>
+                            <h4 class="font-bold text-lg text-slate-800 mb-1">견학 인원</h4>
+                            <p class="text-sm text-slate-600">1회 10명 이상 ~ 40명 이하<br>(단체 접수 원칙)</p>
+                        </div>
+                        <div class="border border-slate-200 bg-slate-50 rounded-xl p-6">
+                            <i data-lucide="check-circle" class="w-8 h-8 mx-auto text-hyobin-blue mb-3"></i>
+                            <h4 class="font-bold text-lg text-slate-800 mb-1">견학 코스</h4>
+                            <p class="text-sm text-slate-600">홍보관 관람 → 본회의장 견학<br>→ 모의의회 체험 (약 60분)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button onclick="openTourModal()" class="inline-flex items-center justify-center bg-hyobin-blue text-white px-8 py-4 rounded-xl font-black text-lg hover:bg-blue-800 transition shadow-md group">
+                            <i data-lucide="calendar-plus" class="w-5 h-5 mr-2"></i> 견학 신청하기
+                            <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"></i>
+                        </button>
+                    </div>
+                </section>
+            `
+        };
+
+        // 데이터 소스 선택
+        function getDataSource() {
+            switch(currentTab) {
+                case 'wish': return wishData;
+                case 'notice': return noticeData;
+                case 'news': return newsData;
+                default: return [];
+            }
+        }
+
+        // 라우팅 및 콘텐츠 로드
+        function loadContent(tabId) {
+            currentTab = tabId;
+            currentPage = 1;
+
+            // 사이드바 상태 변경
+            document.querySelectorAll('.lnb-list li').forEach(li => {
+                li.classList.remove('active');
+                const icon = li.querySelector('i');
+                if(icon) { icon.classList.remove('text-hyobin-blue'); icon.classList.add('text-slate-400'); }
+            });
+            const activeLi = document.getElementById('nav-' + tabId);
+            if(activeLi) {
+                activeLi.classList.add('active');
+                const activeIcon = activeLi.querySelector('i');
+                if(activeIcon) { activeIcon.classList.remove('text-slate-400'); activeIcon.classList.add('text-hyobin-blue'); }
+            }
+
+            // 본문 렌더링
+            const contentArea = document.getElementById('dynamic-content-area');
+            contentArea.style.animation = 'none';
+            contentArea.offsetHeight; // Reflow
+            contentArea.style.animation = null;
+            contentArea.innerHTML = pageTemplates[tabId];
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // 리스트형 탭일 경우 데이터 로드
+            if (['wish', 'notice', 'news'].includes(tabId)) {
+                handleSearch();
+            }
+        }
+
+        // 검색 로직
+        window.handleSearch = function() {
+            const keyword = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '';
+            const source = getDataSource();
+
+            currentData = source.filter(item => {
+                const textToSearch = Object.values(item).join(' ').toLowerCase();
+                return textToSearch.includes(keyword);
+            });
+
+            const totalEl = document.getElementById('list-total');
+            if(totalEl) totalEl.innerText = currentData.length;
+
+            currentPage = 1;
+            renderTable();
+        };
+
+        // 테이블 렌더링
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = currentData.slice(startIndex, endIndex);
+
+            if(pageData.length === 0) {
+                let colSpan = 4;
+                if(currentTab === 'wish' || currentTab === 'notice') colSpan = 5;
+                tbody.innerHTML = `<tr><td colspan="${colSpan}" class="py-10 text-center text-slate-500">검색 결과가 없습니다.</td></tr>`;
+                document.getElementById('pagination-container').innerHTML = '';
+                return;
+            }
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                if (currentTab === 'wish') {
+                    tr.onclick = () => openCommonModal('wish', item.id);
+                    let statusClass = item.status === '답변완료' ? 'status-done' : 'status-ing';
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td><span class="status-badge ${statusClass}">${item.status}</span></td>
+                        <td class="title-col text-slate-800 hover:text-hyobin-blue transition flex items-center gap-2">
+                            <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span class="truncate max-w-[200px] md:max-w-md">${item.title}</span>
+                        </td>
+                        <td>${item.writer}</td>
+                        <td>${item.date}</td>
+                    `;
+                } else if (currentTab === 'notice') {
+                    tr.onclick = () => openCommonModal('common', item.id);
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td><span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs font-bold border border-slate-300">${item.category}</span></td>
+                        <td class="title-col text-slate-800 hover:text-hyobin-blue transition truncate max-w-xs md:max-w-md">${item.title}</td>
+                        <td>${item.date}</td>
+                        <td>${item.views}</td>
+                    `;
+                } else if (currentTab === 'news') {
+                    tr.onclick = () => openCommonModal('common', item.id);
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td class="title-col text-slate-800 hover:text-hyobin-blue transition truncate max-w-xs md:max-w-md">${item.title}</td>
+                        <td>${item.date}</td>
+                        <td>${item.views}</td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            renderPagination();
+        }
+
+        // 페이지네이션
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(currentData.length / itemsPerPage);
+            if (totalPages <= 1) return;
+
+            const nav = document.createElement('nav');
+            nav.className = "flex items-center gap-1.5";
+
+            const createBtn = (text, targetPage, isDisabled, isActive) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = text;
+                btn.disabled = isDisabled;
+                
+                if (isActive) btn.className = 'w-9 h-9 rounded bg-hyobin-dark text-white font-bold shadow-md';
+                else if (isDisabled) btn.className = 'w-9 h-9 rounded border border-slate-200 text-slate-300 bg-slate-50 cursor-not-allowed';
+                else btn.className = 'w-9 h-9 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition font-medium';
+                
+                if (!isDisabled) btn.onclick = () => { currentPage = targetPage; renderTable(); };
+                return btn;
+            };
+
+            nav.appendChild(createBtn('<i data-lucide="chevron-left" class="w-4 h-4 mx-auto"></i>', currentPage - 1, currentPage === 1, false));
+            for (let i = 1; i <= totalPages; i++) nav.appendChild(createBtn(i, i, false, i === currentPage));
+            nav.appendChild(createBtn('<i data-lucide="chevron-right" class="w-4 h-4 mx-auto"></i>', currentPage + 1, currentPage === totalPages, false));
+
+            container.appendChild(nav);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // --- 모달 제어 함수들 ---
+        
+        // 범용 모달 열기 함수 (어떤 데이터 소스를 쓸지 결정)
+        window.openCommonModal = function(type, id) {
+            const source = getDataSource();
+            const item = source.find(d => d.id === id);
+            if(!item) return;
+
+            if (type === 'wish') {
+                // 의회에 바란다 전용 모달 매핑
+                document.getElementById('wish-status').innerText = item.status;
+                document.getElementById('wish-status').className = `status-badge ${item.status === '답변완료' ? 'status-done' : 'status-ing'}`;
+                document.getElementById('wish-date').innerText = item.date;
+                document.getElementById('wish-title').innerText = item.title;
+                document.getElementById('wish-writer').innerText = `작성자: ${item.writer}`;
+                document.getElementById('wish-content').innerText = item.content;
+                
+                const answerBox = document.getElementById('wish-answer-box');
+                if (item.status === '답변완료' && item.answer) {
+                    document.getElementById('wish-answer').innerText = item.answer;
+                    answerBox.classList.remove('hidden');
+                } else {
+                    answerBox.classList.add('hidden');
+                }
+
+                openModalUI('wish-view-modal', 'wish-view-content');
+            } else {
+                // 공지사항/의회소식 범용 모달 매핑
+                const catBadge = document.getElementById('cv-category');
+                if (currentTab === 'notice') {
+                    catBadge.style.display = 'inline-block';
+                    catBadge.innerText = item.category;
+                } else {
+                    catBadge.style.display = 'none';
+                }
+                
+                document.getElementById('cv-title').innerText = item.title;
+                document.getElementById('cv-date').innerText = item.date;
+                document.getElementById('cv-views').innerText = item.views;
+                document.getElementById('cv-content').innerText = item.content;
+
+                // 조회수 증가
+                item.views++;
+                renderTable();
+
+                openModalUI('common-view-modal', 'common-view-content');
+            }
+        }
+
+        // 글쓰기 모달 열기
+        window.openWriteModal = function() {
+            document.getElementById('w-title').value = '';
+            document.getElementById('w-author').value = '';
+            document.getElementById('w-pw').value = '';
+            document.getElementById('w-content').value = '';
+            openModalUI('wish-write-modal', 'wish-write-content');
+        }
+
+        // 글쓰기 제출
+        window.submitWish = function() {
+            const title = document.getElementById('w-title').value;
+            const author = document.getElementById('w-author').value;
+            const pw = document.getElementById('w-pw').value;
+            const content = document.getElementById('w-content').value;
+
+            if(!title || !author || !pw || !content) {
+                alert('모든 필수 항목을 입력해주세요.');
+                return;
+            }
+
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
+            const newId = Math.max(...wishData.map(w => w.id)) + 1;
+
+            wishData.unshift({
+                id: newId,
+                status: "접수중",
+                title: title,
+                writer: author.substring(0, 1) + "*" + author.substring(2),
+                date: dateStr,
+                content: content,
+                answer: null
+            });
+
+            alert('민원이 정상적으로 접수되었습니다.');
+            closeModal('wish-write-modal');
+            handleSearch();
+        }
+
+        // 견학 신청 모달 열기
+        window.openTourModal = function() {
+            openModalUI('tour-apply-modal', 'tour-apply-content');
+        }
+
+        // 공통 UI 제어 함수
+        function openModalUI(modalId, contentId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(contentId);
+            modal.classList.remove('hidden');
+            setTimeout(() => content.classList.remove('scale-95', 'opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            const content = modal.querySelector('div[id$="-content"]');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+
+        // 초기 로드
+        document.addEventListener("DOMContentLoaded", () => {
+            loadContent('intro');
+        });
+    </script>
+</body>
+</html>

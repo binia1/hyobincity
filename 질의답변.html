@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>질의답변 - 효빈광역시 시민 경청</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 미리 분리해 둔 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('이미지/질의답변배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* 본문 타이틀 스타일 */
+        .content-title {
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1a365d;
+            color: #1e293b;
+        }
+
+        /* 아코디언 스타일 */
+        .faq-item {
+            border-bottom: 1px solid #e2e8f0;
+            background-color: white;
+        }
+        .faq-question {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .faq-question:hover {
+            background-color: #f8fafc;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+            background-color: #f1f5f9;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 1500px;
+        }
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .badge-category { 
+            display: inline-block; 
+            padding: 0.3rem 0.6rem; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            background-color: #e2e8f0; 
+            color: #475569; 
+            min-width: 80px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 목소리가 효빈의 역사가 됩니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민 경청
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="시장실.html">시장실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시장에게바란다.html">시장에게 바란다 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="통합자료실.html">통합자료실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="질의답변.html">질의답변 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="일일브리핑.html">일일 브리핑 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 경청</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">질의답변</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 content-title">자주 묻는 질문 (FAQ)</h2>
+                <p class="text-slate-600 leading-relaxed">
+                    효빈광역시의 주요 정책, 교통 인프라, 산하기관(컬쳐레스풀 등), 청년복지 및 문화관광 행사에 대하여 시민 여러분이 자주 문의하시는 내용을 정리했습니다.<br>
+                    찾으시는 내용이 없다면 <a href="시장에게바란다.html" class="text-hyobin-blue font-bold hover:underline">시장에게 바란다</a> 게시판을 이용해 주시기 바랍니다.
+                </p>
+            </div>
+
+            <!-- Search & Filter Area -->
+            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                <!-- 카테고리 필터 버튼 -->
+                <div class="flex flex-wrap gap-2 w-full md:w-auto" id="category-filters">
+                    <button class="filter-btn active bg-hyobin-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="all">전체</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="교통">교통/철도</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="청년/복지">청년/복지</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="문화/관광">문화/관광</button>
+                    <button class="filter-btn bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm" data-category="행정/일반">행정/일반</button>
+                </div>
+                <!-- 검색창 -->
+                <div class="relative w-full md:w-72">
+                    <input type="text" id="search-input" placeholder="질문 검색 (예: 컬쳐레스풀, 효빈 패스)" class="w-full border border-slate-300 rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue focus:ring-1 focus:ring-hyobin-blue shadow-sm" onkeyup="if(event.key === 'Enter') filterFAQs()">
+                    <button onclick="filterFAQs()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FAQ List -->
+            <div class="border-t-2 border-hyobin-dark shadow-sm rounded-b-xl overflow-hidden mb-8" id="faq-container">
+                <!-- JS 렌더링 영역 -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-10 mb-16" id="pagination-container">
+                <!-- JS로 렌더링 -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script>
+        // 효빈광역시 행정/설정 기반 FAQ 데이터 (컬쳐레스풀 포함 총 27건)
+        const faqData = [
+            {
+                id: 1,
+                category: "문화/관광",
+                q: "새로 개관한 산하 출자기관 '효빈 컬쳐레스풀'은 어떤 시설인가요?",
+                a: "효빈 컬쳐레스풀(Hyobin Culture-Respool)은 과거 장기간 방치되었던 청엽구 입동2가 유휴 부지를 리모델링하여 2023년 5월에 설립된 효빈시 산하 공공 출자기관입니다.<br><br>단순한 문화센터를 넘어, '서브컬처 기반의 창작 지원'과 '청년 심리 치유'를 목적으로 설립된 대한민국 최초의 융복합 문화·복지 시설입니다. 현재 청엽구 본부를 필두로 창전구 메이커스 센터, 북구 가족 센터 등 관내 8개 권역에 촘촘한 문화 복지 네트워크 거점을 운영하고 있습니다."
+            },
+            {
+                id: 2,
+                category: "문화/관광",
+                q: "컬쳐레스풀 본부(청엽구)의 주요 이용 시설과 혜택을 알고 싶습니다.",
+                a: "본부는 크게 창작 지원을 위한 <strong>'창작동'</strong>과 시민 휴식을 위한 <strong>'휴식동'</strong>으로 나뉩니다.<br><br>- <strong>창작동(Creator's Atelier):</strong> 전문 의상 제작실(Cos-Lab), 3D 프린팅 및 도색실, 크로마키 스튜디오가 완비되어 있습니다.<br>- <strong>휴식동(Healing Pool):</strong> 테마 대중탕(힐링 스파), 1인용 ASMR 전용 청음실, 5만 권 규모의 라운지를 운영합니다.<br><br>※ 효빈 시민 및 청년에게는 이용료 50% 감면 혜택이 주어지며, 저소득층 가구에게는 각 행정복지센터를 통해 월간 무료 이용권이 배포됩니다."
+            },
+            {
+                id: 3,
+                category: "행정/일반",
+                q: "컬쳐레스풀 본부 부지가 과거 불법 건축물(두청 팰리스)이었다고 들었는데, 어떻게 정비되었나요?",
+                a: "해당 부지는 과거(2006년경) 전직 시장 재임 시절 시민의 혈세로 기획된 불법 특혜성 유흥 시설인 '두청 팰리스'의 뼈대만 남은 채 10년 이상 도심 속 흉물로 방치되어 있었습니다.<br><br>민선 8기 박효빈 시장 취임 후, <strong>'부정부패의 공간을 시민을 위한 문화와 치유의 공간으로 역이용(Reverse)한다'</strong>는 시정 철학 아래 전면 재설계되었습니다. 특히 철거 과정에서 발견된 과거 비자금 용도의 비밀 금고 공간은, 공직 사회에 경종을 울리기 위해 허물지 않고 유리 바닥 마감을 거쳐 <strong>'부패 방지 교육관'</strong>으로 시민들에게 상시 개방하고 있습니다."
+            },
+            {
+                id: 4,
+                category: "청년/복지",
+                q: "'덕심(德心) 케어' 및 청년 심리 지원 프로그램은 어떻게 신청하나요?",
+                a: "'덕심 케어'는 은둔형 외톨이나 번아웃, 정서적 어려움을 겪는 청년들의 사회 복귀를 돕기 위해 효빈광역시사회서비스원과 연계하여 운영하는 특화 상담 프로그램입니다.<br><br>딱딱한 상담실을 벗어나 <strong>프라모델(건담 등) 조립 모임, 애니메이션 상영회, 소규모 창작 동아리</strong> 등 문화 취미 활동을 매개로 전문 상담사가 자연스러운 심리 치유를 지원합니다. 신청은 시청 홈페이지 또는 컬쳐레스풀 각 거점 센터 창구를 통해 상시 접수 가능합니다."
+            },
+            {
+                id: 5,
+                category: "청년/복지",
+                q: "컬쳐레스풀에서 운영하는 'Cos-Makers(코스프레 의상 제작)' 사업은 일자리 창출과 연계되나요?",
+                a: "네, 그렇습니다. 공공 코스프레 지원 사업인 'Cos-Makers'는 경력 단절 여성 및 은퇴한 의상 재단사들을 전문 강사로 채용하여 양질의 지역 일자리를 창출하고 있습니다.<br><br>채용된 강사분들이 청년 창작자들에게 봉제 기술을 전수하며, 특히 HAF(효빈 애니메이션 페스티벌) 행사 기간 중에는 전 세계 방문객을 위한 <strong>'긴급 의상 수선 센터'</strong>를 운영하여 국제적인 호평을 받고 있습니다."
+            },
+            {
+                id: 6,
+                category: "행정/일반",
+                q: "컬쳐레스풀 내에서 발생하는 소란이나 악성 민원인(불법 점거 등)에 대한 안전 대책이 있나요?",
+                a: "효빈 컬쳐레스풀은 시민의 안전하고 쾌적한 문화 향유를 최우선으로 합니다.<br><br>개관 초기, 과거 해당 부지의 불법 점유와 연관된 특정 부패 세력(구 두청운수 관련자 등)의 업무 방해 및 난동 시도가 있었으나, 청원경찰 및 특수 무술(유도, 레슬링 등) 유단자로 구성된 자체 전담 보안팀(일명 <strong>'트윈 타워'</strong>)의 신속한 현장 제압과 접근 금지 조치를 통해 엄정히 대처하였습니다. 시는 앞으로도 공공시설 내 불법 행위 및 혐오 난동에 대해 무관용 원칙을 적용합니다."
+            },
+            {
+                id: 7,
+                category: "행정/일반",
+                q: "효빈 컬쳐레스풀의 초대 센터장은 어떤 분이 임명되었나요?",
+                a: "컬쳐레스풀의 초대 센터장으로는 글로벌 패션 스쿨 유학파 출신이자 서브컬처 문화에 대한 높은 이해도 및 해외 서비스업 실무 경험을 보유한 <strong>강토리(Kang To-ri)</strong> 센터장이 공개 채용을 통해 임명되었습니다.<br><br>강 센터장은 탁월한 디자인 감각을 바탕으로 시설 내 전문 의상 제작실(Cos-Lab) 구축을 진두지휘하였으며, 부대 시설인 테마 카페의 시그니처 디저트(특제 치즈케이크 등)를 직접 감수하는 등 기관의 전문성과 시민 만족도를 한층 끌어올리고 있습니다."
+            },
+            {
+                id: 8,
+                category: "문화/관광",
+                q: "도시철도와 시내버스에 래핑된 글로벌 IP 캐릭터(애니메이션 등)는 정식 라이선스 계약을 맺은 것인가요? 로열티 지급으로 인한 세금 낭비 우려가 있습니다.",
+                a: "효빈광역시는 부시로드(Bushiroad), 선라이즈(Sunrise) 등 글로벌 콘텐츠 원작사와 정식으로 <strong>업무 협약(MOU) 및 라이선스 계약</strong>을 체결하여 합법적으로 IP를 활용하고 있습니다.<br><br>도입 초기에는 막대한 로열티 지급에 따른 시 예산 낭비 우려가 일부 제기되었으나, 캐릭터 래핑 버스 및 특별 테마 열차 운행, 그리고 'HAF' 개최 이후 전국적인 관광객 유입과 지역 한정 굿즈 판매 매출이 폭발적으로 증가하였습니다. 결과적으로 현재는 <strong>지급되는 로열티를 아득히 상회하는 막대한 경제적 부가가치와 세수 증대 효과</strong>를 창출하고 있습니다."
+            },
+            {
+                id: 9,
+                category: "교통",
+                q: "캐릭터 래핑 열차 및 버스의 운행 시간이나 세부 노선은 어디서 확인할 수 있나요?",
+                a: "특정 캐릭터 래핑이 적용된 도시철도 편성 및 시내버스는 일일 운행 및 정비 스케줄에 따라 유동적으로 배차됩니다.<br><br>이를 확인하시려면 매주 금요일 오후 6시, <strong>효빈교통공사 공식 홈페이지</strong> 및 <strong>'효빈 대중교통' 모바일 앱</strong> 내 [테마 차량 운행 정보] 게시판을 참조해 주시기 바랍니다. (단, 당일 차량 정비 및 도로 교통 상황에 따라 사전 예고 없이 변동될 수 있습니다.)"
+            },
+            {
+                id: 10,
+                category: "교통",
+                q: "대중교통 무제한 이용권 'H-Pass(효빈 패스)'의 발급 대상과 혜택이 궁금합니다.",
+                a: "H-Pass(효빈 패스)는 시민의 교통 기본권 보장을 위한 효빈시의 핵심 정책입니다.<br><br><strong>[지원 혜택]</strong><br>월 3만 원의 정기권으로 효빈시 관내의 모든 대중교통(도시철도 1~8호선, 빈효선 광역전철, 9개 등급 시내버스 전체)을 무제한으로 이용하실 수 있습니다.<br><br><strong>[발급 대상]</strong><br>- 청년 (만 19세 ~ 34세)<br>- 초·중·고등학생 및 대학생<br>- 국민기초생활수급자 및 차상위계층<br>- 만 65세 이상 어르신"
+            },
+            {
+                id: 11,
+                category: "교통",
+                q: "제3세대 시내버스 노선 개편에 따른 '버스 등급별 도색 지정 색상'을 알려주세요.",
+                a: "9개 권역으로 개편된 제3세대 준공영제 시내버스는 기능별로 엄격한 고유 도색(HEX 코드 기준)을 적용받습니다.<br><br>- <strong>급행:</strong> 강렬한 빨간색 (<span class='text-red-600 font-bold'>#D81C2F</span>)<br>- <strong>간선:</strong> 맑은 파란색 (<span class='text-blue-500 font-bold'>#01B7ED</span>)<br>- <strong>지선:</strong> 싱그러운 초록색 (<span class='text-green-600 font-bold'>#37B484</span>)<br>- <strong>순환:</strong> 눈에 띄는 노란색 (<span class='text-yellow-500 font-bold'>#E7D600</span>)<br>- <strong>광역:</strong> 진한 파란색 (<span class='text-blue-800 font-bold'>#485EC6</span>)<br>- <strong>좌석:</strong> 주황색 (<span class='text-orange-500 font-bold'>#FF5800</span>)<br>- <strong>마을:</strong> 보라색 (<span class='text-purple-600 font-bold'>#A664A0</span>)<br>- <strong>공항:</strong> 연두색 (<span class='text-green-500 font-bold'>#84C36E</span>)<br>- <strong>시티투어:</strong> 회청색 (<span class='text-slate-500 font-bold'>#7777AA</span>)"
+            },
+            {
+                id: 12,
+                category: "교통",
+                q: "7호선(노면전차)의 심야 연장 운행 시간과 각 지하철 호선별 색상은 어떻게 되나요?",
+                a: "시민 건의를 수용하여 2026년 4월부터 7호선(노면전차)의 막차 운행 시간이 기존 23:30에서 <strong>익일 01:00</strong>까지 연장되었습니다.<br><br>도시철도 공식 지정 색상은 다음과 같습니다.<br>- 1호선: <span style='color:#0077DD; font-weight:bold;'>#0077DD (파란색)</span><br>- 2호선: <span style='color:#00CCAA; font-weight:bold;'>#00CCAA (초록색)</span><br>- 3호선: <span style='color:#FFCC11; font-weight:bold; background:#333; padding:0 4px;'>#FFCC11 (노란색)</span><br>- 4호선: <span style='color:#FF5522; font-weight:bold;'>#FF5522 (주황색)</span><br>- 5호선: <span style='color:#EE0022; font-weight:bold;'>#EE0022 (빨간색)</span><br>- 6호선: <span style='color:#881188; font-weight:bold;'>#881188 (보라색)</span><br>- 7호선(전차): <span style='color:#FF8899; font-weight:bold;'>#FF8899 (분홍색)</span><br>- 8호선: <span style='color:#9856FF; font-weight:bold;'>#9856FF (연보라색)</span><br>- 빈효선: <span style='color:#6677CC; font-weight:bold;'>#6677CC (연청색)</span>"
+            },
+            {
+                id: 13,
+                category: "청년/복지",
+                q: "예비 공직자 육성 프로그램 '블루 버드 멘토단'의 지원 자격은 어떻게 되나요?",
+                a: "효빈시에 주민등록을 둔 대학생 중 기초생활수급자 및 차상위계층 가구의 청년을 선발하여 시청 실무를 경험하게 하는 예비 공직자 육성 정책입니다.<br><br>특히, 병환 중인 가족을 돌보는 <strong>'가족돌봄청년(영 케어러)'</strong>에게는 선발 시 최우선 가산점(10점)을 부여하며, 급여는 시 생활임금의 1.2배를 적용하여 경제적 자립을 적극 지원합니다."
+            },
+            {
+                id: 14,
+                category: "청년/복지",
+                q: "청년 주거복합공간 '효빈 하우스'의 입주 자격과 임대료는 얼마인가요?",
+                a: "효빈 하우스는 청년 주거난 해소를 위해 구도심 유휴 시설을 리모델링한 안심 주택입니다.<br>보증금은 전액 면제되며, 월 임대료는 평형에 따라 5만 원 ~ 10만 원 선입니다.<br><br>당가동 파스텔 블루 거리(L-Project) 등에서 창업 활동을 하는 '덕업일치' 청년, 그리고 가족돌봄청년에게는 우선 입주권 및 가산점을 부여합니다."
+            },
+            {
+                id: 15,
+                category: "청년/복지",
+                q: "가족돌봄청년(영 케어러)을 위한 심리 상담 및 휴식 공간이 마련되어 있나요?",
+                a: "네, 마련되어 있습니다. 효빈시는 전국 최초로 제정된 '가족돌봄청년 지원 조례'에 근거하여 돌봄 부담으로 지친 청년들의 정서적 지원을 적극 추진하고 있습니다.<br><br>각 자치구 보건소 산하 정신건강복지센터 및 청년 거점 공간, 그리고 새롭게 개관한 <strong>효빈 컬쳐레스풀</strong> 라운지에 전담 심리 상담사를 상시 배치하여 무료 상담과 자조 모임 공간을 개방하고 있습니다."
+            },
+            {
+                id: 16,
+                category: "문화/관광",
+                q: "효빈종합터미널 2층 콜라보 카페(Ani-Station) 운영 시간 및 주차 할인이 되나요?",
+                a: "효빈종합터미널 2층에 위치한 'Ani-Station(애니 스테이션)'은 매일 08:00 ~ 22:00 (연중무휴) 운영됩니다.<br><br>카페에서 캐릭터 테마 음료 및 특산물 디저트를 15,000원 이상 결제 시, 터미널 부설 주차장 2시간 무료 주차권이 제공됩니다. 주기적으로 열리는 생일 카페 등 이벤트 관람은 무료입니다."
+            },
+            {
+                id: 17,
+                category: "문화/관광",
+                q: "당가동 '파스텔 블루 거리'나 사능역 제과제빵 특화거리에서 창업 시 어떤 지원이 있나요?",
+                a: "효빈시는 <strong>'덕업일치 창업 지원센터(Start-up Otaku)'</strong> 정책을 통해 특화거리 내 굿즈 제작, 동인지 인쇄, 코스프레 의상 제작, 테마 카페 등 서브컬처 관련 업종 창업을 전폭 지원합니다.<br><br>창업 육성 자금 최대 <strong>5,000만 원</strong> 지원, 창업 후 최초 1년간 임대료 50% 보조, 시청 운영 스마트 시정 게시대(팬 광고 등) 할인 혜택이 부여됩니다."
+            },
+            {
+                id: 18,
+                category: "문화/관광",
+                q: "HAF(효빈 애니메이션 페스티벌) 자원봉사자로 참여하면 공식 봉사시간이 인정되나요?",
+                a: "네, 인정됩니다. HAF 행사의 통역, 안전 통제 등을 돕는 자원봉사자로 활동하시면 '1365 자원봉사포털'을 통해 공식 자원봉사 실적(일 최대 8시간)이 등록됩니다.<br>특히 관내 학생의 경우, 이 봉사 시간이 학교의 비교과 활동 및 교내 사회봉사 학점으로 연계 인정될 수 있도록 교육청 및 대학교와 업무 협의가 완료되어 있습니다."
+            },
+            {
+                id: 19,
+                category: "문화/관광",
+                q: "효빈시의 유명 지역 특산품(사능동 엠마 빵집 등)을 온라인으로도 구매할 수 있나요?",
+                a: "네, 가능합니다. <strong>'효빈 특산품 공식 온라인 쇼핑몰(효빈장터)'</strong>을 통해 전국 어디서든 구매하실 수 있습니다.<br>성지순례 명소로 거듭난 사능역 '엠마 빵집'의 시그니처 베이커리 세트, 효빈시 공식 마스코트 '한바다' 및 글로벌 IP 한정판 콜라보 굿즈 등을 안전하게 결제 및 택배로 받아보실 수 있습니다."
+            },
+            {
+                id: 20,
+                category: "행정/일반",
+                q: "불법 광고물 신고 및 스마트 시정 게시대(팬 광고 등) 이용 방법은 어떻게 되나요?",
+                a: "불법 현수막 및 전단지는 즉각 단속 대상입니다. 이를 대체하기 위해 시에서는 합법적인 <strong>'스마트 시정 게시대'</strong>를 대폭 확충하였습니다.<br><br>시민 누구나 소상공인 광고는 물론, <strong>'최애 캐릭터 생일 축하 광고'</strong> 등을 월 3만 원 수준의 저렴한 비용에 정식으로 게시할 수 있습니다. 신청은 '효빈시 공공시설 예약 시스템' 홈페이지에서 선착순으로 진행됩니다."
+            },
+            {
+                id: 21,
+                category: "행정/일반",
+                q: "지역화폐 '효빈페이' 가맹점 결제 수수료 지원 사업은 언제 종료되나요?",
+                a: "지역 상권 활성화를 위해, '효빈페이 가맹점 결제 수수료 전액 지원 정책'은 당초 기한을 연장하여 <strong>2026년 12월 31일</strong>까지 유지됩니다.<br>관내에서 식당, 카페(서브컬처 굿즈샵 포함) 등을 운영하시는 소상공인 여러분께서는 효빈페이 앱을 통해 온라인으로 간편하게 가맹점 등록을 하실 수 있습니다."
+            },
+            {
+                id: 22,
+                category: "행정/일반",
+                q: "당가동 '파스텔 블루 거리' 등 특화 상권에서 효빈페이 추가 할인 혜택이 있나요?",
+                a: "네, 있습니다. 안천구 당가동 '파스텔 블루 거리(L-Project)' 및 서구 '사능역 제과제빵 특화거리' 지정 가맹점에서 효빈페이로 결제하실 경우, <strong>기본 캐시백 10% 혜택에 추가로 5%의 특별 할인이 실시간 적용(총 15% 혜택)</strong>됩니다. 추가 할인 한도는 월 최대 5만 원까지입니다."
+            },
+            {
+                id: 23,
+                category: "행정/일반",
+                q: "시장님과 직접 소통하거나 건의사항을 전달하고 싶습니다. 방법이 있나요?",
+                a: "온라인 <strong>'시장에게 바란다'</strong> 게시판에 접수된 민원은 담당 부서 지정 후 7일 이내에 답변을 제공합니다.<br>또한, 매주 수요일 오후 2시 시청 1층 열린 민원실에서 박효빈 시장이 직접 시민의 고충을 청취하는 <strong>'수요 현장 소통의 날'</strong>을 운영하고 있으니 많은 참여 부탁드립니다. (사전 예약제 운영)"
+            },
+            {
+                id: 24,
+                category: "교통",
+                q: "대중교통(버스, 지하철) 이용 중 분실물이 발생했습니다. 어디로 연락해야 하나요?",
+                a: "분실물 발생 시 시설별 유실물 센터로 연락 바랍니다.<br><br><strong>[효빈교통공사 유실물 센터]</strong><br>고객 콜 센터: 079-531-4723 / 관제실: 079-531-4724<br>1,2,7호선 중앙로역: 079-204-8554 / 3,4호선 사가당역: 079-273-2322 / 1,8호선 곽산역: 079-423-3211 / 2,6호선 중수역: 079-331-4722 / 4,5호선 도변역: 079-129-3711<br><br><strong>[버스 운송조합 유실물 센터]</strong><br>서부: 079-522-2222 / 동부: 079-199-9992"
+            },
+            {
+                id: 25,
+                category: "교통",
+                q: "시내버스와 도시철도 전동차 내에서 무료 공공 와이파이(Wi-Fi)를 이용할 수 있나요?",
+                a: "네, 관내 1~8호선 도시철도 전동차 내부 및 전 등급의 시내버스(마을버스 포함)에 고속 5G 공공 와이파이(SSID: Public WiFi Free_Hyobin) 설치를 완료하였습니다. 별도의 인증 없이 단말기 와이파이 설정에서 선택하시면 즉시 접속됩니다."
+            },
+            {
+                id: 26,
+                category: "교통",
+                q: "심야 안심 귀가 버스(올빼미 버스)의 운행 시간과 노선은 어떻게 되나요?",
+                a: "자정(00:00)부터 새벽 04:00까지 운행하며, 대학가 및 구도심, 신규 주거 밀집 지역을 교차 연결하는 4개 노선(N1, N2, N3, N4)이 있습니다. 버스 내 고화질 CCTV 설치 및 '안심 귀가 스카우트' 연계를 통해 자택 앞까지 도보 동행 지원을 받으실 수 있습니다."
+            },
+            {
+                id: 27,
+                category: "문화/관광",
+                q: "HAF(효빈 애니메이션 페스티벌) 기간 중 대중교통 이용 관련 지원이 있나요?",
+                a: "HAF 행사 기간 동안 전 세계 관광객의 이동 편의를 위해 도시철도 및 주요 간선버스의 주말 배차 간격을 평일 출퇴근 수준으로 대폭 단축하여 증회 운행합니다.<br>아울러 효빈역, 효빈종합터미널 등 주요 관문과 HAF 핵심 행사장을 직통으로 잇는 임시 셔틀버스(T-Special) 라인을 무료로 투입하여 교통 혼잡을 방지하고 있습니다."
+            }
+        ];
+
+        let activeCategory = 'all';
+        let currentKeyword = '';
+        let currentPage = 1;
+        const itemsPerPage = 8; // 한 페이지당 8개 표시
+        let currentFilteredData = [];
+
+        // 카테고리 뱃지 색상 매핑
+        const categoryColors = {
+            '교통': 'bg-blue-100 text-blue-700',
+            '청년/복지': 'bg-green-100 text-green-700',
+            '문화/관광': 'bg-purple-100 text-purple-700',
+            '행정/일반': 'bg-slate-200 text-slate-700'
+        };
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            filterFAQs(); 
+            setupFilterButtons();
+        });
+
+        // 필터 버튼 이벤트 셋업
+        function setupFilterButtons() {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // 활성 상태 스타일 변경
+                    buttons.forEach(b => {
+                        b.classList.remove('bg-hyobin-dark', 'text-white');
+                        b.classList.add('bg-white', 'text-slate-600', 'border-slate-300');
+                    });
+                    e.target.classList.remove('bg-white', 'text-slate-600', 'border-slate-300');
+                    e.target.classList.add('bg-hyobin-dark', 'text-white');
+                    
+                    activeCategory = e.target.dataset.category;
+                    filterFAQs(); 
+                });
+            });
+        }
+
+        // 검색 및 필터링 적용 로직
+        function filterFAQs() {
+            currentKeyword = document.getElementById('search-input').value.toLowerCase();
+            
+            // 전체 데이터 필터링
+            currentFilteredData = faqData.filter(item => {
+                const matchCategory = activeCategory === 'all' || item.category === activeCategory;
+                const matchKeyword = item.q.toLowerCase().includes(currentKeyword) || item.a.toLowerCase().includes(currentKeyword);
+                return matchCategory && matchKeyword;
+            });
+
+            currentPage = 1; 
+            renderFAQs();
+        }
+
+        // FAQ 목록 렌더링 (페이지네이션 적용)
+        function renderFAQs() {
+            const container = document.getElementById('faq-container');
+            container.innerHTML = '';
+
+            if (currentFilteredData.length === 0) {
+                container.innerHTML = `<div class="p-10 text-center text-slate-500 font-medium bg-white">해당 조건에 맞는 질의응답이 없습니다.</div>`;
+                renderPagination();
+                return;
+            }
+
+            // 페이지 데이터 슬라이싱
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = currentFilteredData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const badgeClass = categoryColors[item.category] || 'bg-slate-200 text-slate-700';
+                
+                const faqHTML = `
+                    <div class="faq-item group">
+                        <div class="faq-question p-5 flex items-center justify-between" onclick="toggleFAQ(this)">
+                            <div class="flex items-center gap-4 flex-1 pr-4">
+                                <span class="badge-category ${badgeClass}">${item.category}</span>
+                                <h4 class="font-bold text-slate-800 text-[15.5px] leading-snug group-hover:text-hyobin-blue transition"><span class="text-hyobin-blue font-black mr-1">Q.</span> ${item.q}</h4>
+                            </div>
+                            <div class="faq-icon text-slate-400 transition-transform duration-300 flex-shrink-0">
+                                <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="faq-answer border-t border-slate-100">
+                            <div class="p-6 text-slate-700 leading-relaxed text-[15px] pl-[100px] relative">
+                                <span class="absolute left-6 top-6 text-red-500 font-black text-lg">A.</span>
+                                ${item.a}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', faqHTML);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            renderPagination(); 
+        }
+
+        // 아코디언 토글 로직
+        window.toggleFAQ = function(element) {
+            const parent = element.parentElement;
+            
+            // 기존 열려있는 아코디언 닫기 (하나만 열리게 작동)
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if(item !== parent) item.classList.remove('active');
+            });
+            
+            parent.classList.toggle('active');
+        }
+
+        // 페이지네이션 렌더링 로직
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            if (totalPages <= 1) return; // 1페이지 이하면 버튼 숨김
+
+            const nav = document.createElement('nav');
+            nav.className = "flex items-center gap-1.5";
+
+            // 버튼 생성 헬퍼
+            const createBtn = (text, targetPage, isDisabled, isActive) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = text;
+                btn.disabled = isDisabled;
+                
+                if (isActive) {
+                    btn.className = 'w-9 h-9 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else if (isDisabled) {
+                    btn.className = 'w-9 h-9 rounded border border-slate-200 text-slate-300 bg-slate-50 flex items-center justify-center cursor-not-allowed';
+                } else {
+                    btn.className = 'w-9 h-9 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition font-medium';
+                }
+                
+                if (!isDisabled) {
+                    btn.onclick = () => {
+                        currentPage = targetPage;
+                        renderFAQs();
+                        document.getElementById('faq-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    };
+                }
+                return btn;
+            };
+
+            nav.appendChild(createBtn('<i data-lucide="chevron-left" class="w-4 h-4"></i>', currentPage - 1, currentPage === 1, false));
+            for (let i = 1; i <= totalPages; i++) {
+                nav.appendChild(createBtn(i, i, false, i === currentPage));
+            }
+            nav.appendChild(createBtn('<i data-lucide="chevron-right" class="w-4 h-4"></i>', currentPage + 1, currentPage === totalPages, false));
+
+            container.appendChild(nav);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    </script>
+
+    <!-- 필수 스크립트 로드 (지침 준수) -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국민신청실명제 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+        .content-table td.center { text-align: center; }
+
+        /* 단계별 프로세스 연결선 */
+        .process-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+        }
+        @media (max-width: 768px) {
+            .process-arrow { transform: rotate(90deg); margin: 0.5rem 0; }
+        }
+
+        /* 페이징 */
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a:hover:not(.pointer-events-none) { background: #f1f5f9; color: #005bac; border-color: #cbd5e1; }
+        .pagination a.active { background: #005bac; color: #fff; border-color: #005bac; }
+
+        /* 인쇄 전용 (PDF 다운로드용 신청서 폼) 스타일 */
+        .print-form-only { display: none; }
+        @media print {
+            body.print-form-mode * { visibility: hidden; }
+            body.print-form-mode .print-form-only, 
+            body.print-form-mode .print-form-only * { visibility: visible; }
+            body.print-form-mode .print-form-only {
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                background: white;
+                display: block !important;
+                padding: 15mm;
+            }
+            .print-form-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+            .print-form-table th, .print-form-table td { border: 1px solid #000; padding: 12px; font-size: 14px; }
+            .print-form-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* 일반 웹 UI 숨김 */
+            body:not(.print-form-mode) .no-print, 
+            body:not(.print-form-mode) header, 
+            body:not(.print-form-mode) footer, 
+            body:not(.print-form-mode) aside, 
+            body:not(.print-form-mode) .sub-visual, 
+            body:not(.print-form-mode) #breadcrumb {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-4 border-b-2 border-blue-100 pb-3 flex items-center text-lg">
+                    <i data-lucide="database" class="w-5 h-5 mr-2"></i> 정책이력 및 공공데이터
+                </h4>
+                <ul class="space-y-1 text-[14px] lnb-menu">
+                    <li><a href="정책이력제안내.html">정책이력제안내</a></li>
+                    <li><a href="국민신청실명제.html" class="active">국민신청실명제</a></li>
+                    <li><a href="중점관리대상사업.html">중점관리대상사업</a></li>
+                    <li><a href="정책이력제심의위원회.html">정책이력제 심의위원회</a></li>
+                    <li><a href="공공데이터개방안내.html">공공데이터 개방안내</a></li>
+                    <li><a href="공공데이터수요조사.html">공공데이터 수요조사</a></li>
+                    <li><a href="공공데이터설문조사.html">공공데이터 설문조사</a></li>
+                    <li><a href="빅데이터통합플랫폼.html">빅데이터 통합플랫폼</a></li>
+                    <li><a href="스마트도시분석포털.html">스마트도시분석포털</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">정책이력 및 공공데이터</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">국민신청실명제</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">국민신청실명제 안내</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시가 수립하고 시행하는 주요 정책 중, 시민 여러분이 평소 알고 싶었던 사업을 직접 신청하면 심의를 거쳐 정책의 결정 및 집행 과정을 투명하게 공개하는 시민 소통 창구입니다.
+                </p>
+            </div>
+
+            <!-- 1. 안내 박스 -->
+            <section class="mb-12">
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-8 shadow-sm relative overflow-hidden">
+                    <div class="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
+                        <i data-lucide="megaphone" class="w-48 h-48"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center">
+                            <i data-lucide="users" class="w-6 h-6 mr-2 text-blue-600"></i> 시민이 직접 선택하는 투명한 효빈시정!
+                        </h3>
+                        <p class="text-slate-700 leading-relaxed text-[15px]">
+                            기관이 자체적으로 선정하던 기존의 방식에서 벗어나, 시민 수요를 직접 반영하기 위해 도입된 제도입니다.<br>
+                            효빈시의 대규모 예산이 투입되는 사업이나 다수 시민의 권익과 관련된 정책에 대해 궁금한 점이 있다면 언제든 신청해 주세요.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 신청 방법 및 상세 안내 -->
+            <section class="mb-14">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 제도 이용 안내
+                    </h3>
+                </div>
+                
+                <div class="overflow-x-auto rounded-lg shadow-sm border border-slate-200">
+                    <table class="content-table !mt-0 !mb-0 min-w-[700px]">
+                        <colgroup>
+                            <col style="width: 25%;">
+                            <col style="width: 75%;">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <td class="center font-bold bg-slate-50 text-slate-700 border-r border-slate-200">신청 자격</td>
+                                <td>효빈광역시 시정에 관심 있는 <strong>시민(국민) 누구나</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="center font-bold bg-slate-50 text-slate-700 border-r border-slate-200">신청 기간</td>
+                                <td><strong>연중 상시 접수</strong> <span class="text-sm text-slate-500">(접수된 안건은 분기별 심의위원회 개최 시 일괄 상정)</span></td>
+                            </tr>
+                            <tr>
+                                <td class="center font-bold bg-slate-50 text-slate-700 border-r border-slate-200">신청 대상</td>
+                                <td class="text-[14.5px] text-slate-700">
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li>대규모 예산(100억 원 이상)이 투입되는 주요 투자사업 및 대형 공사</li>
+                                        <li>10억 원 이상의 주요 행사 및 국제 교류 (예: 효빈 애니메이션 페스티벌 등)</li>
+                                        <li>시민 생활에 중대한 영향을 미치는 자치법규 제·개정 및 주요 정책</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="center font-bold bg-slate-50 text-slate-700 border-r border-slate-200">신청 방법</td>
+                                <td class="text-[14.5px] text-slate-700">
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><strong>온라인 접수:</strong> 본 페이지 하단 '온라인 신청하기' 버튼 이용</li>
+                                        <li><strong>이메일 접수:</strong> 작성된 신청서식을 첨부하여 <a href="mailto:hyobin_policy@hyobin.go.kr" class="text-blue-600 hover:underline font-bold">hyobin_policy@hyobin.go.kr</a> 로 전송</li>
+                                        <li><strong>우편/방문:</strong> (54321) 효빈광역시 중구 효빈로 1, 효빈시청 4층 기획조정실 정책평가팀</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="center font-bold bg-red-50 text-red-800 border-r border-slate-200">신청 제외 대상<br><span class="text-xs font-normal">(심의 제외)</span></td>
+                                <td class="text-[14px] text-slate-600">
+                                    <div class="mb-2 font-bold text-slate-800">다음 각 호의 어느 하나에 해당하는 경우 심의위원회에 상정되지 않습니다.</div>
+                                    <ul class="list-decimal list-inside space-y-1.5 ml-2">
+                                        <li>정보공개법상 비공개 사유에 해당하는 경우 (개인정보, 국가기밀 등)</li>
+                                        <li>정책실명제 취지와 다른 <strong class="text-red-600">단순 민원, 진정, 건의, 불만 표시</strong>인 경우
+                                            <div class="ml-5 text-xs text-slate-500 mt-1 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+                                                <strong class="text-blue-700">효빈광역시 적용 예시:</strong><br>
+                                                (제외사례) "3세대 준공영제 지선버스(<span class="text-[#37B484] font-bold">#37B484 에코그린</span>) 배차 간격이 너무 길어요" → <span class="text-red-500">단순 민원 처리</span><br>
+                                                (적합사례) "3세대 시내버스 준공영제 도입 및 노선 지정 도색 가이드라인 수립 정책 과정 일체 공개 요청" → <span class="text-green-600">실명제 심의 대상 적합</span>
+                                            </div>
+                                        </li>
+                                        <li>진행 중인 재판이나 수사 등에 지장을 초래할 우려가 있는 경우</li>
+                                        <li>이미 정책실명제 중점관리 대상사업으로 선정되어 공개 중인 경우</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 3. 처리 절차 (Arrow flow) -->
+            <section class="mb-14">
+                <div class="flex items-center justify-between mb-6 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 신청 및 처리 절차
+                    </h3>
+                </div>
+                
+                <div class="bg-white p-6 md:p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                    
+                    <!-- Step 1 -->
+                    <div class="flex-1 flex flex-col items-center text-center px-2">
+                        <div class="w-14 h-14 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center mb-3 text-slate-600 shadow-sm relative">
+                            <span class="absolute -top-2 -left-2 bg-slate-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                            <i data-lucide="edit" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1 text-sm">신청서 작성</h4>
+                        <p class="text-xs text-slate-500 leading-snug">시민 온라인 접수<br>또는 우편/이메일 신청</p>
+                    </div>
+
+                    <div class="process-arrow"><i data-lucide="chevrons-right" class="w-5 h-5"></i></div>
+
+                    <!-- Step 2 -->
+                    <div class="flex-1 flex flex-col items-center text-center px-2">
+                        <div class="w-14 h-14 rounded-full bg-blue-50 border border-blue-300 flex items-center justify-center mb-3 text-blue-600 shadow-sm relative">
+                            <span class="absolute -top-2 -left-2 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                            <i data-lucide="inbox" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1 text-sm">접수 및 요건검토</h4>
+                        <p class="text-xs text-slate-500 leading-snug">기획조정실 접수 후<br>신청 제외 대상 여부 검토</p>
+                    </div>
+
+                    <div class="process-arrow"><i data-lucide="chevrons-right" class="w-5 h-5"></i></div>
+
+                    <!-- Step 3 -->
+                    <div class="flex-1 flex flex-col items-center text-center px-2">
+                        <div class="w-14 h-14 rounded-full bg-indigo-50 border border-indigo-300 flex items-center justify-center mb-3 text-indigo-600 shadow-sm relative">
+                            <span class="absolute -top-2 -left-2 bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                            <i data-lucide="scale" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1 text-sm">위원회 심의</h4>
+                        <p class="text-xs text-slate-500 leading-snug">효빈시 정책이력제<br>심의위원회 상정 및 심의</p>
+                    </div>
+
+                    <div class="process-arrow"><i data-lucide="chevrons-right" class="w-5 h-5"></i></div>
+
+                    <!-- Step 4 -->
+                    <div class="flex-1 flex flex-col items-center text-center px-2">
+                        <div class="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-300 flex items-center justify-center mb-3 text-emerald-600 shadow-sm relative">
+                            <span class="absolute -top-2 -left-2 bg-emerald-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                            <i data-lucide="file-check-2" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1 text-sm">최종 확정 및 공개</h4>
+                        <p class="text-xs text-slate-500 leading-snug">대상사업 선정 후<br>홈페이지 정책이력 공개</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 리스트 뷰 영역 시작 -->
+            <div id="list-view-container">
+                <!-- 4. 국민신청실명제 접수 현황 (Pagination Board) -->
+                <section class="mb-14">
+                    <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                            <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 최근 접수 현황 및 심의 결과
+                        </h3>
+                        <span class="text-sm font-bold text-slate-500">총 <span id="total-count" class="text-blue-600">0</span>건</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-t-xl border-x border-t border-slate-200 mb-8">
+                        <table class="content-table !mt-0 !mb-0 min-w-[800px]">
+                            <colgroup>
+                                <col style="width: 8%;">
+                                <col style="width: auto;">
+                                <col style="width: 15%;">
+                                <col style="width: 15%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-slate-50">
+                                    <th>번호</th>
+                                    <th>신청 대상 사업명 (제목)</th>
+                                    <th>신청일자</th>
+                                    <th>처리 현황</th>
+                                </tr>
+                            </thead>
+                            <tbody id="application-list-body">
+                                <!-- JS를 통해 데이터가 렌더링됩니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 페이징 -->
+                    <div class="flex justify-center mb-10">
+                        <nav class="pagination flex gap-1" id="pagination-container">
+                            <!-- JS 렌더링 영역 -->
+                        </nav>
+                    </div>
+                </section>
+
+                <!-- 5. 하단 다운로드 및 액션 버튼 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800 mb-2">국민신청실명제 신청서 양식 다운로드</h4>
+                        <p class="text-sm text-slate-500">우편이나 이메일, 방문 접수를 원하시는 시민께서는 아래 양식을 다운로드하여 작성해 주시기 바랍니다.<br>* PDF 양식은 브라우저 기본 인쇄 기능을 활용해 원본 그대로 저장하실 수 있습니다.</p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <a href="#" onclick="event.preventDefault(); alert('신청서 양식(HWP)을 다운로드합니다.');" class="px-5 py-2.5 bg-white border border-blue-300 text-blue-700 font-bold rounded-lg hover:bg-blue-50 transition flex items-center shadow-sm text-sm">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> 신청서 (HWP)
+                        </a>
+                        <!-- 네이티브 인쇄 기반 PDF 폼 생성 트리거 -->
+                        <a href="#" onclick="event.preventDefault(); triggerPdfFormPrint();" class="px-5 py-2.5 bg-white border border-red-300 text-red-700 font-bold rounded-lg hover:bg-red-50 transition flex items-center shadow-sm text-sm">
+                            <i data-lucide="printer" class="w-4 h-4 mr-2"></i> 신청서 (PDF 인쇄)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <button onclick="alert('본인 인증 화면으로 이동합니다.\\n인증 후 온라인 신청 폼을 작성하실 수 있습니다.');" class="px-10 py-4 bg-[#1a365d] text-white font-black rounded-xl hover:bg-slate-800 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center text-lg">
+                        <i data-lucide="monitor-up" class="w-6 h-6 mr-2"></i> 국민신청실명제 온라인 신청하기
+                    </button>
+                </div>
+            </div>
+            <!-- 리스트 뷰 영역 끝 -->
+
+            <!-- 상세 뷰 영역 (동적 전환) -->
+            <div id="detail-view-container" class="hidden mb-14 mt-4">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-blue-600 inline-block mr-3 rounded-sm"></span> 국민신청실명제 신청 상세 내역
+                    </h3>
+                </div>
+                
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                    <!-- 상세 헤더 -->
+                    <div class="bg-slate-50 p-6 md:p-8 border-b border-slate-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <span id="detail-status" class="px-3 py-1 rounded-full text-xs font-bold border">상태</span>
+                            <span class="text-sm text-slate-500 font-bold">신청인: <span id="detail-applicant" class="text-slate-800">홍O동</span></span>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4 leading-tight" id="detail-title">제목</h3>
+                        <div class="text-sm text-slate-500">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1 -mt-0.5"></i> 신청일자: <span id="detail-date" class="font-bold text-slate-700">2026-00-00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 상세 본문 -->
+                    <div class="p-6 md:p-8">
+                        <h4 class="font-bold text-lg text-blue-900 mb-3 flex items-center">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-2 text-blue-600"></i> 시민 신청 사유 및 내용
+                        </h4>
+                        <div class="text-[15px] text-slate-700 leading-relaxed mb-10 bg-white p-5 rounded-lg border border-slate-200 shadow-inner" id="detail-content">
+                            <!-- 내용 -->
+                        </div>
+
+                        <h4 class="font-bold text-lg text-emerald-800 mb-3 flex items-center">
+                            <i data-lucide="check-circle" class="w-5 h-5 mr-2 text-emerald-600"></i> 심의 결과 및 담당 부서 답변
+                        </h4>
+                        <div class="text-[15px] text-slate-700 leading-relaxed border-l-4 border-emerald-500 pl-4 py-2 bg-emerald-50/50" id="detail-reply">
+                            <!-- 답변 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3 no-print">
+                    <button onclick="hideDetail()" class="px-8 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로 돌아가기
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 인쇄 전용 영역: 국민신청실명제 신청서 폼 (웹에선 보이지 않음) -->
+    <div class="print-form-only">
+        <h2 style="text-align:center; font-size:24px; font-weight:bold; margin-bottom:20px;">국민신청실명제 신청서</h2>
+        <table class="print-form-table">
+            <colgroup>
+                <col style="width:20%">
+                <col style="width:30%">
+                <col style="width:20%">
+                <col style="width:30%">
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>신청인 성명</th>
+                    <td></td>
+                    <th>생년월일</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>연 락 처</th>
+                    <td></td>
+                    <th>이 메 일</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>주 소</th>
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <th colspan="4" style="text-align:center; padding:15px;">신청 대상 사업 내용</th>
+                </tr>
+                <tr>
+                    <th>사 업 명</th>
+                    <td colspan="3"></td>
+                </tr>
+                <tr>
+                    <th>신청 사유<br>(구체적으로 기재)</th>
+                    <td colspan="3" style="height:300px; vertical-align:top;">
+                        <br><br><br><br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="margin-top:40px; text-align:center; font-size:16px;">
+            <p style="margin-bottom:10px;">「효빈광역시 정책실명제 운영 조례」에 따라 위와 같이 국민신청실명제를 신청합니다.</p>
+            <p style="margin-bottom:30px;">20&nbsp;&nbsp;&nbsp;&nbsp;년&nbsp;&nbsp;&nbsp;&nbsp;월&nbsp;&nbsp;&nbsp;&nbsp;일</p>
+            <p style="text-align:right; padding-right:50px;">신청인 : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(서명 또는 인)</p>
+        </div>
+        <h2 style="text-align:center; font-size:20px; font-weight:bold; margin-top:80px; margin-bottom:20px;">효 빈 광 역 시 장 귀하</h2>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 국민신청실명제 접수 데이터 (캐릭터, 효빈시 세계관, 상세내용 포함)
+        const applicationData = [
+            { 
+                id: 11, 
+                title: '제17회 HAF 글로벌 IP(BanG Dream!, 러브라이브!) 명예 홍보대사 선정 및 연계 예산 집행 과정 공개 요청', 
+                date: '2026-04-01', 
+                applicant: '이O진',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '올해 효빈 애니메이션 페스티벌(HAF)에 엄청난 글로벌 IP들이 홍보대사로 위촉되었다고 들었습니다. 팬으로서 매우 기쁘지만, 한편으로는 시 예산이 얼마나 투입되었고 어떤 과정을 거쳐 협약이 이루어졌는지 투명하게 알고 싶습니다. 관련 정책 결정 과정과 라이선스 비용 집행 내역을 공개해 주시길 신청합니다.',
+                reply: '<strong>[문화관광체육국 관광진흥과]</strong><br>신청해 주신 건은 2026년 제1차 정책이력제 심의위원회 심의 결과, 시민들의 관심도가 높고 대규모 예산이 투입되는 주요 행사안으로 인정되어 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정되었습니다.<br>현재 "제17회 HAF 마스터플랜 및 명예 홍보대사 위촉 기안" 원문과 관련 예산 집행 내역이 홈페이지 [원문정보목록] 및 [사전정보공표목록]에 투명하게 공개되어 있으니 열람하시기 바랍니다.'
+            },
+            { 
+                id: 10, 
+                title: '빈효선 광역전철(연청색 #6677CC) 탄성군 지선 연장 예비타당성 조사 참여자 실명 및 회의록 공개', 
+                date: '2026-03-25', 
+                applicant: '김O석',
+                status: '선정 (공개예정)', 
+                resultClass: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                content: '우리 탄성군 주민들의 숙원사업인 빈효선(연청색 광역전철) 지선 연장 사업이 최근 예비타당성 조사를 통과했다고 들었습니다. 해당 사업이 어떤 근거로 타당성을 인정받았는지, 그리고 조사에 참여한 연구원 및 관계자들의 실명과 회의록 공개를 요청합니다.',
+                reply: '<strong>[도시철도건설본부]</strong><br>시민님의 신청 안건은 심의위원회 심의 결과 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정되었습니다.<br>관련 예비타당성 조사 요약보고서와 회의록은 현재 보안 심사가 진행 중이며, 마스킹(개인정보 가림) 처리가 완료되는 이달 말에 정책실명제 코너를 통해 공개될 예정입니다.'
+            },
+            { 
+                id: 9, 
+                title: '도시철도 7호선(분홍색 트램 #FF8899) 잔디궤도 도입 및 트램 기종 선정 정책 결정 과정 공개', 
+                date: '2026-03-12', 
+                applicant: '박O수',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '전임 시장 시절 폐지될 뻔했던 7호선 전차가 최신식 트램으로 부활하게 되어 다행입니다. 특히 분홍색 노선 컬러에 맞춘 디자인과 전 구간 잔디 궤도 도입이 인상 깊은데, 이 트램 기종이 어떤 기준으로 선정되었고 잔디 궤도 도입에 따른 유지보수 비용 검토는 어떻게 이루어졌는지 정책 결정 과정을 알고 싶습니다.',
+                reply: '<strong>[도시철도건설본부]</strong><br>본 신청 건은 7호선 현대화 사업의 투명성 제고를 위해 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정되었습니다.<br>트램 기종 선정 평가표, 잔디 궤도 도입 타당성 조사 용역 결과 및 최종 결재 문서(효빈-도시철도-2026-0088)가 현재 [원문정보목록]에 공개되어 있습니다.'
+            },
+            { 
+                id: 8, 
+                title: '제3세대 시내버스 준공영제 권역별 지정 도색(간선 #01B7ED, 지선 #37B484 등) 가이드라인 수립 과정', 
+                date: '2026-03-05', 
+                applicant: '정O훈',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '최근 3세대 시내버스 완전 준공영제가 시행되면서 2008년에 제정된 지정 도색(효빈블루, 에코그린 등)이 더욱 엄격하게 적용된다고 들었습니다. 사모펀드를 퇴출하고 공공성을 강화하는 과정에서 이 도색 매뉴얼 재정비안을 수립한 담당자와 결재 과정이 궁금합니다.',
+                reply: '<strong>[대중교통과]</strong><br>신청하신 "제3세대 시내버스 준공영제 권역별 지정 도색 수립 과정"은 심의 결과 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정되었습니다.<br>해당 가이드라인 수립 기안문과 2008년 원본 매뉴얼 수정본이 현재 사전정보공표목록에 업로드되어 누구나 확인하실 수 있습니다.'
+            },
+            { 
+                id: 7, 
+                title: '단순 민원: 집 앞 골목길 가로등 추가 설치 요구', 
+                date: '2026-02-28', 
+                applicant: '최O미',
+                status: '미선정 (단순민원)', 
+                resultClass: 'bg-slate-100 text-slate-500 border-slate-200',
+                content: '남구 백운골목길이 너무 어둡습니다. 밤에 다닐 때 무서우니 가로등을 3개 정도 추가로 설치해 주세요. 실명제로 꼭 담당자가 책임지고 달아주길 바랍니다.',
+                reply: '<strong>[정책평가팀]</strong><br>귀하께서 신청하신 사항은 국민신청실명제 운영 기준 상 정책의 결정 과정 공개 요청이 아닌 <strong>단순 생활 민원(시설물 설치 요구)</strong>에 해당하여 심의 대상에서 &lt;미선정&gt; 되었습니다.<br>해당 민원 사항은 관할 자치구(남구청) 생활안전과로 즉시 이관하여 처리될 수 있도록 조치하였습니다.'
+            },
+            { 
+                id: 6, 
+                title: '탄성군 기러기(히버히) 생태보존구역 출입통제 및 방역 정책 수립 과정 및 참여자', 
+                date: '2026-02-20', 
+                applicant: '강O우',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '우리 시조인 기러기(히버히) 보호를 위해 탄성군 생태보존구역 출입이 통제되고 있습니다. 이 방역 정책을 결정한 회의 내용과 참여한 전문가, 그리고 AI 선제 방역 예산 집행 내역을 공개 신청합니다.',
+                reply: '<strong>[환경생태과]</strong><br>신청 건은 시민의 안전 및 생태 보호와 직결된 주요 시책으로 인정되어 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정되었습니다.<br>관련 정책이력 및 분기별 방역 결과 보고서가 모두 정보공개 포털에 공표되었습니다.'
+            },
+            { 
+                id: 5, 
+                title: '청년임대주택 "효빈드림 하우스" 2차 부지 선정 심의위원회 위원 명단 및 평가 기준표', 
+                date: '2026-02-15', 
+                applicant: '윤O진',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '최근 청엽구에 효빈드림 하우스 2차 부지가 선정되었는데, 부지 선정의 투명성을 위해 심의위원회 명단과 부지 평가 기준표를 공개해 주십시오.',
+                reply: '<strong>[청년정책과]</strong><br>부지 선정의 공정성 확보를 위하여 신청하신 안건은 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정되었습니다. 부지 선정 결과보고서 및 외부 심의위원 명단이 홈페이지에 공개되었습니다.'
+            },
+            { 
+                id: 4, 
+                title: '시장(박효빈) 업무추진비 세부 집행 내역 공개 요청', 
+                date: '2026-02-05', 
+                applicant: '임O철',
+                status: '미선정 (기공개)', 
+                resultClass: 'bg-slate-100 text-slate-500 border-slate-200',
+                content: '시장님의 투명한 시정을 응원합니다. 매달 사용하시는 업무추진비 세부 내역을 실명제 코너를 통해 정기적으로 공개해 주실 수 있나요?',
+                reply: '<strong>[정책평가팀]</strong><br>신청하신 사항은 훌륭한 제안이나, 이미 「지방자치단체 업무추진비 집행 규칙」에 따라 <strong>매월 15일 홈페이지(사전정보공표목록)에 상세히 공표되고 있는 정보(기공개)</strong>이므로 정책이력제 심의 대상에서는 &lt;미선정&gt; 되었습니다.'
+            },
+            { 
+                id: 3, 
+                title: '단순 민원: 4호선(#FF5522) 전동차 에어컨 온도 조절 요청', 
+                date: '2026-01-28', 
+                applicant: '송O현',
+                status: '미선정 (단순민원)', 
+                resultClass: 'bg-slate-100 text-slate-500 border-slate-200',
+                content: '4호선 주황색 지하철을 자주 타는데 겨울인데도 가끔 너무 덥습니다. 온도 조절 정책을 담당하는 사람 실명을 공개하고 온도 좀 내려주세요.',
+                reply: '<strong>[정책평가팀]</strong><br>해당 건은 단순 불편 신고 및 건의 사항으로 분류되어 심의 대상에서 &lt;미선정&gt; 되었습니다. 도시철도건설본부 콜센터 및 관제실로 내용을 전달하여 탄력적인 냉난방 조절이 이루어지도록 하겠습니다.'
+            },
+            { 
+                id: 2, 
+                title: '구도심(당가동) 파스텔블루 서브컬처 특화거리 조성 마스터플랜 수립 연구 용역 과정', 
+                date: '2026-01-10', 
+                applicant: '안O호',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '당가동 구도심 부활 프로젝트인 서브컬처 특화거리 마스터플랜 수립에 5천만 원 이상의 연구 용역비가 투입된 것으로 압니다. 용역 업체 선정 과정과 최종 결과 보고서를 보고 싶습니다.',
+                reply: '<strong>[도시재생과]</strong><br>구도심 재생이라는 중대 현안이므로 <strong>&lt;중점관리 대상사업&gt;</strong>으로 선정하여 마스터플랜 수립 전 과정을 투명하게 공개 완료하였습니다.'
+            },
+            { 
+                id: 1, 
+                title: '저출산 극복을 위한 효빈시 다자녀 가정 통합 지원책 예산 편성 내역', 
+                date: '2026-01-05', 
+                applicant: '서O영',
+                status: '선정 (공개완료)', 
+                resultClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                content: '새해부터 다자녀 지원 혜택이 늘어났다고 하는데, 관련 예산이 작년 대비 얼마나 증액되었고 어떤 부서들이 협업하여 정책을 만들었는지 그 이력을 공개 신청합니다.',
+                reply: '<strong>[여성가족과]</strong><br>본 건은 다수 시민의 권익 증진과 관련된 핵심 정책으로 <strong>&lt;중점관리 대상사업&gt;</strong>에 선정되었습니다. 다자녀가정 지원 통합 계획안 및 관련 부서 협조 공문 일체가 원문 공개되었습니다.'
+            }
+        ];
+
+        const itemsPerPage = 5;
+        let currentPage = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-count').innerText = applicationData.length;
+            renderList();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 목록 렌더링 함수
+        function renderList() {
+            const tbody = document.getElementById('application-list-body');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = applicationData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'list-row hover:bg-slate-50 cursor-pointer transition';
+                // 클릭 시 동적 뷰로 전환되도록 설정
+                tr.onclick = () => showDetail(item.id);
+                
+                tr.innerHTML = `
+                    <td class="center font-medium text-slate-500">${item.id}</td>
+                    <td class="font-bold text-slate-800 py-3 transition hover:text-[#005bac]">${item.title}</td>
+                    <td class="center text-sm">${item.date}</td>
+                    <td class="center">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold border ${item.resultClass}">
+                            ${item.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const totalPages = Math.ceil(applicationData.length / itemsPerPage);
+            const nav = document.getElementById('pagination-container');
+            nav.innerHTML = '';
+
+            const prevClass = currentPage === 1 ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage - 1}); return false;" class="text-slate-500 ${prevClass}" aria-label="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                nav.innerHTML += `<a href="#" onclick="changePage(${i}); return false;" class="${activeClass}">${i}</a>`;
+            }
+
+            const nextClass = currentPage === totalPages ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage + 1}); return false;" class="text-slate-500 ${nextClass}" aria-label="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></a>`;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(applicationData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderList();
+        }
+
+        // 상세 뷰 표시 로직
+        function showDetail(id) {
+            const item = applicationData.find(d => d.id === id);
+            if(!item) return;
+
+            // 리스트 숨기고 상세 보이기
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            // 데이터 바인딩
+            const statusEl = document.getElementById('detail-status');
+            statusEl.className = `px-3 py-1 rounded-full text-xs font-bold border ${item.resultClass}`;
+            statusEl.innerText = item.status;
+            
+            document.getElementById('detail-applicant').innerText = item.applicant;
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-date').innerText = item.date;
+            document.getElementById('detail-content').innerText = item.content;
+            document.getElementById('detail-reply').innerHTML = item.reply;
+
+            // 스크롤 상단으로 이동 (상세 뷰 시작점)
+            const detailContainer = document.getElementById('detail-view-container');
+            window.scrollTo({ top: detailContainer.offsetTop - 120, behavior: 'smooth' });
+        }
+
+        // 목록으로 돌아가기 로직
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            
+            // 리스트 영역 상단으로 이동
+            const listTop = document.getElementById('list-view-container').offsetTop - 120;
+            window.scrollTo({ top: listTop > 0 ? listTop : 0, behavior: 'smooth' });
+        }
+
+        // 네이티브 인쇄 기능을 활용한 PDF 폼 다운로드
+        function triggerPdfFormPrint() {
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <i data-lucide="printer" class="w-6 h-6 mb-2"></i>
+                    <strong class="text-lg">신청서 PDF 다운로드 모드</strong>
+                    <span class="text-sm font-normal mt-1 text-slate-200">브라우저 인쇄 창이 열립니다. 대상에서 'PDF로 저장'을 선택해 주세요.</span>
+                </div>
+            `;
+            toast.className = `fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-6 rounded-xl shadow-2xl text-white transition-all duration-300 z-[9999] bg-[#1a365d] flex items-center text-center no-print`;
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // body에 print-form-mode 클래스를 추가하여 일반 웹 요소는 숨기고 폼만 보이게 처리
+            document.body.classList.add('print-form-mode');
+
+            setTimeout(() => {
+                window.print();
+                
+                // 인쇄 창이 닫히거나 취소된 후 원래 상태 복구
+                setTimeout(() => {
+                    document.body.classList.remove('print-form-mode');
+                    toast.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => toast.remove(), 300);
+                }, 500);
+            }, 800);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통합자료실 - 효빈광역시 시민 경청</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 미리 분리해 둔 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Board Table Styles */
+        .board-container { border-top: 2px solid #1a365d; background: white; }
+        .board-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .board-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; font-size: 0.95rem; padding: 1.1rem 0.5rem; border-bottom: 1px solid #cbd5e1; white-space: nowrap; }
+        .board-table td { padding: 1.1rem 0.5rem; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; vertical-align: middle; }
+        .board-table td.title-col { text-align: left; padding-left: 1rem; }
+        .board-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+        .board-table tr:last-child td { border-bottom: 1px solid #cbd5e1; }
+
+        /* Badge Styles */
+        .badge-category { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        
+        /* Modal Overlay */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+
+        /* 인쇄(PDF 변환) 전용 CSS - 외부 라이브러리 간섭 없음 */
+        @media print {
+            body { background-color: white; }
+            body * { visibility: hidden; }
+            #doc-modal, #doc-modal * { visibility: visible; }
+            #doc-modal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: transparent;
+            }
+            #doc-modal-content {
+                width: 100%;
+                max-width: none;
+                box-shadow: none;
+                transform: none !important;
+                border: none;
+            }
+            .custom-scrollbar { overflow: visible !important; max-height: none !important; }
+            .print-hide { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28 print-hide">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 목소리가 효빈의 역사가 됩니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10 print-hide">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                    시민 경청
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="시장실.html">시장실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시장에게바란다.html">시장에게 바란다 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="통합자료실.html">통합자료실 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="질의답변.html">질의답변 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="일일브리핑.html">일일 브리핑 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 경청</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">통합자료실</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-black text-slate-800 mb-3">통합자료실</h2>
+                <p class="text-slate-600">효빈광역시의 시정백서, 연구보고서, 통계자료 등 각종 공식 행정 자료를 제공합니다.</p>
+            </div>
+
+            <!-- Search & Filter Area -->
+            <div class="bg-slate-100 p-5 rounded-xl border border-slate-200 shadow-inner flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                <div class="text-slate-700 font-medium">
+                    총 <span id="total-count" class="text-hyobin-blue font-bold text-lg">0</span>건의 자료가 있습니다.
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <select id="search-type" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-hyobin-blue h-10">
+                        <option value="all">전체</option>
+                        <option value="title">제목</option>
+                        <option value="dept">담당부서</option>
+                    </select>
+                    <div class="relative flex-1 md:w-64">
+                        <input type="text" id="search-keyword" placeholder="검색어를 입력하세요" class="w-full border border-slate-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-hyobin-blue h-10" onkeypress="if(event.key === 'Enter') searchBoard()">
+                        <button onclick="searchBoard()" class="absolute right-2 top-2 text-slate-400 hover:text-hyobin-blue transition">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Board List (목록형 테이블) -->
+            <div class="board-container overflow-x-auto shadow-sm">
+                <table class="board-table min-w-[700px]">
+                    <colgroup>
+                        <col style="width: 8%">
+                        <col style="width: 14%">
+                        <col style="width: auto">
+                        <col style="width: 15%">
+                        <col style="width: 8%">
+                        <col style="width: 12%">
+                        <col style="width: 8%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>분류</th>
+                            <th>제목</th>
+                            <th>담당부서</th>
+                            <th>첨부</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                        </tr>
+                    </thead>
+                    <tbody id="board-tbody" class="divide-y divide-slate-100">
+                        <!-- JS 렌더링 영역 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-8" id="pagination-container">
+                <!-- JS 렌더링 영역 -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 문서 상세 보기 모달 -->
+    <div id="doc-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[70] p-4 transition-opacity duration-300" onclick="closeDocModal()">
+        <div id="doc-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] mx-4 transform transition-all duration-300 scale-95 opacity-0 flex flex-col relative z-10" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-200 bg-slate-50 rounded-t-xl shrink-0">
+                <div class="flex justify-between items-start mb-3">
+                    <span id="modal-category" class="badge-category bg-white border-blue-200 text-blue-700">분류</span>
+                    <button onclick="closeDocModal()" class="text-slate-400 hover:text-slate-700 transition print-hide">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <h3 id="modal-title" class="font-black text-2xl text-slate-800 break-keep leading-snug">게시물 제목</h3>
+                <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-500 border-t border-slate-200 pt-4">
+                    <div><span class="font-bold text-slate-700 mr-1">담당부서:</span> <span id="modal-dept"></span></div>
+                    <div><span class="font-bold text-slate-700 mr-1">등록일:</span> <span id="modal-date"></span></div>
+                    <div><span class="font-bold text-slate-700 mr-1">조회수:</span> <span id="modal-views"></span></div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow bg-white text-[15px] text-slate-800 leading-relaxed">
+                <!-- 첨부파일 다운로드 UI (인쇄 시 숨김 처리) -->
+                <div class="bg-slate-50 border border-slate-300 rounded-lg p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print-hide">
+                    <div class="flex items-center text-slate-700 font-bold">
+                        <i data-lucide="file-text" class="w-5 h-5 mr-2 text-hyobin-blue"></i>
+                        <span id="modal-filename">첨부파일.pdf</span>
+                    </div>
+                    <!-- window.print()를 호출하여 PDF 인쇄/저장 유도 -->
+                    <button onclick="window.print()" class="bg-white border border-hyobin-blue text-hyobin-blue px-4 py-2 rounded font-bold hover:bg-blue-50 transition flex items-center w-full sm:w-auto justify-center">
+                        <i data-lucide="printer" class="w-4 h-4 mr-2"></i> 인쇄 및 PDF 저장
+                    </button>
+                </div>
+                
+                <!-- 실제 백서/자료 내용 -->
+                <div id="modal-body" class="whitespace-pre-wrap"></div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-5 border-t border-slate-200 bg-slate-50 rounded-b-xl flex justify-center shrink-0 print-hide">
+                <button onclick="closeDocModal()" class="px-8 py-2.5 bg-slate-700 text-white rounded-lg font-bold hover:bg-slate-800 transition shadow-md">목록으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer" class="print-hide"></div>
+    <div id="common-modals" class="print-hide"></div>
+
+    <!-- 인라인 스크립트 (게시판 로직 및 대규모 데이터) -->
+    <script>
+        // 효빈광역시 행정 설정 기반 백서 데이터 (총 20건, 상세 서술 포함)
+        const boardData = [
+            {
+                id: 20, category: '도시재생', title: '당가동 \'파스텔 블루 거리(L-Project)\' 도시재생뉴딜사업 완료 및 성과 보고', dept: '도시재생과', date: '2026.04.18', views: 890,
+                filename: '파스텔블루거리_조성결과보고.pdf',
+                content: `[당가동 '파스텔 블루 거리(L-Project)' 도시재생 성과 보고]
+구도심 상권 침체로 어려움을 겪던 안천구 당가동 일대를 '문화·콘텐츠 중심 특화거리'로 재탄생시킨 도시재생뉴딜사업의 공식 성과를 보고합니다.
+
+■ 사업 개요 및 추진 배경
+- 대상지: 안천구 당가동 일원 (구 명칭: 중앙상가거리)
+- 추진 배경: 지역 특산물 및 글로벌 IP 굿즈 상권의 체계적 융합 필요성 대두
+- 사업명: L-Project (파스텔 블루 상권 부활 프로젝트)
+
+■ 주요 성과 및 경제적 효과
+1. 상권 활성화 지표: 빈 점포율 35%에서 2%로 급감, 월평균 유동인구 전년 대비 420% 상승.
+2. 특화 거점 조성: 대형 굿즈샵 '오타쿠의 꿈' 등 민간 자본 150억 원 유치 성공. 특히 일본어 가능 인력 고용 창출로 글로벌 성지순례 관광객의 언어 장벽을 해소함.
+3. 보행 환경 개선: 파스텔 블루 톤의 보도블록 교체 및 야간 경관 조명 사업 완료.
+본 사업은 쇠퇴하는 원도심을 문화 콘텐츠의 힘으로 부활시킨 성공적인 모범 사례로 평가받고 있습니다.`
+            },
+            {
+                id: 19, category: '교통행정', title: '2026 효빈광역시 종합 대중교통(궤도·버스) 백서 - 제3세대 버스 개편안 및 도색 기준', dept: '대중교통과', date: '2026.04.12', views: 2405,
+                filename: '2026_대중교통백서_버스.pdf',
+                content: `[2026 효빈광역시 종합 대중교통 백서]
+과거 특정 세력의 대중교통 사유화 및 노선 단절 위기를 극복하고, 시민의 힘으로 이룩한 3세대 완전 준공영제의 확립과 체계적 노선 운영안을 공시합니다.
+
+■ 제3세대 준공영제 노선 개편의 특징
+효빈시 전역을 9개 권역으로 분할하여, 권역 간 이동을 짝수/홀수 번호로 매칭하는 양방향 순환 체계를 확립하였습니다. (예: 11번 노선의 역방향은 11-1번, 12번 노선의 역방향은 21번 등) 이를 통해 승객의 혼란을 방지하고 배차 간격을 획기적으로 단축하였습니다.
+
+■ 효빈광역시 버스 등급별 공식 도색 기준(HEX Color)
+1. 급행버스: #D81C2F (강렬한 레드, 신속성 상징)
+2. 간선버스: #01B7ED (맑은 스카이블루, 주요 간선망 상징)
+3. 지선버스: #37B484 (싱그러운 그린, 동네 구석구석을 연결)
+4. 순환버스: #E7D600 (밝은 옐로우, 도심 내 끊임없는 순환)
+5. 광역버스: #485EC6 (딥 블루, 인접 시·군과의 광역 연결)
+6. 좌석버스: #FF5800 (오렌지, 편안하고 쾌적한 장거리 이동)
+7. 마을버스: #A664A0 (퍼플, 생활 밀착형 단거리 수송)
+8. 공항버스: #84C36E (라이트 그린, 효빈공항과 도심 연결)
+9. 시티투어버스: #7777AA (회청색, 주요 명소(T1~T9) 전용 관람)`
+            },
+            {
+                id: 18, category: '청년/복지', title: '청년 주거 안정 및 일자리 창출 종합 대책 (블루 버드 멘토단 및 효빈 하우스)', dept: '청년정책담당관', date: '2026.04.10', views: 1852,
+                filename: '2026_청년정책종합대책.pdf',
+                content: `[효빈광역시 청년 종합 지원 대책]
+박효빈 시장의 "청년들의 희생을 방치하지 않겠다"는 시정 철학에 입각하여 추진 중인 핵심 청년 주거 및 고용 지원 사업의 현황을 보고합니다.
+
+■ 제3기 '블루 버드 멘토단' 운영
+- 대상: 취약계층 대학생 및 가족돌봄청년 (영 케어러 최우선 선발)
+- 내용: 시청 본청 및 산하 기관에서의 실질적 행정 실무 보조 및 정책 기획 참여
+- 처우: 생활임금의 1.2배 적용, H-Pass 무료 지원, 문화생활 특별 지원금(지역 문화행사 및 성지순례용) 별도 지급
+
+■ 청년 안심 주택 '효빈 하우스' 1호점 개관
+- 위치: 북구 고송신도시 내
+- 시설: 청년 임대 주택 150세대 및 1층 대규모 공유 라운지(스터디 카페, 굿즈 전시관 포함) 구축
+- 운영: 전담 커뮤니티 매니저 배치를 통한 입주민 네트워킹 및 취업 스터디 지원`
+            },
+            {
+                id: 17, category: '문화관광', title: '효빈종합터미널 복합문화공간 조성 및 콜라보 카페(Ani-Station) 입점 성과', dept: '관광마케팅과', date: '2026.04.05', views: 3120,
+                filename: '터미널_문화공간_조성결과.pdf',
+                content: `[효빈종합터미널 복합문화공간화 사업 성과]
+관문인 효빈종합터미널을 단순한 여객 시설을 넘어, 시의 핵심 문화(서브컬처)를 향유할 수 있는 랜드마크로 전환한 성과를 공식 보고합니다.
+
+■ 주요 입점 시설 및 성과
+1. Ani-Station (애니메이션 콜라보 카페) 직영 입점
+   - 운영 주체: 칠양여객고속(주) 직영 운영
+   - 내용: 캐릭터 테마 음료 및 특산물 디저트 판매, 지역 청년 바리스타 채용을 통한 일자리 15개 창출.
+2. 터미널 내 리듬게임 특화 오락실 'Fun City' 유치
+   - 성지급 오락실 조성을 통해 터미널 체류 시간 연장 및 연계 상권 매출 증대 효과(분기별 +18% 상승).
+3. 복합 쇼핑몰 (신세계백화점 연결) 구역 안전 강화
+   - 터미널 1, 2층 승차장 및 전시 구역에 전담 보안 관리 요원을 24시간 배치하여 과거 발생했던 불미스러운 오물 투척 등의 사태를 원천 차단함.`
+            },
+            {
+                id: 16, category: '경제/소상공인', title: '사능역 제과제빵 특화거리 육성 및 골목상권 활성화 결과 보고 (엠마 빵집 등)', dept: '소상공인지원과', date: '2026.03.29', views: 1540,
+                filename: '사능역_특화거리_성과보고서.pdf',
+                content: `[사능역 제과제빵 특화거리 육성 사업 성과]
+서구 사능동 일대의 침체된 상권을 살리기 위해 추진된 '명물 빵집 육성 및 특화거리 조성' 사업의 성공적인 결과를 안내합니다.
+
+■ 골목상권 활성화 주요 사례: 사능동 '엠마 빵집'
+- 추진 경과: 글로벌 IP 캐릭터의 상징성을 활용하여 지역 빵집과 연계한 시그니처 메뉴(엠마 베르데 팥빵 등) 개발 지원.
+- 성과: 시장님의 적극적인 홍보 및 공식 글로벌 홍보대사(성우)의 방문 이후 전국구 성지순례 명소로 급부상. 일일 평균 방문객 전년 대비 550% 증가.
+- 일자리 창출: 수요 급증에 대응하기 위해 제빵 보조 및 매장 관리 직원을 추가 채용하는 등 지역 고용에 직접적으로 기여.
+
+■ 문화 자산 보호 조치
+과거 해당 거리에서 빵집의 명물을 파괴하려던 불순 세력(효빈대학교 특정 학생 등)이 있었으나, 시민들의 자발적 방어와 시의 적극적인 법적 대응으로 해당 인원에 대한 출교 조치 및 사회적 격리를 완료, 안전한 상권 환경을 확립하였습니다.`
+            },
+            {
+                id: 15, category: '안전/치안', title: '효빈 애니메이션 페스티벌(HAF) 안전 관리 매뉴얼 및 Kuku Guard 운용 지침', dept: '시민안전실', date: '2026.03.25', views: 2890,
+                filename: '2026_HAF_안전관리_매뉴얼.pdf',
+                content: `[효빈 애니메이션 페스티벌(HAF) 공식 안전 관리 지침]
+전 세계 관람객이 운집하는 효빈의 국경일급 행사 'HAF'의 무결점 안전 관리를 위한 종합 대책을 공시합니다.
+
+■ 대규모 인파 관리 및 차량 통제
+- 야간 코스프레 퍼레이드 구역(고송대로 Zone A~D)을 4개 구역으로 분할 통제.
+- 무술 유단자 및 경호 경력자로 구성된 특별 안전요원 500명 전진 배치.
+
+■ 지능형 치안 시스템 'Kuku Guard' 도입
+1. 목적: 혐오 세력 및 정치 낭인의 행사장 난입, 특정 출연진(성우 등)에 대한 폭언·테러 행위 사전 차단.
+2. 기능: 안면 인식 AI 카메라를 행사장 전역에 설치하여, 과거 난동 전력이 있는 자(윤대환 일가 등)의 접근 시 즉각 경보 발령 및 폴리스 라인 밖 인계 조치.
+3. 과거 성과: 2025 HAF 행사 당시 글로벌 홍보대사 팬미팅 현장에 난입하려던 세력을 현장 시민들과 함께 제압하고, 관련자 전원을 시스템을 통해 영구 추방 조치 완료.`
+            },
+            {
+                id: 14, category: '문화관광', title: '글로벌 IP 연계 관광 활성화 마스터플랜 및 지명 유래 매칭 프로젝트 결과', dept: '관광마케팅과', date: '2026.03.20', views: 4120,
+                filename: '지명유래_글로벌IP_매칭현황.xlsx',
+                content: `[효빈광역시 지명 유래 및 글로벌 IP 공식 매칭 데이터베이스]
+효빈시의 역사적 지명과 글로벌 IP 캐릭터 간의 놀라운 유사성을 바탕으로 수립된 '관광 홍보대사 매칭 마스터플랜'의 전수조사 결과입니다.
+
+■ 자치구별 매칭 현황 및 유래
+- [북구] 고송동: '높은 소나무가 많다'는 유래 → 타카마츠 토모리 (BanG Dream!)
+- [북구] 사능동: '모래빛 비단(沙綾)' 산지 → 야마부키 사아야 (BanG Dream!)
+- [중구] 소조동: '작은 새가 모이는 곳' → 미나미 코토리 (러브라이브!)
+- [북구] 중수동: '과거 중간 대기소' → 나카스 카스미 (니지동)
+- [안천구] 당가동: '당나라 사신이 가능(可)을 외친 곳' → 탕 쿠쿠 (럽라 슈퍼스타)
+- [안천구] 이자동: '배나무와 아이가 많던 동네' → 사쿠라우치 리코 (럽라 선샤인)
+- [창전구] 창전/칠심/팔조동: '곡식 창고 및 일곱 민심' → 마시로, 나나미, 야시오 루이
+- [탄성군] 고해읍: '높은 바다' → 타카미 치카 (럽라 선샤인)
+- [탄성군] 도변읍: '가장자리를 건너던 나루터' → 와타나베 요우 (럽라 선샤인)
+- [탄성군] 도향면 (미로/반주/벽천/시초/춘일경 등): 관할 내 10여 개 법정리가 'MyGO!!!!!' 관련 악곡 명칭과 일치함에 따라 특화 관광 구역으로 전면 지정함.`
+            },
+            {
+                id: 13, category: '보건의료', title: '효빈광역시 보건의료 중장기 계획 및 권역별 거점 병원 육성안', dept: '보건정책과', date: '2026.03.15', views: 980,
+                filename: '효빈의료_중장기계획_2030.pdf',
+                content: `[효빈광역시 2030 권역별 의료 인프라 확충 계획]
+인구 300만 시대를 대비하여, 시민의 생명과 건강을 책임질 상급종합병원 및 지역 거점 종합병원의 확충 계획을 수립하였습니다.
+
+■ 권역별 핵심 상급종합병원
+- 남구 권역: 엽월대학교 병원 (중증 외상 및 심뇌혈관 특화)
+- 서구·북구 권역: 효빈대학교병원 (감염병 대응 거점 및 복합 진료)
+- 북구 신도시 권역: 삼선대학교 병원 (소아청소년 및 모자보건 특화)
+
+■ 자치구별 필수 종합병원 운영 현황
+- 중구: 효빈대학교 병원 분관, 복산병원
+- 남구: 효빈광역시의료원(공공의료 중추), 토장병원
+- 북구: 고송병원, 사야병원, 호빈병원, 입희병원, 청능병원
+- 안천구: 이자병원, 안천병원, 대령병원
+- 서구: 오상병원, 상원병원, 재천병원 등 8개소 밀집 구역
+- 동구: 서홍병원, 사가당병원, 덕현병원
+- 창전/청엽/탄성: 지역 균형 의료망 확충을 위한 보훈병원, 창전병원, 청엽병원 육성.`
+            },
+            {
+                id: 12, category: '정치/선거', title: '제8회 전국동시지방선거 및 제22대 국회의원 선거 효빈광역시 백서', dept: '자치행정과', date: '2026.03.10', views: 1670,
+                filename: '역대선거_효빈백서.pdf',
+                content: `[효빈광역시 역대 선거 공식 백서]
+과거 시정 파행(대중교통 사유화 및 궤도 폐쇄 시도)을 경험한 시민들이 투표를 통해 민주주의를 확립한 선거 결과를 종합 기록하였습니다.
+
+■ 제8회 전국동시지방선거 (시장 선거)
+1. 더불어민주당 박효빈: 1,643,791표 (77.90%) - 역대 최연소 및 최다 득표 당선. 문화 정책에 대한 압도적 시민 지지 확인.
+2. 무소속(보수) 오성민: 254,034표 (12.04%)
+3. 국민의힘 윤재훈: 98,231표 (4.66%) - 후보자의 자질 논란 및 TV 토론 중 사생활 비방으로 인한 방송사고 등으로 시정 혐오 여론이 투표율로 직결됨.
+
+■ 제22대 국회의원 선거 (효빈 관할)
+전체 14석 중 더불어민주당이 13석(남구 갑 고정민, 북구 갑 조상현, 서구 지선진 등)을, 진보당이 1석(탄성군 박청권)을 석권하며, 반문화·반시민 세력에 대한 강력한 정치적 심판과 진보적 정책 추진의 원동력을 확보하였습니다.`
+            },
+            {
+                id: 11, category: '시정일반', title: '2026 효빈광역시 시정백서 제1권 - 기본 현황 및 상징', dept: '행정지원국', date: '2026.03.01', views: 2011,
+                filename: '2026_효빈시정백서_기본현황.pdf',
+                content: `[효빈광역시 기본 현황]
+효빈광역시(孝彬廣域市)는 서부와 남부, 북부에 서해가 펼쳐져 있으며, 동쪽으로는 덕빈북도와 접하는 덕빈권 최대 도시입니다. 인접한 선곡군, 약산시, 천주시, 치원군, 기도군 등 광범위한 권역에 중추적 인프라를 제공하며, 박효빈 현 시장의 “시민 여러분 모두의 효빈광역시”라는 철학 아래 운영되고 있습니다.
+
+■ 일반 현황
+- 면적: 729.0㎢ / 인구: 2,967,406명 (2025년 기준) / 인구밀도: 4,070명/㎢
+- GRDP: $1,058억 (1인당 $36,341, 2022년 기준)
+- 행정구역: 8구 1군 (중구, 동구, 서구, 남구, 북구, 청엽구, 창전구, 안천구, 탄성군) 136행정동
+
+■ 공식 상징물
+- 시정 구호: 시민의 밝은 미래를 함께 열어가는 효빈
+- 시화: 해바라기 / 시목: 오동나무
+- 시조: 기러기(히버히) / 마스코트: 한바다(공무원 제복을 착용한 해양 도시 상징 캐릭터)`
+            },
+            {
+                id: 10, category: '도시계획', title: '효빈광역시 2030 도시기본계획 - 5도심 다핵구조 및 신규 택지', dept: '도시계획과', date: '2026.02.25', views: 2505,
+                filename: '효빈_5도심_공간구조도.pdf',
+                content: `[효빈광역시 5도심 다핵구조 현황]
+효빈광역시는 구릉 및 산지가 적은 해안 반도 지형의 특성을 활용하여 다핵 공간 구조를 확립하였습니다.
+
+■ 5대 핵심 도심 권역
+1. 중앙로/중보로: 역사적 원도심
+2. 고송신도시: 시청 소재 행정 중심지
+3. 평당신도시: 남구 일대의 신흥 상업 중심
+4. 청엽지구: 청엽구 중심 거점
+5. 안천지구: 안천구 부도심급 대규모 신도시
+
+■ 주요 거점 및 택지 개발
+- 부도심 및 지역 중심: 덕현, 사가당(역전지구), 과진, 중수, 항동물류지구, 도변, 이자 등
+- 신규 택지 지구: 쌍엽지구, 청덕지구, 월천박산지구, 효빈동신도시 등
+- 주요 산업단지: 효빈산단(신흥/포장), 서증공단, 평전공단, 도향산업단지 등`
+            },
+            {
+                id: 9, category: '대외교류', title: '일본 누마즈시 등 국제 문화 관광 교류 협약 체결 보고', dept: '관광마케팅과', date: '2026.02.20', views: 1845,
+                filename: '국제교류_협약서.pdf',
+                content: `[국제 성지순례 관광객 보호 및 문화 교류 협약]
+박효빈 시장은 글로벌 문화 관광 도시로서의 위상을 제고하고 국제 관광객의 안전을 도모하고자, 일본 누마즈시를 비롯한 주요 해외 지자체와 교류 협약을 체결하였습니다.
+
+■ 협약 주요 내용
+1. 상호 문화 교류 행사(페스티벌 등) 개최 시 행정력 지원 및 홍보 상호 협력.
+2. 국제 관광객을 대상으로 한 혐오 발언 및 범죄 행위 발생 시, 양국 사법 및 치안 당국 간 신속한 공조 확립. 과거 일본 내에서 난동을 부려 영구 입국 금지 조치를 받은 특정 내국인(윤 모 씨 등)의 사례를 반면교사 삼아 출입국 관리를 엄격히 적용함.
+3. 대중교통 인프라 래핑 등 문화 디자인 자산 교환 및 공동 관광 패키지 상품 개발. 효빈시는 개방적이고 안전한 글로벌 문화 행정을 선도할 것입니다.`
+            },
+            {
+                id: 8, category: '교통행정', title: '효빈 도시철도 및 광역전철망 종합 안내 (7호선 전차 보존사)', dept: '효빈교통공사', date: '2026.02.15', views: 5120,
+                filename: '효빈_광역전철_노선도.pdf',
+                content: `[효빈광역시 도시철도망 종합 안내]
+당해 시의 궤도 교통은 타 광역시를 압도하는 수송 분담률을 기록하고 있습니다. 특히 1931년 개통된 노면전차(7호선)는 과거 시장 직권으로 폐지될 위기에 처했으나, 시민단체의 강력한 저항과 회주공업 박신유 전 대표의 헌신적 매입·운영 과정을 거쳐 현재 공영화된 대한민국의 살아있는 근대 교통 역사입니다.
+
+■ 호선별 지정 색상 코드(HEX Color) 규정
+- 1호선: #0077DD (파란색)
+- 2호선: #00CCAA (초록색)
+- 3호선: #FFCC11 (노란색)
+- 4호선: #FF5522 (주황색)
+- 5호선: #EE0022 (빨간색)
+- 6호선: #881188 (보라색)
+- 7호선(노면전차): #FF8899 (분홍색)
+- 8호선: #9856FF (연보라색)
+- 빈효선광역전철: #6677CC (연청색)
+
+※ 일반철도 연계: 빈효고속선(KTX, SRT), 강빈선, 내천선(예정), 안빈선(예정) 등.`
+            },
+            {
+                id: 7, category: '역사연혁', title: '효빈광역시 관할 하위 행정구역(8구 1군) 편제 현황', dept: '자치행정과', date: '2026.02.10', views: 1340,
+                filename: '행정구역_편제표.pdf',
+                content: `[효빈광역시 하위 행정구역 구성 체계]
+효빈광역시는 1995년 도농복합형 광역시 출범 및 탄성군 통합 이후, 수차례의 과소동 통폐합 및 신규 택지 분동을 거쳐 현재의 8개 자치구, 1개 자치군, 총 136개 행정동 체제를 확립하였습니다.
+
+■ 구·군별 상세 구성
+- 중구: 11행정동 60법정동
+- 동구: 14행정동 3법정동
+- 서구: 17행정동 10법정동
+- 남구: 18행정동 12법정동
+- 북구 (시청 소재지): 24행정동 30법정동
+- 청엽구: 16행정동 15법정동
+- 창전구: 15행정동 13법정동
+- 안천구: 21행정동 40법정동
+- 탄성군: 5읍 (고해읍, 도변읍, 서목읍 등) 4면 76법정리`
+            },
+            {
+                id: 6, category: '환경/공원', title: '연안 해양 환경 보전 및 효빈천 수질 개선 종합 보고서', dept: '환경생태국', date: '2026.02.05', views: 760,
+                filename: '연안수질_개선보고.pdf',
+                content: `[효빈광역시 수자원 및 해양 환경 보전 계획]
+3면이 바다와 접해 있는 반도 지형의 특수성을 고려하여, 연안 생태계 보호 및 주요 도심 하천인 효빈천의 수질 개선 사업을 중점 추진 중입니다.
+
+■ 주요 추진 과제
+1. 효빈항 및 탄성군 연안 폐어구 수거 및 해양 쓰레기 모니터링 시스템 구축.
+2. 효빈천 생태하천 복원 사업: 야간 피크닉 인파 증가에 따른 쓰레기 무단투기 야간 단속반 운영 및 취식 제한 구역 지정.
+3. 도향면 벽천, 분음 일대 하천 수변공원 조성 사업을 통해 지역 주민 휴식 공간 확충.`
+            },
+            {
+                id: 5, category: '경제/일자리', title: '2026 지역 경제 동향 및 일자리 창출 지원 실적', dept: '일자리경제과', date: '2026.01.28', views: 1045,
+                filename: '2026_지역경제동향.pdf',
+                content: `[효빈광역시 지역 경제 및 일자리 현황]
+제조업과 서비스업(특히 문화 관광 산업)의 균형 있는 성장을 도모하는 효빈시의 거시 경제 지표를 공개합니다.
+
+■ 경제 지표
+- 지역내 총생산 (GRDP): 170조 8,391억 원 (1인당 5,843만 원)
+- 제조업체 수: 20,573개 (종사자 188,226명)
+- 고용률: 74.3% (OECD 기준, 2022년)
+
+■ 일자리 창출 성과
+대중교통 운영 공영화(효빈교통공사)를 통한 안정적 공공 일자리 창출, 그리고 HAF 등 대규모 문화 페스티벌 개최 및 글로벌 IP 상권(파스텔 블루 거리, 애니 스테이션 등) 형성에 따른 서비스업 민간 일자리(청년 1,200여 명 신규 고용)의 폭발적 증가를 이루었습니다.`
+            },
+            {
+                id: 4, category: '체육진흥', title: '관내 연고 프로 스포츠 구단 지정 및 시민 응원 지원 현황', dept: '체육진흥과', date: '2026.01.20', views: 1120,
+                filename: '프로스포츠_구단.pdf',
+                content: `[효빈광역시 연고 프로 스포츠 구단 안내]
+시민의 건전한 여가 선용과 지역 공동체 결속을 위해 다양한 종목의 프로 구단을 유치하여 지원하고 있습니다.
+
+■ 주요 지정 연고 구단
+- KBO 리그 (야구): 회주 돌핀즈
+- K리그1 (축구): 효빈 레인보우 아쿠아드
+- H리그 여자부 (핸드볼): HNB BRESPA
+- e스포츠 (게임): Hyobin AQUORS
+
+시 체육진흥과에서는 구단 홈경기 관람객 대상 대중교통 이용 시 환승 할인 제공 및 지역 상권 연계 혜택 등 체육-지역경제 선순환 시책을 지속 추진하고 있습니다.`
+            },
+            {
+                id: 3, category: '교육/대학', title: '지역 인재 육성을 위한 관내 고등교육기관 현황 조사', dept: '교육지원과', date: '2026.01.15', views: 820,
+                filename: '관내_대학_현황.pdf',
+                content: `[효빈광역시 관내 대학교 및 전문대학 인프라 현황]
+지역 산업 수요에 부응하는 인재 양성을 위해 관내 대학들과의 산학 협력을 적극 추진하고 있습니다.
+
+■ 주요 국·공립 대학교
+- 효빈대학교, 효빈과학기술원(HIST), 효빈교육대학교, 효빈해양대학교
+
+■ 주요 사립 대학교
+- 엽월대학교, 옥선대학교, 평안명대학교, 평천대학교, 동구대학교, 덕북대학교 효빈캠퍼스, 삼선대학교, 광연대학교, 청엽국제학교 대학부 등
+
+시에서는 '효빈 하우스' 청년 주거 정책과 연계하여, 관내 대학 졸업생의 지역 내 정주율을 획기적으로 높이기 위한 지원책을 확대 편성 중입니다.`
+            },
+            {
+                id: 2, category: '군사/안보', title: '효빈광역시 관내 군부대 주둔지 이전 및 유휴부지 활용 계획', dept: '도시계획과', date: '2026.01.10', views: 1350,
+                filename: '군부대_부지활용계획.pdf',
+                content: `[관내 군부대 이전 및 부지 활용 현황]
+도심 팽창에 따른 군사 시설 외곽 이전 및 유휴 부지의 시민 편의 시설 전환 사업 경과를 보고합니다.
+
+■ 각 군별 주둔지 변천
+- 육군: 과거 서구 칠천동 및 안천구 창건동에 주둔하던 제71사단은 현재 약산시 성가면으로 이전 완료.
+- 해군: 과거 포장동 지역 해군기지는 생덕동 및 탄성읍 명무리 해안으로 이전을 추진 중.
+- 공군: 민항인 효빈공항(군청동 일대)은 부지 제한 및 소음 문제로 기도군으로 이전하였으나, 공군 39비행단은 천본동 방향으로 부분 이동하여 전략적 주둔을 유지함.
+
+반환된 유휴 부지는 청년 창업 허브 및 대규모 문화 체육 공원으로 조성될 예정입니다.`
+            },
+            {
+                id: 1, category: '시민경청', title: '과거 공공기물 훼손 사태에 대한 엄정 대응 및 처벌 결과 백서', dept: '시민안전실', date: '2026.01.05', views: 3500,
+                filename: '문화자산_훼손대응보고.pdf',
+                content: `[공공 문화 자산 훼손 엄정 대응 결과 백서]
+효빈광역시는 시민의 세금으로 조성된 공공 문화 자산(글로벌 IP 래핑 버스, 터미널 전시물 등)을 훼손하려는 어떠한 시도도 용납하지 않습니다.
+
+■ 주요 사건 대응 일지
+1. 대중교통 래핑 훼손 미수 사건 (일명 'Liella! 버스 사태')
+   - 특정 인물(윤 모 씨)이 쇠파이프 등 둔기를 소지하고 시내버스 래핑을 훼손하려 하였으나, 현장 정비 직원의 신속한 무력 제압으로 무산됨.
+   - 피의자는 제압 과정 중 오물 투척을 시도하는 등 엽기적 행태를 보였으나, 현행범으로 체포되어 실형을 선고받음.
+2. 필리핀 도주 및 추방 사태
+   - 형기 복역 후 출국한 피의자가 해외 현지 갱단과 연루되어 사회적 물의를 빚은 바, 외교부 및 현지 영사관과의 협조를 통해 요주의 인물로 지정, 국제적 범죄 대응 지침을 공유함.
+
+본 백서는 시의 소중한 문화 관광 자원을 위협하는 행위에 대해 행정력이 얼마나 단호하게 대처하는지를 보여주는 공식 기록입니다.`
+            }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let filteredData = [...boardData];
+
+        // 초기화 및 렌더링
+        window.addEventListener('DOMContentLoaded', () => {
+            renderBoard();
+        });
+
+        // 검색 로직
+        function searchBoard() {
+            const type = document.getElementById('search-type').value;
+            const keyword = document.getElementById('search-keyword').value.toLowerCase();
+            
+            filteredData = boardData.filter(item => {
+                if (keyword === '') return true;
+                if (type === 'all') {
+                    return item.title.toLowerCase().includes(keyword) || 
+                           item.dept.toLowerCase().includes(keyword) || 
+                           item.category.toLowerCase().includes(keyword);
+                } else if (type === 'title') {
+                    return item.title.toLowerCase().includes(keyword);
+                } else if (type === 'dept') {
+                    return item.dept.toLowerCase().includes(keyword);
+                }
+                return true;
+            });
+            
+            currentPage = 1;
+            renderBoard();
+        }
+
+        // 게시판 렌더링 (페이지네이션 적용)
+        function renderBoard() {
+            const tbody = document.getElementById('board-tbody');
+            tbody.innerHTML = '';
+            
+            document.getElementById('total-count').innerText = filteredData.length.toLocaleString();
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentData = filteredData.slice(startIdx, endIdx);
+
+            if(currentData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-slate-500">검색 결과가 없습니다.</td></tr>`;
+            } else {
+                currentData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.onclick = () => openDocModal(item.id);
+                    
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td><span class="badge-category">${item.category}</span></td>
+                        <td class="title-col font-bold text-slate-800 hover:text-hyobin-blue transition">${item.title}</td>
+                        <td>${item.dept}</td>
+                        <td><i data-lucide="file-down" class="w-4 h-4 mx-auto text-slate-400"></i></td>
+                        <td>${item.date}</td>
+                        <td>${item.views.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            renderPagination();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이지네이션 렌더링 로직
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            container.innerHTML = '';
+
+            if (totalPages === 0) return;
+
+            // 페이지 버튼 생성 헬퍼 함수
+            const createBtn = (text, page, disabled, active) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = text;
+                btn.disabled = disabled;
+                
+                if(active) {
+                    btn.className = 'w-9 h-9 mx-1 rounded bg-hyobin-dark text-white font-bold flex items-center justify-center shadow-md';
+                } else if(disabled) {
+                    btn.className = 'w-9 h-9 mx-1 rounded border border-slate-200 text-slate-300 bg-slate-50 flex items-center justify-center cursor-not-allowed';
+                } else {
+                    btn.className = 'w-9 h-9 mx-1 rounded border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center transition';
+                }
+                
+                if(!disabled) {
+                    btn.onclick = () => { 
+                        currentPage = page; 
+                        renderBoard(); 
+                    };
+                }
+                return btn;
+            };
+
+            // 이전 버튼
+            container.appendChild(createBtn('<i data-lucide="chevron-left" class="w-4 h-4"></i>', currentPage - 1, currentPage === 1, false));
+            
+            // 숫자 버튼들
+            for(let i = 1; i <= totalPages; i++) {
+                container.appendChild(createBtn(i, i, false, i === currentPage));
+            }
+            
+            // 다음 버튼
+            container.appendChild(createBtn('<i data-lucide="chevron-right" class="w-4 h-4"></i>', currentPage + 1, currentPage === totalPages, false));
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 문서 모달 열기
+        function openDocModal(id) {
+            const item = boardData.find(d => d.id === id);
+            if(!item) return;
+
+            document.getElementById('modal-category').innerText = item.category;
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-dept').innerText = item.dept;
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-views').innerText = item.views.toLocaleString();
+            document.getElementById('modal-filename').innerText = item.filename;
+            document.getElementById('modal-body').innerText = item.content;
+
+            const modal = document.getElementById('doc-modal');
+            const content = document.getElementById('doc-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+
+            // 조회수 증가
+            item.views++;
+            renderBoard();
+        }
+
+        // 문서 모달 닫기
+        function closeDocModal() {
+            const modal = document.getElementById('doc-modal');
+            const content = document.getElementById('doc-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+    </script>
+
+    <!-- 필수 스크립트 로드 (지침 준수) -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+</body>
+</html>

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>감사결과공개 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.6rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .content-table td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+        .content-table td.center { text-align: center; }
+        
+        .list-row { cursor: pointer; transition: background-color 0.2s; }
+        .list-row:hover { background-color: #f1f5f9; }
+
+        /* 보고서용 내부 상세 테이블 */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #cbd5e1;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem;
+        }
+        .report-table th {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            color: #334155;
+            text-align: center;
+        }
+
+        /* 페이징 */
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination a:hover:not(.pointer-events-none) { background: #f1f5f9; color: #005bac; border-color: #cbd5e1; }
+        .pagination a.active { background: #005bac; color: #fff; border-color: #005bac; }
+
+        /* 검색 폼 그룹 */
+        .search-group label { display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; }
+        .search-input { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.9rem; focus:outline-none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #005bac; outline: none; box-shadow: 0 0 0 2px rgba(0,91,172,0.1); }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #detail-view-container, #detail-view-container * { visibility: visible; }
+            #detail-view-container {
+                position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; box-shadow: none; border: none;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28 no-print">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block no-print">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center text-lg">
+                    <i data-lucide="building-2" class="w-5 h-5 mr-2"></i> 행정·감사·조직
+                </h4>
+                <ul class="space-y-1.5 text-[13px] lnb-menu">
+                    <li><a href="감사결과공개.html" class="active">감사결과공개</a></li>
+                    <li><a href="계약365코너.html">계약365코너</a></li>
+                    <li><a href="업무추진비.html">업무추진비</a></li>
+                    <li><a href="업무제휴협약.html">업무제휴·협약</a></li>
+                    <li><strong class="text-slate-800 block mt-3 mb-1 px-3">조직정보</strong></li>
+                    <li><a href="정원기구현황.html">공무원 정원</a></li>
+                    <li><a href="상위직비율.html">과장급 이상 상위직 비율</a></li>
+                    <li><a href="주민수비율.html">공무원 1인당 주민 수</a></li>
+                    <li><a href="현장공무원.html">현장공무원 비율</a></li>
+                    <li><a href="인건비운영비율.html">재정규모 대비 인건비 운영 비율</a></li>
+                    <li><a href="실국본부설치수.html">실국본부 설치 수</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8 no-print">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">행정·감사·조직</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">감사결과공개</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-8 no-print">
+                <div class="inline-flex items-center px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full mb-3 border border-red-200">
+                    효빈광역시 감사위원회 소관
+                </div>
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">감사결과공개</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">
+                    효빈광역시 본청, 직속기관, 사업소, 구·군청 및 산하 공공기관에 대한 종합감사 및 특정감사 결과를 시민 여러분께 투명하게 공개하여, 신뢰받는 청렴 시정을 구현합니다. 과거의 잘못된 행정 관행을 바로잡고 엄정한 시정 조치를 실시합니다.
+                </p>
+            </div>
+
+            <!-- 목록 뷰 (List View) -->
+            <div id="list-view-container">
+                <!-- 검색 및 필터 영역 -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8 shadow-inner">
+                    <form class="space-y-4" onsubmit="event.preventDefault(); alert('검색 결과가 갱신되었습니다.');">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="search-group">
+                                <label>감사 연도</label>
+                                <select class="search-input bg-white text-slate-700">
+                                    <option value="">전체 연도</option>
+                                    <option value="2026">2026년</option>
+                                    <option value="2025">2025년</option>
+                                    <option value="2024">2024년</option>
+                                    <option value="past">과거 특별감사</option>
+                                </select>
+                            </div>
+                            <div class="search-group">
+                                <label>수감 기관</label>
+                                <select class="search-input bg-white text-slate-700">
+                                    <option value="">전체 기관</option>
+                                    <option value="본청">본청 (실/국)</option>
+                                    <option value="직속기관">직속기관/사업소</option>
+                                    <option value="공기업">공기업 (효빈도시공사 등)</option>
+                                    <option value="자치구군">8구 1군</option>
+                                </select>
+                            </div>
+                            <div class="search-group md:col-span-2">
+                                <label>감사명 검색</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="검색어를 입력하세요 (예: 보조금, 7호선, HAF, 특정감사)" class="search-input pl-10">
+                                    <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                    <button type="submit" class="absolute right-1 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-[#1a365d] text-white font-bold rounded hover:bg-slate-800 transition text-sm">
+                                        조회
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 전체 건수 표시 -->
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <span class="text-sm font-bold text-slate-700">총 <span class="text-red-600" id="total-count">0</span>건의 감사결과가 공개 중입니다.</span>
+                </div>
+
+                <!-- 감사결과 목록 테이블 -->
+                <div class="overflow-x-auto rounded-t-xl border-x border-t border-slate-200 mb-8 shadow-sm">
+                    <table class="content-table !mt-0 !mb-0 min-w-[900px]">
+                        <colgroup>
+                            <col style="width: 6%;">
+                            <col style="width: 10%;">
+                            <col style="width: 12%;">
+                            <col style="width: 15%;">
+                            <col style="width: auto;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                        </colgroup>
+                        <thead>
+                            <tr class="bg-slate-50">
+                                <th>번호</th>
+                                <th>감사년도</th>
+                                <th>감사종류</th>
+                                <th>수감기관(부서)</th>
+                                <th>감사명 (제목)</th>
+                                <th>처분건수</th>
+                                <th>공개일</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-list-body">
+                            <!-- JS를 통해 데이터가 렌더링됩니다 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이징 (Pagination) -->
+                <div class="flex justify-center mb-10">
+                    <nav class="pagination flex gap-1" id="pagination-container">
+                        <!-- JS 렌더링 영역 -->
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 상세 뷰 (Detail View - 동적 전환) -->
+            <div id="detail-view-container" class="hidden">
+                <div class="flex items-center justify-between mb-4 border-b-2 border-slate-800 pb-2 print:hidden">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center">
+                        <span class="w-2 h-6 bg-red-600 inline-block mr-3 rounded-sm"></span> 감사결과 상세 보고서
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8 print:border-none print:shadow-none">
+                    
+                    <!-- 상세 헤더 -->
+                    <div class="p-6 md:p-8 border-b border-slate-200 print:p-0 print:border-none">
+                        <div class="flex items-center justify-between mb-4 print:hidden">
+                            <span id="detail-type" class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">특정감사</span>
+                            <span class="text-sm font-medium text-slate-500">공개일: <span id="detail-date" class="font-bold text-slate-700">2026-00-00</span></span>
+                        </div>
+                        
+                        <h3 class="text-2xl md:text-3xl font-black text-slate-800 mb-6 leading-tight" id="detail-title">감사명</h3>
+                        
+                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-[14.5px] print:bg-white print:border-2 print:border-slate-800">
+                            <div class="flex"><strong class="w-28 text-slate-700 font-bold shrink-0">감사 기관</strong> <span class="text-slate-800">효빈광역시 감사위원회</span></div>
+                            <div class="flex"><strong class="w-28 text-slate-700 font-bold shrink-0">수감 기관</strong> <span id="detail-org" class="font-bold text-blue-700">수감기관명</span></div>
+                            <div class="flex"><strong class="w-28 text-slate-700 font-bold shrink-0">감사 기간</strong> <span id="detail-period" class="text-slate-800">0000.00. ~ 0000.00.</span></div>
+                            <div class="flex"><strong class="w-28 text-slate-700 font-bold shrink-0">총 처분건수</strong> <span id="detail-count" class="font-bold text-red-600">0건</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 감사결과 요약 및 상세 (HTML 바인딩) -->
+                    <div class="p-6 md:p-8 text-[14.5px] text-slate-700 leading-relaxed print:px-0 print:py-6" id="detail-content">
+                        <!-- 내용 렌더링 -->
+                    </div>
+
+                    <!-- 하단 첨부물 영역 -->
+                    <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 print:hidden" id="print-action-area">
+                        <strong class="flex items-center text-sm text-slate-700 mb-2"><i data-lucide="paperclip" class="w-4 h-4 mr-1"></i> 감사결과 원문 파일 (PDF 다운로드)</strong>
+                        <div id="detail-attachments" class="flex flex-col gap-2">
+                            <!-- 첨부파일 버튼 위치 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 액션 버튼 -->
+                <div class="flex justify-center gap-3 no-print">
+                    <button onclick="hideDetail()" class="px-8 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition flex items-center shadow-sm">
+                        <i data-lucide="list" class="w-5 h-5 mr-2"></i> 목록으로 돌아가기
+                    </button>
+                    <button onclick="triggerNativePrint()" class="px-8 py-3 bg-[#1a365d] text-white font-bold rounded-lg hover:bg-slate-800 transition flex items-center shadow-md">
+                        <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 감사결과 인쇄 / PDF 저장
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 감사결과공개 데이터 (효빈시 세계관 철저 반영, 디테일 대폭 강화)
+        const auditData = [
+            {
+                id: 12,
+                year: '2026',
+                type: '특정감사',
+                typeClass: 'bg-red-100 text-red-700 border-red-200',
+                org: '대중교통과',
+                title: '2026년 상반기 제3세대 시내버스 준공영제 운송원가 정산 및 보조금 집행 실태 특정감사',
+                count: '3건',
+                date: '2026-04-02',
+                period: '2026. 02. 15. ~ 2026. 02. 28. (10일간)',
+                content: `
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="file-search" class="w-5 h-5 mr-2 text-blue-600"></i> 1. 감사 개요</h4>
+                    <p class="mb-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        과거 일부 운수업체(사모펀드 및 구 두청운수 등)의 부당한 보조금 편취 사례를 원천 차단하고, 시민 세금으로 운영되는 제3세대 시내버스 완전 준공영제의 투명성을 확보하기 위하여, 각 버스 운수회사의 표준운송원가 산정 및 시 보조금 집행 실태 전반에 대한 특정감사를 실시함.
+                    </p>
+
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="check-circle" class="w-5 h-5 mr-2 text-emerald-600"></i> 2. 주요 지적 및 처분 사항 (총 3건: 시정 1, 주의 2)</h4>
+                    
+                    <table class="report-table">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 55%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>처분 종류</th>
+                                <th>지적 내용 및 위반 사항</th>
+                                <th>대상 기관(업체)</th>
+                                <th>재정상 조치</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center font-bold text-red-600">시정 (환수)</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">지선버스(#37B484) 지정 도색 가이드라인 위반 및 부당 청구</strong>
+                                    <p class="text-slate-600 text-sm">시에서 규정한 지선버스 공식 도색(#37B484 에코그린)을 준수하지 않고 단가를 낮추기 위해 임의 조색 도료를 사용한 차량 2대에 대하여, 도색 정비 보조금 전액을 부당 청구함.</p>
+                                </td>
+                                <td class="text-center font-medium">A운수(주)</td>
+                                <td class="text-center font-bold text-red-600">5,400,000원<br>전액 환수</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-bold text-amber-600">주의</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">광역버스(#485EC6) 부품 구매 수의계약 분할(쪼개기) 체결</strong>
+                                    <p class="text-slate-600 text-sm">광역버스 타이어 및 소모성 부품 구매 시 공개경쟁입찰(2천만 원 이상)을 회피할 목적으로, 동일 품목을 3회에 걸쳐 특정 업체와 1천9백만 원씩 수의계약으로 분할 체결함.</p>
+                                </td>
+                                <td class="text-center font-medium">B운수(주)</td>
+                                <td class="text-center text-slate-500">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-bold text-amber-600">주의</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">급행버스(#D81C2F) 정류장 무정차 통과 관리 소홀</strong>
+                                    <p class="text-slate-600 text-sm">출퇴근 시간대 정원 초과를 이유로 빈 좌석이 5석 이상 남아있음에도 임의로 무정차 통과한 사례가 민원 및 BIS 데이터로 7건 적발됨에도 페널티 부과를 누락함.</p>
+                                </td>
+                                <td class="text-center font-medium">대중교통과</td>
+                                <td class="text-center text-slate-500">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `,
+                files: [{ name: '3세대_준공영제_운송원가_특정감사결과.pdf', size: '4.2MB' }]
+            },
+            {
+                id: 11,
+                year: '2026',
+                type: '종합감사',
+                typeClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                org: '도시철도건설본부',
+                title: '도시철도 7호선(트램) 현대화 공사 안전관리 및 예산 집행 종합감사',
+                count: '4건',
+                date: '2026-03-20',
+                period: '2026. 01. 10. ~ 2026. 01. 24. (11일간)',
+                content: `
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="file-search" class="w-5 h-5 mr-2 text-blue-600"></i> 1. 감사 개요</h4>
+                    <p class="mb-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        시민의 오랜 염원인 도시철도 7호선(분홍색, #FF8899)의 무가선 저상 트램 및 친환경 잔디궤도 도입 공사와 관련하여, 대규모 예산(320억 원) 집행의 적정성과 공사 현장 주변 시민 안전 확보 체계 전반을 점검함.
+                    </p>
+                    
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="check-circle" class="w-5 h-5 mr-2 text-emerald-600"></i> 2. 주요 지적 및 처분 사항 (총 4건: 주의 3, 통보 1)</h4>
+                    <table class="report-table">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 55%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>처분 종류</th>
+                                <th>지적 내용 및 위반 사항</th>
+                                <th>대상 기관(현장)</th>
+                                <th>재정상 조치</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center font-bold text-amber-600">주의</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">잔디궤도 관수용 IoT 센서 불량률 초과 및 납품 검수 소홀</strong>
+                                    <p class="text-slate-600 text-sm">잔디궤도 온도 유지를 위한 스마트 살수용 IoT 센서 500개 납품 검수 시, 자체 표본 검사 결과 불량률이 12%(기준치 5%)를 초과했음에도 육안 검사로만 적합 승인 처리함.</p>
+                                </td>
+                                <td class="text-center font-medium">현장 감리단</td>
+                                <td class="text-center text-slate-500">전량 재시공</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-bold text-slate-600">통보</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">야간 소음 저감 대책(가설 방음벽) 미흡 (사능동 구간)</strong>
+                                    <p class="text-slate-600 text-sm">사능동~해서동 일대 주거지 밀집 구간 야간 궤도 굴착 공사 시, 소음 측정이 법적 기준(65dB)을 초과한 75dB로 기록되었으나, 임시 방음벽의 높이가 설계 기준치(3m)보다 0.5m 낮게 설치됨.</p>
+                                </td>
+                                <td class="text-center font-medium">도시철도본부</td>
+                                <td class="text-center text-slate-500">즉시 보강 설치</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `,
+                files: [{ name: '7호선_트램_공사_종합감사결과.pdf', size: '6.1MB' }]
+            },
+            {
+                id: 10,
+                year: '2026',
+                type: '특정감사',
+                typeClass: 'bg-red-100 text-red-700 border-red-200',
+                org: '문화관광체육국',
+                title: '제16회 HAF(효빈 애니메이션 페스티벌) 보조금 및 굿즈 수익금 정산 실태 감사',
+                count: '2건',
+                date: '2026-02-15',
+                period: '2025. 11. 05. ~ 2025. 11. 12. (6일간)',
+                content: `
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="file-search" class="w-5 h-5 mr-2 text-blue-600"></i> 1. 감사 개요</h4>
+                    <p class="mb-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        글로벌 메가 축제인 HAF의 급격한 예산 팽창에 따라, 행사 운영 대행사에 지급된 시 보조금 집행의 투명성과 시 공식 캐릭터(한바다 등)를 활용한 자체 굿즈 판매 수익금의 세입 조치 적정성을 중점 감사함.
+                    </p>
+                    
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="award" class="w-5 h-5 mr-2 text-blue-600"></i> 2. 수범 사례 (예산 절감 우수)</h4>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6">
+                        <strong class="text-blue-800 block mb-1">[우수] 글로벌 IP 로열티 협상 최적화를 통한 예산 15억 원 절감</strong>
+                        <p class="text-sm text-slate-700">문화관광체육국 담당자는 당초 일본 라이선스사에서 요구된 막대한 라이선스 비용 대비, 효빈도시공사의 선제적인 '단지 명칭 IP 연계(스쿨아이돌 힐스)' 사업 성과와 패키지 협상을 집요하게 이끌어내어 행사 로열티 비용 무려 15억 원을 획기적으로 절감한 공로가 인정됨.</p>
+                    </div>
+
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="check-circle" class="w-5 h-5 mr-2 text-red-600"></i> 3. 지적 사항 (총 2건: 시정 2)</h4>
+                    <table class="report-table">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 55%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>처분 종류</th>
+                                <th>지적 내용 및 위반 사항</th>
+                                <th>대상 기관(업체)</th>
+                                <th>재정상 조치</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center font-bold text-red-600">시정</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">특별 시티투어버스(#7777AA) 래핑 용역비 정산 지연</strong>
+                                    <p class="text-slate-600 text-sm">대행사가 시티투어버스 래핑 제작 업체에 대금 8,500만 원을 선지급한 후 3개월이 경과하도록 시에 보조금 정산 보고서를 제출하지 않아 예산 집행 관리에 중대한 공백을 초래함.</p>
+                                </td>
+                                <td class="text-center font-medium">C운영대행사</td>
+                                <td class="text-center font-bold text-red-600">지연배상금<br>4,250,000원 부과</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-bold text-red-600">시정</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">공식 굿즈 판매 대금 세입 조치 누락</strong>
+                                    <p class="text-slate-600 text-sm">현장 팝업스토어에서 판매된 한바다 인형 등 시 공식 캐릭터 굿즈 판매 수익금 1,200만 원을 행사 종료 30일 이내에 효빈시 세입 계좌로 입금하지 않고 대행사 자체 운영비 통장에 15일간 방치함.</p>
+                                </td>
+                                <td class="text-center font-medium">C운영대행사</td>
+                                <td class="text-center font-bold text-red-600">원금 및 이자<br>전액 즉시 세입 조치</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `,
+                files: [{ name: 'HAF_보조금_수익정산_감사결과.pdf', size: '2.8MB' }]
+            },
+            {
+                id: 9,
+                year: '2025',
+                type: '종합감사',
+                typeClass: 'bg-blue-100 text-blue-700 border-blue-200',
+                org: '탄성군',
+                title: '탄성군(생태보존구역 관리 및 도변읍 신도시 인허가) 기관 종합감사',
+                count: '5건',
+                date: '2025-12-10',
+                period: '2025. 10. 15. ~ 2025. 10. 29. (11일간)',
+                content: `
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="file-search" class="w-5 h-5 mr-2 text-blue-600"></i> 1. 감사 개요</h4>
+                    <p class="mb-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        기러기(히버히) 생태보존구역 관리 실태와 더불어, 지명 특수성(쿠로사와, 와타나베 등)으로 인해 인구가 9만 명으로 급증한 도변읍 일대 대단지 아파트 및 상업 시설 건축 인허가 과정의 적법성을 중점 점검함.
+                    </p>
+                    
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="check-circle" class="w-5 h-5 mr-2 text-emerald-600"></i> 2. 주요 지적 사항 요약</h4>
+                    <table class="report-table">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 70%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>처분 종류</th>
+                                <th>지적 내용 및 위반 사항</th>
+                                <th>재정상 조치</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center font-bold text-red-600">시정 (징계)</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">요소로 광장(빈효선 연장역 인근) 용도지역 무단 전용 묵인</strong>
+                                    <p class="text-slate-600 text-sm">도변읍 요우리 일대 생산녹지지역 내에 허가받지 않은 불법 굿즈 노점상 건물이 15동이나 난립했음에도 6개월간 단속 및 시정명령을 고의로 지연 방치함.</p>
+                                </td>
+                                <td class="text-center font-bold text-slate-500">원상 복구 및 벌금</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-bold text-amber-600">주의</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">철새도래지 AI 방역용 드론 임차 수의계약 편중</strong>
+                                    <p class="text-slate-600 text-sm">야생조류 예찰용 열화상 드론 임차 계약 시, 긴급성을 이유로 특정 업체 2곳과 연간 수의계약 한도액(2천만 원)을 회피하기 위해 4회에 걸쳐 쪼개기 계약을 체결함.</p>
+                                </td>
+                                <td class="text-center font-bold text-slate-500">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `,
+                files: [{ name: '탄성군_기관종합감사_처분요구서.pdf', size: '5.5MB' }]
+            },
+            {
+                id: 8,
+                year: '2025',
+                type: '특정감사',
+                typeClass: 'bg-red-100 text-red-700 border-red-200',
+                org: '청년정책과, 도시공사',
+                title: '효빈드림 하우스(청년임대주택) 1차 입주자 선정 공정성 및 시공 품질 특정감사',
+                count: '2건',
+                date: '2025-08-25',
+                period: '2025. 07. 05. ~ 2025. 07. 12. (6일간)',
+                content: `
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="file-search" class="w-5 h-5 mr-2 text-blue-600"></i> 1. 감사 개요</h4>
+                    <p class="mb-6 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        경쟁률 45:1을 기록한 '효빈드림 하우스 1차' 사업과 관련하여, 청약 가점 부여의 공정성과 서류 심사의 정확성, 그리고 준공 전 시공 하자를 점검함.
+                    </p>
+
+                    <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center"><i data-lucide="check-circle" class="w-5 h-5 mr-2 text-emerald-600"></i> 2. 주요 지적 사항</h4>
+                    <table class="report-table">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 70%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>처분 종류</th>
+                                <th>지적 내용 및 위반 사항</th>
+                                <th>조치 사항</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center font-bold text-red-600">시정</td>
+                                <td>
+                                    <strong class="text-slate-800 block mb-1">입주 신청자 자산 기준(차량 가액) 심사 누락에 따른 부적격자 당첨</strong>
+                                    <p class="text-slate-600 text-sm">입주자격 심사 시, 신청자 3명이 보유한 고가 차량(8,500만 원 상당의 수입 스포츠카 등 기준가액 3,683만 원 초과 차량)에 대한 전산망 조회를 업무 태만으로 누락하여 부적격자가 예비 당첨자로 선정되는 중대 오류 발생.</p>
+                                </td>
+                                <td class="text-center font-bold text-red-600">당첨 즉시<br>직권 취소</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `,
+                files: [{ name: '효빈드림하우스_공정성_특정감사결과.pdf', size: '2.1MB' }]
+            },
+            {
+                id: 3,
+                year: 'past',
+                type: '특별감사(백서)',
+                typeClass: 'bg-slate-800 text-yellow-400 border-slate-700',
+                org: '효빈시 전역',
+                title: '[과거 청산 특별백서] 2006~2007년 시정 농단 (두청운수 결탁 및 철도 말살) 진상규명 종합 결과보고',
+                count: '수십 건',
+                date: '2010-05-18',
+                period: '2008. 06. ~ 2010. 02. (진상조사위 구성 후 장기 조사)',
+                content: `
+                    <div class="bg-gradient-to-br from-slate-900 to-[#1a365d] rounded-2xl p-6 md:p-10 text-white shadow-2xl relative overflow-hidden mb-6 border-t-8 border-yellow-400">
+                        <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4">
+                            <i data-lucide="scale" class="w-64 h-64"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="inline-block px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full mb-4 shadow-sm border border-red-400 uppercase tracking-widest">
+                                효빈광역시 역사 바로세우기 특별위원회 공식 백서
+                            </div>
+                            <h4 class="text-3xl font-black mb-4 leading-tight text-yellow-400">
+                                잃어버린 10년,<br>윤대환 전 시장 체제의 시정 농단과 대중교통 사유화 범죄 진상 보고서
+                            </h4>
+                            <p class="text-[15px] text-slate-300 leading-relaxed mb-8 font-light">
+                                본 특별 백서는 2006년 단 3표 차이로 당선된 윤대환 전 시장이 재임한 1년 4개월('암흑기') 동안, 시장 일가 소유의 '두청운수' 독점 이익을 위해 자행된 무자비한 국가 철도망 고의 파괴, 비인도적 가축수송 강요, 중요 공문서 불법 소각, 타 지자체(약산시) 상수도 단수 테러 등 시정 전반에 걸친 반민주적 범죄 행위를 영구히 기록하고 단죄하기 위해 작성되었습니다.
+                            </p>
+                            
+                            <div class="space-y-6 text-sm">
+                                <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm">
+                                    <strong class="text-red-300 block mb-2 text-lg"><i data-lucide="flame" class="w-5 h-5 inline mr-1 -mt-1 text-red-400"></i> 1. 국가 철도망 고의 파괴 및 6호선 설계도 소각 (현대판 분서갱유)</strong>
+                                    <p class="text-slate-200 leading-relaxed">자신의 버스 회사(두청운수) 노선과 겹친다는 이유만으로, 공정률 98%에 달해 개통 직전이었던 1호선(#0077DD) 공사를 "안전 점검" 이라는 허위 명목으로 부당하게 강제 중단시킴. 가장 경악스러운 범죄로, 2007년 11월 10일 야간을 틈타 <strong>6호선(#881188) 설계도 원본과 수십억 원이 투입된 지질 조사 데이터를 시청 지하 소각장으로 빼돌려 전량 파쇄 및 불법 소각</strong>하여 국가 인프라 사업을 5년 이상 후퇴시킨 형사 범죄 사실이 명백히 입증됨.</p>
+                                </div>
+                                
+                                <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm">
+                                    <strong class="text-amber-300 block mb-2 text-lg"><i data-lucide="bus" class="w-5 h-5 inline mr-1 -mt-1 text-amber-400"></i> 2. 두청운수 비인도적 가축수송 강제 및 불법 요금 지도 조작</strong>
+                                    <p class="text-slate-200 leading-relaxed">경쟁 교통수단(철도)을 고의로 마비시킨 후, 두청운수 소속 45인승 버스에 <strong>최대 75명을 욱여넣는 살인적인 '가축 수송(뜨거운 엔진룸 및 타인 무릎 위 강제 착석)'을 시 차원에서 공권력으로 묵인·조장함.</strong> 특히 천주행 노선 인가 시, 지름길(52km)을 놔두고 국도(100km)로 우회한다고 지도를 고의 조작하여 허위 보고함으로써 7,000원이라는 살인적 폭리를 취하게 한 직권 남용 및 배임 행위를 적발하여 검찰에 이첩함.</p>
+                                </div>
+
+                                <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm">
+                                    <strong class="text-blue-300 block mb-2 text-lg"><i data-lucide="droplet" class="w-5 h-5 inline mr-1 -mt-1 text-blue-400"></i> 3. 빈효선 백지화 보복 및 약산시 광역 단수 테러</strong>
+                                    <p class="text-slate-200 leading-relaxed">빈효선 광역전철(#6677CC) 건립을 무산시키기 위해 공식 석상에서 인근 지자체를 '거지 촌동네'라 매도하고, 공동 행정소송에 나선 약산시에 대한 보복으로 <strong>행정 구역 경계의 광역 상수도 메인 밸브를 임의로 잠가 30시간 동안 인접 도시의 병원 수술실과 학교 전체를 마비시킨 중대 반인륜적 테러 행위</strong>의 전모를 확인.</p>
+                                </div>
+                                
+                                <div class="bg-white/10 p-5 rounded-xl border border-white/20 backdrop-blur-sm">
+                                    <strong class="text-pink-300 block mb-2 text-lg"><i data-lucide="users" class="w-5 h-5 inline mr-1 -mt-1 text-pink-400"></i> 4. 관제 데모(유령 단체) 동원 및 서브컬처 문화 말살 공작</strong>
+                                    <p class="text-slate-200 leading-relaxed">효빈전차(7호선) 전면 폐지 명분을 조작하기 위해 '선진교통시민연대'라는 유령 단체를 조직, 해당 시위자 전원이 두청운수 관리자 및 일당 용역임을 은폐하고 심지어 <strong>현수막 제작비조차 두청운수 법인카드로 결제</strong>한 사실을 압수수색으로 적발. 또한 칠양여객의 합법적인 에반게리온 래핑 버스 운행을 "격조 떨어진다"는 개인적 혐오를 이유로 강압적으로 취소시킨 직권남용을 확인.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 pt-4 border-t border-white/20 text-center text-xs text-yellow-300 font-bold bg-black/20 p-3 rounded-lg">
+                                ※ 본 백서는 효빈시의 가장 아픈 상처이자 부끄러운 역사이나, 이를 영원히 잊지 않고 다시는 불행한 행정이 반복되지 않도록 [영구 보존 기록물]로 지정되어 시민 누구나 제한 없이 다운로드 및 열람할 수 있습니다.
+                            </div>
+                        </div>
+                    </div>
+                `,
+                files: [{ name: '효빈_잃어버린10년_시정농단_특별조사백서_최종본.pdf', size: '45.8MB' }]
+            },
+            {
+                id: 2,
+                year: 'past',
+                type: '특정감사',
+                typeClass: 'bg-slate-800 text-yellow-400 border-slate-700',
+                org: '총무과, 인사과',
+                title: '[과거 청산] 2006년 부당 인사 개입 및 내부 고발자 탄압(살인미수 사주) 관련 행정 처리 특정감사',
+                count: '다수',
+                date: '2008-08-10',
+                period: '2008. 06. 10. ~ 2008. 06. 20.',
+                content: `
+                    <div class="border-l-4 border-red-500 bg-white p-6 rounded-lg shadow-sm mb-4 border border-slate-200">
+                        <strong class="text-red-700 block mb-3 text-lg"><i data-lucide="siren" class="w-5 h-5 inline mr-1 -mt-1 text-red-600"></i> [사법 처리 완료] 내부 고발 비서관 살인 청부 은폐 및 부당 해고 진상 규명</strong>
+                        <p class="text-[14.5px] text-slate-700 leading-relaxed mb-4">
+                            윤대환 전 시장 재임 당시, 시장의 광범위한 불법 비리를 언론에 폭로하려던 전 수행비서관을 <strong>조직폭력배를 사주해 시청 인근 지하주차장에서 투신으로 위장하여 잔혹하게 살해하려다 미수(갈비뼈 골절 등 중상)</strong>에 그친 충격적인 스캔들이 발생했습니다.<br>본 감사는 당시 인사과가 진실을 은폐하고 피해 비서관을 무단 결근을 이유로 부당 해고(파면) 처리한 반인권적 행정 처리 내역을 명백히 적발하기 위함입니다.
+                        </p>
+                        <div class="bg-slate-50 p-4 rounded border border-slate-200 text-[14px]">
+                            <strong class="text-blue-700 block mb-1">▶ 감사 조치 및 결과:</strong>
+                            <ul class="list-disc list-inside text-slate-600 space-y-1">
+                                <li>해당 비서관은 2007년 7월 병원 휠체어를 타고 목숨을 건 폭로 기자회견을 열어 효빈시 시정 정상화의 결정적 영웅이 됨.</li>
+                                <li>당시 부당 해고 결재 라인에 있던 공무원 전원 문책(정직 이상).</li>
+                                <li><strong>피해 비서관의 부당 해고 기록 전면 원천 삭제 및 밀린 임금 전액 소급 보상. 본인 희망에 따라 명예 퇴직 처리 완료.</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                files: [{ name: '내부고발자_부당징계_취소_감사결과.pdf', size: '1.2MB' }]
+            },
+            {
+                id: 1,
+                year: 'past',
+                type: '재무감사',
+                typeClass: 'bg-slate-800 text-yellow-400 border-slate-700',
+                org: '재무과',
+                title: '[과거 청산] 2007년 관용차 사적 이용 및 혐오 마스코트(돈불라) 예산 낭비 재무감사',
+                count: '3건',
+                date: '2008-05-15',
+                period: '2008. 04. 10. ~ 2008. 04. 15.',
+                content: `
+                    <div class="border-l-4 border-amber-500 bg-white p-6 rounded-lg shadow-sm mb-4 border border-slate-200">
+                        <strong class="text-amber-700 block mb-3 text-lg"><i data-lucide="badge-dollar-sign" class="w-5 h-5 inline mr-1 -mt-1 text-amber-600"></i> [환수 완료] 관용차 유용 및 혐오 마스코트 예산 낭비 적발</strong>
+                        <p class="text-[14.5px] text-slate-700 leading-relaxed mb-4">
+                            전임 윤대환 시장 재임 시절 벌어진 예산의 사적 유용 및 낭비 실태를 확인하여 전액 환수하기 위한 재무 감사입니다.
+                        </p>
+                        <table class="report-table w-full">
+                            <colgroup><col style="width: 25%;"><col style="width: 75%;"></colgroup>
+                            <tbody>
+                                <tr>
+                                    <th class="bg-slate-50 text-slate-700">관용차 리스비 부풀리기</th>
+                                    <td class="text-sm text-slate-600">시장 부인(개민지)의 개인 쇼핑 및 사적 모임을 위해 관용차를 무단 배차하고, 최고급 외제차 리스 비용을 이중 장부로 부풀려 시 예산 4,500만 원을 횡령한 사실 적발. <strong class="text-red-600">→ 전액 환수 추징</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-slate-50 text-slate-700">혐오 마스코트 '돈불라'</th>
+                                    <td class="text-sm text-slate-600">전 시민의 공분을 산 흉물 마스코트 '돈불라(동전 주머니를 들고 돈 내놓으라 부리를 놀리는 괴기스러운 갈매기)' 캐릭터 봉제 인형 50,000개를 수의계약으로 불법 제작하여 세금 고지서와 함께 강제 배포한 예산 낭비(약 3억 원) 적발. <strong class="text-blue-700">→ 제작 물량 전량 압수 및 시청 소각장 내 완전 소각 폐기 완료. (역사관 박제용 1개 제외)</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                files: [{ name: '전임시장_재무비리_환수조치결과.pdf', size: '1.1MB' }]
+            }
+        ];
+
+        const itemsPerPage = 8;
+        let currentPage = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('total-count').innerText = auditData.length;
+            renderList();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 목록 렌더링 함수
+        function renderList() {
+            const tbody = document.getElementById('data-list-body');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = auditData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'list-row hover:bg-slate-50 cursor-pointer transition';
+                tr.onclick = () => showDetail(item.id);
+                
+                // 백서(과거 청산) 건에 대한 특별 스타일링 적용
+                let titleClass = 'font-bold text-slate-800 hover:text-[#005bac]';
+                if (item.year === 'past') {
+                    titleClass = 'font-black text-[#1a365d] hover:text-red-700';
+                }
+
+                tr.innerHTML = `
+                    <td class="center font-medium text-slate-500">${item.id}</td>
+                    <td class="center text-sm font-bold ${item.year === 'past' ? 'text-red-600' : 'text-slate-700'}">${item.year === 'past' ? '과거 청산' : item.year}</td>
+                    <td class="center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${item.typeClass} whitespace-nowrap">
+                            ${item.type}
+                        </span>
+                    </td>
+                    <td class="center text-sm font-medium text-slate-700">${item.org}</td>
+                    <td class="${titleClass} py-4 transition text-[14px]">
+                        ${item.title}
+                    </td>
+                    <td class="center font-bold text-red-600 text-sm">${item.count}</td>
+                    <td class="center text-sm text-slate-500">${item.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const totalPages = Math.ceil(auditData.length / itemsPerPage);
+            const nav = document.getElementById('pagination-container');
+            nav.innerHTML = '';
+
+            const prevClass = currentPage === 1 ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage - 1}); return false;" class="text-slate-500 ${prevClass}" aria-label="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></a>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                nav.innerHTML += `<a href="#" onclick="changePage(${i}); return false;" class="${activeClass}">${i}</a>`;
+            }
+
+            const nextClass = currentPage === totalPages ? 'pointer-events-none opacity-40' : '';
+            nav.innerHTML += `<a href="#" onclick="changePage(${currentPage + 1}); return false;" class="text-slate-500 ${nextClass}" aria-label="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></a>`;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(auditData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderList();
+        }
+
+        // 상세 뷰 표시 로직
+        function showDetail(id) {
+            const item = auditData.find(d => d.id === id);
+            if(!item) return;
+
+            // 목록 숨기고 상세 보이기
+            document.getElementById('list-view-container').classList.add('hidden');
+            document.getElementById('detail-view-container').classList.remove('hidden');
+
+            // 데이터 바인딩
+            const typeEl = document.getElementById('detail-type');
+            typeEl.className = `px-3 py-1 rounded-full text-xs font-bold border ${item.typeClass}`;
+            typeEl.innerText = item.type;
+            
+            document.getElementById('detail-date').innerText = item.date;
+            document.getElementById('detail-title').innerText = item.title;
+            document.getElementById('detail-org').innerText = item.org;
+            document.getElementById('detail-period').innerText = item.period;
+            document.getElementById('detail-count').innerText = item.count;
+            document.getElementById('detail-content').innerHTML = item.content;
+
+            // 첨부파일 바인딩
+            const fileContainer = document.getElementById('detail-attachments');
+            fileContainer.innerHTML = '';
+            if(item.files && item.files.length > 0) {
+                item.files.forEach(file => {
+                    const btn = document.createElement('button');
+                    btn.className = 'flex justify-between items-center px-4 py-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 hover:border-red-300 transition text-sm text-left w-full max-w-md group';
+                    btn.innerHTML = `
+                        <span class="flex items-center text-red-700 font-bold truncate group-hover:text-red-800"><i data-lucide="download" class="w-4 h-4 mr-2 flex-shrink-0"></i> ${file.name}</span>
+                        <span class="text-xs text-slate-400 ml-4 whitespace-nowrap bg-slate-100 px-2 py-0.5 rounded">${file.size}</span>
+                    `;
+                    btn.onclick = () => alert(`'${file.name}' 파일을 다운로드합니다.`);
+                    fileContainer.appendChild(btn);
+                });
+            }
+
+            // 스크롤 맨 위로
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 목록으로 돌아가기
+        function hideDetail() {
+            document.getElementById('detail-view-container').classList.add('hidden');
+            document.getElementById('list-view-container').classList.remove('hidden');
+            
+            const listTop = document.getElementById('list-view-container').offsetTop - 120;
+            window.scrollTo({ top: listTop > 0 ? listTop : 0, behavior: 'smooth' });
+        }
+
+        // 네이티브 인쇄(PDF) 기능
+        function triggerNativePrint() {
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <i data-lucide="printer" class="w-6 h-6 mb-2"></i>
+                    <strong class="text-lg">감사보고서 PDF 다운로드 모드</strong>
+                    <span class="text-sm font-normal mt-1 text-slate-200">브라우저 인쇄 창이 열립니다. 대상에서 'PDF로 저장'을 선택해 주세요.</span>
+                </div>
+            `;
+            toast.className = `fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8 py-6 rounded-xl shadow-2xl text-white transition-all duration-300 z-[9999] bg-[#1a365d] flex items-center text-center no-print`;
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => toast.remove(), 300);
+                }, 500);
+            }, 800);
+        }
+    </script>
+</body>
+</html>

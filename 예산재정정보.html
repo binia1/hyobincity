@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예산·재정정보 - 효빈광역시 정보공개</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d',
+                            accent: '#01B7ED',
+                            red: '#D81C2F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to right, rgba(0, 91, 172, 0.8), rgba(30, 41, 59, 0.9)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* LNB 사이드바 커스텀 */
+        .lnb-menu li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: #475569;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .lnb-menu li a:hover {
+            background-color: #f1f5f9;
+            color: #005bac;
+        }
+        .lnb-menu li a.active {
+            color: #005bac;
+            font-weight: 700;
+            background-color: #f3f8fd;
+        }
+        .lnb-menu li a.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background-color: #005bac;
+            border-radius: 2px;
+        }
+
+        /* 섹션 타이틀 포인트 */
+        .section-title {
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 20px;
+            background-color: #005bac; /* hyobin-blue */
+            border-radius: 3px;
+        }
+
+        /* 테이블 스타일 */
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            text-align: left;
+            border-top: 2px solid #1a365d;
+        }
+        .content-table th {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .content-table td {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            color: #475569;
+            vertical-align: middle;
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+        .content-table td.center {
+            text-align: center;
+        }
+        .content-table td.right {
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        /* 파일 다운로드 버튼 */
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .btn-download.hwp {
+            background-color: #eff6ff; /* blue-50 */
+            color: #1d4ed8; /* blue-700 */
+            border-color: #bfdbfe; /* blue-200 */
+        }
+        .btn-download.hwp:hover {
+            background-color: #dbeafe; /* blue-100 */
+        }
+        .btn-download.pdf {
+            background-color: #fef2f2; /* red-50 */
+            color: #b91c1c; /* red-700 */
+            border-color: #fecaca; /* red-200 */
+        }
+        .btn-download.pdf:hover {
+            background-color: #fee2e2; /* red-100 */
+        }
+
+        /* 대시보드 카드 */
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+        .stat-card.budget::after { background-color: #3b82f6; }
+        .stat-card.independence::after { background-color: #10b981; }
+        .stat-card.debt::after { background-color: #8b5cf6; }
+
+        /* 모달 및 애니메이션 */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-backdrop { animation: fadeIn 0.3s ease-out forwards; }
+        .modal-content { animation: slideUp 0.3s ease-out forwards; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* 인쇄 전용 스타일 */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print, header, footer, aside, .sub-visual, #breadcrumb, .action-buttons { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 (타이틀 배너) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-3">정보공개</h1>
+            <p class="text-lg md:text-xl font-light opacity-90 drop-shadow">시민의 알 권리를 보장하고 시정의 투명성을 확보합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-12 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sticky top-28">
+                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2 flex items-center">
+                    <i data-lucide="folder-open" class="w-5 h-5 mr-2"></i> 행정/원문 정보공개
+                </h4>
+                <ul class="space-y-1.5 text-[13px] lnb-menu">
+                    <li><a href="행정정보공개.html">정보공개제도안내</a></li>
+                    <li><a href="정보공개청구현황.html">정보공개청구현황</a></li>
+                    <li><a href="정보공개청구.html">정보공개청구</a></li>
+                    <li><a href="비공개세부기준.html">비공개세부기준</a></li>
+                    <li><a href="정보공개수수료.html">정보공개수수료</a></li>
+                    <li><a href="불복처리절차.html">불복처리절차</a></li>
+                    <li><a href="관련법령및서식.html">관련법령 및 서식</a></li>
+                    <li><a href="정보공개편람.html">정보공개편람</a></li>
+                    <li><a href="예산재정정보.html" class="active">예산·재정정보</a></li>
+                    <li><a href="사전정보공표목록.html">사전정보공표목록</a></li>
+                    <li><a href="즐겨찾는사전정보.html">즐겨찾는사전정보</a></li>
+                    <li><a href="원문정보공개안내.html">원문정보공개안내</a></li>
+                    <li><a href="원문정보목록.html">원문정보목록</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 relative" id="print-area">
+            
+            <!-- Breadcrumb -->
+            <div id="breadcrumb" class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <a href="#" class="hover:text-slate-700">정보공개</a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-slate-600">행정/원문 정보공개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 text-slate-300"></i>
+                <span class="text-hyobin-blue font-bold">예산·재정정보</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-800 mb-3 tracking-tight">예산·재정정보 (재정공시)</h2>
+                <p class="text-slate-600 leading-relaxed text-[15px]">시민의 피 같은 세금이 어디에, 어떻게 쓰이는지 1원까지 투명하게 공개합니다. 효빈광역시는 건전하고 효율적인 재정 운영을 약속합니다.</p>
+            </div>
+
+            <!-- 1. 2026년 효빈광역시 재정 대시보드 -->
+            <section class="mb-12">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-slate-800 section-title">2026년 효빈광역시 재정 현황 요약</h3>
+                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">단위: 억 원 / 기준: 2026년 본예산</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 예산 규모 -->
+                    <div class="stat-card budget">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-slate-500 font-bold text-sm">2026년 총 예산규모</span>
+                            <div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i data-lucide="pie-chart" class="w-5 h-5"></i></div>
+                        </div>
+                        <div class="mt-auto">
+                            <span class="text-3xl font-black text-slate-800 tracking-tight">154,500<span class="text-lg font-bold ml-1">억 원</span></span>
+                            <div class="flex items-center mt-2 text-sm text-green-600 font-bold">
+                                <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i> 전년 대비 5.2% 증가
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 재정 자립도 -->
+                    <div class="stat-card independence">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-slate-500 font-bold text-sm">재정자립도 (본청 기준)</span>
+                            <div class="bg-green-100 text-green-600 p-2 rounded-lg"><i data-lucide="percent" class="w-5 h-5"></i></div>
+                        </div>
+                        <div class="mt-auto">
+                            <span class="text-3xl font-black text-slate-800 tracking-tight">68.4<span class="text-lg font-bold ml-1">%</span></span>
+                            <div class="flex items-center mt-2 text-sm text-green-600 font-bold">
+                                <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i> 8구 1군 통합 시너지 효과
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 채무 현황 (건전성) -->
+                    <div class="stat-card debt">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-slate-500 font-bold text-sm">지방채무 잔액</span>
+                            <div class="bg-purple-100 text-purple-600 p-2 rounded-lg"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                        </div>
+                        <div class="mt-auto">
+                            <span class="text-3xl font-black text-slate-800 tracking-tight">12,300<span class="text-lg font-bold ml-1">억 원</span></span>
+                            <div class="flex items-center mt-2 text-sm text-blue-600 font-bold">
+                                <i data-lucide="trending-down" class="w-4 h-4 mr-1"></i> 윤대환 시정 대비 30% 감축 달성
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 2026년 주요 핵심 투자사업 예산 내역 -->
+            <section class="mb-14">
+                <h3 class="text-xl font-bold text-slate-800 mb-2 section-title">2026년 5대 핵심 투자사업 예산 내역</h3>
+                <p class="text-[14px] text-slate-600 mb-6">박효빈 시장의 시정 철학이 담긴 대중교통 혁신, 서브컬처 문화 르네상스, 메가시티 상생 발전을 위한 중점 투자 내역입니다.</p>
+                
+                <div class="overflow-x-auto rounded-xl shadow-sm border border-slate-200">
+                    <table class="content-table !mt-0 !mb-0 min-w-[800px]">
+                        <colgroup>
+                            <col style="width: 25%;">
+                            <col style="width: 45%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>사업명</th>
+                                <th>사업 주요 내용 및 특징</th>
+                                <th>소관 부서</th>
+                                <th>2026년 예산액</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <!-- 1. 3세대 준공영제 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">
+                                    <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded mb-1">교통 혁신</span><br>
+                                    3세대 시내버스 완전 준공영제 정착 및 디자인 전면 개편
+                                </td>
+                                <td class="text-[14.5px]">
+                                    사모펀드 퇴출 및 공공성 확보, 버스 기사 처우 개선 지원금.<br>
+                                    9개 권역 지정 도색 완료 (<span style="color:#01B7ED; font-weight:bold;">간선 #01B7ED</span>, <span style="color:#37B484; font-weight:bold;">지선 #37B484</span>, <span style="color:#E7D600; font-weight:bold;">순환 #E7D600</span>, <span style="color:#D81C2F; font-weight:bold;">급행 #D81C2F</span>, <span style="color:#A664A0; font-weight:bold;">마일 #A664A0</span> 등)
+                                </td>
+                                <td class="center">대중교통과</td>
+                                <td class="right text-blue-700">2,500 억원</td>
+                            </tr>
+                            <!-- 2. 빈효선 연장 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">
+                                    <span class="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded mb-1">메가시티 상생</span><br>
+                                    광역전철 빈효선 탄성군 지선 연장 사업
+                                </td>
+                                <td class="text-[14.5px]">
+                                    과거 중단사태를 극복하고 개통된 빈효선(<span style="color:#6677CC; font-weight:bold;">#6677CC 연청색</span>)을 도농복합 지역인 탄성군까지 연장하여 8구 1군 대중교통망 완성.
+                                </td>
+                                <td class="center">도시철도건설본부</td>
+                                <td class="right text-blue-700">850 억원</td>
+                            </tr>
+                            <!-- 3. 당가동 르네상스 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">
+                                    <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded mb-1">도시 재생</span><br>
+                                    당가동 파스텔블루 거리 (구도심 서브컬처 특화) 르네상스
+                                </td>
+                                <td class="text-[14.5px]">
+                                    효빈종합터미널 및 옛 7호선 차고지 일대를 서브컬처 특화 거리로 정비.<br>
+                                    청년 창업가 입점 지원, 보행자 전용 도로 포장 및 간판 정비.
+                                </td>
+                                <td class="center">도시계획과</td>
+                                <td class="right text-blue-700">450 억원</td>
+                            </tr>
+                            <!-- 4. 7호선 현대화 -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">
+                                    <span class="inline-block px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded mb-1">철도 인프라</span><br>
+                                    도시철도 7호선(노면전차) 잔디궤도 및 현대화 공사
+                                </td>
+                                <td class="text-[14.5px]">
+                                    시민의 힘으로 부활한 7호선(<span style="color:#FF8899; font-weight:bold;">#FF8899 분홍색</span>)의 구형 전차를 무가선 저상 트램으로 전면 교체 및 전 구간 친환경 잔디 궤도 개량.
+                                </td>
+                                <td class="center">도시철도건설본부</td>
+                                <td class="right text-blue-700">320 억원</td>
+                            </tr>
+                            <!-- 5. HAF -->
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="font-bold text-slate-800">
+                                    <span class="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded mb-1">문화 관광</span><br>
+                                    제17회 HAF (효빈 애니메이션 페스티벌) 글로벌화 사업
+                                </td>
+                                <td class="text-[14.5px]">
+                                    글로벌 인기 IP 명예 홍보대사 위촉, 특화 굿즈 제작 지원, 효빈종합운동장 주경기장 대관 및 시티투어 버스(<span style="color:#7777AA; font-weight:bold;">#7777AA</span>) 래핑 사업.
+                                </td>
+                                <td class="center">문화관광체육국</td>
+                                <td class="right text-blue-700">150 억원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 3. 연도별 예산서 및 결산서 다운로드 -->
+            <section class="mb-14">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 section-title">연도별 예산서 및 결산서 공개</h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 예산서 (Budget) -->
+                    <div class="bg-white border-2 border-t-4 border-slate-200 border-t-[#005bac] rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                            <h4 class="font-bold text-lg text-[#005bac] flex items-center">
+                                <i data-lucide="book-open" class="w-5 h-5 mr-2"></i> 세입·세출 예산서
+                            </h4>
+                            <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">편성 내역</span>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-blue-50 transition border border-transparent hover:border-blue-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2026년도 효빈광역시 본예산서</span>
+                                <button onclick="downloadDoc('2026년도_효빈시_본예산서.pdf')" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-blue-50 transition border border-transparent hover:border-blue-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2025년도 효빈광역시 제2회 추경예산서</span>
+                                <button onclick="downloadDoc('2025년도_제2회추경예산서.pdf')" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-blue-50 transition border border-transparent hover:border-blue-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2025년도 효빈광역시 본예산서</span>
+                                <button onclick="downloadDoc('2025년도_효빈시_본예산서.pdf')" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-blue-50 transition border border-transparent hover:border-blue-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2024년도 효빈광역시 본예산서</span>
+                                <button onclick="downloadDoc('2024년도_효빈시_본예산서.pdf')" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 결산서 (Settlement) -->
+                    <div class="bg-white border-2 border-t-4 border-slate-200 border-t-[#10b981] rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                            <h4 class="font-bold text-lg text-[#10b981] flex items-center">
+                                <i data-lucide="file-check-2" class="w-5 h-5 mr-2"></i> 통합 결산서
+                            </h4>
+                            <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">집행 내역</span>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-green-50 transition border border-transparent hover:border-green-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2025 회계연도 결산서 (승인안)</span>
+                                <button onclick="downloadDoc('2025_결산서.pdf')" class="text-green-600 hover:text-green-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-green-50 transition border border-transparent hover:border-green-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2024 회계연도 결산서 (최종)</span>
+                                <button onclick="downloadDoc('2024_결산서.pdf')" class="text-green-600 hover:text-green-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                            <li class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-green-50 transition border border-transparent hover:border-green-100">
+                                <span class="font-bold text-slate-700 text-[15px]">2023 회계연도 결산서 (최종)</span>
+                                <button onclick="downloadDoc('2023_결산서.pdf')" class="text-green-600 hover:text-green-800 flex items-center text-sm font-bold"><i data-lucide="download" class="w-4 h-4 mr-1"></i> PDF</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 시민참여예산 배너 -->
+            <section class="mb-8">
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 md:p-8 flex flex-col items-start gap-6 shadow-sm">
+                    <div class="w-full">
+                        <h3 class="text-2xl font-black text-amber-900 mb-3 flex items-center">
+                            <i data-lucide="users" class="w-8 h-8 mr-2 text-amber-600"></i> 시민이 직접 그리는 효빈의 내일, 시민참여예산
+                        </h3>
+                        <p class="text-[15px] text-amber-800 leading-relaxed mb-6">
+                            효빈광역시는 예산 편성 과정에 시민이 직접 참여하여 재정 운영의 투명성과 민주성을 높이는 '시민참여예산제'를 적극 운영하고 있습니다. 우리 동네에 꼭 필요한 사업, 효빈시 전체 발전을 위한 아이디어가 있다면 지금 바로 제안해 주세요.
+                        </p>
+                        
+                        <!-- 2027년 예산 한도 통계 박스 -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-white p-5 rounded-xl border border-amber-100 text-center shadow-sm">
+                                <span class="text-sm text-slate-500 font-bold block mb-1">2027년도 배정 한도액</span>
+                                <div class="text-3xl font-black text-amber-600">500<span class="text-lg font-bold text-slate-800 ml-1">억 원</span></div>
+                            </div>
+                            <div class="bg-white p-5 rounded-xl border border-amber-100 text-center shadow-sm">
+                                <span class="text-sm text-slate-500 font-bold block mb-1">건당 최대 한도 (시정 참여형)</span>
+                                <div class="text-3xl font-black text-amber-600">30<span class="text-lg font-bold text-slate-800 ml-1">억 원</span></div>
+                            </div>
+                            <div class="bg-white p-5 rounded-xl border border-amber-100 text-center shadow-sm">
+                                <span class="text-sm text-slate-500 font-bold block mb-1">건당 최대 한도 (동네 자치형)</span>
+                                <div class="text-3xl font-black text-amber-600">1<span class="text-lg font-bold text-slate-800 ml-1">억 원</span></div>
+                            </div>
+                        </div>
+
+                        <!-- 우수 채택 사례 -->
+                        <div class="bg-white/60 p-5 rounded-xl border border-amber-100 mb-6">
+                            <strong class="block text-amber-900 text-lg mb-3 flex items-center">
+                                <i data-lucide="lightbulb" class="w-5 h-5 mr-1 text-amber-500"></i> 2025년도 시민참여 우수 채택 사례
+                            </strong>
+                            <ul class="list-disc list-inside text-[15px] text-amber-800 space-y-2">
+                                <li><strong>(문화)</strong> HAF(효빈 애니메이션 페스티벌) 연계 당가동 파스텔블루 거리 야간 경관 조명 개선 <span class="font-bold text-blue-700">(3.5억 원)</span></li>
+                                <li><strong>(교통)</strong> 7호선(분홍색 #FF8899) 트램 노선 주변 보행자 안전 펜스 및 스마트 승강장 확대 설치 <span class="font-bold text-blue-700">(12억 원)</span></li>
+                                <li><strong>(환경)</strong> 탄성군 도농복합지역 하천 수질 개선 및 시조(히버히) 관찰 생태 데크 신설 <span class="font-bold text-blue-700">(8억 원)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 제안 버튼 -->
+                    <div class="w-full flex justify-center mt-2">
+                        <button onclick="openProposalModal()" class="bg-amber-600 text-white font-black py-4 px-10 rounded-xl shadow-lg hover:bg-amber-700 hover:-translate-y-1 transition-all flex items-center text-lg">
+                            <i data-lucide="edit-3" class="w-6 h-6 mr-2"></i> 2027년도 시민참여예산 지금 제안하기
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 하단 인쇄 버튼 -->
+            <div class="flex justify-end action-buttons no-print mt-12 pt-6 border-t border-slate-200">
+                <button onclick="downloadNativePDF()" class="px-6 py-3 bg-[#1a365d] text-white rounded-lg font-bold hover:bg-slate-800 transition flex items-center shadow-md">
+                    <i data-lucide="printer" class="w-5 h-5 mr-2"></i> 재정 현황 인쇄 / PDF 저장
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 모달: 시민참여예산 제안하기 (상세 폼) -->
+    <div id="proposalModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm modal-backdrop bg-slate-900/60 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden modal-content flex flex-col max-h-[90vh]">
+            <!-- 모달 헤더 -->
+            <div class="bg-amber-600 p-5 md:p-6 text-white flex justify-between items-center shrink-0">
+                <h3 class="text-xl font-black flex items-center gap-2"><i data-lucide="edit-3" class="w-6 h-6"></i> 2027년 시민참여예산 사업 제안서</h3>
+                <button onclick="closeProposalModal()" class="hover:bg-amber-500 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <!-- 모달 바디 (스크롤 영역) -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar bg-slate-50">
+                <form id="proposalForm" onsubmit="submitProposal(event)" class="space-y-6">
+                    
+                    <div class="bg-blue-50 p-4 rounded-xl text-[14px] text-blue-800 border border-blue-200 leading-relaxed shadow-sm">
+                        <span class="font-bold flex items-center mb-1 text-base"><i data-lucide="info" class="w-5 h-5 mr-1"></i> 작성 전 꼭 읽어주세요!</span>
+                        제안하신 사업은 소관 부서의 1차 법적/타당성 검토 후, 시민 투표 및 참여예산위원회의 심사를 거쳐 내년도(2027년) 예산에 최종 반영됩니다. 구체적이고 실현 가능한 아이디어를 자유롭게 제안해 주세요.
+                    </div>
+                    
+                    <!-- 신청인 정보 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">신청인 정보</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">제안자 성명 <span class="text-red-500">*</span></label>
+                                <input type="text" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition" placeholder="홍길동" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">연락처 (휴대전화) <span class="text-red-500">*</span></label>
+                                <input type="tel" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition" placeholder="010-0000-0000" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 제안 내용 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                        <h4 class="font-bold text-slate-800 border-b border-slate-100 pb-2 mb-2">사업 제안 내용</h4>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1.5">사업명 <span class="text-red-500">*</span></label>
+                            <input type="text" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition" placeholder="예: 당가동 파스텔블루 거리 야간 보행등 추가 설치" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">제안 분야 <span class="text-red-500">*</span></label>
+                                <select class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition text-slate-700 bg-white" required>
+                                    <option value="" disabled selected>분야를 선택하세요</option>
+                                    <option value="교통/도로">대중교통 / 도로 / 안전</option>
+                                    <option value="문화/관광">문화 / 관광 / 체육 (HAF 등)</option>
+                                    <option value="환경/공원">환경 / 공원 / 생태</option>
+                                    <option value="복지/보건">복지 / 보건 / 주거</option>
+                                    <option value="청년/일자리">청년 / 창업 / 일자리</option>
+                                    <option value="기타">기타 시정 발전 분야</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">사업 대상 지역 <span class="text-red-500">*</span></label>
+                                <select class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition text-slate-700 bg-white" required>
+                                    <option value="효빈시 전체">효빈시 전체 (시정 참여형)</option>
+                                    <option value="중구">중구</option>
+                                    <option value="동구">동구</option>
+                                    <option value="서구">서구</option>
+                                    <option value="남구">남구</option>
+                                    <option value="북구">북구</option>
+                                    <option value="안천구">안천구</option>
+                                    <option value="창전구">창전구</option>
+                                    <option value="청엽구">청엽구</option>
+                                    <option value="탄성군">탄성군</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1.5">제안 배경 및 필요성 <span class="text-red-500">*</span></label>
+                            <textarea rows="3" class="w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition resize-none" placeholder="현재 어떤 불편함이나 문제점이 있는지, 왜 이 사업이 필요한지 명확하게 적어주세요." required></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1.5">구체적 사업 내용 <span class="text-red-500">*</span></label>
+                            <textarea rows="4" class="w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition resize-none" placeholder="무엇을 어떻게 설치하거나 바꿀 것인지 구체적인 실행 방안을 적어주세요." required></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">예상 소요 예산 (선택)</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" min="1" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition" placeholder="예: 50">
+                                    <span class="font-bold text-slate-700 whitespace-nowrap">백만 원</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1.5">참고 파일 첨부 (선택)</label>
+                                <input type="file" accept="image/*,.pdf,.hwp" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition cursor-pointer border border-slate-300 rounded-lg bg-white">
+                                <p class="text-xs text-slate-400 mt-1 ml-1">현장 사진, 도면 등 (최대 10MB)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 개인정보 동의 -->
+                    <div class="bg-slate-100 p-4 rounded-xl border border-slate-200">
+                        <label class="flex items-start gap-3 cursor-pointer group">
+                            <div class="relative flex items-center mt-0.5">
+                                <input type="checkbox" id="consentCheck" class="peer w-5 h-5 border-2 border-slate-400 rounded-md appearance-none checked:bg-amber-600 checked:border-amber-600 transition cursor-pointer" required>
+                                <i data-lucide="check" class="absolute w-4 h-4 text-white opacity-0 peer-checked:opacity-100 left-0.5 top-0.5 pointer-events-none"></i>
+                            </div>
+                            <div class="text-sm text-slate-700 group-hover:text-slate-900 transition">
+                                <strong class="block mb-1">개인정보 수집 및 이용 동의 <span class="text-red-500">*</span></strong>
+                                본인은 시민참여예산 사업 제안 심사, 결과 통보, 내용 보완 요청 등의 목적을 위해 이름과 연락처를 수집하고 이용하는 것에 동의합니다. (보유 기간: 제안 처리 완료 시점으로부터 1년)
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- 제출 버튼 -->
+                    <div class="pt-4 pb-2">
+                        <button type="submit" id="submitBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-4 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center text-lg">
+                            <i data-lucide="send" class="w-6 h-6 mr-2"></i> 제안서 최종 제출하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 초기화 시 아이콘 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // 예산서/결산서 다운로드 시뮬레이션 (Toast 알림)
+        function downloadDoc(fileName) {
+            const existingToast = document.getElementById('download-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.id = 'download-toast';
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                    <div>
+                        <strong class="block text-[15px] mb-0.5">다운로드 시작</strong>
+                        <span class="text-sm opacity-90">${fileName} 파일이 안전하게 저장됩니다.</span>
+                    </div>
+                </div>
+            `;
+            
+            toast.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-blue-600 no-print`;
+            
+            document.body.appendChild(toast);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // PDF 다운로드 / 네이티브 인쇄
+        function downloadNativePDF() {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-1"><i data-lucide="info" class="w-5 h-5 mr-2"></i> <strong>PDF/인쇄 안내</strong></div>
+                    <span class="text-sm font-normal mt-1">인쇄 창의 [대상] 설정에서 <strong>'PDF로 저장'</strong>을 선택해 주세요.</span>
+                </div>
+            `;
+            tempDiv.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl text-white transition-all duration-300 z-[100] bg-hyobin-blue flex items-center text-center no-print`;
+            document.body.appendChild(tempDiv);
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    tempDiv.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => tempDiv.remove(), 300);
+                }, 500);
+            }, 1500);
+        }
+
+        // 시민참여예산 제안 모달 로직
+        function openProposalModal() {
+            const modal = document.getElementById('proposalModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+            document.getElementById('proposalForm').reset();
+        }
+
+        function closeProposalModal() {
+            const modal = document.getElementById('proposalModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // 스크롤 복구
+        }
+
+        // 배경 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('proposalModal');
+            if (event.target === modal) {
+                closeProposalModal();
+            }
+        }
+
+        // 폼 제출 시뮬레이션
+        function submitProposal(e) {
+            e.preventDefault();
+            
+            // 개인정보 동의 체크 확인
+            if (!document.getElementById('consentCheck').checked) {
+                alert("개인정보 수집 및 이용에 동의해주셔야 제안이 가능합니다.");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = `<i data-lucide="loader" class="w-6 h-6 mr-2 animate-spin"></i> 접수 처리 중...`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            // 1.5초 후 완료 처리
+            setTimeout(() => {
+                alert("🎉 제안서가 성공적으로 접수되었습니다!\n\n효빈시의 발전을 위한 소중한 의견에 감사드립니다.\n제안하신 사업은 담당 부서의 1차 검토 후 시민 투표 대상에 오르게 됩니다.");
+                closeProposalModal();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
