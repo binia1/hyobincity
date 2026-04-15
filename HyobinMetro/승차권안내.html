@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>승차권 안내 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선별 컬러 */
+        .line-1 { color: #0077DD; font-weight: bold; }
+        .line-2 { color: #00CCAA; font-weight: bold; }
+        .line-3 { color: #FFCC11; font-weight: bold; }
+        .line-4 { color: #FF5522; font-weight: bold; }
+        .line-5 { color: #EE0022; font-weight: bold; }
+        .line-6 { color: #881188; font-weight: bold; }
+        .line-7 { color: #FF8899; font-weight: bold; }
+        .line-8 { color: #9856FF; font-weight: bold; }
+        .line-bh { color: #6677CC; font-weight: bold; }
+
+        .ticket-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 14px; border: 1px solid #e2e8f0; text-align: center; }
+        .ticket-table td { padding: 14px; border: 1px solid #e2e8f0; color: #475569; }
+        .ticket-table tr:hover td { background-color: #f1f5f9; }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        /* =======================================================
+           초고퀄리티 교통카드 실물 디자인 CSS (효빈은행 카드 스타일 적용)
+           ======================================================= */
+        .card-wrapper {
+            perspective: 1000px;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .pass-card {
+            width: 280px; height: 175px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.4);
+            overflow: hidden;
+            color: white;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+            transform-style: preserve-3d;
+            font-family: 'Share Tech Mono', 'Noto Sans KR', sans-serif;
+            text-align: left;
+        }
+
+        .card-wrapper:hover .pass-card { 
+            transform: translateY(-8px) rotateX(5deg) rotateY(5deg); 
+            box-shadow: -10px 20px 30px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.5); 
+        }
+
+        /* 반사광 효과 */
+        .pass-card::after {
+            content: '';
+            position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.7s ease;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .card-wrapper:hover .pass-card::after { left: 200%; }
+
+        /* 테마별 배경색 */
+        .card-basic { background: linear-gradient(135deg, #0077DD 0%, #00CCAA 100%); } /* 효빈청색 & 덕북녹색 */
+        .card-line-7 { background: linear-gradient(135deg, #cc5566 0%, #FF8899 100%); } /* 임세하 분홍색 */
+        .card-line-2 { background: linear-gradient(135deg, #009988 0%, #00CCAA 100%); } /* 하루빈 초록색 */
+
+        /* IC칩 및 디테일 */
+        .card-chip {
+            position: absolute; top: 40px; left: 20px; width: 40px; height: 30px;
+            background: linear-gradient(135deg, #e0c38c 0%, #d4af37 40%, #f1c40f 60%, #aa771c 100%);
+            border-radius: 6px; z-index: 5;
+            box-shadow: inset 0 0 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.2);
+            border: 1px solid #886010;
+        }
+        .card-chip::after { content: ''; position: absolute; top: 10px; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.2); box-shadow: 0 10px 0 rgba(0,0,0,0.2); }
+        .card-chip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 15px; width: 1px; background: rgba(0,0,0,0.2); box-shadow: 10px 0 0 rgba(0,0,0,0.2); }
+
+        .card-contactless { position: absolute; top: 46px; left: 70px; font-size: 1.1rem; opacity: 0.8; z-index: 5; transform: rotate(90deg); }
+
+        .card-logo { position: absolute; top: 15px; left: 20px; font-size: 14px; font-weight: 900; z-index: 10; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+        .card-name { position: absolute; top: 15px; right: 20px; font-size: 12px; font-weight: 800; z-index: 10; font-style: italic; opacity: 0.9; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+        
+        .card-number { position: absolute; top: 90px; left: 20px; font-family: 'Share Tech Mono', monospace; font-size: 17px; font-weight: 400; letter-spacing: 2px; z-index: 10; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
+        .card-valid-title { position: absolute; top: 120px; left: 110px; font-size: 7px; opacity: 0.7; z-index: 10; line-height: 1; }
+        .card-valid { position: absolute; top: 120px; left: 140px; font-family: 'Share Tech Mono', monospace; font-size: 12px; z-index: 10; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
+        .card-holder { position: absolute; bottom: 20px; left: 20px; font-family: 'Share Tech Mono', monospace; font-size: 12px; text-transform: uppercase; z-index: 10; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); letter-spacing: 1px; }
+        .card-brand { position: absolute; bottom: 15px; right: 20px; z-index: 10; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.4)); opacity: 0.95; }
+        
+        .card-char-img {
+            position: absolute; right: -5px; bottom: -5px; height: 160px; z-index: 2; 
+            filter: drop-shadow(-3px 3px 6px rgba(0,0,0,0.5));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0.95;
+        }
+        .card-wrapper:hover .card-char-img { transform: scale(1.08) translateX(-5px); opacity: 1; }
+
+        .card-pattern-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px); background-size: 15px 15px; z-index: 1; pointer-events: none; }
+        .hologram-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.1) 50%, transparent 60%); z-index: 8; pointer-events: none; mix-blend-mode: overlay; opacity: 0.6; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://placehold.co/1920x400/0c4a6e/ffffff?text=Ticket+Information')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-ticket mr-2"></i>이용안내</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">승차권 안내</h1>
+                        <p class="text-sky-100 mt-3 font-medium">효빈교통공사에서 이용 가능한 승차권의 종류, 발급 방법 및 효빈덕북교통카드에 대해 안내해 드립니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 (사이드바 + 본문) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">승차권 안내</div>
+                    <ul class="divide-y divide-slate-100">
+                        <li><a href="#ticket-types" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>승차권의 종류</a></li>
+                        <li><a href="#hyobin-pass" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>효빈덕북교통카드</a></li>
+                        <li><a href="#single-ticket" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>1회용 승차권 이용</a></li>
+                        <li><a href="#commuter-pass" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>정기승차권 안내</a></li>
+                        <li><a href="#age-policy" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>연령별 기준 및 우대</a></li>
+                        <li><a href="#zero-tolerance" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>부정승차 무관용 원칙</a></li>
+                    </ul>
+                </div>
+                <!-- 퀵 링크 배너 -->
+                <div class="mt-6">
+                    <a href="운임안내.html" class="block bg-sky-50 border border-sky-200 rounded-xl p-4 text-center hover:bg-sky-100 transition-colors group">
+                        <i class="fa-solid fa-won-sign text-2xl text-sky-600 mb-2 group-hover:scale-110 transition-transform"></i>
+                        <h4 class="font-bold text-slate-800 text-sm">상세 운임표 보기</h4>
+                        <p class="text-xs text-slate-500 mt-1">거리비례제 및 환승 요금</p>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10">
+                
+                <!-- 1. 승차권의 종류 -->
+                <div id="ticket-types" class="scroll-mt-8">
+                    <h2 class="section-title"><i class="fa-solid fa-ticket-simple text-hyobin"></i> 1. 승차권의 종류</h2>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        효빈도시철도를 이용하실 때 사용할 수 있는 승차권(교통카드)은 크게 세 가지로 나뉩니다. 승객 여러분의 이용 패턴에 맞는 승차권을 선택해 주시기 바랍니다.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-5 mb-6">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm text-center">
+                            <div class="w-16 h-16 mx-auto bg-sky-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-regular fa-credit-card text-2xl text-sky-600"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg mb-2">선/후불 교통카드</h3>
+                            <p class="text-sm text-slate-600">효빈덕북교통카드, 티머니, 이즐 및 신용/체크카드 기반 후불교통카드. <br><strong class="text-sky-600 mt-1 inline-block">광역환승할인 적용</strong></p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm text-center">
+                            <div class="w-16 h-16 mx-auto bg-amber-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-ticket text-2xl text-amber-600"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg mb-2">1회용 교통카드</h3>
+                            <p class="text-sm text-slate-600">역사 내 1회용 발매기에서 구매 가능. 보증금(500원) 포함 결제 후 하차역에서 환급. <br><strong class="text-red-500 mt-1 inline-block">환승할인 불가</strong></p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm text-center">
+                            <div class="w-16 h-16 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-calendar-check text-2xl text-emerald-600"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-lg mb-2">정기승차권</h3>
+                            <p class="text-sm text-slate-600">통근, 통학 승객을 위한 30일/60회 한정 카드. 효빈 도시철도 전용 및 단계별 거리 비례권으로 운영됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 효빈덕북교통카드 -->
+                <div id="hyobin-pass" class="scroll-mt-8">
+                    <h2 class="section-title"><i class="fa-solid fa-star text-hyobin"></i> 2. 효빈덕북교통카드 (Hyobin-Deokbuk Pass)</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        효빈광역시와 덕빈북도에서 공용으로 사용하는 통합 교통카드입니다. 기본형 디자인 외에도, 효빈교통공사가 자랑하는 <strong>노선별 공식 캐릭터 한정판</strong>이 발매되어 큰 사랑을 받고 있습니다. 해당 카드는 전국 어디서나 호환 사용이 가능합니다.
+                    </p>
+
+                    <div class="grid lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8 justify-items-center">
+                        
+                        <!-- 기본형 -->
+                        <div class="border border-slate-200 rounded-xl p-4 text-center bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col items-center w-full">
+                            <div class="card-wrapper mb-3">
+                                <div class="pass-card card-basic">
+                                    <div class="hologram-overlay"></div>
+                                    <div class="card-pattern-grid"></div>
+                                    <div class="card-logo"><i class="fa-solid fa-credit-card"></i> ONEPASS</div>
+                                    <div class="card-name">Hyobin-Deokbuk</div>
+                                    <div class="card-chip"></div>
+                                    <i class="fa-solid fa-wifi card-contactless"></i>
+                                    <div class="card-number">1010 2020 3030 4040</div>
+                                    <div class="card-valid-title">VALID<br>THRU</div>
+                                    <div class="card-valid">12/30</div>
+                                    <div class="card-holder">HYOBIN CITIZEN</div>
+                                    <div class="card-brand"><i class="fa-solid fa-bus text-2xl"></i></div>
+                                </div>
+                            </div>
+                            <h4 class="font-bold text-slate-800">기본 디자인 (상시 판매)</h4>
+                            <p class="text-xs text-slate-500 mt-1">효빈(청색) & 덕북(녹색) 통합 상징</p>
+                        </div>
+                        
+                        <!-- 7호선 임세하 에디션 -->
+                        <div class="border border-pink-200 rounded-xl p-4 text-center bg-pink-50/30 shadow-sm hover:shadow-md transition-shadow flex flex-col items-center w-full relative">
+                            <span class="absolute -top-3 -right-3 bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg rotate-12 z-10">초고속 매진!</span>
+                            <div class="card-wrapper mb-3">
+                                <div class="pass-card card-line-7">
+                                    <div class="hologram-overlay"></div>
+                                    <div class="card-pattern-grid"></div>
+                                    <div class="card-logo"><i class="fa-solid fa-train-tram"></i> HB LINE 7</div>
+                                    <div class="card-name">Lim Seha Ed.</div>
+                                    <div class="card-chip"></div>
+                                    <i class="fa-solid fa-wifi card-contactless"></i>
+                                    <img src="이미지/임세하.png" alt="임세하" class="card-char-img" onerror="this.src='https://placehold.co/180x180/FF8899/ffffff?text=Lim+Seha'">
+                                    <div class="card-number">7070 1234 5678 9012</div>
+                                    <div class="card-valid-title">VALID<br>THRU</div>
+                                    <div class="card-valid">07/30</div>
+                                    <div class="card-holder">MACHINE NERD</div>
+                                    <div class="card-brand"><i class="fa-solid fa-train text-2xl"></i></div>
+                                </div>
+                            </div>
+                            <h4 class="font-bold text-slate-800"><span class="line-7">7호선</span> '임세하' 에디션</h4>
+                            <p class="text-xs text-slate-500 mt-1">학생 팬덤 필수 소장템</p>
+                        </div>
+
+                        <!-- 2호선 하루빈 에디션 -->
+                        <div class="border border-teal-200 rounded-xl p-4 text-center bg-teal-50/30 shadow-sm hover:shadow-md transition-shadow flex flex-col items-center w-full">
+                            <div class="card-wrapper mb-3">
+                                <div class="pass-card card-line-2">
+                                    <div class="hologram-overlay"></div>
+                                    <div class="card-pattern-grid"></div>
+                                    <div class="card-logo"><i class="fa-solid fa-train"></i> HB LINE 2</div>
+                                    <div class="card-name">Harubin Ed.</div>
+                                    <div class="card-chip"></div>
+                                    <i class="fa-solid fa-wifi card-contactless"></i>
+                                    <img src="이미지/하루빈.png" alt="하루빈" class="card-char-img" onerror="this.src='https://placehold.co/180x180/00CCAA/ffffff?text=Ha+Rubin'">
+                                    <div class="card-number">2020 9876 5432 1098</div>
+                                    <div class="card-valid-title">VALID<br>THRU</div>
+                                    <div class="card-valid">02/28</div>
+                                    <div class="card-holder">INSSA STAFF</div>
+                                    <div class="card-brand"><i class="fa-solid fa-train text-2xl"></i></div>
+                                </div>
+                            </div>
+                            <h4 class="font-bold text-slate-800"><span class="line-2">2호선</span> '하루빈' 공식 에디션</h4>
+                            <p class="text-xs text-slate-500 mt-1">철도 마스코트 콜라보 시리즈</p>
+                        </div>
+                    </div>
+
+                    <!-- 캐릭터 카드 관련 TMI 박스 -->
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 flex gap-4 text-sm text-indigo-900 shadow-sm">
+                        <i class="fa-solid fa-bullhorn text-2xl text-indigo-400 mt-1"></i>
+                        <div>
+                            <strong>박효빈 시장의 '덕업일치' 정책 안내</strong><br>
+                            효빈광역시의 교통카드는 단순한 결제 수단을 넘어 지역의 문화를 담는 캔버스입니다. 특히 <span class="font-bold text-pink-600">7호선 '임세하' 에디션</span>은 공식 마스코트가 아님에도 팬덤의 압도적인 요청으로 발매된 전설적인 카드입니다. 또한 빈주권 광역전철을 위한 <span class="font-bold">빈주도시철도 '박빛나' 에디션</span>도 함께 호환하여 사용할 수 있으니, 철도 동호인 여러분의 많은 수집 바랍니다. (※ 구매처: 각 역사 내 고객안내센터 및 편의점, 조기 품절 주의)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 1회용 승차권 -->
+                <div id="single-ticket" class="scroll-mt-8 mt-12">
+                    <h2 class="section-title"><i class="fa-solid fa-coins text-hyobin"></i> 3. 1회용 승차권 발급 및 환급 안내</h2>
+                    
+                    <div class="flex flex-col md:flex-row gap-6 items-center bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-slate-800 mb-3">발매 및 이용 방법</h3>
+                            <ol class="list-decimal pl-5 text-slate-700 space-y-2 text-sm">
+                                <li>역사 내 <strong>'1회용 발매·교통카드 충전기'</strong>에서 목적지를 선택합니다.</li>
+                                <li>운임과 함께 <strong>운임보증금 500원</strong>을 투입하여 1회용 교통카드를 발급받습니다.</li>
+                                <li>승차 게이트 단말기에 태그하여 탑승하고, 하차 게이트에 태그하여 나옵니다.</li>
+                                <li>하차역의 <strong>'보증금 환급기'</strong>에 카드를 투입하여 보증금 500원을 돌려받습니다.</li>
+                            </ol>
+                            <p class="text-xs text-red-500 mt-3 font-bold">※ 1회용 교통카드는 타 교통수단(버스, 타 지역 전철)과 환승 할인이 적용되지 않습니다.</p>
+                        </div>
+                        <div class="flex-shrink-0 w-48 text-center">
+                            <div class="w-24 h-24 mx-auto bg-slate-200 rounded-lg flex items-center justify-center mb-2 shadow-inner">
+                                <i class="fa-solid fa-money-bill-transfer text-4xl text-slate-500"></i>
+                            </div>
+                            <span class="text-sm font-bold text-slate-700">보증금 환급기</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 정기승차권 안내 -->
+                <div id="commuter-pass" class="scroll-mt-8 mt-12">
+                    <h2 class="section-title"><i class="fa-solid fa-id-card text-hyobin"></i> 4. 정기승차권 안내</h2>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        통근 및 통학을 위해 도시철도를 매일 이용하시는 승객을 위한 할인형 승차권입니다. 원하시는 권종을 선택하여 교통카드 충전기에서 충전 후 <strong>30일 이내에 최대 60회</strong>까지 사용하실 수 있습니다.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <!-- 효빈전용권 -->
+                        <div class="bg-white border border-sky-200 rounded-xl p-6 shadow-sm relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-sky-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">시민들의 발</div>
+                            <h3 class="font-bold text-xl text-slate-800 mb-2">효빈전용 (30일권)</h3>
+                            <div class="text-3xl font-black text-sky-600 mb-4">60,000<span class="text-lg text-slate-500 font-normal">원</span></div>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1.5">
+                                <li>효빈 도시철도 1~8호선 <strong>전 구간 무제한 거리</strong> 사용 가능</li>
+                                <li><strong class="text-red-500">주의사항:</strong> 빈효선 등 광역 구간 연장 이용 시 횟수가 추가 차감될 수 있습니다.</li>
+                            </ul>
+                        </div>
+
+                        <!-- 광역통합권 -->
+                        <div class="bg-white border border-indigo-200 rounded-xl p-6 shadow-sm">
+                            <h3 class="font-bold text-xl text-slate-800 mb-2">광역통합 (거리비례권)</h3>
+                            <div class="text-3xl font-black text-indigo-600 mb-4">구간별 상이</div>
+                            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1.5">
+                                <li>빈효선(광역전철)을 포함하여 장거리로 출퇴근하는 승객용</li>
+                                <li>이동하는 거리에 따라 1단계부터 최대 14단계로 세분화된 운임 적용</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 광역통합권 거리비례 운임표 -->
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-6">
+                        <div class="bg-slate-100 px-5 py-3 border-b border-slate-200 font-bold text-slate-800 flex justify-between items-center">
+                            <span><i class="fa-solid fa-list-ol text-indigo-500 mr-2"></i>광역통합권 (거리비례) 구간별 운임표</span>
+                            <span class="text-xs font-normal text-slate-500">기준: 30일 / 60회</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-center text-sm ticket-table m-0">
+                                <thead>
+                                    <tr class="bg-slate-50">
+                                        <th class="py-3 font-semibold text-slate-600 border-b border-slate-200">단계</th>
+                                        <th class="py-3 font-semibold text-slate-600 border-b border-slate-200">운행 거리</th>
+                                        <th class="py-3 font-semibold text-slate-600 border-b border-slate-200">판매 가격</th>
+                                        <th class="py-3 font-semibold text-slate-600 border-b border-slate-200">단계</th>
+                                        <th class="py-3 font-semibold text-slate-600 border-b border-slate-200">운행 거리</th>
+                                        <th class="py-3 font-semibold text-slate-600 border-b border-slate-200">판매 가격</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">1단계</td><td>20km 이내</td><td class="font-bold text-indigo-600">60,000원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">8단계</td><td>60~70km</td><td class="font-bold text-indigo-600">85,200원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">2단계</td><td>20~25km</td><td class="font-bold text-indigo-600">63,600원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">9단계</td><td>70~80km</td><td class="font-bold text-indigo-600">88,800원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">3단계</td><td>25~30km</td><td class="font-bold text-indigo-600">67,200원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">10단계</td><td>80~90km</td><td class="font-bold text-indigo-600">92,400원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">4단계</td><td>30~35km</td><td class="font-bold text-indigo-600">70,800원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">11단계</td><td>90~100km</td><td class="font-bold text-indigo-600">96,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">5단계</td><td>35~40km</td><td class="font-bold text-indigo-600">74,400원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">12단계</td><td>100~110km</td><td class="font-bold text-indigo-600">99,600원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">6단계</td><td>40~50km</td><td class="font-bold text-indigo-600">78,000원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">13단계</td><td>110~120km</td><td class="font-bold text-indigo-600">103,200원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">7단계</td><td>50~60km</td><td class="font-bold text-indigo-600">81,600원</td>
+                                        <td class="font-bold text-slate-700 bg-slate-50/50">14단계</td><td>120km 초과</td><td class="font-bold text-indigo-600">106,800원</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 정기권 팁 / 로어 박스 -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700">
+                        <i class="fa-solid fa-circle-info text-sky-500 mr-1"></i> <strong>정기권 이용 팁:</strong> 효빈전용권을 끊어 놓고 무심코 코레일 관할인 빈효선 <span class="line-bh font-bold">천주역</span>이나 <span class="line-bh font-bold">약산역</span>까지 가게 되면, 하차 시 승차 횟수가 한 번에 2~3회씩 뭉텅이로 차감되는 뼈아픈 <strong>'금융 치료'</strong>를 겪게 됩니다. 빈효선으로 출퇴근하신다면 반드시 '광역통합권'을 이용하시기 바랍니다.
+                    </div>
+                </div>
+
+                <!-- 5. 연령별 기준 및 무임(우대) -->
+                <div id="age-policy" class="scroll-mt-8 mt-12">
+                    <h2 class="section-title"><i class="fa-solid fa-users text-hyobin"></i> 5. 연령별 운임 기준 및 우대권</h2>
+                    
+                    <table class="w-full ticket-table mb-6 text-sm">
+                        <thead>
+                            <tr>
+                                <th width="20%">구분</th>
+                                <th width="30%">연령 기준</th>
+                                <th width="50%">적용 대상 및 비고</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold">일반</td>
+                                <td>만 19세 이상</td>
+                                <td class="text-left pl-4">일반 교통카드 및 1회용 승차권 적용 대상</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">청소년</td>
+                                <td>만 13세 ~ 18세</td>
+                                <td class="text-left pl-4">
+                                    청소년 교통카드 사용 (일반 추가운임의 20% 할인)<br>
+                                    <span class="text-xs text-slate-500">※ 구입 후 10일 내 생년월일 등록 필수</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">어린이</td>
+                                <td>만 6세 ~ 12세</td>
+                                <td class="text-left pl-4">
+                                    어린이 교통카드 사용 (일반 추가운임의 50% 할인)<br>
+                                    <span class="text-xs text-slate-500">※ 구입 후 10일 내 생년월일 등록 필수</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold">유아</td>
+                                <td>만 6세 미만</td>
+                                <td class="text-left pl-4">보호자 1인당 3명까지 무임승차 (초과 시 어린이 요금)</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-hyobin">경로우대 등</td>
+                                <td>만 65세 이상, 장애인 등</td>
+                                <td class="text-left pl-4">우대용 교통카드 발급 대상자 (운임 100% 면제)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 효빈광역시만의 아름다운 철도 문화 박스 -->
+                    <div class="bg-gradient-to-r from-sky-50 to-white border border-sky-200 rounded-xl p-6 shadow-sm">
+                        <h4 class="font-bold text-sky-800 mb-3 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-heart text-pink-500"></i> 효빈광역시만의 자랑스러운 철도 문화
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed mb-3">
+                            효빈교통공사는 법령에 따라 만 65세 이상 어르신 및 유공자분들께 무임승차 제도를 운영하고 있습니다. 그러나 <strong>효빈시의 어르신들은 구 효빈전차 시절부터 이어져 온 지역 철도에 대한 남다른 애정과 자부심으로, 무임승차 대신 자발적으로 정당한 요금을 지불</strong>하시는 훌륭한 시민 문화를 선도하고 계십니다.
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            실제로 한 70대 어르신께서 카드를 깜빡하여 역무원이 무료 승차를 안내해 드렸음에도, 며칠 뒤 역을 다시 찾아와 "우리 전차를 타는데 돈을 안 낼 수 없다"며 <strong>운임의 5배를 지불</strong>하고 가신 일화는 효빈교통공사 임직원들에게 깊은 감동을 주었습니다. 공사는 이러한 시민 여러분의 애정에 보답하기 위해 최고 수준의 안전과 쾌적한 서비스를 제공할 것을 약속드립니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 6. 부정승차 무관용 원칙 -->
+                <div id="zero-tolerance" class="scroll-mt-8 mt-12">
+                    <h2 class="section-title text-red-600"><i class="fa-solid fa-ban"></i> 6. 부정승차 및 시설물 훼손 무관용 원칙</h2>
+                    
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-slate-800">
+                        <p class="font-bold text-red-700 text-lg mb-2">"규정은 피로 쓰였다. 원칙 앞엔 타협이 없다."</p>
+                        <p class="text-sm mb-4 leading-relaxed">
+                            효빈교통공사는 정당한 요금을 지불하는 선량한 시민을 보호하고, 도시철도 질서를 확립하기 위해 부정승차 및 고의적인 시설물 훼손에 대해 <strong>무관용 원칙(Zero Tolerance)</strong>을 엄격하게 적용하고 있습니다.
+                        </p>
+
+                        <div class="grid md:grid-cols-2 gap-5">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-red-100">
+                                <h5 class="font-bold text-red-600 mb-2"><i class="fa-solid fa-coins mr-1"></i> 부정승차 적발 시</h5>
+                                <ul class="list-disc pl-4 text-sm text-slate-600 space-y-1">
+                                    <li>무단 승차 및 타인 카드(경로/학생) 부정 사용</li>
+                                    <li>적발 시 <strong>승차 구간 운임 + 30배의 부가금</strong> 즉시 징수</li>
+                                    <li>상습 위반 시 철도사업법에 따라 형사 고발 조치</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-red-100">
+                                <h5 class="font-bold text-red-600 mb-2"><i class="fa-solid fa-hammer mr-1"></i> 시설물/광고물 고의 훼손</h5>
+                                <ul class="list-disc pl-4 text-sm text-slate-600 space-y-1">
+                                    <li>역사 내 캐릭터 콜라보 광고판(사능역 등) 고의 훼손</li>
+                                    <li>특정 혐오 세력의 굿즈샵, 팝업스토어 영업방해 및 난동</li>
+                                    <li><strong>합의 절대 불가</strong>. 스마트 CCTV 증거 채증 후 민·형사상 손해배상 및 경찰 인계 조치</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-xs text-red-500 mt-4 text-center">
+                            ※ 과거 6~7호선 환승통로 카페 난동 사건 및 사능역 광고판 훼손 사건의 가해자들은 현재 엄중한 법적 처벌을 받고 있습니다. 우리 문화를 지키는 성숙한 에티켓을 당부드립니다.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 (메가메뉴 포함) -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>

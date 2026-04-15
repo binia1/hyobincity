@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>덕후의 성지 - 효빈교통공사 성지순례 맵</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        
+        /* 탭 스타일 */
+        .tab-btn { transition: all 0.3s; border-bottom: 4px solid transparent; opacity: 0.6; }
+        .tab-btn:hover { opacity: 1; }
+        .tab-btn.active { border-color: #3b82f6; opacity: 1; color: #3b82f6; transform: scale(1.05); }
+        
+        /* 카드 애니메이션 */
+        .spot-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .spot-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px -5px rgba(0,0,0,0.15); z-index: 10; }
+        
+        /* 애니메이션 태그 컬러 */
+        .bg-bangdream { background: linear-gradient(135deg, #E53E5E, #FF708D); }
+        .bg-lovelive { background: linear-gradient(135deg, #E4007F, #FF50B0); }
+        .bg-others { background: linear-gradient(135deg, #FDB86D, #FFA500); }
+        
+        /* 성지 등급 바 */
+        .popularity-bar { height: 6px; border-radius: 3px; background: #e2e8f0; overflow: hidden; }
+        .popularity-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <img src="images/logo.png" onerror="this.style.display='none'" class="h-8 w-auto">
+                <div class="text-3xl font-black text-sky-600 font-jua">HB</div>
+                <span class="text-lg font-bold text-gray-800 tracking-tight">성지순례 가이드</span>
+            </a>
+            <a href="index.html" class="text-gray-400 hover:text-black transition"><i class="fa-solid fa-house text-xl"></i></a>
+        </div>
+    </header>
+
+    <section class="bg-[#1e1b4b] text-white py-20 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-40 bg-[url('https://placehold.co/1920x600/312e81/ffffff?text=Anime+World')] bg-cover bg-center animate-pulse" style="animation-duration: 10s;"></div>
+        <div class="relative z-10 px-4">
+            <div class="inline-block bg-yellow-400 text-indigo-900 text-sm font-black px-4 py-1 rounded-full mb-4 shadow-[0_0_15px_rgba(250,204,21,0.6)] animate-bounce">
+                ★ OTAKU PILGRIMAGE MAP ★
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 font-jua leading-tight">내 최애가 역 이름이라고?!<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-sky-400">운명적인 성지순례</span></h1>
+            <p class="text-indigo-200 text-lg md:text-xl max-w-2xl mx-auto font-light">
+                효빈 도시철도 곳곳에 숨겨진 애니메이션 캐릭터들의 이름을 찾아보세요.<br>
+                우연이라기엔 너무나 완벽한, 기적 같은 만남이 기다립니다!
+            </p>
+        </div>
+    </section>
+
+    <div class="sticky top-16 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex overflow-x-auto space-x-6 py-4 whitespace-nowrap scrollbar-hide justify-start md:justify-center">
+                <button onclick="filterSpots('all')" class="tab-btn active text-lg font-black" id="btn-all">⚡ 전체 보기</button>
+                <button onclick="filterSpots('bangdream')" class="tab-btn text-lg font-black" id="btn-bangdream">🎸 BanG Dream!</button>
+                <button onclick="filterSpots('lovelive')" class="tab-btn text-lg font-black" id="btn-lovelive">🎤 Love Live!</button>
+                <button onclick="filterSpots('others')" class="tab-btn text-lg font-black" id="btn-others">🎸 기타 (봇치/케이온 등)</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-12 flex-grow w-full">
+        
+        <div class="mb-10 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-xs font-bold">등록된 성지</p>
+                <p class="text-2xl font-black text-slate-800">60+</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-xs font-bold">MyGO!!!!! 관련</p>
+                <p class="text-2xl font-black text-blue-600">8곳</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-xs font-bold">Aqours 관련</p>
+                <p class="text-2xl font-black text-sky-500">10곳</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-xs font-bold">최다 방문 성지</p>
+                <p class="text-xl font-black text-pink-500">고송교차로</p>
+            </div>
+        </div>
+
+        <div id="spot-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-10 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-4">
+                <span class="text-2xl font-black text-sky-600 tracking-tighter mr-2 font-jua">HB</span>
+                <span class="font-bold text-white">효빈교통공사</span>
+            </div>
+            <p class="mb-2 leading-relaxed">
+                본 페이지에 소개된 성지 정보는 역명 유래의 유사성 및 팬덤 내의 별칭을 기반으로 작성되었습니다.<br>
+                공식 콜라보레이션 역사가 아닐 수 있으나, 팬 여러분의 즐거운 덕질을 응원합니다!
+            </p>
+            <p>Copyright 2016. 효빈교통공사 All right reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 데이터 (요청하신 상세 내용을 바탕으로 재구성)
+        // popularity: 승하차량 기준 백분율 (최대값 107,157 기준)
+        const spots = [
+            // ---------------- [BanG Dream!] ----------------
+            { 
+                category: 'bangdream', 
+                line: '2, 6호선', 
+                station: '고송교차로', 
+                address: '효빈광역시 북구 고송동 112-2',
+                char: '타카마츠 토모리 (MyGO!!!!!)', 
+                desc: '보컬 토모리의 성씨(高松) 한자가 완벽하게 일치합니다! 마이고 팬들의 제1성지.',
+                detail: '실제 지명이지만 우연히도 한자가 같아 팬들 사이에서 "토모리 교차로"로 불립니다. 지하 1층 굿즈샵 필수 방문!',
+                visitors: '107,157명 (2위)', 
+                popularity: 100 
+            },
+            { 
+                category: 'bangdream', 
+                line: '1, 3호선', 
+                station: '청엽구청', 
+                address: '효빈광역시 청엽구 청엽동 93',
+                char: '아오바 모카 (Afterglow)', 
+                desc: '모카 쨩의 성씨(靑葉, 아오바) 한자를 한국식으로 읽으면 "청엽"입니다!',
+                detail: '구청 이름이 최애 성씨라니! 애프터글로우 팬들의 필수 방문 코스. 지하 2층에 굿즈샵도 있습니다.',
+                visitors: '62,170명 (10위)', 
+                popularity: 60 
+            },
+            { 
+                category: 'bangdream', 
+                line: '1, 2호선', 
+                station: '입희', 
+                address: '효빈광역시 북구 입희동 8-9',
+                char: '시이나 타키 (MyGO!!!!!)', 
+                desc: '드러머 타키(立希)의 이름 한자가 역명과 완전히 똑같습니다.',
+                detail: '한자까지 똑같은 경우는 매우 드뭅니다. 타키의 강렬한 드럼 비트가 들리는 듯한 역!',
+                visitors: '50,591명 (17위)', 
+                popularity: 47 
+            },
+            { 
+                category: 'bangdream', 
+                line: '1, 2호선', 
+                station: '우전', 
+                address: '효빈광역시 청엽구 우전동 4-15',
+                char: '우다가와 자매 (Roselia/Afterglow)', 
+                desc: '우다가와(宇田川) 자매의 성씨 앞글자 한자(宇田)가 역 이름입니다.',
+                detail: '아코와 토모에 자매를 동시에 느낄 수 있는, 자매 팬들의 성지.',
+                visitors: '44,081명 (18위)', 
+                popularity: 41 
+            },
+            { 
+                category: 'bangdream', 
+                line: '6호선',
+                station: '고송',
+                address: '효빈광역시 북구 고송동 431',
+                char: '타카마츠 토모리 (MyGO!!!!!)',
+                desc: '토모리의 성씨(高松) 한자가 들어간 역.',
+                detail: '고송교차로역, 고송나루역과 함께 "토모리 3대장 역" 중 하나입니다.',
+                visitors: '43,213명 (19위)',
+                popularity: 40
+            },
+            { 
+                category: 'bangdream', 
+                line: '2, 6호선',
+                station: '마잡',
+                address: '효빈광역시 청엽구 마잡동 3',
+                char: '아오바 모카 (Afterglow)',
+                desc: '모카의 이름을 중국어로 번안했을 때 나오는 한자와 일치합니다.',
+                detail: '글로벌한 모카 팬들이라면 놓칠 수 없는 유니크한 성지.',
+                visitors: '40,513명 (23위)',
+                popularity: 38
+            },
+            { 
+                category: 'bangdream', 
+                line: '3, 6호선',
+                station: '고송나루',
+                address: '효빈광역시 북구 고송동 323',
+                char: '타카마츠 토모리 (MyGO!!!!!)',
+                desc: '토모리의 성씨(高松)가 들어간 또 하나의 역.',
+                detail: '나루터의 고즈넉함과 토모리의 감성이 어우러지는 곳입니다.',
+                visitors: '37,095명 (24위)',
+                popularity: 35
+            },
+            { 
+                category: 'bangdream', 
+                line: '3호선', 
+                station: '토모리해수욕장', 
+                address: '효빈광역시 북구 고송동 103',
+                char: '타카마츠 토모리 (MyGO!!!!!)', 
+                desc: '이름이 "토모리" 그 자체! 한글 표기까지 완벽하게 동일한 기적의 장소.',
+                detail: '해수욕장 이름이 어떻게 토모리...? 팬들이 가장 놀라워하는 성지 중 하나.',
+                visitors: '11,322명 (99위)', 
+                popularity: 11 
+            },
+            { 
+                category: 'bangdream', 
+                line: '2, 3호선', 
+                station: '동곡', 
+                address: '효빈광역시 창전구 동곡동 16',
+                char: '키리가야 토우코 (Morfonica)', 
+                desc: '토우코(透子)의 성씨(桐谷, 키리가야) 한자와 유사성이 높습니다.',
+                detail: '모르포니카 팬들이 자주 찾는 숨겨진 명소.',
+                visitors: '35,549명 (28위)', 
+                popularity: 33 
+            },
+            { 
+                category: 'bangdream', 
+                line: '6호선',
+                station: '진희',
+                address: '효빈광역시 북구 진희동 221',
+                char: '시이나 마키 (MyGO!!!!!)',
+                desc: '타키의 언니 "마키"의 이름을 한자로 풀면 진희가 됩니다.',
+                detail: '러브라이브 마키 팬들과 마이고 팬들이 함께 찾는 교차 성지.',
+                visitors: '32,492명 (32위)',
+                popularity: 30
+            },
+            { 
+                category: 'bangdream', 
+                line: '2, 5호선', 
+                station: '시로', 
+                address: '효빈광역시 창전구 시로동 46',
+                char: '쿠라타 마시로 (Morfonica)', 
+                desc: '마"시로" 쨩의 이름 뒤 두 글자를 그대로 역명으로 사용!',
+                detail: '역 이름이 시로(白)라니, 마시로 쨩의 순수함과 딱 어울리는 역입니다.',
+                visitors: '30,424명 (34위)', 
+                popularity: 28 
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선',
+                station: '창전구청',
+                address: '효빈광역시 창전구 창전동 2-19',
+                char: '쿠라타 마시로 (Morfonica)',
+                desc: '마시로의 성씨(倉田, 쿠라타) 한자가 역 이름에 들어갑니다.',
+                detail: '지하 1층 굿즈샵에서 마시로 관련 상품을 찾아보세요!',
+                visitors: '30,273명 (35위)',
+                popularity: 28
+            },
+            { 
+                category: 'bangdream', 
+                line: '6호선',
+                station: '동고송',
+                address: '효빈광역시 북구 고송동 345',
+                char: '타카마츠 토모리 (MyGO!!!!!)',
+                desc: '토모리의 성씨(高松)가 들어간 동쪽 역.',
+                detail: '고송 시리즈 역 중 하나로, 토모리 팬들의 순례 코스입니다.',
+                visitors: '28,412명 (38위)',
+                popularity: 27
+            },
+            { 
+                category: 'bangdream', 
+                line: '2호선', 
+                station: '쌍엽', 
+                address: '효빈광역시 창전구 쌍엽동 9',
+                char: '후타바 츠쿠시 (Morfonica)', 
+                desc: '성씨 "후타바(双葉)"의 뜻인 "쌍엽"을 그대로 역명으로 씁니다.',
+                detail: '리더 츠쿠시 쨩의 성씨를 한국식 독음으로 읽으면 바로 이 역 이름이 됩니다.',
+                visitors: '23,292명 (46위)', 
+                popularity: 22 
+            },
+            { 
+                category: 'bangdream', 
+                line: '2호선', 
+                station: '칠심', 
+                address: '효빈광역시 창전구 칠심동 616',
+                char: '히로마치 나나미 (Morfonica)', 
+                desc: '나나미(七深)의 이름 한자를 한국식으로 읽으면 "칠심"입니다.',
+                detail: '천재 나나미 쨩의 이름이 들어간 역. 왠지 평범하지 않을 것 같은 느낌?',
+                visitors: '23,232명 (47위)', 
+                popularity: 22 
+            },
+            { 
+                category: 'bangdream', 
+                line: '3호선',
+                station: '청엽',
+                address: '효빈광역시 청엽구 청엽동 9-3',
+                char: '아오바 모카 (Afterglow)',
+                desc: '모카의 성씨(靑葉) 한자 그대로 역명입니다.',
+                detail: '청엽구청역과 함께 모카 팬들의 더블 성지!',
+                visitors: '22,919명 (48위)',
+                popularity: 21
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선', 
+                station: '아논타워', 
+                address: '효빈광역시 청엽구 청엽동 98',
+                char: '치하야 아논 (MyGO!!!!!)', 
+                desc: '아논 도쿄? 아니죠, 아논 타워! 이름에 건물을 붙이기 좋아하는 아논에게 딱!',
+                detail: '아논 쨩이 이 역을 보면 "내 타워야!" 하고 좋아할 것 같네요.',
+                visitors: '20,232명 (57위)', 
+                popularity: 19 
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선', 
+                station: '우택', 
+                address: '효빈광역시 청엽구 우택동 19',
+                char: '하자와 츠구미 (Afterglow)', 
+                desc: '츠구미의 성씨(羽澤, 하자와) 한자를 한국식으로 읽으면 "우택"입니다.',
+                detail: '츠구미 쨩의 성실함이 느껴지는 역.',
+                visitors: '19,023명 (60위)', 
+                popularity: 18 
+            },
+            { 
+                category: 'bangdream', 
+                line: '빈효선',
+                station: '리의',
+                address: '효빈광역시 안천구 리의동 20',
+                char: '우자와 리이 (Glitter*Green)',
+                desc: '이름(리이)가 그대로 역 이름이 되었습니다.',
+                detail: '글리터 그린 팬들을 위한 희귀한 성지.',
+                visitors: '18,372명 (63위)',
+                popularity: 17
+            },
+            { 
+                category: 'bangdream', 
+                line: '6호선',
+                station: '비마',
+                address: '효빈광역시 청엽구 비마동 532',
+                char: '우에하라 히마리 (Afterglow)',
+                desc: '히마리의 이름을 중국어로 번안했을 때의 한자 일부와 일치합니다.',
+                detail: '히마리 팬들이라면 꼭 들러봐야 할 독특한 성지.',
+                visitors: '17,921명 (67위)',
+                popularity: 17
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선',
+                station: '창전',
+                address: '효빈광역시 창전구 유류동 388',
+                char: '쿠라타 마시로 (Morfonica)',
+                desc: '마시로의 성씨(倉田) 한자와 일치합니다.',
+                detail: '창전구청역과 더불어 마시로 팬들의 성지.',
+                visitors: '15,492명 (80위)',
+                popularity: 14
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선',
+                station: '동리',
+                address: '효빈광역시 청엽구 동리동 1-7',
+                char: '하자와 츠구미 (Afterglow)',
+                desc: '츠구미의 이름을 중국어로 번안했을 때의 한자와 일치합니다.',
+                detail: '츠구미 팬들을 위한 글로벌 성지.',
+                visitors: '15,322명 (82위)',
+                popularity: 14
+            },
+            { 
+                category: 'bangdream', 
+                line: '5호선',
+                station: '남우택',
+                address: '효빈광역시 청엽구 우택동 1465',
+                char: '하자와 츠구미 (Afterglow)',
+                desc: '성씨(羽澤) 한자가 들어간 또 하나의 역.',
+                detail: '우택역 남쪽에 위치하여 남우택역이 되었습니다. 츠구미 로드 완성!',
+                visitors: '15,022명 (85위)',
+                popularity: 14
+            },
+            { 
+                category: 'bangdream', 
+                line: '1, 빈효선', 
+                station: '영색무', 
+                address: '효빈광역시 안천구 영색무동 211',
+                char: '실루엣 댄스 (MyGO!!!!!)', 
+                desc: '마이고의 명곡 "실루엣 댄스(影色舞)"의 한자 표기가 그대로 역명!',
+                detail: '노래 제목이 역 이름이라니! 마이고 팬이라면 BGM으로 실루엣 댄스를 들으며 하차하세요.',
+                visitors: '11,054명 (100위)', 
+                popularity: 10 
+            },
+            { 
+                category: 'bangdream', 
+                line: '5호선',
+                station: '진백',
+                address: '효빈광역시 창전구 진백동 1651',
+                char: '쿠라타 마시로 (Morfonica)',
+                desc: '마시로의 이름(真白)을 중국어로 번안한 한자와 일치합니다.',
+                detail: '마시로(진백)라는 이름의 뜻을 생각하며 방문해보세요.',
+                visitors: '10,292명 (109위)',
+                popularity: 10
+            },
+            { 
+                category: 'bangdream', 
+                line: '3호선',
+                station: '사능',
+                address: '효빈광역시 북구 사능동3가 432',
+                char: '야마부키 사아야 (Poppin\'Party)',
+                desc: '사아야의 이름(沙綾) 한자가 완벽하게 일치합니다!',
+                detail: '포피파의 드럼, 사아야 쨩의 이름이 붙은 역. 근처 빵집에 가보고 싶어지네요.',
+                visitors: '10,283명 (110위)',
+                popularity: 10
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선',
+                station: '보통',
+                address: '효빈광역시 창전구 창전동 639',
+                char: '히로마치 나나미 (Morfonica)',
+                desc: '나나미의 말버릇인 "보통(普通)"이 그대로 역 이름!',
+                detail: '천재 나나미 쨩이 그토록 원하던 "보통"의 삶이 역 이름으로 실현되었습니다.',
+                visitors: '10,238명 (112위)',
+                popularity: 10
+            },
+            { 
+                category: 'bangdream', 
+                line: '5호선',
+                station: '청엽국제학교',
+                address: '효빈광역시 청엽구 청엽동 435',
+                char: '아오바 모카 (Afterglow)',
+                desc: '모카의 성씨(靑葉)가 들어간 학교 역명.',
+                detail: '모카 쨩이 다닐 것만 같은 학교 이름입니다.',
+                visitors: '9,382명 (115위)',
+                popularity: 9
+            },
+            { 
+                category: 'bangdream', 
+                line: '빈효선',
+                station: '북택',
+                address: '효빈광역시 안천구 북택동 730',
+                char: '키타자와 하구미 (Hello, Happy World!)',
+                desc: '하구미의 성씨(北沢) 한자를 한국식으로 읽으면 "북택"입니다.',
+                detail: '하구미 쨩의 밝은 에너지가 느껴지는 역.',
+                visitors: '9,183명 (119위)',
+                popularity: 9
+            },
+            { 
+                category: 'bangdream', 
+                line: '3호선',
+                station: '팔조',
+                address: '효빈광역시 창전구 팔조동 220-2',
+                char: '야시오 루이 (Morfonica)',
+                desc: '루이의 성씨(八潮) 한자를 한국식으로 읽으면 "팔조"!',
+                detail: '철도박물관과 함께 루이 쨩의 지적인 이미지가 어울리는 역입니다.',
+                visitors: '8,832명 (123위)',
+                popularity: 8
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선',
+                station: '백합공원',
+                address: '효빈광역시 안천구 백합동 352',
+                char: '우시고메 유리 (Glitter*Green)',
+                desc: '유리의 이름(ゆり)이 백합을 뜻한다는 점에서 유래.',
+                detail: '리미링의 언니, 유리 쨩을 떠올리게 하는 아름다운 공원 역.',
+                visitors: '8,822명 (125위)',
+                popularity: 8
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선',
+                station: '비마리유적지구',
+                address: '효빈광역시 청엽구 비마동 10-23',
+                char: '우에하라 히마리 (Afterglow)',
+                desc: '히마리의 이름을 중국어로 번안했을 때의 한자가 들어갑니다.',
+                detail: '유적지구라니, 뭔가 역사적인 느낌이 히마리 쨩과 묘하게 어울립니다.',
+                visitors: '8,192명 (133위)',
+                popularity: 8
+            },
+            { 
+                category: 'bangdream', 
+                line: '2호선',
+                station: '등동',
+                address: '효빈광역시 청엽구 등동 10',
+                char: '타카마츠 토모리 (MyGO!!!!!)',
+                desc: '토모리의 이름(燈) 한자에 동네 동(洞)을 붙인 이름.',
+                detail: '토모리의 "등불"이 밝혀주는 동네라는 뜻일까요?',
+                visitors: '8,127명 (135위)',
+                popularity: 8
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선',
+                station: '삼각',
+                address: '효빈광역시 중구 삼각동 3',
+                char: '미스미 우이카 (Ave Mujica)',
+                desc: '우이카의 성씨(三角) 한자가 완벽하게 일치합니다.',
+                detail: '아베 무지카 팬들의 숨겨진 성지. 삼각동에서 우이카의 아우라를 느껴보세요.',
+                visitors: '6,235명 (154위)',
+                popularity: 6
+            },
+            { 
+                category: 'bangdream', 
+                line: '빈효선',
+                station: '산취',
+                address: '덕빈북도 천주시 궁하구 산취면 궁하구 사야리 519',
+                char: '야마부키 사아야 (Poppin\'Party)',
+                desc: '사아야의 성씨(山吹) 한자를 한국식으로 읽으면 "산취"!',
+                detail: '이름(사능)과 성씨(산취) 역이 모두 존재하는 사아야 쨩의 위엄.',
+                visitors: '5,682명 (159위)',
+                popularity: 5
+            },
+            { 
+                category: 'bangdream', 
+                line: '3호선',
+                station: '투자',
+                address: '효빈광역시 창전구 투자동 12',
+                char: '키리가야 토우코 (Morfonica)',
+                desc: '토우코의 이름(透子) 한자를 한국식으로 읽으면 "투자"입니다.',
+                detail: '투자(Investment)가 아닙니다! 토우코 쨩의 이름입니다!',
+                visitors: '5,428명 (162위)',
+                popularity: 5
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '리사',
+                address: '효빈광역시 중구 리사동 559',
+                char: '이마이 리사 (Roselia)',
+                desc: '역 이름이 그냥 "리사"입니다. 완벽 그 자체!',
+                detail: '로젤리아의 베이시스트 리사 姉(네에)의 이름이 붙은 역. 쿠키를 구워가고 싶네요.',
+                visitors: '4,931명 (174위)',
+                popularity: 5
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선',
+                station: '빙천',
+                address: '효빈광역시 남구 고간동 53',
+                char: '히카와 자매 (Roselia/Pasupale)',
+                desc: '히카와(氷川) 자매의 성씨 한자를 한국식으로 읽으면 "빙천"!',
+                detail: '사요와 히나 자매의 성씨가 역 이름으로! 자매 팬들의 성지.',
+                visitors: '4,822명 (184위)',
+                popularity: 4
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선',
+                station: '서수',
+                address: '효빈광역시 안천구 서수동 134-2',
+                char: '토가와 미즈호 (Ave Mujica 관련)',
+                desc: '사키코의 어머니 "미즈호(瑞穂)"의 한자를 한국식으로 읽으면 "서수"입니다.',
+                detail: '깊은 서사가 담긴 이름... 아베 무지카 팬들에게 의미 있는 장소.',
+                visitors: '3,928명 (193위)',
+                popularity: 4
+            },
+            { 
+                category: 'bangdream', 
+                line: '1호선',
+                station: '추자',
+                address: '효빈광역시 안천구 추자동 719',
+                char: '니쥿키 히나코 (Glitter*Green)',
+                desc: '히나코의 이름(雛子) 한자를 한국식으로 읽으면 "추자"입니다.',
+                detail: '글리터 그린의 리더, 히나코 쨩의 이름이 담긴 역.',
+                visitors: '3,312명 (197위)',
+                popularity: 3
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선',
+                station: '뇌전',
+                address: '효빈광역시 안천구 뇌전동 228',
+                char: '세타 카오루 (Hello, Happy World!)',
+                desc: '카오루의 성씨(瀬田, 세타)에서 유래한 것으로 추정되는 한자.',
+                detail: '덧없는(儚い) 세상... 카오루 님의 성씨를 느낄 수 있는 역입니다.',
+                visitors: '3,093명 (203위)',
+                popularity: 3
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선', 
+                station: '잠재', 
+                address: '효빈광역시 탄성군 도변읍 잠재리 145',
+                char: '잠재표명 (MyGO!!!!!)', 
+                desc: '마이고의 데뷔곡 느낌이 물씬 나는 "잠재" 역입니다.',
+                detail: '역명판을 보며 "잠재표명"을 흥얼거리는 팬들이 자주 목격됩니다.',
+                visitors: '2,492명 (211위)', 
+                popularity: 2
+            },
+            { 
+                category: 'bangdream', 
+                line: '4호선',
+                station: '사야',
+                address: '효빈광역시 남구 박산동 51',
+                char: '히카와 사요 (Roselia)',
+                desc: '사요(紗夜)의 이름 "사야"와 발음이 같습니다.',
+                detail: '사요 쨩의 이름을 부르는 듯한 역명. 로젤리아 팬들의 체크 포인트.',
+                visitors: '2,092명 (225위)',
+                popularity: 2
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '만마루',
+                address: '효빈광역시 중구 내항동 461',
+                char: '마루야마 아야 (Pastel*Palettes)',
+                desc: '아야 쨩의 별명 "만마루(동그라미) 산"이 그대로 역 이름으로!',
+                detail: '만마루 오야마니 이로 도리도리~! 아야 쨩의 귀여움이 느껴지는 역.',
+                visitors: '2,039명 (226위)',
+                popularity: 2
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '유성당',
+                address: '효빈광역시 북구 사능동2가 842',
+                char: '이치가야 아리사 (Poppin\'Party)',
+                desc: '아리사의 할머니가 운영하는 전당포(창고) "유성당"과 이름이 같습니다!',
+                detail: '포피파의 아지트, 유성당이 역 이름이라니! 분재를 구경하고 싶네요.',
+                visitors: '2,001명 (232위)',
+                popularity: 2
+            },
+            { 
+                category: 'bangdream', 
+                line: '빈효선',
+                station: '시곡',
+                address: '덕빈북도 천주시 궁하구 시곡면 궁하구 유소리 1027',
+                char: '이치가야 아리사 (Poppin\'Party)',
+                desc: '아리사의 성씨(市ヶ谷) 한자와 유사한 느낌의 역명.',
+                detail: '유성당 역과 함께 아리사 팬들이 찾는 성지입니다.',
+                visitors: '1,992명 (234위)',
+                popularity: 2
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '사능복지관',
+                address: '효빈광역시 북구 사능동2가 852',
+                char: '야마부키 사아야 (Poppin\'Party)',
+                desc: '사아야(沙綾)의 이름이 들어간 복지관 역.',
+                detail: '사아야 쨩의 착한 마음씨가 느껴지는 역 이름입니다.',
+                visitors: '1,582명 (253위)',
+                popularity: 1
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '사능동3가',
+                address: '효빈광역시 북구 사능동3가 688',
+                char: '야마부키 사아야 (Poppin\'Party)',
+                desc: '사아야(沙綾)의 이름이 들어간 동네의 3가 역.',
+                detail: '사능동 시리즈 역 중 하나입니다.',
+                visitors: '1,322명 (258위)',
+                popularity: 1
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '사능삼거리',
+                address: '효빈광역시 북구 사능동1가 220',
+                char: '야마부키 사아야 (Poppin\'Party)',
+                desc: '사아야(沙綾)의 이름이 들어간 삼거리 역.',
+                detail: '사능동의 중심, 사능삼거리에서 사아야를 외쳐보세요.',
+                visitors: '1,204명 (262위)',
+                popularity: 1
+            },
+            { 
+                category: 'bangdream', 
+                line: '7호선',
+                station: '사능동1가',
+                address: '효빈광역시 북구 사능동1가 753',
+                char: '야마부키 사아야 (Poppin\'Party)',
+                desc: '사아야(沙綾)의 이름이 들어간 동네의 1가 역.',
+                detail: '사능동 투어의 시작점!',
+                visitors: '1,043명 (265위)',
+                popularity: 1
+            },
+
+            // ---------------- [Love Live!] ----------------
+            { 
+                category: 'lovelive', 
+                line: '2, 6호선', 
+                station: '중수', 
+                address: '효빈광역시 북구 중수동 1-23',
+                char: '나카스 카스미 (Nijigasaki)', 
+                desc: '카스밍의 성씨(中須, 나카스) 한자를 한국식으로 읽으면 "중수"!',
+                detail: '귀여운 카스밍의 성씨가 역 이름이라니! 니지동 팬들의 필수 체크 포인트. 지하 2층 굿즈샵 있음.',
+                visitors: '78,315명 (5위)', 
+                popularity: 73 
+            },
+            { 
+                category: 'lovelive', 
+                line: '4, 빈효선', 
+                station: '이자', 
+                address: '효빈광역시 안천구 이자동 9-19',
+                char: '사쿠라우치 리코 (Sunshine!!)', 
+                desc: '리코(莉子)의 이름 한자가 완벽하게 일치합니다. 리코 쨩 빔-!',
+                detail: '역 이름이 리코 그 자체. 리코 팬들이 가장 사랑하는 역입니다. 지하 1층 굿즈샵 운영 중.',
+                visitors: '72,063명 (7위)', 
+                popularity: 67 
+            },
+            { 
+                category: 'lovelive', 
+                line: '1, 4호선',
+                station: '이자공원',
+                address: '효빈광역시 안천구 이자동 1835',
+                char: '사쿠라우치 리코 (Sunshine!!)',
+                desc: '리코(莉子)의 이름이 들어간 공원 역.',
+                detail: '리코 쨩과 산책하고 싶은 공원입니다. 이자역과 함께 리코 성지 투어 코스.',
+                visitors: '58,559명 (13위)',
+                popularity: 55
+            },
+            { 
+                category: 'lovelive', 
+                line: '4, 5호선', 
+                station: '도변', 
+                address: '효빈광역시 탄성군 도변읍 도변리 381-21',
+                char: '와타나베 요우 (Sunshine!!)', 
+                desc: '요우 소로~! 성씨(渡辺, 와타나베)의 한국식 독음이 "도변"입니다.',
+                detail: '전속전진 요소로! 요우 쨩의 활기찬 에너지가 느껴지는 환승역.',
+                visitors: '36,621명 (27위)', 
+                popularity: 34 
+            },
+            { 
+                category: 'lovelive', 
+                line: '2, 빈효선', 
+                station: '당가', 
+                address: '효빈광역시 안천구 당가동 717',
+                char: '탕 쿠쿠 (Superstar!!)', 
+                desc: '쿠쿠의 이름(唐可可) 중 앞 두 글자(唐可)가 역 이름과 일치!',
+                detail: '스쿨 아이돌을 향한 열정이 가득한 역. 쿠쿠 쨩의 고향 상하이까지 닿을 듯?',
+                visitors: '34,294명 (30위)', 
+                popularity: 32 
+            },
+            { 
+                category: 'lovelive', 
+                line: '4호선', 
+                station: '앵내', 
+                address: '효빈광역시 탄성군 도변읍 앵내리 919',
+                char: '사쿠라우치 리코 (Sunshine!!)', 
+                desc: '리코의 성씨(桜内, 사쿠라우치)를 한국식으로 읽으면 "앵내"입니다.',
+                detail: '이자역(이름)과 앵내역(성씨)가 모두 4호선에? 4호선은 리코 라인이네요!',
+                visitors: '22,782명 (49위)', 
+                popularity: 21 
+            },
+            { 
+                category: 'lovelive', 
+                line: '5호선', 
+                station: '소조', 
+                address: '효빈광역시 북구 소조동 912',
+                char: '미나미 코토리 (µ\'s)', 
+                desc: '코토리(小鳥)의 한자(小)와 조(助)가 결합된, 작은 새 느낌의 역명.',
+                detail: '역 이름에서 짹짹이(코토리)가 연상됩니다. 뮤즈 팬들의 추억 장소. 지하 1층 굿즈샵.',
+                visitors: '21,123명 (55위)', 
+                popularity: 20 
+            },
+            { 
+                category: 'lovelive', 
+                line: '빈효선', 
+                station: '아이', 
+                address: '덕빈북도 천주시 궁하구 아이동 5',
+                char: '미야시타 아이 (Nijigasaki)', 
+                desc: '역 이름이 그냥 "아이(Ai)"입니다. 다자레가 생각나는 완벽한 일치!',
+                detail: '아이 쨩의 이름을 딴 역이라니, 텐션이 올라가지 않을 수 없네요!',
+                visitors: '17,931명 (66위)', 
+                popularity: 17 
+            },
+            { 
+                category: 'lovelive', 
+                line: '4호선', 
+                station: '요우', 
+                address: '효빈광역시 탄성군 도변읍 요우리 4-17',
+                char: '와타나베 요우 (Sunshine!!)', 
+                desc: '역 이름이 "요우(曜)". 발음까지 요우 쨩과 완벽하게 똑같습니다!',
+                detail: '도변역(성씨)에 이어 요우역(이름)까지? 4호선은 요우 오시들의 천국.',
+                visitors: '17,392명 (72위)', 
+                popularity: 16 
+            },
+            { 
+                category: 'lovelive', 
+                line: '1호선', 
+                station: '천왕사', 
+                address: '효빈광역시 북구 천왕사동 11-13',
+                char: '텐노지 리나 (Nijigasaki)', 
+                desc: '리나 쨩 보드! 성씨(天王寺, 텐노지)의 한국식 독음이 "천왕사"입니다.',
+                detail: '리나 쨩의 성씨가 들어간 역. IT 기기를 들고 방문해보세요.',
+                visitors: '15,622명 (79위)', 
+                popularity: 15 
+            },
+            { 
+                category: 'lovelive', 
+                line: '빈효선', 
+                station: '궁하', 
+                address: '덕빈북도 천주시 궁하구 궁하동 530',
+                char: '미야시타 아이 (Nijigasaki)', 
+                desc: '성씨(宮下, 미야시타)의 한국식 독음 "궁하"와 일치합니다.',
+                detail: '아이 역(이름)과 궁하 역(성씨)가 모두 빈효선에 있습니다!',
+                visitors: '14,621명 (86위)', 
+                popularity: 14 
+            },
+            { 
+                category: 'lovelive', 
+                line: '1호선',
+                station: '이자출장소',
+                address: '효빈광역시 안천구 이십기동 341',
+                char: '사쿠라우치 리코 (Sunshine!!)',
+                desc: '리코(莉子)의 이름이 들어간 또 하나의 역.',
+                detail: '이자역, 이자공원역, 이자출장소역... 이자(리코) 유니버스의 완성.',
+                visitors: '14,283명 (89위)',
+                popularity: 13
+            },
+            { 
+                category: 'lovelive', 
+                line: '1, 빈효선', 
+                station: '고해', 
+                address: '효빈광역시 탄성군 고해읍 이와리 81',
+                char: '타카미 치카 (Sunshine!!)', 
+                desc: '대장 치카의 성씨(高海, 타카미) 한자를 한국식으로 읽으면 "고해"!',
+                detail: '귤 대장님의 성씨가 역 이름이라니! 귤을 들고 인증샷을 찍어보세요.',
+                visitors: '14,290명 (88위)', 
+                popularity: 13 
+            },
+            { 
+                category: 'lovelive', 
+                line: '빈효선', 
+                station: '타천', 
+                address: '효빈광역시 안천구 타천동 79',
+                char: '츠시마 요시코 (Sunshine!!)', 
+                desc: '"타천(墮天)"이라니! 요하네의 타천사 컨셉과 운명적으로 일치하는 역명.',
+                detail: '리틀 데몬들이라면 지나칠 수 없는 역. 타천사 요하네 강림!',
+                visitors: '13,485명 (95위)', 
+                popularity: 13 
+            },
+            { 
+                category: 'lovelive', 
+                line: '1호선', 
+                station: '과남', 
+                address: '효빈광역시 안천구 이자동 2-10',
+                char: '마츠우라 카난 (Sunshine!!)', 
+                desc: '카난의 이름(果南) 한자가 완벽하게 일치합니다. 허그 시요!',
+                detail: '다이빙 수트가 어울릴 것 같은 역. 카난 팬들의 필수 코스.',
+                visitors: '10,326명 (108위)', 
+                popularity: 10 
+            },
+            { 
+                category: 'lovelive', 
+                line: '5호선', 
+                station: '루비', 
+                address: '효빈광역시 탄성군 흑택면 루비리 9-21',
+                char: '쿠로사와 루비 (Sunshine!!)', 
+                desc: '이름도, 발음도 "루비" 그 자체! 간바루비!',
+                detail: '너무 귀여운 역 이름. 루비 쨩을 위해 만들어진 역 같아요.',
+                visitors: '8,827명 (124위)', 
+                popularity: 8 
+            },
+            { 
+                category: 'lovelive', 
+                line: '1호선', 
+                station: '보몽', 
+                address: '효빈광역시 동구 전천동 3-1',
+                char: '우에하라 아유무 (Nijigasaki)', 
+                desc: '아유무의 이름(歩夢) 한자를 한국식으로 읽으면 "보몽"입니다.',
+                detail: '꿈을 향해 걸어가는 아유무 쨩의 서사가 담긴 듯한 아름다운 역 이름.',
+                visitors: '8,642명 (128위)', 
+                popularity: 8 
+            },
+            { 
+                category: 'lovelive', 
+                line: '5호선', 
+                station: '화환', 
+                address: '효빈광역시 서구 청덕동 1453',
+                char: '쿠니키다 하나마루 (Sunshine!!)', 
+                desc: '하나마루의 이름(花丸) 한자를 한국식으로 읽으면 "화환"입니다. 즈라!',
+                detail: '미래즈라~! 하나마루 쨩의 이름이 적힌 역명판을 찾아보세요.',
+                visitors: '7,592명 (138위)', 
+                popularity: 7 
+            },
+            { 
+                category: 'lovelive', 
+                line: '2호선',
+                station: '흑택',
+                address: '효빈광역시 탄성군 흑택면 흑택리 11',
+                char: '쿠로사와 자매 (Sunshine!!)',
+                desc: '쿠로사와(黒澤) 자매의 성씨 한자를 한국식으로 읽으면 "흑택"입니다.',
+                detail: '다이아와 루비 자매의 본가 같은 느낌이 드는 역.',
+                visitors: '6,263명 (153위)',
+                popularity: 6
+            },
+            { 
+                category: 'lovelive', 
+                line: '4호선', 
+                station: '소원', 
+                address: '효빈광역시 탄성군 소원면 소원리 613',
+                char: '오하라 마리 (Sunshine!!)', 
+                desc: '마리의 성씨(小原, 오하라) 한자를 한국식으로 읽으면 "소원"입니다.',
+                detail: '샤이니~! 마리 쨩의 성씨가 들어간 역. 왠지 부자가 될 것 같은 기분?',
+                visitors: '5,462명 (160위)', 
+                popularity: 5 
+            },
+            { 
+                category: 'lovelive', 
+                line: '6호선',
+                station: '진희',
+                address: '효빈광역시 북구 진희동 221',
+                char: '니시키노 마키 (µ\'s)',
+                desc: '마키의 이름(真姫) 한자를 한국식으로 읽으면 "진희"입니다.',
+                detail: '츤데레 마키 쨩의 이름이 숨겨진 역.',
+                visitors: '32,492명 (32위)',
+                popularity: 30
+            },
+            { 
+                category: 'lovelive', 
+                line: '1호선',
+                station: '서목',
+                address: '효빈광역시 탄성군 서목읍 서목리 753',
+                char: '니시키노 마키 (µ\'s)',
+                desc: '마키의 성씨(西木野) 중 앞 두 글자(西木)를 따온 역명.',
+                detail: '니시키노 가문의 병원이 있을 것 같은 역.',
+                visitors: '24,032명 (45위)',
+                popularity: 22
+            },
+            { 
+                category: 'lovelive', 
+                line: '1호선',
+                station: '야진입구',
+                address: '효빈광역시 탄성군 탄성읍 미성리 4',
+                char: '니시키노 마키 (µ\'s)',
+                desc: '마키의 이름(真姫)과 성씨(野)의 한자가 일부 겹치는 미묘한 성지.',
+                detail: '숨겨진 마키 쨩의 흔적을 찾아보세요.',
+                visitors: '20,232명 (57위)',
+                popularity: 19
+            },
+            { 
+                category: 'lovelive', 
+                line: '4호선', 
+                station: '천가', 
+                address: '효빈광역시 탄성군 고해읍 천가리 1000',
+                char: '타카미 치카 (Sunshine!!)', 
+                desc: '치카의 이름(千歌) 한자가 완벽하게 일치! 1호선 고해역(성씨)과 세트.',
+                detail: '노래하는 천가역! 치카 쨩의 이름과 성씨가 모두 효빈에 있습니다.',
+                visitors: '4,173명 (190위)', 
+                popularity: 4 
+            },
+            { 
+                category: 'lovelive', 
+                line: '빈효선', 
+                station: '과림', 
+                address: '덕빈북도 천주시 궁하구 과림읍 궁하구 조향리 629',
+                char: '아사카 카린 (Nijigasaki)', 
+                desc: '카린의 이름(果林) 한자를 한국식으로 읽으면 "과림"입니다.',
+                detail: '카린 선배의 성숙한 매력이 느껴지는 역.',
+                visitors: '3,852명 (195위)', 
+                popularity: 4 
+            },
+            { 
+                category: 'lovelive', 
+                line: '빈효선', 
+                station: '근강', 
+                address: '덕빈북도 약산시 근강면 건상리 12-16',
+                char: '코노에 카나타 (Nijigasaki)', 
+                desc: '카나타의 성씨(近江, 코노에) 한자를 한국식으로 읽으면 "근강"입니다.',
+                detail: '잠꾸러기 카나타 쨩의 성씨. 왠지 졸린 느낌이 드는 건 기분 탓?',
+                visitors: '1,928명 (238위)', 
+                popularity: 2 
+            },
+            { 
+                category: 'lovelive', 
+                line: '7호선',
+                station: '상원초등학교',
+                address: '효빈광역시 중구 만실동 130',
+                char: '우에하라 아유무 (Nijigasaki)',
+                desc: '아유무의 성씨(上原, 우에하라) 한자를 한국식으로 읽으면 "상원"!',
+                detail: '보몽역(이름)과 상원초역(성씨)가 모두 존재하는 아유무의 도시.',
+                visitors: '1,792명 (246위)',
+                popularity: 2
+            },
+
+            // ---------------- [Others] ----------------
+            { 
+                category: 'others', 
+                line: '빈효선', 
+                station: '홍하', 
+                address: '덕빈북도 약산시 홍하면 니지리 529',
+                char: '이지치 니지카 (Bocchi the Rock!)', 
+                desc: '니지카의 이름(虹夏) 한자를 한국식으로 읽으면 "홍하"!',
+                detail: '결속밴드의 리더, 니지카 쨩의 이름이 숨겨져 있습니다.',
+                visitors: '1,632명 (250위)', 
+                popularity: 2 
+            },
+            { 
+                category: 'others', 
+                line: '7호선', 
+                station: '봇지마을', 
+                address: '효빈광역시 북구 내성동2가 868',
+                char: '고토 히토리 (Bocchi the Rock!)', 
+                desc: '"봇치"라는 별명이 그대로 들어간 충격적인 역명! 외톨이들의 성지.',
+                detail: '봇치 쨩이 이 역을 보면 기절할지도 몰라요. 기타 히어로의 마을?',
+                visitors: '901명 (274위)', 
+                popularity: 1 
+            },
+            { 
+                category: 'others', 
+                line: '1호선', 
+                station: '추산', 
+                address: '효빈광역시 북구 추산동 1-15',
+                char: '아키야마 미오 (K-ON!)', 
+                desc: '미오의 성씨(秋山, 아키야마) 한자를 한국식으로 읽으면 "추산"입니다.',
+                detail: '베이스 소리가 들릴 것 같은 역. 케이온 팬들의 추억 여행지.',
+                visitors: '5,433명 (161위)', 
+                popularity: 5 
+            },
+            { 
+                category: 'others', 
+                line: '1호선', 
+                station: '무기', 
+                address: '덕빈북도 약산시 장곡읍 무기리 1456',
+                char: '코토부키 츠무기 (K-ON!)', 
+                desc: '츠무기의 별명 "무기"가 그대로 역 이름으로!',
+                detail: '단무지가 생각나는 눈썹! 티타임을 가지고 싶은 역입니다.',
+                visitors: '5,001명 (170위)', 
+                popularity: 5 
+            },
+            { 
+                category: 'others', 
+                line: '7호선', 
+                station: '우이문화촌', 
+                address: '효빈광역시 중구 우이동 852',
+                char: '히라사와 우이 (K-ON!)', 
+                desc: '유이의 동생, 착한 "우이"의 이름이 들어간 문화촌.',
+                detail: '우이 쨩처럼 따뜻하고 포근한 분위기의 역일 것 같네요.',
+                visitors: '3,955명 (191위)', 
+                popularity: 4 
+            },
+            { 
+                category: 'others', 
+                line: '7호선', 
+                station: '우이', 
+                address: '효빈광역시 중구 우이동 322',
+                char: '히라사와 우이 (K-ON!)', 
+                desc: '이름(우이) 그대로 사용된 역.',
+                detail: '우이문화촌역과 함께 우이 자매(?) 역입니다.',
+                visitors: '1,049명 (263위)',
+                popularity: 1
+            },
+            { 
+                category: 'others', 
+                line: '1호선', 
+                station: '도향', 
+                address: '효빈광역시 탄성군 도향면 분음리 12-9',
+                char: '카와라기 모모카 (Girls Band Cry)', 
+                desc: '모모카의 이름(桃香) 한자를 한국식으로 읽으면 "도향"!',
+                detail: '걸밴크 팬들이라면 놓칠 수 없는 모모카 님의 성지.',
+                visitors: '2,232명 (220위)', 
+                popularity: 2 
+            }
+        ];
+
+        // 필터링 함수
+        function filterSpots(category) {
+            const container = document.getElementById('spot-container');
+            container.innerHTML = '';
+
+            // 버튼 활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'border-b-4', 'border-blue-500'));
+            const activeBtn = document.getElementById('btn-' + category);
+            activeBtn.classList.add('active', 'border-b-4', 'border-blue-500');
+
+            // 데이터 필터링
+            const filtered = (category === 'all') ? spots : spots.filter(s => s.category === category);
+
+            // 카드 생성
+            filtered.forEach(spot => {
+                let badgeClass = 'bg-gray-500';
+                let badgeName = 'Other Anime';
+                
+                if(spot.category === 'bangdream') { badgeClass = 'bg-bangdream'; badgeName = 'BanG Dream!'; }
+                else if(spot.category === 'lovelive') { badgeClass = 'bg-lovelive'; badgeName = 'Love Live!'; }
+                else { badgeClass = 'bg-others'; badgeName = 'Others'; }
+
+                const card = `
+                    <div class="spot-card bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 flex flex-col relative group">
+                        <div class="h-2 w-full ${badgeClass}"></div>
+                        
+                        <div class="p-6 flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="${badgeClass} text-white text-[10px] font-black px-2 py-1 rounded shadow-sm tracking-wider uppercase">${badgeName}</span>
+                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">${spot.line}</span>
+                            </div>
+                            
+                            <h3 class="text-2xl font-black text-slate-800 mb-1 flex items-center">
+                                ${spot.station}역
+                                <i class="fa-solid fa-location-dot ml-2 text-gray-300 text-sm group-hover:text-red-400 transition"></i>
+                            </h3>
+                            <p class="text-xs text-gray-400 mb-3"><i class="fa-solid fa-map-pin mr-1"></i>${spot.address}</p>
+                            
+                            <p class="text-sm font-bold text-sky-600 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-heart animate-pulse text-pink-500"></i> ${spot.char}
+                            </p>
+                            
+                            <div class="bg-slate-50 p-4 rounded-xl mb-4 border border-slate-100">
+                                <p class="text-sm font-bold text-slate-700 mb-1">🎯 성지 포인트</p>
+                                <p class="text-sm text-slate-600 leading-relaxed">${spot.desc}</p>
+                            </div>
+                            
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-lightbulb text-yellow-400 mt-1"></i>
+                                <p class="text-xs text-gray-500 italic">${spot.detail}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-xs font-bold text-slate-500">성지 레벨 (방문객 수)</span>
+                                <span class="text-sm font-black text-slate-800">${spot.visitors}</span>
+                            </div>
+                            <div class="popularity-bar">
+                                <div class="popularity-fill" style="width: ${spot.popularity}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        // 초기 로드
+        filterSpots('all');
+    </script>
+</body>
+</html>

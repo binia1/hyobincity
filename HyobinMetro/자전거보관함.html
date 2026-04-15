@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자전거보관함/휴대승차 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 브랜드 컬러 */
+        .text-hb { color: #16A4BE; }
+        .bg-hb { background-color: #16A4BE; color: white; }
+        .border-hb { border-color: #16A4BE; }
+        
+        /* 탭 메뉴 스타일 */
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { background-color: #16A4BE; color: white; border-color: #16A4BE; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(22, 164, 190, 0.4); }
+        .tab-btn:not(.active):hover { background-color: #f1f5f9; color: #16A4BE; }
+        
+        /* 데이터 테이블 스타일 */
+        .data-table { width: 100%; border-collapse: collapse; border-top: 2px solid #334155; margin-bottom: 2rem; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 1rem; border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; text-align: center; }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; text-align: center; color: #475569; vertical-align: middle; line-height: 1.6; }
+        .data-table td:last-child { border-right: none; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+        .data-table .bg-gray { background-color: #f1f5f9; font-weight: 600; color: #334155; }
+        .data-table .text-left-cell { text-align: left; padding-left: 1.5rem; }
+
+        .section-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 3rem; margin-bottom: 1.25rem; border-left: 4px solid #16A4BE; padding-left: 0.75rem; }
+        
+        /* 노선별 컬러 뱃지 */
+        .badge-line1 { background-color: #0077DD; color: white; }
+        .badge-line2 { background-color: #00CCAA; color: white; }
+        .badge-line3 { background-color: #FFCC11; color: black; }
+        .badge-line4 { background-color: #FF5522; color: white; }
+        .badge-line5 { background-color: #EE0022; color: white; }
+        .badge-line6 { background-color: #881188; color: white; }
+        .badge-line7 { background-color: #FF8899; color: white; }
+        .badge-line8 { background-color: #9856FF; color: white; }
+        .badge-binhyo { background-color: #6677CC; color: white; }
+    </style>
+</head>
+<body class="bg-white flex flex-col min-h-screen">
+
+    <!-- 상단 서브 비주얼 영역 -->
+    <div class="w-full bg-slate-800 h-64 flex flex-col items-center justify-center relative overflow-hidden mt-16 md:mt-20">
+        <div class="absolute inset-0 bg-[url('https://placehold.co/1920x400/0f172a/1e293b?text=Bicycle+Storage')] bg-cover bg-center opacity-40"></div>
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-3">자전거보관함</h1>
+            <p class="text-slate-300 text-lg">녹색 교통수단 연계를 위한 효빈교통공사의 스마트 보관 서비스</p>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-grow w-full max-w-[1200px] mx-auto px-4 py-12">
+        
+        <!-- 브레드크럼 (경로) -->
+        <div class="flex items-center text-sm text-gray-500 mb-8 border-b border-gray-200 pb-4">
+            <i class="fa-solid fa-house mr-2"></i> 홈 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> 이용안내 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> <span class="font-bold text-gray-800">자전거보관함</span>
+        </div>
+
+        <div class="mb-10 text-gray-700 leading-relaxed text-lg text-center max-w-4xl mx-auto">
+            효빈교통공사는 자전거를 이용하는 시민들의 편의를 증진하고 대중교통과의 연계성을 강화하기 위해, <br class="hidden md:block">
+            주요 거점 역사에 <strong>스마트 무인 자전거 보관함</strong>을 운영하고 있습니다. <br class="hidden md:block">
+            안전하고 편리한 효빈 메트로 자전거 시설을 이용해 보세요.
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-12">
+            <button onclick="switchTab('guide')" id="tab-guide" class="tab-btn border border-gray-300 py-3.5 rounded-lg text-center font-medium shadow-sm">보관함 이용안내</button>
+            <button onclick="switchTab('location')" id="tab-location" class="tab-btn active border border-gray-300 py-3.5 rounded-lg text-center font-medium shadow-sm">설치역사 현황</button>
+            <button onclick="switchTab('carry')" id="tab-carry" class="tab-btn border border-gray-300 py-3.5 rounded-lg text-center font-medium shadow-sm">자전거 휴대승차 안내</button>
+        </div>
+
+        <!-- 1. 보관함 이용안내 섹션 -->
+        <div id="content-guide" class="tab-content hidden">
+            <h2 class="text-3xl font-black text-gray-900 mb-6">스마트 자전거 보관함 이용안내</h2>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                효빈교통공사의 자전거 보관함은 IoT(사물인터넷) 기술을 적용한 무인 시스템으로, '효빈 메트로 앱' 또는 교통카드를 통해 간편하게 이용할 수 있습니다. 도난 방지 CCTV 및 비가림막이 기본 설치되어 있어 안전한 보관이 가능합니다.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-8">
+                    <h3 class="text-xl font-bold text-hb mb-4"><i class="fa-solid fa-won-sign mr-2"></i> 이용 요금 및 운영 시간</h3>
+                    <ul class="space-y-4 text-sm text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-hb mt-1 mr-3"></i>
+                            <div>
+                                <strong class="text-gray-900 block text-base mb-1">운영 시간</strong>
+                                24시간 연중무휴 (단, 심야 시간대 01:00 ~ 05:00 역사 내부 통행 제한 역사는 외부 출입구 보관함만 이용 가능)
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-hb mt-1 mr-3"></i>
+                            <div>
+                                <strong class="text-gray-900 block text-base mb-1">기본 요금</strong>
+                                최초 4시간 <strong>무료</strong> (단기 이용 촉진 및 보관함 회전율 제고)
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-circle-check text-hb mt-1 mr-3"></i>
+                            <div>
+                                <strong class="text-gray-900 block text-base mb-1">추가 요금 (장기 방치 방지)</strong>
+                                4시간 초과 시 매 2시간당 <strong>500원</strong> 부과<br>
+                                <span class="text-xs text-red-500">* 교통약자 100원 요금제 및 환승 할인은 보관함 연장 요금에 적용되지 않습니다.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-8">
+                    <h3 class="text-xl font-bold text-hb mb-4"><i class="fa-solid fa-mobile-screen-button mr-2"></i> 이용 방법</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 bg-white border border-gray-200 rounded">
+                            <div class="w-10 h-10 bg-hb text-white rounded-full flex items-center justify-center font-bold mr-4 shrink-0">1</div>
+                            <p class="text-sm text-gray-700">보관함 중앙 키오스크에서 <strong>'보관'</strong> 선택 또는 <strong>효빈 메트로 앱</strong> 바코드 스캔</p>
+                        </div>
+                        <div class="flex items-center p-3 bg-white border border-gray-200 rounded">
+                            <div class="w-10 h-10 bg-hb text-white rounded-full flex items-center justify-center font-bold mr-4 shrink-0">2</div>
+                            <p class="text-sm text-gray-700">이용할 빈 거치대 번호 선택 후 교통카드(신용/체크/선불) 태그하여 본인 인증</p>
+                        </div>
+                        <div class="flex items-center p-3 bg-white border border-gray-200 rounded">
+                            <div class="w-10 h-10 bg-hb text-white rounded-full flex items-center justify-center font-bold mr-4 shrink-0">3</div>
+                            <p class="text-sm text-gray-700">지정된 번호의 보관함 문이 열리면 자전거를 거치하고 문을 닫아 잠금 확인</p>
+                        </div>
+                        <div class="flex items-center p-3 bg-white border border-gray-200 rounded">
+                            <div class="w-10 h-10 bg-hb text-white rounded-full flex items-center justify-center font-bold mr-4 shrink-0">4</div>
+                            <p class="text-sm text-gray-700">찾을 때는 <strong>'찾기'</strong> 선택 후 인증했던 교통카드를 다시 태그하여 잠금 해제 (추가 요금 발생 시 결제 동시 진행)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-5 border-l-4 border-red-500 bg-red-50 text-gray-700 text-sm rounded">
+                <h4 class="font-bold text-red-600 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 장기 방치 자전거 처리 안내</h4>
+                <p class="leading-relaxed">10일 이상 무단으로 방치된 자전거는 「자전거 이용 활성화에 관한 법률」 및 효빈시 조례에 따라 지정된 장소로 강제 이동 및 매각(폐기) 처리될 수 있습니다. (강제 이동된 자전거 반환 시 견인 및 보관료 부과)</p>
+            </div>
+        </div>
+
+        <!-- 2. 설치역사 현황 섹션 (활성화됨) -->
+        <div id="content-location" class="tab-content block">
+            <h2 class="text-3xl font-black text-gray-900 mb-6">스마트 보관함 설치역사 현황</h2>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                효빈광역시의 방대한 대중교통망을 바탕으로, 각 지형적 특성(해안가, 평야, 신도시) 및 노선별 통행 목적을 정밀하게 분석하여 최적의 위치에 맞춤형 자전거 보관소를 운영 중입니다.
+            </p>
+
+            <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                <table class="data-table min-w-[900px] mb-0 border-t-0">
+                    <thead>
+                        <tr>
+                            <th class="w-[12%]">노선</th>
+                            <th class="w-[18%]">역명</th>
+                            <th class="w-[15%]">보관 규모</th>
+                            <th class="w-[55%]">비고 및 연계 특성</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 1호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line1 px-3 py-1 rounded text-xs">1호선</span></td>
+                            <td class="font-bold">평당역</td>
+                            <td>80대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#0077DD]">평당신도시 진입 거점.</span> 대단지 주거지역과 인접하여 출퇴근 자전거 환승객을 위한 넉넉한 보관 시설 운영.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line1 px-3 py-1 rounded text-xs">1호선</span></td>
+                            <td class="font-bold">중앙로역</td>
+                            <td><span class="text-[#0077DD] font-bold">150대 (초대형)</span></td>
+                            <td class="text-left-cell">
+                                <strong>효빈시 대중교통의 심장부.</strong> 유동인구와 자전거 출퇴근 환승 수요가 폭발적으로 높아 전 역사 중 최대 규모의 스마트 2단 주차 복합 설비 적용.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line1 px-3 py-1 rounded text-xs">1호선</span></td>
+                            <td class="font-bold">곽암해수욕장역</td>
+                            <td>60대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#0077DD]">해안도로 자전거길 연계.</span> 바닷바람으로 인한 염해 방지를 위해 <strong>특수 방청 코팅</strong>이 적용된 실내형 보관함 운영.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line1 px-3 py-1 rounded text-xs">1호선</span></td>
+                            <td class="font-bold">승남해수욕장역</td>
+                            <td>70대</td>
+                            <td class="text-left-cell">
+                                1호선 탄성지선의 끝자락이자 남부 해안도로 종주 코스의 시작점. 주말 레저용 자전거 이용객을 위한 외부 대형 덮개형 보관소 운영.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line1 px-3 py-1 rounded text-xs">1호선</span></td>
+                            <td class="font-bold">장선역</td>
+                            <td>40대</td>
+                            <td class="text-left-cell">1호선 본선 시종착 환승 거점. 외부 1번 출구 인근 스마트락 보관함 운영.</td>
+                        </tr>
+
+                        <!-- 2호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line2 px-3 py-1 rounded text-xs">2호선</span></td>
+                            <td class="font-bold">효빈공단역</td>
+                            <td><span class="text-[#00CCAA] font-bold">120대 (대형)</span></td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#00CCAA]">산업단지 근로자 맞춤형.</span> 공단 출퇴근 근로자의 자전거 이용률이 매우 높아 야간 조명 특화 2단 거치대 운영.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line2 px-3 py-1 rounded text-xs">2호선</span></td>
+                            <td class="font-bold">효빈대학교역</td>
+                            <td>100대</td>
+                            <td class="text-left-cell">
+                                대학생 라스트 마일(Last-Mile) 통학 편의를 위한 대규모 보관함. 효빈대 총학생회와 협력하여 교내 따릉이 연계 구역 확충.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line2 px-3 py-1 rounded text-xs">2호선</span></td>
+                            <td class="font-bold">어간수산시장역</td>
+                            <td>30대</td>
+                            <td class="text-left-cell">역사 내부 지하 1층 대합실 위치. 수산시장 냄새 배임 방지를 위한 유리 격벽 밀폐형 보관실 운영.</td>
+                        </tr>
+
+                        <!-- 3호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line3 px-3 py-1 rounded text-xs">3호선</span></td>
+                            <td class="font-bold">고속버스터미널역</td>
+                            <td>50대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#d4a000]">시외 여객 환승 거점.</span> 시외버스 및 고속버스로 환승하는 여객을 배려하여 단기 보관(4시간 무료)에 최적화된 시설.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line3 px-3 py-1 rounded text-xs">3호선</span></td>
+                            <td class="font-bold">효빈복지대학교역</td>
+                            <td>80대</td>
+                            <td class="text-left-cell">
+                                캠퍼스 진입로와 바로 연결되며, 대학교 모바일 학생증(NFC)과 연동되는 스마트 개방 시스템 적용.
+                            </td>
+                        </tr>
+
+                        <!-- 4호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line4 px-3 py-1 rounded text-xs">4호선</span></td>
+                            <td class="font-bold">해운산업지구역</td>
+                            <td>60대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#FF5522]">물류/산업단지 통근용.</span> 해운물류 단지 내 자전거 출퇴근 근로자를 넉넉하게 배려한 24시간 개방형 실내 보관소.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line4 px-3 py-1 rounded text-xs">4호선</span></td>
+                            <td class="font-bold">고해역</td>
+                            <td>50대</td>
+                            <td class="text-left-cell">
+                                <strong>애니메이션 성지순례 및 출사객 맞춤형.</strong> 일반 보관소 외에 타지 관광객을 위한 <strong>공영 자전거 렌탈 복합 센터</strong>를 역사 내 1층에서 병행 운영 중.
+                            </td>
+                        </tr>
+
+                        <!-- 5호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line5 px-3 py-1 rounded text-xs">5호선</span></td>
+                            <td class="font-bold">효빈과학기술원역</td>
+                            <td>70대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#EE0022]">스마트 모빌리티 거점.</span> 방대한 연구 단지 내 이동을 돕기 위해 전동 킥보드 및 전기 자전거 고속 충전 시설을 완비한 복합 스테이션.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line5 px-3 py-1 rounded text-xs">5호선</span></td>
+                            <td class="font-bold">청덕공원역</td>
+                            <td>40대</td>
+                            <td class="text-left-cell">공원 자전거 진입로 직결. 에코 스테이션 설계에 맞춰 친환경 목재로 마감된 자연 친화적 보관소 디자인 적용.</td>
+                        </tr>
+
+                        <!-- 6호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line6 px-3 py-1 rounded text-xs">6호선</span></td>
+                            <td class="font-bold">중수역</td>
+                            <td>70대</td>
+                            <td class="text-left-cell">명문 학군 및 학원가 밀집 지역으로, 고등학생 및 야간 학원 수강생들의 이용 빈도가 매우 높아 CCTV 모니터링 강화구역 지정.</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-line6 px-3 py-1 rounded text-xs">6호선</span></td>
+                            <td class="font-bold">효빈종합고역</td>
+                            <td>90대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#881188]">학생 통학 전용.</span> 학교 정문과 인접하여 학생들의 자전거 통학을 지원하기 위해 넉넉한 공간을 확보한 학교 앞 맞춤형 대형 보관함.
+                            </td>
+                        </tr>
+
+                        <!-- 7호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line7 px-3 py-1 rounded text-xs">7호선</span></td>
+                            <td class="font-bold">만마루역</td>
+                            <td>20대</td>
+                            <td class="text-left-cell">
+                                구도심 낭만 투어 코스. 트램(노면전차) 승강장 구조의 한계 및 좁은 도로 사정상, 인근 보행자 도로에 소규모로 분산 배치 운영.
+                            </td>
+                        </tr>
+
+                        <!-- 8호선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-line8 px-3 py-1 rounded text-xs">8호선</span></td>
+                            <td class="font-bold">평당고역</td>
+                            <td>90대</td>
+                            <td class="text-left-cell">
+                                <span class="font-bold text-[#9856FF]">평당신도시 학생 및 주민 연계.</span> 신도시 설계 단계부터 8호선 철도역과 자전거 전용도로망이 다이렉트로 연결되도록 구축된 최신형 보관 시설.
+                            </td>
+                        </tr>
+
+                        <!-- 빈효선 -->
+                        <tr>
+                            <td class="font-bold"><span class="badge-binhyo px-3 py-1 rounded text-xs">빈효선</span></td>
+                            <td class="font-bold">이자역</td>
+                            <td>80대</td>
+                            <td class="text-left-cell">
+                                <strong>빈효선 주요 거점 및 투어 허브.</strong> 빈주시로 넘어가는 자전거 투어리스트 및 동호인들을 위한 정비 툴(Tool) 스탠드 병설 광장 거점 보관소.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold"><span class="badge-binhyo px-3 py-1 rounded text-xs">빈효선</span></td>
+                            <td class="font-bold">효빈항역</td>
+                            <td>50대</td>
+                            <td class="text-left-cell">코레일 관할 역. 관광객 수하물 보관함과 병설 운영되어 바닷가 이동 전 쾌적한 환승 보관 가능.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 3. 자전거 휴대승차 안내 섹션 -->
+        <div id="content-carry" class="tab-content hidden">
+            <h2 class="text-3xl font-black text-gray-900 mb-6">자전거 휴대승차 안내</h2>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                효빈교통공사는 자전거 이용자의 대중교통 연계를 지원하기 위해 지정된 요일과 노선에 한하여 전동차 내 자전거 휴대승차를 허용하고 있습니다. <strong>노선별 차량 규격(중전철, 경전철, 트램 등)이 상이하여 허용 기준이 다르니</strong> 반드시 아래 안내를 확인하시기 바랍니다.
+            </p>
+
+            <h3 class="section-title">휴대승차 허용 기준</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <!-- 일반 자전거 -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                    <div class="bg-slate-100 py-3 px-5 border-b border-gray-200">
+                        <h4 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-bicycle text-hb mr-2"></i> 일반 자전거 (접히지 않는 자전거)</h4>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-4 text-sm text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fa-regular fa-calendar-check text-hb mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-gray-900 block">허용 요일</strong>
+                                    토요일, 일요일, 법정 공휴일 <span class="text-red-500 font-bold">(평일 절대 불가)</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-train text-hb mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-gray-900 block">허용 노선</strong>
+                                    1호선, 2호선, 3호선, 4호선, 5호선, 6호선, 빈효선 (중전철 및 대형 규격 차량)
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-ban text-red-500 mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-red-600 block">휴대 불가 노선 (중요)</strong>
+                                    <strong>7호선(무가선 트램) 및 8호선(소형 고무차륜 AGT)</strong>은 차량 내부 공간이 매우 협소하고 곡선 구간이 많아 승객 안전을 위해 <strong>주말에도 일반 자전거의 탑승을 전면 제한</strong>합니다.
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-location-dot text-hb mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-gray-900 block">승차 위치</strong>
+                                    전동차의 <strong>맨 앞칸(1호차)과 맨 뒤칸</strong>에만 승차 가능합니다. (휠체어 지정석 이용 불가)
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 접이식 자전거 -->
+                <div class="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                    <div class="bg-slate-100 py-3 px-5 border-b border-gray-200">
+                        <h4 class="font-bold text-gray-800 text-lg"><i class="fa-solid fa-layer-group text-hb mr-2"></i> 접이식 자전거 (미니벨로 등)</h4>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-4 text-sm text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fa-regular fa-calendar-check text-hb mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-gray-900 block">허용 요일</strong>
+                                    <strong>평일, 주말, 공휴일 상시 가능</strong> (단, 출퇴근 혼잡 시간대는 다른 승객을 위해 자제 권고)
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-train text-hb mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-gray-900 block">허용 노선</strong>
+                                    <strong>효빈교통공사 전 노선 (1~8호선, 빈효선 모두 가능)</strong>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-circle-exclamation text-hb mt-1 mr-3"></i>
+                                <div>
+                                    <strong class="text-gray-900 block">이용 조건</strong>
+                                    반드시 역사 진입 전 <strong>자전거를 완전히 접은 상태</strong>로 이동해야 하며, 펴진 상태로 이동 시 역무원에 의해 퇴장 조치될 수 있습니다. (안전 사고 발생 시 본인 책임)
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 rounded-xl p-8 text-white">
+                <h3 class="text-xl font-bold mb-4 text-yellow-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i> 자전거 휴대 시 준수사항 (공통)</h3>
+                <ul class="space-y-2 text-slate-300 text-sm list-disc pl-5">
+                    <li>역사 내(대합실, 환승통로, 승강장 등)에서는 절대 자전거를 타고 이동할 수 없으며, 반드시 끌고 이동해야 합니다.</li>
+                    <li>계단 이용 시 자전거 경사로(자전거길)가 설치된 곳을 이용하거나 들고 이동해야 합니다.</li>
+                    <li><strong>에스컬레이터 및 휠체어 전용 엘리베이터에는 자전거를 가지고 탑승할 수 없습니다.</strong></li>
+                    <li>차내에서는 자전거가 넘어지지 않도록 단단히 고정하고 본인이 직접 붙잡고 있어야 합니다.</li>
+                    <li>기타 여객의 안전과 통행에 지장을 주거나 고나미, 임세정 등 역무원/기관사의 정당한 통제를 따르지 않을 경우 승차가 거부될 수 있습니다.</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 자바스크립트: 탭 전환 로직 -->
+    <script>
+        function switchTab(tabId) {
+            // 모든 탭 버튼 및 컨텐츠 비활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            
+            // 선택된 탭 활성화
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+        }
+    </script>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>

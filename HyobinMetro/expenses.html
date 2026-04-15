@@ -5,168 +5,307 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>업무추진비 사용내역 - 효빈교통공사</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Noto Sans KR', sans-serif; }
+    
+    /* 테이블 공통 스타일 */
+    .expense-table th { background-color: #f8fafc; color: #475569; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
+    .expense-table td { border-bottom: 1px solid #e2e8f0; color: #334155; }
+    .expense-table tr:hover td { background-color: #f1f5f9; }
+    
+    /* 노선별 컬러 정의 */
+    .line-1 { color: #0077DD; font-weight: bold; }
+    .line-2 { color: #00CCAA; font-weight: bold; }
+    .line-3 { color: #FFCC11; font-weight: bold; }
+    .line-4 { color: #FF5522; font-weight: bold; }
+    .line-5 { color: #EE0022; font-weight: bold; }
+    .line-6 { color: #881188; font-weight: bold; }
+    .line-7 { color: #FF8899; font-weight: bold; }
+    .line-8 { color: #9856FF; font-weight: bold; }
+    .line-binhyo { color: #6677CC; font-weight: bold; }
   </style>
 </head>
 <body id="top" class="bg-slate-50 min-h-screen flex flex-col">
-  <header class="border-b border-slate-200 bg-white sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <a href="index.html" class="flex items-center gap-3">
-          <img src="logo.png" alt="효빈교통공사" class="h-9 w-auto object-contain">
-          <span class="hidden sm:inline font-extrabold text-slate-800">효빈교통공사</span>
-        </a>
-        <nav class="flex items-center gap-4 text-sm font-bold text-slate-700">
-          <a href="info.html" class="hover:text-sky-600">이용정보</a>
-          <a href="notice.html" class="hover:text-sky-600">알림마당</a>
-          <a href="public.html" class="hover:text-sky-600">정보공개</a>
-          <a href="noseon.html" class="hover:text-sky-600">각 노선 소개</a>
-        </nav>
-      </div>
-    </div>
-  </header>
 
   <main class="flex-grow">
-    <section class="bg-white border-b border-slate-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- 헤더 섹션 -->
+    <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10 bg-[url('https://placehold.co/1920x400/0c4a6e/ffffff?text=Finance')] bg-cover bg-center"></div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="flex items-start justify-between gap-6 flex-wrap">
           <div>
-            <p class="text-xs font-extrabold text-sky-700 tracking-widest">HYOBIN METRO</p>
-            <h1 class="text-3xl sm:text-4xl font-black text-slate-900 mt-2">업무추진비 사용내역</h1>
-            <p class="text-slate-600 mt-2">업무추진비 집행 내역을 투명하게 공개합니다.</p>
+            <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-calculator mr-2"></i>경영정보공개</p>
+            <h1 class="text-3xl sm:text-4xl font-black text-white">업무추진비 사용내역</h1>
+            <p class="text-sky-100 mt-3 font-medium">효빈교통공사는 시민의 알 권리 충족과 투명한 경영을 위해 임원진 및 부서장 업무추진비 집행 내역을 매월 공개하고 있습니다.</p>
           </div>
-          <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800">
-            홈으로
-            <span aria-hidden="true">→</span>
-          </a>
         </div>
       </div>
     </section>
 
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20">
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-md p-6 sm:p-10">
         
-<div class="prose max-w-none">
-  <p class="text-sm text-slate-500">기준일: 2026-01-10</p>
+        <!-- 검색/필터 영역 -->
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <label for="monthSelect" class="font-bold text-slate-700 text-sm">조회 연월</label>
+            <select id="monthSelect" class="p-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-sky-500 bg-white min-w-[120px]">
+              <option value="2026-04" selected>2026년 04월</option>
+              <option value="2026-03">2026년 03월</option>
+              <option value="2026-02">2026년 02월</option>
+              <option value="2026-01">2026년 01월</option>
+            </select>
+            <select id="deptSelect" class="p-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-sky-500 bg-white min-w-[140px]">
+              <option value="all">전체 임원/부서</option>
+              <option value="mayor">사장</option>
+              <option value="auditor">감사</option>
+              <option value="safety">안전본부장</option>
+              <option value="operation">운영본부장</option>
+              <option value="tech">기술본부장</option>
+            </select>
+          </div>
+          <div class="flex gap-2 w-full md:w-auto">
+            <button id="searchBtn" class="flex-1 md:flex-none px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold rounded-lg transition-colors">
+              <i class="fa-solid fa-magnifying-glass mr-2"></i>조회
+            </button>
+            <button id="csvDownloadBtn" class="flex-1 md:flex-none px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition-colors">
+              <i class="fa-solid fa-file-excel mr-2"></i>CSV 다운로드
+            </button>
+          </div>
+        </div>
 
-  <div class="mt-6 space-y-4">
-    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <p class="font-bold text-slate-900">업무추진비 사용내역</p>
-      <p class="text-slate-700 mt-2">
-        본 페이지는 공개용 템플릿입니다. 실제 내역이 준비되면 월별/분기별로 CSV 및 PDF 형태로 게시합니다.
-      </p>
-    </div>
+        <div class="prose max-w-none">
+          <div class="flex justify-between items-end mb-4">
+            <h3 id="tableTitle" class="text-xl font-bold text-slate-900 m-0 border-l-4 border-sky-600 pl-3">2026년 4월 임원진 업무추진비 집행내역</h3>
+            <p id="tableMeta" class="text-sm text-slate-500 m-0">단위: 원 / 기준일: 2026.05.05</p>
+          </div>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-4">
-      <p class="font-bold text-slate-900">예시(샘플)</p>
-      <div class="overflow-x-auto mt-3">
-        <table class="w-full text-sm border border-slate-200">
-          <thead class="bg-slate-100">
-            <tr>
-              <th class="p-2 text-left">일자</th>
-              <th class="p-2 text-left">집행목적</th>
-              <th class="p-2 text-left">집행처</th>
-              <th class="p-2 text-right">금액</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200">
-            <tr><td class="p-2">2026-01-05</td><td class="p-2">유관기관 협의</td><td class="p-2">구내 회의실</td><td class="p-2 text-right">₩0</td></tr>
-            <tr><td class="p-2">2026-01-08</td><td class="p-2">현장 안전점검 간담</td><td class="p-2">역사 내</td><td class="p-2 text-right">₩0</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="text-xs text-slate-500 mt-2">※ 샘플 표입니다.</p>
-    </div>
-  </div>
-</div>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table id="expenseTable" class="w-full text-sm expense-table m-0">
+              <thead>
+                <tr>
+                  <th class="p-3 text-center whitespace-nowrap" width="10%">집행일자</th>
+                  <th class="p-3 text-center whitespace-nowrap" width="10%">사용자</th>
+                  <th class="p-3 text-left min-w-[250px]">집행목적 및 내용</th>
+                  <th class="p-3 text-left whitespace-nowrap" width="15%">집행장소(가맹점)</th>
+                  <th class="p-3 text-center whitespace-nowrap" width="8%">대상인원</th>
+                  <th class="p-3 text-right whitespace-nowrap" width="12%">집행금액(원)</th>
+                  <th class="p-3 text-center whitespace-nowrap" width="10%">결제방법</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTbody" class="divide-y divide-slate-100">
+                <!-- JS 로직에 의해 데이터가 동적으로 삽입됩니다. -->
+              </tbody>
+              <tfoot class="bg-slate-50 font-bold border-t-2 border-slate-300">
+                <tr>
+                  <td colspan="5" class="p-3 text-center" id="tfootLabel">총합계 (0건)</td>
+                  <td class="p-3 text-right text-sky-700 text-base" id="tfootTotal">0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="mt-8 bg-sky-50 border border-sky-100 rounded-xl p-5 text-sm text-slate-700">
+            <h4 class="font-bold text-sky-800 mb-2"><i class="fa-solid fa-circle-info mr-1"></i> 공개 기준 및 유의사항</h4>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>본 업무추진비 사용 내역은 「공공기관의 정보공개에 관한 법률」 및 효빈교통공사 내부 규정에 따라 매월 익월 10일 전후로 홈페이지에 공개됩니다.</li>
+              <li>집행 금액이 50만 원 이상인 건에 대해서는 주된 참석자의 소속 및 성명(비식별 조치)을 내부 증빙 서류에 별도 기재하여 철저히 관리하고 있습니다.</li>
+              <li>각 항목의 집행 목적은 공사 업무 수행(간담회, 현장 점검, 유관기관 협의 등)과 직접적인 연관이 있는 사안에 한하여 집행되었습니다.</li>
+              <li>상세 결의 내역이나 영수증 사본 등 추가적인 증빙 자료가 필요하신 경우, 정보공개 청구 제도를 이용해 주시기 바랍니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 하단 버튼 영역 -->
+        <div class="mt-10 pt-6 border-t border-slate-100 text-center">
+          <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition-colors">
+            <i class="fa-solid fa-arrow-left"></i> 목록으로 돌아가기
+          </a>
+        </div>
 
       </div>
     </section>
   </main>
 
-  
-    <!-- ================================================================== -->
-    <!-- Footer (Hyobin Metro style)                                         -->
-    <!-- ================================================================== -->
-    <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Top policy links -->
-        <div class="flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold">
-          <a href="privacy.html" class="hover:text-white underline-offset-4 hover:underline text-sky-300">개인정보처리방침</a>
-          <a href="terms.html" class="hover:text-white underline-offset-4 hover:underline">여객운송약관</a>
-          <a href="rules_notice.html" class="hover:text-white underline-offset-4 hover:underline">사규 제·개정 및 폐기 예고</a>
-          <a href="rules_laws.html" class="hover:text-white underline-offset-4 hover:underline">관련 법령 및 사규</a>
-          <a href="expenses.html" class="hover:text-white underline-offset-4 hover:underline">업무추진비 사용내역</a>
-          <a href="location.html" class="hover:text-white underline-offset-4 hover:underline">찾아오시는 길</a>
-        </div>
+  <script>
+    // 1~4월 전체 업무추진비 데이터베이스
+    const expenseData = [
+      // ====== 2026년 4월 ======
+      { month: "2026-04", date: "2026-04-03", deptKey: "mayor", deptName: "사장", desc: "<span class='line-4'>4호선 해운산업지구역</span> 침수 예방 시설 현장 점검 및 관계자 간담회", place: "해운식당 (해운산업지구 인근)", count: "12명", amount: 350000, method: "법인카드" },
+      { month: "2026-04", date: "2026-04-09", deptKey: "operation", deptName: "운영본부장", desc: "봄철 행락객 특별 수송대책 회의 및 유관기관 간담회", place: "시청앞가든 (효빈시청 인근)", count: "8명", amount: 240000, method: "법인카드" },
+      { month: "2026-04", date: "2026-04-14", deptKey: "safety", deptName: "안전본부장", desc: "<span class='line-5'>5호선 청덕공원역</span> 노후 에스컬레이터 정비 현장 근무자 격려", place: "청덕정 (청덕공원역 인근)", count: "5명", amount: 95000, method: "법인카드" },
+      { month: "2026-04", date: "2026-04-16", deptKey: "tech", deptName: "기술본부장", desc: "구 효빈전차 보존 기록물(1969년 폐지선 및 잔존선) 이관 관련 외부 전문가 자문회의", place: "중앙관 (중앙로역 인근)", count: "6명", amount: 120000, method: "법인카드" },
+      { month: "2026-04", date: "2026-04-22", deptKey: "auditor", deptName: "감사", desc: "1/4분기 일상감사 결과 강평회 및 청렴시민감사관 오찬", place: "명일숯불갈비 (명일역 인근)", count: "10명", amount: 270000, method: "법인카드" },
+      
+      // ====== 2026년 3월 ======
+      { month: "2026-03", date: "2026-03-04", deptKey: "mayor", deptName: "사장", desc: "<span class='line-8'>8호선(곽산~신흥)</span> 전 구간 정식 개통 관련 유관기관 현장 점검단 노고 격려 간담회", place: "평당골 한정식 (남구청역 인근)", count: "15명", amount: 420000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-06", deptKey: "safety", deptName: "안전본부장", desc: "해빙기 지상구간(<span class='line-1'>1호선 곽암해수욕장</span> 방면) 선로 안전 점검 직원 격려품 구매", place: "베이커리 카페 이자", count: "12명", amount: 85000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-09", deptKey: "auditor", deptName: "감사", desc: "<span class='line-8'>8호선</span> 신규 개통구간 영업준비 실태 특정감사 부서 격려", place: "평당식당 (평당고등학교역 인근)", count: "7명", amount: 135000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-12", deptKey: "mayor", deptName: "사장", desc: "효빈광역시 버스운송사업조합 간부진 간담회 (환승할인제도 운영 협의)", place: "수림정 (효빈역 인근)", count: "8명", amount: 215000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-15", deptKey: "operation", deptName: "운영본부장", desc: "L-Project TF팀 간담회 (자매도시 콜라보 행사 및 팝업스토어 성과 점검)", place: "고송숯불갈비 (<span class='line-6'>고송역</span> 인근)", count: "9명", amount: 260000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-18", deptKey: "tech", deptName: "기술본부장", desc: "<span class='line-7'>7호선 중보지선(중구청~사중)</span> 노후 신호설비 개량 사업 자문위원회 회의비", place: "천석골정식 (천석동2가역 인근)", count: "7명", amount: 195000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-20", deptKey: "safety", deptName: "안전본부장", desc: "<span class='line-3'>3호선 효빈국제공항역</span> 스크린도어 제어반 개량 공사 현장 감리단 오찬", place: "공항식당 (효빈국제공항 내)", count: "6명", amount: 110000, method: "법인카드" },
+      { month: "2026-03", date: "2026-03-27", deptKey: "operation", deptName: "운영본부장", desc: "유실물센터 및 고객만족센터 상담원 노고 격려 오찬", place: "중수본가설렁탕 (<span class='line-6'>중수역</span> 인근)", count: "11명", amount: 143000, method: "법인카드" },
 
-        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <!-- Left: address & slogan -->
-          <div class="lg:col-span-8">
-            <div class="flex items-center gap-4">
-              <div class="bg-white p-2 rounded">
-                <img src="logo.png" alt="효빈교통공사" class="h-8 w-auto">
-              </div>
-              <div class="text-xs sm:text-sm leading-relaxed">
-                <p class="text-slate-200 font-semibold">효빈광역시 북구 고송대로 32(고송8동) | 대표전화 079-281-2382</p>
-                <p class="text-slate-400 mt-1">Copyright 2016. 효빈교통공사 All right reserved.</p>
-              </div>
-            </div>
-            <p class="mt-4 text-slate-300 text-sm font-bold">
-              청렴으로 신뢰받고, 안전으로 보답하는 <span class="text-white">효빈교통공사</span>
-            </p>
-            <p class="mt-2 text-slate-400 text-xs leading-relaxed">
-              
-            </p>
-          </div>
+      // ====== 2026년 2월 ======
+      { month: "2026-02", date: "2026-02-05", deptKey: "mayor", deptName: "사장", desc: "설 명절 특별수송대책본부 근무자 격려품 구매", place: "내항시장 (내항시장역 인근)", count: "45명", amount: 950000, method: "법인카드" },
+      { month: "2026-02", date: "2026-02-11", deptKey: "auditor", deptName: "감사", desc: "상반기 청렴 윤리경영 실천 결의대회 오찬", place: "평당정식 (평당역 인근)", count: "10명", amount: 280000, method: "법인카드" },
+      { month: "2026-02", date: "2026-02-18", deptKey: "operation", deptName: "운영본부장", desc: "<span class='line-2'>2호선 어간지선(어간수산시장 방면)</span> 혼잡도 개선 현장 간담회", place: "어간횟집 (어간수산시장역 인근)", count: "7명", amount: 185000, method: "법인카드" },
+      { month: "2026-02", date: "2026-02-20", deptKey: "operation", deptName: "운영본부장", desc: "효빈광역시 면허 광역버스 연계 환승 체계 점검 회의", place: "동덕현가든 (<span class='line-4'>4호선 동덕현역</span> 인근)", count: "6명", amount: 130000, method: "법인카드" },
+      { month: "2026-02", date: "2026-02-25", deptKey: "safety", deptName: "안전본부장", desc: "<span class='line-6'>6호선 고송교차로역</span> 환기설비 개량공사 현장점검", place: "고송국밥", count: "6명", amount: 72000, method: "법인카드" },
 
-          <!-- Right: related 기관 + WA mark -->
-          <div class="lg:col-span-4">
-            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4">
-              <p class="text-sm font-extrabold text-slate-100 mb-3">유관기관 바로가기</p>
-              <div class="flex gap-2">
-                <label class="sr-only" for="relatedSelect">유관기관 선택</label>
-                <select id="relatedSelect" class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500">
-                  <option value="" selected>기관 선택</option>
-                  <option value="https://example.com/hyobin-cityhall">효빈광역시청</option>
-                  <option value="https://example.com/hyobin-police">효빈경찰청</option>
-                  <option value="https://example.com/hyobin-fire">효빈소방본부</option>
-                  <option value="https://example.com/hyobin-tour">효빈관광공사</option>
-                  <option value="https://example.com/hyobin-culture">효빈문화공사</option>
-                  <option value="https://www.kofdo.kr/">(사)한국장애인단체총연합회</option>
-                  <option value="https://www.wa.or.kr/">한국웹접근성인증평가원</option>
-                </select>
-                <button type="button" onclick="goRelated()" class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-extrabold shadow">
-                  GO
-                </button>
-              </div>
+      // ====== 2026년 1월 ======
+      { month: "2026-01", date: "2026-01-08", deptKey: "mayor", deptName: "사장", desc: "신년맞이 노동조합 위원장 및 간부진 소통 간담회", place: "수림정 (효빈역 인근)", count: "14명", amount: 410000, method: "법인카드" },
+      { month: "2026-01", date: "2026-01-13", deptKey: "safety", deptName: "안전본부장", desc: "동절기 폭설 대비 제설장비 점검 (<span class='line-binhyo'>빈효선</span> 외곽 지상구간)", place: "안천골식당 (안천역 인근)", count: "8명", amount: 130000, method: "법인카드" },
+      { month: "2026-01", date: "2026-01-20", deptKey: "auditor", deptName: "감사", desc: "내부통제 강화 및 부패방지 합동 워크숍 다과 구매", place: "구내 매점", count: "20명", amount: 150000, method: "법인카드" },
+      { month: "2026-01", date: "2026-01-27", deptKey: "tech", deptName: "기술본부장", desc: "<span class='line-1'>1호선 탄성지선(승남해수욕장 방면)</span> 연장선로 설계검토 회의", place: "승남가든 (승남해수욕장역 예정지)", count: "9명", amount: 260000, method: "법인카드" }
+    ];
 
-              <div class="mt-4 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <img src="https://placehold.co/92x40/ffffff/111827?text=WA" alt="웹접근성 우수사이트 인증마크(예시)" class="h-10 w-auto rounded bg-white p-1">
-                  <div class="text-xs text-slate-300 leading-snug">
-                    <p class="font-bold text-slate-100">웹접근성 우수사이트</p>
-                    <p class="text-slate-400">인증마크(WA) 예시</p>
-                  </div>
-                </div>
-                <a href="#top" class="text-xs font-bold text-slate-300 hover:text-white underline-offset-4 hover:underline">맨위로</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    document.addEventListener('DOMContentLoaded', function() {
+      const csvBtn = document.getElementById('csvDownloadBtn');
+      const table = document.getElementById('expenseTable');
+      const tbody = document.getElementById('expenseTbody');
+      const monthSelect = document.getElementById('monthSelect');
+      const deptSelect = document.getElementById('deptSelect');
+      const searchBtn = document.getElementById('searchBtn');
+      
+      const titleEl = document.getElementById('tableTitle');
+      const metaEl = document.getElementById('tableMeta');
+      const tfootLabel = document.getElementById('tfootLabel');
+      const tfootTotal = document.getElementById('tfootTotal');
 
-      <script>
-        function goRelated(){
-          const sel = document.getElementById('relatedSelect');
-          const url = sel && sel.value ? sel.value : '';
-          if(!url){ alert('이동할 기관을 선택해주세요.'); return; }
-          window.open(url, '_blank', 'noopener,noreferrer');
+      // 날짜 포맷 함수
+      function formatAmount(num) {
+        return num.toLocaleString('ko-KR');
+      }
+
+      // 테이블 렌더링 함수
+      function renderTable() {
+        const selMonth = monthSelect.value;
+        const selDept = deptSelect.value;
+
+        // 필터링 적용
+        const filtered = expenseData.filter(item => {
+          const matchMonth = (item.month === selMonth);
+          const matchDept = (selDept === 'all' || item.deptKey === selDept);
+          return matchMonth && matchDept;
+        });
+
+        // 테이블 내용 비우기
+        tbody.innerHTML = '';
+        let totalAmount = 0;
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500 font-medium">해당 조건에 일치하는 집행 내역이 없습니다.</td></tr>`;
+        } else {
+          // 데이터 삽입
+          filtered.forEach(item => {
+            totalAmount += item.amount;
+            const tr = document.createElement('tr');
+            
+            // 사용자 이름 강조
+            const deptClass = item.deptKey === 'mayor' ? 'font-bold' : 'font-medium';
+            
+            tr.innerHTML = `
+              <td class="p-3 text-center">${item.date}</td>
+              <td class="p-3 text-center ${deptClass}">${item.deptName}</td>
+              <td class="p-3 text-left leading-relaxed">${item.desc}</td>
+              <td class="p-3 text-left">${item.place}</td>
+              <td class="p-3 text-center">${item.count}</td>
+              <td class="p-3 text-right font-bold text-slate-800">${formatAmount(item.amount)}</td>
+              <td class="p-3 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${item.method}</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
         }
-      </script>
-    </footer>
 
+        // Tfoot 및 타이틀 업데이트
+        tfootLabel.innerText = `총합계 (${filtered.length}건)`;
+        tfootTotal.innerText = formatAmount(totalAmount);
+
+        const year = selMonth.split('-')[0];
+        const month = parseInt(selMonth.split('-')[1], 10);
+        const deptStr = selDept === 'all' ? '임원진' : deptSelect.options[deptSelect.selectedIndex].text;
+        
+        titleEl.innerText = `${year}년 ${month}월 ${deptStr} 업무추진비 집행내역`;
+        
+        // 작성 기준일 (조회월의 다음달 5일로 가상 설정)
+        let nextMonth = month + 1;
+        let nextYear = parseInt(year, 10);
+        if (nextMonth > 12) { nextMonth = 1; nextYear++; }
+        metaEl.innerText = `단위: 원 / 기준일: ${nextYear}.${String(nextMonth).padStart(2, '0')}.05`;
+      }
+
+      // 조회 버튼 이벤트
+      if(searchBtn) {
+        searchBtn.addEventListener('click', renderTable);
+      }
+
+      // 초기 렌더링
+      renderTable();
+
+      // CSV 다운로드 로직 (DOM 오류 방지 및 한글 깨짐 방지 완벽 적용)
+      if(csvBtn && table) {
+        csvBtn.addEventListener('click', function() {
+          let csv = '\uFEFF'; // UTF-8 BOM
+          const rows = table.querySelectorAll('tr');
+
+          rows.forEach(row => {
+            const rowData = [];
+            const cols = row.querySelectorAll('td, th');
+            
+            // 데이터가 없는 빈 테이블(colspan=7 안내문구)인 경우 처리
+            if (cols.length === 1 && cols[0].getAttribute('colspan') === '7') {
+              csv += '"해당 조건에 일치하는 집행 내역이 없습니다."\r\n';
+              return;
+            }
+
+            cols.forEach(col => {
+              // HTML 태그 제거 및 텍스트만 추출 (정규식 제거 불필요, innerText가 알아서 해줌)
+              let text = col.innerText || col.textContent;
+              text = text.trim().replace(/"/g, '""');
+              rowData.push('"' + text + '"');
+
+              let colspan = col.getAttribute('colspan');
+              if (colspan) {
+                let spanCount = parseInt(colspan, 10);
+                for(let i = 1; i < spanCount; i++) {
+                  rowData.push('""');
+                }
+              }
+            });
+            csv += rowData.join(',') + '\r\n';
+          });
+
+          try {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            const monthVal = monthSelect ? monthSelect.value : 'export';
+            const deptVal = deptSelect && deptSelect.value !== 'all' ? `_${deptSelect.options[deptSelect.selectedIndex].text}` : '';
+            
+            link.setAttribute('download', `효빈교통공사_업무추진비_${monthVal}${deptVal}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          } catch(err) {
+            console.error('CSV 다운로드 중 오류 발생:', err);
+            alert('파일 다운로드를 지원하지 않는 환경입니다.');
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- 공통 헤더/푸터 스크립트 로드 -->
+  <script src="js/common_hyobin.js"></script>
 </body>
 </html>

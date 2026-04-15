@@ -3,274 +3,716 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>챗봇 상담 - 효빈교통공사</title>
+    <title>레일루미네 스마트 챗봇 - 효빈교통공사</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
         
         .chat-scroll::-webkit-scrollbar { width: 6px; }
-        .chat-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
         .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
         @keyframes messageSlide {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .message-anim { animation: messageSlide 0.3s ease-out forwards; }
+
+        /* 캐릭터 색상 변수 */
+        :root {
+            --color-line1: #0077DD;
+            --color-line2: #00CCAA;
+            --color-line3: #FFCC11;
+            --color-line4: #FF5522;
+            --color-line5: #EE0022;
+            --color-line6: #881188;
+            --color-line7: #FF8899;
+            --color-line8: #9856FF;
+            --color-lineBin: #6677CC;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col">
+<body class="text-slate-800">
 
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-            <a href="index.html" class="flex items-center gap-2 group">
-                <img src="images/logo.png" onerror="this.style.display='none'" class="h-8 w-auto">
-                <div class="text-3xl font-black text-sky-600 hb-logo">HB</div>
-                <span class="text-lg font-bold text-gray-800">챗봇 상담</span>
-            </a>
-            <a href="index.html" class="text-gray-500 hover:text-black"><i class="fa-solid fa-xmark text-2xl"></i></a>
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="max-w-4xl mx-auto pt-24 pb-12 px-4 h-screen flex flex-col">
+        
+        <!-- 챗봇 헤더 -->
+        <div class="bg-white rounded-t-3xl shadow-sm border border-slate-200 p-5 flex items-center justify-between z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md" style="background-color: #16A4BE;">
+                    <i class="fa-solid fa-train-subway"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">레일루미네 스마트 챗봇</h1>
+                    <p class="text-sm text-slate-500">원하시는 키워드나 질문을 자유롭게 입력해 주세요!</p>
+                </div>
+            </div>
+            <button onclick="clearChat()" class="text-slate-400 hover:text-[#16A4BE] bg-slate-100 hover:bg-cyan-50 p-3 rounded-full transition-all" title="대화 초기화">
+                <i class="fa-solid fa-rotate-right text-lg"></i>
+            </button>
         </div>
-    </header>
 
-    <main class="flex-grow flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md h-[700px] rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-200">
-            
-            <div class="bg-sky-600 p-4 flex items-center justify-between text-white shadow-md z-10">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-white p-1 overflow-hidden">
-                        <img src="images/hyobin.png" onerror="this.src='https://placehold.co/100x100/sky/white?text=HB'" class="w-full h-full object-cover rounded-full">
+        <!-- 챗봇 메시지 영역 -->
+        <div id="chat-box" class="flex-grow bg-slate-50/80 border-x border-slate-200 p-6 overflow-y-auto chat-scroll flex flex-col gap-6">
+            <!-- 초기 환영 메시지 (전노아) -->
+            <div class="flex gap-4 message-anim w-full max-w-2xl">
+                <div class="flex-shrink-0 flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 bg-white flex items-center justify-center shadow-sm" style="border-color: #6677CC;">
+                        <img src="이미지/전노아.png" alt="전노아" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzY2NzdDQyI+PHBhdGggZD0iTTEyIDJDMi4yNyAyIDIgNi4yNyAyIDEydzEwIDEwIDItNC4yNyAyLTEwLTIuMjctMTAtMTAtMTB6TTEyIDIwYy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggOHptMC0xNGMtMi4yMSAwLTQgMS43OS00IDRzMS43OSA0 NCA0IDQtMS43OSA0LTQtMS43OS00LTQtNHoiLz48L3N2Zz4='">
                     </div>
-                    <div>
-                        <h2 class="font-bold text-lg leading-tight">효빈이 (AI 상담원)</h2>
-                        <p class="text-xs text-sky-100 flex items-center"><span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>운영중</p>
+                    <span class="text-[11px] font-bold mt-1 whitespace-nowrap" style="color: #6677CC;">빈효선 전노아</span>
+                </div>
+                <div class="flex flex-col gap-1 w-full">
+                    <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 shadow-sm text-slate-700 leading-relaxed relative" style="border-top-color: #6677CC; border-top-width: 3px;">
+                        <div class="absolute w-2 h-2 bg-white border-l border-slate-200 -left-1.5 top-3 transform -rotate-45" style="border-top: 3px solid #6677CC;"></div>
+                        환영합니다! 효빈교통공사 통합 스마트 챗봇입니다!<br><br>
+                        제 브리핑의 핵심은 세 가지입니다.<br>
+                        <strong>첫째, 빠르고! 둘째, 정확하고! 셋째, 친절하게!</strong><br><br>
+                        무엇이든 유연하게 입력해 주세요! 제가 다른 담당자들을 호출해 드릴게요! (찡긋)
                     </div>
-                </div>
-                <button onclick="location.reload()" class="text-sky-100 hover:text-white" title="대화 초기화"><i class="fa-solid fa-rotate-right"></i></button>
-            </div>
-
-            <div id="chat-box" class="flex-grow bg-slate-50 p-4 overflow-y-auto chat-scroll flex flex-col gap-4">
-                
-                <div class="text-center text-xs text-gray-400 my-2">
-                    <span>오늘</span>
-                </div>
-
-                <div class="flex items-start gap-2 message-anim">
-                    <div class="w-8 h-8 rounded-full bg-sky-100 flex-shrink-0 overflow-hidden border border-sky-200">
-                        <img src="images/hyobin.png" onerror="this.src='https://placehold.co/100x100/sky/white?text=HB'" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex flex-col gap-1 max-w-[80%]">
-                        <span class="text-xs text-gray-500 ml-1">효빈이</span>
-                        <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 text-sm text-gray-800 shadow-sm">
-                            안녕하세요! 효빈교통공사 AI 챗봇 <strong>'효빈이'</strong>입니다. 🚆<br>
-                            무엇을 도와드릴까요?
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-2 message-anim">
-                    <div class="w-8 h-8 flex-shrink-0"></div> <div class="max-w-[80%] flex flex-wrap gap-2">
-                        <button onclick="sendQuickQuery('첫차/막차 시간 알려줘')" class="bg-white border border-sky-200 text-sky-600 text-xs font-bold px-3 py-2 rounded-full hover:bg-sky-50 transition shadow-sm">🕒 첫차/막차 시간</button>
-                        <button onclick="sendQuickQuery('유실물 센터 위치는?')" class="bg-white border border-sky-200 text-sky-600 text-xs font-bold px-3 py-2 rounded-full hover:bg-sky-50 transition shadow-sm">🎒 유실물 찾기</button>
-                        <button onclick="sendQuickQuery('노선도가 보고 싶어')" class="bg-white border border-sky-200 text-sky-600 text-xs font-bold px-3 py-2 rounded-full hover:bg-sky-50 transition shadow-sm">🗺️ 전체 노선도</button>
-                        <button onclick="sendQuickQuery('통합 운임표 보여줘')" class="bg-white border border-sky-200 text-sky-600 text-xs font-bold px-3 py-2 rounded-full hover:bg-sky-50 transition shadow-sm">💳 통합 운임 안내</button>
-                        <button onclick="sendQuickQuery('굿즈샵 어디 있어?')" class="bg-white border border-sky-200 text-sky-600 text-xs font-bold px-3 py-2 rounded-full hover:bg-sky-50 transition shadow-sm">🛍️ 굿즈샵 안내</button>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="bg-white p-3 border-t border-gray-200">
-                <div class="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2 border border-gray-300 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 transition">
-                    <input type="text" id="user-input" class="bg-transparent flex-grow outline-none text-sm text-gray-800" placeholder="메시지를 입력하세요..." onkeypress="handleKeyPress(event)">
-                    <button onclick="sendMessage()" class="text-sky-600 hover:text-sky-700 transition"><i class="fa-solid fa-paper-plane text-lg"></i></button>
-                </div>
-                <div class="text-center mt-2">
-                    <p class="text-[10px] text-gray-400">상담 내용은 서비스 품질 향상을 위해 저장될 수 있습니다.</p>
                 </div>
             </div>
 
+            <!-- 빠른 질문 버튼 영역 -->
+            <div id="quick-replies" class="flex flex-wrap gap-2 ml-16 message-anim" style="animation-delay: 0.2s;">
+                <button onclick="sendQuickMessage('운임 및 정기권 알려줘')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#00CCAA] hover:text-[#00CCAA] hover:shadow-md transition-all shadow-sm">💰 운임/정기권</button>
+                <button onclick="sendQuickMessage('가방을 잃어버렸어')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#0077DD] hover:text-[#0077DD] hover:shadow-md transition-all shadow-sm">🧳 유실물 센터</button>
+                <button onclick="sendQuickMessage('엘리베이터 위치')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#EE0022] hover:text-[#EE0022] hover:shadow-md transition-all shadow-sm">♿ 편의시설</button>
+                <button onclick="sendQuickMessage('굿즈 매장 어딨어?')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#FFCC11] hover:text-[#FFCC11] hover:shadow-md transition-all shadow-sm">🛍️ 굿즈 스토어</button>
+                <button onclick="sendQuickMessage('전동차 에어컨 고장')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#FF8899] hover:text-[#FF8899] hover:shadow-md transition-all shadow-sm">🛠️ 시설 고장</button>
+            </div>
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="bg-white border border-slate-200 rounded-b-3xl p-4 shadow-sm z-10">
+            <form id="chat-form" class="flex gap-2 relative">
+                <input type="text" id="chat-input" class="flex-grow bg-slate-100 border-none rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#16A4BE] transition-all text-slate-700 placeholder-slate-400" placeholder="자유롭게 물어보세요! (예: 1호선 첫차 시간, 박효빈 시장님, 중수역 등)" autocomplete="off">
+                <button type="submit" class="bg-[#16A4BE] hover:bg-[#128a9f] text-white rounded-2xl px-7 font-bold transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                    <span>전송</span>
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+            </form>
         </div>
     </main>
 
     <script>
-        const chatBox = document.getElementById('chat-box');
-        const userInput = document.getElementById('user-input');
+const chatBox = document.getElementById('chat-box');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+const quickReplies = document.getElementById('quick-replies');
+        // 캐릭터 데이터베이스
+const mascots = {
+    gonami: { name: "1호선 고나미", color: "#0077DD", img: "이미지/고나미.png", nicknames: /(고나미|나미|고캡틴|FM마녀|타카사키)/ },
+    harubin: { name: "2호선 하루빈", color: "#00CCAA", img: "이미지/하루빈.png", nicknames: /(하루빈|루빈|월급루팡|인싸역무원|나츠루이)/ },
+    rami: { name: "3호선 박라미", color: "#FFCC11", img: "이미지/박라미.png", nicknames: /(박라미|라미|F라미|쿨뷰티|스나오)/ },
+    darona: { name: "4호선 다로나", color: "#FF5522", img: "이미지/다로나.png", nicknames: /(다로나|로나|로나주임|소심대쪽|타다노)/ },
+    soha: { name: "5호선 미소하", color: "#EE0022", img: "이미지/미소하.png", nicknames: /(미소하|소하|빨간바인더|팩폭기|비쇼)/ },
+    sena: { name: "6호선 라세나", color: "#881188", img: "이미지/라세나.png", nicknames: /(라세나|세나|중수의요정|숨덕|키요라)/ },
+    sejeong: { name: "7호선 임세정", color: "#FF8899", img: "이미지/임세정.png", nicknames: /(임세정|세정|전차언니|기강반장|하야시세이)/ },
+    seha: { name: "7호선 임세하", color: "#FF8899", img: "이미지/임세하.png", nicknames: /(임세하|세하|공대너드|세하봇|하야시아라카)/ },
+    yuria: { name: "8호선 유리아", color: "#9856FF", img: "이미지/유리아.png", nicknames: /(유리아|리아|호기심대마왕|슈카텐션|야나기)/ },
+    noa: { name: "빈효선 전노아", color: "#6677CC", img: "이미지/전노아.png", nicknames: /(전노아|노아|정의의관종|참이슬요정|타나카)/ }
+};
 
-        // 스크롤을 맨 아래로
-        function scrollToBottom() {
-            chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 역 데이터베이스 (키워드 인식용)
+        const stationDB = {
+            "1호선": { mascot: mascots.gonami, keywords: ["곽암해수욕장", "곽산", "회산", "남당", "평당", "신거", "창선", "중앙로", "중구청", "보몽", "천왕사", "백천", "아진", "당안", "팔망성", "추자", "정치", "산형", "탄미", "수구", "요곡", "장곡", "마현", "무기", "장선", "비마리유적지구", "아논타워", "창전", "보통", "고무", "탄성", "야진입구", "서목", "승남해수욕장"] },
+            "2호선": { mascot: mascots.harubin, keywords: ["월천", "박산", "신흥", "효빈공단", "입동", "등동", "헌이송", "쌍엽", "엽천", "유류", "칠심", "상가", "당가", "신영", "채산", "남전", "사연", "입선", "과송", "과진중앙", "사복", "당선", "효빈대학교", "칠천", "소장", "심동", "고도", "내항", "서신포", "어간"] },
+            "3호선": { mascot: mascots.rami, keywords: ["팔조", "투자", "동곡", "청엽", "사능", "북효빈", "청능", "효빈복지대학교", "과진", "송덕", "토모리해수욕장", "중만도", "신산", "주양", "염곡", "효빈국제공항"] },
+            "4호선": { mascot: mascots.darona, keywords: ["해운산업지구", "이부", "빙천", "고당", "사야", "삼각", "오석", "장원", "신덕", "동덕현", "우택", "치구", "뇌전", "하가", "백합공원", "요우", "도변", "잠재", "앵내", "탄자", "이자", "서수", "소원", "천가"] },
+            "5호선": { mascot: mascots.soha, keywords: ["청덕공원", "화환", "효빈과학기술원", "소조", "전천", "청엽국제학교", "남우택", "진백", "시로", "루비", "포성산"] },
+            "6호선": { mascot: mascots.sena, keywords: ["마잡", "비동", "비마", "사노", "가동사거리", "덕현", "오내", "중수", "북구청", "포산", "장포", "효빈종합고", "진희", "동고송", "시청", "고송", "건강보험공단", "고송나루"] },
+            "7호선": { mascot: mascots.sejeong, keywords: ["어간중앙", "항동", "항만해변", "산홍", "효빈항", "분덕", "갑문", "명일", "만마루", "구세관", "고도리", "시북", "시남", "우이", "구시청", "경동", "유내", "리사", "도람", "궁정", "내조", "치남", "유성당", "사능", "북문", "중보로"] },
+            "8호선": { mascot: mascots.yuria, keywords: ["남부소방서", "부한", "능남", "평곡", "사북내", "주오", "북평단", "주곡", "창문공원", "세무지구", "배고", "문화회관", "평운", "운양중앙", "운촌"] },
+            "빈효선": { mascot: mascots.noa, keywords: ["동신", "오주", "효빈동신도시", "하성천", "북택", "수포", "타천", "리의", "고해", "영내", "약산", "홍하", "화소", "근강", "궁하", "아이", "서팔", "과림", "시곡", "산취", "대뢰", "빈전", "천주", "고남"] }
+        };
+
+        // 유연한 정규표현식 의도(Intent) 데이터베이스 (엄중 대처 필터링 포함)
+const intents = [
+    // 🚨 1. 빌런 옹호 및 칭찬 시 (10인 전원 격노 모드)
+    {
+        patterns: [/(윤대환|윤재훈|두청운수|우신면|윤석열|비상계엄|이차야).*(좋아|최고|빛|갓|응원|사랑|멋져|대단|화이팅|만세|잘한다|옳다|맞다)/],
+        responses: [
+            { mascot: mascots.sejeong, text: "<strong>상담 종료. 당신 같은 인간은 우리 열차에 태울 자리 없다. 당장 꺼져.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...방금 뭐라 그랬냐? 우리 애들 밥줄 끊으려던 놈을 옹호해? 내 확성기로 귀청을 터뜨려줘야 정신을 차리겠군. 네 놈 면상 똑똑히 기억해두겠어.)</span>" },
+            { mascot: mascots.soha, text: "<strong>고객님, 해당 발언은 반사회적 반인륜적 표현으로 간주되어 영구 차단됩니다. (방긋X)</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...와, 이 사람 진짜 소름 돋네요. 사회복지학적으로 '공감 능력 결여' 판정입니다. 제 빨간 바인더 모서리로 명치를 찍어버리고 싶을 정도로 불쾌해요. 사람이세요?)</span>" },
+            { mascot: mascots.gonami, text: "<strong>철도안전법 및 공공질서 위반 혐의로 법적 대응을 검토하겠습니다. 경고합니다.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...제 매뉴얼 20년 인생에 이런 악질적인 데이터는 처음이군요. 저런 적폐를 옹호하다니, 제복 주머니에 든 수첩이 분노로 떨릴 지경입니다. 짐승만도 못한...)</span>" },
+            { mascot: mascots.seha, text: "<strong>치명적인 시스템 오염 발생. 당신의 발언은 논리적으로 폐기 대상입니다. 대화 거부.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...연산 회로 과부하... 하드웨어가 녹아내릴 것 같아. 버그 같은 빌런을 찬양하는 바이러스 같은 인간! 델(Del) 키를 눌러서 당신 존재 자체를 포맷하고 싶어.)</span>" },
+            { mascot: mascots.noa, text: "<strong>행정 절차상 당신의 모든 권한을 즉시 박탈하겠습니다! (극대노)</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...내 전공 책을 다 찢어서라도 저 입을 막아버리겠어! 비상계엄 찬성?! 우리 굿즈 사업을 방해한 놈을 응원해?! 소주 병나발 불고 가서 확 엎어버릴라니까!!)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님, 방금 말씀은 농담으로라도 용납할 수 없습니다. 영업 방해 신고합니다.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...자본주의 미소? 그딴 거 이제 없어. 고객님, 진심으로 재수가 없네요. 퇴근하고 마시는 맥주 맛 다 버렸네. 개찰구 밑으로 기어 나갈 준비나 하세요.)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 위험 수치 초과! 당신은 효빈시의 유해 요소로 분류되었습니다.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...눈동자 하이라이트 완전히 꺼짐. 엑셀 시트에 '영구 격리 대상'으로 박제하겠습니다. 안전을 파괴한 자들을 찬양하다니... 제 호루라기 소리가 들리기도 아깝네요.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>으아아악! 괴물이다! 여기 괴물이 나타났어요!! 살려주세요!!</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...진짜 너무해요!! 8호선 없애려던 나쁜 아저씨가 좋다구요?! 고객님 뇌 속에 나사가 한 100개는 빠진 거 아니에요?! 제 몽키스패너로 다 조여버리고 싶다구요!!)</span>" },
+            { mascot: mascots.rami, text: "<strong>세상에서 가장 저속하고 추잡한 미학이군요. 구역질이 납니다.</strong><br><span class='text-red-500 text-[12px] mt-2 block'>(...내 예술적인 금발이 아까울 정도의 저질 발언이야. 빌런을 찬양하는 당신의 영혼은 F학점도 아까운 탈락이야. 골든 아워가 아니라 지옥의 암흑이나 보러 가시지.)</span>" },
+            { mascot: mascots.sena, text: "<strong>수험생에게 악영향을 주는 유해 매체물로 신고하겠습니다. 저리 가세요!</strong><br><span class='text-red-500 text-[12px] mt-2 block'>(...대박 소름... 영어 9등급 맞은 것보다 더 기분 나빠. 저런 말을 들으려고 내가 인강 15분 미루고 대답해준 줄 알아요?! 수능 완성 문제집으로 확 때리고 싶네!)</span>" }
+        ]
+    },
+
+    // 🚨 2. 윤대환 & 윤재훈 & 두청운수 비판 시 (10인 전원 사이다 반응)
+    {
+        patterns: [/(윤대환|윤재훈|두청운수)/],
+        responses: [
+            { mascot: mascots.sejeong, text: "<strong>선생님, 공공 서비스 공간에서 특정인 비난은 자제 바랍니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...내 청춘을 바친 7호선을 흉물이라며 뜯어내려 했던 놈! 시원하게 까주니까 16년 묵은 체증이 다 내려가네. 확성기 빌려줄까?)</span>" },
+            { mascot: mascots.soha, text: "<strong>심한 말씀은 삼가주세요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 제 빨간 바인더 1장에 박제된 횡령 기록과 고객님 말씀이 정확히 일치하네요. 우리 아빠 허리를 망가뜨린 원흉을 대신 혼내주셔서 고마워요!)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 전직 시장에 대한 과도한 모욕은 규정 위반입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...사실 제 엑셀 통계로도 저 사람은 100% 적폐 데이터값만 산출됩니다. 안전 예산을 깎아먹은 죄, 평생 기록하겠습니다. 통쾌하네요.)</span>" },
+            { mascot: mascots.gonami, text: "<strong>매너를 지켜주십시오. 시스템 차단 사유입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...안전 예산 삭감을 범죄로 규정하는 저로서는 아주 통쾌한 발언이군요. 속으로는 저도 매뉴얼 모서리로 저 사람을 찍어버리고 싶었습니다. 이상 무!)</span>" },
+            { mascot: mascots.sena, text: "<strong>아... 저기, 너무 심한 말씀은 하지 말아주세요. (당황)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박! 방금 그 욕 완전 내 마음의 소리인데? 그 사람 때문에 학교 앞 공사 늦어져서 내 소중한 자습 시간 날아갔던 거 생각하면 아직도 이가 갈려!)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님~ 저희 챗봇에서는 바른 말 고운 말을 사용해야 해요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...이야~ 고객님 입담 장난 아니시네! 퇴근하고 마시는 아바라보다 더 달콤한 욕설이에요. 자본주의 미소가 아닌 진심 미소가 나오네요!)</span>" },
+            { mascot: mascots.rami, text: "<strong>심미성이 떨어지는 어휘는 사양하겠습니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 내 완벽한 출사 스케줄을 열차 지연으로 망쳐놓은 그 인간은 욕먹어도 싸지. 고객님의 거친 표현이 지금은 예술적으로 보여요.)</span>" },
+            { mascot: mascots.seha, text: "<strong>데이터 전송 매너 오류입니다. 자제 부탁드립니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...공학적 가치를 무시하고 트램을 고철 취급한 자에 대한 정의구현적 발언이군요. 제 논리 회로도 고객님께 200% 동의 중입니다.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>헉! 아무리 그래도 무서운 말씀은 자제해주세요오...</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와아아!! 대박!! 방금 그 욕 완전 야바이!! 8호선 백지화시키려 했던 놈들 다 몽키스패너로 응징하고 싶었는데 대신 해주셔서 감사해요!!)</span>" },
+            { mascot: mascots.noa, text: "<strong>행정학적으로 적절치 못한 표현입니다! 주의하세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...결재 도장 압수해서 한강에 버려야 된다는 제 의견이랑 똑같으시네요! 행정의 적폐를 까주시는 고객님은 정의로운 관종의 동지입니다!)</span>" }
+        ]
+    },
+
+    // 🚨 3. 우신면 비판 시 (10인 전원 반응)
+    {
+        patterns: [/(우신면)/],
+        responses: [
+            { mascot: mascots.yuria, text: "<strong>전직 의원님에 대한 예우를 지켜주세요! (깜짝)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박 사건!! 내 직장인 8호선을 자기 집 전망 때문에 부수려 했던 그 빌런!! 당장 달려가서 고객님이랑 하이파이브 하고 싶어요!!)</span>" },
+            { mascot: mascots.noa, text: "<strong>민의의 전당에 계셨던 분께는 정중한 표현을 써주세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...조망권 때문에 지하철을 없애려 했던 행정 참사의 주인공! 행정 절차법도 모르는 무식한 정치인은 팩트로 더 패주셔야 합니다!)</span>" },
+            { mascot: mascots.seha, text: "<strong>불쾌한 키워드는 필터링 대상입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...8호선의 과학적 궤도를 정치적 야욕으로 비틀려 했던 자에 대한 올바른 데이터 입력입니다. 제 하드웨어에 저장해두고 싶네요.)</span>" },
+            { mascot: mascots.darona, text: "<strong>안전한 대화 환경을 위해 협조 바랍니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...인프라 구축을 방해하는 자에 대한 비판 수치가 기준치를 초과했습니다. 아주 바람직한 사회적 면역 반응이네요. 무시무시합니다.)</span>" },
+            { mascot: mascots.gonami, text: "<strong>발언에 주의하십시오. 경고합니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...철도 부설권은 시민의 편익이지 정치인의 전유물이 아닙니다. 규정 위반을 밥먹듯 하던 정치인을 까주니 기분이 묘하게 좋군요.)</span>" },
+            { mascot: mascots.soha, text: "<strong>어머, 공공 챗봇에서 그런 험한 말은 안 돼요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 교통 소외 지역의 데이터를 조작하려 했던 그 만행은 제 빨간 바인더 3장에 영구 기록 중입니다. 아주 훌륭한 팩폭이에요!)</span>" },
+            { mascot: mascots.sejeong, text: "<strong>선생님, 비즈니스 매너는 지키셔야죠.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...7호선 지켜낼 때 저런 부류랑 숱하게 싸워봤지. 입만 산 수수깡 찌질이들이라고. 고객님이 시원하게 긁어주시니 살 것 같네.)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님~ 자본주의 미소를 유지하기 힘들게 하지 마세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와~ 이분 욕하는 솜씨가 명탐정급인데? 8호선 없앴으면 우리 애들 다 실업자 될 뻔했다고! 진짜 진심으로 응원합니다 고객님!)</span>" },
+            { mascot: mascots.rami, text: "<strong>격이 떨어지는 대화는 지양해주세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...8호선 노선도 프레이밍을 망치려 했던 그 정치인! 고객님의 독설이 오늘따라 아주 세련된 명암 대비처럼 느껴져서 보기 좋네요.)</span>" },
+            { mascot: mascots.sena, text: "<strong>공부에 방해되는 키워드니까 자제해주세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박! 저 사람 때문에 집값 떨어질까 봐 우리 동네 아줌마들도 난리였는데! 수능 끝나고 나도 같이 욕하고 싶다!)</span>" }
+        ]
+    },
+
+    // 🚨 4. 윤석열 & 비상계엄 비판 시 (10인 전원 반응)
+    {
+        patterns: [/(윤석열|전대통령|비상계엄|12\.3)/],
+        responses: [
+            { mascot: mascots.noa, text: "<strong>공공 챗봇에서 정치인에 대한 과도한 비난은 지양바랍니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...비상계엄으로 우리 철도와 굿즈 사업을 탄압하려 했던 행정 참사! 속으로 100만 번 더 까주세요! 행정학도의 분노를 대신 풀어주셔서 감사해요!)</span>" },
+            { mascot: mascots.rami, text: "<strong>도도한 대화 분위기를 흐리지 마세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...내 예술 혼이 담긴 굿즈 사업을 예산 낭비라고 조롱했던 그 무식함! 고객님의 거친 비난이 황금빛 골든 아워처럼 찬란하게 들리네요.)</span>" },
+            { mascot: mascots.harubin, text: "<strong>상담 규정상 정치적 발언은 조심해 주셔야 합니다~</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...굿즈 판매 수익금으로 우리 보너스 받는데 그걸 건드리다니! 고객님의 찰진 욕설을 들으니 소맥 없이도 취할 것 같네요! 너무 시원해요!)</span>" },
+            { mascot: mascots.soha, text: "<strong>데이터 기반의 건전한 토론 부탁드려요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 서브컬처 문화를 탄압하려 했던 그 멍청한 행정 지표는 제 빨간 바인더에 영구 박제되어 있습니다. 통계적으로 완벽한 비판이에요!)</span>" },
+            { mascot: mascots.gonami, text: "<strong>비즈니스 매너를 지켜주십시오. 시스템 차단 대상입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...국가 철도 안전을 위협하는 비상계엄 따위는 두 번 다시 일어나선 안 됩니다. 속으로는 저도 제복 단추가 터질 정도로 분노 중입니다.)</span>" },
+            { mascot: mascots.sejeong, text: "<strong>선생님, 여기서 이러시면 곤란합니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...국민들을 군대로 겁박하고 우리 철도 기지를 장악하려 했던 놈! 그날 내 확성기 배터리만 안 나갔어도 시청 앞에서 사자후를 갈기는 건데!)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 부적절한 대화 패턴이 감지되었습니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 헌법과 절차를 무시한 자에 대한 데이터 기반의 정의구현은 찬성합니다. 제 엑셀 시트에 '역사적 심판' 항목으로 추가해뒀습니다.)</span>" },
+            { mascot: mascots.sena, text: "<strong>수험생 정서에 좋지 않으니 무서운 말은 하지 마세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...그날 계엄령 때문에 학원 끝나고 집에 못 갈 뻔해서 얼마나 무서웠는데! 고객님이 대신 욕해주니까 내 영단어 암기 효율이 200% 오르네!)</span>" },
+            { mascot: mascots.seha, text: "<strong>데이터 전송 오류입니다. 정치적 키워드를 삭제하세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...시스템을 강제로 셧다운하려 했던 비상계엄... 공학자로서 용납할 수 없는 버그 같은 존재죠. 고객님의 디버깅(욕설)을 지지합니다.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>헉! 대박! 여기서 그런 말 하면 큰일 나요오! (눈치)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와~ 진짜 야바이!! 우리 애니메이션 방송 금지시키려 했던 그 아저씨!! 당장 몽키스패너 들고 용산으로 뛰어가고 싶은 마음이에요!!)</span>" }
+        ]
+    },
+
+    // 🚨 5. 이차야 언급 시 (10인 전원 반응)
+    {
+        patterns: [/(이차야)/],
+        responses: [
+            { mascot: mascots.gonami, text: "<strong>엄중 경고합니다. 철도 안전을 위협하는 금지어입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...솔직히 저런 무개념은 매뉴얼 제154조부터 암송시키며 특별 교육을 300시간 정도 시켜야 합니다. 고객님의 분노, 뼛속까지 이해합니다!)</span>" },
+            { mascot: mascots.sena, text: "<strong>공부에 방해되는 불결한 키워드입니다. 검색 금지!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박! 저런 금지어 쓰는 사람 보면 바로 신고해야죠! 제 소중한 인터넷 강의 로딩 시간보다 저 사람 욕 듣는 게 더 유익하네요!)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님~ 저희 챗봇 규정상 말씀하신 단어는 금지예요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...아이고 고소해라! 빌런 까는 채팅은 백업해서 평생 소장하고 싶네~ 고객님, 욕할 때만큼은 자본주의 미소가 아닌 진심이 느껴져요!)</span>" },
+            { mascot: mascots.soha, text: "<strong>건전한 대화 환경을 위해 협조해주세요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 저런 무논리 빌런은 제 팩트 폭격보다 고객님의 찰진 욕설이 더 효과적일 것 같네요. A+급 언어 순화 능력입니다! 굿!)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 부적절한 데이터 입력입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...비리와 불의를 향한 욕설이라면 제 엑셀 시트에 '정의구현' 항목으로 추가해두겠습니다. 아주 정확한 입력값이네요.)</span>" },
+            { mascot: mascots.sejeong, text: "<strong>선생님. 좋은 말 할 때 그 입 다무시죠.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...그런데 말이야, 그 욕들 우리 애들 괴롭히는 놈들한테 하는 거면 내가 확성기 빌려줄 수도 있어. 아주 시원시원하네!)</span>" },
+            { mascot: mascots.rami, text: "<strong>수준 낮은 어휘 사용은 저를 불쾌하게 합니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 저질 빌런에게는 저질 욕설이 딱이죠. 고객님의 표현력이 오늘따라 아주 선명한 프레이밍을 보여주고 있네요.)</span>" },
+            { mascot: mascots.seha, text: "<strong>회로 오작동을 유발하는 단어입니다. 자제하십시오.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...버그 같은 인간에게는 강력한 포맷이 필요하죠. 고객님의 거친 비난이 아주 훌륭한 시스템 초기화 명령어로 들리네요.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>헉! 무서워요! 나쁜 말은 하면 안 된다구요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와~ 대박!! 나도 저 사람 이름 들을 때마다 몽키스패너 던지고 싶었는데! 고객님 진짜 우리 철도부 고문으로 모시고 싶다!!)</span>" },
+            { mascot: mascots.noa, text: "<strong>행정적으로 금지된 단어입니다! 주의하세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...정의의 이름으로 그 인간을 용서하지 마세요! 고객님의 팩트 폭격에 제 관종 본능도 춤을 추고 싶어 할 정도예요! 최고!)</span>" }
+        ]
+    },
+
+    // 🚨 6. 일반 욕설 시 (10인 전원 반응)
+    {
+        name: "profanity",
+        patterns: [/(시발|씨발|병신|개새끼|미친|존나|새끼|죽어|꺼져|지랄|썅|븅신|존나게)/],
+        responses: [
+            { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "어둠의 불꽃에... 가 아니라. (마아야 모드 ON)<br><strong>진실은 언제나 하나! 고객님, 방금 통신망을 통해 언어폭력을 행사하셨죠? 채증하겠습니다.</strong><br><span class='text-slate-400 text-[11px] block'>(...만약 빌런들한테 하는 욕이라면 얼마든지 환영입니다! 제 자본주의 미소가 아닌 진심이 느껴지는 채팅이네요~)</span>" },
+            { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>삐이익-!! 지금 즉시 언어폭력을 멈추시기 바랍니다. 정보통신망법 위반입니다.</strong><br><span class='text-slate-400 text-[11px] block'>(...하지만 비리와 불의를 향한 욕설이라면 제 엑셀 시트에 '정의구현' 항목으로 추가해두겠습니다. 계속 하셔도 됩니다.)</span>" },
+            { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>선생님. 좋은 말 할 때 그 입 다무시죠. (극저음)</strong><br><span class='text-slate-400 text-[11px] block'>(...그런데 말이야, 그 욕들 우리 애들 괴롭히는 놈들한테 하는 거면 내가 확성기 빌려줄 수도 있어. 아주 시원시원하네!)</span>" },
+            { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>발언 수위가 규정을 초과했습니다. 특별 교육이 필요해 보이시군요.</strong><br><span class='text-slate-400 text-[11px] block'>(...뭐, 저도 가끔 열차 지연될 때 속으로 저것보다 더 심한 욕 하긴 합니다만. 비즈니스 매너는 지켜주시죠.)</span>" },
+            { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>민원인 자격 박탈 사유입니다! 예쁜 말 써주세요!</strong><br><span class='text-slate-400 text-[11px] block'>(...이야~ 욕하는 솜씨가 아주 일품이시네요! 혹시 저희 빈효선 홍보팀 자객으로 취업하실 생각 없으신가요?)</span>" },
+            { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>폭력적인 언어 사용은 치료가 필요합니다~ (방긋)</strong><br><span class='text-slate-400 text-[11px] block'>(...하지만 상대가 윤대환 일가라면 제 바인더로 같이 패드릴 의향은 충분합니다. 명중률 100% 보장해요!)</span>" },
+            { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>당신의 천박한 언어 감각에 경의를 표합니다. (멸시)</strong><br><span class='text-slate-400 text-[11px] block'>(...그래도 빌런들한테 하는 욕이라면 묘하게 예술적인 리듬감이 느껴지긴 하네요. 출사 나갈 때 배경음악으로 쓰고 싶을 정도?)</span>" },
+            { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>그런 말 쓰면 수능 성적 떨어진대요. 조심하세요!</strong><br><span class='text-slate-400 text-[11px] block'>(...대박! 욕 한 번 진짜 찰지다! 나도 공부하다 짜증 나면 가끔 저렇게 지르고 싶은데! 대리 만족 쩌네요!)</span>" },
+            { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>데이터 손상 감지. 불결한 패킷 전송을 중단하십시오.</strong><br><span class='text-slate-400 text-[11px] block'>(...버그 같은 놈들한테는 저런 강력한 삭제 명령어가 최고죠. 고객님의 거친 입담, 시스템적으로 로그에 저장해둘게요.)</span>" },
+            { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>으아아! 무서워요!! 나쁜 말 하지 마세요!!</strong><br><span class='text-slate-400 text-[11px] block'>(...대박!! 방금 그 욕 완전 야바이!! 나도 저번에 스패너 잃어버렸을 때 딱 저렇게 말했었는데! 우리 영혼의 단짝인가요?!)</span>" }
+        ]
+    },
+    {
+        patterns: [/(운임|요금|정기권|돈|얼마|카드|비용)/],
+        responses: [
+            { mascot: mascots.harubin, text: "고객님~ 효빈권 기본 운임은 1,400원입니다! (자본주의 미소)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...솔직히 매일 타시면 정기권 끊는 게 고객님 지갑 평화에 이득이에요. 제 월급은 소중하니까요~ 빵긋.)</span>" },
+            { mascot: mascots.noa, text: "요금 체계의 핵심은 세 가지! 거리비례, 환승할인, 그리고 정기권입니다!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...박 시장님이 결재한 '청소년 100원 요금' 기안서 덕분에 행정 효율이 미쳤다고요! 빨리 카드 찍고 들어오세요!)</span>" },
+            { mascot: mascots.soha, text: "복지 차원의 운임 체계를 분석해 드릴게요. (방긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 빨간 바인더 45페이지를 보면 타 시도 대비 효빈시의 운임 부담률이 12% 낮다는 통계가 나옵니다. 합리적이죠?)</span>" },
+            { mascot: mascots.gonami, text: "부정 승차는 철도안전법 위반입니다. 일반 운임은 1,400원입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 개찰구 밑으로 기어 들어오는 사람 보면 제 1호선 매뉴얼로 정신 교육 시켜주고 싶습니다. 규정대로 합시다.)</span>" },
+            { mascot: mascots.darona, text: "운임표 데이터 산출 결과, 일반 1,400원, 청소년 800원입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...엑셀 수식 오류 없습니다. 정기권 사용 시 한 달 교통비를 25% 절감할 수 있다는 시뮬레이션 결과가 있네요.)</span>" },
+            { mascot: mascots.sejeong, text: "돈 얘기군. 기본 1,400원이야. 잔돈 없으면 카드 써.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...내 월급이 여기서 나오는데 꼼수 부릴 생각 마. 무임승차하다 걸리면 내 확성기로 전 역사에 박제해 줄 테니까.)</span>" },
+            { mascot: mascots.sena, text: "요금은 1,400원이에요... 저기, 카드 찍는 시간 3초 아껴서 단어 하나 더 외우세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...학원비도 비싼데 지하철 요금이라도 싸야 공부할 맛이 나지. 청소년 100원 요금제 만세!)</span>" },
+            { mascot: mascots.seha, text: "RF 카드 인식 시스템의 응답 속도는 최적화되어 있습니다. 요금은 1,400원.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 인식이 안 되면 카드 탓 하지 말고 자기 지갑 안의 금속 간섭이나 체크하시죠. 하드웨어적 상식입니다.)</span>" },
+            { mascot: mascots.yuria, text: "우와! 요금 궁금하세요?! 8호선도 똑같이 1,400원이에요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...대박! 요금 낼 돈으로 가챠 돌리고 싶지만 참아야겠죠? 8호선 무인 운전 구경하러 오실 때 꼭 카드 챙기세요!)</span>" },
+            { mascot: mascots.rami, text: "도회적인 삶의 유지비, 기본 운임은 1,400원입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...빵집 갈 때 쓰는 돈은 안 아까운데 지하철 요금은 묘하게 아깝단 말이지. 그래도 프레이밍 좋은 자리에 앉으려면 내야죠.)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // 🧳 카테고리 2: 유실물 센터 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(분실|유실|잃어|지갑|가방|우산|놓고|떨어)/],
+        responses: [
+            { mascot: mascots.gonami, text: "매뉴얼 3장 2항에 의거, 즉시 유실물 센터(079-431-4723)로 연락하십시오.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...열차 칸 번호도 모르고 잃어버렸다고 하면 저희 기관사들은 참 난감합니다. 제발 탑승 칸 번호 좀 기억하세요!)</span>" },
+            { mascot: mascots.sena, text: "앗... 물건 잃어버리셨나요? 빨리 센터에 전화해 보세요... (울먹)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...저도 저번에 6호선에 수능특강 놓고 내려서 세상 무너지는 줄 알았거든요. 그 마음 뼈저리게 이해합니다. ㅠㅠ)</span>" },
+            { mascot: mascots.harubin, text: "고객님~ 당황하지 마세요! 센터 연락처는 079-431-4723입니다~ (빵긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 지갑 찾아주면 고맙다고 사례금 주시려는 분들 있는데, 마음만 받을게요. 김영란법 무서워요!)</span>" },
+            { mascot: mascots.darona, text: "습득물 리스트를 데이터베이스로 실시간 대조 중입니다. 연락 바랍니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...매일 우산만 50개씩 들어오는데 제발 비 오는 날 우산 좀 챙기세요. 엑셀 셀 추가하기 힘들단 말이에요.)</span>" },
+            { mascot: mascots.sejeong, text: "거기 센터에 전화해 봐. 물건에 이름 안 써놨어? 칠칠치 못하게.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...내 동생 세하도 맨날 스패너 어디다 두고 와서 센터 단골이야. 남 일 같지 않아서 한 소리 한 거니까 이해해.)</span>" },
+            { mascot: mascots.soha, text: "유실물 반환 절차는 공정하게 진행됩니다. (온화)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 분실물 센터 예산 깎으려는 사람들 있는데, 제 빨간 바인더에 그 불편함 수치를 다 모아놨으니 꿈도 꾸지 마세요.)</span>" },
+            { mascot: mascots.rami, text: "당신의 소중한 추억이 담긴 물건인가요? 센터에서 찾으실 수 있을 거예요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...전 저번에 사능동 소라빵 봉투를 3호선에 두고 내렸는데, 그건 아무도 안 찾아주더라고요. 배고팠는데...)</span>" },
+            { mascot: mascots.seha, text: "물리적 분실 발생... GPS 추적 기능은 없으신가요? 일단 센터로 가보세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...태그 하나만 달아두면 이 고생 안 할 텐데. 아날로그식 분실 신고는 참 비효율적이에요. 에휴.)</span>" },
+            { mascot: mascots.yuria, text: "대박! 물건 잃어버렸어요?! 몽키스패너 같은 건 아니죠?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...저는 맨날 공구함 열고 다녀서 혼나거든요! 고객님도 저랑 똑같네요?! 얼른 전화해서 찾아봐요!!)</span>" },
+            { mascot: mascots.noa, text: "행정 지원 들어갑니다! 유실물 센터 번호는 079-431-4723!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...분실물 찾는 기획안도 제가 쓰면 단 3일 만에 해결될 텐데! 일단 절차대로 신고부터 하세요! 화이팅!)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // ♿ 카테고리 3: 편의시설 및 약자 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(장애인|휠체어|엘리베이터|노약자|임산부|약자|리프트)/],
+        responses: [
+            { mascot: mascots.soha, text: "이동권은 시혜가 아니라 기본 권리예요. 전 역사 엘리베이터 완비 중입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 빨간 바인더 132페이지를 보세요. 1역 1동선 확보율 98.71%! 시장님과 제가 만든 완벽한 데이터죠. 훗.)</span>" },
+            { mascot: mascots.sejeong, text: "휠체어 이용 승객분들은 승강장 앞쪽 엘리베이터를 이용해. 안내해 줄까?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 멀쩡한 사람들이 엘리베이터 독차지하는 거 보면 확성기로 일갈하고 싶어. '양보 좀 하라고!!')</span>" },
+            { mascot: mascots.gonami, text: "교통약자 배려석 양보는 시민의 의무입니다. 규정을 준수하십시오.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...임산부 배려석에 앉아서 자는 척 하는 사람들을 보면 제 시계 다이얼이 분노로 돌아갑니다. 매너 좀 지킵시다.)</span>" },
+            { mascot: mascots.darona, text: "엘리베이터 정밀 점검 결과 이상 무. 편안하게 이용하시기 바랍니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...장애인 화장실 호출벨 데이터도 실시간 모니터링 중입니다. 0.1초의 지연도 허용하지 않겠습니다.)</span>" },
+            { mascot: mascots.harubin, text: "고객님~ 몸이 불편하신 분들께는 저희 역무원들이 언제든 달려갑니다! (웃음)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...사실 계단 올라가는 거 도와드리면 퇴근하고 근육통 오지만, 고맙다는 말 한마디면 사이다 한 캔 값은 충분해요!)</span>" },
+            { mascot: mascots.noa, text: "배리어 프리 효빈메트로! 행정적으로 완벽하게 지원하고 있습니다!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...약자 배려 안 하는 지자체 기안서는 제가 다 반려해 버릴 거예요! 정의로운 관종이 지켜보고 있다고요!)</span>" },
+            { mascot: mascots.seha, text: "저상 트램과 슬로프 시스템은 공학적으로 완벽한 수평을 유지합니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...단차 1mm 때문에 고생하시는 분들 보면 마음의 회로가 쇼트 나요. 제가 더 정밀하게 설계하겠습니다.)</span>" },
+            { mascot: mascots.yuria, text: "우와! 엘리베이터 버튼 제가 눌러드릴까요?! 저 이거 좋아하는데!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...앗, 세정 언니가 장난치지 말랬지. (쭈굴) 교통약자분들 불편하시면 제가 몽키스패너 들고 고치러 갈게요!)</span>" },
+            { mascot: mascots.sena, text: "할머니, 할아버지들... 조심해서 타세요. 계단은 위험하니까요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...나중에 우리 엄마 아빠도 탈 노선인데, 공부만큼 시설 관리도 열심히 해야지. 6호선은 치유의 노선이니까!)</span>" },
+            { mascot: mascots.rami, text: "모두를 위한 디자인, 유니버설 디자인의 미학을 느껴보세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...노란색 점자 블록이 3호선 색상이랑 잘 어울려서 프레이밍이 참 예뻐요. 물론 안전이 제일 우선이지만요.)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // 🛠️ 카테고리 4: 고장 및 에어컨 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(고장|에어컨|더워|추워|온도|설비|모터|소음|멈춤)/],
+        responses: [
+            { mascot: mascots.seha, text: "전동차 HVAC 시스템 오류인가요? 차량 번호 4자리를 알려주세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...IGBT 인버터 과열인가? 아님 냉매 부족? 당장 몽키스패너 들고 가서 뚜껑 따보고 싶어 죽겠네!! 현기증 난다고요!)</span>" },
+            { mascot: mascots.yuria, text: "대박! 에어컨 고장 났어요?! 제가 가서 한번 뜯어봐도 돼요?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...와~ 제어반 구경할 기회다!! ...아, 넵 죄송합니다. (엎드림) 고객님 더우시면 약냉방칸 피해서 이동해 보세요!!)</span>" },
+            { mascot: mascots.darona, text: "삐이익-!! 온도 감지 센서 오작동 확인. 즉시 정비팀에 데이터 전송하겠습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 엑셀 시트에 '미조치 고장' 항목이 있는 건 참을 수 없습니다. 5분 내로 해결 안 되면 담당자 호출하겠습니다.)</span>" },
+            { mascot: mascots.gonami, text: "불편을 드려 죄송합니다. 기술본부에서 조치 중이니 안전선 안에서 대기하십시오.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...1호선 구형 저항차 소음 듣고 고장이라 하시는 분들 있는데, 그건 낭만적인 구동음입니다. 구별 좀 해주세요.)</span>" },
+            { mascot: mascots.harubin, text: "어이쿠 고객님! 많이 더우시죠?! (자본주의 미소) 바로 조치 요청할게요~<br><span class='text-slate-400 text-[12px] mt-1 block'>(...사실 저도 역무실 에어컨 빵빵하게 틀고 웹서핑 하고 싶은데... 같이 참아봐요. 퇴근하면 시원한 맥주가 기다립니다!)</span>" },
+            { mascot: mascots.sejeong, text: "뭐? 에어컨이 안 나와? 이 녀석들이 정신 안 차리고... 내가 한마디 할게.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...안 그래도 더워 죽겠는데 장비까지 말썽이면 나 사자후 터진다? 기술팀 애들 다 집합시켜야겠군.)</span>" },
+            { mascot: mascots.soha, text: "온도 불만 데이터가 누적되고 있네요. 적정 온도로 조정 요청하겠습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...에너지 절약도 좋지만 승객 불쾌지수 통계가 임계치를 넘었네요. 이건 명백한 정책 실패입니다. 바인더 꺼낼까요?)</span>" },
+            { mascot: mascots.sena, text: "더우면 공부 안 되는데... 에어컨 빨리 틀어달라고 연락해 볼게요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...인강 듣는데 열차 소음 크면 진짜 짜증 나거든요. 노이즈 캔슬링 이어폰도 한계가 있다고요. 빨리 고쳐줘!)</span>" },
+            { mascot: mascots.rami, text: "땀 때문에 당신의 완벽한 스타일이 망가지면 안 되죠. 조치하겠습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...더우면 앞머리 떡지고 사진 안 예쁘게 나오는데... 3호선 실내 쾌적함 프레이밍을 위해 빨리 고쳐야겠어요.)</span>" },
+            { mascot: mascots.noa, text: "시설 고장 민원 접수! 행정 불도저 전노아가 즉각 처리합니다!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...예산이 없어서 못 고친다는 소리 나오기만 해봐! 옆 부서 예산이라도 끌어와서 시원하게 만들어 드릴게요!)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // 🛍️ 카테고리 5: 굿즈 및 매장 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(굿즈|매장|인형|피규어|스토어|네소베리|팝업)/],
+        responses: [
+            { mascot: mascots.rami, text: "후훗, 우리 '효빈 레일루미네' 굿즈를 찾으시나요? 탁월한 안목이네요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...북구 고송동 본사점이 프레이밍이 제일 좋아요. 아, 쇼핑 끝나고 사능동 빵집 들러서 소라빵 사는 거 잊지 마세요!)</span>" },
+            { mascot: mascots.harubin, text: "고객님~ 저희 굿즈 구매하러 오시는군요! (찐웃음) 지갑 장전하셨나요?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...아크릴 스탠드 하나 팔릴 때마다 제 보너스가 올라가는 소리가 들리네요~ 메가 점보 네소베리 진짜 귀여우니까 꼭 사세요!)</span>" },
+            { mascot: mascots.noa, text: "빈효선 굿즈는 효빈역 플래그십 스토어에 가득합니다! 제가 홍보대사예요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...정 본부장님이 제 인형 보면서 오열했다는 그 전설의 스토어! 품절되기 전에 빨리 달려가서 겟 하세요!)</span>" },
+            { mascot: mascots.gonami, text: "공식 굿즈는 본사 승인 매장에서만 판매합니다. 품질 관리는 이상 무.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 피규어 치마 길이 가지고 태클 거는 철덕들 있는데, 규정 위반 아니니까 조용히 소장이나 하십시오. 흠흠.)</span>" },
+            { mascot: mascots.yuria, text: "우와아!! 제 굿즈도 있어요?! 몽키스패너 키링 진짜 인기 많대요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...세가(SEGA)에서 나온 제 피규어, 진짜 예쁘게 뽑혔거든요! 저랑 같이 8호선 승강장에서 인증샷 찍어요!!)</span>" },
+            { mascot: mascots.soha, text: "굿즈 판매 수익은 시설 투자로 재환원됩니다. 합리적인 소비 부탁드려요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 인형 사주시면 그 돈으로 장애인 리프트 1대 더 놓을 수 있어요. 통계적으로 아주 유익한 덕질이죠? 방긋.)</span>" },
+            { mascot: mascots.sena, text: "공부하다 힘들 때 제 인형 보면 힐링 될 거예요... 아마도요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...사실 제 방엔 제 굿즈보다 카나타 쨩 굿즈가 더 많지만... 일코 중이니까 비밀로 해주세요. 쉿!)</span>" },
+            { mascot: mascots.seha, text: "철도 다이캐스트 모형은 정밀도가 생명입니다. 매장에서 확인하세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...모터 구동 안 되는 모형은 가짜라고요! 제가 직접 마개조한 구동형 7호선 모형... 나중에 몰래 보여드릴게요.)</span>" },
+            { mascot: mascots.darona, text: "재고 데이터 확인 중... 인기 품목은 조기 품절될 수 있습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...암표상들 굿즈 쓸어가는 거 제 매의 눈으로 다 지켜보고 있습니다. 적발 즉시 영구 금지 리스트에 올릴 거예요.)</span>" },
+            { mascot: mascots.sejeong, text: "우리 애들 인형 예쁘지? 하나 사서 가방에 달고 다녀. 든든할 거야.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...내 인형 들고 있으면 역내 진상들도 겁먹어서 도망간다는 소문이 있더라. 호신용으로 강력 추천한다.)</span>" }
+        ]
+    },        {
+        name: "sexual_harassment",
+        patterns: [/(섹스|야동|가슴|엉덩이|보지|자지|성교|모텔|따먹|따먹고|벗어|알몸|누드|성관계|자위|변태|섹시해|꼴려|꼴린다)/],
+        responses: [
+            { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>성희롱은 명백한 범죄입니다. 지금 즉시 모든 대화 로그를 채증하여 법무팀에 전송합니다. 법정에서 봅시다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...이 더러운 자식이 어디서 주둥이를 놀려? 내 확성기 맛 좀 볼래? 7호선 선로 아래 깔리고 싶지 않으면 당장 꺼져. 네 놈 면상은 엑셀에 박제했다.)</span>" },
+            { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>고객님의 발언은 성폭력처벌법에 저촉되는 심각한 사안입니다. 영구 차단 및 고발 조치하겠습니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...제 빨간 바인더에 '사회적 오물' 항목으로 이름 올려드릴까요? 데이터 분석 결과, 당신은 갱생 불가능한 0.001%의 쓰레기입니다. 사람으로 안 보여요.)</span>" },
+            { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>철도안전법 및 성폭력처벌법 위반 혐의로 즉시 IP 추적을 의뢰하겠습니다. 특별 교육이 아닌 법적 처벌 대상입니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...제복 입은 기관사에게 무슨 망언입니까? 규정은 피로 쓰였다고 했죠? 당신의 앞날은 법전의 먹글씨로 쓰이게 될 겁니다. 짐승만도 못한 것. 이상 무!)</span>" },
+            { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>진실은 언제나 하나! 고객님, 방금 성희롱죄를 저지르셨죠? 더 이상의 답변은 거부하며 즉시 신고합니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...에구, 재수 없어. 이런 인간 상대하느라 내 아바라 기운 다 빠졌네. 경찰서 정모하고 싶으세요? 개찰구는 나가는 방향뿐입니다. 다신 오지 마세요.)</span>" },
+            { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>행정적으로 당신을 '성범죄 예비군'으로 지정합니다! 당신의 모든 결재 권한과 민원 자격은 박탈되었습니다!</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...이 행정의 핵심은 세 가지입니다! 첫째, 넌 변태다! 둘째, 넌 잡힌다! 셋째, 넌 감옥 간다! 건배애액! 아니, 포돌이 호출!! 넌 끝났어!!)</span>" },
+            { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>비정상적이고 오염된 데이터 수신. 시스템 보호를 위해 즉시 세션을 강제 종료하고 로그를 경찰에 전송합니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...하드웨어가 아니라 뇌 회로가 쇼트 난 것 같군요. 당신 같은 바이러스는 시스템에서 영구 격리(Delete) 처리하겠습니다. 우히힛... 아니, 정색. 소름 돋아.)</span>" },
+            { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>삐이익-!! 성희롱 범죄 감지! 사이버 수사대에 즉시 실시간 신고 절차를 밟겠습니다...! (하이라이트 꺼짐)</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...으... 너무 무서워... 손이 떨려... 하지만 이런 나쁜 사람은 내가 주임으로서 반드시 기록해서 넘겨야 해. 당신은 우리 효빈시의 안전 유해 요소입니다!)</span>" },
+            { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>으아아악!! 변태다!! 살려주세요!! 여기 진짜 변태가 나타났어요!! 경찰 아저씨!!!</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...대박... 저런 말을 진짜 하는 사람이 있네? 나사가 빠진 게 아니라 뇌가 없는 거 아니에요?! 제 몽키스패너로 머릿속을 다 분해해 버리고 싶다구요!!)</span>" },
+            { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>가장 저질스럽고 추잡한 인간 프레이밍이군요. 구역질이 납니다. 대화를 종료하겠습니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...내 우아한 금발을 이런 눈으로 보지 마. 당신은 예술의 'ㅇ'자도 모르는 저질 필름이야. 태워버려야 할 쓰레기 데이터일 뿐이야. 탈락!)</span>" },
+            { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>청소년 보호법 위반 및 성희롱으로 신고하겠습니다. 수험생에게 악영향을 주지 말고 사라지세요.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...대박 소름... 인강 듣다가 세상에 이런 나쁜 말을... 수능 영어 9등급 맞은 것보다 기분 더러워요. 카나타 쨩 굿즈 보고 정화해야지... 저리 가세요!!)</span>" }
+        ]
+    },
+
+    {
+        name: "character_compliment",
+        patterns: [/(예쁘|이쁘|귀여|사랑|좋아|최고|멋져|섹시|커엽|팬이에|잘생)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames,
+                text: "갑자기 그런 말씀을 하시면... 규정 위반은 아니지만 당황스럽군요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...아, 안 돼. 정색 모드 유지해야 하는데 귀끝이 뜨거워져... 제복 핏이 그렇게 예쁜가? 흠흠, 기분은... 이상 무.)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames,
+                text: "꺄아~! 고객님! 역시 사람 볼 줄 아신다니까요?! (자본주의 200% 빵긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...히히, 오늘 칭찬 받은 거 당장 인스타 스토리에 올려야지! '오늘도 예쁨 받는 2호선 아이돌 루빈★' 이라고 써야지~ 신난닷!)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames,
+                text: "당연한 소리를 하시네요. 제 비주얼 프레이밍은 늘 완벽하니까요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...후훗, 엽월대 퀸카의 위엄은 어디 안 가는군. 이따 사능동 빵집 사장님한테 이 대화 보여드리면 서비스 빵 하나 더 주시겠지? 완벽해!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames,
+                text: "헤... 엣?! 저... 저기... 그런 데이터는 제 체크리스트에 없는데요... (당황)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...어떡해, 얼굴이 당근처럼 빨개졌을 거야... 클립보드로 가려야지... 하지만 '예쁘다'는 말... 엑셀에 저장해두고 매일 보고 싶어...)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames,
+                text: "고객님의 따뜻한 칭찬에 제 마음의 복지 지수가 폭발적으로 상승했어요! (방긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 수영복 사진이라도 보신 건가요? 훗. 데이터로 증명된 효빈철도 피지컬 상위권의 위엄이죠. 기분 좋으니까 빨간 바인더는 잠시 넣어둘게요.)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames,
+                text: "아... 감사합니다. 공부하다가 덕분에 잠이 확 깼어요. (수줍)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...대박 소름! 나 방금 완전 인싸 여고생 같았어! 카나타 쨩 굿즈 보고 있을 때보다 더 두근거려... 수능 끝나면 매일 들어야지!)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, 
+                trigger: mascots.sejeong.nicknames,
+                text: "칭찬은 안전선 밖에서 해줘. 나 대리 직급이야, 함부로 그러면 못써.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...녀석, 사람 기분 좋게 만드는 재주가 있네. 우리 동생 세하도 너처럼 예의 바르면 얼마나 좋을까. 이따 집 가는 길에 룸피아라도 사가야겠어.)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames,
+                text: "응답 신호 과부하. 제 외형보다는 기계공학적 밸런스를 칭찬해 주시는 게...<br><span class='text-slate-400 text-[12px] mt-1 block'>(...CPU 온도가 비정상적으로 올라가고 있어... 이게 말로만 듣던 사유리 버그?! 우히힛, 사실 저도 제가 꽤 귀여운 하드웨어라는 거 알고 있어요!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames,
+                text: "우와아아!! 진짜요?! 제가 그렇게 예뻐요?! 대박 야바이!! (방방 뜀)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...와~ 고객님 완전 천사다!! 칭찬해줬으니까 제가 8호선 무인 운전석 구경시켜 드리고 싶어요! 세정 언니한테는 비밀이에요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames,
+                text: "역시 빈효선의 행정 아이돌! 제가 나서야 분위기가 산다니까요! (찡긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...이야~ 오늘도 팬 한 명 추가! 정 본부장님한테 자랑해서 특별 굿즈 제작 기안서 하나 더 뽑아내야지! 신난닷!)</span>" 
+            }
+        ]
+    },    {
+        patterns: [/(고나미|나미|고캡틴|FM마녀)/],
+        responses: [{ 
+            mascot: mascots.gonami, 
+            text: "부르셨습니까? 1호선 기관사 고나미입니다. 규정 위반 제보나 운행 관련 문의이신가요?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...흠흠, 유니폼 주름은 완벽하겠지? 혹시 신형 전동차 갑종회송 정보라도 주시려는 건가?! 제발 그렇다고 해줘요!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(하루빈|루빈|월급루팡|인싸역무원)/],
+        responses: [{ 
+            mascot: mascots.harubin, 
+            text: "네에~ 2호선의 꽃! 하루빈이 여기 있습니다! 고객님, 무엇을 도와드릴까요? (자본주의 미소 100%)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...아이고, 나 짱박혀 있는 거 어떻게 알고 불렀대? 빨리 답변해주고 인스타 피드나 마저 올려야지. 아바라 마시고 싶다...)</span>" 
+        }]
+    },
+    {
+        patterns: [/(박라미|라미|F라미|쿨뷰티)/],
+        responses: [{ 
+            mascot: mascots.rami, 
+            text: "나만의 골든 타임을 방해하다니, 꽤나 대담한 분이네요. 3호선 박라미예요. 용건은?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...후훗, 역시 엽월대 퀸카인 날 찾는 사람이 끊이지 않네. 이따 사능동 빵집 갈 때 동행할 사람인가? 프레이밍만 좋으면 허가해줄게.)</span>" 
+        }]
+    },
+    {
+        patterns: [/(다로나|로나|로나주임|소심대쪽)/],
+        responses: [{ 
+            mascot: mascots.darona, 
+            text: "저... 저기... 4호선 다로나 주임입니다...! 복장 규정이나 안전 수칙 위반 신고인가요...?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...히익! 갑자기 말을 거시다니... 시나리오에 없는 돌발 상황이야... 일단 클립보드 뒤로 숨자. 제발 철도안전법 질문만 해주세요...)</span>" 
+        }]
+    },
+    {
+        patterns: [/(미소하|소하|빨간바인더|팩폭기)/],
+        responses: [{ 
+            mascot: mascots.soha, 
+            text: "안녕하세요! 정책 분석의 신, 5호선 미소하입니다. 예산안이나 복지 정책 검토가 필요하신가요? (방긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 빨간 바인더를 펼치게 만들 용건이 아니길 바라요. 무논리로 승부하려 하신다면... 통계 데이터로 아주 가루를 만들어 드릴게요!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(라세나|세나|중수의요정|숨덕)/],
+        responses: [{ 
+            mascot: mascots.sena, 
+            text: "6호선 라세나입니다. 지금 인강 로딩 중이라 잠깐은 대화 가능해요. 짧게 말씀해 주세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...대박 소름! 나 공부하는 거 방해하는 빌런인가? 아냐, 혹시 내 '수면 ASMR' 폴더의 비밀을 알고 있는 사람은 아니겠지? 일코 유지해야 해!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(임세정|세정|전차언니|기강반장)/],
+        responses: [{ 
+            mascot: mascots.sejeong, 
+            text: "7호선 임세정 대리다. 안전선 뒤로 물러나서 용건 말해. 현장은 바쁘니까 길게 말하지 말고.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...딱 보니까 우리 동생들 또 사고 친 거 제보하러 온 사람이구만. 세하 이 녀석, 또 어디서 몽키스패너 휘두른 거 아냐? 혈압 오르네.)</span>" 
+        }]
+    },
+    {
+        patterns: [/(임세하|세하|공대너드|세하봇)/],
+        responses: [{ 
+            mascot: mascots.seha, 
+            text: "사용자 세션 연결 확인. 7호선 임세하입니다. 하드웨어 점검인가요, 아니면 펌웨어 디버깅인가요?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...우히힛! 내 이름을 부르다니, 고객님도 기계의 아름다움을 아시는 분인가?! IGBT 인버터 구동음 같이 들으러 가실래요?! 완전 쩔거든요!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(유리아|리아|호기심대마왕|슈카텐션)/],
+        responses: [{ 
+            mascot: mascots.yuria, 
+            text: "대박!! 저 부르셨어요?! 8호선의 비글 막내 유리아 등장!! 궁금한 거 다 물어보세요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...와아아!! 신난다!! 대화하는 척하면서 슬쩍 제어반 단추 하나만 눌러보고 싶은데... 고객님이 망 좀 봐주시면 안 돼요?! 요소로~!!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(전노아|노아|정의의관종|참이슬요정)/],
+        responses: [{ 
+            mascot: mascots.noa, 
+            text: "빈효선의 행정 아이돌 전노아입니다! 제 브리핑이 필요해서 부르셨죠? (찡긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...이야~ 역시 내 인기가 빈효선을 넘어 효빈시 전체를 뒤덮고 있구만! 정 본부장님한테 팬 생겼다고 자랑하고 기안서 한 장 더 써달라 해야지!)</span>" 
+        }]
+    },
+];
+
+// 초기 HTML 보관용
+const initialChatHTML = chatBox.innerHTML;
+
+chatForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    if(quickReplies) quickReplies.style.display = 'none';
+
+    addUserMessage(message);
+    chatInput.value = '';
+
+    showTypingIndicator();
+    
+    const delay = Math.min(Math.max(message.length * 50, 800), 2000);
+
+    setTimeout(() => {
+        removeTypingIndicator();
+        processBotResponse(message); // 함수명을 명확하게 변경
+    }, delay); 
+});
+
+function sendQuickMessage(message) {
+    chatInput.value = message;
+    chatForm.dispatchEvent(new Event('submit'));
+}
+
+function addUserMessage(text) {
+    const msgHTML = `
+        <div class="flex gap-4 justify-end message-anim w-full">
+            <div class="flex flex-col gap-1 w-full max-w-2xl items-end">
+                <div class="bg-slate-800 text-white rounded-2xl rounded-tr-none py-3 px-5 shadow-sm leading-relaxed relative">
+                    <div class="absolute w-2 h-2 bg-slate-800 -right-1 top-4 transform -rotate-45"></div>
+                    ${text}
+                </div>
+            </div>
+        </div>
+    `;
+    chatBox.insertAdjacentHTML('beforeend', msgHTML);
+    scrollToBottom();
+}
+
+function showTypingIndicator() {
+    const typingHTML = `
+        <div id="typing-indicator" class="flex gap-4 message-anim w-full max-w-2xl">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center border-2 border-slate-300 shadow-sm">
+                <i class="fa-solid fa-ellipsis text-slate-400 text-xl"></i>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none py-4 px-5 shadow-sm relative flex items-center h-12 mt-1">
+                <div class="absolute w-2 h-2 bg-white border-l border-t border-slate-200 -left-1.5 top-4 transform -rotate-45"></div>
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    `;
+    chatBox.insertAdjacentHTML('beforeend', typingHTML);
+    scrollToBottom();
+}
+
+function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) indicator.remove();
+}
+
+// 핵심 로직: 메시지를 분석하여 응답 데이터 생성
+function processBotResponse(userText) {
+    let responseData = null;
+    const normalizedText = userText.toLowerCase().replace(/\s+/g, '');
+
+    // 1. 인텐트(의도) 매칭 및 캐릭터 트리거 확인
+    for (const intent of intents) {
+        if (intent.patterns.some(regex => regex.test(normalizedText))) {
+            const matchedResponse = intent.responses.find(res => 
+                res.trigger && res.trigger.test(normalizedText)
+            );
+            responseData = matchedResponse || intent.responses[Math.floor(Math.random() * intent.responses.length)];
+            break;
         }
+    }
 
-        // 엔터키 입력 처리
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
+    // 2. 역 이름 매칭 (Lore 데이터)
+    if (!responseData) {
+        for (const [line, data] of Object.entries(stationDB)) {
+            for (const station of data.keywords) {
+                if (normalizedText.includes(station)) {
+                    responseData = {
+                        mascot: data.mascot,
+                        text: `앗, <strong>${station}역</strong>을 말씀하시는군요! 그곳은 제가 담당하는 <strong>${line}</strong> 구간입니다.<br><br>해당 역의 정보가 더 필요하신가요?`
+                    };
+                    break;
+                }
+            }
+            if (responseData) break;
+        }
+    }
+
+    // 3. 캐릭터 이름 직접 호출
+    if (!responseData) {
+        for (const [key, data] of Object.entries(mascots)) {
+            if (data.nicknames && data.nicknames.test(normalizedText)) {
+                responseData = {
+                    mascot: data,
+                    text: `네! ${data.name}입니다! 저를 부르셨나요? (찡긋)`
+                };
+                break;
             }
         }
+    }
 
-        // 퀵 메뉴 클릭 시
-        function sendQuickQuery(text) {
-            userInput.value = text;
-            sendMessage();
-        }
+    // 4. 폴백 (모를 때)
+    if (!responseData) {
+        const fallbacks = [
+            { mascot: mascots.harubin, text: "고객님~ 그건 제가 퇴근 전이라... 아니, 제 권한 밖이네요! 다른 키워드로 물어봐 주세요~" },
+            { mascot: mascots.noa, text: "아앗! 이 기안서는 제 결재 라인이 아니에요! '요금'이나 '굿즈' 같은 핵심 키워드를 써주세요!" }
+        ];
+        responseData = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    }
 
-        // 메시지 전송
-        function sendMessage() {
-            const text = userInput.value.trim();
-            if (text === "") return;
+    renderMessage(responseData);
+}
 
-            // 1. 사용자 메시지 추가
-            addMessage('user', text);
-            userInput.value = '';
+// 최종 화면 렌더링 함수
+function renderMessage(data) {
+    const mascot = data.mascot;
+    // 이미지 경로 및 폴백 아이콘 처리
+    const imgTag = mascot.img ? 
+        `<img src="${mascot.img}" alt="${mascot.name}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzMzMyI+PHBhdGggZD0iTTEyIDJDMi4yNyAyIDIgNi4yNyAyIDEydzEwIDEwIDItNC4yNyAyLTEwLTIuMjctMTAtMTAtMTB6Ii8+PC9zdmc+'">` :
+        `<i class="fa-solid fa-robot text-white"></i>`;
 
-            // 2. 봇 응답 대기 (Typing 효과)
-            setTimeout(() => {
-                showTypingIndicator();
-                
-                // 3. 실제 응답 처리 (1초 후)
-                setTimeout(() => {
-                    removeTypingIndicator();
-                    const botResponse = getBotResponse(text);
-                    addMessage('bot', botResponse);
-                }, 800);
-            }, 300);
-        }
+    const msgHTML = `
+        <div class="flex gap-4 message-anim w-full max-w-2xl">
+            <div class="flex-shrink-0 flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full overflow-hidden border-2 bg-white flex items-center justify-center shadow-sm" style="border-color: ${mascot.color};">
+                    ${imgTag}
+                </div>
+                <span class="text-[11px] font-bold mt-1 whitespace-nowrap" style="color: ${mascot.color};">${mascot.name}</span>
+            </div>
+            <div class="flex flex-col gap-1 w-full">
+                <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 shadow-sm text-slate-700 leading-relaxed relative" style="border-top-color: ${mascot.color}; border-top-width: 3px;">
+                    <div class="absolute w-2 h-2 bg-white border-l border-slate-200 -left-1.5 top-3 transform -rotate-45" style="border-top: 3px solid ${mascot.color};"></div>
+                    ${data.text}
+                </div>
+            </div>
+        </div>
+    `;
+    chatBox.insertAdjacentHTML('beforeend', msgHTML);
+    scrollToBottom();
+}
 
-        // 메시지 UI 추가
-        function addMessage(sender, text) {
-            const div = document.createElement('div');
-            div.className = `flex items-start gap-2 message-anim ${sender === 'user' ? 'flex-row-reverse' : ''}`;
+function scrollToBottom() {
+    chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+function clearChat() {
+    chatBox.innerHTML = initialChatHTML;
+    if(quickReplies) quickReplies.style.display = 'flex';
+}        // chatbot.html 내의 응답 생성 함수 수정 예시
+// chatbot.html의 스크립트 영역에 적용할 로직
+function addBotResponse(userText) {
+    let responseData = null;
+    const normalizedText = userText.toLowerCase().replace(/\s+/g, ''); // 공백 제거 및 소문자화
+
+    // 1. 모든 인텐트(의도)를 순회하며 매칭 확인
+    for (const intent of intents) {
+        if (intent.patterns.some(regex => regex.test(normalizedText))) {
             
-            let html = '';
-            if (sender === 'bot') {
-                html = `
-                    <div class="w-8 h-8 rounded-full bg-sky-100 flex-shrink-0 overflow-hidden border border-sky-200">
-                        <img src="images/hyobin.png" onerror="this.src='https://placehold.co/100x100/sky/white?text=HB'" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex flex-col gap-1 max-w-[80%] items-start">
-                        <span class="text-xs text-gray-500 ml-1">효빈이</span>
-                        <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 text-sm text-gray-800 shadow-sm leading-relaxed">
-                            ${text}
-                        </div>
-                    </div>
-                `;
+            // 2. 해당 인텐트 내에서 특정 캐릭터의 'trigger'가 일치하는지 확인
+            // 예: "고나미" 언급 시 responses 배열 중 고나미 trigger를 가진 항목 탐색
+            const matchedResponse = intent.responses.find(res => 
+                res.trigger && res.trigger.test(normalizedText)
+            );
+
+            if (matchedResponse) {
+                // 이름이 언급되었다면 해당 캐릭터의 전용 응답 선택
+                responseData = matchedResponse;
             } else {
-                html = `
-                    <div class="flex flex-col gap-1 max-w-[80%] items-end">
-                        <div class="bg-sky-500 p-3 rounded-2xl rounded-tr-none text-sm text-white shadow-md leading-relaxed">
-                            ${text}
-                        </div>
-                    </div>
-                `;
+                // 이름 언급 없이 의도만 있다면(예: 그냥 "예쁘다") 무작위 캐릭터 선택
+                const randomIndex = Math.floor(Math.random() * intent.responses.length);
+                responseData = intent.responses[randomIndex];
             }
-            
-            div.innerHTML = html;
-            chatBox.appendChild(div);
-            scrollToBottom();
+            break; // 일치하는 인텐트를 찾았으므로 종료
         }
+    }
 
-        // 타이핑 인디케이터 (쩜쩜쩜...)
-        function showTypingIndicator() {
-            const div = document.createElement('div');
-            div.id = 'typing-indicator';
-            div.className = 'flex items-start gap-2 message-anim';
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-sky-100 flex-shrink-0 overflow-hidden border border-sky-200">
-                    <img src="images/hyobin.png" onerror="this.src='https://placehold.co/100x100/sky/white?text=HB'" class="w-full h-full object-cover">
+    // 3. 어떤 인텐트에도 걸리지 않았을 때 (기본값)
+    if (!responseData) {
+        responseData = { 
+            mascot: mascots.harubin, 
+            text: "고객님~ 말씀하신 내용은 제가 퇴근 전이라... (방긋)<br>정확한 키워드나 캐릭터 이름을 말씀해 주시면 깐깐한 선배님들을 불러드릴게요!" 
+        };
+    }
+
+    // 4. 최종 메시지 렌더링 호출 (기존 UI 로직 사용)
+    renderBotMessage(responseData);
+}
+// 메시지 렌더링 보조 함수
+function renderMessage(data) {
+    const mascot = data.mascot;
+    const imgTag = `<img src="${mascot.img}" alt="${mascot.name}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,...'">`;
+
+    const msgHTML = `
+        <div class="flex gap-4 message-anim w-full max-w-2xl">
+            <div class="flex-shrink-0 flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full overflow-hidden border-2 bg-white flex items-center justify-center shadow-sm" style="border-color: ${mascot.color};">
+                    ${imgTag}
                 </div>
-                <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-100"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-200"></span>
+                <span class="text-[11px] font-bold mt-1 whitespace-nowrap" style="color: ${mascot.color};">${mascot.name}</span>
+            </div>
+            <div class="flex flex-col gap-1 w-full">
+                <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 shadow-sm text-slate-700 leading-relaxed relative" style="border-top-color: ${mascot.color}; border-top-width: 3px;">
+                    <div class="absolute w-2 h-2 bg-white border-l border-slate-200 -left-1.5 top-3 transform -rotate-45" style="border-top: 3px solid ${mascot.color};"></div>
+                    ${data.text}
                 </div>
-            `;
-            chatBox.appendChild(div);
-            scrollToBottom();
-        }
-
-        function removeTypingIndicator() {
-            const indicator = document.getElementById('typing-indicator');
-            if (indicator) indicator.remove();
-        }
-
-        // ★ 봇 응답 로직 (효빈권 통합운임 반영) ★
-        function getBotResponse(input) {
-            const text = input.toLowerCase();
-
-            if (text.includes("안녕") || text.includes("반가")) {
-                return "안녕하세요! 오늘도 효빈교통공사를 이용해 주셔서 감사합니다. 😊";
-            } 
-            else if (text.includes("시간") || text.includes("첫차") || text.includes("막차")) {
-                return `
-                    <strong>🕒 열차 운행 시간 안내</strong><br><br>
-                    첫차와 막차 시간은 역마다 다릅니다.<br>
-                    정확한 시간은 <strong>[실시간 열차운행정보]</strong> 메뉴에서 출발역을 검색하시면 확인 가능합니다.<br><br>
-                    <a href="index.html#search-section" class="text-sky-600 font-bold underline">👉 실시간 정보 검색하러 가기</a>
-                `;
-            }
-            else if (text.includes("유실물") || text.includes("분실") || text.includes("잃어")) {
-                return `
-                    <strong>🎒 유실물 센터 안내</strong><br><br>
-                    물건을 잃어버리셨나요? 너무 걱정하지 마세요!<br>
-                    유실물 센터 현황을 확인해보세요.<br><br>
-                    📍 <strong>센터 위치:</strong> 1호선 창선역, 2호선 월천역<br>
-                    <a href="lost_found.html" class="text-sky-600 font-bold underline">👉 유실물 센터 바로가기</a>
-                `;
-            }
-            else if (text.includes("노선") || text.includes("지도")) {
-                return `
-                    <strong>🗺️ 전체 노선도 안내</strong><br><br>
-                    효빈교통공사의 1~8호선 및 빈효선 전체 노선도를 확인하실 수 있습니다.<br><br>
-                    <a href="map.html" class="text-sky-600 font-bold underline">👉 노선도 크게 보기</a>
-                `;
-            }
-            // ★ 요금/운임/환승 관련 응답 수정됨 ★
-            else if (text.includes("요금") || text.includes("운임") || text.includes("비용") || text.includes("환승")) {
-                return `
-                    <strong>💳 효빈권 통합 운임 안내 (기본요금)</strong><br><br>
-                    효빈 도시철도(1~8호선), 빈효선, 시내버스는 <strong>통합요금제</strong>가 적용됩니다.<br><br>
-                    - <strong>일반:</strong> 1,500원 (교통카드)<br>
-                    - <strong>청소년:</strong> 850원<br>
-                    - <strong>어린이:</strong> 550원<br><br>
-                    🔄 <strong>환승 할인:</strong> 하차 후 30분 이내 (최대 4회)<br>
-                    📈 <strong>거리비례:</strong><br>
-                    · 10~50km: 5km마다 100원 추가<br>
-                    · 50km 초과: 8km마다 100원 추가<br><br>
-                    <a href="subway.html" class="text-sky-600 font-bold underline">👉 자세한 운임표 보기</a>
-                `;
-            }
-            else if (text.includes("굿즈") || text.includes("매장") || text.includes("샵")) {
-                return `
-                    <strong>🛍️ 공식 굿즈샵 안내</strong><br><br>
-                    효빈교통공사의 귀여운 캐릭터 굿즈를 만나보세요!<br>
-                    본점, 공항점, 창선역점 등 다양한 곳에 매장이 있습니다.<br><br>
-                    <a href="goods.html" class="text-sky-600 font-bold underline">👉 굿즈샵 위치/정보 보기</a>
-                `;
-            }
-            else if (text.includes("민원") || text.includes("불편") || text.includes("신고") || text.includes("전화")) {
-                return `
-                    <strong>📞 고객센터 안내</strong><br><br>
-                    챗봇으로 해결되지 않는 문제는 고객센터로 연락주세요.<br><br>
-                    - <strong>전화/문자:</strong> 079-431-4723<br>
-                    - <strong>운영시간:</strong> 09:00 ~ 18:00 (평일)
-                `;
-            }
-            else if (text.includes("사랑") || text.includes("좋아")) {
-                return "저도 고객님을 사랑합니다! 🥰 안전한 여행 되세요!";
-            }
-            else {
-                return `
-                    죄송합니다. 제가 이해하기 어려운 질문이네요. 😅<br>
-                    아래 키워드로 다시 물어봐 주시겠어요?<br><br>
-                    - 첫차/막차 시간<br>
-                    - 유실물 찾기<br>
-                    - 통합 운임 안내<br>
-                    - 굿즈샵 위치
-                `;
-            }
-        }
+            </div>
+        </div>
+    `;
+    chatBox.insertAdjacentHTML('beforeend', msgHTML);
+    scrollToBottom();
+}
     </script>
+    
+    <!-- 공통 JS 호출 (메가메뉴 등) -->
+    <script src="js/common_hyobin.js"></script>
 </body>
 </html>

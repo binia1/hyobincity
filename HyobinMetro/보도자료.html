@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보도자료 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 브랜드 컬러 */
+        .text-hb { color: #16A4BE; }
+        .bg-hb { background-color: #16A4BE; color: white; }
+        .border-hb { border-color: #16A4BE; }
+        .hover-bg-hb:hover { background-color: #128a9f; color: white; }
+        .hover-text-hb:hover { color: #16A4BE; }
+
+        /* 게시판 전용 스타일 */
+        .board-table { width: 100%; border-collapse: collapse; border-top: 2px solid #334155; }
+        .board-table th { background-color: #f8fafc; color: #334155; font-weight: 600; padding: 1rem 0.5rem; border-bottom: 1px solid #cbd5e1; text-align: center; }
+        .board-table td { padding: 1rem 0.5rem; border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; }
+        .board-table tr { transition: background-color 0.2s ease; }
+        .board-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+        .board-table .title-cell { text-align: left; padding-left: 1.5rem; font-weight: 500; color: #1e293b; transition: color 0.2s ease; }
+        .board-table tr:hover .title-cell { text-decoration: underline; color: #16A4BE; }
+        
+        /* 모바일 뷰 최적화 */
+        @media (max-width: 768px) {
+            .hide-on-mobile { display: none; }
+            .board-table .title-cell { padding-left: 0.5rem; font-size: 0.95rem; }
+        }
+
+        /* 뱃지 스타일 */
+        .badge-notice { background-color: #ef4444; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-right: 0.5rem; }
+        .badge-new { background-color: #16A4BE; color: white; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-left: 0.5rem; vertical-align: middle; }
+
+        /* 모달 스크롤바 최적화 */
+        .modal-body::-webkit-scrollbar { width: 8px; }
+        .modal-body::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .modal-body::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* 기사 본문 텍스트 스타일 */
+        .article-content p { margin-bottom: 1.2rem; line-height: 1.8; color: #334155; text-align: justify; }
+        .article-content h4 { font-weight: 700; font-size: 1.1rem; color: #0f172a; margin-top: 2rem; margin-bottom: 0.8rem; }
+    </style>
+</head>
+<body class="bg-white flex flex-col min-h-screen">
+
+    <!-- 상단 서브 비주얼 영역 -->
+    <div class="w-full bg-slate-800 h-64 flex flex-col items-center justify-center relative overflow-hidden mt-16 md:mt-20">
+        <div class="absolute inset-0 bg-[url('https://placehold.co/1920x400/1e293b/334155?text=Hyobin+Metro')] bg-cover bg-center opacity-30"></div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-3">보도자료</h1>
+            <p class="text-slate-300 text-lg">효빈교통공사의 새롭고 다양한 소식을 전해드립니다.</p>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-grow w-full max-w-[1200px] mx-auto px-4 py-12">
+        
+        <!-- 브레드크럼 (경로) -->
+        <div class="flex items-center text-sm text-gray-500 mb-8 border-b border-gray-200 pb-4">
+            <i class="fa-solid fa-house mr-2"></i> 홈 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> 알림마당 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> <span class="font-bold text-gray-800">보도자료</span>
+        </div>
+
+        <!-- 검색 및 필터 영역 -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-gray-600 font-medium">
+                총 <span id="totalCount" class="text-hb font-bold">0</span>건의 게시물이 있습니다.
+            </div>
+            <div class="flex items-center w-full md:w-auto gap-2">
+                <select class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-hb">
+                    <option value="all">전체</option>
+                    <option value="title">제목</option>
+                    <option value="content">내용</option>
+                    <option value="dept">담당부서</option>
+                </select>
+                <div class="relative flex-grow md:w-64">
+                    <input type="text" placeholder="검색어를 입력하세요" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-hb">
+                </div>
+                <button class="bg-hb hover-bg-hb text-white px-5 py-2 rounded text-sm font-bold transition-colors whitespace-nowrap">
+                    검색
+                </button>
+            </div>
+        </div>
+
+        <!-- 보도자료 게시판 테이블 -->
+        <div class="overflow-x-auto min-h-[400px]">
+            <table class="board-table min-w-[800px] md:min-w-full">
+                <thead>
+                    <tr>
+                        <th class="w-16">번호</th>
+                        <th class="w-auto">제목</th>
+                        <th class="w-32 hide-on-mobile">담당부서</th>
+                        <th class="w-24 hide-on-mobile">첨부</th>
+                        <th class="w-32">작성일</th>
+                        <th class="w-20 hide-on-mobile">조회수</th>
+                    </tr>
+                </thead>
+                <tbody id="boardBody">
+                    <!-- JS로 동적 렌더링 됨 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 페이징 (Pagination) -->
+        <div id="pagination" class="flex justify-center items-center mt-12 gap-1">
+            <!-- JS로 동적 렌더링 됨 -->
+        </div>
+
+    </main>
+
+    <!-- 기사 상세 보기 모달 (팝업) -->
+    <div id="articleModal" class="fixed inset-0 z-50 hidden bg-black/60 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300" id="modalContent">
+            
+            <!-- 모달 헤더 -->
+            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-start bg-slate-50 rounded-t-xl">
+                <div class="pr-8">
+                    <div id="modalMeta" class="text-sm text-hb font-bold mb-2 flex items-center gap-3">
+                        <span id="modalDept" class="bg-sky-100 px-2 py-1 rounded"></span>
+                        <span id="modalDate" class="text-gray-500 font-medium"></span>
+                    </div>
+                    <h2 id="modalTitle" class="text-2xl md:text-3xl font-black text-gray-900 leading-tight"></h2>
+                </div>
+                <button onclick="closeArticle()" class="text-gray-400 hover:text-gray-800 text-2xl focus:outline-none transition-colors">&times;</button>
+            </div>
+            
+            <!-- 모달 본문 (스크롤) -->
+            <div class="p-6 md:p-10 overflow-y-auto modal-body article-content bg-white flex-grow">
+                <div id="modalBodyText"></div>
+                
+                <!-- 첨부파일 영역 -->
+                <div class="mt-12 pt-6 border-t border-gray-200">
+                    <h5 class="text-sm font-bold text-gray-700 mb-3"><i class="fa-solid fa-paperclip mr-2"></i> 첨부파일</h5>
+                    <div class="flex flex-col gap-2">
+                        <!-- PDF 인쇄 기능을 호출하는 앵커 태그 -->
+                        <a href="#" onclick="printArticleAsPDF(event)" class="group inline-flex items-center justify-between text-sm text-gray-600 hover:text-hb p-3 bg-gray-50 rounded border border-gray-200 w-full max-w-md transition-colors cursor-pointer">
+                            <span class="flex items-center group-hover:underline">
+                                <i class="fa-regular fa-file-pdf text-red-500 mr-2 text-xl"></i>
+                                <span>[보도자료] <span id="modalAttachName"></span>.pdf</span>
+                                <span class="text-gray-400 text-xs ml-2">(245 KB)</span>
+                            </span>
+                            <span class="bg-slate-200 text-slate-600 px-3 py-1 rounded text-xs font-bold group-hover:bg-hb group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-print mr-1"></i> 인쇄 / PDF 저장
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 모달 푸터 -->
+            <div class="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end">
+                <button onclick="closeArticle()" class="px-6 py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded shadow transition-colors">목록으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 로직 (데이터 및 기능) -->
+    <script>
+        // 공지사항 데이터
+        const notices = [
+            {
+                id: 'n1',
+                title: "효빈교통공사, 'BanG Dream!(뱅드림!)' 콜라보 특별 래핑열차 전 노선 운행 개시",
+                dept: "문화홍보처",
+                date: "2026.04.10",
+                views: "2,514",
+                isNew: true,
+                hasImage: true,
+                content: `
+                    <p>효빈교통공사(사장 최대현)는 대중교통 이용 활성화 및 시민 문화 향유 기회 확대를 위해 인기 애니메이션 'BanG Dream!(뱅드림!)'과 공식 업무협약을 체결하고, 전 노선에 걸쳐 특별 래핑열차 운행을 개시한다고 10일 밝혔다.</p>
+                    <p>이번 프로젝트는 각 호선의 고유 상징색과 완벽하게 부합하는 뱅드림 캐릭터(1호선 하나조노 타에, 2호선 아오바 모카, 3호선 야마부키 사아야 등)를 1:1로 매칭하여 기획되었다. 열차 외관 래핑뿐만 아니라, 객실 내부 시트 및 통로 디자인, 역내 진입 안내방송 등 다방면에 걸쳐 테마를 적용한 것이 특징이다. 특히 빈효선 광역전철을 관할하는 한국철도공사(코레일) 효빈지역본부(본부장 정시원)도 본 프로젝트에 전격 동참하여, 791000호대 전동차에 '쿠라타 마시로' 래핑을 적용하며 광역 통합 문화 캠페인으로서의 의미를 더했다.</p>
+                    <p>최대현 사장은 "효빈시의 첨단 철도 인프라와 글로벌 서브컬처 IP의 만남은 도시철도를 단순한 이동 수단에서 즐거운 문화 공간으로 탈바꿈시키는 혁신적 시도"라며, "앞으로도 1호선 고나미 기관사 등 공사 자체 마스코트와의 연계 이벤트도 지속적으로 발굴하겠다"고 강조했다. 래핑열차의 구체적인 운행 현황은 공사 홈페이지 내 '콜라보 현황' 페이지에서 확인할 수 있다.</p>
+                `
+            },
+            {
+                id: 'n2',
+                title: "제2차 교통약자 지원 대책 발표: 대중교통 100원 요금제 전면 확대 적용",
+                dept: "기획조정실",
+                date: "2026.02.20",
+                views: "1,892",
+                isNew: false,
+                hasImage: false,
+                content: `
+                    <p>효빈시는 박효빈 시장의 핵심 공약이자 시민 체감형 복지 정책의 일환인 '청소년 및 교통약자 100원 요금제'를 기존 일부 시범 구간에서 효빈교통공사 전 노선 및 시내버스 전역으로 전면 확대 적용한다고 20일 발표했다.</p>
+                    <p>본 정책은 도입 초기 일부 시의회의 "시 재정 부담 가중" 우려에 부딪혔으나, 공사 내 담당 부서(정책분석팀 미소하 주무관)가 산출한 정밀한 다중회귀분석 데이터를 기반으로 '대중교통 보편적 지급이 지역 소상공인 매출 증대 및 국민건강보험 재정 지출 절감에 미치는 경제적 파급효과'가 입증됨에 따라 원안대로 의결 및 시행되었다.</p>
+                    <p>이번 조치를 통해 청소년은 물론 고령자, 장애인 등 교통약자의 이동권(Mobility)이 대폭 강화될 전망이다. 박효빈 시장은 시정 브리핑을 통해 "이동권은 시혜가 아니라 시민이 마땅히 누려야 할 기본 권리"라며, "촘촘한 복지 그물망 구축을 위해 5호선 전 역사 배리어 프리 공사를 비롯한 인프라 개선도 병행할 것"이라고 밝혔다.</p>
+                `
+            }
+        ];
+
+        // 일반 보도자료 데이터 (140번부터 역순)
+        const articlesData = [
+            {
+                id: 140,
+                title: '8호선(곽산~신흥) 정식 개통식 성료... "시민의 참여로 지켜낸 지역 인프라"',
+                dept: '신사업추진단',
+                date: '2026.03.04',
+                views: '945',
+                isNew: true,
+                hasImage: true,
+                content: `
+                    <p>효빈시 남부 권역의 핵심 교통망이 될 도시철도 8호선(곽산~신흥)이 4일 곽산차량사업소 인근 특설 무대에서 정식 개통식을 갖고 본격적인 영업 운행에 돌입했다.</p>
+                    <p>연보라색을 띤 8호선(8000호대 전동차)은 주거 밀집 지역의 소음을 최소화하기 위해 고무차륜 AGT 방식을 채택한 최첨단 무인 경전철이다. 이번 노선 개통은 과거 조망권 침해 등을 이유로 전면 백지화를 시도했던 전직 국회의원에 맞서, 8호선 마스코트 '유리아'를 앞세운 애니메이션 팬덤과 지역 주민들이 연대하여 인프라를 지켜낸 상징적인 성과로 평가받는다.</p>
+                    <p>이날 개통식에 참석한 고정민 국회의원과 박효빈 시장은 축사를 통해 "8호선은 시민들의 간절한 염원과 참여 민주주의가 일구어낸 기적의 노선"이라며, 앞으로 평당신도시와 구도심을 잇는 대동맥 역할을 충실히 수행할 것을 약속했다. 8호선은 1호선과 곽산차량사업소를 공용으로 사용하며 효율적인 정비 운영 체계를 갖추게 된다.</p>
+                `
+            },
+            {
+                id: 139,
+                title: '2호선 신영차량사업소 5월 조기 완공 예정... 항동·마잡기지 과밀화 해소 및 정비 효율화 기대',
+                dept: '기술본부',
+                date: '2026.01.15',
+                views: '821',
+                isNew: false,
+                hasImage: false,
+                content: `
+                    <p>효빈교통공사는 2호선 운영 효율화의 숙원 사업이었던 '신영차량사업소'의 건설 공정이 계획 대비 15% 빠르게 진행되어, 당초 하반기 예정이었던 완공 시점을 올 5월로 앞당길 예정이라고 15일 밝혔다.</p>
+                    <p>그동안 2호선(2000호대 전동차)은 운행 규모에 비해 본 기지인 항동기지의 수용 능력이 턱없이 부족하여, 일부 편성을 6호선 마잡기지에 위탁 관리하는 등 기지 과밀화와 정비 비효율 문제를 겪어왔다. 이번 신영기지 조기 완공으로 타 노선 셋방살이를 하던 전동차들이 전용 기지로 복귀하게 되며, 차량 점검 주기 단축 및 출퇴근 배차 간격의 안정화가 크게 기대된다.</p>
+                `
+            },
+            {
+                id: 138,
+                title: '7호선 친환경 무가선 트램 하이브리드(4세대) 신규 차량 22편성 영업 운전 투입',
+                dept: '차량본부',
+                date: '2025.12.10',
+                views: '1,105',
+                isNew: false,
+                hasImage: true,
+                content: `
+                    <p>효빈교통공사는 원도심 관광 및 통근 수요의 폭발적인 증가에 대응하기 위해, 7호선에 배터리 탑재형 하이브리드 무가선 트램(4세대 7000호대) 22편성을 추가 도입하고 정식 영업 운전에 투입했다.</p>
+                    <p>이번 4세대 트램은 회주공업이 자체 제작한 3량 1편성 모듈 구조로, 기존 3세대 대비 배터리 용량이 1.5배 증가하여 전선 없는 도심 주행(무가선 구간) 안정성이 대폭 상향되었다. 7호선의 역무 현장을 총괄하고 있는 임세정 대리는 "1931년 효빈전차의 명맥을 잇는 7호선이, 과거 폐선의 위기를 딛고 최첨단 하이브리드 시스템으로 진화한 것은 무척 감격스러운 일"이라며 소회를 전했다.</p>
+                `
+            },
+            {
+                id: 137,
+                title: '한국철도공사(빈효선)와 광역교통망 통합 환승 서비스 및 공동 홍보 MOU 체결',
+                dept: '대외협력처',
+                date: '2025.11.05',
+                views: '753',
+                isNew: false,
+                hasImage: false,
+                content: `
+                    <p>효빈교통공사(사장 최대현)와 한국철도공사(본부장 정시원)는 5일 공사 본사에서 '효빈-빈주 광역교통망 통합 환승 서비스 고도화 및 캐릭터 IP 공동 활용을 위한 업무협약(MOU)'을 체결했다.</p>
+                    <p>이번 협약을 통해 양 기관은 직류 전용인 효빈 도시철도와 교류 전용인 빈효선 간의 물리적 한계를 극복하기 위해 소프트웨어 환승 할인율을 20% 상향 조정하고, 지연 정보 공유 시스템을 일원화하기로 합의했다. 더불어 효빈교통공사의 마스코트들과 코레일 빈효선 전용 마스코트인 '전노아' 간의 합동 캠페인 및 굿즈 교차 판매를 허용하여, 철도 문화를 사랑하는 시민들의 큰 호응을 이끌어 낼 전망이다.</p>
+                `
+            },
+            {
+                id: 136,
+                title: '1호선 장선차량사업소 개소식 및 3세대 신형 전동차(1300호대) 본선 시운전 실시',
+                dept: '차량본부',
+                date: '2025.10.12',
+                views: '1,422',
+                isNew: false,
+                hasImage: true,
+                content: `
+                    <p>효빈교통공사는 1호선의 새로운 심장이 될 '장선차량사업소' 개소식을 개최하고, 이와 함께 도입된 3세대 신형 전동차(VVVF-SiC 인버터 탑재)의 영업 운행 전 본선 시운전을 성공적으로 실시했다.</p>
+                    <p>이번 3세대 신차(일명 '주둥이' 전동차)는 기존 1세대 GTO 차량 대비 소음을 획기적으로 줄이고 전력 효율을 30% 이상 개선한 첨단 사양을 갖췄다. 이날 시운전을 담당한 승무본부 고나미 기관사는 "신형 모터의 완벽한 주파수 제어와 제동력 향상을 현장에서 직접 확인했다"며 차량의 우수한 성능을 입증했다. 신차는 내부 테스트를 거쳐 내년 상반기부터 순차적으로 여객 수송에 투입된다.</p>
+                `
+            },
+            {
+                id: 135,
+                title: '효빈기계공업고등학교 등 관내 우수 특성화고 산학협력 기술 멘토링 프로그램 성료',
+                dept: '인재개발원',
+                date: '2025.09.28',
+                views: '510',
+                isNew: false,
+                hasImage: false,
+                content: `
+                    <p>효빈교통공사는 관내 철도 전문 인재 육성을 위해 효빈기계공업고등학교, 창전상업고등학교(철도산업과) 등 우수 특성화고 재학생 150명을 대상으로 진행한 '제4기 철도 기술 멘토링 프로그램'을 성공리에 마쳤다고 밝혔다.</p>
+                    <p>이번 멘토링에는 4호선 산업관리직 다로나 주임 등 공사 내 특성화고 출신 핵심 실무진들이 직접 멘토로 나서, 철도 신호 제어, 스크린도어 유지보수, 안전 법규 등 실전 압축형 교육을 제공했다. 공사는 향후 채용 시 본 멘토링 수료생들에게 가산점을 부여하는 방안을 적극 검토 중이다.</p>
+                `
+            }
+        ];
+
+        // 더미 데이터 생성 (134번 ~ 101번)
+        for (let i = 134; i >= 101; i--) {
+            articlesData.push({
+                id: i,
+                title: `효빈교통공사, 시민 안전 및 편의 증진을 위한 정기 시스템 점검 안내 (제${135-i}차)`,
+                dept: ['시설본부', '승무본부', '기획조정실', '기술본부'][i % 4],
+                date: `2025.0${Math.floor(i/15)+1}.${(i%28 + 1).toString().padStart(2, '0')}`,
+                views: Math.floor(Math.random() * 500) + 300,
+                isNew: false,
+                hasImage: i % 3 === 0,
+                content: `
+                    <p>효빈교통공사는 도시철도 이용객의 안전사고 예방과 쾌적한 승차 환경 조성을 위해 관내 전 역사를 대상으로 정밀 설비 점검을 실시한다고 밝혔다.</p>
+                    <p>이번 점검에서는 에스컬레이터, 스크린도어, 비상 대피 시설의 정상 작동 여부를 집중적으로 확인하며, 노후 부품의 선제적 교체도 함께 진행된다. 공사 관계자는 "안전은 어떠한 경우에도 타협할 수 없는 최우선 가치"라며 시민들의 지속적인 관심과 협조를 당부했다.</p>
+                `
+            });
+        }
+
+        // 페이지네이션 설정
+        const itemsPerPage = 10;
+        let currentPage = 1;
+        const totalItems = articlesData.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        function renderTable(page) {
+            const tbody = document.getElementById('boardBody');
+            tbody.innerHTML = '';
+            
+            // 1페이지일 때만 공지사항 렌더링
+            if (page === 1) {
+                notices.forEach(notice => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'bg-red-50/30';
+                    tr.onclick = () => openArticle(notice.id, true);
+                    
+                    const newBadge = notice.isNew ? `<span class="badge-new">N</span>` : '';
+                    const fileIcon = notice.hasImage ? `<i class="fa-regular fa-file-image text-gray-400"></i>` : `<i class="fa-solid fa-paperclip text-gray-400"></i>`;
+                    
+                    tr.innerHTML = `
+                        <td><span class="badge-notice">공지</span></td>
+                        <td class="title-cell">${notice.title} ${newBadge}</td>
+                        <td class="hide-on-mobile text-sm">${notice.dept}</td>
+                        <td class="hide-on-mobile">${fileIcon}</td>
+                        <td class="text-sm">${notice.date}</td>
+                        <td class="hide-on-mobile text-sm">${notice.views}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // 일반 게시물 렌더링
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentArticles = articlesData.slice(startIndex, endIndex);
+
+            currentArticles.forEach(article => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openArticle(article.id, false);
+                
+                const newBadge = article.isNew ? `<span class="badge-new">N</span>` : '';
+                const fileIcon = article.hasImage ? `<i class="fa-regular fa-file-image text-gray-400"></i>` : (article.id % 2 === 0 ? `<i class="fa-solid fa-paperclip text-gray-400"></i>` : ``);
+
+                tr.innerHTML = `
+                    <td>${article.id}</td>
+                    <td class="title-cell">${article.title} ${newBadge}</td>
+                    <td class="hide-on-mobile text-sm">${article.dept}</td>
+                    <td class="hide-on-mobile">${fileIcon}</td>
+                    <td class="text-sm">${article.date}</td>
+                    <td class="hide-on-mobile text-sm">${article.views}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPagination() {
+            const paginationEl = document.getElementById('pagination');
+            paginationEl.innerHTML = '';
+
+            // 이전 페이지 그룹 버튼
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`;
+            prevBtn.innerHTML = '<i class="fa-solid fa-angle-left text-xs"></i>';
+            prevBtn.onclick = () => { if (currentPage > 1) changePage(currentPage - 1); };
+            paginationEl.appendChild(prevBtn);
+
+            // 페이지 번호 버튼 (간단하게 최대 5페이지만 표시)
+            const maxPageButtons = 5;
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+            
+            if (endPage - startPage < maxPageButtons - 1) {
+                startPage = Math.max(1, endPage - maxPageButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                if (i === currentPage) {
+                    btn.className = 'w-8 h-8 flex items-center justify-center rounded bg-hb text-white font-bold border border-hb';
+                } else {
+                    btn.className = 'w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors hover-text-hb';
+                }
+                btn.innerText = i;
+                btn.onclick = () => changePage(i);
+                paginationEl.appendChild(btn);
+            }
+
+            // 다음 페이지 그룹 버튼
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`;
+            nextBtn.innerHTML = '<i class="fa-solid fa-angle-right text-xs"></i>';
+            nextBtn.onclick = () => { if (currentPage < totalPages) changePage(currentPage + 1); };
+            paginationEl.appendChild(nextBtn);
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderTable(currentPage);
+            renderPagination();
+            window.scrollTo({ top: document.querySelector('.board-table').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        // 모달 관련 함수
+        const modal = document.getElementById('articleModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        function openArticle(id, isNotice) {
+            const dataSource = isNotice ? notices : articlesData;
+            const article = dataSource.find(a => a.id === id);
+            
+            if(!article) return;
+
+            document.getElementById('modalTitle').innerText = article.title;
+            document.getElementById('modalDept').innerText = article.dept;
+            document.getElementById('modalDate').innerText = article.date + ` | 조회수 ${article.views}`;
+            document.getElementById('modalBodyText').innerHTML = article.content;
+            
+            // 첨부파일 이름 설정 (제목이 길면 자름)
+            let shortTitle = article.title;
+            if(shortTitle.length > 25) shortTitle = shortTitle.substring(0, 25) + "...";
+            document.getElementById('modalAttachName').innerText = shortTitle;
+
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // Trigger reflow
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeArticle() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // ------------------------------------------------------------
+        // DOM 간섭 없이 인쇄/PDF 저장을 트리거하는 네이티브 자바스크립트 함수
+        // ------------------------------------------------------------
+        function printArticleAsPDF(event) {
+            event.preventDefault(); // 기본 링크 이동 방지
+            
+            // 현재 모달에 떠 있는 데이터 추출
+            const title = document.getElementById('modalTitle').innerText;
+            const dept = document.getElementById('modalDept').innerText;
+            const dateStr = document.getElementById('modalDate').innerText.split(' |')[0]; // 조회수 제거
+            const contentHTML = document.getElementById('modalBodyText').innerHTML;
+
+            // 새 창(인쇄 전용)을 백그라운드로 엽니다.
+            const printWindow = window.open('', '_blank', 'width=800,height=900,top=100,left=100');
+            
+            // 공문서 형태의 깔끔한 HTML 작성
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="ko">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${title}</title>
+                    <style>
+                        @page { size: A4; margin: 20mm; }
+                        body { 
+                            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; 
+                            color: #222; 
+                            line-height: 1.7; 
+                            padding: 20px;
+                        }
+                        .header { 
+                            border-bottom: 3px solid #16A4BE; 
+                            padding-bottom: 20px; 
+                            margin-bottom: 30px; 
+                        }
+                        .corp-name { 
+                            font-size: 18px; 
+                            font-weight: 900; 
+                            color: #16A4BE; 
+                            margin-bottom: 15px; 
+                            letter-spacing: 1px;
+                        }
+                        .title { 
+                            font-size: 26px; 
+                            font-weight: bold; 
+                            color: #000; 
+                            margin-bottom: 20px; 
+                            word-break: keep-all;
+                        }
+                        .meta-info { 
+                            font-size: 14px; 
+                            color: #555; 
+                            display: flex;
+                            justify-content: space-between;
+                        }
+                        .content { 
+                            font-size: 15px; 
+                            text-align: justify;
+                            word-break: keep-all;
+                        }
+                        .content p { 
+                            margin-bottom: 16px; 
+                        }
+                        .footer { 
+                            margin-top: 60px; 
+                            text-align: center; 
+                            font-size: 13px; 
+                            color: #888; 
+                            border-top: 1px solid #ddd; 
+                            padding-top: 20px; 
+                        }
+                        /* 인쇄 시 버튼 등 불필요한 요소 제거 보장 */
+                        @media print {
+                            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="corp-name">효빈교통공사 보도자료</div>
+                        <div class="title">${title}</div>
+                        <div class="meta-info">
+                            <span><strong>담당부서:</strong> ${dept}</span>
+                            <span><strong>배포일자:</strong> ${dateStr}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="content">
+                        ${contentHTML}
+                    </div>
+
+                    <div class="footer">
+                        본 문서는 효빈교통공사 공식 웹사이트에서 제공하는 공식 보도자료입니다.<br>
+                        (Hyobin Transit Corporation Official Press Release)
+                    </div>
+                    
+                    <script>
+                        // 문서가 완전히 로드된 후 브라우저 인쇄(PDF 저장) 창을 띄우고, 창을 닫습니다.
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                window.close();
+                            }, 300); // 렌더링 안정화를 위한 짧은 대기
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.open();
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+        }
+
+        // 모달 외부 클릭 닫기
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeArticle();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeArticle();
+        });
+
+        // 초기화
+        document.getElementById('totalCount').innerText = totalItems + notices.length;
+        renderTable(currentPage);
+        renderPagination();
+    </script>
+</body>
+</html>

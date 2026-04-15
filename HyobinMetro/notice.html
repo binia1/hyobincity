@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
@@ -7,7 +6,7 @@
 <title>알림마당 - 효빈교통공사</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
 <style>
     body { font-family: 'Noto Sans KR', sans-serif; }
     .hb-logo { font-family: sans-serif; font-weight: 900; letter-spacing: -2px; }
@@ -28,16 +27,7 @@
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
-<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-<div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-<a class="flex items-center gap-2 group" href="index.html">
-<img class="h-8 w-auto" onerror="this.style.display='none'" src="logo.png"/>
-<div class="text-3xl font-black text-sky-600 hb-logo">HB</div>
-<span class="text-lg font-bold text-gray-800">알림마당</span>
-</a>
-<a class="text-gray-500 hover:text-black" href="index.html"><i class="fa-solid fa-xmark text-2xl"></i></a>
-</div>
-</header>
+
 <section class="bg-sky-900 text-white py-16 text-center relative overflow-hidden">
 <div class="absolute inset-0 opacity-20 bg-[url('https://placehold.co/1920x600/0c4a6e/ffffff?text=Notice')] bg-cover bg-center"></div>
 <div class="relative z-10 px-4">
@@ -80,20 +70,10 @@
 </div>
 <div class="flex justify-center items-center gap-2" id="pagination"></div>
 </main>
-<footer class="bg-slate-900 text-slate-400 text-xs py-8 mt-auto">
-<div class="max-w-7xl mx-auto px-4 text-center">
-<div class="mb-4">
-<span class="text-2xl font-black text-sky-600 tracking-tighter mr-2">HB</span>
-<span class="font-bold text-white">효빈교통공사</span>
-</div>
-<p>Copyright 2016. 효빈교통공사 All right reserved.</p>
-</div>
-</footer>
-
 
 <script>
   // ===============================
-  // 공지 인덱스 (목록용) - 일부는 외부 HTML로 이동(혼합 B)
+  // 공지 인덱스 (목록용) - 상세 페이지 데이터와 연동
   // ===============================
   const NOTICE_INDEX = [
   {
@@ -162,7 +142,7 @@
     "category": "행사",
     "catKey": "event",
     "dept": "운영본부",
-    "date": "2025.12.12",
+    "date": "2025.08.08", // 상세 페이지 일정에 맞춰 8월로 수정
     "views": "5,420",
     "pinned": false,
     "linkType": "internal",
@@ -242,22 +222,31 @@
   }
 ];
 
-  function getParams() {
+  let currentState = { q: '', cat: 'all', page: 1 };
+  
+  try {
     const url = new URL(window.location.href);
-    return {
-      q: url.searchParams.get('q') || '',
-      cat: url.searchParams.get('cat') || 'all',
-      page: parseInt(url.searchParams.get('page') || '1', 10) || 1,
-    };
+    currentState.q = url.searchParams.get('q') || '';
+    currentState.cat = url.searchParams.get('cat') || 'all';
+    currentState.page = parseInt(url.searchParams.get('page') || '1', 10) || 1;
+  } catch (e) {}
+
+  function getParams() {
+    return currentState;
   }
 
   function setParams({ q, cat, page }, push = true) {
-    const url = new URL(window.location.href);
-    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
-    if (cat && cat !== 'all') url.searchParams.set('cat', cat); else url.searchParams.delete('cat');
-    if (page && page !== 1) url.searchParams.set('page', String(page)); else url.searchParams.delete('page');
-    if (push) history.pushState(null, '', url.toString());
-    else history.replaceState(null, '', url.toString());
+    currentState = { q: q || '', cat: cat || 'all', page: page || 1 };
+    try {
+      const url = new URL(window.location.href);
+      if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+      if (cat && cat !== 'all') url.searchParams.set('cat', cat); else url.searchParams.delete('cat');
+      if (page && page !== 1) url.searchParams.set('page', String(page)); else url.searchParams.delete('page');
+      if (push) history.pushState(null, '', url.toString());
+      else history.replaceState(null, '', url.toString());
+    } catch (e) {
+      console.warn("미리보기 환경에서는 History API가 제한되어 내부 상태만 업데이트합니다.");
+    }
   }
 
   function dateToNum(s) {
@@ -464,7 +453,15 @@
       if (href) window.location.href = href;
     });
 
-    window.addEventListener('popstate', render);
+    window.addEventListener('popstate', () => {
+      try {
+        const url = new URL(window.location.href);
+        currentState.q = url.searchParams.get('q') || '';
+        currentState.cat = url.searchParams.get('cat') || 'all';
+        currentState.page = parseInt(url.searchParams.get('page') || '1', 10) || 1;
+      } catch (e) {}
+      render();
+    });
   }
 
   window.addEventListener('load', () => {
@@ -473,5 +470,8 @@
     render();
   });
 </script>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 -->
+    <script src="js/common_hyobin.js"></script>
 </body>
 </html>
