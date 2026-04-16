@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입찰/계약정보 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 효빈교통공사 브랜드 컬러 */
+        .text-hb { color: #16A4BE; }
+        .bg-hb { background-color: #16A4BE; color: white; }
+        .border-hb { border-color: #16A4BE; }
+        
+        /* 노선 뱃지 */
+        .badge-1 { background-color: #0077DD; color: white; }
+        .badge-2 { background-color: #00CCAA; color: white; }
+        .badge-3 { background-color: #FFCC11; color: black; }
+        .badge-4 { background-color: #FF5522; color: white; }
+        .badge-5 { background-color: #EE0022; color: white; }
+        .badge-6 { background-color: #881188; color: white; }
+        .badge-7 { background-color: #FF8899; color: white; }
+        .badge-8 { background-color: #9856FF; color: white; }
+        .badge-bh { background-color: #6677CC; color: white; }
+        .badge-common { background-color: #475569; color: white; }
+
+        /* SPA 탭 네비게이션 스타일 */
+        .spa-tab-nav { display: flex; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem; background: white; border-radius: 0.5rem 0.5rem 0 0; }
+        .spa-tab { 
+            padding: 1rem 1.5rem; font-weight: 700; color: #64748b; cursor: pointer; 
+            border-bottom: 3px solid transparent; transition: all 0.2s ease; margin-bottom: -2px;
+        }
+        .spa-tab:hover { color: #16A4BE; background-color: #f1f5f9; }
+        .spa-tab.active { color: #16A4BE; border-bottom-color: #16A4BE; background-color: white; }
+
+        /* SPA 콘텐츠 전환 효과 */
+        .spa-content { display: none; animation: fadeIn 0.3s ease-out forwards; }
+        .spa-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 공공기관 스타일 데이터 테이블 */
+        .data-table { width: 100%; border-collapse: collapse; border-top: 2px solid #334155; background: white; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 1rem 0.5rem; border-bottom: 1px solid #cbd5e1; text-align: center; font-size: 0.9rem; }
+        .data-table td { padding: 1rem 0.5rem; border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; vertical-align: middle; font-size: 0.9rem; }
+        .data-table tr { transition: background-color 0.2s ease; cursor: pointer; }
+        .data-table tr:hover td { background-color: #f1f5f9; }
+        .data-table .subject { text-align: left; padding-left: 1rem; font-weight: 500; color: #1e293b; transition: color 0.2s; }
+        .data-table tr:hover .subject { color: #16A4BE; text-decoration: underline; font-weight: 700; }
+
+        /* 진행상태 뱃지 */
+        .status-ing { border: 1px solid #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .status-end { border: 1px solid #94a3b8; color: #64748b; background-color: #f8fafc; }
+        
+        /* 페이징 버튼 */
+        .page-btn { width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; border-radius: 0.25rem; color: #475569; background: white; transition: all 0.2s; margin: 0 0.125rem; }
+        .page-btn:hover { background: #f1f5f9; color: #16A4BE; border-color: #16A4BE; }
+        .page-btn.active { background: #16A4BE; color: white; border-color: #16A4BE; font-weight: bold; }
+
+        /* 폼 요소 */
+        .form-input { border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; outline: none; transition: border-color 0.2s; }
+        .form-input:focus { border-color: #16A4BE; box-shadow: 0 0 0 1px #16A4BE; }
+
+        /* 스크롤바 최적화 */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @media (max-width: 768px) {
+            .hide-mobile { display: none; }
+            .spa-tab { padding: 0.75rem 0.5rem; font-size: 0.85rem; flex: 1 1 33%; text-align: center; }
+            .search-box { flex-direction: column; align-items: stretch !important; }
+            .search-box > div { width: 100%; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 상단 서브 비주얼 영역 -->
+    <div class="w-full bg-slate-800 h-[260px] flex flex-col items-center justify-center relative overflow-hidden mt-16 md:mt-20 border-b border-slate-700">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 to-[#16A4BE]/60"></div>
+        <div class="relative z-10 text-center px-4 animate-fade-in">
+            <p class="text-[#4CE0E4] font-bold tracking-widest text-sm mb-2"><i class="fa-solid fa-file-contract mr-2"></i>정보공개</p>
+            <h1 class="text-3xl md:text-5xl font-black text-white mb-4">입찰/계약정보</h1>
+            <p class="text-slate-200 text-sm md:text-base">투명하고 공정한 입찰 문화, 효빈교통공사가 만들어갑니다.</p>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main id="main-content" class="flex-grow w-full max-w-[1200px] mx-auto px-4 py-8 bg-transparent mt-4 mb-12 relative z-10">
+        
+        <!-- 브레드크럼 -->
+        <div class="flex items-center text-sm text-gray-500 mb-6 bg-white px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
+            <i class="fa-solid fa-house mr-2 hover:text-hb cursor-pointer" onclick="location.href='index.html'"></i> 홈 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> 정보공개 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> <span class="font-bold text-slate-800" id="breadcrumb-current">입찰안내</span>
+        </div>
+
+        <!-- 메인 박스 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- SPA 탭 네비게이션 -->
+            <div class="spa-tab-nav" id="tabMenu">
+                <div class="spa-tab active" data-target="guide">입찰안내</div>
+                <div class="spa-tab" data-target="plan">발주계획/사전규격공개</div>
+                <div class="spa-tab" data-target="notice">입찰공고 및 결과</div>
+                <div class="spa-tab" data-target="contract">계약현황</div>
+                <div class="spa-tab" data-target="payment">대금지급안내</div>
+                <div class="spa-tab" data-target="tax">영세율공급증명 발급</div>
+            </div>
+
+            <!-- 탭 콘텐츠 영역 컨테이너 -->
+            <div class="p-6 md:p-8 min-h-[500px]">
+                
+                <!-- 1. 입찰안내 탭 -->
+                <div id="content-guide" class="spa-content active">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <i class="fa-solid fa-circle-info text-2xl text-hb"></i>
+                        <h2 class="text-2xl font-black text-slate-800">입찰안내</h2>
+                    </div>
+                    
+                    <div class="bg-slate-50 p-6 md:p-8 rounded-xl border border-slate-200 mb-10 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-3 text-lg"><i class="fa-solid fa-check text-hb mr-2"></i>전자입찰 시스템 안내</h3>
+                        <p class="text-slate-600 leading-relaxed text-sm md:text-base">
+                            효빈교통공사의 모든 입찰 및 계약은 투명성과 공정성 확보를 위해 국가종합전자조달시스템(G2B, 나라장터)을 통해 진행됩니다. 
+                            입찰에 참여하고자 하는 업체는 사전에 나라장터에 입찰참가자격 등록을 완료해야 합니다.
+                        </p>
+                        <div class="mt-5">
+                            <a href="https://www.g2b.go.kr" target="_blank" class="inline-flex items-center px-5 py-2.5 bg-[#16A4BE] text-white font-bold rounded-lg hover:bg-sky-600 transition shadow-md">
+                                나라장터(G2B) 바로가기 <i class="fa-solid fa-arrow-up-right-from-square ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mb-4 text-lg border-l-4 border-[#16A4BE] pl-3">계약 업무 처리 절차</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
+                        <div class="text-center bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition">
+                            <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-[#16A4BE] text-2xl"><i class="fa-solid fa-bullhorn"></i></div>
+                            <h4 class="font-black text-slate-800 text-lg">1. 입찰공고</h4>
+                            <p class="text-sm text-slate-500 mt-2">나라장터 및<br>공사 홈페이지 게재</p>
+                        </div>
+                        <div class="text-center bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition">
+                            <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-[#16A4BE] text-2xl"><i class="fa-solid fa-file-signature"></i></div>
+                            <h4 class="font-black text-slate-800 text-lg">2. 투찰 및 개찰</h4>
+                            <p class="text-sm text-slate-500 mt-2">전자입찰서 제출<br>및 개찰 진행</p>
+                        </div>
+                        <div class="text-center bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition">
+                            <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-[#16A4BE] text-2xl"><i class="fa-solid fa-scale-balanced"></i></div>
+                            <h4 class="font-black text-slate-800 text-lg">3. 적격심사</h4>
+                            <p class="text-sm text-slate-500 mt-2">수행능력 평가 등<br>낙찰자 결정 심사</p>
+                        </div>
+                        <div class="text-center bg-sky-50 border border-sky-200 rounded-xl p-6 shadow-md hover:shadow-lg transition">
+                            <div class="w-14 h-14 bg-[#16A4BE] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-md"><i class="fa-solid fa-handshake"></i></div>
+                            <h4 class="font-black text-[#16A4BE] text-lg">4. 계약 체결</h4>
+                            <p class="text-sm text-slate-600 mt-2">전자계약 초안 발송<br>및 최종 계약 체결</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 발주계획 탭 -->
+                <div id="content-plan" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <i class="fa-solid fa-calendar-days text-2xl text-hb"></i>
+                        <h2 class="text-2xl font-black text-slate-800">발주계획 / 사전규격공개</h2>
+                    </div>
+                    
+                    <!-- 검색 폼 -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg mb-6 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+                            <select id="planType" class="form-input bg-white w-full md:w-auto">
+                                <option value="all">유형 전체</option>
+                                <option value="용역">용역</option>
+                                <option value="물품">물품</option>
+                                <option value="공사">공사</option>
+                            </select>
+                            <input type="text" id="planSearch" placeholder="사업명 또는 부서명 검색" class="form-input bg-white flex-grow md:w-64">
+                            <button onclick="renderPlanTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition shadow-sm"><i class="fa-solid fa-magnifying-glass"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap w-full md:w-auto text-right">
+                            총 <span id="planCount" class="text-hb font-black text-lg">0</span>건
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm mb-4">
+                        <table class="data-table min-w-[800px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-16">연번</th>
+                                    <th class="w-20">유형</th>
+                                    <th class="w-auto">사업명(규격명)</th>
+                                    <th class="w-24 hide-mobile">관련노선</th>
+                                    <th class="w-28">발주예정월</th>
+                                    <th class="w-32 hide-mobile">담당부서</th>
+                                </tr>
+                            </thead>
+                            <tbody id="planBody">
+                                <!-- JS 렌더링 영역 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 mt-2 mb-2"><i class="fa-solid fa-hand-pointer mr-1"></i>목록을 클릭하시면 상세 규격을 확인할 수 있습니다.</div>
+                    <div id="planPagination" class="flex justify-center mt-4"></div>
+                </div>
+
+                <!-- 3. 입찰공고 및 결과 탭 -->
+                <div id="content-notice" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <i class="fa-solid fa-bullhorn text-2xl text-hb"></i>
+                        <h2 class="text-2xl font-black text-slate-800">입찰공고 및 결과</h2>
+                    </div>
+
+                    <!-- 검색 폼 -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg mb-6 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+                            <select id="noticeStatus" class="form-input bg-white w-full md:w-auto">
+                                <option value="all">상태 전체</option>
+                                <option value="ing">공고중</option>
+                                <option value="end">마감</option>
+                            </select>
+                            <input type="text" id="noticeSearch" placeholder="공고번호 또는 입찰건명 검색" class="form-input bg-white flex-grow md:w-64">
+                            <button onclick="renderNoticeTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition shadow-sm"><i class="fa-solid fa-magnifying-glass"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap w-full md:w-auto text-right">
+                            총 <span id="noticeCount" class="text-hb font-black text-lg">0</span>건
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm mb-4">
+                        <table class="data-table min-w-[900px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-32">공고번호</th>
+                                    <th class="w-20">상태</th>
+                                    <th class="w-auto">입찰건명</th>
+                                    <th class="w-24 hide-mobile">계약방법</th>
+                                    <th class="w-36">공고일시</th>
+                                    <th class="w-36 hide-mobile">마감일시</th>
+                                </tr>
+                            </thead>
+                            <tbody id="noticeBody">
+                                <!-- JS 렌더링 영역 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 mt-2 mb-2"><i class="fa-solid fa-hand-pointer mr-1"></i>목록을 클릭하시면 공고문 상세 내용을 확인할 수 있습니다.</div>
+                    <div id="noticePagination" class="flex justify-center mt-4"></div>
+                </div>
+
+                <!-- 4. 계약현황 탭 -->
+                <div id="content-contract" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <i class="fa-solid fa-file-contract text-2xl text-hb"></i>
+                        <h2 class="text-2xl font-black text-slate-800">계약현황</h2>
+                    </div>
+
+                    <!-- 검색 폼 -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg mb-6 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+                            <input type="date" id="contractDateStart" class="form-input bg-white w-full md:w-auto" title="시작일">
+                            <span class="text-slate-400 hide-mobile">~</span>
+                            <input type="date" id="contractDateEnd" class="form-input bg-white w-full md:w-auto" title="종료일">
+                            <input type="text" id="contractSearch" placeholder="계약건명 또는 상대자 검색" class="form-input bg-white flex-grow md:w-48">
+                            <button onclick="renderContractTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition shadow-sm"><i class="fa-solid fa-magnifying-glass"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap w-full md:w-auto text-right">
+                            총 <span id="contractCount" class="text-hb font-black text-lg">0</span>건
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm mb-4">
+                        <table class="data-table min-w-[900px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-24">계약일자</th>
+                                    <th class="w-20 hide-mobile">구분</th>
+                                    <th class="w-auto">계약건명</th>
+                                    <th class="w-32">계약금액(원)</th>
+                                    <th class="w-32">계약상대자</th>
+                                    <th class="w-40 hide-mobile">이행기간</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contractBody">
+                                <!-- JS 렌더링 영역 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 mt-2 mb-2"><i class="fa-solid fa-hand-pointer mr-1"></i>목록을 클릭하시면 계약 상세 내역을 확인할 수 있습니다.</div>
+                    <div id="contractPagination" class="flex justify-center mt-4"></div>
+                </div>
+
+                <!-- 5. 대금지급안내 탭 -->
+                <div id="content-payment" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <i class="fa-solid fa-won-sign text-2xl text-hb"></i>
+                        <h2 class="text-2xl font-black text-slate-800">대금지급안내</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- 지급 절차 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-4 text-lg border-b border-slate-200 pb-3"><i class="fa-solid fa-arrow-right-arrow-left text-[#16A4BE] mr-2"></i>대금 청구 및 지급 절차</h3>
+                            <ol class="relative border-l-2 border-slate-300 ml-4 space-y-6 mt-4">                  
+                                <li class="mb-6 ml-8">            
+                                    <span class="absolute flex items-center justify-center w-8 h-8 bg-white border-2 border-slate-300 rounded-full -left-[17px] text-slate-600 font-black">1</span>
+                                    <h4 class="font-bold text-slate-800 mb-1">준공(납품) 및 검수 요청</h4>
+                                    <p class="text-sm text-slate-500">사업부서 감독관에게 완료 서류 제출 및 검사 요청</p>
+                                </li>
+                                <li class="mb-6 ml-8">            
+                                    <span class="absolute flex items-center justify-center w-8 h-8 bg-white border-2 border-[#16A4BE] rounded-full -left-[17px] text-[#16A4BE] font-black shadow-sm">2</span>
+                                    <h4 class="font-bold text-[#16A4BE] mb-1">대금 청구 (G2B)</h4>
+                                    <p class="text-sm text-slate-600">검수 완료 후 나라장터(G2B)를 통한 대금 청구서 제출</p>
+                                </li>
+                                <li class="ml-8">            
+                                    <span class="absolute flex items-center justify-center w-8 h-8 bg-[#16A4BE] border-2 border-[#16A4BE] rounded-full -left-[17px] text-white font-black shadow-md">3</span>
+                                    <h4 class="font-black text-slate-800 mb-1">대금 지급 완료</h4>
+                                    <p class="text-sm text-slate-500">청구일로부터 5일 이내(공휴일 제외) 지정 계좌로 입금</p>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <!-- 구비 서류 -->
+                        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-4 text-lg border-b border-slate-100 pb-3"><i class="fa-regular fa-folder-open text-amber-500 mr-2"></i>대금 청구 시 구비서류</h3>
+                            <ul class="space-y-4 text-sm text-slate-700 mt-4">
+                                <li class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <i class="fa-solid fa-file-invoice mt-0.5 text-slate-400 text-lg"></i> 
+                                    <div><strong class="text-slate-800 block mb-1">전자세금계산서</strong> 국세청 연동 또는 G2B 송신분</div>
+                                </li>
+                                <li class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <i class="fa-solid fa-building-columns mt-0.5 text-slate-400 text-lg"></i> 
+                                    <div><strong class="text-slate-800 block mb-1">청구서 및 입금계좌 사본</strong> 계약 상대자 명의 통장</div>
+                                </li>
+                                <li class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <i class="fa-solid fa-building-shield mt-0.5 text-slate-400 text-lg"></i> 
+                                    <div><strong class="text-slate-800 block mb-1">국세/지방세/4대보험 완납증명서</strong> 행정정보공동이용 동의 시 제출 생략 가능</div>
+                                </li>
+                            </ul>
+                            <div class="mt-5 p-4 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 leading-relaxed font-medium">
+                                <i class="fa-solid fa-circle-exclamation mr-1"></i> 서류 미비 시 대금 지급이 지연될 수 있습니다.<br>
+                                하도급 대금의 경우 '하도급지킴이' 시스템을 통해 별도 지급 처리됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. 영세율공급증명 탭 -->
+                <div id="content-tax" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <i class="fa-solid fa-file-shield text-2xl text-hb"></i>
+                        <h2 class="text-2xl font-black text-slate-800">영세율공급증명 발급</h2>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 md:p-12 text-center max-w-3xl mx-auto my-8 shadow-sm">
+                        <div class="w-20 h-20 bg-white border-2 border-[#16A4BE] rounded-full flex items-center justify-center mx-auto mb-5 text-4xl text-[#16A4BE] shadow-md">
+                            <i class="fa-solid fa-stamp"></i>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-4">도시철도건설용역 영세율 첨부서류 발급</h3>
+                        <p class="text-slate-600 mb-8 text-base leading-relaxed break-keep">
+                            「조세특례제한법」 제105조 규정에 의거, 도시철도건설용역에 대한 부가가치세 영세율 적용을 받기 위한 <strong>'공급받는 자가 발급하는 영세율공급증명서'</strong>를 온라인으로 간편하게 발급받을 수 있습니다.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left bg-white p-6 rounded-xl border border-slate-200 mb-8 shadow-inner">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-400 mb-1"><i class="fa-solid fa-building mr-1"></i> 대상 사업</span>
+                                <span class="text-sm font-bold text-slate-800">효빈교통공사 발주 철도건설 용역/공사</span>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold text-slate-400 mb-1"><i class="fa-solid fa-clock mr-1"></i> 처리 기한</span>
+                                <span class="text-sm font-bold text-slate-800">신청일로부터 3영업일 이내</span>
+                            </div>
+                            <div class="sm:col-span-2 mt-2 pt-4 border-t border-slate-100">
+                                <span class="block text-xs font-bold text-slate-400 mb-1"><i class="fa-solid fa-keyboard mr-1"></i> 필요 정보</span>
+                                <span class="text-sm font-bold text-slate-800">사업자등록번호, 공사 계약번호, 세금계산서 청구금액 등</span>
+                            </div>
+                        </div>
+
+                        <button class="px-8 py-4 bg-slate-800 hover:bg-slate-900 text-white font-black rounded-xl transition shadow-lg w-full sm:w-auto text-lg" onclick="alert('보안 정책에 따라 공동인증서 로그인 페이지로 이동합니다.\n(현재 시스템 점검 중입니다)')">
+                            <i class="fa-solid fa-laptop-file mr-2"></i> 영세율 발급 시스템 로그인
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- [추가] 상세 보기 통합 모달 (팝업) -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden bg-black/70 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300 overflow-hidden" id="detailModalContent">
+            
+            <!-- 모달 헤더 -->
+            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-start bg-slate-50 relative shrink-0">
+                <div class="pr-8 w-full">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="modalTypeBadge" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-700 text-white shadow-sm">구분</span>
+                        <span id="modalStatusBadge" class="px-2.5 py-1 rounded text-xs font-bold shadow-sm hidden">상태</span>
+                    </div>
+                    <h2 id="modalTitle" class="text-xl md:text-2xl font-black text-gray-900 leading-tight">상세제목</h2>
+                </div>
+                <button onclick="closeDetailModal()" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 text-3xl focus:outline-none transition-colors leading-none" aria-label="닫기">&times;</button>
+            </div>
+            
+            <!-- 모달 본문 (스크롤) -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar bg-white flex-grow">
+                
+                <!-- 상세 메타 정보 (그리드 형태) -->
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6" id="modalMetaGrid">
+                    <!-- JS로 동적 생성됨 -->
+                </div>
+
+                <!-- 상세 본문 텍스트 -->
+                <div class="mb-8">
+                    <h3 class="text-base font-bold text-slate-800 mb-3 border-b-2 border-slate-800 pb-2 inline-block"><i class="fa-regular fa-file-lines text-hb mr-1"></i> 상세 내용</h3>
+                    <div id="modalContentText" class="text-slate-700 leading-relaxed text-[15px] whitespace-pre-line p-4 bg-white border border-slate-100 rounded-lg shadow-sm">
+                        <!-- 내용 렌더링 -->
+                    </div>
+                </div>
+
+                <!-- 첨부파일 영역 -->
+                <div id="modalAttachmentSection" class="hidden">
+                    <h3 class="text-base font-bold text-slate-800 mb-3 border-b border-slate-200 pb-2"><i class="fa-solid fa-paperclip text-hb mr-1"></i> 첨부파일</h3>
+                    <ul id="modalAttachmentList" class="space-y-2">
+                        <!-- 파일 렌더링 -->
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 모달 푸터 -->
+            <div class="p-4 border-t border-gray-200 bg-slate-50 flex justify-end gap-3 shrink-0">
+                <button id="g2bLinkBtn" class="hidden px-5 py-2.5 bg-[#16A4BE] hover:bg-sky-600 text-white text-sm font-bold rounded-lg shadow-md transition-colors"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> G2B 원문보기</button>
+                <button onclick="closeDetailModal()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-sm font-bold rounded-lg shadow-md transition-colors">목록으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPA 작동 및 동적 데이터 렌더링 JS -->
+    <script>
+        // --- 1. 대규모 더미 데이터 (상세 내용 및 첨부파일 필드 추가) ---
+        
+        // 발주계획 데이터
+        const planData = [
+            { id: 12, type: "공사", title: "1호선 곽암해수욕장역 노후 릴레이 제어반 방음 부스 설치", line: "1", date: "2026.06", dept: "역무본부 1호선운영팀", content: "1호선 곽암해수욕장역 대합실 내 보존 중인 1984년식 구형 릴레이 제어반의 작동 소음 저감을 위한 특수 방음 부스 및 관람창 설치 공사 사전 규격 안내입니다.\n\n- 추정금액: 25,000,000원\n- 발주시기: 2026년 6월 예정\n- 계약방법: 소액수의", files: ["과업지시서_방음부스.pdf", "사전규격서.hwp"] },
+            { id: 11, type: "용역", title: "7호선 임세정/임세하 자매 캐릭터 래핑 트램 유지보수 및 재도장", line: "7", date: "2026.06", dept: "부대사업처", content: "7호선 무가선 트램(임세정, 임세하 캐릭터 래핑) 차량 외부 필름 노후화에 따른 재도장 및 유지보수 용역 건입니다.\n\n- 대상차량: 7호선 트램 2편성\n- 계약방법: 제한경쟁", files: ["래핑디자인가이드_v2.pdf"] },
+            { id: 10, type: "물품", title: "빈효선 HAF 페스티벌 대비 임시 코스프레 라운지 가설 파티션 임차", line: "bh", date: "2026.07", dept: "효빈지역본부 기획팀", content: "효빈 애니메이션 페스티벌(HAF) 기간 동안 효빈항역 대합실 B구역에 설치할 코스플레이어 전용 환복용 가설 파티션 임차.\n\n- 임차기간: 행사일 포함 총 7일\n- 수량: 2m x 2m 파티션 50조 등", files: ["물품규격서.hwp"] },
+            { id: 9, type: "용역", title: "5호선 청덕공원역 메트로 팜 센서 및 자동화 설비 교체", line: "5", date: "2026.05", dept: "시설본부 환경설비팀", content: "청덕공원역 지하 메트로팜의 온습도 제어 센서 및 LED 조명 자동제어 모듈 노후화에 따른 전면 교체.\n\n- 스마트팜 규격 만족 1등급 장비 필수.", files: ["시방서.pdf", "내역서.xlsx"] },
+            { id: 8, type: "물품", title: "4호선 다로나 주임 등 순찰 인력용 스마트 클립보드 (2차 도입분)", line: "4", date: "2026.05", dept: "기술본부 산업관리처", content: "순찰 업무 효율화를 위한 전자식 스마트 클립보드 패드 2차분 도입.\n- 사양: 10인치 이상 E-ink 디스플레이, 방진방수 등급 IP67", files: ["스마트패드_사전규격서.hwp"] },
+            { id: 7, type: "용역", title: "3호선 사능역 베이커리 투어용 리플릿 인쇄 및 거치대 제작", line: "3", date: "2026.05", dept: "문화홍보처", content: "박라미 캐릭터를 활용한 사능역 인근 '빵지순례' 감성 지도 리플릿 5만 부 인쇄 및 전용 거치대 3개소 제작 설치.", files: ["과업지시서(인쇄물).hwp"] },
+            { id: 6, type: "공사", title: "2호선 효빈대학교역 등 5량 열차 하차 유도선 도색 공사", line: "2", date: "2026.04", dept: "시설본부", content: "2007호대 5량 편성 진입 시 승객 대기 위치 안내를 위한 승강장 바닥 비취색 유도선 도색 및 시트 부착 공사.", files: [] },
+            { id: 5, type: "용역", title: "6호선 중수역 학원가 수험생 특별 안내방송 시스템 연동 용역", line: "6", date: "2026.04", dept: "승무본부 방송기획팀", content: "라세나 성우의 D-100 응원 음원을 특정 역차 및 시간대에 자동 송출하기 위한 차량 내/역사 내 방송 시스템 소프트웨어 업데이트 용역.", files: ["과업지시서_방송시스템.pdf"] },
+            { id: 4, type: "물품", title: "전 노선 승강장 비상통화장치 LTE-R 통신모듈 구매 (예비품)", line: "common", date: "2026.08", dept: "통신처", content: "예비품 확보 차원 통신 모듈 대량 구매.", files: [] },
+            { id: 3, type: "공사", title: "구 효빈전차 사능선 구간 선로 철거 및 보도 블럭 복구 공사", line: "common", date: "2026.09", dept: "건설본부", content: "사능선 폐선 구간 선로 완전 철거 및 보도 복구공사 발주 계획", files: ["설계도면_요약.pdf"] },
+            { id: 2, type: "용역", title: "박효빈 시장 주관 '효빈 모빌리티 비전 2030' 행사 대행", line: "common", date: "2026.10", dept: "기획조정실", content: "시장 주관 미래 교통 비전 선포식 관련 무대설치, 음향, 조명, 행사 진행 전반에 대한 대행사 선정.", files: ["행사제안요청서(RFP).hwp"] },
+            { id: 1, type: "물품", title: "전사 사무용 PC 및 모니터 연간 단가계약 구매", line: "common", date: "2026.11", dept: "경영지원처", content: "공사 전 직원 대상 노후 PC 교체용 연간 단가계약.", files: [] }
+        ];
+
+        // 입찰공고 데이터
+        const noticeData = [
+            { id: "N08", no: "202604-0015", status: "ing", title: "8호선 평당고역 등 4개 역사 우천시 분진 흡착 특수 매트 구매 및 설치", type: "제한(총액)", start: "2026.04.14 10:00", end: "2026.04.24 10:00", price: "45,000,000", dept: "시설본부 유지보수팀", content: "고무차륜 분진 제거용 2중 매트를 평당고역 등 주요 4개 역에 설치하는 사업입니다.\n\n[입찰참가자격]\n- 나라장터에 매트류(세부품명)를 등록한 업체\n- 효빈광역시 내 본점 소재지 업체 제한" , files: ["입찰공고문.hwp", "물품규격서.pdf"]},
+            { id: "N07", no: "202604-0012", status: "ing", title: "3호선 사능역 등 빵지순례 안내지도 인쇄물 제작 및 거치대 구매", type: "소액수의", start: "2026.04.12 14:00", end: "2026.04.18 14:00", price: "18,500,000", dept: "문화홍보처", content: "사능동 로컬 빵집 활성화를 위한 마스코트(박라미) 안내 지도 인쇄.", files: ["공고문.pdf", "디자인가이드.zip"]},
+            { id: "N06", no: "202604-0010", status: "ing", title: "빈효선 효빈항역 코스어 웰컴 라운지 냉난방기 임차", type: "수의(총액)", start: "2026.04.10 09:00", end: "2026.04.15 18:00", price: "4,000,000", dept: "한국철도공사 효빈지역본부", content: "HAF 행사 대비 효빈항역 임시 환복 라운지용 이동식 에어컨/온풍기 단기 임차.", files: ["공고문.hwp"]},
+            { id: "N05", no: "202604-0008", status: "end", title: "2호선 어간수산시장역 에스컬레이터 비린내 탈취용 에어커튼 설치 공사", type: "지명경쟁", start: "2026.04.01 09:00", end: "2026.04.10 18:00", price: "285,000,000", dept: "시설본부 환경설비팀", content: "지상 시장 악취 지하 유입 차단을 위한 에어커튼 및 플라즈마 필터 공사. (입찰 마감됨)", files: ["최종결과조서.pdf"]},
+            { id: "N04", no: "202603-0045", status: "end", title: "6호선 라세나 성우 수능 응원 안내방송 음원 마스터링 용역", type: "일반(총액)", start: "2026.03.20 09:00", end: "2026.03.27 15:00", price: "12,500,000", dept: "승무본부", content: "수능 안내방송 음질 보정 및 스튜디오 마스터링 용역. (입찰 마감됨)", files: []},
+            { id: "N03", no: "202603-0021", status: "end", title: "전 노선 승강장 비상통화장치 LTE-R 통신모듈 업그레이드 구매설치", type: "제한(총액)", start: "2026.03.05 10:00", end: "2026.03.15 10:00", price: "1,450,000,000", dept: "통신처", content: "효빈지하철 1~8호선 전체 비상통화장치 통신망 교체 사업.", files: ["과업지시서.pdf"]},
+            { id: "N02", no: "202602-0055", status: "end", title: "5호선 포성산역 고심도 에스컬레이터 정밀안전진단 용역", type: "제한(총액)", start: "2026.02.20 10:00", end: "2026.02.28 10:00", price: "112,000,000", dept: "안전환경본부", content: "포성산역 장대 에스컬레이터 비파괴 검사 및 정밀 진단.", files: ["제안요청서.hwp"]},
+            { id: "N01", no: "202602-0030", status: "end", title: "본사 사옥 보안/미화/시설관리 용역 (3년 장기계약)", type: "일반(총액)", start: "2026.02.10 09:00", end: "2026.02.20 14:00", price: "4,500,000,000", dept: "경영지원처", content: "고송대로 32 본사 신사옥 종합 시설관리 용역 (2026~2029)", files: ["RFP_사옥관리.zip"]}
+        ];
+
+        // 계약현황 데이터
+        const contractData = [
+            { id: "C07", date: "2026.04.12", type: "공사", title: "2호선 어간수산시장역 에스컬레이터 비린내 탈취용 에어커튼 설치 공사", price: "285,000,000", company: "효빈공조설비(주)", period: "2026.04.15 ~ 2026.06.30", dept: "시설본부", content: "국가종합전자조달시스템(G2B)을 통해 최종 낙찰자와 계약을 체결함.\n\n- 계약상대자: 효빈공조설비(주)\n- 낙찰률: 87.5%\n- 하자담보책임기간: 2년", files: ["계약일반조건.pdf", "도급내역서.xlsx"] },
+            { id: "C06", date: "2026.03.30", type: "용역", title: "6호선 라세나 성우 수능 응원 안내방송 음원 마스터링 용역", price: "12,500,000", company: "사운드팩토리(주)", period: "2026.04.01 ~ 2026.05.31", dept: "승무본부", content: "음원 마스터링 및 노이즈 캔슬링 후처리 용역 수의계약 체결.", files: ["계약서_사본.pdf"] },
+            { id: "C05", date: "2026.03.20", type: "물품", title: "전 노선 승강장 비상통화장치 LTE-R 통신모듈 업그레이드 구매설치", price: "1,450,000,000", company: "(주)HNT네트웍스", period: "2026.03.25 ~ 2026.11.30", dept: "통신처", content: "조달청 제3자단가계약 물품 납품요구.\n- 물품 인도 조건: 현장설치도", files: [] },
+            { id: "C04", date: "2026.03.05", type: "용역", title: "5호선 포성산역 고심도 에스컬레이터 정밀안전진단 용역", price: "112,000,000", company: "대한승강기안전(주)", period: "2026.03.10 ~ 2026.06.09", dept: "안전환경본부", content: "정밀안전진단전문기관 등록 업체 적격심사 후 계약 체결 완료.", files: ["안전진단_과업지시서.pdf"] },
+            { id: "C03", date: "2026.02.25", type: "용역", title: "본사 사옥 보안/미화/시설관리 용역", price: "4,500,000,000", company: "(주)효빈서비스", period: "2026.03.01 ~ 2029.02.28", dept: "경영지원처", content: "3년 장기계속계약 체결 건. (제1차년도 계약액 별도 명기)", files: ["용역근로조건보호서약서.pdf"] },
+            { id: "C02", date: "2026.02.15", type: "용역", title: "2호선 효빈대학교역 5량 편성 하차 유도선 (비취색) 스티커 제작 부착", price: "45,000,000", company: "제일광고디자인", period: "2026.02.20 ~ 2026.03.15", dept: "시설본부", content: "여성기업/장애인기업 제한경쟁입찰 낙찰자 계약 체결.", files: [] },
+            { id: "C01", date: "2026.01.20", type: "물품", title: "신규 직원용 유니폼 및 방한복 제작 구매", price: "320,000,000", company: "(주)어패럴컴퍼니", period: "2026.01.25 ~ 2026.04.30", dept: "경영지원처", content: "하복 및 동복, 방한복 일괄 다수공급자계약(MAS) 2단계 경쟁.", files: ["피복규격서.hwp"] }
+        ];
+
+        // 설정 매핑 테이블
+        const lineBadgeMap = {
+            "1": { bg: "badge-1", text: "1호선" }, "2": { bg: "badge-2", text: "2호선" }, "3": { bg: "badge-3", text: "3호선" },
+            "4": { bg: "badge-4", text: "4호선" }, "5": { bg: "badge-5", text: "5호선" }, "6": { bg: "badge-6", text: "6호선" },
+            "7": { bg: "badge-7", text: "7호선" }, "8": { bg: "badge-8", text: "8호선" }, "bh": { bg: "badge-bh", text: "빈효선" },
+            "common": { bg: "badge-common", text: "공통" }
+        };
+        const statusBadgeMap = {
+            "ing": { class: "status-ing", text: "공고중" }, "end": { class: "status-end", text: "마감" }
+        };
+
+        const ITEMS_PER_PAGE = 5;
+
+        // --- 2. 동적 렌더링 함수 (검색, 페이징 포함) ---
+        
+        // 발주계획 렌더링
+        function renderPlanTable(page = 1) {
+            const typeFilter = document.getElementById('planType').value;
+            const searchKeyword = document.getElementById('planSearch').value.toLowerCase();
+            
+            let filtered = planData.filter(d => {
+                const matchType = typeFilter === "all" || d.type === typeFilter;
+                const matchSearch = searchKeyword === "" || d.title.toLowerCase().includes(searchKeyword) || d.dept.toLowerCase().includes(searchKeyword);
+                return matchType && matchSearch;
+            });
+
+            document.getElementById('planCount').innerText = filtered.length;
+            
+            const tbody = document.getElementById('planBody');
+            tbody.innerHTML = '';
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-slate-400 text-center">검색 결과가 없습니다.</td></tr>`;
+                document.getElementById('planPagination').innerHTML = '';
+                return;
+            }
+
+            const startIdx = (page - 1) * ITEMS_PER_PAGE;
+            const pagedData = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            pagedData.forEach(item => {
+                const line = lineBadgeMap[item.line] || lineBadgeMap["common"];
+                tbody.innerHTML += `
+                    <tr onclick="openDetailModal('plan', ${item.id})">
+                        <td class="font-medium text-slate-500">${item.id}</td>
+                        <td class="font-bold text-slate-700">${item.type}</td>
+                        <td class="subject">${item.title}</td>
+                        <td class="hide-mobile"><span class="px-2 py-1 rounded text-xs font-bold ${line.bg}">${line.text}</span></td>
+                        <td class="font-bold text-hb">${item.date}</td>
+                        <td class="hide-mobile text-xs text-slate-500">${item.dept}</td>
+                    </tr>
+                `;
+            });
+
+            renderPagination('planPagination', filtered.length, page, renderPlanTable);
+        }
+
+        // 입찰공고 렌더링
+        function renderNoticeTable(page = 1) {
+            const statusFilter = document.getElementById('noticeStatus').value;
+            const searchKeyword = document.getElementById('noticeSearch').value.toLowerCase();
+            
+            let filtered = noticeData.filter(d => {
+                const matchStatus = statusFilter === "all" || d.status === statusFilter;
+                const matchSearch = searchKeyword === "" || d.title.toLowerCase().includes(searchKeyword) || d.no.toLowerCase().includes(searchKeyword);
+                return matchStatus && matchSearch;
+            });
+
+            document.getElementById('noticeCount').innerText = filtered.length;
+            
+            const tbody = document.getElementById('noticeBody');
+            tbody.innerHTML = '';
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-slate-400 text-center">조회된 공고가 없습니다.</td></tr>`;
+                document.getElementById('noticePagination').innerHTML = '';
+                return;
+            }
+
+            const startIdx = (page - 1) * ITEMS_PER_PAGE;
+            const pagedData = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            pagedData.forEach(item => {
+                const status = statusBadgeMap[item.status];
+                tbody.innerHTML += `
+                    <tr onclick="openDetailModal('notice', '${item.id}')">
+                        <td class="text-xs font-bold text-slate-600">${item.no}</td>
+                        <td><span class="px-2.5 py-1 rounded text-[11px] font-bold ${status.class}">${status.text}</span></td>
+                        <td class="subject">${item.title}</td>
+                        <td class="hide-mobile text-sm text-slate-500">${item.type}</td>
+                        <td class="text-xs text-slate-500">${item.start}</td>
+                        <td class="hide-mobile text-xs text-slate-500">${item.end}</td>
+                    </tr>
+                `;
+            });
+
+            renderPagination('noticePagination', filtered.length, page, renderNoticeTable);
+        }
+
+        // 계약현황 렌더링
+        function renderContractTable(page = 1) {
+            const searchKeyword = document.getElementById('contractSearch').value.toLowerCase();
+            const dateStart = document.getElementById('contractDateStart').value.replace(/-/g, '.');
+            const dateEnd = document.getElementById('contractDateEnd').value.replace(/-/g, '.');
+            
+            let filtered = contractData.filter(d => {
+                const matchSearch = searchKeyword === "" || d.title.toLowerCase().includes(searchKeyword) || d.company.toLowerCase().includes(searchKeyword);
+                let matchDate = true;
+                if(dateStart) matchDate = matchDate && (d.date >= dateStart);
+                if(dateEnd) matchDate = matchDate && (d.date <= dateEnd);
+                return matchSearch && matchDate;
+            });
+
+            document.getElementById('contractCount').innerText = filtered.length;
+            
+            const tbody = document.getElementById('contractBody');
+            tbody.innerHTML = '';
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-slate-400 text-center">계약 현황이 없습니다.</td></tr>`;
+                document.getElementById('contractPagination').innerHTML = '';
+                return;
+            }
+
+            const startIdx = (page - 1) * ITEMS_PER_PAGE;
+            const pagedData = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            pagedData.forEach(item => {
+                tbody.innerHTML += `
+                    <tr onclick="openDetailModal('contract', '${item.id}')">
+                        <td class="font-medium text-slate-600">${item.date}</td>
+                        <td class="hide-mobile font-bold text-slate-700">${item.type}</td>
+                        <td class="subject">${item.title}</td>
+                        <td class="font-black text-slate-800 text-right pr-4">${item.price}</td>
+                        <td class="text-sm font-bold text-hb">${item.company}</td>
+                        <td class="hide-mobile text-xs text-slate-500">${item.period}</td>
+                    </tr>
+                `;
+            });
+
+            renderPagination('contractPagination', filtered.length, page, renderContractTable);
+        }
+
+        // 페이징 공통 컴포넌트 생성 함수
+        function renderPagination(containerId, totalItems, currentPage, callbackFn) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            if(totalPages <= 1) return;
+
+            for(let i=1; i<=totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => callbackFn(i);
+                container.appendChild(btn);
+            }
+        }
+
+        // --- 3. SPA 탭 라우팅 로직 ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.spa-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.spa-tab').forEach(el => el.classList.remove('active'));
+            
+            const targetContent = document.getElementById('content-' + tabId);
+            const targetBtn = document.querySelector(`.spa-tab[data-target="${tabId}"]`);
+            
+            if(targetContent && targetBtn) {
+                targetContent.classList.add('active');
+                targetBtn.classList.add('active');
+                document.getElementById('breadcrumb-current').innerText = targetBtn.innerText;
+                window.history.replaceState(null, null, '#' + tabId);
+            }
+        }
+
+        // --- 4. 상세보기 모달 로직 ---
+        const detailModal = document.getElementById('detailModal');
+        const detailModalContent = document.getElementById('detailModalContent');
+
+        function openDetailModal(type, id) {
+            let data = null;
+            let metaHtml = '';
+            
+            // 데이터 매핑 및 헤더, 메타 정보 구성
+            if(type === 'plan') {
+                data = planData.find(item => item.id === id);
+                if(!data) return;
+                
+                document.getElementById('modalTypeBadge').innerText = '발주계획';
+                document.getElementById('modalStatusBadge').classList.add('hidden');
+                
+                metaHtml = `
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">유형</span> <span class="text-slate-800">${data.type}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">담당부서</span> <span class="text-slate-800">${data.dept}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">발주예정</span> <span class="font-bold text-hb">${data.date}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">적용노선</span> <span class="text-slate-800">${lineBadgeMap[data.line]?.text || '공통'}</span></div>
+                `;
+                document.getElementById('g2bLinkBtn').classList.add('hidden');
+            } 
+            else if(type === 'notice') {
+                data = noticeData.find(item => item.id === id);
+                if(!data) return;
+
+                document.getElementById('modalTypeBadge').innerText = '입찰공고';
+                const statusNode = document.getElementById('modalStatusBadge');
+                statusNode.className = `px-2.5 py-1 rounded text-xs font-bold shadow-sm ${statusBadgeMap[data.status].class}`;
+                statusNode.innerText = statusBadgeMap[data.status].text;
+                statusNode.classList.remove('hidden');
+
+                metaHtml = `
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">공고번호</span> <span class="font-bold text-slate-800">${data.no}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">담당부서</span> <span class="text-slate-800">${data.dept}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">계약방법</span> <span class="text-slate-800">${data.type}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">추정가격</span> <span class="text-slate-800 font-bold">${data.price}원</span></div>
+                    <div class="sm:col-span-2"><span class="text-slate-500 font-bold w-20 inline-block">공고기간</span> <span class="text-hb font-medium">${data.start} ~ ${data.end}</span></div>
+                `;
+                document.getElementById('g2bLinkBtn').classList.remove('hidden');
+            } 
+            else if(type === 'contract') {
+                data = contractData.find(item => item.id === id);
+                if(!data) return;
+
+                document.getElementById('modalTypeBadge').innerText = '계약현황';
+                document.getElementById('modalStatusBadge').classList.add('hidden');
+
+                metaHtml = `
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">계약구분</span> <span class="text-slate-800">${data.type}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">담당부서</span> <span class="text-slate-800">${data.dept}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">계약일자</span> <span class="font-bold text-slate-800">${data.date}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">계약금액</span> <span class="text-hb font-black">${data.price}원</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">상대자</span> <span class="text-slate-800 font-bold">${data.company}</span></div>
+                    <div><span class="text-slate-500 font-bold w-20 inline-block">이행기간</span> <span class="text-slate-800">${data.period}</span></div>
+                `;
+                document.getElementById('g2bLinkBtn').classList.add('hidden');
+            }
+
+            // 공통 데이터 바인딩
+            document.getElementById('modalTitle').innerText = data.title;
+            document.getElementById('modalMetaGrid').innerHTML = metaHtml;
+            document.getElementById('modalContentText').innerText = data.content || "상세 내용이 없습니다.";
+
+            // 첨부파일 바인딩
+            const fileSection = document.getElementById('modalAttachmentSection');
+            const fileList = document.getElementById('modalAttachmentList');
+            fileList.innerHTML = '';
+            
+            if(data.files && data.files.length > 0) {
+                fileSection.classList.remove('hidden');
+                data.files.forEach(file => {
+                    fileList.innerHTML += `
+                        <li class="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2.5 border border-slate-200 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+                            <i class="fa-regular fa-file-lines text-slate-400 text-lg"></i>
+                            <span class="hover:text-hb hover:underline">${file}</span>
+                            <span class="text-xs text-slate-400 ml-auto border border-slate-300 px-2 py-0.5 rounded bg-white">다운로드</span>
+                        </li>
+                    `;
+                });
+            } else {
+                fileSection.classList.add('hidden');
+            }
+
+            // G2B 버튼 이벤트 연동 (alert)
+            const g2bBtn = document.getElementById('g2bLinkBtn');
+            g2bBtn.onclick = () => alert("나라장터(G2B) 상세페이지로 이동합니다.\n(임시 링크입니다)");
+
+            // 모달 노출 애니메이션
+            document.body.style.overflow = 'hidden';
+            detailModal.classList.remove('hidden');
+            void detailModal.offsetWidth;
+            detailModal.classList.remove('opacity-0');
+            detailModalContent.classList.remove('scale-95');
+            detailModalContent.classList.add('scale-100');
+        }
+
+        function closeDetailModal() {
+            detailModal.classList.add('opacity-0');
+            detailModalContent.classList.remove('scale-100');
+            detailModalContent.classList.add('scale-95');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => { detailModal.classList.add('hidden'); }, 300);
+        }
+
+        // 모달 영역 밖 클릭/ESC 시 닫기
+        detailModal.addEventListener('click', e => { if (e.target === detailModal) closeDetailModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && !detailModal.classList.contains('hidden')) closeDetailModal(); });
+
+        // --- 5. 초기화 및 이벤트 바인딩 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.spa-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    switchTab(e.target.getAttribute('data-target'));
+                });
+            });
+
+            document.getElementById('planSearch').addEventListener('keypress', (e) => { if(e.key === 'Enter') renderPlanTable(1); });
+            document.getElementById('noticeSearch').addEventListener('keypress', (e) => { if(e.key === 'Enter') renderNoticeTable(1); });
+            document.getElementById('contractSearch').addEventListener('keypress', (e) => { if(e.key === 'Enter') renderContractTable(1); });
+
+            renderPlanTable(1);
+            renderNoticeTable(1);
+            renderContractTable(1);
+
+            const handleHash = () => {
+                const hash = window.location.hash.replace('#', '');
+                if (hash && document.getElementById('content-' + hash)) {
+                    switchTab(hash);
+                } else {
+                    switchTab('guide');
+                }
+            };
+            
+            window.addEventListener('hashchange', handleHash);
+            handleHash();
+        });
+    </script>
+    
+    <!-- 공통 JS 로드 (사이드바 및 헤더/푸터 자동 생성기) -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>

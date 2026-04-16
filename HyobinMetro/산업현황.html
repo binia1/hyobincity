@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>산업현황 및 기술연구 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선별 컬러 */
+        .line-1 { color: #0077DD; font-weight: bold; }
+        .line-2 { color: #00CCAA; font-weight: bold; }
+        .line-3 { color: #FFCC11; font-weight: bold; }
+        .line-4 { color: #FF5522; font-weight: bold; }
+        .line-5 { color: #EE0022; font-weight: bold; }
+        .line-6 { color: #881188; font-weight: bold; }
+        .line-7 { color: #FF8899; font-weight: bold; }
+        .line-8 { color: #9856FF; font-weight: bold; }
+        .line-bh { color: #6677CC; font-weight: bold; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 3.5rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 14px; border: 1px solid #e2e8f0; text-align: center; font-size: 0.875rem; white-space: nowrap; }
+        .data-table td { padding: 14px; border: 1px solid #e2e8f0; color: #475569; vertical-align: middle; font-size: 0.875rem; }
+        .data-table tr:hover td { background-color: #f1f5f9; }
+
+        html { scroll-behavior: smooth; }
+
+        /* 화면 전환용 클래스 */
+        .view-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dash-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: box-shadow 0.3s ease; }
+        .dash-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        /* 페이지네이션 버튼 스타일 */
+        .page-btn { width: 2rem; height: 2rem; border-radius: 0.25rem; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; color: #475569; transition: all 0.2s; cursor: pointer; background: white; }
+        .page-btn:hover { background-color: #f1f5f9; }
+        .page-btn.active { background-color: #0284c7; color: white; border-color: #0284c7; font-weight: bold; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* =========================================
+           [인쇄 전용 CSS] DOM 간섭 없이 인쇄 기능 완벽 제어
+           ========================================= */
+        @media print {
+            /* 모달이 열려있을 때 메인 콘텐츠 숨김 처리 (DOM 제거 아님) */
+            body.modal-open > main {
+                display: none !important;
+            }
+            
+            /* 모달창만 화면 전체에 꽉 차게 출력 설정 */
+            body.modal-open #documentModal {
+                position: static !important;
+                display: block !important;
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            body.modal-open #docModalContent {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                max-height: none !important;
+                overflow: visible !important;
+                transform: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            /* 인쇄 시 불필요한 버튼/그림자/배경 숨김 */
+            .print-hide {
+                display: none !important;
+            }
+            
+            /* 배경색 등 인쇄 최적화 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[url('이미지/산업현황배경.jpg')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-sky-300 text-xs font-bold mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-house"></i> HOME <i class="fa-solid fa-chevron-right text-[10px]"></i> 공사 소개 <i class="fa-solid fa-chevron-right text-[10px]"></i> 산업현황
+                </div>
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white mb-3">산업현황 및 기술연구</h1>
+                        <p class="text-sky-100 font-medium text-lg max-w-3xl leading-relaxed">효빈교통공사는 단순한 여객 운송을 넘어, 2만 8천여 건에 달하는 방대한 산업재산권(IP)과 독보적인 철도 기술력을 바탕으로 글로벌 모빌리티 산업을 선도하고 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block print-hide">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">산업현황</div>
+                    <ul class="divide-y divide-slate-100" id="lnb-menu">
+                        <li><a href="#patent" onclick="switchView('view-patent'); return false;" class="block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-600"></i>산업재산권현황</a></li>
+                        <li><a href="#newbiz" onclick="switchView('view-newbiz'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>신사업개발현황</a></li>
+                        <li><a href="#railbiz" onclick="switchView('view-railbiz'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>철도사업현황</a></li>
+                        <li><a href="#tech-research" onclick="switchView('view-tech-research'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>기술연구자료실</a></li>
+                        <li><a href="#policy" onclick="switchView('view-policy'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>교통정책자료실</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-8 sm:p-10 relative min-h-[800px]">
+
+                <!-- ==========================================
+                     VIEW 1: 산업재산권현황
+                     ========================================== -->
+                <div id="view-patent" class="view-section active">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-certificate text-hyobin mr-2"></i> 산업재산권 등록 및 출원 현황</h2>
+                        <button onclick="window.print()" class="print-hide text-sm bg-slate-700 hover:bg-slate-800 text-white py-2 px-5 rounded-lg font-bold shadow-sm transition-colors whitespace-nowrap"><i class="fa-solid fa-download mr-1"></i> 전체 목록 다운로드 (PDF)</button>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-100 rounded-xl p-8 mb-10 shadow-sm">
+                        <h3 class="text-xl font-bold text-sky-900 mb-3">글로벌 Top-Tier 수준의 지식재산권(IP) 인프라</h3>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            효빈교통공사는 안전한 철도 인프라 구축을 위한 <strong>원천 기술(특허/실용신안)</strong>과, 글로벌 부대사업 수익 창출의 핵심인 <strong>캐릭터 브랜드 '레일 루미네' 기반의 디자인 및 상표권</strong>을 폭발적으로 확보하여 전 세계 대중교통 기관 중 <strong>최다 산업재산권 보유 기관</strong>으로 자리매김했습니다.
+                        </p>
+                    </div>
+
+                    <h3 class="font-bold text-lg text-slate-800 mb-4 border-l-4 border-hyobin pl-2 flex justify-between items-center">
+                        <span>권리별 등록(보유) 현황 통계</span>
+                        <span class="text-xs text-slate-500 font-normal bg-slate-100 px-2 py-1 rounded">(기준일: 2025. 12. 31 / 단위: 건)</span>
+                    </h3>
+                    
+                    <div class="overflow-x-auto mb-12">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th width="15%" class="bg-sky-600 text-white text-lg border-sky-700">총계 (합계)</th>
+                                    <th width="17%">특허</th>
+                                    <th width="17%">실용신안</th>
+                                    <th width="17%">디자인</th>
+                                    <th width="17%">상표</th>
+                                    <th width="17%">서비스표/업무표장</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center font-black text-3xl text-sky-700 bg-sky-50 border-sky-200">28,542</td>
+                                    <td class="text-center font-bold text-slate-800 text-xl">12,650</td>
+                                    <td class="text-center font-bold text-slate-800 text-xl">4,120</td>
+                                    <td class="text-center font-bold text-purple-600 text-xl bg-purple-50">9,850</td>
+                                    <td class="text-center font-bold text-slate-800 text-xl">1,450</td>
+                                    <td class="text-center font-bold text-slate-800 text-xl">472</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-slate-500 mt-3 text-right">* 디자인 및 상표권의 대부분은 공사 공식 마스코트 '레일 루미네(Rail-Lumine)' 관련 2차 창작물 및 파생 디자인 등록건입니다.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-5 gap-6">
+                        <div class="md:col-span-2 dash-card bg-slate-800 text-white border-0 flex flex-col justify-center h-full">
+                            <h4 class="font-bold text-xl text-sky-300 mb-4 flex items-center"><i class="fa-solid fa-magnifying-glass mr-2"></i> KIPRIS 세부내역 조회</h4>
+                            <p class="text-sm text-slate-300 leading-relaxed mb-6">
+                                효빈교통공사가 보유한 모든 권리의 도면, 명세서, 법적 상태는 특허청 무료 검색 서비스 <strong>‘특허정보넷 키프리스’</strong>에서 투명하게 공개됩니다.
+                            </p>
+                            <a href="http://www.kipris.or.kr" target="_blank" class="print-hide block w-full text-center bg-sky-500 hover:bg-sky-600 text-white font-bold py-3.5 rounded-lg transition-colors shadow-lg">
+                                특허로 (KIPRIS) 바로가기 <i class="fa-solid fa-up-right-from-square ml-1 text-xs"></i>
+                            </a>
+                        </div>
+
+                        <div class="md:col-span-3 dash-card border-slate-200 h-full flex flex-col justify-center">
+                            <h4 class="font-bold text-lg text-slate-800 mb-5 border-b border-slate-100 pb-3">조회 절차 간편 안내</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-sm shrink-0">1</div>
+                                    <p class="text-sm text-slate-700">키프리스 홈페이지 접속 (www.kipris.or.kr)</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-8 h-8 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center font-black text-sm shrink-0">2</div>
+                                    <p class="text-sm text-slate-700">검색을 원하는 <strong>권리구분 (특허/실용신안, 디자인, 상표)</strong> 탭 클릭</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-8 h-8 rounded-full bg-sky-400 text-white flex items-center justify-center font-black text-sm shrink-0">3</div>
+                                    <p class="text-sm text-slate-700">통합검색창에 출원인 <strong>"효빈교통공사"</strong> 입력 후 검색 실행</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 2: 신사업개발현황
+                     ========================================== -->
+                <div id="view-newbiz" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-rocket text-hyobin mr-2"></i> 신사업 개발 및 추진 현황</h2>
+                    </div>
+
+                    <p class="text-slate-600 text-sm mb-8 leading-relaxed bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        효빈교통공사는 전통적인 여객 운송 수익에만 의존하지 않습니다. 지식재산권(IP)의 글로벌 상품화, 첨단 철도 시스템 수출, 그리고 모빌리티 플랫폼(MaaS) 구축을 통해 <strong>'수익 창출형 초우량 공기업'</strong>의 새로운 패러다임을 선도합니다.
+                    </p>
+
+                    <div class="space-y-8">
+                        <!-- 사업 1 -->
+                        <div class="dash-card border-t-4 border-t-purple-500">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
+                                <h3 class="font-bold text-xl text-slate-800"><i class="fa-solid fa-crown text-purple-500 mr-2"></i>글로벌 IP(지식재산권) 라이선싱 및 콘텐츠 고도화</h3>
+                                <span class="bg-purple-100 text-purple-700 text-xs px-3 py-1.5 rounded-full font-bold whitespace-nowrap shadow-sm">핵심 흑자 사업</span>
+                            </div>
+                            <div class="grid md:grid-cols-3 gap-6 text-sm text-slate-600">
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <strong class="block text-slate-800 mb-2">애니메이션 스튜디오(HAS)</strong>
+                                    <p class="leading-relaxed">자회사 '효빈애니메이션스튜디오(HAS)'를 통해 공식 캐릭터 기반 TVA 및 극장판 애니메이션 자체 제작. 글로벌 OTT 방영권 및 2차 판권 수익 극대화.</p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <strong class="block text-slate-800 mb-2">글로벌 완구사 B2B 협력</strong>
+                                    <p class="leading-relaxed">일본 Good Smile Company, SEGA 등 세계적 피규어/프라이즈 명가와 파트너십을 체결하여, 고부가가치 굿즈를 전 세계로 독점 유통.</p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-lg">
+                                    <strong class="block text-slate-800 mb-2">플래그십 굿즈 스토어 직영망</strong>
+                                    <p class="leading-relaxed">본사 HQ 매장 및 10개 주요 거점 환승역 내 유휴 공간을 100% 직영 스토어로 전환하여 압도적인 오프라인 IP 매출 창출.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 사업 2 -->
+                        <div class="dash-card border-t-4 border-t-emerald-500">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
+                                <h3 class="font-bold text-xl text-slate-800"><i class="fa-solid fa-globe text-emerald-500 mr-2"></i>친환경 무가선 트램 시스템(K-Tram) 해외 기술 수출</h3>
+                                <span class="bg-emerald-100 text-emerald-700 text-xs px-3 py-1.5 rounded-full font-bold whitespace-nowrap shadow-sm">인프라 수출</span>
+                            </div>
+                            <div class="flex flex-col md:flex-row gap-6 text-sm text-slate-600">
+                                <div class="md:w-2/3">
+                                    <p class="leading-relaxed mb-4">
+                                        7호선에 성공적으로 상용화된 <strong>'고용량 전고체 배터리 기반 무가선 트램 시스템'</strong>의 설계 노하우와 차량 유지보수 매뉴얼을 패키지화하여 해외로 수출합니다. 전신주와 고압선이 필요 없는 이 기술은 도심 미관 보호와 탄소 중립(Net-Zero)에 최적화되어 있습니다.
+                                    </p>
+                                    <ul class="list-disc pl-5 space-y-1.5">
+                                        <li>일본 자매결연 도시 (가나자와시, 도야마시) 친환경 노면전차 기술 교류 협약 체결</li>
+                                        <li>필리핀 케손시티 등 동남아시아 신흥국 대중교통 인프라 설계 컨설팅 수주</li>
+                                    </ul>
+                                </div>
+                                <div class="md:w-1/3 bg-emerald-50 border border-emerald-100 p-4 rounded-lg flex items-center justify-center text-emerald-600">
+                                    <div class="text-center">
+                                        <i class="fa-solid fa-leaf text-4xl mb-2"></i>
+                                        <p class="font-bold">탄소 배출 제로(0)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 사업 3 -->
+                        <div class="dash-card border-t-4 border-t-sky-500">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
+                                <h3 class="font-bold text-xl text-slate-800"><i class="fa-solid fa-mobile-screen-button text-sky-500 mr-2"></i>통합 모빌리티 플랫폼 (MaaS) 및 스마트 스테이션 구축</h3>
+                                <span class="bg-sky-100 text-sky-700 text-xs px-3 py-1.5 rounded-full font-bold whitespace-nowrap shadow-sm">미래 신성장</span>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-600">
+                                <div>
+                                    <strong class="block text-slate-800 mb-2">효빈 MaaS (Mobility as a Service) 어플리케이션</strong>
+                                    <p class="leading-relaxed">도시철도, 시내버스, 광역전철은 물론 전동 킥보드(PM)와 공유 자전거까지 하나의 앱으로 결제하고 최적의 경로를 탐색하는 통합 플랫폼 서비스(HB Wave 앱) 전면 도입.</p>
+                                </div>
+                                <div>
+                                    <strong class="block text-slate-800 mb-2">AI 딥러닝 기반 스마트 역사 관제망</strong>
+                                    <p class="leading-relaxed">전 역사 3D 도면화 및 IoT 센서를 활용. HAF 등 대규모 문화 행사 시 지능형 CCTV를 통한 실시간 군중 밀집도 분석으로 게이트 자동 통제 및 인파 분산 시스템 가동.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 3: 철도사업현황
+                     ========================================== -->
+                <div id="view-railbiz" class="view-section">
+                    <div id="overview">
+                        <h2 class="section-title mt-0"><i class="fa-solid fa-network-wired text-hyobin"></i> 1. 효빈도시철도 네트워크 개요</h2>
+                        <p class="text-slate-600 mb-6 leading-relaxed">
+                            효빈교통공사는 1984년 1호선 개통을 시작으로, 현재 <strong>총 8개의 도시철도 노선과 1개의 광역전철(코레일 공동 운영)</strong>을 아우르는 총연장 321.16km의 매머드급 철도망을 운영하고 있습니다. 탄탄한 교통망을 바탕으로 도쿄권에 필적하는 60% 중후반대의 압도적인 대중교통 분담률을 달성하였습니다.
+                        </p>
+
+                        <div class="grid md:grid-cols-3 gap-5 mb-10">
+                            <div class="bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 rounded-xl p-5 shadow-sm text-center">
+                                <i class="fa-solid fa-train-subway text-3xl text-sky-600 mb-2"></i>
+                                <h4 class="font-bold text-slate-800">운영 노선 수</h4>
+                                <p class="text-2xl font-black text-sky-700 mt-1">9개 <span class="text-sm font-normal text-slate-500">(광역 포함)</span></p>
+                            </div>
+                            <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-5 shadow-sm text-center">
+                                <i class="fa-solid fa-route text-3xl text-teal-600 mb-2"></i>
+                                <h4 class="font-bold text-slate-800">총 영업 거리</h4>
+                                <p class="text-2xl font-black text-teal-700 mt-1">321.16 <span class="text-sm font-normal text-slate-500">km</span></p>
+                            </div>
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-5 shadow-sm text-center">
+                                <i class="fa-solid fa-coins text-3xl text-purple-600 mb-2"></i>
+                                <h4 class="font-bold text-slate-800">2024년 영업이익</h4>
+                                <p class="text-2xl font-black text-purple-700 mt-1">1조 <span class="text-sm font-normal text-slate-500">원 달성</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 현재 운영중인 노선 -->
+                    <div id="current-network" class="mb-12">
+                        <h2 class="section-title"><i class="fa-solid fa-train text-hyobin"></i> 2. 현재 운영중인 노선</h2>
+                        <p class="text-slate-600 mb-4 leading-relaxed">효빈교통공사 및 유관 기관(약산도시공사, 한국철도공사)이 현재 영업 운행 중인 노선의 상세 제원입니다.</p>
+
+                        <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                            <table class="w-full data-table m-0">
+                                <thead>
+                                    <tr class="bg-slate-100">
+                                        <th width="12%">노선명</th>
+                                        <th width="30%">운행 구간 (기점 ↔ 종점)</th>
+                                        <th width="15%">영업 거리</th>
+                                        <th width="13%">역 수</th>
+                                        <th width="15%">개통일</th>
+                                        <th width="15%">운영 주체</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                    <tr>
+                                        <td class="font-black text-white bg-[#0077DD] text-center">1호선</td>
+                                        <td class="text-left font-bold">[본선] 곽암해수욕장 ↔ 장선<br>[탄성] 오석 ↔ 승남해수욕장</td>
+                                        <td class="text-center">107.7 km</td>
+                                        <td class="text-center">68개 역</td>
+                                        <td class="text-center">1984.12.02</td>
+                                        <td class="text-center text-xs">효빈교통공사<br>약산도시공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#00CCAA] text-center">2호선</td>
+                                        <td class="text-left font-bold">[본선] 중앙로 ↔ 월천 / 효빈항<br>[어간] 서신포 ↔ 국제여객터미널</td>
+                                        <td class="text-center">57.21 km</td>
+                                        <td class="text-center">49개 역</td>
+                                        <td class="text-center">1989.02.03</td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-black bg-[#FFCC11] text-center">3호선</td>
+                                        <td class="text-left font-bold">팔조 ↔ 효빈국제공항</td>
+                                        <td class="text-center">32.61 km</td>
+                                        <td class="text-center">24개 역</td>
+                                        <td class="text-center">1994.02.09</td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#FF5522] text-center">4호선</td>
+                                        <td class="text-left font-bold">해운산업지구 ↔ 천가</td>
+                                        <td class="text-center">40.46 km</td>
+                                        <td class="text-center">30개 역</td>
+                                        <td class="text-center">2003.03.05</td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#EE0022] text-center">5호선</td>
+                                        <td class="text-left font-bold">청덕공원 ↔ 포성산</td>
+                                        <td class="text-center">22.81 km</td>
+                                        <td class="text-center">16개 역</td>
+                                        <td class="text-center">2011.05.08</td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#881188] text-center">6호선</td>
+                                        <td class="text-left font-bold">마잡 ↔ 고송나루</td>
+                                        <td class="text-center">21.61 km</td>
+                                        <td class="text-center">22개 역</td>
+                                        <td class="text-center">2016.04.03</td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#FF8899] text-center">7호선 (트램)</td>
+                                        <td class="text-left font-bold">[본선] 어간중앙 ↔ 효빈대입구<br>[중보] 중동3가 ↔ 사중</td>
+                                        <td class="text-center">23.59 km</td>
+                                        <td class="text-center">67개 역</td>
+                                        <td class="text-center">1931.04.05<br><span class="text-[10px] font-normal text-pink-200">(2010년 공영화)</span></td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#9856FF] text-center">8호선</td>
+                                        <td class="text-left font-bold">곽산 ↔ 신흥</td>
+                                        <td class="text-center">15.17 km</td>
+                                        <td class="text-center">27개 역</td>
+                                        <td class="text-center">2024.03.04</td>
+                                        <td class="text-center text-xs">효빈교통공사</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-black text-white bg-[#6677CC] text-center">빈효선(광역)</td>
+                                        <td class="text-left font-bold">효빈항 ↔ 고남</td>
+                                        <td class="text-center">87.89 km</td>
+                                        <td class="text-center">37개 역</td>
+                                        <td class="text-center">2017.05.02</td>
+                                        <td class="text-center text-xs">한국철도공사</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 4: 기술연구자료실
+                     ========================================== -->
+                <div id="view-tech-research" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end flex-wrap gap-4">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-microchip text-hyobin mr-2"></i> 기술연구자료실 (R&D)</h2>
+                        <div class="flex gap-2 w-full sm:w-auto print-hide">
+                            <input type="text" placeholder="논문명, 저자명, 키워드 검색" class="border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:border-sky-500 flex-grow sm:w-64">
+                            <button class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-slate-600 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        효빈교통공사 기술본부 및 산하 연구소에서 직접 수행한 철도 시스템 최적화, 인프라 고도화, 그리고 미래 모빌리티 원천 기술에 대한 엔지니어링 리포트 전문을 대국민 공개합니다. 행을 클릭하면 초록(Abstract)을 확인할 수 있습니다.
+                    </p>
+
+                    <div class="overflow-x-auto mb-8 bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <table class="data-table border-0 text-sm text-left">
+                            <thead class="bg-slate-100 border-b border-slate-300 text-center">
+                                <tr>
+                                    <th width="8%" class="border-0 border-r border-slate-200">연번</th>
+                                    <th width="12%" class="border-0 border-r border-slate-200">분야</th>
+                                    <th width="50%" class="border-0 border-r border-slate-200">연구 논문 및 기술 보고서 제목</th>
+                                    <th width="15%" class="border-0 border-r border-slate-200">연구부서(저자)</th>
+                                    <th width="15%" class="border-0 print-hide">원문</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tech-list" class="divide-y divide-slate-200">
+                                <!-- JS 동적 렌더링 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 페이지네이션 -->
+                    <div id="tech-pagination" class="flex justify-center items-center gap-1 print-hide"></div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 5: 교통정책자료실
+                     ========================================== -->
+                <div id="view-policy" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end flex-wrap gap-4">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-book-open-reader text-hyobin mr-2"></i> 교통정책 및 행정 자료실</h2>
+                        <div class="flex gap-2 w-full sm:w-auto print-hide">
+                            <input type="text" placeholder="정책명, 발간연도 검색" class="border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:border-sky-500 flex-grow sm:w-64">
+                            <button class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-slate-600 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        데이터 기반의 합리적이고 따뜻한 행정을 지향합니다. 효빈교통공사가 발행하는 대중교통 복지 정책의 실효성 검증 데이터, 행사 인파 통제 매뉴얼, 지식재산권 부대수익 분석 등 주요 행정·정책 보고서를 열람할 수 있습니다. 행을 클릭하여 상세 요약을 확인하세요.
+                    </p>
+
+                    <div class="overflow-x-auto mb-8 bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <table class="data-table border-0 text-sm text-left">
+                            <thead class="bg-slate-100 border-b border-slate-300 text-center">
+                                <tr>
+                                    <th width="8%" class="border-0 border-r border-slate-200">연번</th>
+                                    <th width="12%" class="border-0 border-r border-slate-200">분류</th>
+                                    <th width="50%" class="border-0 border-r border-slate-200">교통 정책 보고서 제목</th>
+                                    <th width="15%" class="border-0 border-r border-slate-200">작성부서(저자)</th>
+                                    <th width="15%" class="border-0 print-hide">원문</th>
+                                </tr>
+                            </thead>
+                            <tbody id="policy-list" class="divide-y divide-slate-200">
+                                <!-- JS 동적 렌더링 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 페이지네이션 -->
+                    <div id="policy-pagination" class="flex justify-center items-center gap-1 print-hide"></div>
+                </div>
+
+                <!-- ==========================================
+                     글로벌 TMI 비하인드 로어 박스 (전체 공통 하단)
+                     ========================================== -->
+                <div class="bg-slate-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-lg border-t-4 border-sky-400 mt-16">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+                        <i class="fa-solid fa-industry text-9xl"></i>
+                    </div>
+                    <h4 class="font-bold text-sky-300 mb-6 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-microscope"></i> [비하인드] 효빈교통공사 기술력과 정책 연구의 진실
+                    </h4>
+                    <ul class="space-y-6 text-sm text-slate-300 relative z-10 leading-relaxed text-justify">
+                        <li class="flex gap-4">
+                            <i class="fa-solid fa-quote-left text-sky-400 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-yellow-300 block mb-1 text-base">압도적인 특허 건수, 그 중심에 선 '기계 깎는 공대생'</strong>
+                                공사가 보유한 1만 2천 건이 넘는 특허와 실용신안에는 엄청난 비밀이 숨겨져 있습니다. 기술본부 산하 연구진들의 피땀 어린 결과물이기도 하지만, 사실 그 중심에는 <strong>7호선 마스코트 임세하 주임(기계공학도)</strong>이 존재합니다. 
+                                밤샘 코딩과 납땜을 일상으로 삼는 그녀는 스트레스를 받을 때마다 새로운 배터리 배선도나 스크린도어 제어 펌웨어를 취미 삼아 뚝딱 만들어냅니다. 이를 옆에서 지켜보던 공사 법무팀이 "이건 버리기 아까운 원천 기술이다!"라며 족족 특허청(KIPRIS)에 출원해 버린 탓에, 대전 특허청 심사관들 사이에서 "효빈교통공사 서류만 보면 야근이 확정되어 오열한다"는 우스갯소리가 공공연한 정설이 되었습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-4">
+                            <i class="fa-solid fa-quote-left text-sky-400 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-white block mb-1 text-base">캐릭터 사업이 쏘아 올린 디자인권·상표권 1만 건 시대</strong>
+                                디자인권(9,850건)과 상표권(1,450건)의 비정상적인 수치는 100% 공사의 공식 캐릭터 사업 <strong>'레일 루미네(Rail-Lumine)'</strong> 덕분입니다. 
+                                매년 계절별로 쏟아지는 9명의 공식 일러스트, 넨도로이드 3D 도면, 각 노선별 테마 굿즈, 심지어 '메가 점보 네소베리' 인형의 박음질 패턴 하나하나까지 모두 디자인권으로 철저하게 등록되어 불법 복제를 방어하고 있습니다. 효빈시청의 엄격한 자산 관리 철학이 반영된 결과입니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-4">
+                            <i class="fa-solid fa-quote-left text-sky-400 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-white block mb-1 text-base">빨간 바인더에서 탄생한 전설의 정책 보고서</strong>
+                                정책자료실 89번 논문인 '청소년 100원 요금제 다중회귀분석 보고서'는 평범한 연구 자료가 아닙니다. 
+                                과거 보수계열 시의원들이 예산 낭비를 핑계로 해당 요금제를 폐지하려 했을 때, 분노한 <strong>5호선 미소하</strong>가 일주일 밤을 새워 작성한 뒤 시의원 전원의 이메일로 꽂아버렸던 그 전설의 '팩트폭력 보고서(일명 빨간 바인더)' 원문입니다. 이 논문 하나로 의회는 즉각 꼬리를 내렸고, 해당 보고서는 현재 대학교 행정학과 전공수업의 전설적인 교보재로 쓰이고 있습니다.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 문서 상세 보기 모달 -->
+    <div id="documentModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4 print-hide">
+        <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-transform" id="docModalContent">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center sticky top-0 bg-white z-10 print-hide">
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-file-lines text-hyobin mr-2"></i> 자료실 상세 보기</h3>
+                <button onclick="closeDocumentModal()" class="text-slate-400 hover:text-red-500 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="p-8">
+                <div class="mb-4" id="docBadge"></div>
+                <h4 class="text-2xl font-black text-slate-900 mb-6 leading-tight" id="docTitle">제목</h4>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 mb-8 text-sm text-slate-700 shadow-inner grid grid-cols-2 gap-4">
+                    <p><strong><i class="fa-solid fa-pen-nib mr-1 text-slate-400"></i> 저자/부서:</strong> <span id="docAuthor" class="font-bold text-slate-800"></span></p>
+                    <p><strong><i class="fa-regular fa-calendar mr-1 text-slate-400"></i> 등록일자:</strong> <span id="docDate" class="text-slate-800"></span></p>
+                </div>
+
+                <div>
+                    <h5 class="font-bold text-lg text-slate-800 border-l-4 border-hyobin pl-3 mb-3 bg-slate-50 py-1">연구 초록 (Abstract) / 요약</h5>
+                    <p id="docAbstract" class="pl-4 whitespace-pre-line text-slate-600 leading-relaxed bg-white border border-slate-100 p-4 rounded-lg shadow-sm text-justify"></p>
+                </div>
+            </div>
+            
+            <div class="bg-slate-50 p-6 border-t border-slate-200 flex justify-center gap-4 print-hide">
+                <button onclick="window.print()" class="bg-sky-600 hover:bg-sky-700 text-white px-8 py-2.5 rounded-lg font-bold transition-colors shadow-md text-sm"><i class="fa-solid fa-download mr-2"></i> PDF 다운로드</button>
+                <button onclick="closeDocumentModal()" class="bg-slate-700 hover:bg-slate-800 text-white px-8 py-2.5 rounded-lg font-bold transition-colors shadow-md text-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 -->
+    <script src="js/common_hyobin.js"></script>
+
+    <!-- 동적 UI 제어용 자바스크립트 -->
+    <script>
+        // ==========================================
+        // 연구자료실 데이터 (로어 완벽 반영)
+        // ==========================================
+        const techData = [
+            { id: 142, category: '차량/배터리', catColor: 'amber', title: '차세대 무가선 트램 배터리팩 발열 제어 및 회생제동 효율 최적화 연구', author: '기술본부 차량처 (임세하)', date: '2026.04.10', abstract: '7호선 노면전차(무가선 트램)에 탑재된 전고체 배터리 시스템의 실증 운행 데이터를 분석하였다. 특히 구형 IGBT 인버터와 배터리 간의 호환성 문제를 해결하기 위해, 방열 면적을 최대화한 하우징 재설계 및 펌웨어 디버깅을 통한 회생제동 에너지 회수율 15% 증가 메커니즘을 제안한다.' },
+            { id: 141, category: '안전/센서', catColor: 'sky', title: '스크린도어(PSD) 장애 선제적 감지를 위한 센서 펌웨어 알고리즘 개선안', author: '안전관리본부', date: '2026.03.22', abstract: '1호선 및 2호선의 구형 스크린도어에서 발생하는 모터 끼임 현상과 도어 센서 오작동의 근본 원인을 분석하였다. 센서 감도 조절 알고리즘을 딥러닝 기반으로 전면 수정 적용한 결과, 시범 역사의 PSD 에러율이 95% 이상 감소하는 실효성을 입증하였다.' },
+            { id: 140, category: '통신/네트워크', catColor: 'emerald', title: '8호선 무인운전(AGT) 구간 CCTC 영상 데이터 및 통신 지연시간 분석', author: '통신처 / 관제실', date: '2026.02.15', abstract: '8호선 무인경전철 시스템의 생명인 LTE-R 통신망의 안정성 검증 리포트. 곡선 반경이 심한 터널 구간에서의 패킷 손실률을 분석하고, 고해상도 CCTC 영상 데이터의 압축 전송 최적화 프로토콜을 도입하여 지연시간을 0.05초 이내로 단축시킨 성과를 기술한다.' },
+            { id: 139, category: '전기/설비', catColor: 'blue', title: '노후 전동차 VVVF 인버터 소자 개량에 따른 전력 효율성 실증 연구', author: '기술본부 (고나미/임세하)', date: '2025.11.30', abstract: '1호선 구형 저항제어 및 GTO 소자 탑재 전동차를 최신 3-Level IGBT 소자로 개조 적용한 후의 전기적 특성을 분석. 구동 주파수 대역의 변화에 따른 소음 감소(약 12dB)와, 역행 및 제동 시 소비되는 총 전력량이 기존 대비 22% 절감되는 경제적 편익을 수치화하여 증명하였다.' },
+            { id: 138, category: '기계/구조', catColor: 'rose', title: '트램 급속 충전용 승강장 하부 도킹 시스템 및 내구성 평가', author: '기술본부 기계설계팀', date: '2025.09.18', abstract: '7호선 트램이 정류장에 정차하는 20초의 짧은 시간 동안 고전압 급속 충전을 수행하기 위한 기계적 도킹 유닛의 피로 수명 해석 결과. 강체 접촉부의 마모를 최소화하기 위한 신소재 합금 적용 방안을 다룬다.' },
+            { id: 137, category: '안전/알고리즘', catColor: 'sky', title: '스마트 폴(Smart Pole) 기반 동적 군중 분산 유도 알고리즘 모델링', author: '안전연구소', date: '2025.07.05', abstract: '고송교차로역 등 다중 밀집 역사의 천장에 설치된 라이다(LiDAR) 및 3D 비전 센서를 활용하여, 승객의 동선을 실시간 맵핑하고 병목 현상 예상 지점을 3분 전 선제적으로 예측, 게이트 방향 지시등을 자동 제어하는 알고리즘 연구.' },
+            { id: 136, category: '전기/제어', catColor: 'blue', title: '아날로그 릴레이 계전기 접점 마모도 분석 및 수명 연장 방안', author: '기술본부 (유리아/고나미)', date: '2025.04.12', abstract: '1호선 구형 신호 제어반에 남아있는 아날로그 릴레이 스위치의 물리적 타격음 주파수를 마이크로 채집하여 접점 마모도를 역산하는 기법 제안. (본 연구는 곽산기지에서 발견된 우발적 실습 사례에서 아이디어를 도출하여 정식 논문으로 발전됨.)' },
+            { id: 135, category: '건축/환경', catColor: 'teal', title: '음향 공진 상쇄형 하이브리드 버스킹 방음 부스 구조 설계', author: '건축처', date: '2025.02.20', abstract: '역내 예술마당(버스킹 무대)에서 발생하는 스피커 출력 및 관객의 믹스콜(콜 앤 리스폰스) 데시벨을 물리적으로 상쇄하기 위한 반사/흡음형 특수 유리 격벽 설계 도면 및 실내 음향 시뮬레이션 결과.' },
+        ];
+
+        // ==========================================
+        // 교통정책자료실 데이터 (로어 완벽 반영)
+        // ==========================================
+        const policyData = [
+            { id: 89, category: '복지/통계', catColor: 'indigo', title: '청소년 대중교통 100원 요금제가 지역 소상공인 매출 증대에 미치는 다중회귀분석', author: '미래전략실 (미소하)', date: '2026.04.01', abstract: '본 연구는 보수적 예산 관점에서 "퍼주기식 복지"라 비판받던 청소년 대중교통 할인 정책을 경제학적으로 재평가한다. 교통비 절감으로 발생한 청소년의 잉여 소득이 역세권 인근 프랜차이즈 및 소상공인 요식업(사능동 빵집 등) 매출에 유입되는 상관관계를 SPSS 회귀분석을 통해 증명하였으며, 공사의 단기적 운임 손실을 상회하는 연 150%의 사회경제적 편익 창출을 수학적으로 입증하였다.' },
+            { id: 88, category: '행정/기획', catColor: 'orange', title: '다중 밀집 문화행사 시 지능형 관제 시스템 기반 인파 통제(Crowd Control) 시방서', author: '영업본부 (전노아)', date: '2026.01.15', abstract: '효빈 애니 페스티벌(HAF) 등 초대형 행사 기간 중 가장 혼잡한 2, 6호선 고송교차로역의 병목 현상을 해결하기 위한 현장 행정 매뉴얼. 시민안전매니저의 효율적 동선 배치, 이른바 \'쿠쿠스 배리어(물리적 방어선)\' 형성 권한의 법적/행정적 근거 마련 및 CCTV 데이터 기반 비상 대피로 확보 프로토콜을 규정한다.' },
+            { id: 87, category: '경영/IP', catColor: 'purple', title: '공공기관 캐릭터 IP 비즈니스를 통한 교차 보조(Cross-subsidization) 재무 모델 백서', author: '경영기획처', date: '2025.10.30', abstract: '효빈교통공사가 창사 이래 최초로 영업이익 1조 원을 달성한 배경인 \'레일 루미네\' IP 사업의 수익 구조를 분석한다. 굿즈 판매, 글로벌 라이선싱 수익이 운임 결손을 메우고 노후 차량 교체 및 스크린도어 개량 등 안전 인프라 자본으로 100% 재투자되는 완벽한 선순환 흑자 재무 모델의 성과를 기록한 백서.' },
+            { id: 86, category: '인프라/도시', catColor: 'rose', title: '구도심 트램(7호선) 도입이 역세권 상권 활성화 및 탄소 배출 저감에 미친 영향', author: '교통정책연구원 (임세정)', date: '2025.08.12', abstract: '과거 정치적 이유로 폐선 직전까지 갔던 7호선 구형 전차를 \'무가선 배터리 트램\'으로 공영화하여 부활시킨 후 10년간의 종단 연구. 도심 내 미세먼지 및 탄소 배출량 35% 감소 지표와 더불어, 7호선 중보지선 일대 구도심 상권의 보행자 유입률이 개통 전 대비 240% 급증한 도시 재생 효과를 종합 분석.' },
+            { id: 85, category: '사회/문화', catColor: 'teal', title: '다문화 밀집 지역 역사 내 다국어 안내 및 문화 포용적 배리어 프리 디자인 타당성', author: '미래전략실', date: '2025.05.20', abstract: '필리핀, 일본 등 이주 배경 인구가 밀집한 지역을 지나는 주요 역사를 대상으로, 픽토그램 중심의 유니버설 디자인(UD) 전면 도입 및 이중언어(다국어) 음성 안내 송출 시스템이 시민들의 대중교통 이용 만족도에 미치는 긍정적 파급 효과 연구.' },
+            { id: 84, category: '인사/노무', catColor: 'orange', title: '도시철도 기관사(승무직)의 스트레스 지수 및 회복 탄력성 제고 방안', author: '승무본부', date: '2025.03.10', abstract: '지하 터널의 폐쇄적 환경과 초단위 다이아(운행표) 압박에 시달리는 1~6호선 기관사들의 생체 데이터를 분석. 안전 운행을 담보하기 위한 법적 최소 휴게시간 보장의 중요성과, 휴게실 내 조도 및 백색소음(안내방송 ASMR 등) 환경이 뇌파 안정에 미치는 실험 결과.' },
+        ];
+
+        const itemsPerPage = 4;
+        let currentTechPage = 1;
+        let currentPolicyPage = 1;
+
+        // 테이블 및 페이지네이션 렌더링 함수
+        function renderTable(data, page, tbodyId, paginationId, type) {
+            const tbody = document.getElementById(tbodyId);
+            const pagination = document.getElementById(paginationId);
+            tbody.innerHTML = '';
+            
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedData = data.slice(start, end);
+
+            paginatedData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors cursor-pointer';
+                tr.onclick = () => openDocumentModal(item);
+
+                // 컬러 뱃지 매핑
+                const catClasses = {
+                    'amber': 'bg-amber-100 text-amber-800',
+                    'sky': 'bg-sky-100 text-sky-800',
+                    'emerald': 'bg-emerald-100 text-emerald-800',
+                    'blue': 'bg-blue-100 text-blue-800',
+                    'rose': 'bg-rose-100 text-rose-800',
+                    'teal': 'bg-teal-100 text-teal-800',
+                    'indigo': 'bg-indigo-100 text-indigo-800',
+                    'orange': 'bg-orange-100 text-orange-800',
+                    'purple': 'bg-purple-100 text-purple-800',
+                };
+                const badgeClass = catClasses[item.catColor] || 'bg-slate-100 text-slate-800';
+
+                tr.innerHTML = `
+                    <td class="text-center text-slate-500 border-0 border-r border-slate-200 font-mono">${item.id}</td>
+                    <td class="text-center border-0 border-r border-slate-200"><span class="${badgeClass} px-2 py-0.5 rounded text-[10px] font-bold">${item.category}</span></td>
+                    <td class="font-medium text-slate-800 border-0 border-r border-slate-200 p-4 group">
+                        <strong class="block mb-1 text-base group-hover:text-sky-600 transition-colors">${item.title}</strong>
+                        <span class="text-xs text-slate-500 font-normal line-clamp-1">${item.abstract}</span>
+                    </td>
+                    <td class="text-center text-slate-700 border-0 border-r border-slate-200 ${item.author.includes('(') ? 'font-bold' : ''}">${item.author}</td>
+                    <td class="text-center border-0 print-hide"><button class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded text-xs font-bold border border-slate-300 transition-colors" onclick="event.stopPropagation(); openDocumentModalAndPrint(${item.id});"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> 다운로드</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 페이지네이션 생성
+            const totalPages = Math.ceil(data.length / itemsPerPage);
+            pagination.innerHTML = '';
+            
+            // Prev Button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `page-btn ${page === 1 ? 'disabled' : ''}`;
+            prevBtn.disabled = page === 1;
+            prevBtn.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
+            prevBtn.onclick = () => changePage(page - 1, type);
+            pagination.appendChild(prevBtn);
+
+            // Page Numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${i === page ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => changePage(i, type);
+                pagination.appendChild(btn);
+            }
+
+            // Next Button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `page-btn ${page === totalPages ? 'disabled' : ''}`;
+            nextBtn.disabled = page === totalPages;
+            nextBtn.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+            nextBtn.onclick = () => changePage(page + 1, type);
+            pagination.appendChild(nextBtn);
+        }
+
+        function changePage(newPage, type) {
+            if (type === 'tech') {
+                currentTechPage = newPage;
+                renderTable(techData, currentTechPage, 'tech-list', 'tech-pagination', 'tech');
+            } else {
+                currentPolicyPage = newPage;
+                renderTable(policyData, currentPolicyPage, 'policy-list', 'policy-pagination', 'policy');
+            }
+        }
+
+        // ==========================================
+        // 모달 및 프린트 제어
+        // ==========================================
+        function openDocumentModal(item) {
+            const catClasses = {
+                'amber': 'bg-amber-100 text-amber-800', 'sky': 'bg-sky-100 text-sky-800', 'emerald': 'bg-emerald-100 text-emerald-800',
+                'blue': 'bg-blue-100 text-blue-800', 'rose': 'bg-rose-100 text-rose-800', 'teal': 'bg-teal-100 text-teal-800',
+                'indigo': 'bg-indigo-100 text-indigo-800', 'orange': 'bg-orange-100 text-orange-800', 'purple': 'bg-purple-100 text-purple-800',
+            };
+            const badgeClass = catClasses[item.catColor] || 'bg-slate-100 text-slate-800';
+
+            document.getElementById('docBadge').innerHTML = `<span class="${badgeClass} px-3 py-1 rounded text-sm font-bold">${item.category}</span>`;
+            document.getElementById('docTitle').innerText = item.title;
+            document.getElementById('docAuthor').innerText = item.author;
+            document.getElementById('docDate').innerText = item.date;
+            document.getElementById('docAbstract').innerText = item.abstract;
+
+            const modal = document.getElementById('documentModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            
+            // 프린트를 위해 body에 클래스 추가
+            document.body.classList.add('modal-open');
+        }
+
+        function closeDocumentModal() {
+            const modal = document.getElementById('documentModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+            
+            // 프린트 모드 클래스 제거
+            document.body.classList.remove('modal-open');
+        }
+        
+        function openDocumentModalAndPrint(id) {
+            const item = techData.find(d => d.id === id) || policyData.find(d => d.id === id);
+            if(item) {
+                openDocumentModal(item);
+                // 모달 렌더링 후 브라우저 인쇄창 호출
+                setTimeout(() => {
+                    window.print();
+                }, 300);
+            }
+        }
+
+        // ==========================================
+        // 네비게이션 제어
+        // ==========================================
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            
+            const lnbLinks = document.querySelectorAll('#lnb-menu a');
+            lnbLinks.forEach(a => {
+                a.className = 'block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors';
+                if (a.getAttribute('onclick') && a.getAttribute('onclick').includes(viewId)) {
+                    a.className = 'block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors';
+                }
+            });
+            window.scrollTo({ top: document.querySelector('.bg-white.rounded-2xl').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        function handleHashChange() {
+            const hash = window.location.hash;
+            let targetView = 'view-patent';
+
+            if (hash === '#patent') targetView = 'view-patent';
+            else if (hash === '#newbiz') targetView = 'view-newbiz';
+            else if (hash === '#railbiz') targetView = 'view-railbiz';
+            else if (hash === '#tech-research') targetView = 'view-tech-research';
+            else if (hash === '#policy') targetView = 'view-policy';
+
+            switchView(targetView);
+        }
+        
+        window.onload = () => {
+            handleHashChange();
+            renderTable(techData, currentTechPage, 'tech-list', 'tech-pagination', 'tech');
+            renderTable(policyData, currentPolicyPage, 'policy-list', 'policy-pagination', 'policy');
+        };
+        window.addEventListener('hashchange', handleHashChange);
+    </script>
+</body>
+</html>

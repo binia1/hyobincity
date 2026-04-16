@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지하철 예술마당 신청 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선별 컬러 */
+        .line-1 { color: #0077DD; font-weight: bold; }
+        .line-2 { color: #00CCAA; font-weight: bold; }
+        .line-3 { color: #FFCC11; font-weight: bold; }
+        .line-4 { color: #FF5522; font-weight: bold; }
+        .line-5 { color: #EE0022; font-weight: bold; }
+        .line-6 { color: #881188; font-weight: bold; }
+        .line-7 { color: #FF8899; font-weight: bold; }
+        .line-8 { color: #9856FF; font-weight: bold; }
+        .line-bh { color: #6677CC; font-weight: bold; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 14px; border: 1px solid #e2e8f0; text-align: center; }
+        .data-table td { padding: 14px; border: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover td { background-color: #f1f5f9; }
+
+        html { scroll-behavior: smooth; }
+
+        /* 화면 전환용 클래스 */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[url('이미지/예술마당배경.jpg')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-guitar mr-2"></i>시민 참여</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">지하철 예술마당 신청</h1>
+                        <p class="text-sky-100 mt-3 font-medium">시민의 일상에 문화를 더합니다! 효빈도시철도 역사 내 상설 무대 대관 및 버스킹 공연 신청 안내입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 (사이드바 + 본문) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">신청센터</div>
+                    <ul class="divide-y divide-slate-100">
+                        <li><a href="시설물촬영.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>시설물 촬영</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); return false;" class="block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-600"></i>지하철 예술마당 신청</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('art-intro').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 예술마당 안내</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('art-stage').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 테마별 무대 안내</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('art-rules').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 이용 수칙</a></li>
+                        <li><a href="인재개발원대관.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>인재개발원 대관</a></li>
+                        <li><a href="안전매니저입사지원.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>안전매니저 입사지원</a></li>
+                        <li><a href="효빈교통공사견학.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>공사/차량사업소 견학</a></li>
+                        <li><a href="시민안전체험홍보관.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>시민안전체험·홍보관</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10 relative">
+                
+                <!-- VIEW 1: 메인 안내 및 목록 화면 -->
+                <div id="view-main" class="view-section active">
+                    
+                    <div class="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-100 rounded-xl p-6 mb-8 flex flex-col sm:flex-row items-center gap-6">
+                        <div class="text-sky-500 text-5xl">
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">당신의 무대가 효빈의 일상이 됩니다!</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                효빈교통공사는 시민들의 자발적인 문화·예술 활동을 지원하기 위해 주요 환승역 및 테마 역사 내 상설 무대를 <strong>무료로 대관</strong>하고 있습니다. 어쿠스틱 버스킹, 댄스 커버, 클래식 연주 등 다양한 장르의 아티스트를 환영합니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1. 테마별 무대 안내 -->
+                    <div id="art-stage">
+                        <h2 class="section-title mt-0"><i class="fa-solid fa-map-location-dot text-hyobin"></i> 1. 효빈도시철도 테마별 무대 안내</h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <!-- 일반/어쿠스틱 무대 -->
+                            <div class="border border-slate-200 rounded-xl overflow-hidden flex flex-col">
+                                <div class="bg-slate-100 text-slate-800 font-bold p-3 text-center border-b border-slate-200">
+                                    <i class="fa-solid fa-microphone-lines mr-1"></i> 일반/어쿠스틱 무대
+                                </div>
+                                <div class="p-5 bg-white flex-grow">
+                                    <p class="text-xs text-slate-500 mb-3">소음이 적은 통기타, 클래식 연주, 마술, 마임 등에 적합한 오픈형 무대입니다.</p>
+                                    <ul class="text-sm text-slate-700 space-y-2 font-medium">
+                                        <li><span class="line-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded mr-1 text-[11px]">1호선</span> <span class="line-2 px-2 py-0.5 bg-teal-100 text-teal-800 rounded mr-1 text-[11px]">2호선</span> 중앙로역 지하 2층 광장</li>
+                                        <li><span class="line-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded mr-1 text-[11px]">1호선</span> <span class="line-4 px-2 py-0.5 bg-orange-100 text-orange-800 rounded mr-1 text-[11px]">4호선</span> <span class="line-8 px-2 py-0.5 bg-purple-100 text-purple-800 rounded mr-1 text-[11px]">8호선</span> 남구청역 환승통로</li>
+                                        <li><span class="line-5 px-2 py-0.5 bg-red-100 text-red-800 rounded mr-1 text-[11px]">5호선</span> 소조역(엠마 베르데 테마 거리 연계)</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 서브컬처/밴드 특화 무대 -->
+                            <div class="border border-indigo-200 rounded-xl overflow-hidden flex flex-col shadow-sm">
+                                <div class="bg-indigo-100 text-indigo-900 font-bold p-3 text-center border-b border-indigo-200">
+                                    <i class="fa-solid fa-drum mr-1"></i> 서브컬처 / 풀밴드 특화 무대
+                                </div>
+                                <div class="p-5 bg-white flex-grow">
+                                    <p class="text-xs text-slate-500 mb-3">대형 앰프, 드럼 사용 및 댄스 커버가 가능한 방음 특화 스테이지입니다.</p>
+                                    <ul class="text-sm text-slate-700 space-y-3 font-medium">
+                                        <li class="flex items-start gap-2">
+                                            <span class="line-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[11px] whitespace-nowrap mt-0.5">1호선</span> 
+                                            <span><strong>도향역 '혁명 라이브 홀'</strong><br><span class="text-xs text-slate-500 font-normal">걸밴크 성지. 진공관 앰프 기본 비치. 인디 락밴드 전용.</span></span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="line-2 px-2 py-0.5 bg-teal-100 text-teal-800 rounded text-[11px] whitespace-nowrap mt-0.5">2호선</span> 
+                                            <span><strong>고송교차로역 '크라이식 무대'</strong><br><span class="text-xs text-slate-500 font-normal">뱅드림 성지. 특수 방음 유리벽 설치로 믹스콜(응원) 가능.</span></span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="line-6 px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-[11px] whitespace-nowrap mt-0.5">6호선</span> 
+                                            <span><strong>중수역 '카스밍 박스 스테이지'</strong><br><span class="text-xs text-slate-500 font-normal">전면 대형 거울 부착. 스쿨 아이돌 및 K-POP 댄스 커버 최적화.</span></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 이용 수칙 및 규정 -->
+                    <div id="art-rules" class="mb-12">
+                        <h2 class="section-title"><i class="fa-solid fa-clipboard-list text-hyobin"></i> 2. 예술마당 이용 수칙</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-red-50 p-5 rounded-xl border border-red-200">
+                                <h3 class="font-bold text-red-700 mb-3 flex items-center"><i class="fa-solid fa-ban mr-2"></i> 제한 및 불허 사항</h3>
+                                <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+                                    <li>정치적, 종교적 목적의 집회 및 포교 활동</li>
+                                    <li>영리 목적의 상품 판매, 모금, 티켓 유료 판매 행위</li>
+                                    <li>사전 승인되지 않은 화기, 인화성 물질, 대형 설치물 반입</li>
+                                    <li>안전 매니저의 데시벨(dB) 제한 및 통제 지시 불응</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-sky-50 p-5 rounded-xl border border-sky-200">
+                                <h3 class="font-bold text-sky-800 mb-3 flex items-center"><i class="fa-solid fa-circle-check mr-2"></i> 공연팀 필수 준수 사항</h3>
+                                <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2">
+                                    <li>신청은 공연 희망일로부터 최소 <strong>10일 전</strong>까지 완료해야 합니다.</li>
+                                    <li>공연 시간은 세팅 및 철수를 포함하여 최대 <strong>2시간</strong>으로 제한됩니다.</li>
+                                    <li>지정된 장소 외의 통행로 점거를 엄격히 금지합니다.</li>
+                                    <li>공연 종료 후 발생한 쓰레기는 직접 수거해야 합니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TMI 비하인드 로어 박스 -->
+                    <div class="bg-slate-800 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg border-t-4 border-indigo-500 mb-12">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-headphones text-9xl"></i>
+                        </div>
+                        <h4 class="font-bold text-indigo-300 mb-5 text-xl flex items-center gap-2">
+                            <i class="fa-solid fa-compact-disc"></i> [비하인드] 효빈시 지하철 버스킹에 얽힌 일화들
+                        </h4>
+                        <ul class="space-y-5 text-sm text-slate-300 relative z-10">
+                            <li class="flex gap-3">
+                                <i class="fa-solid fa-quote-left text-indigo-400 mt-1"></i>
+                                <div>
+                                    <strong class="text-yellow-300 block mb-1">도향역의 혁명: "여기는 락 페스티벌이 아닙니다!"</strong>
+                                    과거 <span class="line-1 font-bold text-blue-400">1호선</span> 도향역(걸즈 밴드 크라이 테마) 대합실에서 인디 밴드들이 앰프를 들고 와 릴레이 버스킹을 벌이다 민원이 폭주한 적이 있습니다. 
+                                    하지만 박효빈 시장은 제재 대신 <strong>"그렇다면 아예 제대로 놀 수 있게 방음벽을 치고 최고급 앰프를 깔아주자!"</strong>라며 역대급 예산을 투입해 '혁명 라이브 홀'을 만들어버렸습니다. 
+                                    현재 도향역 무대는 전국 인디 밴드들의 꿈의 무대가 되었습니다.
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <i class="fa-solid fa-quote-left text-indigo-400 mt-1"></i>
+                                <div>
+                                    <strong class="text-white block mb-1">방음 유리를 뚫는 아이돌 팬덤의 '콜(Call)'</strong>
+                                    <span class="line-2 font-bold text-teal-400">고송교차로역</span>과 <span class="line-6 font-bold text-purple-400">중수역</span> 무대에서는 러브라이브나 뱅드림 커버 댄스팀의 공연이 자주 열립니다. 
+                                    이때 관객석에 모인 팬덤이 뿜어내는 응원 구호(믹스콜)가 어찌나 우렁찬지, 지하철 진입 소음마저 묻혀버릴 정도였습니다. 
+                                    결국 공사 측은 버스킹 구역 전체에 항공기 창문에 쓰이는 이중 특수 방음 유리를 둘러치는 진풍경을 연출했습니다.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. 신청하기 및 내역 -->
+                    <div class="border-t border-slate-200 pt-10 text-center">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6">예술마당 대관 신청하기</h3>
+                        
+                        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
+                            <button onclick="switchView('view-apply-general')" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-lg shadow transition-colors flex items-center justify-center">
+                                <i class="fa-solid fa-microphone mr-2"></i> 일반 어쿠스틱/마술/전시 신청
+                            </button>
+                            <button onclick="switchView('view-apply-subculture')" class="bg-[#881188] hover:bg-[#6a0d6a] text-white font-bold py-4 px-6 rounded-lg shadow transition-colors flex items-center justify-center">
+                                <i class="fa-solid fa-guitar mr-2"></i> 서브컬처 테마 / 풀밴드 특례 신청
+                            </button>
+                        </div>
+
+                        <!-- 신청 내역 테이블 -->
+                        <div class="text-left">
+                            <div class="flex justify-between items-end mb-3">
+                                <h4 class="font-bold text-lg text-slate-800">나의 대관 신청 내역</h4>
+                                <span class="text-xs text-slate-500">행을 클릭하면 상세 내역을 확인할 수 있습니다.</span>
+                            </div>
+                            <div class="overflow-x-auto rounded-lg border border-slate-200">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3 text-center w-16">번호</th>
+                                            <th class="p-3">공연/행사 제목</th>
+                                            <th class="p-3 text-center w-28">공연일자</th>
+                                            <th class="p-3 text-center w-24">승인상태</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="application-list" class="divide-y divide-slate-200 bg-white">
+                                        <!-- 자바스크립트로 렌더링 됨 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: 일반 예술마당 신청 폼 -->
+                <div id="view-apply-general" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-microphone text-slate-600 mr-2"></i> 일반 예술마당 대관 신청</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+                    
+                    <form onsubmit="submitForm(event, '일반 공연')" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">공연 장르 <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <option value="">선택해주세요</option>
+                                    <option value="어쿠스틱/보컬">어쿠스틱 / 보컬</option>
+                                    <option value="클래식/국악">클래식 / 국악 / 기악</option>
+                                    <option value="마술/퍼포먼스">마술 / 마임 / 퍼포먼스</option>
+                                    <option value="작품 전시">사진 / 미술 작품 전시</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">신청자/팀명 <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="이름 또는 공연팀명 입력" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">연락처 <span class="text-red-500">*</span></label>
+                                <input type="tel" required placeholder="010-0000-0000" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">공연 희망일시 <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">희망 역사 (무대) <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <option value="">무대를 선택하세요</option>
+                                    <option value="1/2호선 중앙로역 광장">1/2호선 중앙로역 지하 2층 광장 무대</option>
+                                    <option value="1/4/8호선 남구청역 통로">1/4/8호선 남구청역 환승통로 무대</option>
+                                    <option value="5호선 소조역 광장">5호선 소조역 1번 출구 실내 무대</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">공연 내용 (셋리스트 등) <span class="text-red-500">*</span></label>
+                                <textarea required rows="4" placeholder="공연 인원, 부를 곡의 목록, 연주 악기 등을 기재해주세요." class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-3 pt-6 border-t border-slate-100">
+                            <button type="button" onclick="switchView('view-main')" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-colors">취소</button>
+                            <button type="submit" class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors">대관 신청서 제출</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- VIEW 3: 서브컬처/밴드 특례 신청 폼 -->
+                <div id="view-apply-subculture" class="view-section">
+                    <div class="border-b border-[#881188] pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-[#881188]"><i class="fa-solid fa-guitar mr-2"></i> 서브컬처 테마 / 풀밴드 특화 무대 대관 신청</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+                    
+                    <div class="bg-purple-50 text-purple-800 text-sm p-4 rounded-lg mb-6 border border-purple-200">
+                        <i class="fa-solid fa-bullhorn mr-1"></i> 방음 시설과 앰프가 완비된 전문 스테이지입니다. 애니송 커버, 아이돌 댄스, 코스프레 퍼포먼스 팀의 많은 신청을 바랍니다!
+                    </div>
+
+                    <form onsubmit="submitForm(event, '서브컬처 특화 무대')" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">퍼포먼스 구분 <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-[#881188] focus:ring-1 focus:ring-[#881188]">
+                                    <option value="">선택해주세요</option>
+                                    <option value="풀밴드 커버">풀밴드 애니송/J-POP 커버</option>
+                                    <option value="아이돌 댄스 커버">스쿨 아이돌 / K-POP 댄스 커버</option>
+                                    <option value="코스프레 뮤지컬">코스프레 뮤지컬 / 퍼포먼스</option>
+                                    <option value="DJ 파티">애니송 DJ 파티 (볼륨 제한 준수 필수)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">밴드명 / 댄스팀명 <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="예: 효빈대 밴드동아리" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-[#881188] focus:ring-1 focus:ring-[#881188]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">대표자 연락처 <span class="text-red-500">*</span></label>
+                                <input type="tel" required placeholder="010-0000-0000" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-[#881188] focus:ring-1 focus:ring-[#881188]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">공연 희망일시 <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-[#881188] focus:ring-1 focus:ring-[#881188]">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">희망 특화 스테이지 <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-[#881188] focus:ring-1 focus:ring-[#881188]">
+                                    <option value="">장소를 선택하세요</option>
+                                    <option value="1호선 도향역 혁명 라이브 홀">1호선 도향역 '혁명 라이브 홀' (밴드 전용 / 앰프 비치)</option>
+                                    <option value="2/6호선 고송교차로역 크라이식 무대">2/6호선 고송교차로역 '크라이식 무대' (방음 특화 / 콜 가능)</option>
+                                    <option value="6호선 중수역 카스밍 박스 스테이지">6호선 중수역 '카스밍 박스 스테이지' (댄스 커버 전용 / 거울 부착)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">테마 작품명 및 셋리스트 (연주곡) <span class="text-red-500">*</span></label>
+                                <textarea required rows="4" placeholder="예: [러브라이브! 니지가사키] 무적급 빌리버, 네오 스카이 네오 맵 등 5곡 댄스 커버" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-[#881188] focus:ring-1 focus:ring-[#881188]"></textarea>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">공연 중 코스프레 의상 착용 여부 <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2"><input type="radio" name="cosplay" value="yes" class="accent-[#881188]"> 예 (무대 의상/코스프레 착용)</label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="cosplay" value="no" checked class="accent-[#881188]"> 아니오 (일반 사복)</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-3 pt-6 border-t border-slate-100">
+                            <button type="button" onclick="switchView('view-main')" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-colors">취소</button>
+                            <button type="submit" class="px-8 py-3 bg-[#881188] text-white font-bold rounded-lg hover:bg-[#6a0d6a] transition-colors">특화 무대 대관 신청</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- VIEW 4: 신청 내역 상세 보기 -->
+                <div id="view-detail" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-list-check text-hyobin mr-2"></i> 예술마당 대관 상세 내역</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
+                            <h3 id="detail-title" class="font-bold text-lg text-slate-800">제목</h3>
+                            <span id="detail-status" class="px-3 py-1 rounded-full text-sm font-bold">상태</span>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">접수번호</p>
+                                <p id="detail-id" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">공연/퍼포먼스 장르</p>
+                                <p id="detail-type" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">아티스트/팀명</p>
+                                <p id="detail-applicant" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">연락처</p>
+                                <p id="detail-phone" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">등록일자</p>
+                                <p id="detail-regdate" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">공연 승인일시</p>
+                                <p id="detail-shootdate" class="text-sm text-hyobin font-bold">-</p>
+                            </div>
+                            <div class="md:col-span-2 border-t border-slate-100 pt-4 mt-2">
+                                <p class="text-xs text-slate-500 font-bold mb-1">배정된 스테이지</p>
+                                <p id="detail-location" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <p class="text-xs text-slate-500 font-bold mb-2">셋리스트 및 공연 상세</p>
+                                <div id="detail-desc" class="bg-slate-50 p-4 rounded text-sm text-slate-700 whitespace-pre-line border border-slate-100">
+                                    -
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button onclick="switchView('view-main')" class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors">확인 (목록으로)</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 (메가메뉴 포함) -->
+    <script src="js/common_hyobin.js"></script>
+
+    <!-- 동적 UI 제어용 자바스크립트 -->
+    <script>
+        // 가상의 대관 신청 내역 데이터
+        const mockApplications = [
+            { 
+                id: 2055, type: '풀밴드 커버', title: '[밴드] 걸즈 밴드 크라이 커버 밴드 정기 공연', regDate: '2026.04.14', shootDate: '2026.04.25 18:00', status: '승인완료', statusCode: 'emerald', 
+                applicant: '도향의 외침 (인디밴드)', phone: '010-1111-2222', location: '1호선 도향역 혁명 라이브 홀', 
+                desc: '도향역 상설 무대에서 걸즈 밴드 크라이(TOGENASHI TOGEARI) 수록곡 커버 공연 진행.\n- 이름 없는 아무것도 아닌 자\n- 잡답, 시야, 흐려지고\n총 6곡, 드럼 및 일렉기타 앰프 사용 예정 (자체 방음 규정 준수).' 
+            },
+            { 
+                id: 2054, type: '아이돌 댄스 커버', title: '[댄스] 러브라이브! 니지동 댄스 커버 프로젝트', regDate: '2026.04.12', shootDate: '2026.04.22 15:00', status: '승인완료', statusCode: 'emerald', 
+                applicant: '효빈대 댄스동아리 피어나', phone: '010-3333-4444', location: '6호선 중수역 카스밍 박스 스테이지', 
+                desc: '중수역 거울 스테이지 활용 댄스 커버 촬영 및 소규모 버스킹.\n러브라이브 니지가사키 학원 스쿨 아이돌 동호회 단체곡 메들리 진행.\n코스프레 의상 착용 (승인 완료).' 
+            },
+            { 
+                id: 2053, type: '어쿠스틱/보컬', title: '[음악] 퇴근길 위로가 되는 통기타 버스킹', regDate: '2026.04.11', shootDate: '2026.04.19 19:00', status: '검토중', statusCode: 'yellow', 
+                applicant: '김어쿠스틱', phone: '010-5555-6666', location: '1/2호선 중앙로역 지하 2층 광장 무대', 
+                desc: '퇴근하는 직장인들을 위한 잔잔한 7080 어쿠스틱 커버 버스킹.\n앰프는 휴대용 10W 소형 앰프만 사용.\n셋리스트: 이문세, 김광석 등.' 
+            }
+        ];
+
+        // 테이블 렌더링
+        function renderTable() {
+            const tbody = document.getElementById('application-list');
+            tbody.innerHTML = '';
+
+            mockApplications.forEach(app => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row border-b border-slate-200';
+                tr.onclick = () => showDetail(app.id);
+
+                const statusClass = app.statusCode === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-500">${app.id}</td>
+                    <td class="p-3 font-medium text-slate-800">${app.title}</td>
+                    <td class="p-3 text-center text-slate-500">${app.shootDate.split(' ')[0]}</td>
+                    <td class="p-3 text-center"><span class="${statusClass} px-2 py-1 rounded text-xs font-bold">${app.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 뷰 전환 함수
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo({ top: document.querySelector('.bg-white.rounded-2xl').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // 상세 보기 함수
+        function showDetail(id) {
+            const app = mockApplications.find(a => a.id === id);
+            if (!app) return;
+
+            document.getElementById('detail-id').innerText = app.id;
+            document.getElementById('detail-type').innerText = app.type;
+            document.getElementById('detail-title').innerText = app.title;
+            document.getElementById('detail-applicant').innerText = app.applicant;
+            document.getElementById('detail-phone').innerText = app.phone;
+            document.getElementById('detail-regdate').innerText = app.regDate;
+            document.getElementById('detail-shootdate').innerText = app.shootDate;
+            document.getElementById('detail-location').innerText = app.location;
+            document.getElementById('detail-desc').innerText = app.desc;
+
+            const statusEl = document.getElementById('detail-status');
+            statusEl.innerText = app.status;
+            statusEl.className = `px-3 py-1 rounded-full text-sm font-bold ${app.statusCode === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800'}`;
+
+            switchView('view-detail');
+        }
+
+        // 폼 제출 이벤트
+        function submitForm(event, type) {
+            event.preventDefault();
+            alert(`[${type}] 대관 신청서가 정상적으로 접수되었습니다.\n안전 관리 부서의 검토 후 연락드리겠습니다.`);
+            event.target.reset(); // 폼 초기화
+            switchView('view-main');
+        }
+
+        // 초기화
+        window.onload = () => {
+            renderTable();
+        };
+    </script>
+</body>
+</html>

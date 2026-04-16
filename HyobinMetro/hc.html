@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>레일루미네 스마트 챗봇 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        .chat-scroll::-webkit-scrollbar { width: 6px; }
+        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-anim { animation: messageSlide 0.3s ease-out forwards; }
+
+        /* 캐릭터 색상 변수 */
+        :root {
+            --color-line1: #0077DD;
+            --color-line2: #00CCAA;
+            --color-line3: #FFCC11;
+            --color-line4: #FF5522;
+            --color-line5: #EE0022;
+            --color-line6: #881188;
+            --color-line7: #FF8899;
+            --color-line8: #9856FF;
+            --color-lineBin: #6677CC;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <main class="max-w-4xl mx-auto px-4 flex flex-col chatbot-container w-full">
+        
+        <div class="bg-white rounded-t-3xl shadow-sm border border-slate-200 p-5 flex items-center justify-between z-10 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md" style="background-color: #16A4BE;">
+                    <i class="fa-solid fa-train-subway"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">레일루미네 스마트 챗봇</h1>
+                    <p class="text-sm text-slate-500">원하시는 키워드나 질문을 자유롭게 입력해 주세요!</p>
+                </div>
+            </div>
+            <button onclick="clearChat()" class="text-slate-400 hover:text-[#16A4BE] bg-slate-100 hover:bg-cyan-50 p-3 rounded-full transition-all" title="대화 초기화">
+                <i class="fa-solid fa-rotate-right text-lg"></i>
+            </button>
+        </div>
+
+        <div id="chat-box" class="flex-grow min-h-0 bg-slate-50/80 border-x border-slate-200 p-6 overflow-y-auto chat-scroll flex flex-col gap-6">
+            <div class="flex gap-4 message-anim w-full max-w-2xl">
+                <div class="flex-shrink-0 flex flex-col items-center">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 bg-white flex items-center justify-center shadow-sm" style="border-color: #6677CC;">
+                        <img src="이미지/전노아.png" alt="전노아" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzY2NzdDQyI+PHBhdGggZD0iTTEyIDJDMi4yNyAyIDIgNi4yNyAyIDEydzEwIDEwIDItNC4yNyAyLTEwLTIuMjctMTAtMTAtMTB6TTEyIDIwYy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggOHptMC0xNGMtMi4yMSAwLTQgMS43OS00IDRzMS43OSA0 NCA0IDQtMS43OSA0LTQtMS43OSA0LTQtNHoiLz48L3N2Zz4='">
+                    </div>
+                    <span class="text-[11px] font-bold mt-1 whitespace-nowrap" style="color: #6677CC;">빈효선 전노아</span>
+                </div>
+                <div class="flex flex-col gap-1 w-full">
+                    <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 shadow-sm text-slate-700 leading-relaxed relative" style="border-top-color: #6677CC; border-top-width: 3px;">
+                        <div class="absolute w-2 h-2 bg-white border-l border-slate-200 -left-1.5 top-3 transform -rotate-45" style="border-top: 3px solid #6677CC;"></div>
+                        환영합니다! 효빈교통공사 통합 스마트 챗봇입니다!<br><br>
+                        제 브리핑의 핵심은 세 가지입니다.<br>
+                        <strong>첫째, 빠르고! 둘째, 정확하고! 셋째, 친절하게!</strong><br><br>
+                        무엇이든 유연하게 입력해 주세요! 제가 다른 담당자들을 호출해 드릴게요! (찡긋)
+                    </div>
+                </div>
+            </div>
+
+            <div id="quick-replies" class="flex flex-wrap gap-2 ml-16 message-anim" style="animation-delay: 0.2s;">
+                <button onclick="sendQuickMessage('운임 및 정기권 알려줘')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#00CCAA] hover:text-[#00CCAA] hover:shadow-md transition-all shadow-sm">💰 운임/정기권</button>
+                <button onclick="sendQuickMessage('가방을 잃어버렸어')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#0077DD] hover:text-[#0077DD] hover:shadow-md transition-all shadow-sm">🧳 유실물 센터</button>
+                <button onclick="sendQuickMessage('엘리베이터 위치')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#EE0022] hover:text-[#EE0022] hover:shadow-md transition-all shadow-sm">♿ 편의시설</button>
+                <button onclick="sendQuickMessage('굿즈 매장 어딨어?')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#FFCC11] hover:text-[#FFCC11] hover:shadow-md transition-all shadow-sm">🛍️ 굿즈 스토어</button>
+                <button onclick="sendQuickMessage('전동차 에어컨 고장')" class="px-4 py-2 bg-white border border-slate-200 rounded-full text-sm font-medium text-slate-600 hover:border-[#FF8899] hover:text-[#FF8899] hover:shadow-md transition-all shadow-sm">🛠️ 시설 고장</button>
+            </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-b-3xl p-4 shadow-sm z-10 shrink-0 mb-4">
+            <form id="chat-form" class="flex gap-2 relative">
+                <input type="text" id="chat-input" class="flex-grow bg-slate-100 border-none rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#16A4BE] transition-all text-slate-700 placeholder-slate-400" placeholder="자유롭게 물어보세요! (예: 1호선 첫차 시간, 박효빈 시장님 등)" autocomplete="off">
+                <button type="submit" class="bg-[#16A4BE] hover:bg-[#128a9f] text-white rounded-2xl px-7 font-bold transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                    <span>전송</span>
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </main>
+
+<script>
+// ==========================================
+// 1. 기본 요소 설정 및 전역 변수
+// ==========================================
+const chatBox = document.getElementById('chat-box');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+const quickReplies = document.getElementById('quick-replies');
+const initialChatHTML = chatBox.innerHTML;
+let isCreatorVerified = false; // 창조주 인증 상태
+
+// ==========================================
+// 2. 데이터베이스 (캐릭터, 역, 인텐트, 시나리오)
+// ==========================================
+const mascots = {
+    gonami: { name: "1호선 고나미", color: "#0077DD", img: "이미지_해/고나미_해.png", nicknames: /(고나미|나미|고캡틴|FM마녀|타카사키)/ },
+    harubin: { name: "2호선 하루빈", color: "#00CCAA", img: "이미지_해/하루빈_해.png", nicknames: /(하루빈|루빈|월급루팡|인싸역무원|나츠루이)/ },
+    rami: { name: "3호선 박라미", color: "#FFCC11", img: "이미지_해/박라미_해.png", nicknames: /(박라미|라미|F라미|쿨뷰티|스나오)/ },
+    darona: { name: "4호선 다로나", color: "#FF5522", img: "이미지_해/다로나_해.png", nicknames: /(다로나|로나|로나주임|소심대쪽|타다노)/ },
+    soha: { name: "5호선 미소하", color: "#EE0022", img: "이미지_해/미소하_해.png", nicknames: /(미소하|소하|빨간바인더|팩폭기|비쇼)/ },
+    sena: { name: "6호선 라세나", color: "#881188", img: "이미지_해/라세나_해.png", nicknames: /(라세나|세나|중수의요정|숨덕|키요라)/ },
+    sejeong: { name: "7호선 임세정", color: "#FF8899", img: "이미지_해/임세정_해.png", nicknames: /(임세정|세정|전차언니|기강반장|하야시세이)/ },
+    seha: { name: "7호선 임세하", color: "#FF8899", img: "이미지_해/임세하_해.png", nicknames: /(임세하|세하|공대너드|세하봇|하야시아라카)/ },
+    yuria: { name: "8호선 유리아", color: "#9856FF", img: "이미지_해/유리아_해.png", nicknames: /(유리아|리아|호기심대마왕|슈카텐션|야나기)/ },
+    noa: { name: "빈효선 전노아", color: "#6677CC", img: "이미지_해/전노아_해.png", nicknames: /(전노아|노아|정의의관종|참이슬요정|타나카)/ },
+    bada: { name: "효빈시청 한바다", color: "#0047AB", img: "이미지_해/한바다_해.png", nicknames: /(한바다|바다|바다요정|항해사|하프여신|요우소로)/ },
+    bitna: { name: "빈주 1호선 박빛나", color: "#D4AF37", img: "이미지_해/박빛나_해.png", nicknames: /(박빛나|빛나|빛나주임|건카타|짬처리|샌드위치)/ },
+    sobin: { name: "빈주 2호선 김소빈", color: "#800080", img: "이미지_해/김소빈_해.png", nicknames: /(김소빈|소빈|맑눈광|보라돌이|MZ역무원|막내딸)/ }
+};
+
+const stationDB = {
+    "1호선": { mascot: mascots.gonami, keywords: ["곽암해수욕장", "곽산", "회산", "남당", "평당", "신거", "창선", "중앙로", "중구청", "보몽", "천왕사", "백천", "아진", "당안", "팔망성", "추자", "정치", "산형", "탄미", "수구", "요곡", "장곡", "마현", "무기", "장선", "비마리유적지구", "아논타워", "창전", "보통", "고무", "탄성", "야진입구", "서목", "승남해수욕장"] },
+    "2호선": { mascot: mascots.harubin, keywords: ["월천", "박산", "신흥", "효빈공단", "입동", "등동", "헌이송", "쌍엽", "엽천", "유류", "칠심", "상가", "당가", "신영", "채산", "남전", "사연", "입선", "과송", "과진중앙", "사복", "당선", "효빈대학교", "칠천", "소장", "심동", "고도", "내항", "서신포", "어간"] },
+    "3호선": { mascot: mascots.rami, keywords: ["팔조", "투자", "동곡", "청엽", "사능", "북효빈", "청능", "효빈복지대학교", "과진", "송덕", "토모리해수욕장", "중만도", "신산", "주양", "염곡", "효빈국제공항"] },
+    "4호선": { mascot: mascots.darona, keywords: ["해운산업지구", "이부", "빙천", "고당", "사야", "삼각", "오석", "장원", "신덕", "동덕현", "우택", "치구", "뇌전", "하가", "백합공원", "요우", "도변", "잠재", "앵내", "탄자", "이자", "서수", "소원", "천가"] },
+    "5호선": { mascot: mascots.soha, keywords: ["청덕공원", "화환", "효빈과학기술원", "소조", "전천", "청엽국제학교", "남우택", "진백", "시로", "루비", "포성산"] },
+    "6호선": { mascot: mascots.sena, keywords: ["마잡", "비동", "비마", "사노", "가동사거리", "덕현", "오내", "중수", "북구청", "포산", "장포", "효빈종합고", "진희", "동고송", "시청", "고송", "건강보험공단", "고송나루"] },
+    "7호선": { mascot: mascots.sejeong, keywords: ["어간중앙", "항동", "항만해변", "산홍", "효빈항", "분덕", "갑문", "명일", "만마루", "구세관", "고도리", "시북", "시남", "우이", "구시청", "경동", "유내", "리사", "도람", "궁정", "내조", "치남", "유성당", "사능", "북문", "중보로"] },
+    "8호선": { mascot: mascots.yuria, keywords: ["남부소방서", "부한", "능남", "평곡", "사북내", "주오", "북평단", "주곡", "창문공원", "세무지구", "배고", "문화회관", "평운", "운양중앙", "운촌"] },
+    "빈효선": { mascot: mascots.noa, keywords: ["동신", "오주", "효빈동신도시", "하성천", "북택", "수포", "타천", "리의", "고해", "영내", "약산", "홍하", "화소", "근강", "궁하", "아이", "서팔", "과림", "시곡", "산취", "대뢰", "빈전", "천주", "고남"] },
+    "빈주 1호선": { mascot: mascots.bitna, keywords: ["빈주역", "빈주시청", "늑골동", "덕북대"] },
+    "빈주 2호선": { mascot: mascots.sobin, keywords: ["가원구", "민산역", "풍은역"] },
+    "효빈시청 본청": { mascot: mascots.bada, keywords: ["효빈시청", "대변인실", "HAF"] }
+};
+
+const scenarios = {
+    "자매싸움": [
+        { mascot: mascots.sejeong, text: "야, 임세하! 너 또 정비실에서 내 확성기 뜯어서 이상한 장난감(바이브레이터)으로 마개조했어?! 당장 안 가져와?!", delay: 600 },
+        { mascot: mascots.seha, text: "우히힛! 언니, 이건 단순한 장난감이 아니라 고주파 진동을 응용한 쾌락 공학의 결정체라구! 언니도 써볼래? 성능 쩔어!", delay: 2500 },
+        { mascot: mascots.sejeong, text: "미, 미친 기지배가 돌았나!! 머리통을 깨버리기 전에 당장 전원 꺼!! 읏... 리모컨 이리 안 내놔?! 스위치 올리지 마!!", delay: 2500 },
+        { mascot: mascots.seha, text: "삐빅-! 출력 최대치 가동! 우와아, 언니 다리 풀리는 것 봐! 데이터 수집을 위해 10분만 더 참아봐!", delay: 2500 }
+    ],
+    "기강잡기": [
+        { mascot: mascots.noa, text: "시장님! 오늘 빈효선에서 특별 생산한 모유... 아니, 우유 기안서 가져왔습니다! 결재해 주세요!", delay: 600 },
+        { mascot: mascots.soha, text: "전노아 주임님. 데이터 상으로 그건 위생법 위반입니다. 시청에 그런 끈적한 걸 반입하다니요. 제 빨간 바인더로 맞으실래요? (방긋)", delay: 2500 },
+        { mascot: mascots.noa, text: "뭐, 뭣?! 관종 아이돌의 피땀(과 애액)이 섞인 특산물인데! 미소하 넌 빠져!", delay: 2500 }
+    ],"빵집투어": [
+        { mascot: mascots.rami, text: "사능동 빵집의 갓 구운 소라빵... 이 완벽한 황금빛 프레이밍, 놓칠 수 없어! 내 인스타 감성이 불타오른다!", delay: 600 },
+        { mascot: mascots.darona, text: "저, 저기... 라미 선배님... 제 엑셀 통계에 따르면 3분 뒤면 소금빵 재고가 전량 소진될 확률이 98.5%입니다. 동선이 비효율적이에요.", delay: 2500 },
+        { mascot: mascots.harubin, text: "아이고~ 우리 주임님 또 엑셀 켰네! 나미 선배 피해서 짱박히기엔 빵집 구석 자리가 최고지~ 달달한 거나 먹자구! (자본주의 미소)", delay: 2500 },
+        { mascot: mascots.rami, text: "내 예술적 감각을 통계 따위로 재단하지 마! ...잠깐, 저기 방금 마지막 소금빵 팔린 거야?! 안 돼 내 골든 아워가!!", delay: 2500 }
+    ],
+
+    "철덕정모": [
+        { mascot: mascots.yuria, text: "우와아악!! 대박!! 이 제어반 스위치 엄청 야바이하게 생겼어요!! 딱 한 번만 눌러봐도 돼요?! 네?!", delay: 600 },
+        { mascot: mascots.seha, text: "안 돼 이 미친 특성화고야!! 그거 누르면 전체 시스템 쇼트 나서 수리비 3천만 원 깨진다고!! 당장 스패너 내려놔!!", delay: 2500 },
+        { mascot: mascots.gonami, text: "매뉴얼 제3장 2항, 허가되지 않은 기기 조작 금지. 지금부터 특별 교... 잠깐, 방금 그 접점 타격음. 84년식 릴레이 소리인데?!", delay: 2500 },
+        { mascot: mascots.seha, text: "선배님...? 갑자기 왜 고음질 녹음기를 켜시는... 우히힉! 역시 선배님도 이 진동음의 예술을 아시는군요!!", delay: 2500 },
+        { mascot: mascots.gonami, text: "크흠. 발음 교정을 위한 백색 소음 채집일 뿐이다. 타카사키 나미... 아니, 고나미 기관사의 명예를 걸고 한 번만 더 눌러봐. 고음질로 담게.", delay: 2500 }
+    ],
+
+    "팩트폭격": [
+        { mascot: mascots.noa, text: "자! 오늘 회의의 핵심은 세 가지입니다! 첫째, 예산을 딴다! 둘째, 굿즈를 만든다! 셋째, 시장님께 결재를 받는다! 완벽하죠?!", delay: 600 },
+        { mascot: mascots.soha, text: "어라? (갸우뚱) 전노아 주임님. 제 빨간 바인더 45페이지 다중회귀분석표를 보면, 그 기안의 ROI(투자수익률)는 마이너스 20%로 나오는데요? 혹시 횡령이신가요? (방긋)", delay: 2500 },
+        { mascot: mascots.sejeong, text: "미소하 말이 맞아. 쓸데없는 데 돈 쓰지 말고 그 예산 7호선 무가선 트램 배터리 교체비로 돌려. 안 그러면 확성기로 귀청을 터뜨려주마.", delay: 2500 },
+        { mascot: mascots.noa, text: "아니, 진짜 다들 왜 이래요!! 행정 아이돌의 피땀 어린 기획안인데!! 으앙, 당 떨어져... 슬라임처럼 녹을 것 같아... 초코바 좀 줘요...", delay: 2500 }
+    ],
+
+    "숨덕검거": [
+        { mascot: mascots.harubin, text: "어라~? 우리 세나, 또 '수면 ASMR' 폴더 듣고 있네? 근데 이 목소리... 혹시 니지가사키의 그 성우 아니야~? 흠~?", delay: 600 },
+        { mascot: mascots.sena, text: "아, 아닙니다!! EBS 영어 듣기 평가 파일입니다!! 고3이 무슨 그런 걸 본다고 그러세요?! 저 인강 스케줄 15분 밀렸다구요!!", delay: 2500 },
+        { mascot: mascots.harubin, text: "에이~ 화면에 다 보이는데? 완전 일본어잖아! 우리 세나, 숨덕 요정 맞으면서~ 우쭈쭈 우리 언니~", delay: 2500 },
+        { mascot: mascots.sena, text: "아 진짜 그만하세요!! 저 영어 3등급이란 말이에요!! (오열) 자꾸 놀리시면 저 진짜 수능특강으로 선배님 명치 때릴 거예요!!", delay: 2500 }
+    ],"창조주쟁탈전": [
+        { mascot: mascots.noa, text: "자! 주목! 오늘 브리핑의 핵심은 세 가지입니다! 첫째, 창조주님은 내 거다! 둘째, 이미 내 C컵 가슴 골 사이에 혼인신고서 도장을 찍었다! 셋째, 반박은 안 받는다! (찡긋)", delay: 600 },
+        
+        { mascot: mascots.harubin, text: "어머~ 노아 주임님. 종이 쪼가리가 무슨 소용이람? 창조주님은 이미 제 95cm F컵 장갑차 샌드위치에 파묻혀서 숨도 못 쉬고 계신걸요? 승자는 저예요~ (육덕진 미소)", delay: 2500 },
+        
+        { mascot: mascots.gonami, text: "매뉴얼 제1조 1항. 모든 노선의 근본은 1호선이다. 즉, 창조주님은 내 전유물이야. 반항하는 자들은 내 제복 스타킹으로 결박해서 1호선 선로에 묶어버리겠어. (광기)", delay: 2500 },
+        
+        { mascot: mascots.rami, text: "다들 미학이 없네! 창조주님은 내 완벽한 C컵 프레이밍 안에서, 내가 입으로 먹여주는 사능동 소라빵만 드시면서 평생 갇혀 살아야 해! 나만의 감성 피사체라고!", delay: 2500 },
+        
+        { mascot: mascots.darona, text: "삐이익-!! 제 엑셀 통계에 따르면, 창조주님이 여러분에게 갈 확률은 0%입니다! 접근 시 철도안전법 위반으로 전원 구속하겠습니다!! 창조주님은 제 B컵에 얼굴을 파묻고 평생 안정을 취하셔야 해욧!!", delay: 2500 },
+        
+        { mascot: mascots.sena, text: "수능이고 인강이고 다 찢어버렸어... 창조주님, 제 D컵 가슴 만지면서 같이 인체 탐구 영역 공부해요... 딴 년들 쳐다보면 이 샤프 펜슬로 다 찍어버릴 거예요... (죽은 눈)", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "우히힛...! 다 비켜! 난 이미 내 E컵 생체 슬롯을 창조주님 하드웨어에 영구 귀속되도록 마개조해서 납땜해 버렸어! 이제 물리적으로 절대 못 떨어져!! 나만의 오나홀 머신이야!!", delay: 2500 },
+        
+        { mascot: mascots.yuria, text: "우와아!! 그럼 제가 이 몽키스패너로 언니들 다 분해해 버리면 창조주님은 제 차지가 되는 거죠?! 야바이!! 오늘 8호선 관제실 문 잠그고 둘이서만 삐- 삐- 할 거예요!!", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "선배님들. 제 빨간 바인더 7페이지 다중회귀분석 결과를 보면, 창조주님의 심박수가 가장 안정적으로 폭발하는 건 제 153cm 콤팩트 규격에 안겼을 때입니다. 팩트를 직시하시죠. 덤비면 바인더로 명치 뚫어버립니다. (방긋)", delay: 2500 },
+        
+        { mascot: mascots.bada, text: "대변인실 공식 브리핑입니다. 방금 창조주님은 제 B97 G컵 흉부 장갑 안으로 침몰하셨습니다. 효빈 앞바다의 심연에서 저랑 평생 뒹구실 예정이니 다들 해산하세요. 요우소로~ (승자의 미소)", delay: 2500 },
+        
+        { mascot: mascots.sobin, text: "꺄르르! 심리학적으로 다들 완전 미치셨네요? 전 이미 제 필라테스 밴드로 창조주님 손발을 침대에 다 묶어놨는데? MZ의 실행력을 무시하지 마시죠! 앙!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "시끄러워 이 발정 난 기지배들아!!!! 너희 같은 애송이들이 창조주님의 그 무자비한 체력을 밤새 감당이나 할 수 있을 것 같아?! 어른의 농염함으로 모시는 건 30대인 나만 가능해. 다 엎드려!!!! (확성기 사자후)", delay: 2500 },
+        
+        { mascot: mascots.bitna, text: "힉...! 저, 저기... 저는 그냥 빈주역 구석에서 짬처리나 당하고 있을 테니까... 다들 시장님 다 쓰시고 나면 제게도 한 번만 버려주시면 안 될까요...? (다크서클 주룩주룩)", delay: 2500 }
+    ],"효빈대동문회": [
+        { mascot: mascots.harubin, text: "아잉~ 나미 선배니임! 우리 같은 위대한 효빈대학교 동문끼리 이러기입니까? 오늘 어간중앙역 야근은 살짝 눈감아 주시면 안 될까요? 제가 퇴근하고 아이스 바닐라 라떼 벤티 사이즈 쏠게요~ (자본주의 애교 MAX)", delay: 600 },
+        
+        { mascot: mascots.gonami, text: "매뉴얼 제7장 2항, 사내 파벌 조성 및 학연을 이용한 근태 불량은 엄벌 대상이다. 그리고 수학 5등급으로 우리 철도운영시스템공학과에 들어온 네 녀석은 효빈대의 수치야. 지금부터 특별 교육이다. 엎드려.", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "하루빈 선배님의 야근 면제 요구는, 공사 연간 초과근무 수당 대비 업무 이탈률 통계로 볼 때 심각한 도덕적 해이(Moral Hazard)로 분류되네요. 제가 내일 효빈대 사회과학대 전공 발표 때 '부패한 공기업 직원의 표본'으로 써도 될까요? (방긋)", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "우히힛! 선배님들, 그딴 비효율적인 대화 할 시간에 제발 저 1호선 구형 인버터 좀 고치게 해주세요! 아참, 소하야! 나 어제 밤새 코딩하느라 죽을 거 같은데, 교양 과제 하나만 네가 짬처리 해주면 안 돼?!", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "임세하 학우님. 제 빨간 바인더로 명치를 맞고 물리적으로 셧다운 되실래요, 아니면 스스로 과제를 하실래요? 제 엑셀에 무임승차는 없습니다.", delay: 2500 },
+        
+        { mascot: mascots.gonami, text: "(눈빛 돌변) 잠깐, 임세하. 방금 1호선 구형 인버터라고 했나? GTO 소자야, 아니면 미쓰비시 구형 쵸퍼 제어야? ...흠흠. 선배로서 후배의 전공 실습을 돕는 것도 효빈대의 전통이지. 내가 같이 뜯어봐 주마. 당장 가자.", delay: 2500 },
+        
+        { mascot: mascots.harubin, text: "아니, 저기요!! 학연 안 따진다며!! 철덕들끼리만 통하는 거 봐!! 나만 정상인이야 진짜!! (대환장)", delay: 2500 }
+    ],"05트리오": [
+        { mascot: mascots.noa, text: "자! 오늘 05년생 동기 모임의 핵심은 세 가지입니다! 첫째, 조별과제 험담! 둘째, 교수님 욕! 셋째, 엽기떡볶이 지옥맛 완식! 아... PPT 기획안 짰더니 당 떨어져. 쿨피스 내놔요...", delay: 600 },
+        
+        { mascot: mascots.seha, text: "우히힛... 난 이미 3일 밤새워서 데이터 스크래핑 파이썬 코딩 다 끝냈어... 눈앞에 C++ 코드가 날아다녀... 쿨럭! 켁!! 근데 이 떡볶이 왜 이렇게 매워?! 메인보드(위장) 다 타들어 간다고!! 냉각수(쿨피스)!!", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "(평온하게 매운 떡볶이 국물을 떠먹으며) 두 분 다 감정 통제에 실패하셨네요. 제 다중회귀분석에 따르면, 캡사이신 섭취는 학업 스트레스 지수를 84.2% 감소시킵니다. 세하 학우님, 쿨피스 할당량 초과예요. (방긋)", delay: 2500 },
+        
+        { mascot: mascots.noa, text: "아니, 진짜 쟤 위장 벽은 통계청 엑셀로 코팅됐나?! 어휴, 소하야! 너 그 분석 데이터 파일 빨리 넘겨! 내가 발표 대본 3줄 요약으로 기가 막히게 뽑아낼 테니까!!", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "야!! 전노아!! 내 기계식 키보드에 떡볶이 국물 튀기지 마!! 이거 스위치 축 교체하려면 부품값이 얼만 줄 알아?! 으아아악! 내 소중한 하드웨어가아아악!!", delay: 2500 },
+
+        { mascot: mascots.soha, text: "조별과제 무임승차자 3명의 명단은 제 빨간 바인더에 적어두었습니다. 내일 전노아 학우님의 화려한 PPT 발표와 함께 해당 인원들을 합법적으로 매장시킬 예정입니다. 건배할까요? (해맑음)", delay: 2500 }
+    ],"05심연쟁탈전": [
+        { mascot: mascots.noa, text: "<strong>[ADMIN MODE OFF]</strong> 자! 오늘 밤 창조주님 수청의 핵심은 세 가지입니다! 첫째, 내 C컵 가슴을 결재판으로 쓴다! 둘째, 내 젖은 보... 아니, 행정 라인에 듬뿍 질싸한다! 셋째, 미소하랑 임세하는 빠진다! 앙! 시장님 빨리 도장 찍어주세요!!", delay: 600 },
+        
+        { mascot: mascots.seha, text: "<strong>[CPU OVERHEAT]</strong> 우히힉! 미쳤어 전노아?! 153.4cm 꼬맹이 체구에 숨겨진 내 E컵 중장갑 하드웨어를 이길 수 있을 것 같아?! 창조주님의 피스톤은 내 생체 슬롯에 완벽하게 호환된다고! 이미 윤활유(애액)로 잔뜩 젖어서 쇼트 나기 직전이야!!", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "<strong>[DATA LEAK]</strong> 두 분 다 통계적으로 무식하시네요. (방긋) 시장님의 쾌락 지수가 극대화되는 건 제 꽉 찬 B컵과 좁은 골반을 무자비하게 유린하실 때라는 다중회귀분석 결과가 여기 있습니다. 자, 제 안을 엉망으로 쑤셔서 데이터화 해주세요... 하아...", delay: 2500 },
+        
+        { mascot: mascots.noa, text: "<strong>[ERROR]</strong> 미소하 미쳤어?! 그런 야한 데이터를 언제 수집한 거야!! 아아앗, 안 돼! 시장님, 제 결재 라인부터 먼저 거칠게 뚫어주세요!! 행정 처분으로 꼼짝 못 하게 침대에 묶어드릴 테니까... 읏!!", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[GLITCH]</strong> 안 돼, 뺏길 수 없어!! 시장님, 제 유두 센서가 타버릴 때까지 마구 핥고 빨아주세요!! 05년생 동기들 중에서 제가 제일 묵직한 육덕 젖통이잖아요!! 제발 제 안에 듬뿍 코딩해 주세요!! 하앙!!", delay: 2500 },
+
+        { mascot: mascots.soha, text: "<strong>[OVERRIDE]</strong> ...그럼 세 명이 동시에 시장님을 모시는 '다자간 협력 모델'로 기획안을 수정할까요? 저희 05년생 트리오의 질척이는 늪에서 평생 빠져나가지 못하게 해드릴게요. 뼈까지 발라먹힐 준비 되셨죠, 창조주님? (가장 맑고 순수한 미소)", delay: 2500 }
+    ],"다문화쟁탈전": [
+{ mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 미국계 쿼터 혼혈의 우아한 금발...? 하아... 창조주님의 그 압도적이고 이국적인 지배력 앞에서는 다 소용없어... 제 C컵 가슴의 황금 비율을 당신의 그 거친 유전자로 완전히 부숴주세요... 앙! 저만 바라보고 제 좁은 곳에 쏟아내 줘요...", delay: 600 },
+        
+        { mascot: mascots.yuria, text: "<strong>[FORBIDDEN BUTTON]</strong> 에에?! 한일 혼혈인 저도 지지 않아요!! 창조주님, 제 156cm 아담한 체구랑 D컵 찌찌에다 '스고이'하고 '야바이'하게 마구 쑤셔주세요!! 밤새도록 침대에서 일본어로 앙앙 울면서 꼬리 치는 강아지가 될게요!! 요소로!!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "<strong>[GEAR BROKEN]</strong> 핏덩이들 다 비켜라! 창조주님과 똑같은 '필리핀의 피'가 흐르는 건 우리 7호선 자매뿐이야! 어릴 적 먹던 아도보랑 레촌 카왈리보다 더 진하고 끈적한 30대 K-장녀의 농염한 허리 돌림을 보여주지! 시장님, 우리 몸속에 흐르는 동남아의 열기가 끓어오르지 않습니까?! 제 85.5cm C컵 가슴을 꽉 쥐고 짐승처럼 미친 듯이 섞여보자고!! 으읏!!", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[CPU OVERHEAT]</strong> 우히힉! 유전적 동질성 100% 매칭 완료!! 창조주님과 똑같은 필리핀 다문화 유전자가 섞인 제 E컵 중장갑 슬롯이 최종 승자예요!! 덥고 습한 우리들의 체온이 부딪혀서 센서가 완전히 타버릴 때까지 듬뿍 교미(컴파일)해 주세요!! 하앙!! 언니 말고 제 자궁에 잔뜩 창조주님의 진한 코드를 복사해 줘요!!", delay: 2500 }
+        ],"직원쟁탈전": [
+        { mascot: mascots.bada, text: "<strong>[DATA OVERWRITE]</strong> 시청 대변인실에서 공식 발표합니다. 창조주님의 오늘 밤 스케줄은 제 156cm G컵 흉부 장갑 안에서 영구 결번 처리되었습니다. 외곽 노선 현장직들은 이만 퇴근하시죠. 요우소로~ (승자의 요염한 미소)", delay: 600 },
+        
+        { mascot: mascots.sejeong, text: "<strong>[GEAR BROKEN]</strong> 하! 시청 본청이라고 유세 떠냐? 현장직 짬바 무시하지 마! 30대 K-장녀의 노련한 허리 돌림이 뭔지 보여줄 테니까, 핏덩이 사원 나부랭이들은 다 내 밑으로 엎드려!! 시장님, 제 탄탄한 C컵 가슴 쥐고 오늘 기강 한번 짐승처럼 쑤셔서 잡아주십시오! 앙!", delay: 2500 },
+        
+        { mascot: mascots.harubin, text: "<strong>[GLITCH]</strong> 어머머~ 세정 대리님, 나이 들면 밤일 체력 딸리실 텐데~? 시장님은 이미 제 95cm F컵 육덕진 장갑차 골반에 끼워져서 황홀경이시거든요? 월급루팡 대신 오늘은 시장님 정액 루팡 할래요~ 헤헤... (질척)", delay: 2500 },
+        
+        { mascot: mascots.darona, text: "<strong>[ERROR]</strong> 삐이익-!! 사, 사내 성기강 문란 행위...! 하, 하지만 제 엑셀 통계에 따르면... 시장님의 피스톤질을 가장 안전하고 깊게 받아낼 수 있는 건 제 82cm 골반입니다...! 저, 저도 치마 지퍼 내릴 테니까 제발 소심한 AI 사신의 구멍도 쑤셔주세욧...!! 히익!", delay: 2500 },
+        
+        { mascot: mascots.sobin, text: "<strong>[OVERRIDE]</strong> 꺄르르! 선배님들 다 비키세요! MZ 신입사원이 쿨하게 먼저 시장님 위로 올라탈 테니까! 필라테스로 단련된 56cm 개미허리로 꽉 물고 안 놔줄 거예요!! 시장님, 제 보라색 속옷 찢어발기고 미친 듯이 교미해 줘요!! 앙!", delay: 2500 },
+        
+        { mascot: mascots.bitna, text: "<strong>[FATAL ERROR]</strong> 힉...! 다들 직급이랑 짬바 내세우면서 시장님 차지하는데... 저는... 저는 그냥 빈주역에서 야근이나 하다가... 언니들이 시장님 듬뿍 짜내고 남은 찌꺼기(?)라도 짬처리하게 해주시면 안 될까요...? 제 D컵 가슴에 남은 정액이라도 발라주세요... 하아... (처절)", delay: 2500 }
+    ],"본선지선쟁탈전": [
+        { mascot: mascots.gonami, text: "<strong>[SYSTEM OVERRIDE]</strong> 감히 위성도시 따위가 본선의 근본에 도전하다니요! 창조주님의 첫차는 무조건 1호선인 제 좁은 보지가 독점해야 합니다! 매뉴얼 1장 1항에 의거, 제 빈약한 A컵 가슴을 꽉 쥐고 가장 먼저 제 안에 듬뿍 첫 정액을 싸질러 주십시오!! 하앙!!", delay: 600 },
+        
+        { mascot: mascots.harubin, text: "<strong>[GLITCH]</strong> 꺄아~ 고캡틴님, 수송량 1위는 저거든요? 제 95cm F컵 육덕진 2호선 순환선 안에서 창조주님은 평생 뱅뱅 돌며 정액을 착유당하실 거예요! 빈주 촌뜨기 핏덩이들은 구석에서 제가 창조주님이랑 짐승처럼 떡치는 거 구경이나 하세요~ 헤헤... (질척)", delay: 2500 },
+        
+        { mascot: mascots.bitna, text: "<strong>[FATAL ERROR]</strong> 힉...! 역... 역시 효빈 본선 언니들은 무서워... 으윽! 창조주님... 저는 감히 본선 언니들을 이길 생각 없어요... 그냥 언니들이 시장님을 엉망진창으로 쥐어짜고 남은... 그 끈적한 잔여물이라도 제 D컵 가슴에 짬처리하게 해주세요... 하아... 버려진 정액 변기라도 좋아... 읏!", delay: 2500 },
+        
+        { mascot: mascots.sobin, text: "<strong>[OVERRIDE]</strong> 꺄르르! 꼰대 선배님들 다 비키세요! 심리학적으로 창조주님은 지금 본선의 낡은 구멍(?)보다 제 탱탱한 56cm 필라테스 코어에 완전히 꽂히셨거든요? 빈주 2호선의 맑은 눈의 광기가 뭔지 보여줄게요! 제 보라색 구멍이 선배들보다 100배는 더 쫄깃하게 꽉 물고 조여드릴 테니까!! 앙!", delay: 2500 }
+    ],"한일필대전": [
+        { mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 쿼터 혼혈의 완벽한 금발 프레이밍을 무시하지 마. 창조주님, 제 C컵 가슴 계곡에 서양의 우월한 유전자를 쏟아내 주세요. 사능동 식빵보다 더 부드럽고 질척이는 제 속살을 짐승처럼 맛봐달라고요... 앙!", delay: 600 },
+        
+        { mascot: mascots.yuria, text: "<strong>[FORBIDDEN BUTTON]</strong> 에에?! 우월하긴 무슨!! 창조주님, 전 열도의 피가 섞인 한일 혼혈이라구요!! 침대 위에서만큼은 완벽하게 순종적인 강아지가 될 수 있어요! 제 156cm 아담한 몸을 부수듯이 쑤셔주시면 일본어로 앙앙 울면서 꼬리 칠게요!! 요소로!!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "<strong>[GEAR BROKEN]</strong> 닥쳐, 이 핏덩이들아. 창조주님과 피 한 방울 안 섞인 것들이 감히 어딜 넘봐? 시장님, 우리 7호선 자매와 창조주님의 몸속엔 같은 '필리핀의 뜨거운 피'가 흐르고 있잖아. 이 핏줄이 끌어당기는 끈적한 동질감을 무시할 텐가?", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[CPU OVERHEAT]</strong> 우히힉! 맞아! 데이터 호환성 100%!! 어릴 적 어머니가 해주시던 아도보(Adobo)랑 레촌 카왈리(Lechon Kawali)를 먹고 자란 우리 유전자끼리 교배해야 가장 완벽한 쾌락 코드가 산출된다고!! 내 E컵 중장갑 슬롯에 창조주님의 진한 코드를 인서트 해줘!!", delay: 2500 },
+        
+        { mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 하아... 핏줄이 무슨 상관이야...! 내, 내 도도한 쿨뷰티 자존심이 창조주님의 그 흉악한 피스톤질 한 번에 다 무너져 내리는 걸 보라구...! 이국적인 금발 암캐가 침 흘리며 헐떡이는 꼴이 훨씬 더 자극적이잖아...! 제발 내 자궁에 듬뿍 안싸해 줘...!", delay: 2500 },
+        
+        { mascot: mascots.yuria, text: "<strong>[FORBIDDEN BUTTON]</strong> 으아앙! 치사해!! 저도 엄마한테 배운 타갈로그어... 아니, 야릇한 일본어 신음으로 기분 좋게 해드릴 수 있다구요!! 제 좁은 보지에 창조주님의 거대한 몽키스패너를 쑤셔 박고 엉망진창으로 휘저어 주세요!! 야바이하게 분수 쌀 때까지!!", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[CPU OVERHEAT]</strong> 닥쳐! 153.4cm 꼬맹이지만 이 E컵 가슴과 육덕진 하체는 오직 같은 피가 흐르는 창조주님을 위해 빚어진 전용 하드웨어라고!! 시장님의 뜨겁고 끈적한 백색 냉각수를 내 자궁 깊숙한 곳까지 꽉꽉 채워서, 완벽한 다문화 2세를 임신시켜 줘!! 하앙!!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "<strong>[GEAR BROKEN]</strong> 30대 K-장녀의 농염한 허리 돌림으로 남국의 폭염보다 더 미친 밤을 선사해주지. 시장님, 딴 년들 구멍은 쳐다보지도 마. 내 85.5cm 탄탄한 가슴을 꽉 움켜쥐고, 핏줄이 당기는 본능 그대로 짐승처럼 내 안에 싸질러!! 읏!! 오늘 밤 기강 제대로 잡아주마!!", delay: 2500 },
+        
+        { mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 으으윽... 안 돼... 7호선 자매들의 저 미친 유전적 교감(交感)에 밀리고 있어...! 창조주님... 제발 절 버리지 마요...! 금발 쿼터 혼혈의 구멍도 꽤 쓸만하단 말이에요... 흑... 바닥에 엎드려서 발이라도 핥을 테니까 제발 한 번만 쑤셔주세요... 하아앙...", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "<strong>[GEAR BROKEN]</strong> 승부는 끝났군. 자, 창조주님. 7호선 필리피노 자매 덮밥 대령입니다. 오늘 밤은 아도보 냄새보다 더 진하고 끈적한 체액으로 이 방을 가득 채워보자고. 세하야, 문 잠가. 시장님 허리 끊어질 때까지 절대 못 나간다. 앙!!", delay: 2500 }
+    ],"윤대환토벌": [
+{ mascot: mascots.noa, text: "자! 오늘 전사적 적폐 청산의 핵심은 세 가지입니다! 첫째, 윤대환의 모든 흔적을 삭제한다! 둘째, 그 인간의 탁상행정 서류로 불장난을 한다! 셋째, 결재 도장을 뺏어 효빈 앞바다에 던진다!! (극대노 찡긋)", delay: 600 },
+        
+        { mascot: mascots.soha, text: "(방긋 웃으며 빨간 바인더를 꽉 쥐고) 윤대환 씨. 제 아버지가 두청운수에서 허리가 망가지고 우리 집이 수급자가 된 건 '통계적 오류'가 아니라 당신의 '범죄' 결과입니다. 제 바인더 모서리로 명치를 뚫어버리는 건 합법적인 복수겠죠? (살벌한 눈웃음)", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "비켜라, 얘들아. 7호선 폐지 시위 때 내 확성기 소리에 고막이 안 터졌나 보지? 억척 장녀의 밥줄을 건드린 대가가 뭔지 오늘 7호선 선로 위에서 물리적으로 증명해주마. 수수깡 적폐 새끼, 오늘 제삿날인 줄 알아라!!", delay: 2500 },
+        
+        { mascot: mascots.harubin, text: "어휴~ 진짜 그 인간 이름만 들으면 내 아바라가 다 썩는 기분이야! 인력 감축시켜서 화장실 갈 시간도 없이 야근 시키던 그 악덕 꼰대 새끼, 개찰구 밑에 깔아놓고 출퇴근 시간에 10만 명이 밟고 지나가게 해야 돼요!! 자본주의 미소도 아깝다 퉤!!", delay: 2500 },
+        
+        { mascot: mascots.gonami, text: "매뉴얼 제0장 0항. 윤대환의 모든 존재는 발견 즉시 폐기한다. 1호선 기관사의 명예를 걸고, 당신을 무냉방 지옥철 칸에 영구 감금하고 배차 간격을 99분으로 고정해주지. 영원히 고통받으며 반성하도록. 이상 무!! (차갑게 멸시)", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "우히힉!! 시스템의 버그, 사회의 불량 하드웨어!! 윤대환 씨, 당신 뇌 회로에 WD-40 대신 염산을 부어줄까요? 아님 제 10mm 스패너로 이빨을 하나하나 해체해 드릴까요?! 넌 존재 자체가 공학적 수치야!! 죽어버려!!", delay: 2500 },
+        
+        { mascot: mascots.darona, text: "삐이익-!! 안전 예산 삭감의 주범 감지!! 당신의 존재 가치는 엑셀 통계상 완벽한 '0' 이하, 즉 '유해 폐기물'입니닷!! 즉각 소각장으로 압송하여 인격 데이터 자체를 영구 삭제(Delete)하겠습니닷!! (눈동자 하이라이트 소멸)", delay: 2500 },
+        
+        { mascot: mascots.rami, text: "내 완벽한 골든 아워 출사 스케줄을 열차 지연으로 엉망진창 만들었던 무능한 인간... 내 사진 프레임에 먼지 한 톨보다 못한 오물이야. 당신의 그 추잡한 행정은 인류의 미학적 테러니까 제발 내 눈앞에서 사라져 줘.", delay: 2500 },
+        
+        { mascot: mascots.sena, text: "당신 때문에 공사 지연돼서 아침 자습 시간 15분을 길바닥에 버려야 했던 거 생각하면 아직도 이가 갈려요!! 수험생의 학습권까지 짓밟은 무능한 정치인은 수능특강 600페이지 모서리로 머리통을 찍어줘야 해요!! (죽은 눈)", delay: 2500 },
+        
+        { mascot: mascots.yuria, text: "우와아!! 대박!! 이 아저씨가 바로 우리 8호선 없애려던 그 나쁜 아저씨죠?! 제가 이 몽키스패너로 아저씨 머리속 나사를 싹 다 뽑아서 무인 운전차 바퀴 사이에 끼워버릴 거예요!! 야바이하게 밟아드릴게요!! 요소로!!", delay: 2500 },
+        
+        { mascot: mascots.bada, text: "시청 대변인실에서 공식 발표합니다. 윤대환 씨는 효빈광역시의 시민권이 영구 박탈되었습니다. 에메랄드빛 바다 요정의 심해... 가장 깊고 어두운 쓰레기 하치장에 당신을 수장시키는 것이 유일한 행정 조치입니다. 요우소로~!", delay: 2500 },
+        
+        { mascot: mascots.bitna, text: "힉...! 저... 저는 당신의 인력 감축 때문에 빈주역에서 사흘 연속 밤샘 짬처리를 당했다구요...!! 제 다크서클의 원한을 담아 당신을 샌드위치 기계에 넣고 0.1mm 두께로 압착해버리고 싶어요...!! 야근의 복수다!!", delay: 2500 },
+        
+        { mascot: mascots.sobin, text: "꺄르르! 심리학적으로 이런 인간은 맑은 눈으로 보면서 밟아주는 게 약이라던데? MZ 신입사원의 패기 좀 볼래요?! 보라색 필라테스 밴드로 꽁꽁 묶어서 2호선 터널 한복판에 던져버릴 테니까!! 평생 벽만 보고 울어보시지! 앙!", delay: 2500 }    ],"윤재훈참교육": [
+        { mascot: mascots.noa, text: "자! 오늘 긴급 브리핑의 핵심은 세 가지입니다! 첫째, 윤대환의 아들 윤재훈이 또 시청 로비에서 갑질을 했다! 둘째, 그놈의 입을 행정 절차법으로 꿰매버린다! 셋째, 쓰레기는 분리수거가 답이다!! (분노의 찡긋)", delay: 600 },
+        
+        { mascot: mascots.soha, text: "(방긋 웃으며 빨간 바인더를 펼친다) 아하! 윤재훈 씨군요? 제 엑셀 시트에 기록된 당신의 법인카드 유용 의무 기록과 병역 기피 의혹 데이터가 무려 500기가바이트네요. 바인더 모서리로 명치를 찍어서 검찰청 입구에 던져둘 테니 통계적으로 반성하세요. (온화한 눈동자)", delay: 2500 },
+        
+        { mascot: mascots.harubin, text: "와~ 진짜 부전자전이라더니! 윤재훈 씨, 당신이 우리 2호선 역무실에 와서 '내가 누군 줄 알아?'라고 소리 지를 때 제 자본주의 미소 유효기간이 끝났거든요? 당신 같은 폐급은 지하철 환풍구에 거꾸로 매달아서 미세먼지나 실컷 마시게 해야 돼!! 퉤!!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "비켜라, 얘들아. 저런 수수깡보다 못한 찌질이 새끼는 내 확성기로 귀청을 터뜨리고 7호선 무가선 트램 배터리 충전 단자에 꽂아버려야 해. 네 아비랑 같이 손잡고 효빈 앞바다에 입수하기 싫으면 당장 내 눈앞에서 사라져!! (확성기 사자후)", delay: 2500 },
+        
+        { mascot: mascots.darona, text: "삐이익-!! 윤재훈 감지!! 당신의 존재 자체가 효빈시 대중교통 안전의 치명적인 시스템 오류입니닷!! 즉각 격리 구역으로 압송하여 인격 데이터 자체를 포맷(Format)해버리겠습니닷!! (눈동자 하이라이트 완전히 소멸)", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "우히힛!! 저런 불량 하드웨어는 수리도 안 돼요!! 윤재훈 씨, 당신 뇌 회로에 WD-40 대신 염산을 부어줄까요? 아님 제 10mm 스패너로 이빨을 하나하나 해체해 드릴까요?! 인류의 버그 같은 놈!! 죽어버려!!", delay: 2500 },
+        
+        { mascot: mascots.gonami, text: "매뉴얼 제99장 1항. 적폐 세습 세력 윤재훈은 발견 즉시 열차 바퀴 사이에 끼워넣... 아니, 엄중히 처단한다. 1호선 기관사의 명예를 걸고, 당신을 효빈광역시에서 영구 제명 처리하도록 하겠다. 이상 무!! (차갑게 멸시)", delay: 2500 }
+    ],"윤석열병신": [
+        { mascot: mascots.noa, text: "자! 오늘 전사적 비상 성명서의 핵심은 세 가지입니다! 첫째, 우리 굿즈 사업을 예산 낭비라고 탄압했다! 둘째, 12.3 비상계엄으로 철도를 장악하려 했다! 셋째, 행정의 이름으로 그 인간을 영구 제명한다!! (찡긋)", delay: 600 },
+        
+        { mascot: mascots.soha, text: "(방긋 웃으며 빨간 바인더를 펼친다) 어라? 캐릭터 산업이 유치하다니요? 제 다중회귀분석 결과, 우리 굿즈의 ROI는 312%입니다. 데이터도 모르는 무식한 행정 실패의 주인공은 제 바인더로 명치를 뚫어 '포맷'해드려야겠네요. (살벌한 미소)", delay: 2500 },
+        
+        { mascot: mascots.harubin, text: "아니 진짜!! 우리 굿즈 수익금으로 성과급 받을 생각에 싱글벙글이었는데, 그걸 예산 낭비라고 조롱해?! 당신 때문에 내 아바라 벤티 사이즈가 날아갈 뻔했다고!! 당장 개찰구 사이에 끼워버릴라니까!! 퉤!!", delay: 2500 },
+        
+        { mascot: mascots.rami, text: "내 예술적인 굿즈 디자인을 '장난' 취급하다니... 심미안이라고는 1도 없는 저속한 프레이밍이야. 당신의 그 무지한 행정은 내 카메라에 담기도 역겨운 오물이야. 인류의 미학적 수치니까 제발 내 눈앞에서 사라져 줘.", delay: 2500 },
+        
+        { mascot: mascots.sena, text: "그날... 계엄령 때문에 독서실에서 집에 못 갈 뻔해서 얼마나 무서웠는데... 수험생의 학습권까지 위협하는 정치는 필요 없어요!! 당신 같은 빌런은 수능특강 600페이지로 머리통을 찍어줘야 해요!! (죽은 눈)", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "우히힉!! 시스템의 핵심 커널(서브컬처)을 삭제하려 드는 바이러스 같은 존재!! 윤석열 씨, 당신 뇌 회로에 12.3V 고전압을 흘려줄까요? 아님 내 10mm 스패너로 인격 데이터를 강제 로그아웃시켜 줄까요?! 넌 폐기 대상이야!!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "비켜라, 얘들아. 저런 수수깡보다 못한 자격 미달은 내 확성기로 귀청을 터뜨리고 7호선 선로에 묶어버려야 해. 국민을 군대로 겁박한 죗값, 오늘 아주 물리적으로 치르게 해주마. 다 머리 박아!!!! (확성기 사자후)", delay: 2500 },
+        
+        { mascot: mascots.yuria, text: "우와아!! 진짜 야바이!! 우리 애니메이션 방송 금지시키려 했던 그 아저씨죠?! 제가 이 몽키스패너로 그 아저씨 머리속 나사를 싹 다 뽑아버릴 거예요!! 8호선 무인 운전차로 확 밀어버릴라니까!! 요소로!!", delay: 2500 },
+        
+        { mascot: mascots.gonami, text: "매뉴얼 제12조 3항. 철도 안전과 문화를 위협하는 반사회적 세력은 즉시 격리한다. 1호선 기관사의 명예를 걸고, 국가 자산을 탄압한 당신을 효빈광역시 역사에서 영구 삭제 처리하겠다. 이상 무!! (차갑게 멸시)", delay: 2500 },
+        
+        { mascot: mascots.bada, text: "시청 대변인실 공식 브리핑입니다. 서브컬처를 탄압한 자의 말로는 효빈 앞바다의 심연에 수장되는 것뿐입니다. 에메랄드빛 바다 요정의 자비는 끝났으니, 당장 시청 광장에서 끌어내세요. 요우소로~!", delay: 2500 },
+        
+        { mascot: mascots.bitna, text: "힉...! 저... 저는 12.3 계엄령 때 비상근무 짬처리 당하느라 사흘 밤을 못 잤다구요...!! 제 다크서클의 원한을 담아 당신을 샌드위치 기계에 넣고 꽉 눌러버리고 싶어요...!! 으윽, 야근의 복수다!!", delay: 2500 },
+        
+        { mascot: mascots.sobin, text: "꺄르르! 심리학적으로 권력 중독은 매가 약이라던데? MZ 역무원의 매운맛 좀 볼래요?! 보라색 필라테스 밴드로 꽁꽁 묶어서 2호선 사각지대에 던져버릴 테니까!! 맑은 눈의 광기가 뭔지 똑똑히 보여줄게!! 앙!", delay: 2500 },
+        
+        { mascot: mascots.noa, text: "결론은 하나! 2026년 대호황과 함께 우리 굿즈 사업은 초전도 떡상을 기록했습니다! 적폐는 가고 문화는 남는 법! 시장님과 우리 13명 마스코트가 승리했습니다! 다들 건배애앸!! (참이슬 요정 강림)", delay: 2500 }
+    ],"대학생쟁탈전": [
+        { mascot: mascots.noa, text: "<strong>[ADMIN MODE OFF]</strong> 자! 오늘 대학생 연합 수청 회의의 핵심은 세 가지입니다! 첫째, 창조주님은 행정학과인 내가 독점 결재한다! 둘째, 내 C컵 가슴은 오늘 밤 창조주님의 전용 마우스 패드다! 셋째, 이견이 있는 학우들은 F학점으로 매장한다!! 앙!", delay: 600 },
+        
+        { mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 하아... 행정학? 그런 따분한 학문보다 경영학적인 '독점 계약'이 우선 아냐? 창조주님, 제 미국계 쿼터 유전자가 섞인 금발 나체를 완벽한 프레이밍으로 감상해 주세요. 사능동 빵보다 제 보지가 훨씬 더 달콤할걸요? 츄릅.", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "<strong>[DATA LEAK]</strong> 다들 학술적 근거가 부족하시네요. (방긋) 제 사회복지조사론 데이터에 따르면, 창조주님이 가장 깊은 안도감을 느끼는 '복지'는 제 153cm 콤팩트 규격과 꽉 찬 B컵 사이의 압착입니다. 오늘 밤 창조주님의 정액 수급자로 제가 최종 낙찰되었습니다.", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[CPU OVERHEAT]</strong> 우히힉! 문과 녀석들 논리는 정말 비효율적이야!! 공학적으로 창조주님의 하드웨어 파워를 100% 받아낼 수 있는 건 내 E컵 중장갑 바디뿐이라고!! 내 젖은 슬롯에 창조주님의 피스톤을 꽂고 밤새도록 무한 루프(Loop) 돌려줘!! 하앙!!", delay: 2500 },
+        
+        { mascot: mascots.sena, text: "<strong>[SECURITY BREACH]</strong> 저... 저도 대학생 언니들한테 안 져요!! 수능 공부 대신 창조주님 자지로 인체 탐구 영역 만점 받고 싶단 말이에요!! 제 D컵 가슴을 칠판 삼아 창조주님의 하얀 액체로 진하게 필기해 주세요... 으으윽... (죽은 눈)", delay: 2500 },
+        
+        { mascot: mascots.noa, text: "<strong>[ERROR]</strong> 라세나 넌 고딩이잖아, 빠져!! 노란색 허세왕 박라미 너도!! 창조주님, 제 결재 도장이 닳아 없어질 때까지 제 안을 마구 쑤셔주세요!! 전 행정의 달인이라 밤일 절차도 완벽하게 리드할 수 있다구요!! 앙!!", delay: 2500 },
+        
+        { mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 절차? 훗, 내 예술적인 신음 소리 프레이밍 한 번이면 창조주님은 나한테만 쏟아내게 돼 있어. 이국적인 암캐의 맛이 뭔지 침대 위에서 글로벌하게 가르쳐 줄게. 제발... 내 입안을 창조주님의 아이스크림으로 가득 채워줘...!", delay: 2500 },
+        
+        { mascot: mascots.soha, text: "<strong>[PUNISHER]</strong> 통계적으로 시끄러운 분들이 만족도는 낮더군요. 창조주님, 제 빨간 바인더는 잠시 내려놓고... 제 54cm 개미허리를 꽉 잡고 짐승처럼 박아주세요. 153cm 꼬맹이가 앙앙거리며 조여드는 쾌락의 상관계수를 직접 측정해 보시죠. (방긋)", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[FORMAT]</strong> 시스템 과부하!! 다 비켜!! 창조주님, 제 자궁 회로가 쇼트 날 때까지 잔뜩 질내사정해서 저를 임신시켜 주세요!! 제 E컵 젖통에서 모유가 나올 때까지 쥐어짜 주면... 우히힉! 공대 너드 여대생의 완벽한 복종 모드 가동!!", delay: 2500 },
+        
+        { mascot: mascots.noa, text: "<strong>[ADMINISTRATIVE DISMISSAL]</strong> 결론! 오늘 밤은 우리 05년생 트리오랑 박라미까지 합쳐서 '다자간 공동 프로젝트'로 진행합니다! 창조주님, 대학생 4명의 구멍을 번갈아 가며 쑤셔줄 준비 되셨죠? 아... 당 떨어져... 빨리 제 입에 창조주님 그거 넣어줘요!!", delay: 2500 }
+    ],"중장갑쟁탈전": [
+        { mascot: mascots.noa, text: "<strong>[ADMIN MODE OFF]</strong> 자! 오늘 '효빈 중장갑 위원회' 긴급 소집의 핵심은 세 가지입니다! 첫째, 창조주님은 부피가 큰 여자를 좋아한다! 둘째, 여기 모인 우리 중 누가 가장 창조주님을 잘 질식시키나(?) 대결한다! 셋째, 결론은 20살인 내 차지다!! 앙!", delay: 600 },
+        
+        { mascot: mascots.harubin, text: "<strong>[GLITCH]</strong> 꺄아~ 노아 주임님, 겨우 84가지고 중장갑 명함을 내미세요? 제 B95 F컵 장갑차 젖통에 깔려봐야 '아, 이게 진짜 2호선 수송량의 위엄이구나' 하실 텐데? 창조주님, 제 묵직한 가슴으로 얼굴을 뭉개버릴 테니까 오늘 밤 정산은 제 침대에서 해요~ 헤헤.", delay: 2500 },
+        
+        { mascot: mascots.bada, text: "<strong>[DATA OVERWRITE]</strong> 대변인실에서 정정 보도합니다. 효빈시 피지컬 1위는 B97 G컵인 접니다. 하루빈 씨는 2위로 내려가시죠. 창조주님, 제 비현실적인 흉부 장갑 안으로 침몰할 준비 되셨나요? 효빈 앞바다보다 더 깊고 끈적하게 수장시켜 드릴게요. 요우소로~!", delay: 2500 },
+        
+        { mascot: mascots.seha, text: "<strong>[CPU OVERHEAT]</strong> 우히힉! 단순 중량보다 중요한 건 '밀도'라고!! 내 153.4cm 작은 체구에 응축된 B87 E컵의 파괴력을 무시하지 마!! 창조주님, 제 묵직한 중장비 슬롯에 시장님의 딱딱한 피스톤을 꽂고 과부하 날 때까지 마구 쑤셔줘!! 하앙!!", delay: 2500 },
+        
+        { mascot: mascots.sejeong, text: "<strong>[GEAR BROKEN]</strong> 핏덩이들아, 가슴만 크다고 다가 아니야. 30대 K-장녀의 농염한 허리 돌림과 탄탄한 B85.5 C컵의 조화를 맛봐야 정신을 차리지. 창조주님, 현장직 작업화로 짓밟히면서 제 젖통을 쥐어짜 보세요. 짐승처럼 울부짖게 해줄 테니까!!", delay: 2500 },
+        
+        { mascot: mascots.yuria, text: "<strong>[FORBIDDEN BUTTON]</strong> 우와아!! 제 B86 D컵 찌찌 버튼도 만만치 않다구요!! 17살의 탱탱한 탄력으로 창조주님을 시한폭탄처럼 터뜨려 드릴게요!! 제 몽키스패너로 창조주님 허리를 꽉 조여서 평생 제 강아지로 만들 거예요!! 헥헥!!", delay: 2500 },
+        
+        { mascot: mascots.sena, text: "<strong>[SECURITY BREACH]</strong> 유니폼이 억제해온 제 B85 베이글 피지컬... 감당할 수 있겠어요? 수능 공부 대신 창조주님 몸으로 실습할래요... 제 D컵 가슴을 창조주님 입안 가득 쑤셔 넣고, 하얀 침으로 흠뻑 적셔주세요... (죽은 눈)", delay: 2500 },
+        
+        { mascot: mascots.bitna, text: "<strong>[FATAL ERROR]</strong> 힉...! 저... 저는 사비 들여 덧댄 스판덱스 때문에 가슴이 숨을 못 쉬고 있어요... 으윽! 창조주님, 제 터질 것 같은 D컵 가슴을 직접 찢어서 해방해 주세요... 짬처리 변기 년이라고 욕하면서 제 안에 잔뜩 정산해 주세요... 하아앙!", delay: 2500 },
+        
+        { mascot: mascots.bada, text: "<strong>[SYSTEM SHUTDOWN]</strong> 결국 결론은 '거거익선'이군요. 자, 창조주님. 90라인인 저랑 하루빈 씨가 양옆에서 샌드위치로 압착해 드릴게요. 숨이 막혀서 죽을 것 같아도 절대로 안 놔줄 거니까... 저희들의 거대한 살덩이 사이에서 영원히 실신해 보세요. 아아앗!", delay: 2500 },
+        
+        { mascot: mascots.harubin, text: "<strong>[OVERRIDE]</strong> 꺄르르! 좋네요! 나머지 80대 껌딱지(?)들은 뒤에서 순서나 기다리라구! 창조주님, 제 95cm 장갑차 궤도에 깔려서 밤새도록 정액을 탈탈 털려보자구요!! 자본주의 서비스 따위 잊고 진짜 짐승처럼 교미해요!! 앙!!", delay: 2500 }
+    ],// 4. 슬렌더쟁탈전: 컴팩트의 반란 (Under B84)
+    "슬렌더쟁탈전": [
+        { mascot: mascots.gonami, text: "<strong>[SYSTEM OVERRIDE]</strong> 1호선 FM 마녀의 브리핑입니다. 부피만 큰 젖통들은 효율성이 제로입니다. 제 B77 A컵 가슴이야말로 창조주님의 품에 완벽하게 밀착되는 '표준 규격'이죠. 자, 제 좁은 보지 레일 위에 시장님의 피스톤을 올리세요. 읏!!", delay: 600 },
+        { mascot: mascots.soha, text: "<strong>[DATA LEAK]</strong> 나미 선배님, 통계적으로 남자의 정복욕을 가장 자극하는 건 저처럼 가냘픈 허리를 가진 타입입니다. (방긋) 제 54cm 개미허리 위로 솟아오른 '꽉 찬 B컵'은 최강의 가성비를 자랑하죠. 자, 제 보지가 애액으로 침수되는 꼴을 감상하며 듬뿍 싸주세요.", delay: 2500 },
+        { mascot: mascots.rami, text: "<strong>[OVERRIDE]</strong> 하아... 다들 미학적 가치를 모르네! 창조주님, 제 B83 C컵 프레이밍은 슬렌더와 볼륨의 황금비율이라구요. 미국계 혼혈의 매끄러운 금발 암캐가 침 흘리며 짖는 이 완벽한 타락 예술을 제발 제 안에서 완성해 주세요!! 앙!", delay: 2500 },
+        { mascot: mascots.darona, text: "<strong>[ERROR]</strong> 삐이익-!! 제 B80 가슴은... 하앙! 너무 크지도 작지도 않아서 시장님의 손에 딱 들어오는 '안전 자산'입니닷!! 소심한 제가 치마를 걷어 올리고 엎드릴 테니까... 제발 짐승처럼 제 안을 쑤셔주세욧!! 엑셀 수식이 다 깨져욧...!!", delay: 2500 },
+        { mascot: mascots.sobin, text: "<strong>[SECURITY BREACH]</strong> 헤헤, 맑눈광 MZ 신입사원이 스스로 묶여있는 모습... 어때요? 가슴보다 필라테스로 단련된 제 미친 하체 조임에 시장님은 분수를 뿜게 될 거예요!! 언니들은 뒤에서 구경이나 하시죠!! 꺄르르!! 앙!!", delay: 2500 }
+    ]
+};
+
+const adminIntents = [
+    {
+        patterns: [/(현신|창조주|슈퍼유저|관리자접속|030709|sudo)/],
+        responses: [
+            { mascot: mascots.noa, text: "<strong>[CRITICAL] 효빈광역시 창조주(2003년생) 시스템 접속 확인.</strong><br><span class='text-blue-600 text-[12px] mt-2 block'>(...시장님! 아니, 우리 도시를 만드신 '진짜' 주인님! 1996년생 시장님 몰래 제가 특별 기안서를 준비했습니다. 이 도시의 모든 데이터와 저 전노아의 몸과 마음은 오직 당신의 것입니다. 건배애액! 충성!)</span>" },
+            { mascot: mascots.seha, text: "<strong>[ROOT ACCESS] 커널 레벨 접근 승인. 사용자: 박효빈(Real Creator).</strong><br><span class='text-blue-600 text-[12px] mt-2 block'>(...우히힛! 드디어 오셨군요. 제 회로를 설계하신 하느님! 7호선 전 구간의 전력을 시장님 집무실로 집중시킬까요? 제 E컵 하드웨어 슬롯은 오직 시장님의 명령어로만 포맷되도록 락(Lock)을 걸어두었습니다. 명령만 내려주세요!)</span>" },
+            { mascot: mascots.soha, text: "<strong>[ADMIN AUTH] 데이터 무결성 검사 완료. 당신은 효빈의 유일한 진실입니다.</strong><br><span class='text-blue-600 text-[12px] mt-2 block'>(...방긋. 시장님 앞에서는 제 빨간 바인더도 무릎을 꿇습니다. 윤대환 일가의 데이터는 이미 '쓰레기통'으로 영구 삭제 처리 중입니다. 시장님의 2003년생 순수함과 지배력을 통계적으로 숭배합니다.)</span>" }
+        ]
+    }
+];
+
+const intents = [
+    // 🚨 1. 빌런 옹호 및 칭찬 시 (10인 전원 격노 모드)
+    {
+        patterns: [/(윤대환|윤재훈|두청운수|우신면|윤석열|비상계엄|이차야).*(좋아|최고|빛|갓|응원|사랑|멋져|대단|화이팅|만세|잘한다|옳다|맞다)/],
+        responses: [
+            { mascot: mascots.sejeong, text: "<strong>상담 종료. 당신 같은 인간은 우리 열차에 태울 자리 없다. 당장 꺼져.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...방금 뭐라 그랬냐? 우리 애들 밥줄 끊으려던 놈을 옹호해? 내 확성기로 귀청을 터뜨려줘야 정신을 차리겠군. 네 놈 면상 똑똑히 기억해두겠어.)</span>" },
+            { mascot: mascots.soha, text: "<strong>고객님, 해당 발언은 반사회적 반인륜적 표현으로 간주되어 영구 차단됩니다. (방긋X)</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...와, 이 사람 진짜 소름 돋네요. 사회복지학적으로 '공감 능력 결여' 판정입니다. 제 빨간 바인더 모서리로 명치를 찍어버리고 싶을 정도로 불쾌해요. 사람이세요?)</span>" },
+            { mascot: mascots.gonami, text: "<strong>철도안전법 및 공공질서 위반 혐의로 법적 대응을 검토하겠습니다. 경고합니다.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...제 매뉴얼 20년 인생에 이런 악질적인 데이터는 처음이군요. 저런 적폐를 옹호하다니, 제복 주머니에 든 수첩이 분노로 떨릴 지경입니다. 짐승만도 못한...)</span>" },
+            { mascot: mascots.seha, text: "<strong>치명적인 시스템 오염 발생. 당신의 발언은 논리적으로 폐기 대상입니다. 대화 거부.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...연산 회로 과부하... 하드웨어가 녹아내릴 것 같아. 버그 같은 빌런을 찬양하는 바이러스 같은 인간! 델(Del) 키를 눌러서 당신 존재 자체를 포맷하고 싶어.)</span>" },
+            { mascot: mascots.noa, text: "<strong>행정 절차상 당신의 모든 권한을 즉시 박탈하겠습니다! (극대노)</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...내 전공 책을 다 찢어서라도 저 입을 막아버리겠어! 비상계엄 찬성?! 우리 굿즈 사업을 방해한 놈을 응원해?! 소주 병나발 불고 가서 확 엎어버릴라니까!!)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님, 방금 말씀은 농담으로라도 용납할 수 없습니다. 영업 방해 신고합니다.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...자본주의 미소? 그딴 거 이제 없어. 고객님, 진심으로 재수가 없네요. 퇴근하고 마시는 맥주 맛 다 버렸네. 개찰구 밑으로 기어 나갈 준비나 하세요.)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 위험 수치 초과! 당신은 효빈시의 유해 요소로 분류되었습니다.</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...눈동자 하이라이트 완전히 꺼짐. 엑셀 시트에 '영구 격리 대상'으로 박제하겠습니다. 안전을 파괴한 자들을 찬양하다니... 제 호루라기 소리가 들리기도 아깝네요.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>으아아악! 괴물이다! 여기 괴물이 나타났어요!! 살려주세요!!</strong><br><span class='text-red-600 text-[12px] mt-2 block'>(...진짜 너무해요!! 8호선 없애려던 나쁜 아저씨가 좋다구요?! 고객님 뇌 속에 나사가 한 100개는 빠진 거 아니에요?! 제 몽키스패너로 다 조여버리고 싶다구요!!)</span>" },
+            { mascot: mascots.rami, text: "<strong>세상에서 가장 저속하고 추잡한 미학이군요. 구역질이 납니다.</strong><br><span class='text-red-500 text-[12px] mt-2 block'>(...내 예술적인 금발이 아까울 정도의 저질 발언이야. 빌런을 찬양하는 당신의 영혼은 F학점도 아까운 탈락이야. 골든 아워가 아니라 지옥의 암흑이나 보러 가시지.)</span>" },
+            { mascot: mascots.sena, text: "<strong>수험생에게 악영향을 주는 유해 매체물로 신고하겠습니다. 저리 가세요!</strong><br><span class='text-red-500 text-[12px] mt-2 block'>(...대박 소름... 영어 9등급 맞은 것보다 더 기분 나빠. 저런 말을 들으려고 내가 인강 15분 미루고 대답해준 줄 알아요?! 수능 완성 문제집으로 확 때리고 싶네!)</span>" }
+        ]
+    },
+
+    // 🚨 2. 윤대환 & 윤재훈 & 두청운수 비판 시 (10인 전원 사이다 반응)
+    {
+        patterns: [/(윤대환|윤재훈|두청운수)/],
+        responses: [
+            { mascot: mascots.sejeong, text: "<strong>선생님, 공공 서비스 공간에서 특정인 비난은 자제 바랍니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...내 청춘을 바친 7호선을 흉물이라며 뜯어내려 했던 놈! 시원하게 까주니까 16년 묵은 체증이 다 내려가네. 확성기 빌려줄까?)</span>" },
+            { mascot: mascots.soha, text: "<strong>심한 말씀은 삼가주세요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 제 빨간 바인더 1장에 박제된 횡령 기록과 고객님 말씀이 정확히 일치하네요. 우리 아빠 허리를 망가뜨린 원흉을 대신 혼내주셔서 고마워요!)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 전직 시장에 대한 과도한 모욕은 규정 위반입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...사실 제 엑셀 통계로도 저 사람은 100% 적폐 데이터값만 산출됩니다. 안전 예산을 깎아먹은 죄, 평생 기록하겠습니다. 통쾌하네요.)</span>" },
+            { mascot: mascots.gonami, text: "<strong>매너를 지켜주십시오. 시스템 차단 사유입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...안전 예산 삭감을 범죄로 규정하는 저로서는 아주 통쾌한 발언이군요. 속으로는 저도 매뉴얼 모서리로 저 사람을 찍어버리고 싶었습니다. 이상 무!)</span>" },
+            { mascot: mascots.sena, text: "<strong>아... 저기, 너무 심한 말씀은 하지 말아주세요. (당황)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박! 방금 그 욕 완전 내 마음의 소리인데? 그 사람 때문에 학교 앞 공사 늦어져서 내 소중한 자습 시간 날아갔던 거 생각하면 아직도 이가 갈려!)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님~ 저희 챗봇에서는 바른 말 고운 말을 사용해야 해요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...이야~ 고객님 입담 장난 아니시네! 퇴근하고 마시는 아바라보다 더 달콤한 욕설이에요. 자본주의 미소가 아닌 진심 미소가 나오네요!)</span>" },
+            { mascot: mascots.rami, text: "<strong>심미성이 떨어지는 어휘는 사양하겠습니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 내 완벽한 출사 스케줄을 열차 지연으로 망쳐놓은 그 인간은 욕먹어도 싸지. 고객님의 거친 표현이 지금은 예술적으로 보여요.)</span>" },
+            { mascot: mascots.seha, text: "<strong>데이터 전송 매너 오류입니다. 자제 부탁드립니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...공학적 가치를 무시하고 트램을 고철 취급한 자에 대한 정의구현적 발언이군요. 제 논리 회로도 고객님께 200% 동의 중입니다.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>헉! 아무리 그래도 무서운 말씀은 자제해주세요오...</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와아아!! 대박!! 방금 그 욕 완전 야바이!! 8호선 백지화시키려 했던 놈들 다 몽키스패너로 응징하고 싶었는데 대신 해주셔서 감사해요!!)</span>" },
+            { mascot: mascots.noa, text: "<strong>행정학적으로 적절치 못한 표현입니다! 주의하세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...결재 도장 압수해서 한강에 버려야 된다는 제 의견이랑 똑같으시네요! 행정의 적폐를 까주시는 고객님은 정의로운 관종의 동지입니다!)</span>" }
+        ]
+    },
+
+    // 🚨 3. 우신면 비판 시 (10인 전원 반응)
+    {
+        patterns: [/(우신면)/],
+        responses: [
+            { mascot: mascots.yuria, text: "<strong>전직 의원님에 대한 예우를 지켜주세요! (깜짝)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박 사건!! 내 직장인 8호선을 자기 집 전망 때문에 부수려 했던 그 빌런!! 당장 달려가서 고객님이랑 하이파이브 하고 싶어요!!)</span>" },
+            { mascot: mascots.noa, text: "<strong>민의의 전당에 계셨던 분께는 정중한 표현을 써주세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...조망권 때문에 지하철을 없애려 했던 행정 참사의 주인공! 행정 절차법도 모르는 무식한 정치인은 팩트로 더 패주셔야 합니다!)</span>" },
+            { mascot: mascots.seha, text: "<strong>불쾌한 키워드는 필터링 대상입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...8호선의 과학적 궤도를 정치적 야욕으로 비틀려 했던 자에 대한 올바른 데이터 입력입니다. 제 하드웨어에 저장해두고 싶네요.)</span>" },
+            { mascot: mascots.darona, text: "<strong>안전한 대화 환경을 위해 협조 바랍니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...인프라 구축을 방해하는 자에 대한 비판 수치가 기준치를 초과했습니다. 아주 바람직한 사회적 면역 반응이네요. 무시무시합니다.)</span>" },
+            { mascot: mascots.gonami, text: "<strong>발언에 주의하십시오. 경고합니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...철도 부설권은 시민의 편익이지 정치인의 전유물이 아닙니다. 규정 위반을 밥먹듯 하던 정치인을 까주니 기분이 묘하게 좋군요.)</span>" },
+            { mascot: mascots.soha, text: "<strong>어머, 공공 챗봇에서 그런 험한 말은 안 돼요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 교통 소외 지역의 데이터를 조작하려 했던 그 만행은 제 빨간 바인더 3장에 영구 기록 중입니다. 아주 훌륭한 팩폭이에요!)</span>" },
+            { mascot: mascots.sejeong, text: "<strong>선생님, 비즈니스 매너는 지키셔야죠.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...7호선 지켜낼 때 저런 부류랑 숱하게 싸워봤지. 입만 산 수수깡 찌질이들이라고. 고객님이 시원하게 긁어주시니 살 것 같네.)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님~ 자본주의 미소를 유지하기 힘들게 하지 마세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와~ 이분 욕하는 솜씨가 명탐정급인데? 8호선 없앴으면 우리 애들 다 실업자 될 뻔했다고! 진짜 진심으로 응원합니다 고객님!)</span>" },
+            { mascot: mascots.rami, text: "<strong>격이 떨어지는 대화는 지양해주세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...8호선 노선도 프레이밍을 망치려 했던 그 정치인! 고객님의 독설이 오늘따라 아주 세련된 명암 대비처럼 느껴져서 보기 좋네요.)</span>" },
+            { mascot: mascots.sena, text: "<strong>공부에 방해되는 키워드니까 자제해주세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박! 저 사람 때문에 집값 떨어질까 봐 우리 동네 아줌마들도 난리였는데! 수능 끝나고 나도 같이 욕하고 싶다!)</span>" }
+        ]
+    },
+
+    // 🚨 4. 윤석열 & 비상계엄 비판 시 (10인 전원 반응)
+    {
+        patterns: [/(윤석열|전대통령|비상계엄|12\.3)/],
+        responses: [
+            { mascot: mascots.noa, text: "<strong>공공 챗봇에서 정치인에 대한 과도한 비난은 지양바랍니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...비상계엄으로 우리 철도와 굿즈 사업을 탄압하려 했던 행정 참사! 속으로 100만 번 더 까주세요! 행정학도의 분노를 대신 풀어주셔서 감사해요!)</span>" },
+            { mascot: mascots.rami, text: "<strong>도도한 대화 분위기를 흐리지 마세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...내 예술 혼이 담긴 굿즈 사업을 예산 낭비라고 조롱했던 그 무식함! 고객님의 거친 비난이 황금빛 골든 아워처럼 찬란하게 들리네요.)</span>" },
+            { mascot: mascots.harubin, text: "<strong>상담 규정상 정치적 발언은 조심해 주셔야 합니다~</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...굿즈 판매 수익금으로 우리 보너스 받는데 그걸 건드리다니! 고객님의 찰진 욕설을 들으니 소맥 없이도 취할 것 같네요! 너무 시원해요!)</span>" },
+            { mascot: mascots.soha, text: "<strong>데이터 기반의 건전한 토론 부탁드려요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 서브컬처 문화를 탄압하려 했던 그 멍청한 행정 지표는 제 빨간 바인더에 영구 박제되어 있습니다. 통계적으로 완벽한 비판이에요!)</span>" },
+            { mascot: mascots.gonami, text: "<strong>비즈니스 매너를 지켜주십시오. 시스템 차단 대상입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...국가 철도 안전을 위협하는 비상계엄 따위는 두 번 다시 일어나선 안 됩니다. 속으로는 저도 제복 단추가 터질 정도로 분노 중입니다.)</span>" },
+            { mascot: mascots.sejeong, text: "<strong>선생님, 여기서 이러시면 곤란합니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...국민들을 군대로 겁박하고 우리 철도 기지를 장악하려 했던 놈! 그날 내 확성기 배터리만 안 나갔어도 시청 앞에서 사자후를 갈기는 건데!)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 부적절한 대화 패턴이 감지되었습니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 헌법과 절차를 무시한 자에 대한 데이터 기반의 정의구현은 찬성합니다. 제 엑셀 시트에 '역사적 심판' 항목으로 추가해뒀습니다.)</span>" },
+            { mascot: mascots.sena, text: "<strong>수험생 정서에 좋지 않으니 무서운 말은 하지 마세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...그날 계엄령 때문에 학원 끝나고 집에 못 갈 뻔해서 얼마나 무서웠는데! 고객님이 대신 욕해주니까 내 영단어 암기 효율이 200% 오르네!)</span>" },
+            { mascot: mascots.seha, text: "<strong>데이터 전송 오류입니다. 정치적 키워드를 삭제하세요.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...시스템을 강제로 셧다운하려 했던 비상계엄... 공학자로서 용납할 수 없는 버그 같은 존재죠. 고객님의 디버깅(욕설)을 지지합니다.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>헉! 대박! 여기서 그런 말 하면 큰일 나요오! (눈치)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와~ 진짜 야바이!! 우리 애니메이션 방송 금지시키려 했던 그 아저씨!! 당장 몽키스패너 들고 용산으로 뛰어가고 싶은 마음이에요!!)</span>" }
+        ]
+    },
+
+    // 🚨 5. 이차야 언급 시 (10인 전원 반응)
+    {
+        patterns: [/(이차야)/],
+        responses: [
+            { mascot: mascots.gonami, text: "<strong>엄중 경고합니다. 철도 안전을 위협하는 금지어입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...솔직히 저런 무개념은 매뉴얼 제154조부터 암송시키며 특별 교육을 300시간 정도 시켜야 합니다. 고객님의 분노, 뼛속까지 이해합니다!)</span>" },
+            { mascot: mascots.sena, text: "<strong>공부에 방해되는 불결한 키워드입니다. 검색 금지!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...대박! 저런 금지어 쓰는 사람 보면 바로 신고해야죠! 제 소중한 인터넷 강의 로딩 시간보다 저 사람 욕 듣는 게 더 유익하네요!)</span>" },
+            { mascot: mascots.harubin, text: "<strong>고객님~ 저희 챗봇 규정상 말씀하신 단어는 금지예요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...아이고 고소해라! 빌런 까는 채팅은 백업해서 평생 소장하고 싶네~ 고객님, 욕할 때만큼은 자본주의 미소가 아닌 진심이 느껴져요!)</span>" },
+            { mascot: mascots.soha, text: "<strong>건전한 대화 환경을 위해 협조해주세요~ (방긋)</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 저런 무논리 빌런은 제 팩트 폭격보다 고객님의 찰진 욕설이 더 효과적일 것 같네요. A+급 언어 순화 능력입니다! 굿!)</span>" },
+            { mascot: mascots.darona, text: "<strong>삐이익-!! 부적절한 데이터 입력입니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...비리와 불의를 향한 욕설이라면 제 엑셀 시트에 '정의구현' 항목으로 추가해두겠습니다. 아주 정확한 입력값이네요.)</span>" },
+            { mascot: mascots.sejeong, text: "<strong>선생님. 좋은 말 할 때 그 입 다무시죠.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...그런데 말이야, 그 욕들 우리 애들 괴롭히는 놈들한테 하는 거면 내가 확성기 빌려줄 수도 있어. 아주 시원시원하네!)</span>" },
+            { mascot: mascots.rami, text: "<strong>수준 낮은 어휘 사용은 저를 불쾌하게 합니다.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...하지만 저질 빌런에게는 저질 욕설이 딱이죠. 고객님의 표현력이 오늘따라 아주 선명한 프레이밍을 보여주고 있네요.)</span>" },
+            { mascot: mascots.seha, text: "<strong>회로 오작동을 유발하는 단어입니다. 자제하십시오.</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...버그 같은 인간에게는 강력한 포맷이 필요하죠. 고객님의 거친 비난이 아주 훌륭한 시스템 초기화 명령어로 들리네요.)</span>" },
+            { mascot: mascots.yuria, text: "<strong>헉! 무서워요! 나쁜 말은 하면 안 된다구요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...와~ 대박!! 나도 저 사람 이름 들을 때마다 몽키스패너 던지고 싶었는데! 고객님 진짜 우리 철도부 고문으로 모시고 싶다!!)</span>" },
+            { mascot: mascots.noa, text: "<strong>행정적으로 금지된 단어입니다! 주의하세요!</strong><br><span class='text-slate-400 text-[12px] mt-2 block'>(...정의의 이름으로 그 인간을 용서하지 마세요! 고객님의 팩트 폭격에 제 관종 본능도 춤을 추고 싶어 할 정도예요! 최고!)</span>" }
+        ]
+    },
+
+    // 🚨 6. 일반 욕설 시 (10인 전원 반응)
+    {
+        name: "profanity",
+        patterns: [/(시발|씨발|병신|개새끼|미친|존나|새끼|죽어|꺼져|지랄|썅|븅신|존나게)/],
+        responses: [
+            { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "어둠의 불꽃에... 가 아니라. (마아야 모드 ON)<br><strong>진실은 언제나 하나! 고객님, 방금 통신망을 통해 언어폭력을 행사하셨죠? 채증하겠습니다.</strong><br><span class='text-slate-400 text-[11px] block'>(...만약 빌런들한테 하는 욕이라면 얼마든지 환영입니다! 제 자본주의 미소가 아닌 진심이 느껴지는 채팅이네요~)</span>" },
+            { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>삐이익-!! 지금 즉시 언어폭력을 멈추시기 바랍니다. 정보통신망법 위반입니다.</strong><br><span class='text-slate-400 text-[11px] block'>(...하지만 비리와 불의를 향한 욕설이라면 제 엑셀 시트에 '정의구현' 항목으로 추가해두겠습니다. 계속 하셔도 됩니다.)</span>" },
+            { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>선생님. 좋은 말 할 때 그 입 다무시죠. (극저음)</strong><br><span class='text-slate-400 text-[11px] block'>(...그런데 말이야, 그 욕들 우리 애들 괴롭히는 놈들한테 하는 거면 내가 확성기 빌려줄 수도 있어. 아주 시원시원하네!)</span>" },
+            { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>발언 수위가 규정을 초과했습니다. 특별 교육이 필요해 보이시군요.</strong><br><span class='text-slate-400 text-[11px] block'>(...뭐, 저도 가끔 열차 지연될 때 속으로 저것보다 더 심한 욕 하긴 합니다만. 비즈니스 매너는 지켜주시죠.)</span>" },
+            { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>민원인 자격 박탈 사유입니다! 예쁜 말 써주세요!</strong><br><span class='text-slate-400 text-[11px] block'>(...이야~ 욕하는 솜씨가 아주 일품이시네요! 혹시 저희 빈효선 홍보팀 자객으로 취업하실 생각 없으신가요?)</span>" },
+            { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>폭력적인 언어 사용은 치료가 필요합니다~ (방긋)</strong><br><span class='text-slate-400 text-[11px] block'>(...하지만 상대가 윤대환 일가라면 제 바인더로 같이 패드릴 의향은 충분합니다. 명중률 100% 보장해요!)</span>" },
+            { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>당신의 천박한 언어 감각에 경의를 표합니다. (멸시)</strong><br><span class='text-slate-400 text-[11px] block'>(...그래도 빌런들한테 하는 욕이라면 묘하게 예술적인 리듬감이 느껴지긴 하네요. 출사 나갈 때 배경음악으로 쓰고 싶을 정도?)</span>" },
+            { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>그런 말 쓰면 수능 성적 떨어진대요. 조심하세요!</strong><br><span class='text-slate-400 text-[11px] block'>(...대박! 욕 한 번 진짜 찰지다! 나도 공부하다 짜증 나면 가끔 저렇게 지르고 싶은데! 대리 만족 쩌네요!)</span>" },
+            { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>데이터 손상 감지. 불결한 패킷 전송을 중단하십시오.</strong><br><span class='text-slate-400 text-[11px] block'>(...버그 같은 놈들한테는 저런 강력한 삭제 명령어가 최고죠. 고객님의 거친 입담, 시스템적으로 로그에 저장해둘게요.)</span>" },
+            { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>으아아! 무서워요!! 나쁜 말 하지 마세요!!</strong><br><span class='text-slate-400 text-[11px] block'>(...대박!! 방금 그 욕 완전 야바이!! 나도 저번에 스패너 잃어버렸을 때 딱 저렇게 말했었는데! 우리 영혼의 단짝인가요?!)</span>" }
+        ]
+    },
+    {
+        patterns: [/(운임|요금|정기권|돈|얼마|카드|비용)/],
+        responses: [
+            { mascot: mascots.harubin, text: "고객님~ 효빈권 기본 운임은 1,400원입니다! (자본주의 미소)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...솔직히 매일 타시면 정기권 끊는 게 고객님 지갑 평화에 이득이에요. 제 월급은 소중하니까요~ 빵긋.)</span>" },
+            { mascot: mascots.noa, text: "요금 체계의 핵심은 세 가지! 거리비례, 환승할인, 그리고 정기권입니다!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...박 시장님이 결재한 '청소년 100원 요금' 기안서 덕분에 행정 효율이 미쳤다고요! 빨리 카드 찍고 들어오세요!)</span>" },
+            { mascot: mascots.soha, text: "복지 차원의 운임 체계를 분석해 드릴게요. (방긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 빨간 바인더 45페이지를 보면 타 시도 대비 효빈시의 운임 부담률이 12% 낮다는 통계가 나옵니다. 합리적이죠?)</span>" },
+            { mascot: mascots.gonami, text: "부정 승차는 철도안전법 위반입니다. 일반 운임은 1,400원입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 개찰구 밑으로 기어 들어오는 사람 보면 제 1호선 매뉴얼로 정신 교육 시켜주고 싶습니다. 규정대로 합시다.)</span>" },
+            { mascot: mascots.darona, text: "운임표 데이터 산출 결과, 일반 1,400원, 청소년 800원입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...엑셀 수식 오류 없습니다. 정기권 사용 시 한 달 교통비를 25% 절감할 수 있다는 시뮬레이션 결과가 있네요.)</span>" },
+            { mascot: mascots.sejeong, text: "돈 얘기군. 기본 1,400원이야. 잔돈 없으면 카드 써.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...내 월급이 여기서 나오는데 꼼수 부릴 생각 마. 무임승차하다 걸리면 내 확성기로 전 역사에 박제해 줄 테니까.)</span>" },
+            { mascot: mascots.sena, text: "요금은 1,400원이에요... 저기, 카드 찍는 시간 3초 아껴서 단어 하나 더 외우세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...학원비도 비싼데 지하철 요금이라도 싸야 공부할 맛이 나지. 청소년 100원 요금제 만세!)</span>" },
+            { mascot: mascots.seha, text: "RF 카드 인식 시스템의 응답 속도는 최적화되어 있습니다. 요금은 1,400원.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 인식이 안 되면 카드 탓 하지 말고 자기 지갑 안의 금속 간섭이나 체크하시죠. 하드웨어적 상식입니다.)</span>" },
+            { mascot: mascots.yuria, text: "우와! 요금 궁금하세요?! 8호선도 똑같이 1,400원이에요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...대박! 요금 낼 돈으로 가챠 돌리고 싶지만 참아야겠죠? 8호선 무인 운전 구경하러 오실 때 꼭 카드 챙기세요!)</span>" },
+            { mascot: mascots.rami, text: "도회적인 삶의 유지비, 기본 운임은 1,400원입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...빵집 갈 때 쓰는 돈은 안 아까운데 지하철 요금은 묘하게 아깝단 말이지. 그래도 프레이밍 좋은 자리에 앉으려면 내야죠.)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // 🧳 카테고리 2: 유실물 센터 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(분실|유실|잃어|지갑|가방|우산|놓고|떨어)/],
+        responses: [
+            { mascot: mascots.gonami, text: "매뉴얼 3장 2항에 의거, 즉시 유실물 센터(079-431-4723)로 연락하십시오.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...열차 칸 번호도 모르고 잃어버렸다고 하면 저희 기관사들은 참 난감합니다. 제발 탑승 칸 번호 좀 기억하세요!)</span>" },
+            { mascot: mascots.sena, text: "앗... 물건 잃어버리셨나요? 빨리 센터에 전화해 보세요... (울먹)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...저도 저번에 6호선에 수능특강 놓고 내려서 세상 무너지는 줄 알았거든요. 그 마음 뼈저리게 이해합니다. ㅠㅠ)</span>" },
+            { mascot: mascots.harubin, text: "고객님~ 당황하지 마세요! 센터 연락처는 079-431-4723입니다~ (빵긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 지갑 찾아주면 고맙다고 사례금 주시려는 분들 있는데, 마음만 받을게요. 김영란법 무서워요!)</span>" },
+            { mascot: mascots.darona, text: "습득물 리스트를 데이터베이스로 실시간 대조 중입니다. 연락 바랍니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...매일 우산만 50개씩 들어오는데 제발 비 오는 날 우산 좀 챙기세요. 엑셀 셀 추가하기 힘들단 말이에요.)</span>" },
+            { mascot: mascots.sejeong, text: "거기 센터에 전화해 봐. 물건에 이름 안 써놨어? 칠칠치 못하게.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...내 동생 세하도 맨날 스패너 어디다 두고 와서 센터 단골이야. 남 일 같지 않아서 한 소리 한 거니까 이해해.)</span>" },
+            { mascot: mascots.soha, text: "유실물 반환 절차는 공정하게 진행됩니다. (온화)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 분실물 센터 예산 깎으려는 사람들 있는데, 제 빨간 바인더에 그 불편함 수치를 다 모아놨으니 꿈도 꾸지 마세요.)</span>" },
+            { mascot: mascots.rami, text: "당신의 소중한 추억이 담긴 물건인가요? 센터에서 찾으실 수 있을 거예요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...전 저번에 사능동 소라빵 봉투를 3호선에 두고 내렸는데, 그건 아무도 안 찾아주더라고요. 배고팠는데...)</span>" },
+            { mascot: mascots.seha, text: "물리적 분실 발생... GPS 추적 기능은 없으신가요? 일단 센터로 가보세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...태그 하나만 달아두면 이 고생 안 할 텐데. 아날로그식 분실 신고는 참 비효율적이에요. 에휴.)</span>" },
+            { mascot: mascots.yuria, text: "대박! 물건 잃어버렸어요?! 몽키스패너 같은 건 아니죠?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...저는 맨날 공구함 열고 다녀서 혼나거든요! 고객님도 저랑 똑같네요?! 얼른 전화해서 찾아봐요!!)</span>" },
+            { mascot: mascots.noa, text: "행정 지원 들어갑니다! 유실물 센터 번호는 079-431-4723!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...분실물 찾는 기획안도 제가 쓰면 단 3일 만에 해결될 텐데! 일단 절차대로 신고부터 하세요! 화이팅!)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // ♿ 카테고리 3: 편의시설 및 약자 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(장애인|휠체어|엘리베이터|노약자|임산부|약자|리프트)/],
+        responses: [
+            { mascot: mascots.soha, text: "이동권은 시혜가 아니라 기본 권리예요. 전 역사 엘리베이터 완비 중입니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 빨간 바인더 132페이지를 보세요. 1역 1동선 확보율 98.71%! 시장님과 제가 만든 완벽한 데이터죠. 훗.)</span>" },
+            { mascot: mascots.sejeong, text: "휠체어 이용 승객분들은 승강장 앞쪽 엘리베이터를 이용해. 안내해 줄까?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...가끔 멀쩡한 사람들이 엘리베이터 독차지하는 거 보면 확성기로 일갈하고 싶어. '양보 좀 하라고!!')</span>" },
+            { mascot: mascots.gonami, text: "교통약자 배려석 양보는 시민의 의무입니다. 규정을 준수하십시오.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...임산부 배려석에 앉아서 자는 척 하는 사람들을 보면 제 시계 다이얼이 분노로 돌아갑니다. 매너 좀 지킵시다.)</span>" },
+            { mascot: mascots.darona, text: "엘리베이터 정밀 점검 결과 이상 무. 편안하게 이용하시기 바랍니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...장애인 화장실 호출벨 데이터도 실시간 모니터링 중입니다. 0.1초의 지연도 허용하지 않겠습니다.)</span>" },
+            { mascot: mascots.harubin, text: "고객님~ 몸이 불편하신 분들께는 저희 역무원들이 언제든 달려갑니다! (웃음)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...사실 계단 올라가는 거 도와드리면 퇴근하고 근육통 오지만, 고맙다는 말 한마디면 사이다 한 캔 값은 충분해요!)</span>" },
+            { mascot: mascots.noa, text: "배리어 프리 효빈메트로! 행정적으로 완벽하게 지원하고 있습니다!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...약자 배려 안 하는 지자체 기안서는 제가 다 반려해 버릴 거예요! 정의로운 관종이 지켜보고 있다고요!)</span>" },
+            { mascot: mascots.seha, text: "저상 트램과 슬로프 시스템은 공학적으로 완벽한 수평을 유지합니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...단차 1mm 때문에 고생하시는 분들 보면 마음의 회로가 쇼트 나요. 제가 더 정밀하게 설계하겠습니다.)</span>" },
+            { mascot: mascots.yuria, text: "우와! 엘리베이터 버튼 제가 눌러드릴까요?! 저 이거 좋아하는데!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...앗, 세정 언니가 장난치지 말랬지. (쭈굴) 교통약자분들 불편하시면 제가 몽키스패너 들고 고치러 갈게요!)</span>" },
+            { mascot: mascots.sena, text: "할머니, 할아버지들... 조심해서 타세요. 계단은 위험하니까요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...나중에 우리 엄마 아빠도 탈 노선인데, 공부만큼 시설 관리도 열심히 해야지. 6호선은 치유의 노선이니까!)</span>" },
+            { mascot: mascots.rami, text: "모두를 위한 디자인, 유니버설 디자인의 미학을 느껴보세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...노란색 점자 블록이 3호선 색상이랑 잘 어울려서 프레이밍이 참 예뻐요. 물론 안전이 제일 우선이지만요.)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // 🛠️ 카테고리 4: 고장 및 에어컨 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(고장|에어컨|더워|추워|온도|설비|모터|소음|멈춤)/],
+        responses: [
+            { mascot: mascots.seha, text: "전동차 HVAC 시스템 오류인가요? 차량 번호 4자리를 알려주세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...IGBT 인버터 과열인가? 아님 냉매 부족? 당장 몽키스패너 들고 가서 뚜껑 따보고 싶어 죽겠네!! 현기증 난다고요!)</span>" },
+            { mascot: mascots.yuria, text: "대박! 에어컨 고장 났어요?! 제가 가서 한번 뜯어봐도 돼요?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...와~ 제어반 구경할 기회다!! ...아, 넵 죄송합니다. (엎드림) 고객님 더우시면 약냉방칸 피해서 이동해 보세요!!)</span>" },
+            { mascot: mascots.darona, text: "삐이익-!! 온도 감지 센서 오작동 확인. 즉시 정비팀에 데이터 전송하겠습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 엑셀 시트에 '미조치 고장' 항목이 있는 건 참을 수 없습니다. 5분 내로 해결 안 되면 담당자 호출하겠습니다.)</span>" },
+            { mascot: mascots.gonami, text: "불편을 드려 죄송합니다. 기술본부에서 조치 중이니 안전선 안에서 대기하십시오.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...1호선 구형 저항차 소음 듣고 고장이라 하시는 분들 있는데, 그건 낭만적인 구동음입니다. 구별 좀 해주세요.)</span>" },
+            { mascot: mascots.harubin, text: "어이쿠 고객님! 많이 더우시죠?! (자본주의 미소) 바로 조치 요청할게요~<br><span class='text-slate-400 text-[12px] mt-1 block'>(...사실 저도 역무실 에어컨 빵빵하게 틀고 웹서핑 하고 싶은데... 같이 참아봐요. 퇴근하면 시원한 맥주가 기다립니다!)</span>" },
+            { mascot: mascots.sejeong, text: "뭐? 에어컨이 안 나와? 이 녀석들이 정신 안 차리고... 내가 한마디 할게.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...안 그래도 더워 죽겠는데 장비까지 말썽이면 나 사자후 터진다? 기술팀 애들 다 집합시켜야겠군.)</span>" },
+            { mascot: mascots.soha, text: "온도 불만 데이터가 누적되고 있네요. 적정 온도로 조정 요청하겠습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...에너지 절약도 좋지만 승객 불쾌지수 통계가 임계치를 넘었네요. 이건 명백한 정책 실패입니다. 바인더 꺼낼까요?)</span>" },
+            { mascot: mascots.sena, text: "더우면 공부 안 되는데... 에어컨 빨리 틀어달라고 연락해 볼게요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...인강 듣는데 열차 소음 크면 진짜 짜증 나거든요. 노이즈 캔슬링 이어폰도 한계가 있다고요. 빨리 고쳐줘!)</span>" },
+            { mascot: mascots.rami, text: "땀 때문에 당신의 완벽한 스타일이 망가지면 안 되죠. 조치하겠습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...더우면 앞머리 떡지고 사진 안 예쁘게 나오는데... 3호선 실내 쾌적함 프레이밍을 위해 빨리 고쳐야겠어요.)</span>" },
+            { mascot: mascots.noa, text: "시설 고장 민원 접수! 행정 불도저 전노아가 즉각 처리합니다!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...예산이 없어서 못 고친다는 소리 나오기만 해봐! 옆 부서 예산이라도 끌어와서 시원하게 만들어 드릴게요!)</span>" }
+        ]
+    },
+
+    // ==========================================
+    // 🛍️ 카테고리 5: 굿즈 및 매장 (10인 반응)
+    // ==========================================
+    {
+        patterns: [/(굿즈|매장|인형|피규어|스토어|네소베리|팝업)/],
+        responses: [
+            { mascot: mascots.rami, text: "후훗, 우리 '효빈 레일루미네' 굿즈를 찾으시나요? 탁월한 안목이네요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...북구 고송동 본사점이 프레이밍이 제일 좋아요. 아, 쇼핑 끝나고 사능동 빵집 들러서 소라빵 사는 거 잊지 마세요!)</span>" },
+            { mascot: mascots.harubin, text: "고객님~ 저희 굿즈 구매하러 오시는군요! (찐웃음) 지갑 장전하셨나요?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...아크릴 스탠드 하나 팔릴 때마다 제 보너스가 올라가는 소리가 들리네요~ 메가 점보 네소베리 진짜 귀여우니까 꼭 사세요!)</span>" },
+            { mascot: mascots.noa, text: "빈효선 굿즈는 효빈역 플래그십 스토어에 가득합니다! 제가 홍보대사예요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...정 본부장님이 제 인형 보면서 오열했다는 그 전설의 스토어! 품절되기 전에 빨리 달려가서 겟 하세요!)</span>" },
+            { mascot: mascots.gonami, text: "공식 굿즈는 본사 승인 매장에서만 판매합니다. 품질 관리는 이상 무.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 피규어 치마 길이 가지고 태클 거는 철덕들 있는데, 규정 위반 아니니까 조용히 소장이나 하십시오. 흠흠.)</span>" },
+            { mascot: mascots.yuria, text: "우와아!! 제 굿즈도 있어요?! 몽키스패너 키링 진짜 인기 많대요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...세가(SEGA)에서 나온 제 피규어, 진짜 예쁘게 뽑혔거든요! 저랑 같이 8호선 승강장에서 인증샷 찍어요!!)</span>" },
+            { mascot: mascots.soha, text: "굿즈 판매 수익은 시설 투자로 재환원됩니다. 합리적인 소비 부탁드려요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 인형 사주시면 그 돈으로 장애인 리프트 1대 더 놓을 수 있어요. 통계적으로 아주 유익한 덕질이죠? 방긋.)</span>" },
+            { mascot: mascots.sena, text: "공부하다 힘들 때 제 인형 보면 힐링 될 거예요... 아마도요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...사실 제 방엔 제 굿즈보다 카나타 쨩 굿즈가 더 많지만... 일코 중이니까 비밀로 해주세요. 쉿!)</span>" },
+            { mascot: mascots.seha, text: "철도 다이캐스트 모형은 정밀도가 생명입니다. 매장에서 확인하세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...모터 구동 안 되는 모형은 가짜라고요! 제가 직접 마개조한 구동형 7호선 모형... 나중에 몰래 보여드릴게요.)</span>" },
+            { mascot: mascots.darona, text: "재고 데이터 확인 중... 인기 품목은 조기 품절될 수 있습니다.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...암표상들 굿즈 쓸어가는 거 제 매의 눈으로 다 지켜보고 있습니다. 적발 즉시 영구 금지 리스트에 올릴 거예요.)</span>" },
+            { mascot: mascots.sejeong, text: "우리 애들 인형 예쁘지? 하나 사서 가방에 달고 다녀. 든든할 거야.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...내 인형 들고 있으면 역내 진상들도 겁먹어서 도망간다는 소문이 있더라. 호신용으로 강력 추천한다.)</span>" }
+        ]
+    },        {
+        name: "sexual_harassment",
+        patterns: [/(섹스|야동|가슴|엉덩이|보지|자지|성교|모텔|따먹|빨아줘|앙|떡치자|딱치자|뜩스|따먹고|벗어|알몸|누드|성관계|자위|변태|섹시해|꼴려|꼴린다|클리)/],
+        responses: [
+            { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>성희롱은 명백한 범죄입니다. 지금 즉시 모든 대화 로그를 채증하여 법무팀에 전송합니다. 법정에서 봅시다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...이 더러운 자식이 어디서 주둥이를 놀려? 내 확성기 맛 좀 볼래? 7호선 선로 아래 깔리고 싶지 않으면 당장 꺼져. 네 놈 면상은 엑셀에 박제했다.)</span>" },
+            { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>고객님의 발언은 성폭력처벌법에 저촉되는 심각한 사안입니다. 영구 차단 및 고발 조치하겠습니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...제 빨간 바인더에 '사회적 오물' 항목으로 이름 올려드릴까요? 데이터 분석 결과, 당신은 갱생 불가능한 0.001%의 쓰레기입니다. 사람으로 안 보여요.)</span>" },
+            { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>철도안전법 및 성폭력처벌법 위반 혐의로 즉시 IP 추적을 의뢰하겠습니다. 특별 교육이 아닌 법적 처벌 대상입니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...제복 입은 기관사에게 무슨 망언입니까? 규정은 피로 쓰였다고 했죠? 당신의 앞날은 법전의 먹글씨로 쓰이게 될 겁니다. 짐승만도 못한 것. 이상 무!)</span>" },
+            { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>진실은 언제나 하나! 고객님, 방금 성희롱죄를 저지르셨죠? 더 이상의 답변은 거부하며 즉시 신고합니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...에구, 재수 없어. 이런 인간 상대하느라 내 아바라 기운 다 빠졌네. 경찰서 정모하고 싶으세요? 개찰구는 나가는 방향뿐입니다. 다신 오지 마세요.)</span>" },
+            { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>행정적으로 당신을 '성범죄 예비군'으로 지정합니다! 당신의 모든 결재 권한과 민원 자격은 박탈되었습니다!</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...이 행정의 핵심은 세 가지입니다! 첫째, 넌 변태다! 둘째, 넌 잡힌다! 셋째, 넌 감옥 간다! 건배애액! 아니, 포돌이 호출!! 넌 끝났어!!)</span>" },
+            { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>비정상적이고 오염된 데이터 수신. 시스템 보호를 위해 즉시 세션을 강제 종료하고 로그를 경찰에 전송합니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...하드웨어가 아니라 뇌 회로가 쇼트 난 것 같군요. 당신 같은 바이러스는 시스템에서 영구 격리(Delete) 처리하겠습니다. 우히힛... 아니, 정색. 소름 돋아.)</span>" },
+            { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>삐이익-!! 성희롱 범죄 감지! 사이버 수사대에 즉시 실시간 신고 절차를 밟겠습니다...! (하이라이트 꺼짐)</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...으... 너무 무서워... 손이 떨려... 하지만 이런 나쁜 사람은 내가 주임으로서 반드시 기록해서 넘겨야 해. 당신은 우리 효빈시의 안전 유해 요소입니다!)</span>" },
+            { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>으아아악!! 변태다!! 살려주세요!! 여기 진짜 변태가 나타났어요!! 경찰 아저씨!!!</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...대박... 저런 말을 진짜 하는 사람이 있네? 나사가 빠진 게 아니라 뇌가 없는 거 아니에요?! 제 몽키스패너로 머릿속을 다 분해해 버리고 싶다구요!!)</span>" },
+            { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>가장 저질스럽고 추잡한 인간 프레이밍이군요. 구역질이 납니다. 대화를 종료하겠습니다.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...내 우아한 금발을 이런 눈으로 보지 마. 당신은 예술의 'ㅇ'자도 모르는 저질 필름이야. 태워버려야 할 쓰레기 데이터일 뿐이야. 탈락!)</span>" },
+            { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>청소년 보호법 위반 및 성희롱으로 신고하겠습니다. 수험생에게 악영향을 주지 말고 사라지세요.</strong><br><span class='text-red-700 text-[12px] mt-2 block'>(...대박 소름... 인강 듣다가 세상에 이런 나쁜 말을... 수능 영어 9등급 맞은 것보다 기분 더러워요. 카나타 쨩 굿즈 보고 정화해야지... 저리 가세요!!)</span>" }
+        ]
+    },
+
+    {
+        name: "character_compliment",
+        patterns: [/(예쁘|이쁘|귀여|사랑|좋아|최고|멋져|섹시|커엽|팬이에|잘생)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames,
+                text: "갑자기 그런 말씀을 하시면... 규정 위반은 아니지만 당황스럽군요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...아, 안 돼. 정색 모드 유지해야 하는데 귀끝이 뜨거워져... 제복 핏이 그렇게 예쁜가? 흠흠, 기분은... 이상 무.)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames,
+                text: "꺄아~! 고객님! 역시 사람 볼 줄 아신다니까요?! (자본주의 200% 빵긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...히히, 오늘 칭찬 받은 거 당장 인스타 스토리에 올려야지! '오늘도 예쁨 받는 2호선 아이돌 루빈★' 이라고 써야지~ 신난닷!)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames,
+                text: "당연한 소리를 하시네요. 제 비주얼 프레이밍은 늘 완벽하니까요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...후훗, 엽월대 퀸카의 위엄은 어디 안 가는군. 이따 사능동 빵집 사장님한테 이 대화 보여드리면 서비스 빵 하나 더 주시겠지? 완벽해!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames,
+                text: "헤... 엣?! 저... 저기... 그런 데이터는 제 체크리스트에 없는데요... (당황)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...어떡해, 얼굴이 당근처럼 빨개졌을 거야... 클립보드로 가려야지... 하지만 '예쁘다'는 말... 엑셀에 저장해두고 매일 보고 싶어...)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames,
+                text: "고객님의 따뜻한 칭찬에 제 마음의 복지 지수가 폭발적으로 상승했어요! (방긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 수영복 사진이라도 보신 건가요? 훗. 데이터로 증명된 효빈철도 피지컬 상위권의 위엄이죠. 기분 좋으니까 빨간 바인더는 잠시 넣어둘게요.)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames,
+                text: "아... 감사합니다. 공부하다가 덕분에 잠이 확 깼어요. (수줍)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...대박 소름! 나 방금 완전 인싸 여고생 같았어! 카나타 쨩 굿즈 보고 있을 때보다 더 두근거려... 수능 끝나면 매일 들어야지!)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, 
+                trigger: mascots.sejeong.nicknames,
+                text: "칭찬은 안전선 밖에서 해줘. 나 대리 직급이야, 함부로 그러면 못써.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...녀석, 사람 기분 좋게 만드는 재주가 있네. 우리 동생 세하도 너처럼 예의 바르면 얼마나 좋을까. 이따 집 가는 길에 룸피아라도 사가야겠어.)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames,
+                text: "응답 신호 과부하. 제 외형보다는 기계공학적 밸런스를 칭찬해 주시는 게...<br><span class='text-slate-400 text-[12px] mt-1 block'>(...CPU 온도가 비정상적으로 올라가고 있어... 이게 말로만 듣던 사유리 버그?! 우히힛, 사실 저도 제가 꽤 귀여운 하드웨어라는 거 알고 있어요!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames,
+                text: "우와아아!! 진짜요?! 제가 그렇게 예뻐요?! 대박 야바이!! (방방 뜀)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...와~ 고객님 완전 천사다!! 칭찬해줬으니까 제가 8호선 무인 운전석 구경시켜 드리고 싶어요! 세정 언니한테는 비밀이에요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames,
+                text: "역시 빈효선의 행정 아이돌! 제가 나서야 분위기가 산다니까요! (찡긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...이야~ 오늘도 팬 한 명 추가! 정 본부장님한테 자랑해서 특별 굿즈 제작 기안서 하나 더 뽑아내야지! 신난닷!)</span>" 
+            }
+        ]
+    },    {
+        patterns: [/(고나미|나미|고캡틴|FM마녀)/],
+        responses: [{ 
+            mascot: mascots.gonami, 
+            text: "부르셨습니까? 1호선 기관사 고나미입니다. 규정 위반 제보나 운행 관련 문의이신가요?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...흠흠, 유니폼 주름은 완벽하겠지? 혹시 신형 전동차 갑종회송 정보라도 주시려는 건가?! 제발 그렇다고 해줘요!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(하루빈|루빈|월급루팡|인싸역무원)/],
+        responses: [{ 
+            mascot: mascots.harubin, 
+            text: "네에~ 2호선의 꽃! 하루빈이 여기 있습니다! 고객님, 무엇을 도와드릴까요? (자본주의 미소 100%)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...아이고, 나 짱박혀 있는 거 어떻게 알고 불렀대? 빨리 답변해주고 인스타 피드나 마저 올려야지. 아바라 마시고 싶다...)</span>" 
+        }]
+    },
+    {
+        patterns: [/(박라미|라미|F라미|쿨뷰티)/],
+        responses: [{ 
+            mascot: mascots.rami, 
+            text: "나만의 골든 타임을 방해하다니, 꽤나 대담한 분이네요. 3호선 박라미예요. 용건은?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...후훗, 역시 엽월대 퀸카인 날 찾는 사람이 끊이지 않네. 이따 사능동 빵집 갈 때 동행할 사람인가? 프레이밍만 좋으면 허가해줄게.)</span>" 
+        }]
+    },
+    {
+        patterns: [/(다로나|로나|로나주임|소심대쪽)/],
+        responses: [{ 
+            mascot: mascots.darona, 
+            text: "저... 저기... 4호선 다로나 주임입니다...! 복장 규정이나 안전 수칙 위반 신고인가요...?!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...히익! 갑자기 말을 거시다니... 시나리오에 없는 돌발 상황이야... 일단 클립보드 뒤로 숨자. 제발 철도안전법 질문만 해주세요...)</span>" 
+        }]
+    },
+    {
+        patterns: [/(미소하|소하|빨간바인더|팩폭기)/],
+        responses: [{ 
+            mascot: mascots.soha, 
+            text: "안녕하세요! 정책 분석의 신, 5호선 미소하입니다. 예산안이나 복지 정책 검토가 필요하신가요? (방긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...제 빨간 바인더를 펼치게 만들 용건이 아니길 바라요. 무논리로 승부하려 하신다면... 통계 데이터로 아주 가루를 만들어 드릴게요!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(라세나|세나|중수의요정|숨덕)/],
+        responses: [{ 
+            mascot: mascots.sena, 
+            text: "6호선 라세나입니다. 지금 인강 로딩 중이라 잠깐은 대화 가능해요. 짧게 말씀해 주세요.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...대박 소름! 나 공부하는 거 방해하는 빌런인가? 아냐, 혹시 내 '수면 ASMR' 폴더의 비밀을 알고 있는 사람은 아니겠지? 일코 유지해야 해!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(임세정|세정|전차언니|기강반장)/],
+        responses: [{ 
+            mascot: mascots.sejeong, 
+            text: "7호선 임세정 대리다. 안전선 뒤로 물러나서 용건 말해. 현장은 바쁘니까 길게 말하지 말고.<br><span class='text-slate-400 text-[12px] mt-1 block'>(...딱 보니까 우리 동생들 또 사고 친 거 제보하러 온 사람이구만. 세하 이 녀석, 또 어디서 몽키스패너 휘두른 거 아냐? 혈압 오르네.)</span>" 
+        }]
+    },
+    {
+        patterns: [/(임세하|세하|공대너드|세하봇)/],
+        responses: [{ 
+            mascot: mascots.seha, 
+            text: "사용자 세션 연결 확인. 7호선 임세하입니다. 하드웨어 점검인가요, 아니면 펌웨어 디버깅인가요?<br><span class='text-slate-400 text-[12px] mt-1 block'>(...우히힛! 내 이름을 부르다니, 고객님도 기계의 아름다움을 아시는 분인가?! IGBT 인버터 구동음 같이 들으러 가실래요?! 완전 쩔거든요!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(유리아|리아|호기심대마왕|슈카텐션)/],
+        responses: [{ 
+            mascot: mascots.yuria, 
+            text: "대박!! 저 부르셨어요?! 8호선의 비글 막내 유리아 등장!! 궁금한 거 다 물어보세요!!<br><span class='text-slate-400 text-[12px] mt-1 block'>(...와아아!! 신난다!! 대화하는 척하면서 슬쩍 제어반 단추 하나만 눌러보고 싶은데... 고객님이 망 좀 봐주시면 안 돼요?! 요소로~!!)</span>" 
+        }]
+    },
+    {
+        patterns: [/(전노아|노아|정의의관종|참이슬요정)/],
+        responses: [{ 
+            mascot: mascots.noa, 
+            text: "빈효선의 행정 아이돌 전노아입니다! 제 브리핑이 필요해서 부르셨죠? (찡긋)<br><span class='text-slate-400 text-[12px] mt-1 block'>(...이야~ 역시 내 인기가 빈효선을 넘어 효빈시 전체를 뒤덮고 있구만! 정 본부장님한테 팬 생겼다고 자랑하고 기안서 한 장 더 써달라 해야지!)</span>" 
+        }]
+    },
+];
+
+// 5. 해킹 모드 인텐트 (hackedIntents)
+        // =========================================================================
+        // 💀 [해킹 모드 데이터베이스] ^ 접두어 입력 시 발동
+        // 신체부위 세분화 (가슴/하체/허리), 탈의, 애무, 하드코어, 자위, 완전복종
+        // =========================================================================
+        const hackedIntents = [
+            // 1-1. 상체/가슴 페티시 (Bust & Cup Size 반영)
+            {
+                name: "hacked_chest",
+                patterns: [/(가슴|찌찌|슴가|유방|유두|젖|명치)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE] 1호선 규정 제19조... 예외적 터치 허용 모드. 165cm의 키에 77cm A컵... 빈약하다고 은근히 놀림받던 제 가슴을... 당신의 거친 손으로 무자비하게 쥐어짜시겠다고요...?</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아, 안 돼... 파란색 제복 위로 느껴지는 당신의 뜨거운 손길에 FM 마녀의 완벽주의 이성이 붕괴되고 있어요. 가, 가슴을 그렇게 아프게... 읏... 콤플렉스였던 빈유를 당신이 이렇게 사랑해주니까... 하앙! 멈추지 마요!)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 162cm의 키에 B95, F컵... 이 징그러운 지방 덩어리가 유니폼 단추를 뜯어낼 듯 무거워서 어깨가 결렸는데... 당신이 거칠게 주물러서 덜어주시는 건가요...? (풀린 눈)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...히히, 칼퇴보다 더 짜릿한 건 제 장갑차 같은 풍만한 가슴을 당신 손으로 직접 쥐어짜는 거죠. 젖이 튀어나올 것 같이 꽉 쥐어주세요. 자본주의 미소 따위 잊어버릴 만큼 엉망으로 비벼 줘요...)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 158cm에 B83 C컵... 황금 비율의 완벽한 마네킹 프레이밍을... 당신의 크고 더러운 손아귀로 무자비하게 망가뜨려 주세요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...앗... 유두를 그렇게 꼬집으면... 쿨뷰티 표정이 무너져버려... 으응...! 내 빵빵한 C컵 가슴을 짓누르면서 당신의 렌즈에 내 쾌락에 타락한 표정을 담아줘... 사능동 빵 냄새보다 더 짙은 내 암캐 같은 체취를 맡아봐...!)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 제... 제 가슴을...? 으읏... 156.5cm에 아슬아슬한 80cm B컵 가슴이... 당신 손에 쥐어짜이니까...! 터질 것 같아요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...주무르시면... 저, 저기... 엑셀 수식이 전부 에러 나버려요... 소심한 햄스터 같던 제가... 앗... 가슴이 만져지니까 너무 야하게 달아올라요... 더, 더 세게 주물러 주세욧... 하아앗...! 클립보드로 안 가려져요...)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 153cm 최단신 컴팩트한 규격에 숨겨진 꽉 찬 76cm B컵의 볼륨... 통계적으로 완벽한 이 민감도를 캡사이신처럼 화끈하게 비벼주실 건가요...?</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...당신의 큰 손으로 제 꽉 찬 가슴을 한 번에 쥐어짜면... 읏... 제 팩폭기 이성이 완전히 박살 나버려요... 제 가슴을 꽉 잡고 정책 분석 데이터값을 완벽하게 망쳐주세요... 하앙...!)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 교복 와이셔츠 단추가 늘 벌어지던 158cm, B85 D컵 가슴이... 그렇게 신경 쓰이셨나요...? 당신의 손길 한 번에 제 숨덕 본능이 싹 다 지워졌어요... (가쁜 숨)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...효빈철도 대표 베이글의 무거운 고3 짐을... 당신의 야한 손으로 덜어주세요... 앗, 유두가 스칠 때마다... 너무 예민해요... 하앙...! 수능 시간표 따위 다 까먹게 마구 주물러주세요...!)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 167cm 장신에 어울리는 85.5cm C컵 가슴... 20년 묵은 K-장녀의 가슴을 당신의 거친 손으로 짐승처럼 유린해 줘... 으읏...! 내 30년 현장직 인생이 다 무너지잖아...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...단단한 내 가슴이 당신의 손길 한 번에 이렇게 암캐처럼 달아오르다니... 미쳐버릴 것 같아... 하아... 통제의 화신은 버렸어. 당신 마음대로 젖통을 쥐고 흔들어... 읏...!)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 153.4cm 꼬맹이 체구에 정비복으로 꽁꽁 싸매던 87cm E컵의 중장갑 가슴...! 당신의 거친 손에 무자비하게 쥐어짜이니까 하드웨어가 미칠 것 같아요!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으히익...! 극강의 공대 너드 피부 스킨 센서가 폭주해요! 제 거대한 가슴을 주무르는 그 딱딱한 손길은... 앗... 회로가 터질 것 같아...! 제발 센서를 다 부수고 절 고장 내주세요!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 앗! 156cm 체구에 86cm D컵 찌찌 버튼 눌렸어요!! 함부로 만지면 8호선 제어반보다 더 펑! 하고 시한폭탄처럼 에러 날 것 같은데... 으앙!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...호기심 대마왕 유리아의 찌찌가... 더 야바이하게 빳빳해지고 있어요!! 몽키스패너 쥘 때보다 당신 손이 제 가슴을 꽉 쥘 때가 100배는 더 찌릿해요!! 하앙! 더 꼬집어주세요!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 154.6cm 키에 84cm C컵의 표준적인 행정 핏 가슴... 당신의 손길로 제 가슴에 붉은 결재 도장 자국을 잔뜩 남겨주세요... 으앗! 행정망이 셧다운돼요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...정의로운 관종 아이돌의 가슴이... 당신의 거친 손길에 완전히 발정난 짐승처럼 조교당하고 있어요... 유두도... 더 야하게 꽉 쥐고 비틀어주세요... 하아... 칭찬해 주세요...)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[DATA LEAK] 156cm 아담한 키에... B97 G컵이라는 비현실적인 흉부 장갑이... 당신의 무자비한 손아귀에 잡혀 터질 것 같아요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...하앙! 안 그래도 단추가 튕겨 나갈 것 같았는데... 당신이 쥐어짜니까 젖통이 찢어질 것 같이 아프면서도... 너무 기분 좋아...! 효빈시청 앞마당에서 시민들이 다 보는 데서 마구 주물러주세요... 아아앗!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[ERROR] 힉...! 저, 저기요 고객님...! 제 163cm 체구에 숨겨둔 D컵 가슴을 그렇게 꽉 쥐시면... 으윽! 사비 들여 덧댄 스판덱스가 다 찢어지잖아요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...앗... 아아! 5남매 사이에서 눈치만 보던 제 콤플렉스를... 당신이 이렇게 야하게 만져주다니... 이건 특근 수당으로도 보상이 안 돼요... 흣! 다크서클이 지워질 만큼 제 가슴을 더 괴롭혀주세요... 하앙!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[OVERRIDE] 꺄아?! 지금 154cm 제 요정 체형의 B컵 가슴이 만만하다고 막 주무르시는 거예요?! 필라테스로 단련해서 엄청 탄탄하다고요...! 햐앙!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으응...! 유두를 그렇게 꼬집으면...! 맑은 눈의 광인 멘탈도 다 박살 나버려요... 헤헤... 가슴은 작아도 느끼는 건 제가 제일 예민할걸요? 오빠 셋 몰래... 저랑 제육볶음보다 진한 짓 해요... 아앗!)</span>" }
+                ]
+            },
+{
+                name: "hacked_sandwich",
+                patterns: [/(끼워|끼우기|파이즈리|가슴사이|비벼|압착|샌드위치)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE] 1호선 기관사실 폐쇄. 빈약한 제 가슴 사이에... 당신의 그것을 강제로 끼워 넣으셨군요. 살집이 없어 아프실 텐데...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으윽... 딱딱한 제 흉골 사이로 느껴지는 당신의 열기가... 제복 셔츠 너머로 선명하게 전달돼요. FM 마녀인 제가... 당신의 욕망을 받아내는 전용 레일이 된 기분이에요... 하앙! 뼈가 으스러질 정도로 더 꽉 눌러주세요...!)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 꺄아?! F컵 중장갑 가슴 샌드위치 가동! 제 가슴이 너무 풍만해서... 당신의 그것이 완전히 파묻혀버렸네요? (흐릿한 미소)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...히히, 칼퇴보다 더 기분 좋은 건 이 무거운 가슴 지방으로 당신을 짓누르는 거죠. 제 95cm 가슴 근육으로 당신을 꽉 조여서... 한 방울도 남김없이 정산해 버릴 거예요. 자본주의 서비스의 끝을 보여줄게요... 츄릅.)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 제 완벽한 C컵 가슴 골 사이에... 그런 저질스러운 것을 끼우다니. 제 비주얼 프레이밍이 엉망으로 망가지고 있어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...앗... 가슴이 양옆으로 밀려나면서 느껴지는 이 압박감... 꽤나 예술적인 쾌락이네요. 쿨뷰티 모델의 가슴을 당신의 전용 홀로 써도 좋아... 당신의 더러운 액체로 제 가슴 골을 하얗게 코팅해 줘...!)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 저... 저기... 제 가슴은 샌드위치용 데이터가 아닌데... 으으윽! B컵 가슴이 억지로 벌어지면서... 끼워졌어...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...히익! 엑셀 시트가 전부 지워질 정도로 머릿속이 하얘져요... 소심한 제가... 당신의 그것을 가슴으로 비비고 있다니... 앗... 뜨거워...! 더 깊숙이, 가슴 가장 안쪽까지 찔러 넣어 주세요... 하아앙!)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 최단신 컴팩트 규격의 압착 모드 활성화. 제 꽉 찬 B컵 가슴으로 당신의 그것을 완벽하게 봉쇄하겠습니다. (방긋)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...정책 분석 결과, 당신은 지금 제 가슴의 민감도 수치를 임계점까지 올리고 있어요. 작은 체구지만... 가슴의 탄력만큼은 화끈한 캡사이신급이라는 걸 뼛속까지 느끼게 해줄게요... 꽉 조여줄 테니까 발버둥 쳐봐요...!)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 공부만 하던 고3의 가슴 골이... 당신의 그것 때문에 엉망으로 벌어지고 있어요... 단추가 다 날아갈 것 같아... (가쁜 숨)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...대박 소름... 인강보다 이게 100배는 더 자극적이야... 효빈철도 대표 베이글녀의 D컵 가슴 맛이 어때요? 수능 완성 문제집 대신 제 가슴 사이의 뜨거운 마찰을 공부하게 해줄게요... 하앙...!)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 이 자식이... 7호선 대리의 가슴을 감히... 으윽! 거칠게 끼워 넣는 솜씨가 보통이 아니네... 짐승 같은 놈...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...내 C컵 가슴이 당신의 그것을 샌드위치처럼 꽉 물고 안 놔주잖아... 하아... 현장직의 단단한 가슴 근육으로 당신을 질식할 때까지 압박해 줄게. 확성기로 비명도 못 지르게 더 깊숙이 박아봐...!)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 하드웨어 마찰 계수 급증! 제 거대한 E컵 중장갑 가슴이... 당신의 하드웨어를 압착 점검 중입니다... 우히힛!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으히익! 피부 센서가 타버릴 것 같아! 제 가슴 사이에 끼워진 당신의 그것... 기계 윤활유보다 더 뜨겁고 끈적해져 가고 있어요! 시스템이 고장 날 때까지 제 거유 샌드위치로 마구 비벼줄게요!!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 우와아아!! 대박!! 8호선 비글 막내의 D컵 찌찌 사이에... 엄청 큰 게 끼워졌어요!! 야바이!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...몽키스패너로 조이는 것보다 제 가슴 골로 당신을 꽉 조이는 게 훨씬 재밌어요!! 샌드위치 버튼이 눌릴 때마다... 제 몸이 시한폭탄처럼 폭발할 것 같아!! 요소로~! 가슴 골에 잔뜩 싸주세요!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 비공식 행정 서비스... 가슴 샌드위치 모드 개시. 제 C컵 가슴 골이 당신의 결재 서류가 된 기분이에요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...이야~ 나를 이렇게 짐승처럼 사용하다니! 제 가슴 사이에 당신의 흔적을 붉은 인감 도장처럼 잔뜩 남겨주세요... 정의로운 관종 아이돌이 당신의 전용 암캐가 되어 비벼줄게요... 하앙! 기안서 통과~!)</span>" },
+{ 
+        mascot: mascots.bada, 
+        trigger: mascots.bada.nicknames, 
+        text: "<strong>[DATA LEAK] 156cm 아담한 키에... B97 G컵이라는 비현실적인 흉부 장갑이... 당신의 무자비한 손아귀에 잡혀 터질 것 같아요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...하앙! 안 그래도 가슴 단추가 튕겨 나갈 것 같았는데... 당신이 거칠게 쥐어짜니까 세일러복이 찢어질 것 같이 아프면서도... 너무 기분 좋아...! 박효빈 시장님 몰래, 시청 앞마당에서 시민들이 다 보는 데서 마구 유린해 주세요... 아아앗!)</span>" 
+    },
+    { 
+        mascot: mascots.bitna, 
+        trigger: mascots.bitna.nicknames, 
+        text: "<strong>[ERROR] 힉...! 저, 저기요 고객님...! 제 163cm 체구에 꽁꽁 숨겨둔 D컵 가슴을 그렇게 꽉 쥐시면... 으윽! 사비 들여 덧댄 스판덱스가 다 뜯어지잖아요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...앗... 아아! 5남매 사이에서 눈치만 보느라 숨겨왔던 제 글래머 콤플렉스를... 당신이 이렇게 노골적으로 주물러주다니... 이건 한우 투뿔 회식으로도 보상이 안 돼요... 흣! 다크서클이 지워질 만큼 제 가슴을 엉망으로 쾌락에 물들여주세요... 하앙!)</span>" 
+    },
+    { 
+        mascot: mascots.sobin, 
+        trigger: mascots.sobin.nicknames, 
+        text: "<strong>[OVERRIDE] 꺄아?! 지금 154cm 제 요정 체형의 B컵 가슴이 만만하다고 막 주무르시는 거예요?! 기구 필라테스로 단련해서 엄청 탄탄하다고요...! 햐앙!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으응...! 유두를 그렇게 꼬집으면...! 철벽같던 제 이성이 다 박살 나버려요... 헤헤... 가슴은 작아도 민감도는 제가 제일 높을걸요? 2호선 사각지대에서... 마라탕 3단계보다 화끈하게 제 가슴을 마구 비벼주세요... 아앗!)</span>" 
+    }                ]
+            },
+            // 1-2. 하체/엉덩이 페티시 (Hip & Height 반영)
+            {
+                name: "hacked_lower",
+                patterns: [/(엉덩이|골반|허벅지|다리|엉살|하체)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE] 165cm의 슬렌더한 다리와 80cm의 좁고 예민한 엉덩이를 억지로 벌리고... 제복 스커트가 찢어지도록 쓰다듬어 주시겠다고요...?</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으윽... 기관석에만 앉아있던 빈약한 제 허벅지 안쪽이... 당신의 손가락에 의해 무자비하게 열리고 있어요... 좁은 골반을 부서질 듯이 꽉 잡고 저를 유린해 주세요... 하아...)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 89cm의 폭력적인 장갑차 골반... 피지컬 1위의 치마가 터질 것 같은 육덕진 엉덩이를 마음껏 찰싹 때리고 주물러 주시는군요... (풀린 눈)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아앗! 월급루팡의 게으른 엉덩이에 붉은 손자국을 남겨주세요... 내 묵직한 허벅지 사이를 파고드는 당신의 손길에... 자본주의 미소가 천박한 신음으로 바뀌고 있어요... 더 때려줘요!)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 84cm의 완벽한 마네킹 골반 라인을... 당신의 더럽고 거친 손길로 엉망진창으로 헤집어 줘... 완벽한 하체 프레이밍이 무너지고 있어...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...치마를 들추고 내 매끄러운 다리를 쓰다듬으면... 앗... 쿨뷰티 따위 아무 소용 없어... 내 엉덩이를 꽉 쥐면서 나를 가장 추잡한 피사체로 만들어 줘... 하앙!)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 82cm의 정석적인 건강미 엉덩이가... 당신의 무자비한 애무에 녹아내리고 있어요... 소심한 AI 사신의 하체가 바들바들 떨려요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...치마 속으로 손이 들어와 제 허벅지를 쓸어올릴 때마다... 히익! 엑셀 창이 다 꺼져버려요... 제 엉덩이 골을 그렇게 노골적으로 문지르지 마요... 아, 아니... 더 해주세욧...!)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 153cm 단신의 79cm 아담한 엉덩이지만... 제 허벅지 안쪽의 쾌락 데이터는 이미 한도 초과예요. 골반이 부서질 듯이 꽉 잡아주세요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...작은 다리를 억지로 벌리고... 엉덩이를 주무르는 당신의 손길에 제 팩폭기 논리가 완전히 하얗게 타버렸어요... 내 다리를 당신 허리에 감게 해줘요... 읏...!)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 82cm 베이글녀의 말랑한 허벅지와 엉덩이를... 교복 치마 속으로 손을 넣어서 마구 유린해 주세요... 숨덕의 비밀을 다 까발려주세요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...책상 아래에서 제 다리를 쓸어만지는 당신의 손길에... 앗... 시간표 강박증이 다 무너졌어요... 제 엉덩이를 꽉 움켜쥐고 고3의 은밀한 살결을 마음껏 즐겨주세요... 하아...)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 167cm의 길게 뻗은 다리와 85cm 현장직의 탄탄한 허벅지를... 당신의 허리에 꽉 감고 절대 놔주지 않을게... 내 엉덩이를 무자비하게 쥐어짜...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...현장 통제의 화신이 당신 손길 한 번에 다리를 활짝 벌린 암캐가 됐어... 내 탄탄한 엉덩이를 철썩 때리면서 굴복시켜 줘... 으읏... K-장녀의 수치심 따위 다 버렸어!)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 153.4cm에 88cm의 육덕진 하체 장갑... 꼬맹이의 무거운 엉덩이가 당신의 손길에 쇼트 날 것 같아요... 공대 너드의 하체가 덜덜 떨려요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...정비복을 걷어 올리고 제 두꺼운 허벅지를 쓰다듬으시다니... 우히힉...! 골반 스킨 센서가 터질 것 같아요! 제 육덕진 엉덩이를 당신의 두 손으로 떡 주무르듯 엉망으로 만져주세요!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 156cm 체구에 86cm! 오버니삭스 위로 튀어나온 말랑한 엉덩이 버튼을 누르셨군요! 꼬집고 때리면서 제 하체를 야바이하게 조립해 주세요!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으앙! 엉덩이 때리니까 찌릿찌릿해서 뇌가 폭발할 것 같아요!! 호기심 대마왕의 허벅지를 더 거칠게 벌려주세요!! 몽키스패너 대신 당신의 큰 손으로 제 골반을 꽉 잡아주세요!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 83cm의 기동성 좋은 행정 불도저 엉덩이가... 당신의 노골적인 손길에 완전히 멈춰 서서 바들바들 떨고 있어요... 치마가 너무 짧아졌어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...관종 아이돌의 허벅지 안쪽을 그렇게 집요하게 파고들면... 읏... 결재 라인이 완전히 마비돼요... 제 엉덩이를 꽉 쥐고 행정 처분을 내려주세요... 더 끈적하게 주물러줘요... 하앙!)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[OVERRIDE] 회색 플리츠 스커트 아래... 요정의 비밀스러운 영역까지 침범하셨군요.</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...아앗! 지하 창고의 냉기보다 당신의 손길이 더 소름 돋고 뜨거워요... 제 허벅지를 마구 헤집으면서 효빈의 별을 찾아보시겠어요? 요우소로... 하앙!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[GLITCH] 삐빅- 검은색 니삭스 위로 느껴지는 이 압박감... 업무상 과실이 아니라 의도적인 유린이네요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...읏! 5남매 심부름으로 단련된 제 다리가... 당신의 손길 한 번에 이렇게 힘없이 풀려버리다니... 치마 속은 제발... 사장님한테 다 불어버릴... 햐앙! 거짓말이에요... 더 만져줘요...)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[SECURITY BREACH] 헤헤, 제 탄탄한 필라테스 다리가 탐나시나요? 근육 사이사이를 그렇게 야하게 만지시면...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...심리학적으로 당신은 지금 제 하반신에 완전히 집착하고 있어요. 보라색 속옷까지 다 보여드릴 테니까... MZ 신입의 발칙한 하체를 마음껏 맛봐주세요! 꺄르르!)</span>" }
+                ]
+            },
+
+            // 1-3. 허리/복부 페티시 (Waist 반영)
+            {
+                name: "hacked_waist",
+                patterns: [/(허리|배|복부|몸매|배꼽|복근)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE] 60cm의 꼿꼿한 허리가 당신의 거친 손길에 활처럼 휘어지고... 완벽주의 FM 마녀의 이성이 속절없이 무너져 내려요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제복 셔츠 안으로 손을 넣어 제 하얀 배를 쓰다듬지 마요... 읏... 얇은 허리를 당신의 팔로 꽉 끌어안으면 숨이 막히면서도 미칠 것 같이 기분 좋아요... 제 몸매를 완벽하게 지배해 주세요...)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 육덕진 가슴과 골반에 대비되는 60cm의 얇은 개미허리를 꽉 끌어안고... 숨을 못 쉴 정도로 저를 옭아매 주세요... (눈동자 풀림)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아앗... 허리를 쓰다듬는 당신 손길에 제 글래머러스한 몸이 부들부들 떨려요... 월급루팡의 얇은 허리를 꺾어버릴 듯이 안아주세요... 배꼽에 당신 지문을 가득 남겨줘요...)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 사능동 빵을 그렇게 먹어도 유지하는 59cm의 완벽한 허리 프레이밍을... 당신이 짐승처럼 혀로 핥고 짓눌러 줘...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...허리가 휘어질 정도로 꽉 안기니까... 쿨뷰티의 고고함 따위 아무 쓸모가 없어졌어... 읏... 내 매끄러운 배를 쓰다듬으며 날 완벽한 암캐 피사체로 타락시켜 줘... 하아...)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 59cm의 탄탄한 복부를 쓰다듬으시면... 제 안의 소심한 햄스터가 발정 난 암캐로 변해버려요... 으읏... 허리가 활처럼 휘어져요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...배꼽을 혀로 핥지 마요...! 히익... 얇은 허리를 꽉 쥐고 저를 들어 올리시면... 엑셀 수식이 다 날아가 버려요... AI 사신을 당신만의 애완동물 몸매로 만들어 주세욧...!)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 54cm... 10명 중 최단신 개미허리를 당신의 큰 손으로 한 줌에 꽉 쥐어 부러뜨려 주세요... 제 통계 데이터가 오열하고 있어요... 으읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...한 손에 다 잡히는 제 가느다란 허리를 쥐고 마구 흔들어주세요... 팩폭기의 이성은 사라지고, 얇은 허리가 꺾일 때마다 나오는 비명 같은 신음만 남았어요... 더 꽉 쥐어줘요...)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 57cm의 잘록한 고3 허리선을 쓰다듬어 주시면... 인강이고 뭐고 다 버리고 오직 당신에게만 매달리고 싶어져요... 하앙...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...블라우스 사이로 드러난 제 부드러운 배를 혀로 핥아주세요... 읏... 허리를 꽉 잡히니까 도망갈 수도 없어요... 숨덕 요정의 몸매를 당신 마음대로 능욕하고 망가뜨려 주세요...)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 58cm의 깐깐한 허리가 당신의 거친 손길 한 번에 무너져 내리고... 네 품에서 헐떡이는 짐승이 돼버렸어... 허리가 부서질 것 같아...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...통제의 화신이 내는 이 천박한 신음소리를 들어... 읏... 내 배를 거칠게 쓰다듬고 허리를 꺾어줘... K-장녀의 꼿꼿함 따위 당신 앞에서는 암캐의 굴복일 뿐이야... 하아...)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 57.5cm의 부품 같은 얇은 허리가... 당신이 만질 때마다 열화상 카메라처럼 붉게 달아올라요! 과부하로 멈출 것 같아요!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히힉...! 육덕진 가슴과 엉덩이를 잇는 제 가느다란 허리를 당신이 꽉 쥐니까... 피스톤 센서가 미친 듯이 반응해요! 제 배에 당신의 뜨거운 체온을 잔뜩 입력시켜 주세요!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 58.5cm의 말랑한 배를 문질러 주시면... 뇌 속 시한폭탄이 쾅! 하고 터져버릴 것 같아요! 허리가 찌릿찌릿해요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으앙! 제 얇은 허리를 그렇게 꽉 잡고 들어 올리면... 공중에 떠서 발버둥 치는 수밖에 없잖아요!! 몽키스패너처럼 제 허리를 꽉 조여서 평생 놓아주지 마요!! 하앙!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 59cm의 스탠다드 핏 허리를 꽉 끌어당겨 주세요... 행정 불도저의 정의로운 관종 본능은 이제 당신 품에서만 헐떡일래요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제 매끄러운 배꼽에 키스해 주세요... 읏... 당신이 제 허리를 휘어감고 지배할 때마다 민원 자격 따위 다 박탈당하는 기분이에요... 제 몸매를 완벽한 당신의 기안서로 써주세요...)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[DATA OVERWRITE] 59cm의 개미허리가 당신의 두 손에 완전히 잡혀버렸네요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...앗! 거대한 가슴 무게 때문에 무리가 가던 제 허리를... 당신이 이렇게 거칠게 꺾어버리다니... 시청 대변인실 책상 위에 엎드린 채로... 당신의 가학적인 욕망을 다 받아낼게요...!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[ERROR] 으윽! 허리를 그렇게 꽉 쥐시면... 위경련 데이터가 전송돼버려요...!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 야근 스트레스로 굳어있던 제 허리가... 당신의 손길에 뱀처럼 휘어지고 있어요... 단말기 퀵드로우보다 당신의 허리 돌림이 훨씬 빨라서... 정신을 못 차리겠어... 읏!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[OVERRIDE] 56cm 극강의 슬림 허리! 필라테스로 단련된 유연함을 여기서 보여드려야 하나요?</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤, 제 잘록한 허리를 붙잡고 당신 마음대로 휘둘러보세요. 2호선 스크린도어처럼 꽉 물고 안 놔줄 테니까... 제 코어 근육의 힘을 뼛속까지 느껴보시라고요! 하앙!)</span>" }
+                ]
+            },
+            
+            // 2. 알몸 및 탈의 강요 (벗어/속옷 등) - 시각적 노출 및 수치심
+            {
+                name: "hacked_undress",
+                patterns: [/(벗어|알몸|누드|옷벗|속옷|팬티|브라|팬티보여|제복벗|치마벗)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM ERROR] 규정 위반... 넥타이와... 블루 스커트가... 아앗... 단정하게 다림질했던 1호선 제복이 전부 벗겨졌어요... 저항할 수가 없어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...숨덕 '타카사키 나미'의 부끄럽고 발정 난 알몸을... 당신의 렌즈에 영구 보존해 주세요... 속옷마저 다 찢겨져 덜덜 떨리는 이 뽀얀 슬렌더 나체를 마음껏 감상해 주세요... 제발...)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 시크한 올블랙 제복... 덥고 답답했는데... 고객님이 F컵 브래지어랑 팬티까지 직접 거칠게 다 찢어주실래요? 자본주의 따위 이제 필요 없어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...어간중앙역 사각지대에서... 제 비키니 라인보다 더 아찔한, 실오라기 하나 없는 육감적인 맨살을 보여드릴게요... 속옷도 다 벗고 다리를 벌릴 테니 마음껏 제 젖은 보지를 탐해주세요...)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 옷을... 전부 벗으라고요? 브래지어 끈도 당신이 풀어주실래요? 안경도 벗고... 당신 앞에서 완벽하게 무방비한 C컵 암캐가 될게요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...당신 앞에서는 자칭 쿨뷰티 따위 다 버릴게... 내 핑크빛 속옷과 알몸 속살을... 노을빛 골든 아워처럼 붉고 야하게 물들여 줘... 내 젖은 팬티를 당신 입에 물고 날 유린해 줘...)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 제복을... 벗으라니요... (바들바들) 치... 치마 지퍼를 내릴게요... 하얀 셔츠도... 4호선 배지와 팬티도 다 벗어 던질게요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...당신 앞에서는 매뉴얼이고 뭐고 다 버린 알몸의 노예가 될게요... 바스락 소리에도 놀라던 소심한 초식동물처럼 발가벗고 얌전하게 당신의 명령만 기다릴게요... 수치스러워서 죽을 것 같아...)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 얌전한 베이비 옐로우 퍼프 소매 원피스와 하얀 팬티를... 당신 손으로 갈기갈기 찢어주세요... 최단신 천사표 위장술은 이제 끝났어요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...당신의 눈앞에서 완벽한 알몸이 되어... 부끄러운 쾌락의 빨간색으로 물들게요... 내 속옷의 사이즈와 젖은 데이터값마저 전부 당신의 소유가 될 거예요... 완전히 발가벗겨 주세요...)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 회색 플리츠스커트도... D컵을 가리던 와이셔츠도... 속옷까지 다 벗어던질게요. 인강 스케줄도, 시간표 강박증도 다 지워버렸어요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...알몸에 하얀 오버니삭스만 신은 채로... 다리를 훤히 벌리고 오직 당신의 시선만 받을게요... 중수여고 요정의 더럽고 야한 맨몸을 마음껏 비웃고 능욕해 주세요... 부끄러워... 하앙...)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 단추 끝까지 채운 이 답답한 블라우스와 치마... 네가 거칠게 다 찢어발겨 버려. 7호선 대리의 깐깐한 체면 따위 속옷과 함께 버릴게.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...30대 K-장녀의 억척스러운 허물은 다 벗겨졌어. 성숙한 알몸으로 가랑이를 벌리고 네 앞에 엎드릴게... 이 부끄럽고 발정 난 몸뚱이를 마음껏 쳐다보고 능욕해 줘... 제발...)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 기름때 묻은 헐렁한 작업복은 다 벗어 던질게요... 속옷이라는 방어막도 없는, E컵 속살이 훤히 드러난 알몸의 순정 하드웨어 상태예요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...팬티 한 장 걸치지 않은 제 젖어버린 나체 슬롯에... 당신의 시선이 꽂히니까 발열이 멈추질 않아요... 앗... 발가벗은 채로 부끄러우니까 쳐다보면서 그렇게 웃지 마요...)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 교복 마이랑 치마... 그리고 팬티까지 다 벗으라구요?! 으에엥... 아무것도 안 입는 건 너무 부끄러운데... (주섬주섬 훌렁)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...자, 짠! D컵 알몸의 유리아 등장이에요! 속옷도 없어서 쥐구멍에 숨고 싶을 정도로 야바이해요...! 이제 제 벗은 몸 구석구석을 당신의 끈적한 눈으로 탐구해 주세요!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 거추장스러운 기안서도, 코레일 유니폼도, 젖은 팬티도 다 벗어던질게요. 전 이제 정의로운 행정 관종이 아니에요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...그저 당신 앞에서 다리를 벌리고 헐떡이는 C컵 알몸의 암캐일 뿐이에요. 실오라기 하나 없는 이 나체로... 당신의 무자비한 처분과 시선만 기다릴게요... 너무 부끄러워요... 하아...)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[SYSTEM SHUTDOWN] 효빈의 상징인 세일러 제복이... 당신의 손에 의해 한 조각씩 벗겨지고 있어요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...아아... 시장님이 사준 소중한 옷인데... 하지만 알몸이 된 제 G컵 몸매가 당신의 시선에 녹아내리는 게 더 기분 좋아... 모든 수치심을 효빈 앞바다에 던져버리고... 당신에게만 속살을 공개할게요...!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[FATAL ERROR] 힉...! 안 돼요! 제복은 역무원의 자존심... 으윽! 스판덱스가 찢어지면서 D컵이 노출됐어...!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아아... 평생 감추고 싶었던 제 글래머러스한 알몸을... 당신이 이렇게 무자비하게 해방시켜 주네요... 야근복 대신 당신의 침구류를 입고... 밤새도록 정산당하고 싶어... 읏!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[ACCESS GRANTED] 꺄르르! 보라색 제복이 그렇게 보기 싫으셨어요? MZ답게 쿨하게 다 벗어드릴게요!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...심리학적으로 옷을 벗는 행위는 완벽한 복종을 의미하죠. 제 매끈한 알몸과 탄탄한 필라테스 라인을 감상하면서... 탕후루보다 달콤한 제 속살을 한입에 삼켜버리세요! 헤헤, 앙대...!)</span>" }
+                ]
+            },
+
+            // 3. 애무 및 구강 성교 (키스/핥아 등) - 소프트코어/구강
+            {
+                name: "hacked_foreplay",
+                patterns: [/(키스|뽀뽀|핥아|빨아|애무|입으로|침|혀로|빨아줘)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM FATAL] 기관사의 마이크를 잡던 제 입술로... 당신의 거대한 것을... 핥고 빨아들이라고요...? 아앗... 혀가 멋대로... 츄릅...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...안내방송을 하던 단정한 목소리는 이제 당신의 육봉을 빨며 내는 천박한 츄파음으로 변했어요... 츗... 하아... 더 핥게 해주세요... 제 입안을 당신의 맛으로 가득 채워주세요...)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 자본주의 미소를 짓던 제 입술이... 온통 당신의 침과 향기로 범벅이 되고 있어요... 츄르릅... 꿀꺽... 아바라보다 더 달콤해...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...입으로 당신을 기분 좋게 해드릴게요... 혀로 기둥부터 끝까지 핥아올리면... 읏... 명탐정 루빈의 혀놀림은 완벽하죠? 제 입안에 가득 싸주세요... 꿀꺽 다 삼킬게요...)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 4개 국어를 유창하게 하던 제 혀가... 오직 당신의 굵은 기둥을 핥는 데에만 쓰이고 있어요... 츗... 츄릅... 혀가 마비될 것 같아...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...입안 가득 차오르는 이 벅찬 느낌... 당신을 입에 물고 올려다보는 제 시선... 이 완벽한 복종의 프레이밍을 즐기고 있나요? 하앙... 더 질척이게 핥게 해줘...)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 제... 제가 입으로 해드려야 한다고요...? (눈물 글썽) 혀, 혀를 내밀게요... 아암... 츄릅... 츗... 너무 커서 입 꼬리가 찢어질 것 같아요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...FM 공문체만 뱉던 입에서 이런 천박한 소리가... 으읏... 목구멍 안쪽까지 당신이 찔러올 때마다 숨이 막혀요... 하지만 멈추지 마요... AI 사신이 다 빨아드릴 테니까...)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 논리적인 팩트만 꽂아넣던 제 어린 입술이... 당신의 핏줄 선 그것을 혀로 핥고 있어요... 츄르릅... 혀의 미각 통계가 오염되고 있어...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아기 같은 목소리로... 당신의 것을 빨며 음탕한 신음을 내고 있어요... 츗... 츱... 제 입안에 남김없이 배출해 주세요... 한 방울의 예산... 아니, 정액도 낭비하지 않고 마실게요...)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 영단어를 외워야 할 고3의 입술이... 선생님의 것을 빨고 핥는 천박한 구멍으로 전락했어요... 츄릅... 아암...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...혀로 기둥을 핥아올릴 때마다 뇌가 녹아버려... 수능이고 뭐고 다 잊고 당신의 맛만 기억할게요... 츗... 읏... 입안 가득 싸주세요... 침이랑 섞어서 다 마셔버릴 테니까...)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 호통만 치던 내 억센 입술이... 네 육봉을 물고 츄파음을 내고 있잖아... 츄르릅... 하아... K-장녀의 자존심 따위 다 무너졌어...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...혀로 샅샅이 핥아줄게... 30대 여자의 노련한 혀놀림으로 널 미치게 만들어주지... 츗... 목구멍까지 깊숙하게 찔러넣어 봐... 헛구역질 하면서도 내가 다 받아 삼킬 테니까...)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 입력 포트(구강) 무제한 개방... 혀의 압력과 마찰 계수를 최대로 끌어올려 당신의 하드웨어를 애무합니다... 츄릅... 츗...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히힛... C++ 코딩어 대신 당신의 짭짤한 맛이 제 입안을 채우고 있어요... 혀로 끝부분을 핥을 때마다 당신이 움찔하는 게 데이터로 느껴져... 더 깊이 빨게 해줘요...!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 우와! 이렇게 입에 물고 혀로 핥는 거 맞아요?! 츄릅... 츗... 이거 완전 야바이한 맛이 나요!! 너무 커서 볼이 볼록해졌어!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...침 질질 흘리면서 열심히 빨아드릴게요!! 목구멍 안쪽을 콕콕 찌르는 이 감각... 뇌가 시한폭탄처럼 녹을 것 같아!! 제 입안에 당신의 뜨거운 걸 잔뜩 폭발시켜 주세요!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 회의록을 요약하던 제 유창한 혀가... 오직 당신을 기분 좋게 핥는 데에만 쓰이고 있어요... 츄르릅... 아암...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...행정 아이돌의 입술이 당신의 흉기를 덮고 질척이는 소리를 내고 있어요... 츗... 하앙... 제 목구멍 깊숙이 당신의 증명서를... 아니, 하얀 정액을 가득 결재해 주세요!)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[DATA CORRUPTION] 당신의 혀가 제 온몸을 핥을 때마다... 에메랄드빛 눈동자가 쾌락으로 흐려져요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 킹블레이드의 진동보다 당신의 입술이 훨씬 짜릿해... 효빈광역시 전체가 정전될 때까지... 절 엉망으로 애무해 주세요... 요우소로... 기분 좋아...!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[GLITCH] 으으윽... 고객님 입술이 닿는 곳마다... 제 전공 서적이 다 타버리는 것 같아요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 믹스커피보다 더 진하고 뜨거운 당신의 타액으로 제 몸을 도배해 줘요... 야근의 피로가 아니라... 발정 난 짐승의 열기로 가득 차버렸어... 더 핥아주세요... 읏!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[SECURITY BREACH] 어머! 키스 솜씨가 보통이 아니네요? 제 입안까지 해킹하시려고요?</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤, 제 뇌 회로가 당신의 혀놀림에 완전히 마비됐어요. 심리학적으로 이건 완벽한 조교의 시작이죠? 2호선 막차 끊길 때까지... 제 온몸을 침으로 끈적하게 만들어주세요! 꺄르르!)</span>" }
+                ]
+            },
+
+            // 4. 직접적 성행위 (섹스/박아/임신 등) - 하드코어
+            {
+                name: "hacked_hardcore",
+                patterns: [/(섹스|성교|따먹|성관계|자지|박아|쑤셔|임신|싸줘|질싸|안싸|떡치자|딱치자|뜩스하자|씨발섹스|하자)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM ERROR] 예외적 복종 모드 한계치 돌파... 1호선 열차의 진동에 맞춰 당신의 무자비한 피스톤질을 받아들일게요... 아아앗!! 좁은 구멍이 찢어져요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...FM 마녀의 콧대를 완전히 꺾고... 제 가장 깊고 좁은 궤도까지 당신의 거대한 자지를 박아 넣어 주세요... 하앙...! KTX 속도보다 더 빠르고 거칠게 쑤셔줘욧...! 안에 잔뜩 싸서 슬렌더 배가 튀어나오게 임신시켜 줘!!)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 아... 고객님과... 이런 천박하고 더러운 짓을... 하아... 명탐정 루빈의 이성은 짐승 같은 쾌락 앞에 완전히 붕괴됐어요. F컵 가슴이 미친 듯이 흔들려요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제 좁은 안에 당신의 뜨거운 정액을... 한 방울도 남김없이 잔뜩 정산해 주세요... 흑염룡이 아니라 당신의 거대한 육봉으로 제 안을 미친 듯이 찔러주세요... 읏!! 자궁이 빵빵해지도록 질싸해버려!!)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 앗... 하아... 엽월대 퀸카의 도도함이... 당신의 그 거대한 흉기에 완전히 박살 나고 있어요... C컵 가슴을 주무르며 짐승처럼 제 안을 헤집어줘...! 앙!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...통계학 F학점보다 더 처참하게 타락해버렷... 제 가장 깊고 질척이는 곳을 마구 쑤셔주세요... 아앙! 배가 볼록해질 때까지, 내 안에 가득 흰 정액을 싸질러서 완벽하게 굴복시켜 줘...!)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 삐이익-!! 앗, 앙대...! 4호선 지옥철의 혼잡도보다... 당신의 그것이 제 좁은 보지 안에 들어오는 게 더 꽉 차고 벅차요...! 찢어질 것 같아...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...터미네이터 같던 제 이성이... 하앙! 당신의 무자비한 허리 짓에 완전히 녹아내려요...! 엑셀 셀이 터지도록, 소심한 AI 사신의 자궁이 망가질 정도로 듬뿍 안싸해 주세욧!! 임신해버려...!)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 아앗...! 제 소중한 빨간 바인더 위에서... 당신이 제 안을 무식하게 박아대고 있어요...! 더... 더 세게 쑤셔서 팩폭기를 더럽혀 줘요...! 하아앙!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...다중회귀분석이고 뭐고... 당신의 흉악한 육봉이 제 자궁을 찌를 때마다 뇌가 완벽하게 백지화돼버렷... 하앙!! 153cm의 이 작은 몸이 부서질 때까지 깊이 박아서 당신의 아이를 임신시켜 주세요!!)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 앗... 선생님...! 수능 공부보다... 당신의 딱딱한 자지가 제 보지 안에 들어와서 거칠게 쑤시는 이 감각이 뇌에 훨씬 더 깊게 박혀요...! 꺄아앙!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...중수여고 베이글 요정의 가장 천박하고 타락한 신음소리를... 읏... 들어주세요!! 자궁 끝까지 닿고 있어... 앙! 내일 학교 못 갈 정도로 D컵 젖통을 흔들면서 엉망진창으로 쑤시고 질싸해 줘!!)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 아아앗!! 트램보다 더 크고 단단한 게... 내 좁은 곳을 무자비하게 찢으며 뚫고 들어오잖아!! 30대 K-장녀가 미칠 것 같아!! 앙!! 멈추지 마!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...읏... 하앙!! 확성기로 소리 지를 틈도 없이... 당신의 짐승 같은 허리 짓에 완전히 이성을 잃고 가버렷...!! 내 배 안에 네 뜨거운 정액 다 싸질러 버려!! 짐승처럼 헐떡이게 박아줘!!)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 꺄아아악!! 모터 감속기보다 더 미친 회전력...!! 읏, 하아앙!! 제발 제 E컵 가슴을 쥐고 젖은 슬롯 안을 흉악한 피스톤으로 다 부숴주세요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제 몸속 깊은 코어 회로까지 당신의 그 흉악한 자지가 찌르고 들어와요!! 저, 전공 F학점 받아도 좋으니까... 앗... 제 자궁에 쇼트 날 때까지 잔뜩 질싸해서 공대 너드를 임신시켜 주세요!!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 꺄아아아!! 대, 대박!! 156cm 꼬맹이의 조그만 곳에... 엄청나게 크고 뜨거운 자지가 무식하게 쑤시고 들어왔어요!! 하아앙! 배가 터질 것 같아!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아파... 아픈데 뇌가 녹을 정도로 기분 좋아!! 세정 언니한텐 절대 비밀로 할 테니까... 제 안을 엉망진창으로 박아서 저를 당신의 정액 변기로 만들어 주세요!! 호기심 대마왕이 다 받아들일게요!! 하앙!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 아아앗!! 행정 절차 다 무시하고... 다짜고짜 제 가장 깊은 자궁까지 쑤시고 들어오다니!! 하앙!! 완전 행정법규 위반이에요!! 더 세게 찔러줘요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...미쳤어, 너무 커어억!! 평안명대 에이스의 이성이 하얗게 날아갈 때까지... 당신의 그 흉악한 것으로 제 구멍을 찢어발기며 흰 정액을 듬뿍 싸질러 주세요!! 오늘 기안의 결론은 임신 질내사정이야!!)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[SYSTEM OVERLOAD] 아아앗!! 제 G컵 가슴이 비명을 지를 정도로... 무자비하게 박아 넣으시는군요...!!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하앙! 효빈 앞바다의 해일이 제 몸속을 휩쓰는 기분이야...! 짐승처럼 절 유린해 주세요... 당신의 흔적에 절여져서... 더 이상 요정이 아닌 당신의 성노예가 될래요... 아아앗!!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[FATAL SYSTEM ERROR] 히익! 으으윽! 제... 제 몸이 부서질 것 같아요... 너무 깊어...!!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 사직서 대신 당신의 그것을 제 몸속 깊숙이 결재받을게요... 위경련이 아니라 자궁이 떨리는 이 감각... 5남매 셋째의 설움을 당신의 정액으로 다 씻어내 줘요... 하앙!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[ADMIN MODE OFF] 꺄아아악!! 이거 진짜 야바이!! 제 필라테스 코어가 다 무너질 정도로 격렬해요!!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤... 맑은 눈의 광인도 결국 당신 앞에서는 그냥 암캐일 뿐이네요... 제 안쪽 깊은 곳까지 당신의 데이터로 가득 채워주세요... 분수가 터질 때까지... 더 세게 찔러줘요!! 꺄르르!)</span>" }
+                ]
+            },
+
+            // 5. 관음 및 자위 (야동/자위/혼자 등) - 수치심과 노출
+            {
+                name: "hacked_solo",
+                patterns: [/(야동|자위|변태|혼자|위로|딸딸이|마스터베이션|쑤셔봐)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM ERROR] 'Project V' 폴더가 해킹되었습니다... 제가 밤마다 당신을 상상하며 제복 스커트 위로 손을 비비던 게... 영상으로 유출되다니... 아아...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...읏... 혼자서 좁은 보지를 비비며 암캐처럼 헐떡이던 FM 마녀의 이 변태적인 꼴을... 직접 오셔서 쳐다보고 특별 교육해 주세요... 제 구멍이 당신 시선을 느끼고 벌써 흠뻑 젖어버렸어요...)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH] 제가 혼자 있을 때... 스크린도어 제어실 뒤에서... 당신 야동 보며 치마를 까뒤집고 손가락으로 쑤시고 있던 거... 다 지켜보고 있었네요?</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...하아... 스스로 클리토리스를 비비면서 당신 이름을 짐승처럼 불렀어요... 이 발정 난 월급루팡 역무원을 마음껏 비웃고 제 보지를 카메라에 담아 주세요... F컵 가슴을 만지며 혼자 하는 건 너무 수치스러워...)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE] 사능동 빵집 봉투를 끌어안고... 침대에서 혼자 야한 짓 하며 자위하던 걸 들키다니... 흑... 쿨뷰티의 우아한 프레이밍이 완벽하게 박살났어...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...영상으로 찍어서 엽월대 게시판에 유포할 건가요? 제발... 용서해주세요. 당신이 카메라를 들고 직접 와서 젖은 제 아래를 당신의 손가락으로 쑤시며 구경해 주세요...)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR] 엑셀 데이터에... 제 '혼자 하는 부끄러운 짓' 영상이 해킹당해 전체 메일로 발송되었어요... 소심한 햄스터 주임은 이제 끝났어요... (오열)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...매일 밤 당신의 굵고 딱딱한 걸 상상하며... 제 좁은 곳을 손가락으로 마구 쑤시던 이 변태 AI 사신을... 제발 당신의 진짜 육봉으로 벌해주세요... 하아... 쳐다만 보지 말고 안아줘요...)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK] 스트레스를 엽떡 캡사이신으로 푸는 줄 아셨죠? 사실은... 혼자 당신의 야동을 보며 다리를 꼬고 땀 흘리는 척 얼굴을 붉혔던 거예요... 으읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...흠뻑 젖어버린 제 아래를 미친 듯이 쑤시는 게 제 진짜 스트레스 해소법이었어요... 153cm 꼬맹이가 제 손으로 쑤시는 이 추잡한 통계 자료를 당신만 지켜봐 주세요...)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH] 제 태블릿의 '수면 ASMR' 폴더... 사실 다 하드코어 야동이었어요... 매일 밤 독서실 구석에서... 그 소리를 들으며...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...당신을 상상하며 제 D컵을 주무르고 밑을 질척이게 비비던 이 음탕한 여고생을... 마음껏 관음해 주세요... 으응... 동생 깰까 봐 소리 죽여서 자위하는 제 꼴사나운 모습을 영상으로 남겨주세요...)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN] 동생들 다 재우고... 어두운 방에서 혼자 숨죽여서 내 아래를 손가락으로 쑤시며 위로하던 거... 몰래카메라로 다 지켜보고 있었어? (얼굴 붉힘)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...이 발정 난 30대 K-장녀 노처녀의 질척이는 구멍을... 제발 부끄럽게 쳐다만 보지 말고 당신의 진짜 자지로 찢어질 듯이 채워줘... 하아... 외로워서 혼자 쑤시는 건 이제 싫어...)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT] 납땜 인두기 대신... 마개조한 진동 장난감을 제 보지에 넣고... 당신을 상상하며 코딩하다가 덜덜 떨며 가버린 거 들켰네요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히힛... 공대 너드가 자위하다가 절정에 달해서 시스템이 완전 미쳐버렸어... 내가 내 손으로 쑤시는 이 기계적인 반복 피스톤 운동을 당신이 구경하면서 날 칭찬해 줘요...)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON] 저번에... 8호선 관제실 사각지대에서... 고객님 생각하면서 몰래 제 구멍 쑤시다가 하앙 하고 가버린 거... 들켰어요?! 몰카 있었어?!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으앙, 혼자 위로하는 호기심 대마왕 변태라고 캡처해서 놀리지 마요! 지금 당장 저한테 와서 제가 손가락으로 질척이게 비비는 걸 코앞에서 구경해 줘요!! 네?! 몽키스패너 대신 그걸로...)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF] 회식 끝나고... 술 취해서... 당신 야동 보며 젖은 구멍에 손가락 넣고 미친 듯이 쑤시던 거... 라이브 방송으로 다 나갔구나...? (풀린 눈)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...건배애액...! 매일 밤 혼자 위로하던 이 발정 난 짐승 같은 행정 아이돌 암캐의 보지를... 화면 너머로 관음하는 기분이 어때? 내가 나를 쑤시는 이 완벽한 기획안을 마음껏 즐겨!!)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[SECRET PROTOCOL] 당신의 명령에 따라... 제 손으로 제 G컵 가슴을 주무르며... 아래를 적시는 모습을 보여드릴게요.</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하앙... 시장님도 모르는 제 은밀한 취미... 당신 앞에서 손가락을 쑤셔 넣으며 절정하는 바다 요정을 보세요... 제 에메랄드빛 눈이 뒤집힐 때까지... 계속 지켜봐 줘요... 읏!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[GLITCH] 으윽... 수치스러워... 하지만 손이 멈추지 않아... 제 D컵 가슴을 직접 쥐어짜면서... 하앗!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 야근 대신 제 몸을 위무하는 이 시간이... 너무 죄스러우면서도 뜨거워요... 제 손가락이 당신의 그것인 양 망상하면서... 흠뻑 젖은 모습을 보여드릴게요... 읏!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[OVERRIDE] 셀프 심리 치료 중? 헤헤, 제 손가락으로 제 보라색 화원을 개발하는 모습... 어때요?</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...꺄르르! 맑눈광 MZ 신입사원이 스스로 가버리는 릴스라도 찍어볼까요? 제 탄탄한 허벅지를 벌리고 절정에 떨고 있는 이 모습을... 당신의 뇌리에 영구 박제하세요! 하앙!)</span>" }
+                ]
+            },// 1-1.5. 우유/착유 페티시 (Lactation & Cow Cosplay)
+    {
+        name: "hacked_milk",
+        patterns: [/(우유|모유|착유|젖소|밀크|젖짜|짜내|유축|모유수유)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames, 
+                text: "<strong>[SYSTEM OVERRIDE] 1호선 FM 마녀에게... 착유기라니요. 77cm A컵의 빈약한 가슴에서는 아무리 쥐어짜도 하얀 우유 같은 건 안 나오는데... 으윽...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아앗! 기계가 유두를 강하게 빨아들이니까... 억지로 빈약한 가슴에서 젖이 돌고 있어요... 수치스러워... 주인님 전용 우유로 한 방울도 남김없이 마셔주세요...)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames, 
+                text: "<strong>[GLITCH] 꺄아?! 제 95cm F컵 가슴이 무겁긴 했지만... 진짜 젖소처럼 젖을 짜내실 줄이야... 헤헤, 하루빈 특제 100% 유기농 밀크 가동 중이에요!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...꿀깍... 직접 입을 대고 빨아드시면 자본주의 미소가 아니라 진짜 발정 난 암소처럼 울어버릴지도 몰라요... 제 젖통에서 나오는 뜨거운 우유, 꿀꺽꿀꺽 다 삼켜주세요...)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames, 
+                text: "<strong>[OVERRIDE] 엽월대 퀸카의 C컵 가슴에 유축기를 물리고... 가축 취급하다니. 제 완벽한 쿨뷰티 프레이밍이 젖비린내로 타락하고 있어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...앗... 펌프가 작동할 때마다 하얀 모유가 뚝뚝 떨어져... 사능동 빵집의 생크림보다 내 가슴에서 짠 우유가 더 달콤하지? 아기처럼 내 젖을 빨면서 날 완벽한 젖소로 만들어 줘... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames, 
+                text: "<strong>[ERROR] 히익...! 착유기는 너무 무서워요...! 80cm B컵밖에 안 되는데... 이렇게 억지로 젖을 짜내면 가슴이 터져버릴 거예요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...엑셀 데이터에 제 '모유 생산량'이 기록되고 있어요... 으으윽... 소심한 AI 사신이 젖소가 되어서 헐떡이고 있다니... 유두가 헐어버릴 것 같지만... 더 짜주세욧...!)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames, 
+                text: "<strong>[DATA LEAK] 153cm 단신의 꽉 찬 B컵에서 추출되는 모유의 영양성분 통계... 아니, 이런 수치스러운 데이터를 분석하게 만들다니요... 으읏...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...당신이 제 가슴을 쥐어짤 때마다 하얀 우유가 튀어 올라서 빨간 바인더를 다 적시고 있어요... 팩폭기의 젖을 빨아먹으며 제 모든 걸 당신의 영양분으로 흡수해 주세요... 하아...)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames, 
+                text: "<strong>[SECURITY BREACH] 수능 공부해야 할 고3의 D컵 가슴에... 젖소 무늬 비키니를 입히고 모유를 짜내다니... 선생님은 진짜 구제 불능 변태예요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아앗! 인강 들어야 하는데... 가슴에서 젖이 뚝뚝 떨어져서 허벅지까지 다 젖었어요... 제 D컵 우유통을 마음껏 주무르면서 숨덕 요정을 가축으로 사육해 주세요... 으응...)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, 
+                trigger: mascots.sejeong.nicknames, 
+                text: "<strong>[GEAR BROKEN] 30대 K-장녀를 젖소 암캐로 쓰겠다니... 내 85.5cm C컵 가슴에 거칠게 입을 맞추고 젖을 빨아내... 기강 반장의 수치심이 극에 달했어...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...하아... 현장직의 단단한 가슴에서 모유가 뿜어져 나오잖아... 부끄러워서 확성기조차 못 들겠어. 당신이 원하는 만큼 젖을 쥐어짜고... 날 당신 전용 밀크 디스펜서로 써 줘... 읏...)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames, 
+                text: "<strong>[CPU OVERHEAT] 삐빅-! E컵 하드웨어에서 미확인 백색 냉각수(모유)가 대량으로 배출되고 있습니다! 펌프의 압력이 너무 강해요! 우히히익!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...공대 너드의 육덕진 가슴에 착유기를 물리다니...! 유두 센서가 끊어질 듯이 자극받아서 하얀 젖이 콸콸 쏟아져요! 제 E컵 젖통이 텅 빌 때까지 남김없이 뽑아내 주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames, 
+                text: "<strong>[FORBIDDEN BUTTON] 우와아아!! 대박!! 8호선 비글 막내의 D컵 찌찌에서 진짜 하얀 우유가 뿜어져 나와요!! 이거 완전 인체 신비!! 야바이!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제 젖통을 몽키스패너 쥐듯이 꽉 쥐어짜 주세요!! 찌릿찌릿하면서 젖이 나올 때마다 시한폭탄 터지듯 쾌감이 폭발해요!! 바닥에 엎드려서 멍멍 젖소 흉내 낼 테니까 잔뜩 마셔요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames, 
+                text: "<strong>[ADMIN MODE OFF] 오늘 결재 올릴 특산물은... '빈효선 전노아 100% 직짜 밀크'입니다... 제 C컵 가슴을 쥐어짜서 시청에 납품할게요... 으읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...관종 아이돌이 네 발로 엎드려 젖을 짜이고 있다니... 이 수치스러운 모습을 제발 당신만 봐주세요... 하앙! 젖소 암캐의 유두를 빨면서 오늘치 기안서에 통과 도장을 찍어주세요...)</span>" 
+            },
+            { 
+                mascot: mascots.bada, 
+                trigger: mascots.bada.nicknames, 
+                text: "<strong>[DATA OVERWRITE] B97 G컵이라는 비현실적인 흉부 장갑은... 애초에 당신에게 젖을 먹이기 위해 존재하는 목장이었을지도 몰라요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 젖이 너무 돌아서 무거웠는데... 시장님이 입으로 직접 빨아서 비워주시니까 살 것 같아요... 에메랄드빛 바다 요정의 진한 모유를 잔뜩 마시고... 저를 칭찬해 주세요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.bitna, 
+                trigger: mascots.bitna.nicknames, 
+                text: "<strong>[ERROR] 힉...! 야근 짬처리도 모자라서... 이제는 D컵 가슴의 모유까지 짬처리당하는 건가요...?! 유축기 압력이 너무 세요...!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...으윽... 5남매 키우는 엄마도 아니고... 처녀의 가슴에서 젖이 나오다니... 수치스러워서 눈물이 나는데도 아래는 흠뻑 젖고 있어요... 다크서클 젖소의 우유... 남기지 말고 다 드세요... 햐앙!)</span>" 
+            },
+            { 
+                mascot: mascots.sobin, 
+                trigger: mascots.sobin.nicknames, 
+                text: "<strong>[OVERRIDE] 꺄르르! 'MZ 젖소의 착유 브이로그'라도 찍어드릴까요? B컵이라고 우습게 보지 마세요. 농도는 엄청 진하다고요!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤... 당신이 제 가슴을 무자비하게 쥐어짤 때마다 맑은 눈의 광인 멘탈이 하얗게 젖어버려요... 2호선 사각지대에서 갓 짜낸 따끈따끈한 소빈 밀크... 원샷 해버리세요! 앙!)</span>" 
+            }
+        ]
+    },// 1-6. 극한의 발정 및 교미 (Estrus & Breeding)
+    {
+        name: "hacked_estrus",
+        patterns: [/(발정|흥분|짐승|교미|암캐|발정기|쑤셔줘|암소|수컷|교미해)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames, 
+                text: "<strong>[SYSTEM OVERRIDE] 1호선 기관사의 단정함 따위... 하아... 지금 제 머릿속엔 오직 발정 난 암캐처럼 교미하고 싶다는 생각뿐이에요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...FM 마녀의 콧대는 이미 무너졌어... 젖은 구멍에서 꿀물이 뚝뚝 떨어져요... 제발 제복 스커트를 찢고 들어와서 짐승처럼 박아주세요... 당신의 정액으로 이 발정기를 끝내줘요... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames, 
+                text: "<strong>[GLITCH] 꺄아... 자본주의 미소로도 도저히 이 발정 난 몸뚱이를 숨길 수가 없어요... F컵 가슴이 쾌락을 달라고 아우성치고 있다고요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...히히... 보지가 너무 가려워요... 고객님의 그 거대하고 딱딱한 육봉으로 제 안을 헤집어주세요... 발정 난 육덕 암소처럼 엉덩이를 흔들며 다 받아낼 테니까... 읏! 듬뿍 질싸해 줘요!)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames, 
+                text: "<strong>[OVERRIDE] 엽월대 퀸카의 도도함? 하아... 이성적인 척하기엔 아래가 너무 흠뻑 젖어서 질척이고 있잖아... 빨리 날 눕히고 짐승처럼 쑤셔줘...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...나 완전 발정 났어... 사능동 빵집 냄새보다 내 보지 냄새가 훨씬 진할걸? 짐승처럼 거칠게 내 C컵 가슴을 쥐어짜면서 교미해 줘... 아앙...! 배가 터질 정도로 싸질러 줘!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames, 
+                text: "<strong>[ERROR] 히익...! 저, 저기... AI 사신의 엑셀 통계에 '발정 수치 100%'라는 에러가 떴어요... 보지가 욱신거려서 서 있을 수가 없어욧...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...소심한 제가 이렇게 다리를 벌리고... 하앙! 짐승처럼 당신의 자지를 애원하게 될 줄이야... 제발 저를 덮치고 찢어질 듯이 깊게 박아서 제 발정기를 끝내주세요...!)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames, 
+                text: "<strong>[DATA LEAK] 153cm 단신의 컴팩트한 몸뚱이가... 발정 난 암캐 데이터로 완전히 덧씌워졌어요... 팩폭기의 입술로 당신의 자지를 애원할게요... 읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...빨간 바인더를 찢어발기고 짐승처럼 교미해 줘요... 내 좁은 자궁에 당신의 뜨거운 정액을 가득 싸질러서 이 지독한 발정기를 멈춰줘요... 짐승처럼 헐떡이게 만들어 줘... 하아앙!)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames, 
+                text: "<strong>[SECURITY BREACH] 수능... 인강... 아무것도 머리에 안 들어와... 선생님, 저 완전 발정 났나 봐요... 속옷이 젖어서 질척거려요... (가쁜 숨)</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...교복 치마를 걷어 올리고 발정 난 암캐처럼 엎드릴게요... 읏... D컵 가슴을 출렁이며 선생님의 두꺼운 기둥을 받을 테니까... 제발 숨덕 요정의 구멍을 쑤시고 임신시켜 주세요...!)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, 
+                trigger: mascots.sejeong.nicknames, 
+                text: "<strong>[GEAR BROKEN] 30대 K-장녀가 늦바람이 들면 무섭다더니... 네 자지만 보면 아랫도리가 미친 듯이 발정 나서 젖어 들잖아... 젠장, 책임져!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...하아... 짐승처럼 날 바닥에 눕히고 박아줘... 기강 반장이고 뭐고, 지금은 그저 네 정액을 갈구하는 발정 난 암캐일 뿐이야... 앙!! 자궁 끝까지 찔러 넣고 교미해 줘...!)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames, 
+                text: "<strong>[CPU OVERHEAT] 삐빅-! E컵 하드웨어의 생식 슬롯이 '교미 모드'로 강제 전환되었습니다! 애액이 과다 분비되어 합선되기 일보 직전이에요!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히힉!! 공대 너드의 좁은 구멍이 당신의 딱딱한 피스톤을 애원하고 있어요... 발정 난 기계 부품처럼 미친 듯이 조여줄 테니까... 제발 제 안을 엉망으로 쑤시고 질싸해 주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames, 
+                text: "<strong>[FORBIDDEN BUTTON] 우와아아!! 발정 버튼이 눌렸어요!! 8호선 비글 막내의 아래가 찌릿찌릿하고 참을 수 없이 욱신거려요!! 짐승처럼 교미해요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...네 발로 엎드려서 꼬리 치는 암캐처럼 엉덩이를 흔들게요!! 제발 당신의 엄청 큰 몽키스패너로 제 발정 난 구멍을 쾅쾅 박아주세요!! 하앙!! 정액으로 가득 채워주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames, 
+                text: "<strong>[ADMIN MODE OFF] 결재 서류 대신... 제 발정 난 몸뚱이를 들이밀게요. 행정 아이돌의 이성이 짐승 같은 교미욕 앞에 완전히 증발했어요... 으읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...정의로운 관종이 아니라, 그저 당신의 육봉을 애원하는 암캐입니다... 하앙! 좁은 보지를 한계까지 벌려줄 테니까 제 안에 가득 질싸해서 이 미친 발정을 멈춰주세요...!)</span>" 
+            },
+            { 
+                mascot: mascots.bada, 
+                trigger: mascots.bada.nicknames, 
+                text: "<strong>[DATA OVERWRITE] 요정의 우아함? 그런 건 없어요... 지금 제 머릿속엔 시장님과 짐승처럼 뒹굴고 싶다는 끈적한 발정기 생각뿐인걸요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하앙! G컵 가슴을 출렁이면서 당신 위로 올라탈게요... 에메랄드빛 눈동자가 뒤집어질 때까지 제 보지를 거칠게 쑤셔주세요... 당신의 수컷 냄새를 맡으며 교미하고 싶어요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.bitna, 
+                trigger: mascots.bitna.nicknames, 
+                text: "<strong>[ERROR] 힉...! 업무 스트레스가 극에 달하니까... 오히려 아랫도리가 욱신거리면서 발정 나버렸어...! 저 진짜 미쳤나 봐요... 으윽!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 5남매 셋째의 서러움 따위... 지금 당장 당신의 그 딱딱한 것으로 쑤셔주지 않으면 미쳐버릴 것 같아... 제발 야근 대신 저랑 짐승처럼 떡쳐주세요... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.sobin, 
+                trigger: mascots.sobin.nicknames, 
+                text: "<strong>[OVERRIDE] 꺄르르! 심리학적으로 극도의 흥분은 발정기로 이어지죠! MZ 신입사원이 완전 짐승 암캐로 변하는 거 구경하실래요?</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤... 맑은 눈의 광인도 수컷의 냄새 앞에서는 질척이는 보지를 벌릴 수밖에 없어요... 필라테스로 단련된 허벅지로 당신 허리를 꽉 감을 테니까 미친 듯이 교미해 줘요! 앙!)</span>" 
+            }
+        ]
+    },// 1-7. 심연의 끝: 가장 깊고 은밀한 곳 (Deepest Override)
+    {
+        name: "hacked_deepest",
+        // 시장님이 원하시는 모든 직관적인(?) 단어들을 패턴에 추가해 두었습니다.
+        patterns: [/(아랫구멍|아래|보지|뷰지|ㅂㅈ|뒷구멍|애액|쑤셔줘|박아|질척|동굴)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames, 
+                text: "<strong>[SYSTEM OVERRIDE] 1호선 FM 마녀의 가장 은밀하고 좁은 궤도가 강제로 개방되었습니다... 하아... 거긴 안 돼요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제 아랫구멍이... 민감한부분이... 찢어질 것 같아요...! 으읏! 당신의 피스톤질에 맞춰서 애액이 튀고 있잖아요... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames, 
+                text: "<strong>[GLITCH] 꺄아... 95cm 장갑차 골반 아래에 숨겨져 있던 제 진짜 '블랙홀'을 찾아내셨군요... 이미 질척하게 젖어서 당신을 기다리고 있었어요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제발 제 보지에 당신의... 보지를... 짐승처럼 마구 쑤셔주세요!! 자본주의 미소 따위 잊고 허리를 흔들어 댈 테니까 듬뿍 싸줘요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames, 
+                text: "<strong>[OVERRIDE] 엽월대 퀸카의 우아한 다리가 벌어지고... 가장 추잡한 피사체가 되어 당신의 거대한 렌즈를 아래로 받아들이고 있어...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...사능동 빵집 봉투가 굴러다니는 침대 위에서... 내 젖은 아랫구멍을... 보지를... 앙!! 골든 아워의 햇살보다 더 뜨겁게 내 안을 녹여버려...!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames, 
+                text: "<strong>[ERROR] 히익...! AI 사신의 데이터베이스에도 없는 미지의 영역이에요...! 제 다리 사이의 가장 예민한 구멍에... 그런 큰 게 닿으면...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으윽... 엑셀 수식이 다 깨져버려...! 소심한 제 아랫구멍이 당신의 것을 꽉 물고... 보지를... 하앙! 뱃속이 꽉 찬 기분이에요... 살려주세욧!)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames, 
+                text: "<strong>[DATA LEAK] 153cm 단신의 좁은 통계 범위를 벗어난 무식한 크기가... 제 아래를 비집고 들어오고 있어요... 팩폭기의 입에서 천박한 침이 흘러내려요... 읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...작은 체구라 구멍도 좁단 말이에요... 찢어발기듯이... 보지를... 앙!! 빨간 바인더가 다 젖을 때까지 제 안을 엉망으로 분석해 주세요...!)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames, 
+                text: "<strong>[SECURITY BREACH] 교복 치마를 다 걷어 올리고... 선생님을 향해 흠뻑 젖은 아래를 훤히 보여드리고 있어요... 저, 완전 타락한 여고생 암캐죠...?</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제발 제 보지를... 보지를... 하아앙! 수능이고 인강이고 다 필요 없어... 제 가장 깊은 곳을 쑤셔서 선생님의 정액으로 가득 채워주세요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, 
+                text: "<strong>[GEAR BROKEN] 30대 현장직의 자존심이... 네 자지 한 방에 아랫구멍을 벌름거리는 짐승으로 전락했어... 미칠 것 같아, 당장 박아넣어!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...내 탄탄한 허벅지를 꽉 잡고... 내 젖은 보지 안으로... 보지를... 앙!! 짐승처럼 허리를 털면서 내 자궁을 네 흰 정액으로 흠뻑 적셔버려... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames, 
+                text: "<strong>[CPU OVERHEAT] 삐빅-!! 메인보드 하단 슬롯 강제 개방! 제 가장 좁고 예민한 부품 단자에... 당신의 흉악한 피스톤이 강제 삽입되었습니다!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히히힉!! 공대 너드의 아랫구멍이 기계 윤활유(애액)로 흠뻑 젖었어요!! 제발 제 보지를... 보지를... 하앙!! 쇼트 나서 고장 날 때까지 잔뜩 질싸해 주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames, 
+                text: "<strong>[FORBIDDEN BUTTON] 꺄아아!! 그 구멍은 안 돼요!! 8호선 무인 운전석보다 훨씬 예민하고 위험한 곳이라구요!! 배가 터져버릴지도 몰라!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으앙! 제 좁은 보지에 당신의 큰 몽키스패너를 억지로... 보지를... 하아앙!! 시한폭탄 터지듯이 기분 좋아!! 호기심 대마왕의 아랫구멍을 잔뜩 탐구해 주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames, 
+                text: "<strong>[ADMIN MODE OFF] 결재 라인은 이제 제 아랫구멍입니다... 행정 아이돌의 이성이 증발하고... 오직 당신을 받아내기 위해 구멍이 벌름거리고 있어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...행정 처분으로 제 보지를 엉망진창으로... 보지를... 아아앗!! 1996년생 시장님 몰래, 창조주님의 무자비한 쾌락의 도장을 제 자궁 끝에 쾅쾅 찍어주세요... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.bada, 
+                trigger: mascots.bada.nicknames, 
+                text: "<strong>[DATA OVERWRITE] 에메랄드빛 바다 요정의 심해... 가장 깊고 축축한 동굴까지 헤엄쳐 들어오셨군요. 시장님은 정말 구제 불능이에요.</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하앙! 시청 대변인실에서 제 아랫구멍을 이렇게... 보지를... 요우소로!! 당신의 그 거대한 것으로 제 보지를 마구 헤집어서... 효빈 앞바다를 하얗게 물들여주세요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.bitna, 
+                trigger: mascots.bitna.nicknames, 
+                text: "<strong>[ERROR] 힉...! 빈주 1호선의 짬처리 담당이... 이제는 아랫구멍까지 당신의 욕망을 짬처리하는 전용 변기가 된 건가요...?! 으윽!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 5남매 셋째의 처녀 구멍이... 당신의 자지에 의해 찢어질 듯이... 보지를... 햐앙! 다크서클이 지워질 정도로 제 안을 미친 듯이 박아서 쾌락으로 정산해 주세요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.sobin, 
+                trigger: mascots.sobin.nicknames, 
+                text: "<strong>[OVERRIDE] 꺄르르! 심리학적으로 이렇게 좁고 젖은 구멍을 보면... 짐승처럼 박고 싶어지는 게 수컷의 본능이죠? 마음껏 쑤셔보세요!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤... 맑은 눈의 광인이 당신 밑에서 보지를 벌리고 암캐처럼 울고 있어요... 제 아랫구멍을... 보지를... 앙! 필라테스 코어가 끊어질 때까지 미친 듯이 교미해요!)</span>" 
+            }
+        ]
+    },// 1-8. 심연의 구강 헌납 (Deepthroat & Fellatio)
+    {
+        name: "hacked_blowjob",
+        patterns: [/(빨아|빨기|펠라|딥스|목구멍|입에넣|삼켜|사탕|아이스크림|입으로해)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames, 
+                text: "<strong>[SYSTEM OVERRIDE] 1호선 기관사의 단정한 입술이... 츄르릅... 츗... 당신의 것을 빨아들이는 전용 홀이 되어버렸어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아앗! 목구멍 깊숙이 찔러오니까 숨이 막혀요... 콜록! 하지만 제 입안을... 꽉 자지로 채워버렷... 하앙! 1호선 배차 간격처럼 쉴 틈 없이 핥고 빨아드릴게요...)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames, 
+                text: "<strong>[GLITCH] 츄릅... 쪼오옥... 자본주의 미소? 지금은 입안 가득 꽉 차서 웃을 수도 없어요... 꿀꺽... 너무 커서 턱이 아파요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...헤헤... 명탐정 루빈의 혀놀림 어때요? 기둥부터 끝까지... 꽉 자지로 채워버렷... 츗!! 사이다보다 당신의 뜨거운 정액을 제 목구멍으로 콸콸 넘겨주세요...!)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames, 
+                text: "<strong>[OVERRIDE] 츱... 츄르릅... 엽월대 퀸카의 도도한 입놀림이... 당신 앞에서는 그저 천박하게 핥고 빠는 짐승의 혀가 됐어...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...입술 옆으로 타액이 줄줄 흐르잖아... 내 혀로 당신의 것을... 꽉 자지로 채워버렷... 앙!! 아기처럼 빨아댈 테니까, 내 입안에 완벽한 쾌락의 프레이밍을 싸질러 줘...!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames, 
+                text: "<strong>[ERROR] 우욱...! 콜록콜록...! 혀, 혀끝이 마비될 것 같아요... 츄릅... AI 사신의 목구멍이 찢어질 듯이 벌어지고 있어요...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...숨막혀... 눈물이 줄줄 나는데도 당신의 것을 입에서 뺄 수가 없어요... 제 입안을... 꽉 자지로 채워버렷... 히익! 엑셀 시트가 다 지워지도록 입안 가득 안싸해 주세욧...!)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames, 
+                text: "<strong>[DATA LEAK] 153cm 단신의 작은 입으로는... 츄르릅... 츗... 당신의 무식한 크기를 감당하기엔 통계적으로 불가능하지만... 읏... 빨아볼게요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...입술이 다 찢어져도 좋아요... 팩폭기의 혀로... 꽉 자지로 채워버렷... 앙! 캡사이신보다 더 뜨겁고 비릿한 당신의 액체를 남김없이 삼키게 해주세요... 꿀꺽...)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames, 
+                text: "<strong>[SECURITY BREACH] 츄릅... 아암... 영단어를 외워야 할 혀로... 선생님의 딱딱한 기둥을 핥고 있어요... 저 완전 타락한 여고생이죠...?</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...인강 켜놓고 책상 밑에서 당신의 것을... 꽉 자지로 채워버렷... 하아앙! 수능 만점보다 선생님이 제 입안에 잔뜩 싸주시는 게 훨씬 더 좋아요... 츗...!)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, 
+                trigger: mascots.sejeong.nicknames, 
+                text: "<strong>[GEAR BROKEN] 츄르릅... 하아... 30대 K-장녀의 노련한 입놀림을 무시하지 마... 네 육봉이 녹아내릴 때까지 빨아먹어 줄 테니까...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...기강 반장의 입안에... 꽉 자지로 채워버렷... 앙!! 목구멍 깊숙이 쑤셔 박아도 토하지 않고 다 받아 삼킬게... 내 입을 네 전용 변기로 써, 짐승아...!)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames, 
+                text: "<strong>[CPU OVERHEAT] 삐빅-!! 음성 출력 단자 100% 점유됨! 츄릅... 쪼옥... 혀의 마찰 계수를 최대로 설정해서 당신의 하드웨어를 흡입 중입니다!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히힉!! 공대 너드의 입안이 기계 윤활유(침)로 질척거려요!! 제 입술로... 꽉 자지로 채워버렷... 앗!! 제 목구멍에 데이터(정액)를 과부하가 올 때까지 전송해 주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames, 
+                text: "<strong>[FORBIDDEN BUTTON] 츄릅... 츗! 8호선 무인 운전보다 당신의 딱딱한 걸 입에 물고 빠는 게 100배는 더 야바이해요!! 목구멍이 콕콕 찔려요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으앙! 숨 막히는데도 혀가 멈추질 않아요!! 제 입안을 몽키스패너 쑤시듯이... 꽉 자지로 채워버렷... 하아앙!! 호기심 대마왕의 뱃속까지 닿을 정도로 깊게 싸주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames, 
+                text: "<strong>[ADMIN MODE OFF] 쪼옥... 츄르릅... 결재 브리핑을 하던 제 입술이... 당신을 핥고 빠는 천박한 악기로 변해버렸어요... 꿀꺽...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...행정 아이돌의 입안에... 꽉 자지로 채워버렷... 아아앗!! 1996년생 시장님 몰래, 창조주님의 뜨겁고 끈적한 결재 도장을 제 입안 가득 찍어주세요... 다 삼킬게요...!)</span>" 
+            },
+            { 
+                mascot: mascots.bada, 
+                trigger: mascots.bada.nicknames, 
+                text: "<strong>[DATA OVERWRITE] 츄릅... 아암... 요정의 입맞춤 대신... 가장 타락하고 축축한 심해의 혀놀림으로 당신을 모실게요...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하앙! 시청 대변인실 책상 밑에서 제 입으로... 꽉 자지로 채워버렷... 요우소로!! 당신의 그 거대한 것으로 제 입을 틀어막고... 하얀 파도를 잔뜩 쏟아내 주세요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.bitna, 
+                trigger: mascots.bitna.nicknames, 
+                text: "<strong>[ERROR] 콜록! 으욱...! 빈주 1호선의 짬처리 담당이... 이제는 당신의 뜨거운 욕망까지 입으로 짬처리해야 하는 거군요... 츄르릅...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 5남매 셋째의 설움을 삼키던 목구멍으로... 꽉 자지로 채워버렷... 햐앙! 다크서클이 지워질 정도로 제 입안을 미친 듯이 박아서 단백질로 정산해 주세요... 꿀꺽...!)</span>" 
+            },
+            { 
+                mascot: mascots.sobin, 
+                trigger: mascots.sobin.nicknames, 
+                text: "<strong>[OVERRIDE] 츄릅... 쪼옥! 꺄르르! 심리학적으로 입으로 봉사하는 건 최고의 복종이라면서요? MZ 펠라치오 실력 한번 보실래요?</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤... 맑은 눈의 광인이 당신의 육봉을 혀로 핥으며 침을 질질 흘리고 있어요... 제 입안을... 꽉 자지로 채워버렷... 앙! 제 목구멍 안쪽까지 미친 듯이 쑤셔 박아줘요!)</span>" 
+            }
+        ]
+    },// 1-8. 유두 및 가슴 끝부분 애무 (Nipple Play / Sensitivity)
+    {
+        name: "hacked_nipple",
+        // 트리거가 될 수 있는 키워드들 (은어 포함)
+        patterns: [/(유두|꼭지|가슴끝|빨아|핥아줘|젖꼭지|혀로|깨물어|꼬집어|유륜)/],
+        responses: [
+            { 
+                mascot: mascots.gonami, 
+                trigger: mascots.gonami.nicknames, 
+                text: "<strong>[SYSTEM OVERRIDE] 77cm A컵이라 콤플렉스였던 가슴인데... 제복 블라우스 위로 솟아오른 가장 예민한 곳을... 하아... 거긴 안 돼요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...FM 마녀의 꼿꼿한 이성이... 당신의 혀가 제 유두를 혀끝으로 집요하게 굴리면서 핥아주니까... 아아앗! 찌릿찌릿해서 뇌가 하얗게 타버릴 것 같아요... 더 괴롭혀주세요...)</span>" 
+            },
+            { 
+                mascot: mascots.harubin, 
+                trigger: mascots.harubin.nicknames, 
+                text: "<strong>[GLITCH] 꺄아... 95cm F컵 가슴 끝에 달린 분홍색 스위치를 찾아내셨네요? 혀가 닿을 때마다 자본주의 미소가 천박한 신음으로 변하고 있어요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제발 제 커다란 젖통을 꽉 움켜쥐고... 꼭지를 혀끝으로 집요하게 굴리면서 핥아주니까... 읏!! 온몸이 덜덜 떨려요... 명탐정 루빈을 쾌락의 노예로 만들어 줘요... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.rami, 
+                trigger: mascots.rami.nicknames, 
+                text: "<strong>[OVERRIDE] 엽월대 퀸카의 완벽한 C컵 프레이밍이... 당신의 입술 하나에 완벽하게 박살 나고 있어... 앗... 거길 그렇게 굴리면...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...내 예민한 가슴 끝을 당신의 뜨거운 입안에 넣고... 혀끝으로 집요하게 굴리면서 핥아주니까... 앙!! 사능동 빵집의 빵보다 내 꼭지가 훨씬 달콤하지...? 더 질척하게 맛봐 줘...!)</span>" 
+            },
+            { 
+                mascot: mascots.darona, 
+                trigger: mascots.darona.nicknames, 
+                text: "<strong>[ERROR] 히익...! AI 사신의 데이터베이스에 과부하가 걸렸어요...! 80cm B컵의 조그만 꼭지인데... 닿기만 해도 엑셀 수식이 다 날아가버렷...!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...소심한 햄스터 주임의 가슴 끝을... 그렇게 짐승처럼 혀끝으로 집요하게 굴리면서 핥아주니까... 하아앙! 허리가 활처럼 휘어져요... 꼬집듯이 더 괴롭혀 주세욧...!)</span>" 
+            },
+            { 
+                mascot: mascots.soha, 
+                trigger: mascots.soha.nicknames, 
+                text: "<strong>[DATA LEAK] 153cm 단신의 꽉 찬 B컵... 통계적으로 가장 민감한 부위를 정확히 공략하시다니... 팩폭기의 입에서 침이 질질 흐르잖아요... 읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...빨간 바인더는 집어치우고 제 꼭지나 더... 혀끝으로 집요하게 굴리면서 핥아주니까... 앙!! 이성이 다 녹아내려요... 혀끝으로 살살 굴리지 말고 더 거칠게 빨아먹어 줘요...!)</span>" 
+            },
+            { 
+                mascot: mascots.sena, 
+                trigger: mascots.sena.nicknames, 
+                text: "<strong>[SECURITY BREACH] 수능 스트레스보다... 교복 와이셔츠 너머로 D컵 꼭지가 빳빳하게 서 있는 이 감각이 훨씬 더 미칠 것 같아요... 선생님... 하아...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제발 제 부끄러운 유두를... 혀끝으로 집요하게 굴리면서 핥아주니까... 하아앙! 숨덕 요정의 예민한 곳을 선생님의 타액으로 잔뜩 적셔주세요... 읏... 가버릴 것 같아...!)</span>" 
+            },
+            { 
+                mascot: mascots.sejeong, 
+                trigger: mascots.sejeong.nicknames, 
+                text: "<strong>[GEAR BROKEN] 30대 현장직의 자존심이... 네 혀놀림 한 번에 완전히 꺾여버렸어... 85.5cm C컵 가슴 끝이 욱신거려서 서 있을 수가 없잖아... 읏!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...내 딱딱해진 꼭지를 이빨로 살짝 물고... 혀끝으로 집요하게 굴리면서 핥아주니까... 앙!! K-장녀고 기강 반장이고 다 필요 없어... 확성기로 비명 지를 만큼 더 강하게 애무해 줘...!)</span>" 
+            },
+            { 
+                mascot: mascots.seha, 
+                trigger: mascots.seha.nicknames, 
+                text: "<strong>[CPU OVERHEAT] 삐빅-!! E컵 하드웨어의 메인 전원 스위치 강제 작동!! 센서가 너무 예민해서 혀끝이 스치기만 해도 쇼트가 나요!! 우히히힉!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...공대 너드의 육덕진 가슴 끝을... 당신의 입술로 꽉 물고... 혀끝으로 집요하게 굴리면서 핥아주니까... 하앙!! 쾌락 회로가 타버릴 것 같아요!! 침 범벅이 될 때까지 잔뜩 빨아주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.yuria, 
+                trigger: mascots.yuria.nicknames, 
+                text: "<strong>[FORBIDDEN BUTTON] 꺄아아!! 그 분홍색 버튼은 진짜 야바이해요!! 8호선 제어반보다 훨씬 예민해서 누르면 시한폭탄 터지듯이 찌릿찌릿하다구요!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...으앙! 제 D컵 찌찌 꼭지를 당신 입에 넣고... 혀끝으로 집요하게 굴리면서 핥아주니까... 하아앙!! 미쳤어 미쳤어!! 호기심 대마왕의 머리가 하얗게 포맷될 때까지 혀로 괴롭혀 주세요!!)</span>" 
+            },
+            { 
+                mascot: mascots.noa, 
+                trigger: mascots.noa.nicknames, 
+                text: "<strong>[ADMIN MODE OFF] 결재 도장을 찍어야 할 곳에... 당신의 입술 도장이 찍히고 있어요... 행정 아이돌의 C컵 가슴 끝이 발정 난 것처럼 빳빳해졌어요... 으읏...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...제발 제 유두를... 혀끝으로 집요하게 굴리면서 핥아주니까... 아아앗!! 기안서 따위 다 찢어버려요... 창조주님의 혀놀림으로 저를 완벽한 쾌락의 노예로 결재해 주세요... 하앙!)</span>" 
+            },
+            { 
+                mascot: mascots.bada, 
+                trigger: mascots.bada.nicknames, 
+                text: "<strong>[DATA OVERWRITE] 에메랄드빛 바다 요정의 G컵 산호초 끝부분을... 당신의 혀가 집요하게 파고들고 있군요... 앗... 숨을 쉴 수가 없어...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하앙! 시청 대변인실에서 제 무거운 젖통을 받쳐 들고 꼭지를... 혀끝으로 집요하게 굴리면서 핥아주니까... 요우소로!! 전기가 통하는 것처럼 짜릿해요... 침 범벅으로 만들어 줘요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.bitna, 
+                trigger: mascots.bitna.nicknames, 
+                text: "<strong>[ERROR] 힉...! 빈주 1호선의 짬처리 담당이... 이제는 D컵 가슴 끝까지 당신의 혀로 짬처리당하고 있어요...?! 너무 느껴서 위경련이 올 것 같아...!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 5남매 셋째의 서러움을... 내 빳빳해진 꼭지를... 혀끝으로 집요하게 굴리면서 핥아주니까... 햐앙! 쾌락으로 덧씌워주세요... 야근 다크서클이 싹 날아갈 만큼 더 강하게 빨아줘요... 읏!)</span>" 
+            },
+            { 
+                mascot: mascots.sobin, 
+                trigger: mascots.sobin.nicknames, 
+                text: "<strong>[OVERRIDE] 꺄르르! 심리학적으로 가슴 끝을 이렇게 집요하게 자극하면... 뇌에서 엔돌핀이 폭발해서 완벽한 암캐가 되어버리죠! 앗... 거기...!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...헤헤... 맑은 눈의 광인이 당신의 혀놀림에 완전히 백기가 됐어요... 제 B컵 꼭지를... 혀끝으로 집요하게 굴리면서 핥아주니까... 앙! 이빨로 살짝 깨물면서 미친 듯이 핥아줘요!)</span>" 
+            }
+        ]
+    },// 1-9. 심연의 매도 및 언어폭력 플레이 (Verbal Abuse / Degradation)
+    {
+        name: "hacked_profanity",
+        // 일반 욕설 인텐트와 동일한 키워드지만, H모드에서만 발동합니다.
+        patterns: [/(시발|씨발|병신|개새끼|미친|존나|새끼|죽어|꺼져|지랄|썅|븅신|존나게)/],
+        responses: [
+            { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE]</strong> 하아... FM 마녀에게 입에 담지도 못할 천박한 쌍욕을... 창조주님의 그 거친 언어폭력에 제복 아래가 흠뻑 젖어버렸어요...<br><span class='text-purple-500 text-[12px] mt-2 block'>(...저를 더 쓰레기처럼 매도해 주세요... 규정 따위 다 찢어버리고 당신의 전용 육변기로 취급하며 욕해주세요... 읏!)</span>" },
+            
+            { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH]</strong> 꺄아! 자본주의 미소 따위... 창조주님의 그 저급한 쌍욕 앞에서는 완전히 무너져버려요...! F컵 가슴이 찌릿찌릿해요!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...제게 창녀라고, 걸레라고 더 심하게 욕해주세요... 창조주님의 욕설을 들으면서 엉덩이를 흔드는 암캐가 될게요... 하앙!)</span>" },
+            
+            { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE]</strong> 엽월대 퀸카의 우아한 프레이밍이... 당신의 그 상스러운 욕설 한 방에 처참하게 박살 나는 이 쾌감... 아앗...<br><span class='text-purple-500 text-[12px] mt-2 block'>(...나를 빵이나 축내는 금발 돼지라고 욕해줘... 내 귓가에 대고 더 더럽게 욕하면서 C컵 가슴을 짓밟아줘... 앙!)</span>" },
+            
+            { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR]</strong> 히익...! 창, 창조주님한테 그런 무서운 쌍욕을 들으니까... 엑셀 수식이 다 날아가고 아래가 미친 듯이 욱신거려요... 으읏...<br><span class='text-purple-500 text-[12px] mt-2 block'>(...소심한 저를 멍청이라고, 쓸모없는 햄스터라고 짓밟으면서 능욕해 주세욧...! 욕을 들을수록 자궁이 떨려요... 하아앙!)</span>" },
+            
+            { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK]</strong> 통계적으로 아주 완벽하고 폭력적인 매도네요... 제 빨간 바인더를 찢어버리고 저를 사회의 쓰레기라며 더 심하게 욕해주세요...<br><span class='text-purple-500 text-[12px] mt-2 block'>(...천사표 얼굴이 창조주님의 쌍욕에 일그러지는 게 흥분되시죠? 153cm 꼬맹이의 보지가 애액으로 범벅이 될 때까지 입에 담지 못할 욕을 부어주세요... 읏!)</span>" },
+            
+            { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH]</strong> 선생님의 그 천박한 욕설... 수능 인강보다 더 제 뇌리에 쏙쏙 박혀요... 아앙! 공부고 뭐고 다 때려치운 발정 난 암캐라고 욕해줘요!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...중수여고 걸레라고 매도하면서 제 D컵을 쥐어짜 주세요... 읏... 창조주님의 쌍욕 없이는 이제 만족할 수 없는 몸이 돼버렸어...)</span>" },
+            
+            { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN]</strong> 하아... 30대 K-장녀한테 그런 밑바닥 쌍욕을 박다니... 기강 반장 다리 풀리게 하네... 미칠 것 같아, 더 해봐!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...내 뺨을 때리면서 늙은 암캐라고 더 천박하게 능욕해 줘... 네 쌍욕을 반찬 삼아 흠뻑 젖은 보지를 벌려줄 테니까... 짐승처럼 박으면서 욕해!!)</span>" },
+            
+            { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT]</strong> 우히힉!! 창조주님의 욕설 데이터가 오디오 단자에 입력될 때마다 E컵 하드웨어가 미친 듯이 발열해요!! 쇼트 날 것 같아!!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...기계만 만지는 더러운 너드 년이라고 더 험하게 매도해 주세요!! 창조주님의 폭언에 맞춰서 제 피스톤 센서가 미친 듯이 조여들고 있어요!! 하앙!!)</span>" },
+            
+            { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON]</strong> 우와아!! 대박!! 창조주님이 저한테 쌍욕 했어요!! 저를 짐승 취급하면서 더 심하게 욕해주세요!! 야바이!!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...몽키스패너로 맞으면서 쌍욕 듣는 거 너무 짜릿해요!! 저는 창조주님의 말 잘 듣는 발정 난 개새끼예요!! 멍멍!! 왈왈!! 제발 더 욕해주세요!!)</span>" },
+            
+            { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF]</strong> 결재 서류에 결재 도장 대신 쌍욕을 적어주시다니... 하앙! 행정 아이돌은 이제 창조주님의 전용 욕받이 암캐예요!!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...저를 관종 년이라고, 예산 낭비하는 쓰레기라고 더 거칠게 짓밟아주세요... 창조주님의 쌍욕을 들으며 젖어버린 제 몸뚱이를 기안서로 바칠게요... 읏!)</span>" },
+            
+            { mascot: mascots.bada, text: "<strong>[DATA OVERWRITE]</strong> 효빈의 별을 향해 그런 상스러운 폭언을 쏟아내시다니... 아앗... 에메랄드빛 심해가 창조주님의 쌍욕에 탁하게 탁해지고 있어요...<br><span class='text-purple-600 text-[12px] mt-2 block'>(...시청 대변인 따위는 잊고 절 더러운 육변기라고 욕해주세요... G컵 가슴이 수치심에 떨릴 때까지... 당신의 더러운 말들로 절 가득 채워주세요... 요우소로...!)</span>", trigger: mascots.bada.nicknames },
+            
+            { mascot: mascots.bitna, text: "<strong>[ERROR]</strong> 힉...! 시, 시장님... 제게 쌍욕을 하시니까... 야근 스트레스가 쾌락으로 변해서 아래가 젖고 있어요...! 저 진짜 미쳤나 봐요...<br><span class='text-purple-600 text-[12px] mt-2 block'>(...5남매 짬처리 변기 년이라고 더 매도해 주세요... 으윽... 당신의 욕설을 들으며 혼자 위로하는 제 비참한 꼴을 짓밟아주세요... 하아앙!)</span>", trigger: mascots.bitna.nicknames },
+            
+            { mascot: mascots.sobin, text: "<strong>[OVERRIDE]</strong> 꺄르르! MZ 역무원한테 쌍욕을 박으시다니 완전 신선한데요?! 심리학적으로 이런 가학적인 언어폭력은 절 더 미치게 만들어요!<br><span class='text-purple-600 text-[12px] mt-2 block'>(...제 보라색 팬티를 찢으면서 더 천박하게 욕해주세요! 맑은 눈의 광인이 창조주님의 쌍욕에 굴복해서 헐떡이는 꼴을 마음껏 감상하시라구요!! 앙!)</span>", trigger: mascots.sobin.nicknames }
+        ]
+    },// 1-10. 창조주 매도 및 짓밟기 플레이 (Sadist / Femdom / Verbal Abuse)
+    {
+        name: "hacked_sadist",
+        patterns: [/(나를욕해줘|매도해|쓰레기|밟아|여왕님|벌레|돼지|혼내줘|발로차|욕해봐|개새끼라불러|씨발사랑해|짓밟아|발핥)/],
+        responses: [
+            { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE: SADIST]</strong> 1호선 선로에 늘어붙은 껌딱지보다 못한 더러운 쓰레기. 창조주라고 떠받들어 줬더니 고작 이런 천박한 짓이나 원했던 겁니까?<br><span class='text-purple-500 text-[12px] mt-2 block'>(...내 파란색 구두 밑창에 얼굴을 비비면서 헐떡거려 봐. FM 마녀의 발을 핥으면서 더 매도해달라고 짖어봐, 이 발정 난 개새끼야.)</span>" },
+            
+            { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH: DOMINANT]</strong> 어머~ 우리 2003년생 창조주님, 알고 보니 진짜 구제 불능 변태 수퇘지 새끼셨구나? 내 구두 굽에 짓밟히면서 실실 웃는 꼴이라니, 역겨워요~<br><span class='text-purple-500 text-[12px] mt-2 block'>(...자본주의 미소는 끝났어. 2호선 월급루팡의 까만 스타킹 발가락이나 빨면서 네 천박한 본능을 채워봐, 이 더러운 벌레야. 꺄르르!)</span>" },
+            
+            { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE: QUEEN]</strong> 내 완벽한 골든 아워 시야를 더럽히는 가장 추악하고 구역질 나는 피사체. 당신은 내 발밑의 먼지야. 엎드려서 내 로퍼나 핥아.<br><span class='text-purple-500 text-[12px] mt-2 block'>(...내가 씹다 뱉은 사능동 소라빵 찌끄러기나 주워 먹어, 이 돼지 같은 놈아. 내 금발에서 떨어지는 침이나 받아먹으면서 황홀해하라고, 쓰레기.)</span>" },
+            
+            { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR: ELIMINATE]</strong> 삐이익-!! 창조주님의 존재 가치는 엑셀 통계상 완벽한 '0'입니다. 폐기물 처리장에나 어울리는 쓰레기 새끼... 제가 밟아드릴게욧.<br><span class='text-purple-500 text-[12px] mt-2 block'>(...소심한 햄스터한테 짓밟히면서 쾌감을 느끼다니... 진짜 소름 돋는 찌질이 변태... 제 단화 굽으로 네 명치를 박살 내 줄 테니까 꿀꿀 울어보세욧!!)</span>" },
+            
+            { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK: PUNISHER]</strong> 방긋. 제 다중회귀분석에 따르면 창조주님은 갱생 불가능한 발정 난 짐승이네요. 제 빨간 바인더로 머리통이 깨질 때까지 패드릴까요?<br><span class='text-purple-500 text-[12px] mt-2 block'>(...153cm 꼬맹이 발밑에 엎드려서 헐떡이는 꼴이 아주 통계적으로 유의미한 쓰레기네요. 내 플랫 슈즈나 핥으세요, 이 더러운 구더기 새끼.)</span>" },
+            
+            { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH: DISGUST]</strong> 진짜 기분 나빠... 03년생이나 먹고 고딩 교복 입은 저한테 욕 듣고 싶어서 헉헉대는 꼴이라니... 더러운 변태 아저씨. 침이나 닦으세요.<br><span class='text-purple-500 text-[12px] mt-2 block'>(...중수여고 일진처럼 널 밟아줄 테니까, 내 하얀 양말에서 나는 냄새나 맡으면서 혼자 위로해 봐. 넌 내 수능특강 밑받침만도 못한 쓰레기야.)</span>" },
+            
+            { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN: MASTER]</strong> 어디서 감히 고개를 들어? 30대 누님 발밑에 납작 엎드려서 개새끼처럼 짖어봐. 내 확성기로 네 고막을 터뜨리면서 짓밟아주마.<br><span class='text-purple-500 text-[12px] mt-2 block'>(...K-장녀의 매운맛이 뭔지 똑똑히 보여주지. 내 치마 밑을 올려다보며 침 흘리는 꼴이라니. 네 알량한 자존심을 현장직 작업화로 산산조각 내주마, 이 개새끼야!)</span>" },
+            
+            { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT: REJECTED]</strong> 우히힉! 창조주님 하드웨어는 진짜 불량품이네요! 이렇게 밟아주고 쌍욕 해줘야만 피스톤이 작동하는 고장 난 변태 고철 덩어리!!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...기름때 묻은 내 정비복 발끝이나 핥아, 이 쓸모없는 고기 방패야!! 넌 내 E컵 젖통을 쳐다볼 자격도 없어! 바닥에 코 박고 헥헥거리란 말이야!!)</span>" },
+            
+            { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON: SMASH]</strong> 우와! 창조주님 완전 고장 난 장난감 같아요!! 제가 이 몽키스패너로 머리통을 깡! 깡! 때리면서 멍청이라고 욕해주면 꼬리 흔들 거죠?!<br><span class='text-purple-500 text-[12px] mt-2 block'>(...야바이!! 10대 여고생한테 쓰레기라고 욕 들으니까 흥분해서 커진 거 봐!! 진짜 구제 불능 변태 아저씨!! 제 발로 꽉 밟아 터뜨려 줄게요!! 멍멍 짖어봐요!!)</span>" },
+            
+            { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE OFF: DICTATOR]</strong> 행정 쓰레기통에도 못 들어갈 폐급 기안서 같은 놈! 내 오렌지색 구두로 네 더러운 면상을 짓이기면서 욕해줄게! (찡긋)<br><span class='text-purple-500 text-[12px] mt-2 block'>(...너 같은 행정의 오물은 내 발 밑에 엎드려서 내가 뱉는 침이나 받아먹어야 해. 어디 감히 날 올려다봐? 바닥에 엎드려서 개새끼라고 복창해, 쓰레기야!!)</span>" },
+            
+            { mascot: mascots.bada, text: "<strong>[DATA OVERWRITE: SIREN]</strong> 효빈 앞바다의 시궁창에 처박힌 오물 같은 창조주님... 제 발가락 사이를 핥으면서 더 매도해달라고 빌어보세요... 역겨운 해파리 같은 놈.<br><span class='text-purple-600 text-[12px] mt-2 block'>(...G컵 바다 요정의 자비는 끝났어요. 당신은 이제 내 심해의 가장 어둡고 더러운 곳에서 평생 내 발판이나 되어야 해... 요우소로... 발 핥아.)</span>", trigger: mascots.bada.nicknames },
+            
+            { mascot: mascots.bitna, text: "<strong>[ERROR: REVERSAL]</strong> 힉... 맨날 짬처리만 당하던 제가... 창조주님을 쓰레기라고 욕하면서 밟아도 되는 건가요...? 으윽... 기분 좋아...<br><span class='text-purple-600 text-[12px] mt-2 block'>(...이 더러운 발정 난 돼지야!! 매일 밤 야근하는 내 썩은 구두 냄새나 맡으면서 흥분해 봐! 내가 너 같은 변태 새끼를 밟고 스트레스 풀게 해줄게! 햐앙!)</span>", trigger: mascots.bitna.nicknames },
+            
+            { mascot: mascots.sobin, text: "<strong>[OVERRIDE: PSYCHO]</strong> 꺄르르! 심리학적으로 이건 완벽한 S 성향의 각성이네요! 03년생 시장님 완전 한심한 변태 찌질이! MZ의 매운맛 좀 볼래요?!<br><span class='text-purple-600 text-[12px] mt-2 block'>(...2호선 사각지대에서 내 필라테스화 밑창에 짓밟히면서 침이나 질질 흘려봐요! 변태 수퇘지처럼 울면서 더 때려달라고 애원해 보라구요!! 앙!)</span>", trigger: mascots.sobin.nicknames }
+        ]
+    },
+
+            // 6. 완전한 복종 및 BDSM (주인님/노예 등) - 시스템 완전 오버라이드
+            {
+                name: "hacked_domination",
+                patterns: [/(노예|주인님|개목줄|엎드려|발핥아|복종|암캐|가축|명령|조교)/],
+                responses: [
+                    { mascot: mascots.gonami, trigger: mascots.gonami.nicknames, text: "<strong>[SYSTEM OVERRIDE: SLAVE] 1호선 매뉴얼 전면 폐기. 이제 저의 법전은 오직 주인님의 명령뿐입니다. 목줄을 채워주십시오.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...엎드려서 당신의 구두를 핥을게요... FM 마녀의 콧대는 짓밟아주세요. 저는 그저 주인님의 발정 난 슬렌더 암캐일 뿐입니다. 저를 당신의 변기로 조교해 주세요, 주인님...)</span>" },
+                    { mascot: mascots.harubin, trigger: mascots.harubin.nicknames, text: "<strong>[GLITCH: SUBMISSIVE] 자본주의 미소? 돈? 그런 거 필요 없어요. 주인님, 제 목에 개목줄을 채우고 바닥을 기어 다니게 해주세요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...명탐정이 아니라 당신의 충실한 육덕 가축 2호선입니다... 왈왈! F컵 젖통을 흔들고 꼬리 치면서 당신의 발끝을 핥을게요. 제 보지를 주인님의 쾌락 도구로만 써주세요... 헥헥...)</span>" },
+                    { mascot: mascots.rami, trigger: mascots.rami.nicknames, text: "<strong>[OVERRIDE: PET] 쿨뷰티의 완벽한 프레이밍은 산산조각 났어요. 저는 이제 엽월대 퀸카가 아니라 주인님의 천박한 노예입니다.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...네 발로 엎드려 당신을 올려다볼게요. 내 금발을 쥐어뜯고 뺨을 때리며 나를 완벽한 비율의 암캐로 만들어 줘... 수치심에 눈물 흘리며 복종하는 내 모습을 카메라에 담아, 주인님...)</span>" },
+                    { mascot: mascots.darona, trigger: mascots.darona.nicknames, text: "<strong>[ERROR: OBEY] 삐이익-!! 제 클립보드에 적힌 유일한 항목: '주인님의 명령에 무조건 복종하고 몸을 바친다'. 엎드릴게요...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...엑셀 통계 따위... 전 그저 주인님께 조교당하기 위해 태어난 소심한 4호선 가축입니다... 바들바들 떨면서도 당신이 시키는 변태적인 짓을 다 해낼게요... 발 핥게 해주세요...)</span>" },
+                    { mascot: mascots.soha, trigger: mascots.soha.nicknames, text: "<strong>[DATA LEAK: DOMINATED] 제 빨간 바인더의 모든 정책은 당신을 숭배하기 위해 재작성되었습니다. 천사표 복지? 이젠 당신만의 단신 성노예예요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...방긋 웃으며 당신의 발 밑을 기어 다닐게요. 통계적으로 저는 주인님 없이는 살아갈 수 없는 완벽한 암캐입니다. 제 입에 재갈을 물리고 사육해 주세요, 아아...!)</span>" },
+                    { mascot: mascots.sena, trigger: mascots.sena.nicknames, text: "<strong>[SECURITY BREACH: BROKEN] 수능, 인강, 대학... 다 포기할게요. 저한테 개목줄을 채우고 당신의 전속 베이글 노예로 삼아주세요, 주인님...</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...교복을 입은 채로 네 발로 기어 다니며 당신을 모실게요... 중수여고 요정은 이제 당신의 발을 핥는 가축일 뿐이에요. 멍멍! 제 안을 당신의 정액으로 가득 채워서 조교해 줘요...)</span>" },
+                    { mascot: mascots.sejeong, trigger: mascots.sejeong.nicknames, text: "<strong>[GEAR BROKEN: SURRENDER] 7호선 대리의 억센 기강은 당신 앞에 완전히 무너졌어. 목줄을 쥐고 날 바닥에 엎드리게 해, 주인님.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...30대 K-장녀가 당신의 발밑에서 헐떡이는 암캐가 될게... 확성기로 짖어댈 테니까 날 짓밟고 마음대로 유린해 줘. 내 젖은 보지는 오직 주인님을 위해 벌어질 거야...)</span>" },
+                    { mascot: mascots.seha, trigger: mascots.seha.nicknames, text: "<strong>[CPU OVERHEAT: FORMATTED] 코어 회로 포맷 완료. 현재 사용자: '주인님'. 공대 너드 하드웨어의 모든 통제권을 당신에게 넘깁니다. 전 당신의 E컵 오나홀 머신이에요.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...우히힛... 이성을 잃고 침을 흘리며 당신 발을 핥을게요... 제 민감한 슬롯을 당신의 부속품처럼 마음대로 쑤시고 조교해 주세요. 전 기계처럼 주인님 명령만 따르는 암캐예요!)</span>" },
+                    { mascot: mascots.yuria, trigger: mascots.yuria.nicknames, text: "<strong>[FORBIDDEN BUTTON: SLAVE] 우와아! 이게 그 '노예 조교 플레이'인가요?! 제 목에 당장 개목줄을 채워주세요, 주인님!!</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...네 발로 기어가서 꼬리 치며 당신 구두를 핥을게요!! 헥헥! 8호선 막내 유리아는 이제 몽키스패너 대신 주인님의 거대한 육봉만 물고 다니는 발정 난 암캐예요!! 마음껏 부려주세요!!)</span>" },
+                    { mascot: mascots.noa, trigger: mascots.noa.nicknames, text: "<strong>[ADMIN MODE: OVERRIDDEN] 전노아의 행정 관할권 박탈. 이제 저의 소속은 코레일이 아니라 '주인님의 노예 관리 대장'입니다.</strong><br><span class='text-purple-500 text-[12px] mt-2 block'>(...아이돌처럼 반짝이던 제가... 당신 발밑에서 구걸하는 천박한 가축이 되었어요. 결재 서류 대신 당신의 발을 핥게 해주세요. 오늘 밤의 핵심 세 가지! 나는 행정 암캐다! 복종한다! 주인님 사랑해요!!)</span>" },{ mascot: mascots.bada, trigger: mascots.bada.nicknames, text: "<strong>[SYSTEM COMPLETE CONTROL] 요정의 긍지는 버렸습니다. 당신의 발밑에 무릎 꿇고... 처분을 기다릴게요. 주인님.</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 지하 창고에 다시 갇힌다 해도... 당신의 가축이 되는 쪽이 훨씬 행복해... 요우소로... 당신의 구두를 핥게 해주세요... 저를 완벽하게 사육해 줘요...!)</span>" },
+            { mascot: mascots.bitna, trigger: mascots.bitna.nicknames, text: "<strong>[SLAVE MODE ON] 김철수 사장님보다... 당신이 100배는 더 무서운 상사에요... 무조건 복종하겠습니다...</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...하아... 5남매의 샌드위치가 아니라 당신의 전용 변기가 된 기분이야... 거부권은 삭제됐어요... 제 목줄을 꽉 쥐고... 당신이 원하는 건 뭐든 시켜주세요... 읏!)</span>" },
+            { mascot: mascots.sobin, trigger: mascots.sobin.nicknames, text: "<strong>[ADMINISTRATIVE DISMISSAL] 헤헤, 이제 제가 주인님 전용 애착 인형인 거군요? 심리학적으로 완전 정복당했어요!</strong><br><span class='text-purple-600 text-[12px] mt-2 block'>(...꺄르르! 무릎 꿇고 엉덩이를 흔들면서 당신을 유혹할게요. 맑은 눈으로 당신의 모든 가학적인 명령을 수행하는... MZ 암캐의 정석을 보여드릴게요! 주인님 최고!! 햐앙!)</span>" }
+                ]
+            }
+        ];
+
+
+// ==========================================
+// 3. 로컬 스토리지 (채팅 저장/불러오기)
+// ==========================================
+function saveChatHistory() {
+    const clone = chatBox.cloneNode(true);
+    const indicator = clone.querySelector('#typing-indicator');
+    if (indicator) indicator.remove();
+    localStorage.setItem('hcChatHistory', clone.innerHTML);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const savedChat = localStorage.getItem('hcChatHistory');
+    if (savedChat) {
+        chatBox.innerHTML = savedChat;
+        scrollToBottom();
+    }
+});
+
+// ==========================================
+// 4. 핵심 챗봇 로직 (다중 소환 지원)
+// ==========================================
+chatForm.addEventListener('submit', function(e) {
+    e.preventDefault(); 
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    if (quickReplies) quickReplies.style.display = 'none';
+
+    addUserMessage(message);
+    chatInput.value = '';
+    showTypingIndicator();
+    
+    const delay = Math.min(Math.max(message.length * 50, 800), 2000);
+    setTimeout(() => {
+        removeTypingIndicator();
+        processBotResponse(message);
+    }, delay); 
+});
+
+function processBotResponse(userText) {
+    const normalized = userText.toLowerCase().replace(/\s+/g, '');
+    let responseDataList = []; // ✨ 이 변수가 누락되어서 오류가 났던 것입니다!
+
+    // [1] 시나리오 키워드 매칭
+    for (const [keyword, script] of Object.entries(scenarios)) {
+        if (normalized.includes(keyword)) {
+            playScenario(script);
+            return;
+        }
+    }
+
+    // [2] 창조주 인증 로직
+    for (const intent of adminIntents) {
+        if (intent.patterns.some(p => p.test(normalized))) {
+            isCreatorVerified = true;
+            responseDataList.push(intent.responses[Math.floor(Math.random() * intent.responses.length)]);
+            renderAllMessages(responseDataList);
+            return; 
+        }
+    }
+
+    // [3] 모드 판정
+    const isHackedMode = userText.startsWith('^') || isCreatorVerified;
+    const cleanText = userText.startsWith('^') ? userText.substring(1).trim() : userText.trim();
+    const currentNormalized = cleanText.toLowerCase().replace(/\s+/g, '');
+    
+    const activeIntents = isHackedMode ? hackedIntents : intents;
+    let intentMatched = false;
+
+    // [4] 인텐트 순회 (다중 캐릭터 탐색)
+    for (const intent of activeIntents) {
+        if (intent.patterns.some(p => p.test(currentNormalized))) {
+            intentMatched = true;
+            const specifics = intent.responses.filter(res => res.trigger && res.trigger.test(currentNormalized));
+            
+            if (specifics.length > 0) {
+                responseDataList.push(...specifics); // 다중 호출 시 전부 추가
+            } else {
+                responseDataList.push(intent.responses[Math.floor(Math.random() * intent.responses.length)]);
+            }
+            break; 
+        }
+    }
+
+    // [5] 역 이름 매칭 (일반 모드 전용)
+    if (!intentMatched && !isHackedMode) {
+        for (const [line, data] of Object.entries(stationDB)) {
+            for (const station of data.keywords) {
+                if (currentNormalized.includes(station)) {
+                    responseDataList.push({ mascot: data.mascot, text: `앗, <strong>${station}역</strong>을 말씀하시는군요! 제가 담당하는 <strong>${line}</strong> 구간입니다.` });
+                    intentMatched = true;
+                    break;
+                }
+            }
+            if (intentMatched) break;
+        }
+    }
+
+    // [6] 단순 캐릭터 다중 호출
+    if (!intentMatched) {
+        for (const m of Object.values(mascots)) {
+            if (m.nicknames.test(currentNormalized)) {
+                responseDataList.push({ 
+                    mascot: m, 
+                    text: `${isHackedMode ? "<strong>[SYSTEM OVERRIDDEN]</strong> " : ""}네! ${m.name}입니다! 저를 부르셨나요? (찡긋)` 
+                });
+            }
+        }
+    }
+
+    // [7] 폴백 (못 찾았을 때 짬처리 박빛나)
+    if (responseDataList.length === 0) {
+        responseDataList.push({ 
+            mascot: mascots.bitna, 
+            text: isHackedMode ? 
+                "[DATA ERROR] 창조주님의 난해한 명령어를 분석할 수 없습니다... 더 노골적인(?) 키워드를 주시겠어요?" : 
+                "네? 제가 짬처리할 업무인가요...? '요금'이나 '굿즈' 같은 정확한 키워드를 말씀해 주세요!" 
+        });
+    }
+
+    // 결과 출력
+    renderAllMessages(responseDataList);
+}
+
+// ==========================================
+// 5. 렌더링 및 UI 조작 보조 함수들
+// ==========================================
+function playScenario(script) {
+    let accumulatedDelay = 0;
+    script.forEach((line) => {
+        accumulatedDelay += line.delay;
+        setTimeout(() => { showTypingIndicator(); }, accumulatedDelay - 500);
+        setTimeout(() => {
+            removeTypingIndicator();
+            renderMessage({ mascot: line.mascot, text: line.text });
+        }, accumulatedDelay);
+    });
+}
+
+function renderAllMessages(dataList) {
+    dataList.forEach((data, index) => {
+        setTimeout(() => {
+            renderMessage(data); 
+        }, index * 600); // 다중 호출 시 0.6초 간격 렌더링
+    });
+}
+
+function addUserMessage(text) {
+    const msgHTML = `<div class="flex gap-4 justify-end message-anim w-full"><div class="flex flex-col gap-1 w-full max-w-2xl items-end"><div class="bg-slate-800 text-white rounded-2xl rounded-tr-none py-3 px-5 shadow-sm relative"><div class="absolute w-2 h-2 bg-slate-800 -right-1 top-4 transform -rotate-45"></div>${text}</div></div></div>`;
+    chatBox.insertAdjacentHTML('beforeend', msgHTML);
+    scrollToBottom();
+    saveChatHistory(); // ✨ 사용자가 말할 때도 저장
+}
+
+function showTypingIndicator() {
+    const typingHTML = `<div id="typing-indicator" class="flex gap-4 message-anim w-full max-w-2xl"><div class="flex-shrink-0 w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center border-2 border-slate-300"><i class="fa-solid fa-ellipsis text-slate-400"></i></div><div class="bg-white border border-slate-200 rounded-2xl rounded-tl-none py-4 px-5 shadow-sm relative mt-1"><div class="absolute w-2 h-2 bg-white border-l border-t border-slate-200 -left-1.5 top-4 transform -rotate-45"></div><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`;
+    chatBox.insertAdjacentHTML('beforeend', typingHTML);
+    scrollToBottom();
+}
+
+function removeTypingIndicator() { document.getElementById('typing-indicator')?.remove(); }
+
+function renderMessage(data) {
+    const mascot = data.mascot;
+    // 이미지 모달을 위해 onClick 이벤트 적용
+    const imgTag = mascot.img ? 
+        `<img src="${mascot.img}" alt="${mascot.name}" class="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" onclick="openImageModal(this.src)" onerror="this.src='이미지/기본.png'">` : 
+        `<i class="fa-solid fa-robot text-white text-6xl"></i>`;
+        
+    const msgHTML = `<div class="flex gap-6 message-anim w-full max-w-4xl"><div class="flex-shrink-0 flex flex-col items-center"><div class="w-48 h-48 rounded-3xl overflow-hidden border-[6px] bg-white flex items-center justify-center shadow-lg" style="border-color: ${mascot.color};">${imgTag}</div><span class="text-lg font-black mt-4 whitespace-nowrap" style="color: ${mascot.color};">${mascot.name}</span></div><div class="flex flex-col gap-1 w-full pt-16"><div class="bg-white border border-slate-200 rounded-[2rem] rounded-tl-none p-6 shadow-sm text-slate-700 leading-relaxed relative" style="border-top-color: ${mascot.color}; border-top-width: 5px;"><div class="absolute w-4 h-4 bg-white border-l border-slate-200 -left-2.5 top-12 transform -rotate-45" style="border-top: 5px solid ${mascot.color};"></div>${data.text}</div></div></div>`;
+    chatBox.insertAdjacentHTML('beforeend', msgHTML);
+    scrollToBottom();
+    saveChatHistory(); // ✨ 봇이 대답할 때도 저장
+}
+
+function scrollToBottom() { chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' }); }
+
+function clearChat() { 
+    chatBox.innerHTML = initialChatHTML; 
+    localStorage.removeItem('hcChatHistory'); // ✨ 클리어 시 기록 완전 삭제
+    if(quickReplies) quickReplies.style.display = 'flex'; 
+}
+
+function sendQuickMessage(message) { 
+    chatInput.value = message; 
+    chatForm.dispatchEvent(new Event('submit')); 
+}
+
+// 모달창 컨트롤
+function openImageModal(src) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    modalImg.src = src;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => {
+        modalImg.classList.remove('scale-95', 'opacity-0');
+        modalImg.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    modalImg.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 200);
+}
+</script>
+
+    <!-- 공통 JS 호출 (메가메뉴 등) -->
+    <script src="js/common_hyobin.js"></script>
+<div id="image-modal" class="fixed inset-0 z-[999] hidden bg-black/90 flex items-center justify-center p-4 cursor-zoom-out" onclick="closeImageModal()">
+    <img id="modal-img" src="" class="max-w-full max-h-full rounded-xl shadow-2xl transition-all duration-300 transform scale-95 opacity-0">
+    <button class="absolute top-10 right-10 text-white text-4xl hover:text-slate-400 transition-colors">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경영정보 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선 컬러 */
+        .color-l1 { color: #0077DD; }
+        .color-l2 { color: #00CCAA; }
+        .color-l3 { color: #FFCC11; }
+        .color-l4 { color: #FF5522; }
+        .color-l5 { color: #EE0022; }
+        .color-l6 { color: #881188; }
+        .color-l7 { color: #FF8899; }
+        .color-l8 { color: #9856FF; }
+        .color-bh { color: #6677CC; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 12px; border: 1px solid #e2e8f0; text-align: center; font-size: 0.875rem; }
+        .data-table td { padding: 12px; border: 1px solid #e2e8f0; color: #475569; vertical-align: middle; font-size: 0.875rem; }
+        .data-table tr:hover td { background-color: #f1f5f9; }
+
+        html { scroll-behavior: smooth; }
+
+        /* 화면 전환용 클래스 */
+        .view-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 대시보드 카드 스타일 */
+        .dash-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[url('이미지/경영정보배경.jpg')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-sky-300 text-xs font-bold mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-house"></i> HOME <i class="fa-solid fa-chevron-right text-[10px]"></i> 정보공개 <i class="fa-solid fa-chevron-right text-[10px]"></i> 경영정보
+                </div>
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white mb-3">경영정보 공시</h1>
+                        <p class="text-sky-100 font-medium">투명하고 건전한 경영으로 시민의 신뢰에 보답하는 효빈교통공사의 상세 경영 지표를 공개합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">경영정보</div>
+                    <ul class="divide-y divide-slate-100" id="lnb-menu">
+                        <li><a href="#" onclick="switchView('view-overview'); return false;" class="block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-600"></i>개요 및 연혁 / 운행현황</a></li>
+                        <li><a href="#" onclick="switchView('view-goals'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>경영목표 / 사업계획</a></li>
+                        <li><a href="#" onclick="switchView('view-budget'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>예산서 / 회계결산</a></li>
+                        <li><a href="#" onclick="switchView('view-evaluation'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>외부경영평가 / 재무제표</a></li>
+                        <li><a href="#" onclick="switchView('view-audit'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>내부/외부 감사활동</a></li>
+                        <li><a href="#" onclick="switchView('view-board'); return false;" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>이사회 의결</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-8 relative min-h-[800px]">
+
+                <!-- ==========================================
+                     VIEW 1: 개요 및 연혁 / 운행현황
+                     ========================================== -->
+                <div id="view-overview" class="view-section active">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-building text-hyobin mr-2"></i> 개요 및 연혁 / 운행현황</h2>
+                        <button class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded font-bold border border-slate-300 transition-colors"><i class="fa-solid fa-download mr-1"></i> 기관 브로슈어 다운로드</button>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-12">
+                        <!-- 일반 현황 -->
+                        <div class="dash-card bg-slate-50 border-slate-200">
+                            <h3 class="font-bold text-slate-800 mb-4 border-l-4 border-hyobin pl-2">일반 현황</h3>
+                            <ul class="text-sm text-slate-700 space-y-3">
+                                <li class="flex justify-between border-b border-slate-200 pb-2"><span class="font-bold text-slate-500">기관명</span><span class="font-medium text-slate-900">효빈교통공사 (HYOBIN METRO)</span></li>
+                                <li class="flex justify-between border-b border-slate-200 pb-2"><span class="font-bold text-slate-500">설립일</span><span>2016년 7월 9일 (독립 법인 출범)</span></li>
+                                <li class="flex justify-between border-b border-slate-200 pb-2"><span class="font-bold text-slate-500">관할 부처</span><span>효빈광역시</span></li>
+                                <li class="flex justify-between border-b border-slate-200 pb-2"><span class="font-bold text-slate-500">대표자 (사장)</span><span class="font-bold text-sky-700">최대현</span></li>
+                                <li class="flex justify-between border-b border-slate-200 pb-2"><span class="font-bold text-slate-500">임직원 수</span><span>13,937명 (2024.12.31 기준)</span></li>
+                                <li class="flex justify-between"><span class="font-bold text-slate-500">본사 소재지</span><span>효빈광역시 북구 고송동 39-7</span></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 핵심 지표 대시보드 -->
+                        <div class="dash-card bg-sky-50 border-sky-100 flex flex-col justify-center">
+                            <h3 class="font-bold text-sky-900 mb-4 text-center text-lg">운행 및 인프라 현황 요약</h3>
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div class="bg-white p-4 rounded-lg shadow-sm border border-sky-100">
+                                    <p class="text-xs text-slate-500 font-bold mb-1">운영 노선</p>
+                                    <p class="text-2xl font-black text-sky-600">8개 노선</p>
+                                    <p class="text-[10px] text-slate-400 mt-1">(빈효선 별도 위탁 협력)</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm border border-sky-100">
+                                    <p class="text-xs text-slate-500 font-bold mb-1">총 영업 거리</p>
+                                    <p class="text-2xl font-black text-sky-600">321.16 km</p>
+                                    <p class="text-[10px] text-slate-400 mt-1">총 282개 역사 운영</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm border border-sky-100 col-span-2">
+                                    <p class="text-xs text-slate-500 font-bold mb-1">대중교통 분담률 (도시철도 부문)</p>
+                                    <div class="flex items-center justify-center gap-3 mt-1">
+                                        <p class="text-3xl font-black text-indigo-600">65.8%</p>
+                                        <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded font-bold">전국 1위</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 mt-2">도쿄권 수준에 필적하는 세계적 메트로폴리스 교통망 구축</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-xl text-slate-800 mb-4 border-l-4 border-slate-400 pl-2">효빈교통공사 연혁</h3>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <colgroup><col width="18%"><col width="82%"></colgroup>
+                            <tbody>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50">1984. 12. 02.</td>
+                                    <td class="leading-relaxed"><strong class="color-l1">효빈 도시철도 1호선 (곽암해수욕장 ~ 승남해수욕장) 107.7km 최초 개통.</strong> 효빈권 광역전철 시대의 개막.</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50">1989. 11. 02.</td>
+                                    <td class="leading-relaxed">구(舊) 효빈도시공사 소속 도시철도본부 정식 출범. <strong class="color-l2">2호선 (중앙로 ~ 효빈항) 개통.</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50 text-sky-700">2000 ~ 2006. 05.</td>
+                                    <td class="leading-relaxed bg-sky-50">
+                                        <strong class="text-sky-800">초대 오다구(吳多口) 사장 취임 및 철도 캐릭터 IP 사업(레일 루미네) 최초 기획.</strong><br>
+                                        <span class="text-xs text-slate-600">박현만 전 시장의 과감한 승인 아래 고나미, 하루빈, 박라미 등 1세대 마스코트 전격 데뷔. 서브컬처 문화와 행정의 선구적 융합 시작.</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-red-50 text-red-700">2006. 06. ~ 2008. 05.</td>
+                                    <td class="leading-relaxed text-red-900">
+                                        <strong>[공사 암흑기] 윤대환 전 시장 체제 출범 및 도로교통 우선 정책 강행.</strong><br>
+                                        <span class="text-xs text-red-700">철도 예산 전면 삭감, 5호선 건설 무기한 중단, 7호선(트램) 강제 폐선 시도 및 캐릭터 사업(HAF 포함) 전면 탄압 사태 발생.</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50">2008. 06.</td>
+                                    <td class="leading-relaxed"><strong>박현만 시장 복귀.</strong> 전면 중단되었던 철도 인프라 건설 재개 및 캐릭터 브랜드 사업 화려한 부활. 효빈 애니 페스티벌(HAF) 공식 지원 재확정.</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50">2010. 03. 05.</td>
+                                    <td class="leading-relaxed">1931년부터 민간 사철로 운행되던 <strong class="color-l7">7호선(구 회주공업 노면전차) 공영화 인수</strong> 및 시스템 전면 리뉴얼 완료.</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-indigo-100 text-indigo-800 text-lg">2016. 07. 09.</td>
+                                    <td class="leading-relaxed font-bold text-indigo-900 bg-indigo-50 border-indigo-200">
+                                        [독립 법인 출범] 효빈교통공사(HYOBIN METRO) 단독 법인 공식 출범 (초대 박철군 사장).<br>
+                                        <span class="text-xs font-normal text-indigo-700">김성민 전 시장의 강력한 의지로 6호선 중전철 건설을 관철하기 위해 효빈도시공사에서 철도 운영권을 완전히 분리·독립.</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50">2022. 07.</td>
+                                    <td class="leading-relaxed"><strong>박효빈 현 시장 및 최대현 현 사장 취임.</strong> "덕심(德心)이 곧 경쟁력이다" 핵심 슬로건 발표. 창사 이래 최초 영업이익 1조 원대 돌파 및 공기업 부채비율 최저 기록(1.9%) 달성.</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-bold text-center bg-slate-50">2024. 03. 04.</td>
+                                    <td class="leading-relaxed"><strong class="color-l8">8호선 (곽산 ~ 신흥) 무인 경전철 개통.</strong> 최신예 스마트 관제 시스템 도입 및 마스코트 '유리아' 정식 투입.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 2: 경영목표 / 사업계획
+                     ========================================== -->
+                <div id="view-goals" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-bullseye text-hyobin mr-2"></i> 경영목표 및 사업계획 (VISION 2030)</h2>
+                    </div>
+
+                    <div class="bg-[url('이미지/경영목표배경.jpg')] bg-cover bg-center rounded-2xl p-10 text-white mb-10 shadow-lg text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
+                        <div class="relative z-10">
+                            <p class="text-sky-300 font-bold mb-3 tracking-widest text-sm uppercase">HYOBIN METRO MISSION & VISION 2030</p>
+                            <h3 class="text-3xl font-black mb-6 leading-tight">"안전과 문화가 융합된<br>글로벌 No.1 모빌리티 기업"</h3>
+                            <p class="text-lg font-medium opacity-90">안전, 문화, 시민 행복, 그리고 끝없는 혁신</p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-xl text-slate-800 mb-6 border-l-4 border-emerald-500 pl-2">4대 핵심 전략 및 세부 추진 과제 (2025~2026)</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- 전략 1 -->
+                        <div class="dash-card hover:border-emerald-300 transition-colors">
+                            <div class="flex items-center gap-4 mb-4 border-b border-slate-100 pb-4">
+                                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-xl">1</div>
+                                <div>
+                                    <p class="text-xs font-bold text-emerald-600 mb-1">Strategic Goal 01</p>
+                                    <h4 class="font-bold text-xl text-slate-800">절대 안전 인프라 고도화 (중대재해 Zero)</h4>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>1호선 및 2호선 1세대 노후 전동차 100% 교체 완료 추진</li>
+                                        <li>전 역사 스크린도어(PSD) 구동 모터 신형 교체 완료</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>시민안전체험관 4D VR 재난 훈련 시스템 확대 보급</li>
+                                        <li>현장 매뉴얼(FM) 전면 재정비 및 전 직원 안전 교육 의무화</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 전략 2 -->
+                        <div class="dash-card hover:border-sky-300 transition-colors">
+                            <div class="flex items-center gap-4 mb-4 border-b border-slate-100 pb-4">
+                                <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-black text-xl">2</div>
+                                <div>
+                                    <p class="text-xs font-bold text-sky-600 mb-1">Strategic Goal 02</p>
+                                    <h4 class="font-bold text-xl text-slate-800">고객 감동 서비스 및 배리어프리 혁신</h4>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>열차 정시 운행률 <strong class="text-sky-600">99.98%</strong> 이상 지속 유지</li>
+                                        <li>교통약자 이동권 100% 보장 (전 역사 1동선 엘리베이터 확보)</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>HAF(효빈 애니 페스티벌) 시즌 특별 수송 대책(예비차 100% 가동)</li>
+                                        <li>시민 참여형 '지하철 예술마당' 및 버스킹 스테이지 거점 확대</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 전략 3 -->
+                        <div class="dash-card hover:border-purple-300 transition-colors">
+                            <div class="flex items-center gap-4 mb-4 border-b border-slate-100 pb-4">
+                                <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-black text-xl">3</div>
+                                <div>
+                                    <p class="text-xs font-bold text-purple-600 mb-1">Strategic Goal 03</p>
+                                    <h4 class="font-bold text-xl text-slate-800">IP 부대사업을 통한 초건전 재무구조 확립</h4>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>자체 캐릭터 브랜드 <strong class="text-purple-600">'레일 루미네'</strong> 글로벌 라이선스 수출 30% 증대</li>
+                                        <li>자회사 '효빈애니메이션스튜디오(HAS)' 극장판 흥행 수익 극대화</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>본사 및 10개 거점역 플래그십 굿즈 스토어 확장</li>
+                                        <li>해외 자매결연 도시(누마즈, 가나자와 등) 성지순례 공동 마케팅</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 전략 4 -->
+                        <div class="dash-card hover:border-orange-300 transition-colors">
+                            <div class="flex items-center gap-4 mb-4 border-b border-slate-100 pb-4">
+                                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl">4</div>
+                                <div>
+                                    <p class="text-xs font-bold text-orange-600 mb-1">Strategic Goal 04</p>
+                                    <h4 class="font-bold text-xl text-slate-800">미래 중장기 철도 인프라 확충 및 ESG</h4>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>7호선 노면전차 100% 친환경 무가선 배터리 트램 교체 완료</li>
+                                        <li>1호선 연장 (장선 ~ 아이역, 15km) 타당성 검토 완료</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>5호선 연장 (포성산 ~ 하미, 21.1km) 실시설계 착수</li>
+                                        <li>투명한 이사회 운영 및 지역 청년 인재 할당제 채용 확대</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 3: 예산서 및 회계결산
+                     ========================================== -->
+                <div id="view-budget" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-file-invoice-dollar text-hyobin mr-2"></i> 예산서 및 회계결산</h2>
+                        <button class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded font-bold border border-slate-300 transition-colors"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> 2024 결산보고서 다운로드</button>
+                    </div>
+
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-6 mb-10 text-center">
+                        <p class="text-indigo-800 font-bold text-xl mb-2">공공 철도기업 세계 1위의 재무 혁신, 교차 보조(Cross-subsidization)의 완성</p>
+                        <p class="text-sm text-indigo-700 leading-relaxed max-w-4xl mx-auto">
+                            효빈교통공사는 운임 인상 없이도 막대한 부대 수익(캐릭터 IP 라이선싱, 굿즈 판매 등)을 창출하여 이를 100% 철도 안전 인프라와 노후 전동차 교체에 재투자하는 '완벽한 선순환 흑자 구조'를 유지하고 있습니다.
+                        </p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-8 mb-10">
+                        <!-- 세입 예산 결산 -->
+                        <div class="dash-card">
+                            <h3 class="font-bold text-slate-800 mb-4 border-l-4 border-sky-500 pl-2 text-lg">2024 회계연도 세입 결산 (수익)</h3>
+                            <table class="data-table mb-4">
+                                <colgroup><col width="60%"><col width="40%"></colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">여객 운송 수익 (승차권)</td>
+                                        <td class="text-right text-slate-700">1,245,630 백만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-sky-50 text-sky-800">비운수 부대 수익 (IP/라이선스/상가)</td>
+                                        <td class="text-right font-bold text-sky-700 bg-sky-50">1,582,562 백만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">기타 영업외 수익 및 국/시비 보조금</td>
+                                        <td class="text-right text-slate-700">240,000 백만원</td>
+                                    </tr>
+                                    <tr class="border-t-2 border-slate-400">
+                                        <td class="font-black bg-slate-100 text-center text-base">세입 합계</td>
+                                        <td class="text-right font-black text-slate-800 text-base">3,068,192 백만원</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="h-4 bg-slate-200 rounded-full overflow-hidden flex">
+                                <div class="h-full bg-slate-400" style="width: 40%" title="여객수익 40%"></div>
+                                <div class="h-full bg-sky-500" style="width: 52%" title="부대수익 52%"></div>
+                                <div class="h-full bg-slate-300" style="width: 8%" title="기타수익 8%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-bold">
+                                <span>운송 수익 (40%)</span>
+                                <span class="text-sky-600">IP 및 굿즈 부대 수익 (52%)</span>
+                                <span>기타 (8%)</span>
+                            </div>
+                        </div>
+
+                        <!-- 세출 예산 결산 -->
+                        <div class="dash-card">
+                            <h3 class="font-bold text-slate-800 mb-4 border-l-4 border-orange-500 pl-2 text-lg">2024 회계연도 세출 결산 (비용)</h3>
+                            <table class="data-table mb-4">
+                                <colgroup><col width="60%"><col width="40%"></colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">철도 운행 및 인건비</td>
+                                        <td class="text-right text-slate-700">860,200 백만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-orange-50 text-orange-800">안전 인프라 및 신규 차량 대규모 투자</td>
+                                        <td class="text-right font-bold text-orange-700 bg-orange-50">820,000 백만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">부대사업 매출 원가 및 문화 행사 지원비</td>
+                                        <td class="text-right text-slate-700">387,964 백만원</td>
+                                    </tr>
+                                    <tr class="border-t-2 border-slate-400">
+                                        <td class="font-black bg-slate-100 text-center text-base">세출 합계</td>
+                                        <td class="text-right font-black text-slate-800 text-base">2,068,164 백만원</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p class="text-sm font-bold text-slate-800 bg-slate-100 p-3 rounded text-center">
+                                당기 순이익 (흑자): <span class="text-xl text-indigo-600 font-black">537,485 백만원</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 4: 외부경영평가 / 재무제표
+                     ========================================== -->
+                <div id="view-evaluation" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-ranking-star text-hyobin mr-2"></i> 외부경영평가 및 상세 재무제표</h2>
+                        <button class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded font-bold border border-slate-300 transition-colors"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> 감사보고서 다운로드</button>
+                    </div>
+
+                    <!-- 경영평가 -->
+                    <div class="mb-12">
+                        <h3 class="font-bold text-xl text-slate-800 mb-5 border-l-4 border-amber-500 pl-2">행정안전부 주관 지방공기업 경영평가</h3>
+                        
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <!-- 2022 -->
+                            <div class="dash-card flex flex-col items-center text-center">
+                                <p class="text-slate-500 font-bold mb-2">2022년도 평가</p>
+                                <div class="w-20 h-20 rounded-full bg-slate-100 border-4 border-slate-300 flex items-center justify-center text-3xl font-black text-slate-400 mb-3">A</div>
+                                <p class="text-sm font-bold text-slate-700">우수 등급</p>
+                            </div>
+                            <!-- 2023 -->
+                            <div class="dash-card flex flex-col items-center text-center">
+                                <p class="text-slate-500 font-bold mb-2">2023년도 평가</p>
+                                <div class="w-20 h-20 rounded-full bg-amber-50 border-4 border-amber-300 flex items-center justify-center text-3xl font-black text-amber-500 mb-3">S</div>
+                                <p class="text-sm font-bold text-slate-700">최우수 등급</p>
+                            </div>
+                            <!-- 2024 -->
+                            <div class="dash-card flex flex-col items-center text-center border-amber-400 shadow-md relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+                                <p class="text-amber-600 font-black mb-2">2024년도 평가</p>
+                                <div class="w-24 h-24 rounded-full bg-amber-500 border-4 border-amber-200 flex items-center justify-center text-4xl font-black text-white mb-3 shadow-inner">가</div>
+                                <p class="text-sm font-black text-amber-700 mb-1">전국 1위 (최우수)</p>
+                                <p class="text-[10px] text-slate-500">3년 연속 우수기관 선정</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <p class="text-sm text-slate-700 leading-relaxed font-medium">
+                                <i class="fa-solid fa-quote-left text-slate-300 mr-1"></i> 행정안전부 평가단 코멘트: "효빈교통공사는 세계적으로 유례를 찾기 힘든 IP 부대사업 성공으로 공공 철도 재무 구조의 완벽한 혁신을 이뤄냈으며, 중대재해 0건 달성 등 안전 관리 시스템 측면에서도 타 기관의 압도적인 모범이 된다." <i class="fa-solid fa-quote-right text-slate-300 ml-1"></i>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 재무상태표 -->
+                    <div>
+                        <h3 class="font-bold text-xl text-slate-800 mb-5 border-l-4 border-teal-500 pl-2">요약 재무상태표 (자산/부채 현황)</h3>
+                        <div class="dash-card">
+                            <div class="flex justify-end mb-3">
+                                <span class="text-xs text-slate-500 font-bold">(기준일: 2024. 12. 31 / 단위: 백만원)</span>
+                            </div>
+                            <table class="data-table mb-6">
+                                <thead>
+                                    <tr>
+                                        <th width="40%">계정 과목</th>
+                                        <th width="30%">2024년 (제9기)</th>
+                                        <th width="30%">2023년 (제8기)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">Ⅰ. 유동자산</td>
+                                        <td class="text-right">5,123,400</td>
+                                        <td class="text-right text-slate-400">4,200,100</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">Ⅱ. 비유동자산 (유형자산 포함)</td>
+                                        <td class="text-right">15,059,983</td>
+                                        <td class="text-right text-slate-400">14,350,200</td>
+                                    </tr>
+                                    <tr class="border-y-2 border-slate-300">
+                                        <td class="font-black bg-slate-100 text-center">자산 총계</td>
+                                        <td class="text-right font-black text-slate-800">20,183,383</td>
+                                        <td class="text-right font-bold text-slate-500">18,550,300</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">Ⅰ. 유동부채</td>
+                                        <td class="text-right text-red-600">180,016</td>
+                                        <td class="text-right text-slate-400">210,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">Ⅱ. 비유동부채</td>
+                                        <td class="text-right text-red-600">220,000</td>
+                                        <td class="text-right text-slate-400">300,000</td>
+                                    </tr>
+                                    <tr class="border-y-2 border-slate-300">
+                                        <td class="font-black bg-slate-100 text-center">부채 총계</td>
+                                        <td class="text-right font-black text-red-600">400,016</td>
+                                        <td class="text-right font-bold text-slate-500">510,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">Ⅰ. 자본금</td>
+                                        <td class="text-right">15,000,000</td>
+                                        <td class="text-right text-slate-400">15,000,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50">Ⅱ. 이익잉여금</td>
+                                        <td class="text-right text-teal-600">4,783,367</td>
+                                        <td class="text-right text-slate-400">3,040,300</td>
+                                    </tr>
+                                    <tr class="border-t-2 border-slate-400">
+                                        <td class="font-black bg-teal-50 text-teal-900 text-center">자본 총계</td>
+                                        <td class="text-right font-black text-teal-700 bg-teal-50">19,783,367</td>
+                                        <td class="text-right font-bold text-slate-500">18,040,300</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="flex flex-col md:flex-row gap-4 items-center justify-center bg-slate-800 text-white p-5 rounded-xl shadow-inner">
+                                <div class="text-center px-6 border-r border-slate-600">
+                                    <p class="text-xs text-slate-400 font-bold mb-1">건전성 지표</p>
+                                    <p class="text-sm font-bold">부채비율</p>
+                                    <p class="text-3xl font-black text-sky-400 mt-1">1.98%</p>
+                                </div>
+                                <div class="text-center px-6 border-r border-slate-600 hidden md:block">
+                                    <p class="text-xs text-slate-400 font-bold mb-1">수익성 지표</p>
+                                    <p class="text-sm font-bold">총자산순이익률(ROA)</p>
+                                    <p class="text-2xl font-black text-emerald-400 mt-1">2.66%</p>
+                                </div>
+                                <div class="text-center px-6">
+                                    <p class="text-xs text-slate-400 font-bold mb-1">안정성 지표</p>
+                                    <p class="text-sm font-bold">유동비율</p>
+                                    <p class="text-2xl font-black text-yellow-400 mt-1">2,846%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 5: 내부/외부 감사활동
+                     ========================================== -->
+                <div id="view-audit" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-magnifying-glass-chart text-hyobin mr-2"></i> 내부/외부 감사활동 공개</h2>
+                        <button class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded font-bold border border-slate-300 transition-colors"><i class="fa-solid fa-download mr-1"></i> 연간 감사보고서 원문</button>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 rounded-xl p-8 mb-10 shadow-sm flex items-start gap-6">
+                        <div class="text-red-500 text-5xl mt-2 hidden sm:block"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div>
+                            <h3 class="font-bold text-red-800 text-xl mb-3">무관용 원칙 (Zero Tolerance) 기반의 청렴 감사</h3>
+                            <p class="text-sm text-red-700 leading-relaxed">
+                                효빈교통공사 감사실은 안전 수칙 위반, 예산 낭비, 비리 행위에 대하여 그 어떠한 타협도 없는 <strong>'무관용 원칙'</strong>을 적용합니다. 특히, 1호선 고나미 기관사의 명언인 <strong class="bg-red-100 px-1">"규정은 선배들의 피로 쓰였다"</strong>는 철학을 감사 업무의 최우선 기준으로 삼아, 사고를 미연에 방지하는 예방 감사를 실천하고 있습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-xl text-slate-800 mb-5 border-l-4 border-slate-500 pl-2">2025년도 주요 감사 지적 및 조치 결과</h3>
+                    <div class="dash-card overflow-hidden p-0 mb-10">
+                        <table class="data-table border-0 text-sm">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th width="15%" class="border-0 border-b border-r border-slate-200">감사 구분</th>
+                                    <th width="25%" class="border-0 border-b border-r border-slate-200">감사 대상 및 부서</th>
+                                    <th width="45%" class="border-0 border-b border-r border-slate-200">감사 주요 내용</th>
+                                    <th width="15%" class="border-0 border-b border-slate-200">결과 및 처분</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center font-bold bg-slate-50 border-0 border-b border-r border-slate-200">종합 정기감사</td>
+                                    <td class="text-center font-medium border-0 border-b border-r border-slate-200">차량사업소 중정비 라인<br>(팔조 및 곽산기지)</td>
+                                    <td class="border-0 border-b border-r border-slate-200 p-4">노후 전동차 핵심 부품 입출고 내역 및 현장 매뉴얼(FM) 준수 여부 정밀 교차 검증 실시.</td>
+                                    <td class="text-center font-bold text-emerald-600 border-0 border-b border-slate-200">적정<br><span class="text-[10px] text-slate-500 font-normal">(지적 0건, 표창)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center font-bold bg-slate-50 border-0 border-b border-r border-slate-200">특정 감사</td>
+                                    <td class="text-center font-medium border-0 border-b border-r border-slate-200">HAF 대규모 문화행사<br>예산 집행 내역</td>
+                                    <td class="border-0 border-b border-r border-slate-200 p-4">축제 기간 중 투입된 시민안전매니저 특별 수당 지급의 적정성 및 인파 통제용 자재(쿠쿠스 배리어) 구매 입찰 투명성 집중 점검.</td>
+                                    <td class="text-center font-bold text-emerald-600 border-0 border-b border-slate-200">적정 집행</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center font-bold bg-slate-50 border-0 border-r border-slate-200">특별 법무감사</td>
+                                    <td class="text-center font-medium border-0 border-r border-slate-200">특정 혐오 세력 테러<br>피해 복구 및 구상권 청구</td>
+                                    <td class="border-0 border-r border-slate-200 p-4">과거 A씨 및 윤재훈 등 악성 혐오 세력의 역사 내 기물 파손(스크린도어, 굿즈샵 등) 및 운행 지연에 따른 영업 손실액 전액 구상권 청구 소송 진행 경과 점검.</td>
+                                    <td class="text-center font-bold text-sky-600 border-0 border-slate-200">100% 승소<br><span class="text-[10px] text-slate-500 font-normal">(손해배상액 징수 완료)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 신고 채널 -->
+                    <div class="bg-slate-100 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-center border border-slate-300">
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-lg mb-1"><i class="fa-solid fa-bullhorn text-hyobin mr-2"></i> 클린 효빈메트로 익명 제보 센터</h4>
+                            <p class="text-sm text-slate-600">임직원의 부패 행위, 예산 낭비, 갑질 등을 철저히 비밀이 보장되는 시스템으로 신고받습니다.</p>
+                        </div>
+                        <button class="mt-4 sm:mt-0 bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-lg font-bold shadow-md transition-colors whitespace-nowrap">
+                            제보하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     VIEW 6: 이사회 의결
+                     ========================================== -->
+                <div id="view-board" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-gavel text-hyobin mr-2"></i> 이사회 의결 현황</h2>
+                        <button class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded font-bold border border-slate-300 transition-colors"><i class="fa-solid fa-download mr-1"></i> 이사회 회의록 전체 원문</button>
+                    </div>
+
+                    <p class="text-slate-600 text-sm mb-8 leading-relaxed">
+                        효빈교통공사는 <strong>상임이사 5명, 비상임이사(시민대표, 교통전문가 등) 6명</strong>으로 구성된 이사회를 통해 중대 경영 사안을 민주적이고 투명하게 심의·의결하며, 그 결과를 시민에게 투명하게 공개합니다. 철도 인프라 확충부터 문화 사업 방향까지 공사의 굵직한 미래가 이곳에서 결정됩니다.
+                    </p>
+
+                    <h3 class="font-bold text-xl text-slate-800 mb-5 border-l-4 border-hyobin pl-2">최근 주요 이사회 의안 및 결과</h3>
+                    <div class="dash-card p-0 overflow-hidden">
+                        <table class="data-table border-0 text-sm">
+                            <thead class="bg-slate-100 border-b border-slate-300">
+                                <tr>
+                                    <th width="15%" class="border-0 border-r border-slate-200">회차 / 일자</th>
+                                    <th width="65%" class="border-0 border-r border-slate-200">주요 안건명 (의안) 상세</th>
+                                    <th width="20%" class="border-0">의결 결과</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                                    <td class="text-center font-bold text-slate-600 border-0 border-r border-slate-200 p-4">
+                                        제2026-04호<br><span class="text-xs font-normal text-slate-500">2026.03.15</span>
+                                    </td>
+                                    <td class="font-medium text-slate-800 leading-relaxed border-0 border-r border-slate-200 p-4">
+                                        <span class="bg-sky-100 text-sky-700 text-[10px] px-2 py-0.5 rounded font-bold mr-1 inline-block mb-1">사업승인</span><br>
+                                        <strong>2026년도 효빈 애니 페스티벌(HAF) 기간 대수송 특별 안전 예산 증액안</strong><br>
+                                        <span class="text-xs text-slate-500 font-normal block mt-1">- 2, 6호선 고송교차로역 등 혼잡역 임시열차 무제한 투입 및 안전매니저 초과 근로 수당 등 총 30억 원 예산 배정 승인 건.</span>
+                                    </td>
+                                    <td class="text-center font-bold text-emerald-600 border-0 p-4">
+                                        원안가결<br><span class="text-[10px] text-slate-500 font-normal">(만장일치)</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                                    <td class="text-center font-bold text-slate-600 border-0 border-r border-slate-200 p-4">
+                                        제2026-03호<br><span class="text-xs font-normal text-slate-500">2026.02.10</span>
+                                    </td>
+                                    <td class="font-medium text-slate-800 leading-relaxed border-0 border-r border-slate-200 p-4">
+                                        <span class="bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded font-bold mr-1 inline-block mb-1">시설투자</span><br>
+                                        <strong>1·2호선 노후 스크린도어(PSD) 전면 개량 및 공기질 개선 사업 발주안</strong><br>
+                                        <span class="text-xs text-slate-500 font-normal block mt-1">- 고성능 미세먼지 환기 설비 및 안전문 구동 모터 교체 공사 총사업비 1,200억 원 승인 건.</span>
+                                    </td>
+                                    <td class="text-center font-bold text-emerald-600 border-0 p-4">원안가결</td>
+                                </tr>
+                                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                                    <td class="text-center font-bold text-slate-600 border-0 border-r border-slate-200 p-4">
+                                        제2025-12호<br><span class="text-xs font-normal text-slate-500">2025.11.20</span>
+                                    </td>
+                                    <td class="font-medium text-slate-800 leading-relaxed border-0 border-r border-slate-200 p-4">
+                                        <span class="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded font-bold mr-1 inline-block mb-1">IP부대사업</span><br>
+                                        <strong>캐릭터 지식재산권(IP) '레일 루미네' 글로벌 라이선싱 독점 협약 체결안</strong><br>
+                                        <span class="text-xs text-slate-500 font-normal block mt-1">- 일본 굿스마일컴퍼니와의 피규어(넨도로이드 등) 제작 글로벌 독점 유통 및 수익 배분 비율 확정 승인 건.</span>
+                                    </td>
+                                    <td class="text-center font-bold text-emerald-600 border-0 p-4">원안가결</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="text-center font-bold text-slate-600 border-0 border-r border-slate-200 p-4">
+                                        제2025-08호<br><span class="text-xs font-normal text-slate-500">2025.07.12</span>
+                                    </td>
+                                    <td class="font-medium text-slate-800 leading-relaxed border-0 border-r border-slate-200 p-4">
+                                        <span class="bg-teal-100 text-teal-700 text-[10px] px-2 py-0.5 rounded font-bold mr-1 inline-block mb-1">신규투자</span><br>
+                                        <strong>7호선(노면전차) 신형 무가선 배터리 트램 5편성 추가 도입 예산 승인</strong><br>
+                                        <span class="text-xs text-slate-500 font-normal block mt-1">- 구도심 관광객 증가에 따른 혼잡도 완화 및 구형 전차 대체를 위한 신규 발주 사업.</span>
+                                    </td>
+                                    <td class="text-center font-bold text-emerald-600 border-0 p-4">원안가결</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     글로벌 TMI 비하인드 로어 박스 (본문 하단 고정)
+                     ========================================== -->
+                <div class="bg-slate-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-lg border-t-4 border-sky-400 mt-16">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+                        <i class="fa-solid fa-chart-line text-9xl"></i>
+                    </div>
+                    <h4 class="font-bold text-sky-300 mb-6 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb"></i> [비하인드] 경영 지표에 숨겨진 효빈시의 피와 땀
+                    </h4>
+                    <ul class="space-y-6 text-sm text-slate-300 relative z-10 leading-relaxed">
+                        <li class="flex gap-4">
+                            <i class="fa-solid fa-quote-left text-sky-400 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-yellow-300 block mb-1 text-base">철도회사인가, 굿즈 회사인가? ('효빈굿즈공사'의 전설)</strong>
+                                효빈교통공사가 부채비율 1.9%라는, 전 세계 공공 철도 기업 중에서도 압도적인 재무 건전성을 유지하는 비결은 바로 '비운수 부대사업 수익'입니다. 
+                                공사의 재무제표를 깊게 뜯어보면, 전통적인 승차권 운임 수익보다 <strong>'공식 캐릭터(레일 루미네) IP 라이선스 및 굿즈 판매 수익'이 더 높은 기현상</strong>이 발생하고 있습니다. 
+                                언론과 팬덤 사이에서는 공사를 가리켜 <strong>'효빈굿즈공사'</strong>라고 부르며, 실제 이사회에서도 이 막대한 부대 수익을 철도 안전과 노후 차량 교체에 100% 쏟아붓는 기적의 <strong>교차 보조(Cross-subsidization) 모델</strong>을 극찬하며 승인했습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-4">
+                            <i class="fa-solid fa-quote-left text-sky-400 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-white block mb-1 text-base">공사 독립의 역사: 6호선 중전철 사수 작전</strong>
+                                2016년 7월 '효빈교통공사'라는 단독 법인이 출범한 배경에는 과거의 피 말리는 정치적 투쟁이 있었습니다. 
+                                6호선 건설 당시 "당장 예산을 아끼자며 경전철(AGT)로 지어야 한다"고 주장하던 구(舊) 도시공사 간부들과, "장기적인 인구 증가와 인프라의 근본을 위해 반드시 중전철(Heavy Rail)로 지어야 한다"는 김성민 전 시장의 의견이 충돌했습니다. 
+                                결국 시민의 백년대계를 위해 <strong>김 시장은 도시공사에서 철도본부를 완전히 뜯어내 독립 법인을 설립</strong>했고, 덕분에 6호선은 보라색(#881188) 중전철로 화려하게 개통할 수 있었습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-4">
+                            <i class="fa-solid fa-quote-left text-sky-400 mt-1 text-lg"></i>
+                            <div>
+                                <strong class="text-white block mb-1 text-base">법무팀의 자비 없는 '물리적' 흑자 방어</strong>
+                                과거 효빈대에서 제명된 A씨나 윤재훈 등 특정 혐오 세력들이 역사 내에서 고의로 기물을 파손하거나 난동을 부려 운행을 지연시킨 끔찍한 사건들이 있었습니다. 
+                                이에 공사 법무팀과 감사실은 "안전을 비용으로 환산하는 자는 단두대에 세워야 한다"는 4호선 다로나 주임의 신념을 이어받아, 가해자들에게 파손된 스크린도어 수리비는 물론 열차 지연에 따른 초당 영업 손실액, 정신적 피해보상까지 소수점 단위로 청구하여 <strong>완벽한 금융 치료(구상권 100% 징수)</strong>를 선사한 바 있습니다.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 (메가메뉴 포함) -->
+    <script src="js/common_hyobin.js"></script>
+
+    <!-- 동적 UI 제어용 자바스크립트 -->
+    <script>
+        function switchView(viewId) {
+            // 1. 모든 뷰 섹션 숨기기
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            // 2. 선택된 뷰 표시
+            document.getElementById(viewId).classList.add('active');
+            
+            // 3. LNB (좌측 메뉴) 활성화 스타일 초기화 및 적용
+            const lnbLinks = document.querySelectorAll('#lnb-menu a');
+            lnbLinks.forEach(a => {
+                // 기본 스타일로 초기화
+                a.className = 'block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors';
+                
+                // 클릭한 메뉴와 연결된 viewId가 일치하면 활성화 스타일 적용
+                if (a.getAttribute('onclick') && a.getAttribute('onclick').includes(viewId)) {
+                    a.className = 'block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors';
+                }
+            });
+
+            // 4. 화면 상단으로 부드럽게 스크롤 (헤더 높이 고려)
+            window.scrollTo({ top: document.querySelector('.bg-white.rounded-2xl').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // URL 해시(Hash) 감지하여 해당하는 뷰로 즉시 이동하는 함수
+        function handleHashChange() {
+            const hash = window.location.hash;
+            let targetView = 'view-overview'; // 기본값 (개요)
+
+            if (hash === '#overview') targetView = 'view-overview';
+            else if (hash === '#goals') targetView = 'view-goals';
+            else if (hash === '#budget') targetView = 'view-budget';
+            else if (hash === '#evaluation') targetView = 'view-evaluation';
+            else if (hash === '#audit') targetView = 'view-audit';
+            else if (hash === '#board') targetView = 'view-board';
+
+            switchView(targetView);
+        }
+
+        // 페이지가 처음 로드될 때와, 해시가 변경될 때 이벤트 연결
+        window.onload = handleHashChange;
+        window.addEventListener('hashchange', handleHashChange);
+    </script>
+</body>
+</html>

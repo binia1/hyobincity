@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공사/차량사업소 견학 및 철도박물관 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선별 컬러 */
+        .line-1 { color: #0077DD; font-weight: bold; }
+        .line-2 { color: #00CCAA; font-weight: bold; }
+        .line-3 { color: #FFCC11; font-weight: bold; }
+        .line-4 { color: #FF5522; font-weight: bold; }
+        .line-5 { color: #EE0022; font-weight: bold; }
+        .line-6 { color: #881188; font-weight: bold; }
+        .line-7 { color: #FF8899; font-weight: bold; }
+        .line-8 { color: #9856FF; font-weight: bold; }
+        .line-bh { color: #6677CC; font-weight: bold; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 3.5rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 14px; border: 1px solid #e2e8f0; text-align: center; }
+        .data-table td { padding: 14px; border: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover td { background-color: #f1f5f9; }
+
+        html { scroll-behavior: smooth; }
+
+        /* 화면 전환용 클래스 */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 타임라인 스타일 */
+        .timeline-item { position: relative; padding-left: 2rem; padding-bottom: 1.5rem; border-left: 2px solid #e2e8f0; }
+        .timeline-item:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -0.4rem; top: 0.2rem; width: 0.75rem; height: 0.75rem;
+            border-radius: 50%; background-color: #16A4BE; border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[url('이미지/견학배경.jpg')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-train-subway mr-2"></i>시민 참여</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">공사 견학 및 철도박물관 안내</h1>
+                        <p class="text-sky-100 mt-3 font-medium">안전한 도시철도의 심장부와 문화가 숨쉬는 효빈의 랜드마크! 본사 및 팔조차량사업소 견학 안내입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 (사이드바 + 본문) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">신청센터</div>
+                    <ul class="divide-y divide-slate-100">
+                        <li><a href="시설물촬영.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>시설물 촬영</a></li>
+                        <li><a href="지하철예술마당신청.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>지하철 예술마당 신청</a></li>
+                        <li><a href="인재개발원대관.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>인재개발원 대관</a></li>
+                        <li><a href="안전매니저입사지원.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>안전매니저 입사지원</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); return false;" class="block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-600"></i>공사/차량사업소 견학</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('tour-course').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 상세 코스 안내</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('tour-museum').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 철도박물관 안내</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('tour-apply').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 예약 및 신청하기</a></li>
+                        <li><a href="시민안전체험홍보관.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>시민안전체험·홍보관</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10 relative">
+                
+                <!-- VIEW 1: 메인 안내 및 목록 화면 -->
+                <div id="view-main" class="view-section active">
+                    
+                    <div class="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200 rounded-xl p-6 mb-8 flex flex-col sm:flex-row items-center gap-6">
+                        <div class="text-sky-500 text-5xl">
+                            <i class="fa-solid fa-train"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">효빈교통공사로 여러분을 초대합니다!</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                효빈도시철도의 완벽한 운행을 책임지는 종합관제실부터, 전동차의 건강을 책임지는 팔조차량사업소의 중정비 현장, 
+                                그리고 수많은 시민과 팬들의 발길이 끊이지 않는 철도박물관까지. 효빈교통공사의 생생한 심장부를 직접 체험하실 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1. 견학 코스 상세 안내 -->
+                    <div id="tour-course">
+                        <h2 class="section-title mt-0"><i class="fa-solid fa-route text-hyobin"></i> 1. 단체 견학 상세 코스 안내</h2>
+                        <p class="text-slate-600 text-sm mb-6">견학 프로그램은 주 2회(화, 목) 오전과 오후 세션으로 나뉘어 사전 예약제로 운영됩니다.</p>
+
+                        <div class="grid md:grid-cols-2 gap-8 mb-8">
+                            <!-- 본사 코스 -->
+                            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm flex flex-col">
+                                <div class="bg-slate-100 text-slate-800 font-bold p-4 border-b border-slate-200 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-building mr-1"></i> 본사 종합관제실 코스</span>
+                                    <span class="bg-sky-100 text-sky-700 text-xs px-2 py-1 rounded">소요시간: 90분</span>
+                                </div>
+                                <div class="p-5 bg-white flex-grow">
+                                    <p class="text-sm text-slate-700 mb-2"><strong class="text-sky-600">위치:</strong> 북구 고송동 39-7 (고송교차로역 도보 10분)</p>
+                                    <p class="text-sm text-slate-700 mb-5"><strong class="text-sky-600">대상:</strong> 초·중·고등학생 및 일반 단체 (15~30인)</p>
+                                    
+                                    <div class="ml-2">
+                                        <div class="timeline-item">
+                                            <h4 class="font-bold text-slate-800 text-sm">홍보영상 시청 및 환영 인사</h4>
+                                            <p class="text-xs text-slate-500 mt-1">대회의실에서 진행되는 공사 소개 및 안전 교육</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <h4 class="font-bold text-slate-800 text-sm">종합관제실 브리핑 (전망대)</h4>
+                                            <p class="text-xs text-slate-500 mt-1">효빈도시철도 1~8호선 및 빈효선의 실시간 열차 운행 상황을 통제하는 초대형 곡면 LED 전광판 관람</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <h4 class="font-bold text-slate-800 text-sm">본사 플래그십 스토어(HQ) 투어</h4>
+                                            <p class="text-xs text-slate-500 mt-1">캐릭터 굿즈 관람 및 대형 포토존에서의 단체 기념 촬영</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 팔조기지 코스 -->
+                            <div class="border border-yellow-200 rounded-xl overflow-hidden shadow-sm flex flex-col">
+                                <div class="bg-yellow-50 text-yellow-900 font-bold p-4 border-b border-yellow-200 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-wrench mr-1"></i> 팔조차량사업소 체험 코스</span>
+                                    <span class="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded">소요시간: 120분</span>
+                                </div>
+                                <div class="p-5 bg-white flex-grow">
+                                    <p class="text-sm text-slate-700 mb-2"><span class="line-3 px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded mr-1 text-[11px]">3호선</span> <strong class="text-yellow-700">위치:</strong> 창전구 팔조동 11-15 (팔조역 연결)</p>
+                                    <p class="text-sm text-slate-700 mb-5"><strong class="text-yellow-700">대상:</strong> 일반, 동호회, 관련 학과 전공자 (10~25인)</p>
+                                    
+                                    <div class="ml-2">
+                                        <div class="timeline-item">
+                                            <h4 class="font-bold text-slate-800 text-sm">기지 업무 브리핑</h4>
+                                            <p class="text-xs text-slate-500 mt-1">3호선 차량기지의 역할과 전동차 유지보수 체계 소개</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <h4 class="font-bold text-slate-800 text-sm">중정비/경정비 공장 현장 견학</h4>
+                                            <p class="text-xs text-slate-500 mt-1">분해된 3000호대 전동차의 대차, 모터 등 하부 기기 정밀 관찰 및 정비 현장 투어</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <h4 class="font-bold text-slate-800 text-sm">전동차 자동세척기 탑승 체험</h4>
+                                            <p class="text-xs text-slate-500 mt-1">실제 운전실에 탑승하여 거대한 전동차 자동 세척 라인을 통과하는 실감나는 체험</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 철도박물관 안내 -->
+                    <div id="tour-museum" class="mb-12">
+                        <h2 class="section-title"><i class="fa-solid fa-building-columns text-hyobin"></i> 2. 효빈교통공사 철도박물관 (팔조역)</h2>
+                        <p class="text-slate-600 mb-6 leading-relaxed">
+                            3호선 팔조역 1번 출구와 직접 연결된 철도박물관은 차량기지 구역 내에 위치하면서도 시민들에게 항시 개방되어 있는 복합 문화 공간입니다. 
+                            철도의 역사부터 서브컬처 팬덤의 열기까지 한곳에서 느낄 수 있습니다.
+                        </p>
+                        
+                        <!-- 박물관 층별 안내 -->
+                        <div class="grid md:grid-cols-3 gap-5 mb-8">
+                            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-sky-300 transition-colors">
+                                <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-lg mb-3 font-bold">1F</div>
+                                <h3 class="font-bold text-slate-800 mb-2">역사관 및 디오라마</h3>
+                                <p class="text-xs text-slate-600 leading-relaxed mb-3">구도심의 전차 시대부터 현재의 중전철망까지 효빈도시철도의 발전사를 한눈에 볼 수 있습니다.</p>
+                                <ul class="text-xs text-slate-500 list-disc pl-4 space-y-1">
+                                    <li>1:87 스케일 효빈시 초대형 디오라마</li>
+                                    <li>역대 효빈 승차권 및 토큰 전시</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-yellow-300 transition-colors">
+                                <div class="w-10 h-10 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-lg mb-3 font-bold">2F</div>
+                                <h3 class="font-bold text-slate-800 mb-2">체험관 (시뮬레이터)</h3>
+                                <p class="text-xs text-slate-600 leading-relaxed mb-3">실제 기관사가 된 것처럼 전동차를 직접 운전해보고 안전 수칙을 체득할 수 있는 공간입니다.</p>
+                                <ul class="text-xs text-slate-500 list-disc pl-4 space-y-1">
+                                    <li><span class="line-1 font-bold text-blue-500">1호선</span> 풀 3D 주행 시뮬레이터</li>
+                                    <li>VR 기반 화재 대피 및 안전 체험</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-teal-300 transition-colors">
+                                <div class="w-10 h-10 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center text-lg mb-3 font-bold">야외</div>
+                                <h3 class="font-bold text-slate-800 mb-2">기념품 샵 & 야외 전시장</h3>
+                                <p class="text-xs text-slate-600 leading-relaxed mb-3">박물관의 진정한 하이라이트! 팬들의 성지이자 1세대 초기형 전동차를 직접 만져볼 수 있습니다.</p>
+                                <ul class="text-xs text-slate-500 list-disc pl-4 space-y-1">
+                                    <li>3000호대 1세대 전동차 보존 전시</li>
+                                    <li>공식 캐릭터 '레일 루미네' 굿즈 스토어</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                            <h3 class="font-bold text-slate-800 mb-4 border-l-4 border-sky-500 pl-2">박물관 관람 및 스토어 이용 안내</h3>
+                            <div class="flex flex-col md:flex-row gap-8">
+                                <ul class="flex-1 text-sm text-slate-700 space-y-3">
+                                    <li class="flex justify-between border-b border-slate-100 pb-2">
+                                        <span class="font-bold text-slate-500">운영 시간</span>
+                                        <span>화~일요일 09:30 ~ 17:30 (월요일 휴관)</span>
+                                    </li>
+                                    <li class="flex justify-between border-b border-slate-100 pb-2">
+                                        <span class="font-bold text-slate-500">기본 입장료</span>
+                                        <span>성인 2,000원 / 청소년 및 어린이 1,000원</span>
+                                    </li>
+                                    <li class="flex justify-between">
+                                        <span class="font-bold text-sky-600">할인 혜택</span>
+                                        <span class="font-bold text-slate-800">효빈교통카드 소지자 50% 할인</span>
+                                    </li>
+                                </ul>
+                                <div class="flex-1 bg-white border border-sky-100 rounded-lg p-4 text-center">
+                                    <p class="text-xs text-sky-700 font-bold mb-2"><i class="fa-solid fa-gift mr-1"></i> 레일 루미네 공식 굿즈 스토어 베스트셀러</p>
+                                    <p class="text-xs text-slate-600 leading-relaxed">
+                                        스토어는 입장료 없이 누구나 이용 가능합니다.<br>
+                                        인기 품목: 박라미 & 임세하 F학점 성적표 클리어파일, 메가 점보 네소베리(나인스타즈 버전), 팔조(八潮)역 역명판 아크릴 키링
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TMI 비하인드 로어 박스 -->
+                    <div class="bg-slate-800 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg border-t-4 border-yellow-400 mb-12">
+                        <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-book-journal-whills text-9xl"></i>
+                        </div>
+                        <h4 class="font-bold text-yellow-400 mb-5 text-xl flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i> [비하인드] 팔조기지와 철도박물관에 얽힌 일화들
+                        </h4>
+                        <ul class="space-y-5 text-sm text-slate-300 relative z-10">
+                            <li class="flex gap-3">
+                                <i class="fa-solid fa-quote-left text-yellow-500 mt-1"></i>
+                                <div>
+                                    <strong class="text-yellow-200 block mb-1">야시오 루이(八潮 瑠唯)의 성지, 팔조(八潮)역</strong>
+                                    팔조차량사업소와 박물관은 철도 동호인뿐만 아니라 뱅드림 팬덤의 엄청난 사랑을 받는 명소입니다. 
+                                    밴드 Morfonica 멤버인 야시오 루이와 성씨 한자가 완전히 똑같기 때문입니다. 
+                                    전국의 팬들이 기지 정문 간판 앞에서 인증샷을 찍는 것이 필수 코스가 되었으며, 공사 측은 아예 루이의 생일(11월 19일)마다 
+                                    박물관 내 카페에서 하루 종일 바이올린 연주곡을 틀어주는 공식 이벤트를 챙겨주고 있습니다.
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <i class="fa-solid fa-quote-left text-yellow-500 mt-1"></i>
+                                <div>
+                                    <strong class="text-white block mb-1">기적의 수익 창출원과 박라미의 전공</strong>
+                                    박물관의 입장료는 2천원으로 유지비도 안 나오는 수준이지만, 기념품 샵의 굿즈 판매 수익이 입장료 수익의 무려 50배를 넘습니다. 
+                                    팬들 사이에서는 "입장료는 거들 뿐, 굿즈 수익으로 박물관 건물을 올린다"는 유쾌한 농담이 정설로 통합니다. 
+                                    재미있게도 <span class="line-3 font-bold text-yellow-400">3호선 마스코트 박라미</span>의 공식 설정상 전공이 경영학인데, 
+                                    직원들은 박라미가 박물관의 실질적 주인장으로서 이 엄청난 굿즈 수익을 관리하기 위해 경영학을 전공한 것이라고 이야기하곤 합니다.
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <i class="fa-solid fa-quote-left text-yellow-500 mt-1"></i>
+                                <div>
+                                    <strong class="text-white block mb-1">덕업일치(德業一致)의 근무 환경</strong>
+                                    팔조기지의 신규 채용 면접 당시 "야시오 루이를 좋아해서 이곳에 지원했습니다"라고 대답한 지원자가 
+                                    합격했다는 전설적인 일화가 있습니다. 실제로 기지 정비동 로비 한편에는 피규어 장식장이 마련되어 있으며, 
+                                    가끔 기지 내 사내 방송으로 담당자의 사심이 담긴 애니메이션 OST가 흘러나와도 직원들은 자연스럽게 노동요로 즐긴다고 합니다.
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <i class="fa-solid fa-quote-left text-yellow-500 mt-1"></i>
+                                <div>
+                                    <strong class="text-white block mb-1">전설의 1일 파업 도열 장소</strong>
+                                    과거 철도 인프라를 축소하려던 시장의 정책에 항의하던 시절, 3호선 전동차 수십 대가 전조등을 켜고 나란히 도열하여 
+                                    결연한 의지를 보여주었던 역사적인 장소가 바로 이 팔조기지입니다. 박물관 옆에 보존된 1세대 초기형(3001~3007편성) 
+                                    전동차들은 당시의 역사를 간직한 채 지금도 최상의 컨디션으로 관리되고 있습니다.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. 신청하기 및 내역 -->
+                    <div id="tour-apply" class="border-t border-slate-200 pt-10 text-center">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6">견학 예약 및 신청</h3>
+                        
+                        <div class="flex justify-center mb-10">
+                            <button onclick="switchView('view-apply')" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-4 px-10 rounded-xl shadow transition-colors flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-pen-to-square mr-2"></i> 견학 신청서 작성하기
+                            </button>
+                        </div>
+
+                        <!-- 지원 내역 테이블 -->
+                        <div class="text-left">
+                            <div class="flex justify-between items-end mb-3">
+                                <h4 class="font-bold text-lg text-slate-800">나의 견학 신청 내역</h4>
+                                <span class="text-xs text-slate-500">행을 클릭하면 상세 내역을 확인할 수 있습니다.</span>
+                            </div>
+                            <div class="overflow-x-auto rounded-lg border border-slate-200">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3 text-center w-16">번호</th>
+                                            <th class="p-3 text-center w-40">견학 코스</th>
+                                            <th class="p-3">신청 단체명</th>
+                                            <th class="p-3 text-center w-32">견학 희망일</th>
+                                            <th class="p-3 text-center w-24">진행 상태</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="application-list" class="divide-y divide-slate-200 bg-white">
+                                        <!-- 자바스크립트로 렌더링 됨 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: 견학 신청서 폼 -->
+                <div id="view-apply" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-map-location-dot text-slate-600 mr-2"></i> 공사/차량사업소 견학 신청</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+                    
+                    <form onsubmit="submitForm(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- 단체 정보 -->
+                            <div class="md:col-span-2 border-b border-slate-100 pb-2">
+                                <h3 class="font-bold text-lg text-slate-800">1. 신청 단체 정보</h3>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">단체명/학교명 <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="예: 효빈대학교 철도동아리" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">대표자 성명 <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="홍길동" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">연락처 (휴대전화) <span class="text-red-500">*</span></label>
+                                <input type="tel" required placeholder="010-0000-0000" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">이메일 <span class="text-red-500">*</span></label>
+                                <input type="email" required placeholder="example@hyobin.co.kr" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+
+                            <!-- 견학 상세 -->
+                            <div class="md:col-span-2 border-b border-slate-100 pb-2 mt-4">
+                                <h3 class="font-bold text-lg text-slate-800">2. 견학 상세 정보</h3>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">견학 코스 선택 <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <option value="">코스를 선택하세요</option>
+                                    <option value="본사 종합관제실 코스">효빈교통공사 본사 (종합관제실) - 화/목 운영</option>
+                                    <option value="팔조차량사업소 코스">3호선 팔조차량사업소 (차량기지) - 화/목 운영</option>
+                                    <option value="철도박물관 단체관람">철도박물관 단체관람 (해설 포함) - 화~일 운영</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">견학 희망일 및 시간 <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">참석 인원 <span class="text-red-500">*</span></label>
+                                <input type="number" required min="10" placeholder="최소 10명 이상" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">이동 수단 <span class="text-slate-400 font-normal">(주차 안내용)</span></label>
+                                <select class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <option value="대중교통">도시철도 / 대중교통 이용</option>
+                                    <option value="전세버스">대형 전세버스</option>
+                                    <option value="개별차량">개별 승용차 (주차 공간 협소)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">견학 목적 및 요청사항 <span class="text-red-500">*</span></label>
+                                <textarea required rows="4" placeholder="진로 체험, 철도 기술 탐방, 동호회 성지순례 등 견학 목적과 특별히 방문하고 싶은 장소(예: 운전실 탑승 체험)를 기재해 주세요." class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-100 p-4 rounded-lg mt-6">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" required class="w-5 h-5 accent-sky-600">
+                                <span class="text-sm text-slate-700 font-medium">보안 구역(관제실/차량기지) 출입에 따른 신분 확인 및 내부 안전 수칙 준수에 동의합니다. (필수)</span>
+                            </label>
+                        </div>
+
+                        <div class="flex justify-center gap-3 pt-6 border-t border-slate-100">
+                            <button type="button" onclick="switchView('view-main')" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-colors">작성 취소</button>
+                            <button type="submit" class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors">견학 신청서 제출</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- VIEW 3: 지원 내역 상세 보기 -->
+                <div id="view-detail" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-address-card text-hyobin mr-2"></i> 견학 신청 상세 내역</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
+                            <h3 id="detail-title" class="font-bold text-lg text-slate-800">신청 코스명</h3>
+                            <span id="detail-status" class="px-3 py-1 rounded-full text-sm font-bold">상태</span>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">신청번호</p>
+                                <p id="detail-id" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">신청 코스</p>
+                                <p id="detail-course" class="text-sm text-hyobin font-bold">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">단체명</p>
+                                <p id="detail-applicant" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">대표자 / 연락처</p>
+                                <p id="detail-phone" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">참석 인원</p>
+                                <p id="detail-people" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">견학 확정 일시</p>
+                                <p id="detail-date" class="text-sm text-slate-800 font-bold">-</p>
+                            </div>
+                            <div class="md:col-span-2 border-t border-slate-100 pt-4 mt-2">
+                                <p class="text-xs text-slate-500 font-bold mb-2">견학 목적 및 전달사항</p>
+                                <div id="detail-desc" class="bg-slate-50 p-4 rounded text-sm text-slate-700 whitespace-pre-line border border-slate-100">
+                                    -
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center flex justify-center gap-3">
+                        <button onclick="switchView('view-main')" class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors">확인 (목록으로)</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 (메가메뉴 포함) -->
+    <script src="js/common_hyobin.js"></script>
+
+    <!-- 동적 UI 제어용 자바스크립트 -->
+    <script>
+        // 가상의 견학 신청 내역 데이터
+        const mockApplications = [
+            { 
+                id: 'TOUR-2604-001', course: '팔조차량사업소 코스', date: '2026.05.14 14:00', status: '승인완료', statusCode: 'emerald', 
+                applicant: '효빈대 철도운전시스템공학과', phone: '이성민 (010-1234-5678)', people: '35명',
+                desc: '전공 수업의 일환으로 3호선 3000호대 전동차 중정비 라인 및 하부 기기 견학을 요청합니다.\n자동 세척 라인 통과 시 운전실 탑승 체험이 가능한지 문의드립니다.' 
+            },
+            { 
+                id: 'TOUR-2604-002', course: '철도박물관 단체관람', date: '2026.11.19 10:00', status: '승인완료', statusCode: 'emerald', 
+                applicant: '서브컬처 팬 연합 모임', phone: '박덕후 (010-8765-4321)', people: '20명',
+                desc: 'Morfonica 야시오 루이 캐릭터 생일(11/19) 기념 이벤트 단체 방문.\n박물관 해설사님의 철도 역사 설명과 함께 1층 디오라마 관람 및 굿즈샵 집중 투어를 희망합니다.' 
+            },
+            { 
+                id: 'TOUR-2604-003', course: '본사 종합관제실 코스', date: '2026.05.19 10:00', status: '검토중', statusCode: 'yellow', 
+                applicant: '중수고등학교 진로체험반', phone: '김선생 (010-5555-6666)', people: '25명',
+                desc: '고등학생 대상 공기업 직업 진로 체험.\n종합관제실의 역할과 대형 LED 스크린을 통한 스마트 안전 관리 시스템 브리핑 시연을 부탁드립니다.' 
+            }
+        ];
+
+        // 테이블 렌더링
+        function renderTable() {
+            const tbody = document.getElementById('application-list');
+            tbody.innerHTML = '';
+
+            mockApplications.forEach(app => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row border-b border-slate-200';
+                tr.onclick = () => showDetail(app.id);
+
+                const statusClass = app.statusCode === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-500 font-mono text-xs">${app.id}</td>
+                    <td class="p-3 text-center font-bold text-slate-700 text-xs">${app.course}</td>
+                    <td class="p-3 font-medium text-slate-800">${app.applicant}</td>
+                    <td class="p-3 text-center text-slate-500">${app.date.split(' ')[0]}</td>
+                    <td class="p-3 text-center"><span class="${statusClass} px-2 py-1 rounded text-xs font-bold">${app.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 뷰 전환 함수
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo({ top: document.querySelector('.bg-white.rounded-2xl').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // 상세 보기 함수
+        function showDetail(id) {
+            const app = mockApplications.find(a => a.id === id);
+            if (!app) return;
+
+            document.getElementById('detail-id').innerText = app.id;
+            document.getElementById('detail-course').innerText = app.course;
+            document.getElementById('detail-title').innerText = app.course;
+            document.getElementById('detail-applicant').innerText = app.applicant;
+            document.getElementById('detail-phone').innerText = app.phone;
+            document.getElementById('detail-people').innerText = app.people;
+            document.getElementById('detail-date').innerText = app.date;
+            document.getElementById('detail-desc').innerText = app.desc;
+
+            const statusEl = document.getElementById('detail-status');
+            statusEl.innerText = app.status;
+            statusEl.className = `px-3 py-1 rounded-full text-sm font-bold ${app.statusCode === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800'}`;
+
+            switchView('view-detail');
+        }
+
+        // 폼 제출 이벤트
+        function submitForm(event) {
+            event.preventDefault();
+            alert(`견학 신청서가 성공적으로 제출되었습니다.\n홍보실 담당자가 일정 및 보안 사항 검토 후 최종 확정 안내를 드리겠습니다.`);
+            event.target.reset(); // 폼 초기화
+            switchView('view-main');
+        }
+
+        // 초기화
+        window.onload = () => {
+            renderTable();
+        };
+    </script>
+</body>
+</html>

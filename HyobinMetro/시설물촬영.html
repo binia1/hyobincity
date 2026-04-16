@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시설물 촬영 안내 및 신청 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선별 컬러 */
+        .line-1 { color: #0077DD; font-weight: bold; }
+        .line-2 { color: #00CCAA; font-weight: bold; }
+        .line-3 { color: #FFCC11; font-weight: bold; }
+        .line-4 { color: #FF5522; font-weight: bold; }
+        .line-5 { color: #EE0022; font-weight: bold; }
+        .line-6 { color: #881188; font-weight: bold; }
+        .line-7 { color: #FF8899; font-weight: bold; }
+        .line-8 { color: #9856FF; font-weight: bold; }
+        .line-bh { color: #6677CC; font-weight: bold; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 14px; border: 1px solid #e2e8f0; text-align: center; }
+        .data-table td { padding: 14px; border: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        
+        .clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .clickable-row:hover td { background-color: #f1f5f9; }
+
+        html { scroll-behavior: smooth; }
+
+        /* 화면 전환용 클래스 */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('이미지/시설물촬영배경.jpg')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-camera mr-2"></i>시민 참여</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">시설물 촬영 안내 및 신청</h1>
+                        <p class="text-sky-100 mt-3 font-medium">효빈도시철도 1~8호선 및 빈효선 관내 시설물에서의 상업, 비영리, 성지순례(코스프레) 촬영을 위한 공식 안내입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 (사이드바 + 본문) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">신청센터</div>
+                    <ul class="divide-y divide-slate-100">
+                        <li><a href="#" onclick="switchView('view-main'); return false;" class="block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-600"></i>시설물 촬영</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('photo-category').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 촬영 대상 및 구분</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('photo-fee').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 촬영 수수료 안내</a></li>
+                        <li><a href="#" onclick="switchView('view-main'); document.getElementById('photo-cosplay').scrollIntoView(); return false;" class="block p-4 text-slate-600 hover:bg-sky-50 text-sm font-medium transition-colors pl-8">· 코스프레/서브컬처 특례</a></li>
+                        <li><a href="지하철예술마당신청.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>지하철 예술마당 신청</a></li>
+                        <li><a href="인재개발원대관.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>인재개발원 대관</a></li>
+                        <li><a href="안전매니저입사지원.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>안전매니저 입사지원</a></li>
+                        <li><a href="효빈교통공사견학.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>공사/차량사업소 견학</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10 relative">
+                
+                <!-- VIEW 1: 메인 안내 및 목록 화면 -->
+                <div id="view-main" class="view-section active">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-8 text-center">
+                        <p class="text-slate-700 font-medium">누구나 안전하고 즐겁게 이용할 수 있는 효빈교통공사가 될 수 있도록 최선을 다하겠습니다.</p>
+                    </div>
+
+                    <!-- 1. 촬영 대상 및 구분 -->
+                    <div id="photo-category">
+                        <h2 class="section-title mt-0"><i class="fa-solid fa-photo-film text-hyobin"></i> 1. '영상물 등' 촬영 구분표</h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <div class="border border-sky-200 rounded-xl overflow-hidden">
+                                <div class="bg-sky-100 text-sky-900 font-bold p-4 text-center border-b border-sky-200">
+                                    유상 촬영물 <span class="text-sm font-normal text-sky-700 block">촬영 7일 전(휴일 제외) 신청 필수</span>
+                                </div>
+                                <div class="p-5 bg-white h-full">
+                                    <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2 mb-4">
+                                        <li>영화 (저예산 독립 영화 및 학생 영화 포함)</li>
+                                        <li>드라마, 예능 프로그램, 교양 프로그램</li>
+                                        <li>뮤직비디오, 상업 광고, 화보</li>
+                                        <li>광고 수익용 콘텐츠 (영리 목적 1인 미디어 등)</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="border border-teal-200 rounded-xl overflow-hidden">
+                                <div class="bg-teal-100 text-teal-900 font-bold p-4 text-center border-b border-teal-200">
+                                    비영리/특수 영상물 <span class="text-sm font-normal text-teal-700 block">촬영 4일 전(휴일 제외) 신청 필수</span>
+                                </div>
+                                <div class="p-5 bg-white h-full">
+                                    <ul class="list-disc pl-5 text-sm text-slate-700 space-y-2 mb-4">
+                                        <li>시사·다큐멘터리 프로그램</li>
+                                        <li>공익 광고</li>
+                                        <li>서브컬처 성지순례 및 캐릭터 코스프레 촬영 (비영리)</li>
+                                        <li>개인 소장용 영상 또는 사진</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="font-bold text-red-600 mb-2"><i class="fa-solid fa-ban mr-1"></i> 촬영 제한 및 불허 사항</h3>
+                            <ul class="list-disc pl-5 text-sm text-slate-700 space-y-1.5 bg-red-50 p-4 rounded-lg border border-red-200">
+                                <li>포르노그래피, 폭력 미화 등 보편적 가치기준에 반하는 장면</li>
+                                <li>시민들의 쾌적한 지하철 이용에 심대한 방해가 되는 행위</li>
+                                <li>효빈교통공사 및 <strong>특정 서브컬처 작품/캐릭터에 대한 혐오 조장</strong> 목적의 촬영</li>
+                                <li><strong>평일 혼잡시간대 (오전 07:00 ~ 09:00, 오후 18:00 ~ 20:00)</strong> 내의 역사 및 전동차 내부 촬영</li>
+                                <li>안전 위협 소품: 도검류, 화약류 등 반입 금지 (단, 코스프레용 모조 무기는 사전 승인 시 예외 규정 적용)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 2. 촬영 수수료표 -->
+                    <div id="photo-fee" class="mt-12">
+                        <h2 class="section-title"><i class="fa-solid fa-credit-card text-hyobin"></i> 2. 촬영 수수료 안내 (유상 촬영물 기준)</h2>
+                        <div class="overflow-x-auto mb-4">
+                            <table class="data-table text-sm">
+                                <thead>
+                                    <tr>
+                                        <th width="15%">구분</th>
+                                        <th width="40%">A 구역 (일반 역 대합실 등)</th>
+                                        <th width="45%">B 구역 (주요 혼잡역, 환승역, 운행 중 전동차)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50 text-center">기본금(2시간)</td>
+                                        <td class="text-center font-bold">100,000원</td>
+                                        <td class="text-center font-bold">200,000원</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold bg-slate-50 text-center">인원 추가</td>
+                                        <td class="text-center">20,000원 / 5인 당</td>
+                                        <td class="text-center">30,000원 / 5인 당</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. 코스프레/서브컬처 특례 (공식 문화 정책) -->
+                    <div id="photo-cosplay" class="mt-12">
+                        <h2 class="section-title"><i class="fa-solid fa-star text-hyobin"></i> 3. 서브컬처 성지순례 및 코스프레 촬영 특례</h2>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-pink-200 rounded-xl p-6 shadow-sm mb-6">
+                            <h3 class="font-bold text-pink-700 text-lg mb-3 flex items-center">
+                                <i class="fa-solid fa-camera-retro mr-2"></i> 성지순례 촬영 허가 완화 제도 (일명 '코스프레 패스')
+                            </h3>
+                            <p class="text-slate-700 text-sm leading-relaxed mb-4 text-justify">
+                                효빈교통공사는 <strong><span class="line-2 font-bold text-teal-600">하루빈</span>(아오바 모카 성지), <span class="line-1 font-bold text-blue-600">고나미</span>(하나조노 타에 성지)</strong> 등 캐릭터 테마 역사와 효빈 애니 페스티벌(HAF) 기간에 한하여 코스프레어 및 팬덤을 위한 촬영 규제 완화를 시행하고 있습니다. 서브컬처의 성지, 효빈시에 오신 것을 환영합니다!
+                            </p>
+                            <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5">
+                                <li><strong>일반 스냅:</strong> 휴대폰, 소형 미러리스 등을 이용한 소규모(3인 이하) 조명 미사용 촬영은 <strong>사전 허가 없이 자유롭게 가능</strong>합니다.</li>
+                                <li><strong>사전 허가 대상:</strong> 삼각대/대형 조명 등 전문 장비 사용, 4인 이상 팀 코스프레, <strong>모조 무기류 소품 지참 시</strong> 사전 승인이 필수입니다. (대관 수수료는 전액 면제됩니다.)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 4. 신청하기 및 내역 -->
+                    <div class="mt-12 border-t border-slate-200 pt-10">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">촬영 승인 신청 및 내역</h3>
+                        
+                        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
+                            <button onclick="switchView('view-apply-general')" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors flex items-center justify-center">
+                                <i class="fa-solid fa-file-signature mr-2"></i> 일반 상업/비영리 촬영 신청
+                            </button>
+                            <button onclick="switchView('view-apply-subculture')" class="bg-[#16A4BE] hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors flex items-center justify-center">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 코스프레/서브컬처 특례 신청
+                            </button>
+                        </div>
+
+                        <!-- 신청 내역 테이블 -->
+                        <div class="text-left">
+                            <div class="flex justify-between items-end mb-3">
+                                <h4 class="font-bold text-lg text-slate-800">나의 신청 내역</h4>
+                                <span class="text-xs text-slate-500">행을 클릭하면 상세 내역을 확인할 수 있습니다.</span>
+                            </div>
+                            <div class="overflow-x-auto rounded-lg border border-slate-200">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3 text-center w-16">번호</th>
+                                            <th class="p-3">촬영 제목</th>
+                                            <th class="p-3 text-center w-28">촬영일자</th>
+                                            <th class="p-3 text-center w-24">승인상태</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="application-list" class="divide-y divide-slate-200 bg-white">
+                                        <!-- 자바스크립트로 렌더링 됨 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: 일반 촬영 신청 폼 -->
+                <div id="view-apply-general" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-file-signature text-slate-600 mr-2"></i> 일반 상업/비영리 촬영 신청</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+                    
+                    <form onsubmit="submitForm(event, '일반')" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">신청 구분 <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                                    <option value="">선택해주세요</option>
+                                    <option value="상업">상업 (영화/드라마/CF/유튜브 등)</option>
+                                    <option value="비영리">비영리 (학생작품/다큐/공익광고)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">신청자명 (법인명) <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="이름 또는 회사명 입력" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">연락처 <span class="text-red-500">*</span></label>
+                                <input type="tel" required placeholder="010-0000-0000" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">촬영 희망일시 <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">촬영 장소 (노선 및 역명) <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="예: 1호선 중앙로역 대합실 및 승강장" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">촬영 내용 요약 <span class="text-red-500">*</span></label>
+                                <textarea required rows="4" placeholder="촬영 인원수, 주요 장면, 장비 규모 등을 상세히 적어주세요." class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"></textarea>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">관련 서류 첨부 <span class="text-slate-400 font-normal">(기획안, 콘티, 공문 등 / 최대 10MB)</span></label>
+                                <input type="file" class="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-3 pt-6 border-t border-slate-100">
+                            <button type="button" onclick="switchView('view-main')" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-colors">취소</button>
+                            <button type="submit" class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors">신청서 제출</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- VIEW 3: 코스프레 특례 신청 폼 -->
+                <div id="view-apply-subculture" class="view-section">
+                    <div class="border-b border-pink-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-pink-700"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 서브컬처 / 코스프레 특례 신청</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+                    
+                    <div class="bg-pink-50 text-pink-800 text-sm p-4 rounded-lg mb-6 border border-pink-200">
+                        <i class="fa-solid fa-bell mr-1"></i> 효빈도시철도는 팬 여러분의 안전한 성지순례를 응원합니다! 원활한 촬영 진행과 시민 오인 신고 방지를 위해 내용을 정확히 기재해 주세요. (본 신청은 대관 수수료가 전액 면제됩니다.)
+                    </div>
+
+                    <form onsubmit="submitForm(event, '특례')" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">신청자명 (또는 팀명) <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="예: 효빈코스팀" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">연락처 <span class="text-red-500">*</span></label>
+                                <input type="tel" required placeholder="010-0000-0000" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">촬영 희망일시 <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">촬영 인원 <span class="text-red-500">*</span></label>
+                                <input type="number" required min="1" placeholder="예: 4" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">촬영 장소 성지 (노선/역명) <span class="text-red-500">*</span></label>
+                                <select required class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                                    <option value="">성지 역을 선택하세요 (목록에 없으면 직접 입력)</option>
+                                    <option value="2호선/6호선 고송교차로역">2/6호선 고송교차로역 (타카마츠 토모리 성지)</option>
+                                    <option value="2호선/6호선 중수역">2/6호선 중수역 (나카스 카스미 성지)</option>
+                                    <option value="1호선/4호선 이자공원역">1/4호선 이자공원역 (사쿠라우치 리코 성지)</option>
+                                    <option value="3호선 사능역">3호선 사능역 (야마부키 사아야 성지)</option>
+                                    <option value="1호선 추산역">1호선 추산역 (아키야마 미오 성지)</option>
+                                    <option value="기타">기타 (아래 상세 내용에 기재)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">작품명 및 캐릭터명 <span class="text-red-500">*</span></label>
+                                <input type="text" required placeholder="예: 러브라이브! 니지가사키 학원 스쿨 아이돌 동호회 - 나카스 카스미" class="w-full border border-slate-300 rounded-lg p-2.5 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">특수 소품(모조 무기 등) 지참 여부 <span class="text-red-500">*</span></label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center gap-2"><input type="radio" name="weapon" value="no" checked class="accent-pink-500"> 없음</label>
+                                    <label class="flex items-center gap-2"><input type="radio" name="weapon" value="yes" class="accent-pink-500"> 있음 (모조 도검/총기류/대형 지팡이 등)</label>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">※ '있음' 선택 시 당일 현장에서 재질 검수를 거친 후, 공사가 발급하는 '특수 소품 지참 허가 완장'을 반드시 패용해야 합니다.</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-slate-700 mb-1">캐릭터 설정표(원안) 첨부 <span class="text-red-500">*</span> <span class="text-slate-400 font-normal">(.jpg, .png 등 이미지 파일)</span></label>
+                                <input type="file" required accept="image/*" class="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-3 pt-6 border-t border-slate-100">
+                            <button type="button" onclick="switchView('view-main')" class="px-6 py-3 bg-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-300 transition-colors">취소</button>
+                            <button type="submit" class="px-8 py-3 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-600 transition-colors">성지순례 촬영 신청</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- VIEW 4: 신청 내역 상세 보기 -->
+                <div id="view-detail" class="view-section">
+                    <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-list-check text-hyobin mr-2"></i> 촬영 신청 상세 내역</h2>
+                        <button onclick="switchView('view-main')" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> 목록으로</button>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                        <div class="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
+                            <h3 id="detail-title" class="font-bold text-lg text-slate-800">제목</h3>
+                            <span id="detail-status" class="px-3 py-1 rounded-full text-sm font-bold">상태</span>
+                        </div>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">접수번호</p>
+                                <p id="detail-id" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">신청 구분</p>
+                                <p id="detail-type" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">신청자 (법인/팀명)</p>
+                                <p id="detail-applicant" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">연락처</p>
+                                <p id="detail-phone" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">등록일자</p>
+                                <p id="detail-regdate" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-bold mb-1">촬영 예정일시</p>
+                                <p id="detail-shootdate" class="text-sm text-hyobin font-bold">-</p>
+                            </div>
+                            <div class="md:col-span-2 border-t border-slate-100 pt-4 mt-2">
+                                <p class="text-xs text-slate-500 font-bold mb-1">촬영 장소</p>
+                                <p id="detail-location" class="text-sm text-slate-800 font-medium">-</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <p class="text-xs text-slate-500 font-bold mb-2">촬영 내용 상세</p>
+                                <div id="detail-desc" class="bg-slate-50 p-4 rounded text-sm text-slate-700 whitespace-pre-line border border-slate-100">
+                                    -
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button onclick="switchView('view-main')" class="px-8 py-3 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors">확인 (목록으로)</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 (메가메뉴 포함) -->
+    <script src="js/common_hyobin.js"></script>
+
+    <!-- 동적 UI 제어용 자바스크립트 -->
+    <script>
+        // 가상의 신청 내역 데이터
+        const mockApplications = [
+            { 
+                id: 1042, type: '비영리(개인)', title: '[개인] 고송교차로역 졸업작품 단편영화 촬영', regDate: '2026.04.13', shootDate: '2026.04.20 14:00', status: '승인완료', statusCode: 'emerald', 
+                applicant: '김효빈 (효빈대학교)', phone: '010-1234-5678', location: '2/6호선 고송교차로역 대합실 우측', 
+                desc: '대학교 영상학과 졸업작품 단편영화의 만남 씬 촬영.\n총 인원 3명 (배우 2명, 카메라 1명).\n삼각대 1대 사용하며 일반 승객 통행에 방해되지 않도록 구석에서 촬영 예정.' 
+            },
+            { 
+                id: 1041, type: '특례(성지순례)', title: '[특례] 중수역 니지동 캐릭터 성지순례 팀 코스프레', regDate: '2026.04.12', shootDate: '2026.04.18 10:30', status: '승인완료', statusCode: 'emerald', 
+                applicant: '효빈코스팀 (대표자: 박성덕)', phone: '010-9876-5432', location: '6호선 중수역 캐릭터 테마 포토존 인근', 
+                desc: '러브라이브! 니지가사키 학원 스쿨 아이돌 동호회 (나카스 카스미 외 2인) 성지순례 코스프레 촬영.\n모조 무기류 지참 없음.\n역무원 안내에 따라 지정된 포토라인에서만 진행.' 
+            },
+            { 
+                id: 1040, type: '상업(법인)', title: '[법인] OOO 엔터테인먼트 뮤직비디오 로케이션', regDate: '2026.04.10', shootDate: '2026.04.25 21:00', status: '검토중', statusCode: 'yellow', 
+                applicant: '스타더스트 프로덕션', phone: '02-777-7777', location: '7호선 트램 중앙로1가역 정류장 및 차량 내부', 
+                desc: '소속 인디 밴드 신곡 MV 야외 씬 촬영.\n스태프 및 출연진 총 20명 동원. 조명기기 2대 배치.\n안전 매니저 2인 자체 배치 계획 및 심야 시간대 진행으로 혼잡 최소화.' 
+            }
+        ];
+
+        // 테이블 렌더링
+        function renderTable() {
+            const tbody = document.getElementById('application-list');
+            tbody.innerHTML = '';
+
+            mockApplications.forEach(app => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row border-b border-slate-200';
+                tr.onclick = () => showDetail(app.id);
+
+                const statusClass = app.statusCode === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800';
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-500">${app.id}</td>
+                    <td class="p-3 font-medium text-slate-800">${app.title}</td>
+                    <td class="p-3 text-center text-slate-500">${app.shootDate.split(' ')[0]}</td>
+                    <td class="p-3 text-center"><span class="${statusClass} px-2 py-1 rounded text-xs font-bold">${app.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 뷰 전환 함수
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo({ top: document.querySelector('.bg-white.rounded-2xl').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // 상세 보기 함수
+        function showDetail(id) {
+            const app = mockApplications.find(a => a.id === id);
+            if (!app) return;
+
+            document.getElementById('detail-id').innerText = app.id;
+            document.getElementById('detail-type').innerText = app.type;
+            document.getElementById('detail-title').innerText = app.title;
+            document.getElementById('detail-applicant').innerText = app.applicant;
+            document.getElementById('detail-phone').innerText = app.phone;
+            document.getElementById('detail-regdate').innerText = app.regDate;
+            document.getElementById('detail-shootdate').innerText = app.shootDate;
+            document.getElementById('detail-location').innerText = app.location;
+            document.getElementById('detail-desc').innerText = app.desc;
+
+            const statusEl = document.getElementById('detail-status');
+            statusEl.innerText = app.status;
+            statusEl.className = `px-3 py-1 rounded-full text-sm font-bold ${app.statusCode === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800'}`;
+
+            switchView('view-detail');
+        }
+
+        // 폼 제출 이벤트
+        function submitForm(event, type) {
+            event.preventDefault();
+            // 실제 구현에서는 서버 통신이 들어가는 부분
+            alert(`[${type} 촬영] 신청서가 정상적으로 접수되었습니다.\n담당 부서 검토 후 기재하신 연락처로 회신드리겠습니다.`);
+            event.target.reset(); // 폼 초기화
+            switchView('view-main');
+        }
+
+        // 초기화
+        window.onload = () => {
+            renderTable();
+        };
+    </script>
+</body>
+</html>

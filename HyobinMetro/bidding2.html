@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입찰/계약정보 2 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 효빈교통공사 브랜드 컬러 */
+        .text-hb { color: #16A4BE; }
+        .bg-hb { background-color: #16A4BE; color: white; }
+        .border-hb { border-color: #16A4BE; }
+        
+        /* 노선 뱃지 (사용자 지정 색상 완벽 반영) */
+        .badge-1 { background-color: #0077DD; color: white; }
+        .badge-2 { background-color: #00CCAA; color: white; }
+        .badge-3 { background-color: #FFCC11; color: black; }
+        .badge-4 { background-color: #FF5522; color: white; }
+        .badge-5 { background-color: #EE0022; color: white; }
+        .badge-6 { background-color: #881188; color: white; }
+        .badge-7 { background-color: #FF8899; color: black; }
+        .badge-8 { background-color: #9856FF; color: white; }
+        .badge-bh { background-color: #6677CC; color: white; }
+        .badge-common { background-color: #475569; color: white; }
+
+        /* SPA 탭 네비게이션 스타일 */
+        .spa-tab-nav { display: flex; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; background: white; border-radius: 0.75rem 0.75rem 0 0; }
+        .spa-tab { 
+            padding: 1rem 1.5rem; font-weight: 700; color: #64748b; cursor: pointer; 
+            border-bottom: 3px solid transparent; transition: all 0.2s ease; margin-bottom: -2px; font-size: 0.95rem;
+        }
+        .spa-tab:hover { color: #16A4BE; background-color: #f8fafc; }
+        .spa-tab.active { color: #16A4BE; border-bottom-color: #16A4BE; background-color: white; }
+
+        /* SPA 콘텐츠 전환 효과 */
+        .spa-content { display: none; animation: fadeIn 0.4s ease-out forwards; }
+        .spa-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 공공기관 스타일 데이터 테이블 (고도화) */
+        .data-table { width: 100%; border-collapse: collapse; border-top: 2px solid #1e293b; background: white; font-size: 0.85rem; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 0.875rem 0.5rem; border-bottom: 1px solid #cbd5e1; text-align: center; }
+        .data-table td { padding: 0.875rem 0.5rem; border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; vertical-align: middle; }
+        .data-table tr { transition: background-color 0.15s ease; }
+        .data-table tbody tr:hover { background-color: #f1f5f9; cursor: pointer; box-shadow: inset 0 0 0 1px #e2e8f0; }
+        .data-table .subject { text-align: left; padding-left: 1rem; font-weight: 500; color: #0f172a; line-height: 1.4; }
+        .data-table tbody tr:hover .subject { color: #16A4BE; text-decoration: underline; font-weight: 700; }
+
+        /* 모달 내부 특수 테이블 (평가점수표 등) */
+        .modal-inner-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; border: 1px solid #cbd5e1; font-size: 0.85rem; }
+        .modal-inner-table th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 0.5rem; text-align: center; font-weight: bold; color: #334155; }
+        .modal-inner-table td { border: 1px solid #cbd5e1; padding: 0.5rem; text-align: center; color: #475569; }
+        .modal-inner-table td.point { font-weight: 900; color: #16A4BE; }
+
+        /* 페이징 버튼 */
+        .page-btn { width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; border-radius: 0.25rem; color: #475569; background: white; transition: all 0.2s; margin: 0 0.125rem; font-size: 0.875rem; }
+        .page-btn:hover { background: #f1f5f9; color: #16A4BE; border-color: #16A4BE; }
+        .page-btn.active { background: #16A4BE; color: white; border-color: #16A4BE; font-weight: bold; box-shadow: 0 2px 4px rgba(22, 164, 190, 0.2); }
+
+        /* 폼 요소 */
+        .form-input { border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; outline: none; transition: border-color 0.2s; color: #334155; }
+        .form-input:focus { border-color: #16A4BE; box-shadow: 0 0 0 2px rgba(22, 164, 190, 0.2); }
+
+        /* 스크롤바 최적화 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        @media (max-width: 768px) {
+            .hide-mobile { display: none; }
+            .spa-tab { padding: 0.75rem 0.5rem; font-size: 0.8rem; flex: 1 1 33%; text-align: center; }
+            .search-box { flex-direction: column; align-items: stretch !important; gap: 0.5rem; }
+            .search-box > div { width: 100%; justify-content: space-between; }
+            .search-box input, .search-box select { width: 100%; flex-grow: 1; }
+        }
+
+        /* [추가] 인쇄 최적화 설정 (DOM 간섭 차단 및 모달 팝업만 깔끔하게 인쇄) */
+        @media print {
+            body * { visibility: hidden; } /* 전체 페이지 요소를 숨김 */
+            
+            #detailModal, #detailModal * { visibility: visible; } /* 모달 창 내부만 표시 */
+            
+            #detailModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: transparent !important;
+                padding: 0;
+                margin: 0;
+            }
+
+            #detailModalContent {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100%;
+                max-width: 100%;
+                max-height: none !important; /* 스크롤 없이 전체 내용 표시 */
+                overflow: visible !important;
+                transform: none !important;
+            }
+
+            .custom-scrollbar { overflow: visible !important; }
+
+            /* 인쇄 시 버튼 등 불필요한 UI 숨김 */
+            button, .print-hide { display: none !important; }
+
+            /* 배경색 등 테일윈드 컬러 강제 출력 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 상단 서브 비주얼 영역 -->
+    <div class="w-full bg-slate-800 h-[260px] flex flex-col items-center justify-center relative overflow-hidden mt-16 md:mt-20 border-b border-slate-700 shadow-inner print-hide">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-800/80 to-[#16A4BE]/40"></div>
+        <div class="relative z-10 text-center px-4 animate-fade-in">
+            <p class="text-[#4CE0E4] font-bold tracking-widest text-sm mb-2"><i class="fa-solid fa-file-signature mr-2"></i>정보공개</p>
+            <h1 class="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">입찰/계약정보 <span class="text-slate-400 font-light text-2xl md:text-4xl">2</span></h1>
+            <p class="text-slate-300 text-sm md:text-base font-medium">제안서 평가부터 대금, 실적까지 계약의 모든 과정을 투명하게 공개합니다.</p>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main id="main-content" class="flex-grow w-full max-w-[1200px] mx-auto px-4 py-8 bg-transparent mt-2 mb-12 relative z-10 print-hide">
+        
+        <!-- 브레드크럼 -->
+        <div class="flex items-center justify-between text-sm text-gray-500 mb-6 bg-white px-5 py-3.5 rounded-xl border border-slate-200 shadow-sm">
+            <div>
+                <i class="fa-solid fa-house mr-2 hover:text-hb cursor-pointer transition" onclick="location.href='index.html'"></i> 홈 
+                <i class="fa-solid fa-chevron-right mx-2 text-[10px] text-slate-300"></i> 정보공개 
+                <i class="fa-solid fa-chevron-right mx-2 text-[10px] text-slate-300"></i> 입찰/계약정보 2 
+                <i class="fa-solid fa-chevron-right mx-2 text-[10px] text-slate-300"></i> <span class="font-bold text-slate-800" id="breadcrumb-current">제안서 평가결과</span>
+            </div>
+            <div class="hidden md:flex gap-2">
+                <button class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-xs font-bold transition"><i class="fa-solid fa-print mr-1"></i>인쇄</button>
+                <button class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-xs font-bold transition"><i class="fa-solid fa-share-nodes mr-1"></i>공유</button>
+            </div>
+        </div>
+
+        <!-- 메인 박스 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- SPA 탭 네비게이션 -->
+            <div class="spa-tab-nav" id="tabMenu">
+                <div class="spa-tab active" data-target="eval">제안서 평가결과</div>
+                <div class="spa-tab" data-target="subcontract">건설공사/하도급계약</div>
+                <div class="spa-tab" data-target="certificate">실적증명서 발급</div>
+                <div class="spa-tab" data-target="private">수의계약내역</div>
+                <div class="spa-tab" data-target="reference">계약자료실/변경사항</div>
+                <div class="spa-tab" data-target="inspection">감리·감독·검사현황</div>
+            </div>
+
+            <!-- 탭 콘텐츠 영역 -->
+            <div class="p-5 md:p-8 min-h-[600px]">
+                
+                <!-- 1. 제안서 평가결과 탭 -->
+                <div id="content-eval" class="spa-content active">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center text-[#16A4BE] text-xl"><i class="fa-solid fa-chart-pie"></i></div>
+                        <h2 class="text-2xl font-black text-slate-800">제안서 평가결과</h2>
+                    </div>
+                    
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 flex flex-wrap items-center justify-between gap-4 search-box shadow-sm">
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <select id="evalYear" class="form-input bg-white w-28 font-medium">
+                                <option value="all">전체연도</option>
+                                <option value="2026">2026년</option>
+                                <option value="2025">2025년</option>
+                            </select>
+                            <select id="evalMethod" class="form-input bg-white w-36 font-medium">
+                                <option value="all">평가방식 전체</option>
+                                <option value="협상에 의한 계약">협상에 의한 계약</option>
+                                <option value="기술평가">기술평가</option>
+                                <option value="정성/정량 혼합">정성/정량 혼합</option>
+                            </select>
+                            <input type="text" id="evalSearch" placeholder="사업명 검색" class="form-input bg-white flex-grow md:w-64">
+                            <button onclick="renderEvalTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition shadow-sm"><i class="fa-solid fa-magnifying-glass mr-1"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap text-right">
+                            총 <span id="evalCount" class="text-[#16A4BE] font-black text-lg">0</span>건
+                            <button class="ml-3 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded font-bold text-xs shadow-sm transition"><i class="fa-regular fa-file-excel mr-1"></i>엑셀다운로드</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mb-3">
+                        <table class="data-table min-w-[900px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-16">No</th>
+                                    <th class="w-24 hide-mobile">관련노선</th>
+                                    <th class="w-auto">용역/사업명</th>
+                                    <th class="w-28">평가일자</th>
+                                    <th class="w-32 hide-mobile">평가방식</th>
+                                    <th class="w-32">1순위 협상대상자</th>
+                                    <th class="w-20 hide-mobile">결과</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evalBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-between items-center mb-6 mt-2">
+                        <div class="text-xs text-slate-400"><i class="fa-solid fa-circle-info mr-1"></i>목록을 클릭하시면 <strong>평가위원별 세부 점수표</strong>를 확인할 수 있습니다.</div>
+                    </div>
+                    <div id="evalPagination" class="flex justify-center"></div>
+                </div>
+
+                <!-- 2. 건설공사/하도급계약현황 탭 -->
+                <div id="content-subcontract" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500 text-xl"><i class="fa-solid fa-helmet-safety"></i></div>
+                        <h2 class="text-2xl font-black text-slate-800">건설공사 / 하도급계약현황</h2>
+                    </div>
+
+                    <!-- 통계 대시보드 요약 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xl"><i class="fa-solid fa-file-contract"></i></div>
+                            <div><p class="text-xs text-slate-500 font-bold mb-1">올해 하도급 승인건수</p><p class="text-2xl font-black text-slate-800">24<span class="text-sm font-medium text-slate-500 ml-1">건</span></p></div>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-won-sign"></i></div>
+                            <div><p class="text-xs text-slate-500 font-bold mb-1">총 하도급 대금</p><p class="text-2xl font-black text-slate-800">12.5<span class="text-sm font-medium text-slate-500 ml-1">억원</span></p></div>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-500 text-xl"><i class="fa-solid fa-percent"></i></div>
+                            <div><p class="text-xs text-slate-500 font-bold mb-1">평균 하도급률</p><p class="text-2xl font-black text-slate-800">86.4<span class="text-sm font-medium text-slate-500 ml-1">%</span></p></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <input type="text" id="subSearch" placeholder="공사명 또는 원/하도급사명 검색" class="form-input bg-white flex-grow md:w-80">
+                            <button onclick="renderSubTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-magnifying-glass mr-1"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap text-right">총 <span id="subCount" class="text-hb font-black text-lg">0</span>건</div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mb-2">
+                        <table class="data-table min-w-[1000px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-24 hide-mobile">승인일자</th>
+                                    <th class="w-auto">공사명</th>
+                                    <th class="w-32">원도급사</th>
+                                    <th class="w-32">하도급사</th>
+                                    <th class="w-28">하도급액(원)</th>
+                                    <th class="w-20 hide-mobile">하도급률</th>
+                                    <th class="w-24 hide-mobile">대금지급</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 mt-2 mb-6"><i class="fa-solid fa-hand-pointer mr-1"></i>목록 클릭 시 공종별 하도급 세부 내역 및 지킴이 결제 현황을 확인합니다.</div>
+                    <div id="subPagination" class="flex justify-center"></div>
+                </div>
+
+                <!-- 3. 실적증명서 발급 탭 -->
+                <div id="content-certificate" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 text-xl"><i class="fa-solid fa-file-certificate"></i></div>
+                        <h2 class="text-2xl font-black text-slate-800">실적증명서 발급 온라인 신청</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="md:col-span-1 bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-800 text-lg mb-4 border-b border-slate-200 pb-2">발급 절차 안내</h3>
+                            <ul class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+                                <li class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-[#16A4BE] text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 font-bold text-sm z-10">1</div>
+                                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-3 rounded border border-slate-200 shadow-sm ml-3 md:ml-0 text-sm">G2B 신청서 작성</div>
+                                </li>
+                                <li class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-slate-300 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 font-bold text-sm z-10">2</div>
+                                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-3 rounded border border-slate-200 shadow-sm ml-3 md:ml-0 text-sm">담당자 검토/승인</div>
+                                </li>
+                                <li class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-slate-300 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 font-bold text-sm z-10">3</div>
+                                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-3 rounded border border-slate-200 shadow-sm ml-3 md:ml-0 text-sm font-bold text-[#16A4BE]">온라인 발급 완료</div>
+                                </li>
+                            </ul>
+                            <div class="mt-6 p-4 bg-red-50 text-red-700 text-xs rounded-lg border border-red-100 leading-relaxed">
+                                <i class="fa-solid fa-circle-exclamation mb-1 block"></i> 
+                                준공(납품) 대금 정산이 100% 완료된 건에 한하여 실적증명서가 발급됩니다.
+                            </div>
+                        </div>
+
+                        <!-- 가상 신청 폼 -->
+                        <div class="md:col-span-2 bg-white border border-slate-200 rounded-xl p-6 md:p-8 shadow-sm">
+                            <h3 class="font-bold text-slate-800 text-xl mb-6">실적증명서 빠른 신청 (G2B 연동)</h3>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-b border-slate-100 pb-4">
+                                    <label class="text-sm font-bold text-slate-700 md:text-right md:pr-4">사업자등록번호 <span class="text-red-500">*</span></label>
+                                    <div class="md:col-span-2 flex gap-2">
+                                        <input type="text" class="form-input flex-grow bg-slate-50" placeholder="000-00-00000" maxlength="12">
+                                        <button class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-bold rounded transition">조회</button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-b border-slate-100 pb-4">
+                                    <label class="text-sm font-bold text-slate-700 md:text-right md:pr-4">계약번호 <span class="text-red-500">*</span></label>
+                                    <div class="md:col-span-2">
+                                        <input type="text" class="form-input w-full bg-slate-50" placeholder="예: 20260401234-00">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center pb-2">
+                                    <label class="text-sm font-bold text-slate-700 md:text-right md:pr-4">제출처 및 용도 <span class="text-red-500">*</span></label>
+                                    <div class="md:col-span-2 flex gap-2">
+                                        <select class="form-input w-1/3 bg-slate-50">
+                                            <option>입찰용</option>
+                                            <option>면허용</option>
+                                            <option>기타</option>
+                                        </select>
+                                        <input type="text" class="form-input w-2/3 bg-slate-50" placeholder="제출처 기관명 입력">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-8 text-center">
+                                <button class="px-10 py-3.5 bg-[#16A4BE] hover:bg-sky-600 text-white font-black rounded-xl shadow-md transition text-lg w-full sm:w-auto" onclick="alert('나라장터(G2B) 인증 팝업으로 연결됩니다.\n(현재 시스템 점검 중)')">
+                                    <i class="fa-solid fa-file-export mr-2"></i> 실적증명서 신청하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 수의계약내역 및 실적 탭 -->
+                <div id="content-private" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500 text-xl"><i class="fa-solid fa-file-signature"></i></div>
+                        <h2 class="text-2xl font-black text-slate-800">수의계약내역 및 실적</h2>
+                    </div>
+                    
+                    <div class="p-3 bg-slate-100 rounded-lg text-sm text-slate-600 mb-5 border border-slate-200">
+                        <i class="fa-solid fa-circle-info text-[#16A4BE] mr-1"></i> 지방자치단체를 당사자로 하는 계약에 관한 법률 시행령 제31조에 따라 수의계약 내역을 1년간 공개합니다.
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <input type="month" id="privMonth" class="form-input bg-white w-36">
+                            <input type="text" id="privSearch" placeholder="계약명 또는 계약상대자 검색" class="form-input bg-white flex-grow md:w-72">
+                            <button onclick="renderPrivTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-magnifying-glass mr-1"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap text-right">총 <span id="privCount" class="text-hb font-black text-lg">0</span>건</div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mb-2">
+                        <table class="data-table min-w-[1000px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-24 hide-mobile">계약일자</th>
+                                    <th class="w-auto">계약건명</th>
+                                    <th class="w-32">계약상대자</th>
+                                    <th class="w-32">계약금액(원)</th>
+                                    <th class="w-36 hide-mobile">계약근거(법령)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="privBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="privPagination" class="flex justify-center mt-6"></div>
+                </div>
+
+                <!-- 5. 계약자료실 / 내용변경 탭 -->
+                <div id="content-reference" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <div class="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-500 text-xl"><i class="fa-solid fa-folder-open"></i></div>
+                        <h2 class="text-2xl font-black text-slate-800">계약자료실 / 내용변경사항</h2>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <select id="refType" class="form-input bg-white w-32 font-medium">
+                                <option value="all">분류 전체</option>
+                                <option value="양식">서식/양식</option>
+                                <option value="규정">규정/지침</option>
+                                <option value="공지">변경공지</option>
+                            </select>
+                            <input type="text" id="refSearch" placeholder="자료 제목 검색" class="form-input bg-white flex-grow md:w-72">
+                            <button onclick="renderRefTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-magnifying-glass mr-1"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap text-right">총 <span id="refCount" class="text-hb font-black text-lg">0</span>건</div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mb-4">
+                        <table class="data-table min-w-[800px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-16">No</th>
+                                    <th class="w-24">분류</th>
+                                    <th class="w-auto">자료 제목</th>
+                                    <th class="w-24 hide-mobile">첨부</th>
+                                    <th class="w-28 hide-mobile">등록일자</th>
+                                    <th class="w-20 hide-mobile">조회수</th>
+                                </tr>
+                            </thead>
+                            <tbody id="refBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="refPagination" class="flex justify-center mt-6"></div>
+                </div>
+
+                <!-- 6. 감리/감독/검사 현황 탭 -->
+                <div id="content-inspection" class="spa-content">
+                    <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-800 pb-3">
+                        <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 text-xl"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <h2 class="text-2xl font-black text-slate-800">감리·감독·검사 현황</h2>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-4 flex flex-wrap items-center justify-between gap-3 search-box shadow-sm">
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <select id="inspType" class="form-input bg-white w-32 font-medium">
+                                <option value="all">구분 전체</option>
+                                <option value="정기감리">정기감리</option>
+                                <option value="중간검사">중간검사</option>
+                                <option value="준공검사">준공검사</option>
+                            </select>
+                            <input type="text" id="inspSearch" placeholder="사업명 또는 감리단 검색" class="form-input bg-white flex-grow md:w-64">
+                            <button onclick="renderInspTable(1)" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition"><i class="fa-solid fa-magnifying-glass mr-1"></i> 검색</button>
+                        </div>
+                        <div class="text-sm text-slate-600 font-medium whitespace-nowrap text-right">총 <span id="inspCount" class="text-hb font-black text-lg">0</span>건</div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mb-2">
+                        <table class="data-table min-w-[900px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-24 hide-mobile">점검일자</th>
+                                    <th class="w-24 hide-mobile">구분</th>
+                                    <th class="w-auto">사업명(공사명)</th>
+                                    <th class="w-32">담당/감리단</th>
+                                    <th class="w-24">점검결과</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inspBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 mt-2 mb-6"><i class="fa-solid fa-hand-pointer mr-1"></i>목록 클릭 시 지적/시정조치 결과 보고서 원문을 열람할 수 있습니다.</div>
+                    <div id="inspPagination" class="flex justify-center"></div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- [상세 보기 통합 모달] -->
+    <!-- 인쇄 시 이 부분만 보이도록 print-hide 클래스를 제외하고 CSS로 제어함 -->
+    <div id="detailModal" class="fixed inset-0 z-[100] hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300 overflow-hidden border border-slate-200" id="detailModalContent">
+            
+            <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-start bg-slate-50 shrink-0">
+                <div class="pr-8">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="modalTypeBadge" class="px-3 py-1 rounded-md text-[11px] font-black tracking-wide bg-slate-800 text-white shadow-sm uppercase">구분</span>
+                    </div>
+                    <h2 id="modalTitle" class="text-xl md:text-2xl font-black text-slate-900 leading-tight">상세제목</h2>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-rose-500 text-3xl transition leading-none focus:outline-none print-hide">&times;</button>
+            </div>
+            
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar bg-white flex-grow">
+                
+                <!-- 상단 요약 그리드 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-8 text-sm grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 shadow-inner" id="modalMetaGrid">
+                    <!-- 동적 생성 -->
+                </div>
+
+                <!-- 본문 컨텐츠 (텍스트 또는 특수 테이블) -->
+                <div class="mb-8">
+                    <h3 class="text-base font-black text-slate-800 mb-4 flex items-center"><i class="fa-solid fa-list-check text-[#16A4BE] mr-2"></i> 세부 내역</h3>
+                    <div id="modalContentText" class="text-slate-700 leading-relaxed text-[14.5px] whitespace-pre-line p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
+                        <!-- 내용 렌더링 -->
+                    </div>
+                </div>
+
+                <!-- 첨부파일 영역 -->
+                <div id="modalAttachmentSection" class="hidden bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h3 class="text-sm font-black text-slate-800 mb-3 flex items-center"><i class="fa-solid fa-paperclip text-slate-500 mr-2"></i> 관련 첨부문서</h3>
+                    <ul id="modalAttachmentList" class="space-y-2">
+                        <!-- 파일 렌더링 -->
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 푸터: 인쇄시 숨김 (print-hide) -->
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 shrink-0 print-hide">
+                <!-- 인쇄 기능 최적화 적용 버튼 -->
+                <button onclick="window.print()" class="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-lg shadow-sm transition flex items-center"><i class="fa-solid fa-print mr-2"></i> 인쇄 (PDF 저장)</button>
+                <button onclick="closeDetailModal()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-lg shadow-md transition">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS 데이터 & 로직 -->
+    <script>
+        const ITEMS_PER_PAGE = 10; 
+
+        // --- 세계관 기반 리얼 더미 데이터 대량 생성 ---
+        const evalData = [
+            { id: "E01", line: "7", title: "7호선 임세정/임세하 자매 캐릭터 래핑 트램 외부 디자인 제안서 평가", date: "2026.04.10", method: "정성/정량 혼합", topCompany: "디자인스튜디오(주)", status: "협상완료", content: "효빈 7호선 무가선 트램 2편성 외부 래핑 디자인.\n\n[평가결과 상세]\n- 평가위원: 내/외부 위원 7명 (조*훈, 박*미 등)\n- 기술능력(80) + 입찰가격(20) 합산 결과\n\n<table class='modal-inner-table'><tr><th>업체명</th><th>정량점수(20)</th><th>정성점수(60)</th><th>가격점수(20)</th><th>총점</th><th>순위</th></tr><tr><td>디자인스튜디오(주)</td><td>20.0</td><td>56.5</td><td>18.9</td><td class='point'>95.4</td><td>1위</td></tr><tr><td>(주)아트비전</td><td>19.5</td><td>54.2</td><td>20.0</td><td>93.7</td><td>2위</td></tr><tr><td>효빈광고기획</td><td>18.0</td><td>51.0</td><td>19.5</td><td>88.5</td><td>3위</td></tr></table>", files: ["평가결과서(요약).pdf", "회의록_사본.pdf"] },
+            { id: "E02", line: "5", title: "5호선 포성산역 고심도 에스컬레이터 정밀안전진단 용역", date: "2026.03.25", method: "기술평가", topCompany: "대한승강기안전(주)", status: "계약진행중", content: "포성산역 장대 에스컬레이터 노후화에 따른 비파괴검사 및 진단 용역 제안서 평가.\n- 최고/최저 점수 제외 평균 산출 방식 적용.", files: ["기술제안서_평가결과.hwp"] },
+            { id: "E03", line: "3", title: "3호선 사능역 베이커리 거리(빵지순례) 연계 미디어아트 구축", date: "2026.03.10", method: "협상에 의한 계약", topCompany: "미디어허브(주)", status: "협상완료", content: "사능역 대합실 내 박라미 캐릭터 홀로그램 및 미디어 파사드 구축.\n\n<table class='modal-inner-table'><tr><th>업체명</th><th>평가총점</th><th>비고</th></tr><tr><td>미디어허브(주)</td><td class='point'>92.1</td><td>협상적격자</td></tr><tr><td>(주)빛누리</td><td>88.5</td><td>-</td></tr></table>", files: ["제안서평가_집계표.pdf"] },
+            { id: "E04", line: "common", title: "효빈광역시 시장(박효빈) 주관 '효빈 모빌리티 비전 2030' 행사 대행", date: "2026.02.20", method: "정성/정량 혼합", topCompany: "(주)이벤트마스터", status: "완료", content: "모빌리티 비전 선포식 행사 운영 기획, 무대 설치, VIP 의전 대행.\n총 5개사 제안서 제출, PT 심사 완료.", files: ["제안서_심사결과보고.hwp"] },
+            { id: "E05", line: "1", title: "1호선 곽암해수욕장역~효빈항역 구간 해풍 대비 전차선 개량 설계", date: "2026.02.05", method: "기술평가", topCompany: "한국철도엔지니어링(주)", status: "협상완료", content: "해안가 염해 방지를 위한 특수 전차선 도입 기본 및 실시설계.", files: [] },
+            { id: "E06", line: "6", title: "6호선 라세나 성우 수능 응원 안내방송 음원 마스터링 용역", date: "2026.01.15", method: "소액기술평가", topCompany: "사운드팩토리(주)", status: "완료", content: "마잡역~고송나루역 구간 송출용 음원 노이즈 캔슬링 및 공간음향 마스터링 평가.", files: [] },
+            { id: "E07", line: "bh", title: "빈효선 효빈항역 HAF 코스어 웰컴 라운지 구축 및 운영", date: "2025.12.20", method: "협상에 의한 계약", topCompany: "효빈전람(주)", status: "완료", content: "HAF(효빈 애니메이션 페스티벌) 기간 전용 환복 라운지 및 포토존 구축.", files: ["심사위원_채점표(블라인드).pdf"] },
+            { id: "E08", line: "4", title: "4호선 해운산업지구역 스크린도어(PSD) 제어반 전면 교체", date: "2025.11.30", method: "기술평가", topCompany: "(주)PSD테크", status: "완료", content: "노후 SIL2 급 제어반을 SIL4 급으로 개량하는 기술 제안 평가.", files: ["기술평가결과.zip"] },
+            { id: "E09", line: "common", title: "본사 신사옥 종합 시설관리/보안 용역 기술제안서 평가", date: "2025.11.15", method: "기술평가", topCompany: "(주)효빈서비스", status: "완료", content: "건축, 기계, 소방, 보안 등 9명 위원 블라인드 평가 진행.", files: [] },
+            { id: "E10", line: "8", title: "8호선 평당고역 등 4개 역사 우천시 분진 흡착 특수 매트 도입", date: "2025.10.10", method: "규격/가격 동시", topCompany: "에코매트(주)", status: "완료", content: "고무차륜 분진 제거 효율성 검증(규격 합격자에 한해 가격 개찰).", files: ["규격심사결과.pdf"] },
+            { id: "E11", line: "2", title: "2호선 어간수산시장역 에스컬레이터 비린내 탈취 설비 제안", date: "2025.09.05", method: "정성/정량 혼합", topCompany: "효빈공조설비(주)", status: "완료", content: "플라즈마 탈취 및 에어커튼 복합 설비 제안 심사.", files: [] },
+            { id: "E12", line: "common", title: "전 노선 승강장 비상통화장치 LTE-R 통신망 고도화 설계", date: "2025.08.20", method: "협상에 의한 계약", topCompany: "(주)HNT네트웍스", status: "완료", content: "LTE-R 망 연동성 및 보안 아키텍처 구축 제안.", files: ["결과통보서.pdf"] }
+        ];
+
+        const subData = [
+            { id: "S01", date: "2026.04.15", title: "구 효빈전차 사능선 폐선 구간 선로 철거 및 보도 복구", p_company: "효빈건설(주)", s_company: "(주)사능철거", price: "450,000,000", rate: "85.2%", status: "승인완료", content: "구 효빈전차 사능선(1969년 폐지 구간 제외, 2010년 7호선 편입 후 잔여구간) 선로 철거.\n\n[하도급 상세내역]\n- 하도급 공종: 구조물 헐기 및 폐기물 운반처리\n- 하도급 대금지급 보증서: 발급완료(건설공제조합)\n- 하도급지킴이 결제: 적용 (직불 동의)", files: ["하도급계약승인통보서.pdf"] },
+            { id: "S02", date: "2026.03.20", title: "2호선 어간수산시장역 에스컬레이터 비린내 탈취 공사", p_company: "효빈공조설비(주)", s_company: "클린에어(주)", price: "85,000,000", rate: "88.5%", status: "승인완료", content: "- 하도급 공종: 플라즈마 필터 모듈 납품 및 배관 세팅\n- 원도급사 통보 접수 및 적정성 심사 완료.", files: ["하도급적정성심사조서.hwp"] },
+            { id: "S03", date: "2026.02.10", title: "1호선 곽암해수욕장역 노후 릴레이 제어반 방음 부스 설치", p_company: "(주)동일건축", s_company: "에코사운드", price: "12,000,000", rate: "82.0%", status: "조건부승인", content: "대합실 내 1984년식 구형 제어반 소음 차폐용 부스 설치 공사.\n- 하도급 공종: 특수 차음 유리 시공.", files: [] },
+            { id: "S04", date: "2026.01.25", title: "2호선 효빈대학교역 등 5량 열차 하차 유도선 도색", p_company: "제일광고디자인", s_company: "(주)라인페인트", price: "18,500,000", rate: "86.1%", status: "승인완료", content: "- 하도급 공종: 승강장 바닥 미끄럼방지 비취색 도료 도포\n- 야간 할증 인건비 포함 계약.", files: [] },
+            { id: "S05", date: "2025.12.05", title: "5호선 포성산역 대심도 환기구 구조 개선 공사", p_company: "대웅토건(주)", s_company: "포성엔지니어링", price: "320,000,000", rate: "81.5%", status: "반려후재승인", content: "- 하도급 공종: 환기구 철골 지지대 보강\n- 초기 하도급률 82% 미달로 반려 후 재심사 승인 완료.", files: ["하도급계약변경승인서.pdf"] },
+            { id: "S06", date: "2025.11.11", title: "본사 신사옥 외벽 태양광 패널 부착 공사", p_company: "(주)솔라테크", s_company: "효빈전기(주)", price: "155,000,000", rate: "89.0%", status: "승인완료", content: "- 하도급 공종: 태양광 인버터 결선 및 계통 연계\n- 대금 직불 합의서 징구 완료.", files: ["대금직불합의서_사본.pdf"] },
+            { id: "S07", date: "2025.10.30", title: "6호선 마잡역 역사 리모델링(석면해체) 공사", p_company: "(주)우성건설", s_company: "클린철거산업", price: "210,000,000", rate: "84.5%", status: "승인완료", content: "- 하도급 공종: 석면텍스 해체 및 지정폐기물 처리\n- 노동청 석면해체 신고 필증 확인 완료.", files: [] },
+            { id: "S08", date: "2025.09.15", title: "3호선 효빈국제공항역 무빙워크 연장 설치 공사", p_company: "한국엘리베이터(주)", s_company: "제일레일(주)", price: "550,000,000", rate: "87.3%", status: "승인완료", content: "- 하도급 공종: 무빙워크 트러스 거치 및 기계실 조성.", files: ["승인통보서.hwp"] },
+            { id: "S09", date: "2025.08.01", title: "1호선 천왕사역 출입구 캐노피 개량 공사", p_company: "동남건업(주)", s_company: "유리금속(주)", price: "45,000,000", rate: "85.0%", status: "승인완료", content: "- 하도급 공종: 강화유리 및 금속 프레임 제작 설치.", files: [] },
+            { id: "S10", date: "2025.07.20", title: "4호선 도변역 인근 선로 노반 침하 보강 공사", p_company: "효빈건설(주)", s_company: "지오텍엔지니어링", price: "880,000,000", rate: "86.8%", status: "승인완료", content: "- 하도급 공종: 고압 분사 펌프 주입(JSP) 공법 시공.", files: ["하도급심사결과.pdf"] }
+        ];
+
+        const privData = [
+            { id: "P01", date: "2026.04.12", title: "1호선 곽암해수욕장역 노후 릴레이 제어반 방음 부스 특수 차음재 구매", company: "에코사운드", price: "24,500,000", law: "지방계약법 시행령 제25조 제1항 제4호", content: "[계약 목적]\n1호선 곽암해수욕장역 대합실 구형 릴레이 장비 소음 차단.\n\n[수의계약 사유]\n해당 업체는 1980년대 아날로그 장비 맞춤형 투명 방음 차폐막 특허를 보유한 유일한 단일공급자임.\n- 타 업체 대체 불가 사유서 첨부 완료.", files: ["수의계약사유서.pdf", "특허증_사본.pdf"] },
+            { id: "P02", date: "2026.03.20", title: "6호선 라세나 성우 수능 응원 안내방송 음원 추가 마스터링", company: "사운드팩토리(주)", price: "12,500,000", law: "지방계약법 시행령 제25조 제1항 제5호", content: "[수의계약 사유]\n추정가격 2천만원 이하의 용역으로, 기존 수능 안내방송을 녹음했던 라세나 성우의 추가 음원에 대한 톤앤매너를 동일하게 유지하기 위해 기존 작업 업체와 소액수의 계약 체결.", files: [] },
+            { id: "P03", date: "2026.03.05", title: "3호선 사능역 등 빵지순례 안내지도 리플릿 인쇄", company: "효빈인쇄협동조합", price: "18,500,000", law: "지방계약법 시행령 제25조 제1항 제5호", content: "지역 협동조합 우선 구매 대상 및 소액수의(2천만원 이하) 계약.", files: ["산출내역서.xlsx"] },
+            { id: "P04", date: "2026.02.15", title: "효빈 7호선 무가선 트램(임세정, 임세하 래핑) 보수용 특수 필름 구매", company: "디자인스튜디오(주)", price: "35,000,000", law: "지방계약법 시행령 제25조 제1항 제4호", content: "디자인 저작권 보유업체를 통한 부품 조달 (특허/저작권 수의계약).", files: ["저작권등록증.pdf"] },
+            { id: "P05", date: "2026.01.10", title: "본사 사장실 및 임원실 화상회의 시스템 긴급 보수", company: "제이앤티통신", price: "8,500,000", law: "지방계약법 시행령 제25조 제1항 제5호", content: "긴급을 요하는 통신 장애 복구를 위한 소액수의 계약.", files: [] },
+            { id: "P06", date: "2025.12.20", title: "여성기업 지정 2호선 효빈대학교역 하차 유도선 스티커 제작", company: "제일광고디자인", price: "45,000,000", law: "지방계약법 시행령 제25조 제1항 제5호", content: "여성기업 등 지원에 관한 법률에 따른 5천만원 이하 수의계약.", files: ["여성기업확인서.pdf"] },
+            { id: "P07", date: "2025.11.05", title: "중증장애인생산품(복사용지 등) 4분기 전사 구매", company: "평당장애인보호작업장", price: "55,000,000", law: "지방계약법 시행령 제25조 제1항 제8호", content: "중증장애인생산품 우선구매 특별법에 따른 수의계약.", files: [] },
+            { id: "P08", date: "2025.10.12", title: "효빈항물류지구역(빈효선) 물류창고 화재 대비 소화기 확충", company: "안전제일소방", price: "15,000,000", law: "지방계약법 시행령 제25조 제1항 제5호", content: "동절기 화재 예방을 위한 소화기 긴급 확충 (소액수의).", files: [] },
+            { id: "P09", date: "2025.09.28", title: "신규 임용자 웰컴키트(박라미 인형 포함) 제작", company: "(주)토이스토리", price: "19,500,000", law: "지방계약법 시행령 제25조 제1항 제5호", content: "신규 직원 배포용 웰컴키트 소액수의 제작.", files: ["물품규격서.hwp"] },
+            { id: "P10", date: "2025.08.14", title: "태풍 피해 대비 1호선 곽암해수욕장역 차수막 긴급 설치", company: "제일방수", price: "28,000,000", law: "지방계약법 시행령 제25조 제1항 제1호", content: "천재지변 등 긴급한 재해 복구를 위한 수의계약.", files: ["피해현장사진.pdf", "긴급품의서.pdf"] }
+        ];
+
+        const refData = [
+            { id: "R01", type: "양식", title: "청렴계약 이행각서 양식 (2026년 개정판)", date: "2026.01.10", views: 1245, content: "2026년도 신규 발주건부터 적용되는 청렴계약 이행각서 표준 양식입니다. 투찰 및 계약 체결 시 반드시 해당 양식을 첨부해 주시기 바랍니다.", files: ["청렴계약_이행각서_2026.hwp", "작성가이드.pdf"] },
+            { id: "R02", type: "규정", title: "건설공사 하도급지킴이 이용 및 대금지급 규정 안내", date: "2025.12.01", views: 3420, content: "건설산업기본법 개정에 따른 하도급지킴이 의무 사용 및 전자 대금 결제에 관한 공사 자체 지침 및 매뉴얼입니다.", files: ["하도급지킴이_매뉴얼_v3.pdf"] },
+            { id: "R03", type: "공지", title: "[내용변경] 물품/용역 적격심사 세부기준 변경 (신용평가등급 배점)", date: "2025.07.15", views: 5120, content: "물품/용역 적격심사 시 신용평가등급 배점 구간이 일부 완화(중소기업 지원 확대) 변경되었으니, 입찰 참가 전 반드시 확인하시기 바랍니다.", files: ["적격심사_세부기준_개정판(최종).pdf"] },
+            { id: "R04", type: "양식", title: "용역근로자 근로조건 보호 확약서 양식", date: "2025.05.20", views: 890, content: "청소, 경비, 시설관리 등 단순노무용역 입찰 시 필수 제출 양식입니다.", files: ["근로조건보호확약서.hwp"] },
+            { id: "R05", type: "규정", title: "효빈교통공사 선금 지급 요령 및 보증서 제출 기준", date: "2025.03.10", views: 2100, content: "자금 조달의 어려움을 겪는 계약상대자를 위한 선금 지급 신청 절차 및 비율(최대 70%) 안내.", files: ["선금지급기준_요약.pdf"] },
+            { id: "R06", type: "양식", title: "착계 및 준공계(납품서) 표준 서식 모음", date: "2025.01.15", views: 4500, content: "계약 후 제출해야 하는 착수계, 예정공정표, 현장대리인계 및 준공(납품)계 통합 서식.", files: ["착준공_서식모음.zip"] },
+            { id: "R07", type: "공지", title: "상생결제시스템(효빈은행 연계) 도입 안내", date: "2024.11.05", views: 1800, content: "2차, 3차 협력사까지 안전하게 대금을 지급받을 수 있는 상생결제시스템이 도입되었습니다. (주거래은행: 효빈은행)", files: ["상생결제_안내브로슈어.pdf"] },
+            { id: "R08", type: "규정", title: "영세율 적용 대상 도시철도건설용역 판정 기준", date: "2024.08.22", views: 950, content: "부가가치세 영세율이 적용되는 '도시철도건설용역'의 구체적인 범위 및 국세청 질의응답 사례집.", files: ["영세율적용_판정가이드.pdf"] },
+            { id: "R09", type: "양식", title: "보안서약서 및 개인정보보호 동의서 (외주인력용)", date: "2024.06.10", views: 1100, content: "당사 IT시스템 개발 및 유지보수, CCTV 관련 용역 투입 인력 전원이 작성해야 하는 서식.", files: ["외주인력_보안서식.hwp"] },
+            { id: "R10", type: "공지", title: "안전보건수준평가(중대재해처벌법 관련) 도입 사전 공지", date: "2024.02.01", views: 6000, content: "모든 도급/용역/위탁 사업 발주 시 수급인의 '안전보건수준' 평가가 의무화됨을 알려드립니다.", files: ["안전보건수준평가_기준표.pdf"] }
+        ];
+
+        const inspData = [
+            { id: "I01", date: "2026.04.20", type: "준공검사", title: "8호선 평당고역 분진 흡착 특수 매트 설치", dept: "시설본부 유지보수팀", result: "적합(합격)", content: "[점검 개요]\n- 점검일시: 2026.04.20 10:00~15:00\n- 검사관: 시설본부 환경설비팀 김*수 과장 등 3명\n\n[점검 결과]\n- 고무차륜용 2중 매트 현장 포설 상태 양호.\n- 이음매 마감 처리 및 미끄럼 방지 성능(BPN 40 이상) 실측 결과 모두 시방서 기준치(합격)를 충족함.\n- 지적사항 없음.", files: ["준공검사조서_평당고역.pdf", "현장검측사진첩.pdf"] },
+            { id: "I02", date: "2026.03.15", type: "중간감리", title: "5호선 청덕공원역 메트로팜 온습도 센서 교체", dept: "스마트농업감리단", result: "시정조치(조건부)", content: "[점검 개요]\n- 점검일시: 2026.03.15\n- 감리단장: 이*철 기술사\n\n[점검 결과: 시정조치]\n- 통신 라인 포설 및 센서 결선 상태는 양호함.\n- 단, 제3구역 랙(Rack) 상단의 LED 조명 모듈 각도가 설계도면과 상이하여 식물 생장 광량(PPFD)이 기준치에 미달함.\n- 조치 요구: 3일 이내 조명 각도 재조정 및 재검측 요청.", files: ["1차_감리보고서.pdf", "시정조치지시서.hwp"] },
+            { id: "I03", date: "2026.02.28", type: "정기감리", title: "전 노선 승강장 비상통화장치 LTE-R 통신망 고도화", dept: "한국정보통신감리(주)", result: "적합", content: "- 1단계(1~4호선) 구간 통신랙 설치 및 광케이블 포설 상태 정기 검측.\n- 전송 손실율 측정 결과 양호.", files: ["2월_정기감리보고서.pdf"] },
+            { id: "I04", date: "2026.02.10", type: "준공검사", title: "본사 신사옥 외벽 태양광 패널 부착 공사", dept: "기술본부 전기팀", result: "적합(합격)", content: "- 계통 연계 인버터 효율 측정(98% 이상 만족).\n- 외벽 구조물 풍하중 저항 테스트 합격.\n- 최종 준공 처리함.", files: ["준공조서.pdf"] },
+            { id: "I05", date: "2026.01.15", type: "중간검사", title: "2호선 어간수산시장역 에스컬레이터 비린내 탈취 공사", dept: "안전환경본부", result: "경고/재시공", content: "- 플라즈마 필터 하우징 틈새 발생으로 탈취 효율 저하 우려.\n- 덕트 이음매 코킹 전면 재시공 지시.", files: ["검사결과(부적합)통보서.pdf"] },
+            { id: "I06", date: "2025.12.20", type: "준공검사", title: "7호선 임세정/임세하 자매 래핑 트램 유지보수", dept: "부대사업처", result: "적합(합격)", content: "- 래핑 필름 기포 발생 여부 및 변색 방지 코팅 두께 측정 합격.", files: [] },
+            { id: "I07", date: "2025.11.30", type: "정기감리", title: "4호선 도변역 인근 선로 노반 침하 보강 공사", dept: "효빈토목엔지니어링", result: "적합", content: "- JSP 공법 주입 압력 및 심도 도면 일치 확인.", files: ["토목감리_월간보고.pdf"] },
+            { id: "I08", date: "2025.10.15", type: "중간검사", title: "6호선 마잡역 역사 리모델링(석면해체)", dept: "외부석면감리단", result: "적합", content: "- 해체 구역 내 음압 유지 상태 양호(-0.508 mmH2O 유지).\n- 대기 중 석면 농도 기준치 이하 확인.", files: ["석면농도측정결과.pdf"] },
+            { id: "I09", date: "2025.09.10", type: "준공검사", title: "3호선 효빈국제공항역 무빙워크 연장 설치", dept: "기술본부 승강기팀", result: "적합(합격)", content: "- 비상정지 스위치 연동 테스트 통과.\n- 승강기안전공단 완성검사 필증 교부 확인.", files: ["완성검사합격증.pdf"] },
+            { id: "I10", date: "2025.08.05", type: "중간검사", title: "1호선 천왕사역 출입구 캐노피 개량", dept: "건축팀", result: "적합", content: "- 금속 프레임 용접 비드 검사 및 도장 두께 검측 완료.", files: [] }
+        ];
+
+        // 노선 및 뱃지 설정 매핑
+        const lineBadgeMap = {
+            "1": { bg: "badge-1", text: "1호선" }, "2": { bg: "badge-2", text: "2호선" }, "3": { bg: "badge-3", text: "3호선" },
+            "4": { bg: "badge-4", text: "4호선" }, "5": { bg: "badge-5", text: "5호선" }, "6": { bg: "badge-6", text: "6호선" },
+            "7": { bg: "badge-7", text: "7호선" }, "8": { bg: "badge-8", text: "8호선" }, "bh": { bg: "badge-bh", text: "빈효선" },
+            "common": { bg: "badge-common", text: "공통/전사" }
+        };
+
+        // --- 공통 렌더링 & 페이징 로직 ---
+        function renderTable(tbodyId, data, searchFilterFn, htmlMapFn, page, paginationId) {
+            const filtered = data.filter(searchFilterFn);
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = '';
+            
+            const countId = tbodyId.replace('Body', 'Count');
+            if(document.getElementById(countId)) document.getElementById(countId).innerText = filtered.length.toLocaleString();
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-16 text-slate-400 text-center text-sm bg-slate-50"><i class="fa-solid fa-circle-exclamation text-3xl mb-3 text-slate-300 block"></i>조건에 맞는 데이터가 존재하지 않습니다.</td></tr>`;
+                document.getElementById(paginationId).innerHTML = '';
+                return;
+            }
+
+            const startIdx = (page - 1) * ITEMS_PER_PAGE;
+            const pagedData = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            pagedData.forEach(item => {
+                tbody.innerHTML += htmlMapFn(item);
+            });
+
+            // Pagination
+            const pContainer = document.getElementById(paginationId);
+            pContainer.innerHTML = '';
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if(totalPages > 1) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'page-btn print-hide';
+                prevBtn.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
+                prevBtn.disabled = page === 1;
+                if(!prevBtn.disabled) prevBtn.onclick = () => window[`render${tbodyId.charAt(0).toUpperCase() + tbodyId.slice(1).replace('Body','Table')}`](page - 1);
+                pContainer.appendChild(prevBtn);
+
+                for(let i=1; i<=totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `page-btn print-hide ${i === page ? 'active' : ''}`;
+                    btn.innerText = i;
+                    btn.onclick = () => window[`render${tbodyId.charAt(0).toUpperCase() + tbodyId.slice(1).replace('Body','Table')}`](i);
+                    pContainer.appendChild(btn);
+                }
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'page-btn print-hide';
+                nextBtn.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+                nextBtn.disabled = page === totalPages;
+                if(!nextBtn.disabled) nextBtn.onclick = () => window[`render${tbodyId.charAt(0).toUpperCase() + tbodyId.slice(1).replace('Body','Table')}`](page + 1);
+                pContainer.appendChild(nextBtn);
+            }
+        }
+
+        // --- 각 탭별 렌더링 함수 ---
+        function renderEvalTable(page = 1) {
+            const year = document.getElementById('evalYear').value;
+            const method = document.getElementById('evalMethod').value;
+            const keyword = document.getElementById('evalSearch').value.toLowerCase();
+            
+            renderTable('evalBody', evalData, 
+                d => (year === 'all' || d.date.startsWith(year)) && (method === 'all' || d.method === method) && d.title.toLowerCase().includes(keyword),
+                item => {
+                    const line = lineBadgeMap[item.line] || lineBadgeMap["common"];
+                    const statusColor = item.status === '협상완료' || item.status === '완료' ? 'text-green-600' : 'text-slate-500';
+                    return `<tr onclick="openDetailModal('eval', '${item.id}')">
+                        <td class="font-medium text-slate-400 text-xs">${item.id}</td>
+                        <td class="hide-mobile"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${line.bg}">${line.text}</span></td>
+                        <td class="subject">${item.title}</td>
+                        <td class="text-slate-600 text-xs">${item.date}</td>
+                        <td class="hide-mobile text-slate-600 text-xs">${item.method}</td>
+                        <td class="font-bold text-[#16A4BE] text-sm">${item.topCompany}</td>
+                        <td class="hide-mobile font-bold text-xs ${statusColor}">${item.status}</td>
+                    </tr>`;
+                }, page, 'evalPagination'
+            );
+        }
+
+        function renderSubTable(page = 1) {
+            const keyword = document.getElementById('subSearch').value.toLowerCase();
+            renderTable('subBody', subData, 
+                d => d.title.toLowerCase().includes(keyword) || d.p_company.toLowerCase().includes(keyword) || d.s_company.toLowerCase().includes(keyword),
+                item => {
+                    const statusBadge = item.status.includes('반려') ? 'bg-red-100 text-red-600' : (item.status.includes('완료') ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600');
+                    return `<tr onclick="openDetailModal('subcontract', '${item.id}')">
+                        <td class="hide-mobile font-medium text-slate-500 text-xs">${item.date}</td>
+                        <td class="subject text-sm">${item.title}</td>
+                        <td class="font-bold text-slate-600 text-sm">${item.p_company}</td>
+                        <td class="font-bold text-[#16A4BE] text-sm">${item.s_company}</td>
+                        <td class="font-black text-slate-800 text-right pr-4 tracking-tight">${Number(item.price.replace(/,/g, '')).toLocaleString()}</td>
+                        <td class="hide-mobile font-bold text-slate-600">${item.rate}</td>
+                        <td class="hide-mobile"><span class="px-2 py-1 rounded text-[11px] font-bold ${statusBadge}">${item.status}</span></td>
+                    </tr>`;
+                }, page, 'subPagination'
+            );
+        }
+
+        function renderPrivTable(page = 1) {
+            const month = document.getElementById('privMonth').value.replace('-', '.');
+            const keyword = document.getElementById('privSearch').value.toLowerCase();
+            renderTable('privBody', privData, 
+                d => (month === '' || d.date.startsWith(month)) && (d.title.toLowerCase().includes(keyword) || d.company.toLowerCase().includes(keyword)),
+                item => `<tr onclick="openDetailModal('private', '${item.id}')">
+                    <td class="hide-mobile font-medium text-slate-500 text-xs">${item.date}</td>
+                    <td class="subject text-sm">${item.title}</td>
+                    <td class="font-bold text-[#16A4BE] text-sm">${item.company}</td>
+                    <td class="font-black text-slate-800 text-right pr-4 tracking-tight">${item.price}</td>
+                    <td class="hide-mobile text-slate-500 text-xs text-left pl-4 truncate max-w-[200px]" title="${item.law}">${item.law}</td>
+                </tr>`, page, 'privPagination'
+            );
+        }
+
+        function renderRefTable(page = 1) {
+            const type = document.getElementById('refType').value;
+            const keyword = document.getElementById('refSearch').value.toLowerCase();
+            renderTable('refBody', refData, 
+                d => (type === 'all' || d.type === type) && d.title.toLowerCase().includes(keyword),
+                item => {
+                    const badge = item.type === '양식' ? 'bg-sky-100 text-sky-700' : (item.type === '공지' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-700');
+                    const hasFile = item.files.length > 0 ? '<i class="fa-solid fa-paperclip text-slate-400"></i>' : '-';
+                    return `<tr onclick="openDetailModal('reference', '${item.id}')">
+                        <td class="font-medium text-slate-400 text-xs">${item.id}</td>
+                        <td><span class="px-2 py-0.5 rounded text-[11px] font-bold ${badge}">${item.type}</span></td>
+                        <td class="subject">${item.title}</td>
+                        <td class="hide-mobile text-center">${hasFile}</td>
+                        <td class="hide-mobile text-slate-500 text-xs">${item.date}</td>
+                        <td class="hide-mobile text-slate-400 text-xs">${item.views.toLocaleString()}</td>
+                    </tr>`;
+                }, page, 'refPagination'
+            );
+        }
+
+        function renderInspTable(page = 1) {
+            const type = document.getElementById('inspType').value;
+            const keyword = document.getElementById('inspSearch').value.toLowerCase();
+            renderTable('inspBody', inspData, 
+                d => (type === 'all' || d.type === type) && (d.title.toLowerCase().includes(keyword) || d.dept.toLowerCase().includes(keyword)),
+                item => {
+                    let rClass = 'text-slate-600';
+                    if(item.result.includes('합격') || item.result === '적합') rClass = 'text-green-600';
+                    if(item.result.includes('시정') || item.result.includes('경고')) rClass = 'text-rose-500';
+
+                    return `<tr onclick="openDetailModal('inspection', '${item.id}')">
+                        <td class="hide-mobile font-medium text-slate-500 text-xs">${item.date}</td>
+                        <td class="hide-mobile font-bold text-slate-600 text-xs">${item.type}</td>
+                        <td class="subject text-sm">${item.title}</td>
+                        <td class="font-bold text-slate-700 text-xs">${item.dept}</td>
+                        <td class="font-black ${rClass} text-sm">${item.result}</td>
+                    </tr>`;
+                }, page, 'inspPagination'
+            );
+        }
+
+        // --- SPA 탭 라우팅 ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.spa-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.spa-tab').forEach(el => el.classList.remove('active'));
+            
+            const targetContent = document.getElementById('content-' + tabId);
+            const targetBtn = document.querySelector(`.spa-tab[data-target="${tabId}"]`);
+            
+            if(targetContent && targetBtn) {
+                targetContent.classList.add('active');
+                targetBtn.classList.add('active');
+                document.getElementById('breadcrumb-current').innerText = targetBtn.innerText;
+                window.history.replaceState(null, null, '#' + tabId);
+            }
+        }
+
+        // --- DOM 간섭 방지 가상 다운로드 로직 ---
+        function triggerDownload(event, fileName) {
+            event.stopPropagation(); // 모달 클릭 버블링 방지
+            
+            // 더미 데이터용 Blob 생성 (가상의 텍스트 파일)
+            const fileContent = "효빈교통공사 정보공개 자료입니다.\\n다운로드된 파일명: " + fileName;
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            
+            // DOM 구조를 건드리지 않기 위해 메모리상에서만 URL 객체 생성
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none'; // 화면에 노출되지 않음
+            a.href = url;
+            a.download = fileName;
+            
+            document.body.appendChild(a);
+            a.click(); // 강제 다운로드 트리거
+            
+            // 작업 후 리소스 메모리 해제 및 가상 태그 삭제
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // --- 상세 보기 모달 로직 ---
+        const modal = document.getElementById('detailModal');
+        const modalContent = document.getElementById('detailModalContent');
+
+        function openDetailModal(type, id) {
+            let data = null, metaHtml = '', titleStr = '', badgeStr = '';
+            
+            if(type === 'eval') {
+                data = evalData.find(i => i.id === id); badgeStr = '제안서 평가결과'; titleStr = data.title;
+                metaHtml = `
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">평가일자</span> <span class="font-bold text-slate-700">${data.date}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">평가방식</span> <span class="font-bold text-slate-700">${data.method}</span></div>
+                    <div class="flex flex-col sm:col-span-2"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">1순위 협상대상자</span> <span class="font-black text-xl text-[#16A4BE]">${data.topCompany} <span class="text-sm text-slate-500 font-medium ml-2">(${data.status})</span></span></div>
+                `;
+            } else if(type === 'subcontract') {
+                data = subData.find(i => i.id === id); badgeStr = '하도급계약 승인조서'; titleStr = data.title;
+                metaHtml = `
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">원도급사</span> <span class="font-bold text-slate-800">${data.p_company}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">하도급사</span> <span class="font-black text-[#16A4BE] text-lg">${data.s_company}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">하도급액</span> <span class="font-black text-slate-800">${data.price}원</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">하도급률 / 상태</span> <span class="font-bold text-slate-700">${data.rate} / <span class="text-blue-600">${data.status}</span></span></div>
+                `;
+            } else if(type === 'private') {
+                data = privData.find(i => i.id === id); badgeStr = '수의계약 공개내역'; titleStr = data.title;
+                metaHtml = `
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">계약일자</span> <span class="font-bold text-slate-700">${data.date}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">계약금액</span> <span class="font-black text-slate-800">${data.price}원</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">계약상대자</span> <span class="font-black text-[#16A4BE] text-lg">${data.company}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">계약근거법령</span> <span class="font-bold text-slate-700">${data.law}</span></div>
+                `;
+            } else if(type === 'reference') {
+                data = refData.find(i => i.id === id); badgeStr = `계약자료실 - ${data.type}`; titleStr = data.title;
+                metaHtml = `
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">등록일자</span> <span class="font-bold text-slate-700">${data.date}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">조회수</span> <span class="font-bold text-slate-700">${data.views.toLocaleString()}회</span></div>
+                `;
+            } else if(type === 'inspection') {
+                data = inspData.find(i => i.id === id); badgeStr = `현장점검결과 - ${data.type}`; titleStr = data.title;
+                metaHtml = `
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">점검일자</span> <span class="font-bold text-slate-700">${data.date}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">점검구분</span> <span class="font-bold text-slate-700">${data.type}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">담당부서/감리단</span> <span class="font-bold text-slate-800">${data.dept}</span></div>
+                    <div class="flex flex-col"><span class="text-slate-400 text-[11px] font-black uppercase mb-1">최종결과</span> <span class="font-black text-lg ${data.result.includes('적합') ? 'text-green-600' : 'text-rose-500'}">${data.result}</span></div>
+                `;
+            }
+
+            if(!data) return;
+
+            document.getElementById('modalTypeBadge').innerText = badgeStr;
+            document.getElementById('modalTitle').innerText = titleStr;
+            document.getElementById('modalMetaGrid').innerHTML = metaHtml;
+            document.getElementById('modalContentText').innerHTML = data.content;
+
+            const fileSec = document.getElementById('modalAttachmentSection');
+            const fileList = document.getElementById('modalAttachmentList');
+            fileList.innerHTML = '';
+            
+            if(data.files && data.files.length > 0) {
+                fileSec.classList.remove('hidden');
+                data.files.forEach(f => {
+                    let icon = 'fa-file-lines';
+                    if(f.endsWith('.pdf')) icon = 'fa-file-pdf text-red-400';
+                    else if(f.endsWith('.hwp')) icon = 'fa-file-word text-blue-400';
+                    else if(f.endsWith('.zip')) icon = 'fa-file-zipper text-amber-500';
+                    else if(f.endsWith('.xlsx')) icon = 'fa-file-excel text-green-500';
+
+                    // onclick시 DOM 간섭없는 가상 다운로드 함수 triggerDownload 호출
+                    fileList.innerHTML += `
+                        <li class="flex items-center gap-3 text-sm text-slate-700 bg-white p-3 border border-slate-200 rounded-lg hover:border-[#16A4BE] hover:shadow-sm transition cursor-pointer group" onclick="triggerDownload(event, '${f}')">
+                            <i class="fa-solid ${icon} text-xl w-6 text-center"></i>
+                            <span class="group-hover:text-[#16A4BE] group-hover:underline font-medium">${f}</span>
+                            <button class="ml-auto flex items-center justify-center px-3 py-1.5 rounded bg-slate-100 group-hover:bg-[#16A4BE] group-hover:text-white text-slate-500 text-xs font-bold transition print-hide">
+                                <i class="fa-solid fa-download mr-1.5"></i>다운로드
+                            </button>
+                        </li>
+                    `;
+                });
+            } else {
+                fileSec.classList.add('hidden');
+            }
+
+            // 모달 열기 애니메이션
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // trigger reflow
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeDetailModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        modal.addEventListener('click', e => { if (e.target === modal) closeDetailModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeDetailModal(); });
+
+        // --- 초기화 및 이벤트 리스너 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.spa-tab').forEach(t => t.addEventListener('click', e => switchTab(e.target.getAttribute('data-target'))));
+            
+            document.getElementById('evalSearch').addEventListener('keypress', e => { if(e.key === 'Enter') renderEvalTable(1); });
+            document.getElementById('evalYear').addEventListener('change', () => renderEvalTable(1));
+            document.getElementById('evalMethod').addEventListener('change', () => renderEvalTable(1));
+            
+            document.getElementById('subSearch').addEventListener('keypress', e => { if(e.key === 'Enter') renderSubTable(1); });
+            
+            document.getElementById('privSearch').addEventListener('keypress', e => { if(e.key === 'Enter') renderPrivTable(1); });
+            document.getElementById('privMonth').addEventListener('change', () => renderPrivTable(1));
+            
+            document.getElementById('refSearch').addEventListener('keypress', e => { if(e.key === 'Enter') renderRefTable(1); });
+            document.getElementById('refType').addEventListener('change', () => renderRefTable(1));
+            
+            document.getElementById('inspSearch').addEventListener('keypress', e => { if(e.key === 'Enter') renderInspTable(1); });
+            document.getElementById('inspType').addEventListener('change', () => renderInspTable(1));
+
+            renderEvalTable(1); 
+            renderSubTable(1); 
+            renderPrivTable(1); 
+            renderRefTable(1); 
+            renderInspTable(1);
+
+            const handleHash = () => {
+                const hash = window.location.hash.replace('#', '');
+                if (hash && document.getElementById('content-' + hash)) switchTab(hash);
+                else switchTab('eval');
+            };
+            window.addEventListener('hashchange', handleHash);
+            handleHash();
+        });
+    </script>
+    
+    <!-- 공통 JS (사이드바 메뉴 등) -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>

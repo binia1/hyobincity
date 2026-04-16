@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>승강설비 가동현황 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 노선별 컬러 */
+        .line-1 { color: #0077DD; font-weight: bold; }
+        .line-2 { color: #00CCAA; font-weight: bold; }
+        .line-3 { color: #FFCC11; font-weight: bold; }
+        .line-4 { color: #FF5522; font-weight: bold; }
+        .line-5 { color: #EE0022; font-weight: bold; }
+        .line-6 { color: #881188; font-weight: bold; }
+        .line-7 { color: #FF8899; font-weight: bold; }
+        .line-8 { color: #9856FF; font-weight: bold; }
+        .line-bh { color: #6677CC; font-weight: bold; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 3rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 현황표 전용 테이블 스타일 */
+        .status-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 12px 8px; border: 1px solid #e2e8f0; text-align: center; white-space: nowrap; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .status-table td { padding: 12px 8px; border: 1px solid #e2e8f0; color: #475569; text-align: center; vertical-align: middle; font-size: 0.9rem; }
+        .status-table tr:hover td { background-color: #f1f5f9; }
+
+        html { scroll-behavior: smooth; }
+        .namu-strike { text-decoration: line-through; color: #94a3b8; }
+        
+        /* 스크롤바 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* 깜빡임 애니메이션 (수리중) */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .status-repair-dot {
+            width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%;
+            display: inline-block; margin-right: 6px;
+            animation: pulse-red 2s infinite;
+        }
+        .status-normal-dot {
+            width: 8px; height: 8px; background-color: #10b981; border-radius: 50%;
+            display: inline-block; margin-right: 6px;
+        }
+        .status-inspect-dot {
+            width: 8px; height: 8px; background-color: #f59e0b; border-radius: 50%;
+            display: inline-block; margin-right: 6px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://placehold.co/1920x400/0c4a6e/ffffff?text=Elevator+Escalator')] bg-cover bg-center"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-wheelchair mr-2"></i>편의시설</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">승강설비 가동현황</h1>
+                        <p class="text-sky-100 mt-3 font-medium">안전하고 편리한 이동을 위한 효빈도시철도 전 역사 내 엘리베이터, 에스컬레이터 가동 현황을 실시간으로 안내합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 (사이드바 + 본문) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 flex flex-col lg:flex-row gap-8">
+            
+            <!-- 좌측 네비게이션 (LNB) -->
+            <aside class="lg:w-64 flex-shrink-0 hidden lg:block">
+                <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden sticky top-8">
+                    <div class="bg-slate-800 text-white font-bold p-4 text-lg">편의시설 안내</div>
+                    <ul class="divide-y divide-slate-100">
+                        <li><a href="효빈라커.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>효빈라커 (물품보관함)</a></li>
+                        <li><a href="효빈스토리지.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>효빈스토리지 (개인창고)</a></li>
+                        <li><a href="효빈러기지.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>효빈러기지 (수하물배송)</a></li>
+                        <li><a href="무인편의기기.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>무인편의기기</a></li>
+                        <li><a href="승강설비가동현황.html" class="block p-4 bg-sky-50 text-sky-700 font-bold border-l-4 border-sky-500 transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-600"></i>승강설비 가동현황</a></li>
+                        <li><a href="유실물센터.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>유실물 센터</a></li>
+                        <li><a href="교통약자.html" class="block p-4 text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors"><i class="fa-solid fa-chevron-right text-xs mr-2 text-sky-500"></i>교통약자 이동지원</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- 우측 본문 영역 -->
+            <div class="flex-grow bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10">
+                
+                <!-- 1. 승강설비 개요 -->
+                <div>
+                    <h2 class="section-title mt-0"><i class="fa-solid fa-tower-observation text-hyobin"></i> 1. 실시간 가동현황 조회</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        효빈교통공사는 <strong>'1역 1엘리베이터 동선 100% 확보'</strong>를 달성하여 교통약자의 이동 편의를 돕고 있습니다. 당사 관할 구역 내 설치된 수천 대의 엘리베이터 및 에스컬레이터의 점검 및 수리 현황을 확인하시기 바랍니다.
+                    </p>
+
+                    <!-- 검색 필터 폼 -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-8 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-1 w-full">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">노선 선택</label>
+                            <select id="lineFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500 bg-white">
+                                <option value="all">전체 노선</option>
+                                <option value="1호선">1호선</option>
+                                <option value="2호선">2호선</option>
+                                <option value="3호선">3호선</option>
+                                <option value="4호선">4호선</option>
+                                <option value="5호선">5호선</option>
+                                <option value="6호선">6호선</option>
+                                <option value="7호선">7호선</option>
+                                <option value="8호선">8호선</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">설비 종류</label>
+                            <select id="typeFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500 bg-white">
+                                <option value="all">전체 설비</option>
+                                <option value="엘리베이터">엘리베이터 (E/V)</option>
+                                <option value="에스컬레이터">에스컬레이터 (E/S)</option>
+                                <option value="무빙워크">무빙워크 (M/W)</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 w-full">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">가동 상태</label>
+                            <select id="statusFilter" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500 bg-white">
+                                <option value="all">전체 상태</option>
+                                <option value="정상">정상 가동</option>
+                                <option value="점검중">정기 점검중</option>
+                                <option value="수리중" selected>고장 수리중 (비가동)</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 w-full relative">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">역명 검색</label>
+                            <input type="text" id="nameFilter" placeholder="예: 고송교차로" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500 bg-white shadow-inner">
+                            <button id="searchBtn" class="absolute right-2 bottom-1.5 bg-slate-800 text-white rounded px-3 py-1 text-xs font-bold hover:bg-slate-700 transition-colors">조회</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="text-sm font-bold text-slate-700">검색 결과: <span id="resultCount" class="text-sky-600">0</span>건</div>
+                        <div class="text-xs text-slate-500"><span class="status-repair-dot"></span>수리중/점검중 내역이 우선 표출됩니다.</div>
+                    </div>
+
+                    <!-- 결과 테이블 -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto overflow-y-auto max-h-[600px] custom-scrollbar bg-white">
+                            <table class="w-full status-table m-0">
+                                <thead>
+                                    <tr>
+                                        <th class="w-16">호선</th>
+                                        <th class="w-24">역명</th>
+                                        <th class="w-24">설비구분</th>
+                                        <th class="w-20">호기</th>
+                                        <th class="w-48">설치 위치 (운행구간)</th>
+                                        <th class="w-20">상태</th>
+                                        <th class="w-56">비고 (예정일/사유)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="equipmentTbody">
+                                    <!-- JS Render -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. TMI 세계관 로어 박스 -->
+                <div class="mt-12 bg-slate-800 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg border-t-4 border-amber-400">
+                    <div class="absolute -right-6 -bottom-6 opacity-10 pointer-events-none">
+                        <i class="fa-solid fa-screwdriver-wrench text-9xl"></i>
+                    </div>
+                    <h4 class="font-bold text-amber-300 mb-5 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb"></i> [TMI] 효빈도시철도 승강설비에 얽힌 괴담과 진실
+                    </h4>
+                    <ul class="space-y-5 text-sm text-slate-300 relative z-10">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-500 mt-1"></i>
+                            <div>
+                                <strong class="text-yellow-300 block mb-1">고송교차로역 에스컬레이터의 잦은 고장 원인?:</strong>
+                                유독 <span class="line-2 font-bold">2호선</span>·<span class="line-6 font-bold">6호선 고송교차로역</span> 4번 출구 에스컬레이터가 '수리중'으로 자주 뜹니다. 원인은 기계 결함이 아니라, <strong>HAF 시즌이나 한정판 굿즈 오픈런 때 수백 명의 덕후들이 굿즈샵을 향해 에스컬레이터 위에서 전력 질주를 하기 때문</strong>입니다. 하중 센서가 비명을 지르며 멈추는 것인데, 이에 <span class="line-1">고나미 기관사</span>는 안내방송으로 <span class="text-rose-400 font-bold">"제발 뛰지 마십시오! 규정은 피로 쓰였습니다!"</span>라며 일갈하곤 합니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-500 mt-1"></i>
+                            <div>
+                                <strong class="text-white block mb-1">중수역 네소베리 엘리베이터 문 끼임 사고:</strong>
+                                작년 <span class="line-6 font-bold text-purple-400">중수역</span>에서는 코스어가 1.5미터짜리 메가 점보 네소베리(초대형 봉제인형) 3개를 엘리베이터에 무리하게 쑤셔 넣고 타려다가 문 센서가 오작동해 30분간 갇히는 대참사가 발생했습니다. 이 사건 이후로 <strong>"초대형 소품과 네소베리는 분해 혹은 압축 후 엘리베이터 탑승"</strong>이라는 암묵적인 룰이 생겼습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-amber-500 mt-1"></i>
+                            <div>
+                                <strong class="text-white block mb-1">1역 1엘리베이터 100% 달성의 비밀:</strong>
+                                타 도시들이 예산 문제로 엘리베이터 설치를 미룰 때, 효빈시가 전국 최초로 100%를 달성한 데에는 원조 덕후인 <a href="박현만.html" class="text-sky-400 hover:underline">박현만 전 시장</a>의 공이 컸습니다. <strong>"무거운 코스프레 갑옷 입고 계단 오르내리는 게 얼마나 힘든지 아나? 캐리어 끌고 오는 타지 덕후들을 위해서라도 무조건 1역 1엘리베이터 설치해!"</strong>라는 덕업일치 지시 덕분에 교통약자들의 이동권까지 덩달아 보장받게 되었다는 훈훈한 썰이 전해집니다. (현재 위험한 휠체어 리프트는 거의 철거되었습니다.)
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 사용자 제공 원본 역 데이터 파싱용 문자열
+        const rawStationData = `
+101	곽암해수욕장		5,011명	효빈메트로
+102	곽산	8호선	9,472명	효빈메트로
+103	회산		12,311명	효빈메트로
+104	남당		17,933명	효빈메트로
+105	평당		26,181명	효빈메트로
+106	남구청	4호선,8호선	38,072명	효빈메트로
+107	신거	8호선	15,293명	효빈메트로
+108	효빈항	빈효선광역철도,7호선	16,191명	효빈메트로
+109	효빈항물류지구	빈효선광역철도	6,332명	효빈메트로
+110	월천	2호선,7호선	20,922명	효빈메트로
+111	십덕		6,456명	효빈메트로
+112	약맥		6,833명	효빈메트로
+113	창선	1호선 탄성지선	40,292명	효빈메트로
+114	중앙로	2호선,7호선	51,032명	효빈메트로
+115	중구청	7호선	19,210명	효빈메트로
+116	내조	7호선	9,622명	효빈메트로
+117	효빈	3호선,빈효선광역철도,7호선	71,192명	효빈메트로
+118	보몽		8,642명	효빈메트로
+119	전천	5호선	13,911명	효빈메트로
+120	천왕사		15,622명	효빈메트로
+121	백천		4,391명	효빈메트로
+122	입희	2호선	25,298명	효빈메트로
+123	추산		5,433명	효빈메트로
+124	서도		7,162명	효빈메트로
+125	북구청	6호선	41,982명	효빈메트로
+126	등기		14,232명	효빈메트로
+127	평전		10,282명	효빈메트로
+128	아진		2,999명	효빈메트로
+129	당안		13,627명	효빈메트로
+130	안천	빈효선광역철도	37,382명	효빈메트로
+131	팔망성		18,262명	효빈메트로
+132	추자		3,312명	효빈메트로
+133	이자출장소		14,283명	효빈메트로
+134	과남		10,326명	효빈메트로
+135	이자공원	4호선	28,338명	효빈메트로
+136	정치		9,192명	효빈메트로
+137	영색무	빈효선광역철도	6,832명	효빈메트로
+138	능릉		2,982명	효빈메트로
+139	고해	빈효선광역철도	7,573명	효빈메트로
+140	도향		2,232명	효빈메트로
+113-1	오석	4호선	17,866명	효빈메트로
+113-2	장원	4호선,빈효선광역철도	30,273명	효빈메트로
+113-3	동리		10,238명	효빈메트로
+113-4	비마리유적지구		7,492명	효빈메트로
+113-5	사노	6호선	10,819명	효빈메트로
+113-6	청엽구청	3호선	6,221명	효빈메트로
+113-7	아논타워		2,023명	효빈메트로
+113-8	우전	2호선	4,929명	효빈메트로
+113-9	창전		3,200명	효빈메트로
+113-10	창전구청		9,585명	효빈메트로
+113-11	보통		15,322명	효빈메트로
+113-12	고무		8,192명	효빈메트로
+113-13	탄성		20,393명	효빈메트로
+113-14	탄성군청		27,238명	효빈메트로
+113-15	야진입구		20,232명	효빈메트로
+113-16	서목		24,032명	효빈메트로
+113-17	승남해수욕장		15,492명	효빈메트로
+201	월천	1호선,7호선, 어간지선 	30,122명	효빈메트로
+202	박산	8호선	8,292명	효빈메트로
+203	신흥	4호선,8호선	20,128명	효빈메트로
+204	효빈공단		5,427명	효빈메트로
+205	입동		2,123명	효빈메트로
+206	등동		8,127명	효빈메트로
+207	헌이송		8,626명	효빈메트로
+208	마잡	6호선	26,221명	효빈메트로
+209	동곡	3호선	19,127명	효빈메트로
+210	쌍엽		23,292명	효빈메트로
+211	엽천		7,912명	효빈메트로
+212	우전	1호선	20,049명	효빈메트로
+213	유류		10,238명	효빈메트로
+214	칠심		23,232명	효빈메트로
+215	시로	5호선	16,832명	효빈메트로
+216	흑택		6,263명	효빈메트로
+217	상가		5,932명	효빈메트로
+218	하가	4호선	10,482명	효빈메트로
+219	당가	빈효광역	18,202명	효빈메트로
+220	신영		4,932명	효빈메트로
+221	채산		7,292명	효빈메트로
+222	남전		15,932명	효빈메트로
+223	중수	6호선	27,394명	효빈메트로
+224	사연		9,281명	효빈메트로
+225	입희	1호선	25,293명	효빈메트로
+226	입선		6,822명	효빈메트로
+227	북효빈	3호선	20,322명	효빈메트로
+228	시청	6호선	34,331명	효빈메트로
+229	고송교차로	6호선	70,336명	효빈메트로
+230	과송		15,298명	효빈메트로
+231	청덕	3호선	28,238명	효빈메트로
+232	과진중앙		17,832명	효빈메트로
+233	사복		20,422명	효빈메트로
+234	당선	5호선	41,122명	효빈메트로
+235	효빈대학교	7호선 효빈대입구역	36,932명	효빈메트로
+236	칠천	7호선 구 칠천구사기지앞역	7,263명	효빈메트로
+237	소장		10,483명	효빈메트로
+238	중앙로	1호선,7호선	22,322명	효빈메트로
+239	심동		4,239명	효빈메트로
+240	고도		5,032명	효빈메트로
+241	내항	7호선	8,192명	효빈메트로
+201-1	서신포		1,812명	효빈메트로
+201-2	운양		14,313명	효빈메트로
+201-3	어간항		7,922명	효빈메트로
+201-4	어간수산시장		7,382명	효빈메트로
+201-5	어간중앙	7호선	11,392명	효빈메트로
+201-6	어간		13,621명	효빈메트로
+201-7	항동1가		8,726명	효빈메트로
+201-8	효빈항국제여객터미널		18,392명	효빈메트로
+301	팔조		8,832명	효빈메트로
+302	투자		5,428명	효빈메트로
+303	동곡	2호선	16,422명	효빈메트로
+304	효빈남부시외버스터미널		21,732명	효빈메트로
+305	청엽구청	1호선	34,932명	효빈메트로
+306	청엽		22,919명	효빈메트로
+307	사가당	4호선	11,283명	효빈메트로
+308	덕현	6호선	25,811명	효빈메트로
+309	효빈	1호선,빈효선광역철도,7호선,일반열차	32,122명	효빈메트로
+310	사능	7호선 치남역	10,283명	효빈메트로
+311	고속버스터미널	5호선	33,592명	효빈메트로
+312	북효빈	2호선,일반열차	16,373명	효빈메트로
+313	청능		10,373명	효빈메트로
+314	효빈복지대학교		12,332명	효빈메트로
+315	과진		17,882명	효빈메트로
+316	청덕	2호선	14,222명	효빈메트로
+317	송덕		13,238명	효빈메트로
+318	고송나루	6호선	21,273명	효빈메트로
+319	토모리해수욕장		11,322명	효빈메트로
+320	중만도		2,032명	효빈메트로
+321	신산		4,923명	효빈메트로
+322	주양		3,082명	효빈메트로
+323	염곡	일반열차	7,192명	효빈메트로
+324	효빈국제공항		24,832명	효빈메트로
+401	해운산업지구		3,292명	효빈메트로
+402	이부		7,282명	효빈메트로
+403	남구청	1호선,8호선	32,239명	효빈메트로
+404	빙천		4,822명	효빈메트로
+405	고당		8,127명	효빈메트로
+406	사야		2,092명	효빈메트로
+407	신흥	2호선,8호선	24,283명	효빈메트로
+408	진월천	빈효선광역철도	6,293명	효빈메트로
+409	삼각		6,235명	효빈메트로
+410	오석	1호선	13,695명	효빈메트로
+411	장원	1호선,빈효선광역철도	18,001명	효빈메트로
+412	신덕	빈효선광역철도	9,965명	효빈메트로
+413	가동사거리	6호선	15,645명	효빈메트로
+414	사가당	3호선	10,655명	효빈메트로
+415	동덕현	5호선	14,665명	효빈메트로
+416	우택		19,023명	효빈메트로
+417	치구		5,288명	효빈메트로
+418	뇌전		3,093명	효빈메트로
+419	하가	2호선	11,393명	효빈메트로
+420	백합공원		8,822명	효빈메트로
+421	요우		17,392명	효빈메트로
+422	도변	5호선	20,249명	효빈메트로
+423	잠재		2,492명	효빈메트로
+424	앵내		22,782명	효빈메트로
+425	탄자		27,182명	효빈메트로
+426	이자공원	1호선	30,221명	효빈메트로
+427	이자	빈효선광역철도	41,239명	효빈메트로
+428	서수		3,928명	효빈메트로
+429	소원		5,462명	효빈메트로
+430	천가		4,173명	효빈메트로
+501	청덕공원		4,282명	효빈메트로
+502	화환		7,592명	효빈메트로
+503	효빈과학기술원		9,101명	효빈메트로
+504	당선	2호선	22,191명	효빈메트로
+505	소조		21,123명	효빈메트로
+506	고속버스터미널	3호선	23,092명	효빈메트로
+507	전천	1호선	11,392명	효빈메트로
+508	전천중앙	6호선	12,492명	효빈메트로
+510	동덕현	4호선	14,421명	효빈메트로
+511	청엽국제학교		9,382명	효빈메트로
+512	남우택		15,022명	효빈메트로
+513	진백		10,292명	효빈메트로
+514	시로	2호선	13,592명	효빈메트로
+515	루비		8,827명	효빈메트로
+516	도변	4호선	16,372명	효빈메트로
+517	포성산		2,122명	효빈메트로
+601	마잡	2호선	14,292명	효빈메트로
+602	비동		4,442명	효빈메트로
+603	비마		17,921명	효빈메트로
+604	사노	1호선	22,182명	효빈메트로
+605	가동사거리	4호선	12,911명	효빈메트로
+606	덕현	3호선	30,192명	효빈메트로
+607	전덕	빈효선광역철도	14,521명	효빈메트로
+608	전천중앙	5호선	11,598명	효빈메트로
+609	오내사거리		20,192명	효빈메트로
+610	오내		16,832명	효빈메트로
+611	중수	2호선	50,921명	효빈메트로
+612	북구청	1호선	36,238명	효빈메트로
+613	포산		8,939명	효빈메트로
+614	장포		6,931명	효빈메트로
+615	효빈종합고		16,092명	효빈메트로
+616	진희		32,492명	효빈메트로
+617	동고송		28,412명	효빈메트로
+618	시청	2호선	25,192명	효빈메트로
+619	고송교차로	2호선	36,821명	효빈메트로
+620	고송		43,213명	효빈메트로
+621	건강보험공단		15,429명	효빈메트로
+622	고송나루	3호선	15,822명	효빈메트로
+701	어간중앙	2호선	5,819명	효빈메트로
+702	어간초등학교		1,877명	효빈메트로
+703	항동3가		1,038명	효빈메트로
+704	항만해변		728명	효빈메트로
+705	산홍		482명	효빈메트로
+706	효빈항	1호선,빈효선광역철도,일반열차	4,183명	효빈메트로
+707	효빈항동부		1,048명	효빈메트로
+708	분덕		342명	효빈메트로
+709	항동문화회관		919명	효빈메트로
+710	월천	1,2호선	8,838명	효빈메트로
+711	갑문		1,728명	효빈메트로
+712	명일		1,999명	효빈메트로
+713	내항	2호선	2,221명	효빈메트로
+714	내항시장		2,223명	효빈메트로
+715	만마루		2,039명	효빈메트로
+716	구세관		1,591명	효빈메트로
+717	고도리		675명	효빈메트로
+718	시북		592명	효빈메트로
+719	시남		402명	효빈메트로
+720	우이		1,049명	효빈메트로
+721	우이문화촌		3,955명	효빈메트로
+722	심동1가		2,011명	효빈메트로
+723	심동2가		932명	효빈메트로
+724	중앙로1가		1,836명	효빈메트로
+725	개항지		4,838명	효빈메트로
+726	중앙로3가		3,929명	효빈메트로
+727	중앙로	1호선,2호선	9,374명	효빈메트로
+728	원동4가		2,391명	효빈메트로
+729	중보로		10,482명	효빈메트로
+730	효빈은행		4,929명	효빈메트로
+731	구시청앞		2,399명	효빈메트로
+732	경동		1,302명	효빈메트로
+733	유내		1,591명	효빈메트로
+734	리사		4,931명	효빈메트로
+735	도람		1,021명	효빈메트로
+736	궁정		2,411명	효빈메트로
+737	상원초등학교		1,792명	효빈메트로
+738	효빈성앞		7,289명	효빈메트로
+739	내조		1,231명	효빈메트로
+740	중앙고등학교		2,302명	효빈메트로
+741	내조공원		800명	효빈메트로
+742	효빈	1호선,4호선,빈효선광역철도	12,032명	효빈메트로
+743	사가당공원		1,394명	효빈메트로
+744	가족센터		2,492명	효빈메트로
+745	치남		1,945명	효빈메트로
+747	사능동3가		1,322명	효빈메트로
+748	유성당		2,001명	효빈메트로
+749	사능복지관		1,582명	효빈메트로
+750	사능동1가		1,043명	효빈메트로
+751	북구서부어린이회관		1,692명	효빈메트로
+752	사능삼거리		1,204명	효빈메트로
+753	봇지마을		901명	효빈메트로
+754	북문로		2,039명	효빈메트로
+755	효빈성북문		1,461명	효빈메트로
+756	구칠천군사기지앞		5,292명	효빈메트로
+757	당선원마을		2,429명	효빈메트로
+758	효빈대학교입구	2호선	5,302명	효빈메트로
+729-1	중동3가		2,392명	효빈메트로
+729-2	색수시장		2,582명	효빈메트로
+729-3	조유동3가		1,848명	효빈메트로
+729-4	조유동2가		2,832명	효빈메트로
+729-5	중구청	1호선 중구청역	4,882명	효빈메트로
+729-6	천석동2가		1,948명	효빈메트로
+729-7	천석동3가		1,764명	효빈메트로
+729-8	서남		1,028명	효빈메트로
+729-9	효빈고등학교		1,222명	효빈메트로
+729-10	사중		928명	효빈메트로
+801	곽산	1호선	7,821명	효빈메트로
+802	곽산고등학교		2,392명	효빈메트로
+803	남부소방서		3,281명	효빈메트로
+804	부한		1,032명	효빈메트로
+805	능남		1,492명	효빈메트로
+806	평당6동주민센터		4,902명	효빈메트로
+807	남구선거관리위원회		3,211명	효빈메트로
+808	평곡		6,921명	효빈메트로
+810	평당고등학교		5,020명	효빈메트로
+811	사북내		5,094명	효빈메트로
+812	남구청	1호선,4호선	13,822명	효빈메트로
+813	주오		4,912명	효빈메트로
+814	평당장애인복지관		2,382명	효빈메트로
+815	북평단		4,892명	효빈메트로
+816	주곡		3,921명	효빈메트로
+817	창문공원		1,921명	효빈메트로
+818	세무지구		3,392명	효빈메트로
+819	배고		1,941명	효빈메트로
+820	문화회관		1,923명	효빈메트로
+821	신거	1호선	5,919명	효빈메트로
+822	평운		1,491명	효빈메트로
+823	운양중앙		8,912명	효빈메트로
+824	운촌		5,922명	효빈메트로
+825	박산	2호선	9,174명	효빈메트로
+826	박산중고등학교		4,921명	효빈메트로
+827	신흥	2호선,4호선	10,382명	효빈메트로
+`;
+
+        const equipmentData = [];
+        
+        // 하드코딩된 '수리중/점검중' 로어 데이터 추가
+        equipmentData.push({ line: '2호선', name: '고송교차로', type: '에스컬레이터', id: 'E/S 4호기', loc: '4번 출구 ↔ B1 대합실', status: '수리중', remark: '하중 센서 파손 교체 (굿즈샵 오픈런 뜀박질로 인한 파손 / 4.18 예정)' });
+        equipmentData.push({ line: '6호선', name: '고송교차로', type: '에스컬레이터', id: 'E/S 5호기', loc: 'B1 대합실 ↔ B2 환승통로', status: '수리중', remark: '핸드레일 벨트 파단 수리 (4.16 예정)' });
+        equipmentData.push({ line: '6호선', name: '중수', type: '엘리베이터', id: 'E/V 2호기', loc: 'B1 대합실 ↔ B2 승강장', status: '수리중', remark: '도어 센서 및 가이드슈 교체 (초대형 네소베리 무단적재로 인한 이탈 / 4.19 예정)' });
+        equipmentData.push({ line: '3호선', name: '청엽구청', type: '엘리베이터', id: 'E/V 1호기', loc: '1번 출구 지상 ↔ B1 대합실', status: '수리중', remark: '인버터 기판 소손 교체 (F학점의 저주 원인 불명 / 4.20 예정)' });
+        equipmentData.push({ line: '1호선', name: '효빈', type: '무빙워크', id: 'M/W 1호기', loc: '빈효선 환승통로 (상행)', status: '수리중', remark: '구동 모터 소음 발생 수리 (4.17 예정)' });
+        
+        // 동적 데이터 생성을 위한 파싱 및 생성 로직
+        const rows = rawStationData.trim().split('\n');
+        
+        // 중복 방지 (같은 이름의 역이라도 호선이 다르면 각각 설비가 있는 것으로 처리)
+        // 시드 생성 함수 (결정론적 난수)
+        function seededRandom(seed) {
+            let x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+
+        rows.forEach(row => {
+            const cols = row.split('\t');
+            if (cols.length >= 4) {
+                const stCode = cols[0].trim();
+                const stName = cols[1].trim();
+                const transferLines = cols[2] ? cols[2].trim() : '';
+                const ridershipStr = cols[3].trim();
+                const ridership = parseInt(ridershipStr.replace(/,/g, '').replace('명', '')) || 0;
+                
+                // 호선 결정 (역번호 첫자리 기준)
+                let lineNum = stCode.charAt(0);
+                let lineName = lineNum + '호선';
+                if(stCode.startsWith('729-')) lineName = '7호선'; // 중보지선
+                if(stCode.startsWith('201-')) lineName = '2호선'; // 어간지선
+                if(stCode.startsWith('113-')) lineName = '1호선'; // 탄성지선
+                
+                let seed = parseInt(stCode.replace(/[^0-9]/g, '')) || 0;
+                
+                // 1. 엘리베이터 생성 (기본 1역 1엘리베이터 보장)
+                let evCount = 1 + Math.floor(seededRandom(seed + 1) * 2); // 1~2개
+                if(transferLines) evCount += 1;
+                if(ridership > 30000) evCount += 1;
+                
+                for(let i=1; i<=evCount; i++) {
+                    // 고정된 수리중 데이터와 겹치지 않게
+                    if(stName === '중수' && i === 2 && lineName === '6호선') continue;
+                    if(stName === '청엽구청' && i === 1 && lineName === '3호선') continue;
+                    
+                    let status = '정상';
+                    let r = seededRandom(seed + i * 10);
+                    if(r > 0.98) status = '수리중';
+                    else if(r > 0.94) status = '점검중';
+
+                    let remark = '-';
+                    if(status === '수리중') remark = '주기판 교체 예정';
+                    if(status === '점검중') remark = '월간 정기점검';
+
+                    equipmentData.push({
+                        line: lineName,
+                        name: stName,
+                        type: '엘리베이터',
+                        id: `E/V ${i}호기`,
+                        loc: i === 1 ? '지상 ↔ 대합실' : '대합실 ↔ 승강장',
+                        status: status,
+                        remark: remark
+                    });
+                }
+                
+                // 2. 에스컬레이터 생성
+                let esCount = 2 + Math.floor(seededRandom(seed + 2) * 3); // 2~4개
+                if(transferLines) esCount += 2;
+                if(ridership > 20000) esCount += 2;
+                
+                for(let i=1; i<=esCount; i++) {
+                    if(stName === '고송교차로' && (i === 4 || i === 5) && (lineName === '2호선' || lineName === '6호선')) continue;
+
+                    let status = '정상';
+                    let r = seededRandom(seed + i * 20);
+                    if(r > 0.97) status = '수리중';
+                    else if(r > 0.93) status = '점검중';
+
+                    let remark = '-';
+                    if(status === '수리중') remark = '핸드레일 마모 교체';
+                    if(status === '점검중') remark = '스텝체인 급유';
+
+                    equipmentData.push({
+                        line: lineName,
+                        name: stName,
+                        type: '에스컬레이터',
+                        id: `E/S ${i}호기`,
+                        loc: i <= 2 ? `${i}번 출구 ↔ 대합실` : '대합실 ↔ 승강장',
+                        status: status,
+                        remark: remark
+                    });
+                }
+                
+                // 3. 무빙워크 (이용객 4만 이상이거나 공항/항만역)
+                if(ridership > 40000 || stName.includes('공항') || stName.includes('항')) {
+                    equipmentData.push({
+                        line: lineName,
+                        name: stName,
+                        type: '무빙워크',
+                        id: 'M/W 1호기',
+                        loc: '환승 통로',
+                        status: seededRandom(seed+3) > 0.95 ? '점검중' : '정상',
+                        remark: '-'
+                    });
+                }
+            }
+        });
+
+        const tbody = document.getElementById('equipmentTbody');
+        const countSpan = document.getElementById('resultCount');
+
+        const lineFilter = document.getElementById('lineFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const nameFilter = document.getElementById('nameFilter');
+        const searchBtn = document.getElementById('searchBtn');
+
+        function renderTable() {
+            const fLine = lineFilter.value;
+            const fType = typeFilter.value;
+            const fStatus = statusFilter.value;
+            const fName = nameFilter.value.trim().toLowerCase();
+
+            // 필터링 적용
+            let filtered = equipmentData.filter(item => {
+                if (fLine !== 'all' && item.line !== fLine) return false;
+                if (fType !== 'all' && item.type !== fType) return false;
+                if (fStatus !== 'all' && item.status !== fStatus) return false;
+                if (fName && !item.name.toLowerCase().includes(fName)) return false;
+                return true;
+            });
+
+            // 정렬: 수리중 > 점검중 > 정상 순 (역명 가나다순)
+            const statusOrder = { '수리중': 1, '점검중': 2, '정상': 3 };
+            filtered.sort((a, b) => {
+                if (statusOrder[a.status] !== statusOrder[b.status]) {
+                    return statusOrder[a.status] - statusOrder[b.status];
+                }
+                if (a.name !== b.name) return a.name.localeCompare(b.name);
+                return a.id.localeCompare(b.id);
+            });
+
+            // HTML 생성
+            let html = '';
+            // 최대 500개까지만 렌더링 (퍼포먼스 고려)
+            const displayLimit = 500;
+            const toDisplay = filtered.slice(0, displayLimit);
+
+            toDisplay.forEach(st => {
+                const trClass = st.status === '수리중' ? 'bg-rose-50/30' : (st.status === '점검중' ? 'bg-amber-50/30' : '');
+                const remarkClass = st.status === '수리중' ? 'text-rose-600 font-bold' : (st.status === '점검중' ? 'text-amber-700' : 'text-slate-500');
+
+                html += `
+                    <tr class="${trClass}">
+                        <td>${getLineBadge(st.line)}</td>
+                        <td class="font-bold text-slate-800">${st.name}</td>
+                        <td class="font-medium text-slate-700">${st.type}</td>
+                        <td class="text-slate-600">${st.id}</td>
+                        <td class="text-left text-slate-700">${st.loc}</td>
+                        <td>${getStatusHTML(st.status)}</td>
+                        <td class="text-left text-xs ${remarkClass}">${st.remark}</td>
+                    </tr>
+                `;
+            });
+
+            if (filtered.length === 0) {
+                html = `<tr><td colspan="7" class="py-12 text-slate-500">조회된 승강설비 내역이 없습니다. 검색 조건을 변경해 보세요.</td></tr>`;
+            } else if (filtered.length > displayLimit) {
+                html += `<tr><td colspan="7" class="py-4 text-sky-600 font-bold bg-sky-50">검색 결과가 너무 많아 500건만 표출합니다. 검색어를 더 상세히 입력해 주세요.</td></tr>`;
+            }
+
+            tbody.innerHTML = html;
+            countSpan.innerText = filtered.length.toLocaleString();
+        }
+
+        // 노선 뱃지 렌더링 함수
+        function getLineBadge(lineName) {
+            const lineClassMap = {
+                '1호선': 'bg-[#0077DD] text-white',
+                '2호선': 'bg-[#00CCAA] text-white',
+                '3호선': 'bg-[#FFCC11] text-black',
+                '4호선': 'bg-[#FF5522] text-white',
+                '5호선': 'bg-[#EE0022] text-white',
+                '6호선': 'bg-[#881188] text-white',
+                '7호선': 'bg-[#FF8899] text-white',
+                '8호선': 'bg-[#9856FF] text-white',
+                '빈효선': 'bg-[#6677CC] text-white'
+            };
+            return `<span class="inline-block px-2 py-1 text-[11px] rounded ${lineClassMap[lineName] || 'bg-slate-200 text-slate-700'} font-bold shadow-sm">${lineName}</span>`;
+        }
+
+        // 상태 뱃지 렌더링 함수
+        function getStatusHTML(status) {
+            if(status === '정상') return '<span class="text-emerald-600 font-bold"><span class="status-normal-dot"></span>정상 가동</span>';
+            if(status === '점검중') return '<span class="text-amber-600 font-bold"><span class="status-inspect-dot"></span>점검중</span>';
+            if(status === '수리중') return '<span class="text-rose-600 font-bold"><span class="status-repair-dot"></span>수리중</span>';
+            return status;
+        }
+
+        // 이벤트 바인딩
+        searchBtn.addEventListener('click', renderTable);
+        nameFilter.addEventListener('keypress', (e) => { if(e.key === 'Enter') renderTable(); });
+        lineFilter.addEventListener('change', renderTable);
+        typeFilter.addEventListener('change', renderTable);
+        statusFilter.addEventListener('change', renderTable);
+
+        // 초기 렌더링
+        renderTable();
+
+    </script>
+
+    <!-- 공통 헤더/푸터 스크립트 로드 (메가메뉴 포함) -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>

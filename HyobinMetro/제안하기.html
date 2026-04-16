@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제안하기 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 효빈교통공사 메인 브랜드 컬러 */
+        .text-hb { color: #16A4BE; }
+        .bg-hb { background-color: #16A4BE; color: white; }
+        .border-hb { border-color: #16A4BE; }
+        .hover-bg-hb:hover { background-color: #128a9f; color: white; }
+        
+        /* 노선별 컬러 뱃지 (효빈광역시 공식 규격) */
+        .badge-line1 { background-color: #0077DD; color: white; }
+        .badge-line2 { background-color: #00CCAA; color: white; }
+        .badge-line3 { background-color: #FFCC11; color: black; }
+        .badge-line4 { background-color: #FF5522; color: white; }
+        .badge-line5 { background-color: #EE0022; color: white; }
+        .badge-line6 { background-color: #881188; color: white; }
+        .badge-line7 { background-color: #FF8899; color: white; }
+        .badge-line8 { background-color: #9856FF; color: white; }
+        .badge-binhyo { background-color: #6677CC; color: white; }
+        .badge-etc { background-color: #475569; color: white; }
+
+        /* 상태 뱃지 */
+        .status-received { background-color: #94a3b8; color: white; } /* 접수 */
+        .status-review { background-color: #3b82f6; color: white; }   /* 검토중 */
+        .status-adopted { background-color: #10b981; color: white; }  /* 채택 */
+        .status-rejected { background-color: #ef4444; color: white; } /* 불채택/이관 */
+
+        /* 탭 메뉴 스타일 */
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { background-color: #16A4BE; color: white; border-color: #16A4BE; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(22, 164, 190, 0.4); }
+        .tab-btn:not(.active):hover { background-color: #f1f5f9; color: #16A4BE; }
+        
+        /* 데이터 테이블 스타일 */
+        .board-table { width: 100%; border-collapse: collapse; border-top: 2px solid #334155; background: white; }
+        .board-table th { background-color: #f8fafc; color: #334155; font-weight: 700; padding: 1rem 0.5rem; border-bottom: 1px solid #cbd5e1; text-align: center; }
+        .board-table td { padding: 1rem 0.5rem; border-bottom: 1px solid #e2e8f0; text-align: center; color: #475569; vertical-align: middle; }
+        .board-table tr { transition: background-color 0.2s ease; }
+        .board-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
+        .board-table .title-cell { text-align: left; padding-left: 1rem; font-weight: 500; color: #1e293b; transition: color 0.2s ease; }
+        .board-table tr:hover .title-cell { color: #16A4BE; text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .hide-on-mobile { display: none; }
+            .board-table .title-cell { padding-left: 0.5rem; font-size: 0.95rem; }
+        }
+
+        /* 프로세스 스텝 스타일 */
+        .process-step { flex: 1; text-align: center; position: relative; padding: 2rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .process-step::after { content: '\f054'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: -15px; top: 50%; transform: translateY(-50%); color: #cbd5e1; font-size: 1.5rem; z-index: 10; }
+        .process-step:last-child::after { display: none; }
+        @media (max-width: 768px) {
+            .process-step::after { content: '\f078'; right: 50%; top: auto; bottom: -20px; transform: translateX(50%); }
+            .process-step { margin-bottom: 1.5rem; }
+        }
+        
+        /* 스크롤바 최적화 */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div class="w-full bg-slate-900 h-[300px] flex flex-col items-center justify-center relative overflow-hidden mt-16 md:mt-20">
+        <div class="absolute inset-0 bg-[url('https://placehold.co/1920x400/1e293b/334155?text=Citizen+Proposal')] bg-cover bg-center opacity-30"></div>
+        <div class="relative z-10 text-center px-4 animate-fade-in">
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-4">제안하기</h1>
+            <p class="text-slate-300 text-lg">시민 여러분의 창의적인 아이디어가 효빈 메트로의 내일을 만듭니다.</p>
+        </div>
+    </div>
+
+    <main id="main-content" class="flex-grow w-full max-w-[1200px] mx-auto px-4 py-12 bg-white rounded-2xl shadow-sm border border-slate-200 mt-8 mb-12">
+        
+        <div class="flex items-center text-sm text-gray-500 mb-8 border-b border-gray-200 pb-4">
+            <i class="fa-solid fa-house mr-2 hover:text-hb cursor-pointer"></i> 홈 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> 시민참여 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px]"></i> <span class="font-bold text-gray-800">제안하기</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
+            <button onclick="switchTab('guide')" id="tab-guide" class="tab-btn active border border-gray-300 py-3.5 rounded-lg text-center font-medium shadow-sm">제안제도 안내</button>
+            <button onclick="switchTab('board')" id="tab-board" class="tab-btn border border-gray-300 py-3.5 rounded-lg text-center font-medium shadow-sm">제안 게시판</button>
+            <button onclick="switchTab('write')" id="tab-write" class="tab-btn border border-gray-300 py-3.5 rounded-lg text-center font-bold shadow-sm bg-slate-50 text-slate-700 hover:text-hb"><i class="fa-solid fa-pen mr-1"></i> 시민 제안 작성</button>
+        </div>
+
+        <div id="content-guide" class="tab-content block animate-fade-in">
+            <div class="bg-white border border-gray-200 rounded-xl p-8 mb-10 shadow-sm">
+                <h2 class="text-2xl font-black text-gray-900 mb-4 flex items-center"><i class="fa-regular fa-lightbulb text-hb mr-3 text-3xl"></i> 효빈교통공사 시민 제안 제도란?</h2>
+                <p class="text-gray-700 leading-relaxed mb-6 text-[15px]">
+                    효빈 시민 및 철도 이용 고객 누구나 효빈교통공사(1~8호선) 및 한국철도공사(빈효선)의 서비스 개선, 안전 인프라 확충, 경영 효율화 등에 대한 창의적인 아이디어를 제출할 수 있는 소통 창구입니다. 채택된 우수 제안은 실제 공사 정책 및 예산에 적극 반영되며, 제안자에게는 소정의 포상이 지급됩니다.
+                </p>
+                <div class="flex items-start gap-3 text-sm text-amber-700 bg-amber-50 p-4 rounded-lg border border-amber-200 w-full">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5 text-amber-500 text-lg"></i>
+                    <div>
+                        <strong>유의사항:</strong> 단순 민원(냉난방 조절 요청 등), 직원 칭찬 및 불친절 신고, 유실물 문의는 본 게시판이 아닌 <strong>'고객센터 > 민원신청'</strong> 메뉴를 이용해 주시기 바랍니다. 본 게시판 성격에 맞지 않는 글은 사전 통보 없이 민원 게시판으로 이관될 수 있습니다.
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-900 mb-6 border-l-4 border-hb pl-3">제안 처리 프로세스</h3>
+            <div class="flex flex-col md:flex-row gap-4 mb-12">
+                <div class="process-step">
+                    <div class="w-16 h-16 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-black text-slate-400 shadow-inner">01</div>
+                    <h4 class="font-bold text-gray-900 mb-2">제안 접수</h4>
+                    <p class="text-sm text-gray-500 leading-relaxed">온라인 홈페이지를 통한<br>시민 아이디어 등록</p>
+                </div>
+                <div class="process-step">
+                    <div class="w-16 h-16 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-black text-slate-400 shadow-inner">02</div>
+                    <h4 class="font-bold text-gray-900 mb-2">소관부서 배정</h4>
+                    <p class="text-sm text-gray-500 leading-relaxed">공사 실무 부서 및 1~8호선<br>관할 본부 1차 타당성 검토</p>
+                </div>
+                <div class="process-step">
+                    <div class="w-16 h-16 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-black text-slate-400 shadow-inner">03</div>
+                    <h4 class="font-bold text-gray-900 mb-2">제안 심사</h4>
+                    <p class="text-sm text-gray-500 leading-relaxed">제안심사위원회 개최<br>(창의성/실현가능성 정밀 평가)</p>
+                </div>
+                <div class="process-step bg-gradient-to-b from-sky-50 to-white border-hb border-2 shadow-md">
+                    <div class="w-16 h-16 bg-hb rounded-full flex items-center justify-center mx-auto mb-4 text-2xl text-white shadow-lg"><i class="fa-solid fa-award"></i></div>
+                    <h4 class="font-black text-hb mb-2">채택 및 포상</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">시장 표창 및 포상금 지급<br><strong>실제 시정 및 공사 정책 반영</strong></p>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-900 mb-6 border-l-4 border-hb pl-3">우수 제안 포상 내역</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="border border-gray-200 rounded-xl p-8 text-center bg-white shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-amber-400"></div>
+                    <h4 class="text-xl font-black text-amber-500 mb-3"><i class="fa-solid fa-trophy mr-1"></i> 최우수상</h4>
+                    <p class="text-gray-900 font-bold mb-3 text-lg">박효빈 효빈광역시장 표창</p>
+                    <div class="bg-amber-50 rounded-lg p-3 text-sm text-amber-900 font-medium">
+                        효빈교통공사 전 노선 1년 무임 패스<br>및 포상금 100만 원
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-xl p-8 text-center bg-white shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-slate-400"></div>
+                    <h4 class="text-xl font-black text-slate-500 mb-3"><i class="fa-solid fa-medal mr-1"></i> 우수상</h4>
+                    <p class="text-gray-900 font-bold mb-3 text-lg">효빈교통공사 사장 표창</p>
+                    <div class="bg-slate-50 rounded-lg p-3 text-sm text-slate-700 font-medium">
+                        효빈교통공사 전 노선 6개월 무임 패스<br>및 포상금 50만 원
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-xl p-8 text-center bg-white shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-amber-700"></div>
+                    <h4 class="text-xl font-black text-amber-700 mb-3"><i class="fa-solid fa-award mr-1"></i> 장려상</h4>
+                    <p class="text-gray-900 font-bold mb-3 text-lg">기획조정실장 표창</p>
+                    <div class="bg-orange-50 rounded-lg p-3 text-sm text-amber-900 font-medium">
+                        온누리 상품권 10만 원<br>및 메트로 공식 굿즈 세트
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-board" class="tab-content hidden animate-fade-in">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm">
+                <div class="text-gray-600 font-medium">
+                    총 <span id="totalCount" class="text-hb font-black text-lg">0</span>건의 소중한 제안이 있습니다.
+                </div>
+                <div class="flex items-center w-full md:w-auto gap-2">
+                    <select id="searchStatus" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-hb bg-gray-50">
+                        <option value="all">상태 전체</option>
+                        <option value="received">접수</option>
+                        <option value="review">검토중</option>
+                        <option value="adopted">채택</option>
+                        <option value="rejected">이관/불채택</option>
+                    </select>
+                    <select id="searchLine" class="border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-hb bg-gray-50 hide-on-mobile">
+                        <option value="all">노선 전체</option>
+                        <option value="1">1호선</option>
+                        <option value="2">2호선</option>
+                        <option value="3">3호선</option>
+                        <option value="4">4호선</option>
+                        <option value="5">5호선</option>
+                        <option value="6">6호선</option>
+                        <option value="7">7호선</option>
+                        <option value="8">8호선</option>
+                        <option value="bh">빈효선</option>
+                    </select>
+                    <div class="relative flex-grow md:w-56">
+                        <input type="text" id="searchInput" placeholder="검색어 입력" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-hb bg-gray-50">
+                    </div>
+                    <button onclick="searchProposals()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors whitespace-nowrap shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> 검색
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto min-h-[400px] bg-white border border-gray-200 rounded-xl shadow-sm">
+                <table class="board-table min-w-[900px] md:min-w-full border-0">
+                    <thead class="bg-slate-50 border-b border-gray-200">
+                        <tr>
+                            <th class="w-16 py-4">번호</th>
+                            <th class="w-24 py-4">상태</th>
+                            <th class="w-28 py-4 hide-on-mobile">노선</th>
+                            <th class="w-auto py-4">제목</th>
+                            <th class="w-24 py-4 hide-on-mobile">제안자</th>
+                            <th class="w-28 py-4">등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody id="boardBody">
+                        </tbody>
+                </table>
+                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-gray-400">
+                    <i class="fa-regular fa-folder-open text-5xl mb-4"></i>
+                    <p>검색 결과가 없습니다.</p>
+                </div>
+            </div>
+
+            <div id="pagination" class="flex justify-center items-center mt-10 gap-1"></div>
+        </div>
+
+        <div id="content-write" class="tab-content hidden animate-fade-in">
+            <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl p-8 md:p-10 shadow-lg">
+                <h2 class="text-2xl md:text-3xl font-black text-gray-900 mb-2">시민 제안 작성</h2>
+                <p class="text-gray-500 text-sm mb-8 pb-4 border-b border-gray-200">여러분의 소중한 아이디어를 구체적으로 작성해 주세요.</p>
+                
+                <form id="proposalForm" onsubmit="submitProposal(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">작성자명 <span class="text-red-500">*</span></label>
+                            <input type="text" id="formAuthor" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50" placeholder="홍길동" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">비밀번호 (수정/삭제용) <span class="text-red-500">*</span></label>
+                            <input type="password" id="formPassword" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50" placeholder="숫자 4자리 이상" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                        <div class="md:col-span-1">
+                            <label class="block text-gray-700 font-bold mb-2">관련 노선 <span class="text-red-500">*</span></label>
+                            <select id="formLine" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50" required>
+                                <option value="">선택</option>
+                                <option value="1">1호선</option>
+                                <option value="2">2호선</option>
+                                <option value="3">3호선</option>
+                                <option value="4">4호선</option>
+                                <option value="5">5호선</option>
+                                <option value="6">6호선</option>
+                                <option value="7">7호선</option>
+                                <option value="8">8호선</option>
+                                <option value="bh">빈효선 (코레일)</option>
+                                <option value="etc">기타 (공통 정책)</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-gray-700 font-bold mb-2">제안 제목 <span class="text-red-500">*</span></label>
+                            <input type="text" id="formTitle" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50" placeholder="제안의 핵심 내용을 요약하여 작성해주세요 (50자 이내)" required maxlength="50">
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 mb-8">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">1. 현황 및 문제점 <span class="text-red-500">*</span></label>
+                            <textarea id="formCurrent" class="w-full border border-gray-300 rounded-lg px-4 py-3 h-28 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50 resize-none" placeholder="현재의 문제점이나 개선이 필요한 상황을 구체적으로 적어주세요." required></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">2. 개선 방안 <span class="text-red-500">*</span></label>
+                            <textarea id="formImprove" class="w-full border border-gray-300 rounded-lg px-4 py-3 h-32 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50 resize-none" placeholder="문제를 해결할 수 있는 구체적인 아이디어나 정책을 제안해 주세요." required></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2">3. 기대 효과 <span class="text-red-500">*</span></label>
+                            <textarea id="formEffect" class="w-full border border-gray-300 rounded-lg px-4 py-3 h-24 text-sm focus:outline-none focus:ring-2 focus:ring-hb/50 focus:border-hb bg-gray-50 resize-none" placeholder="이 제안이 시행되었을 때 효빈 시민과 공사가 얻게 될 긍정적인 효과를 적어주세요." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-4 pt-6 border-t border-gray-200">
+                        <button type="button" onclick="switchTab('board')" class="px-8 py-3.5 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors shadow-sm">취소</button>
+                        <button type="submit" class="px-10 py-3.5 bg-hb text-white font-bold rounded-lg shadow-md hover:bg-[#128a9f] transition-colors"><i class="fa-solid fa-paper-plane mr-2"></i> 제안 제출하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="proposalModal" class="fixed inset-0 z-50 hidden bg-black/70 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300 overflow-hidden" id="modalContent">
+            
+            <div class="px-6 py-6 border-b border-gray-200 flex justify-between items-start bg-slate-50 relative">
+                <div class="pr-8 w-full">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span id="modalStatus" class="px-2.5 py-1 rounded text-xs font-bold shadow-sm text-white"></span>
+                        <span id="modalLineBadge" class="px-2.5 py-1 rounded text-xs font-bold text-white shadow-sm"></span>
+                        <span class="text-gray-400 text-xs ml-2 border-l border-gray-300 pl-2" id="modalDate"></span>
+                    </div>
+                    <h2 id="modalTitle" class="text-2xl font-black text-gray-900 leading-tight mb-3"></h2>
+                    <div class="flex items-center text-sm text-gray-600 bg-white inline-block px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">
+                        <i class="fa-solid fa-user-pen text-slate-400 mr-2"></i> 제안자: <span id="modalAuthor" class="font-bold text-gray-800 ml-1"></span>
+                    </div>
+                </div>
+                <button onclick="closeProposal()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 text-3xl focus:outline-none transition-colors leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 md:p-10 overflow-y-auto custom-scrollbar bg-white flex-grow">
+                
+                <div class="mb-10">
+                    <h3 class="text-lg font-black text-slate-800 mb-4 flex items-center border-b-2 border-slate-800 pb-2 inline-block w-fit pr-4"><i class="fa-regular fa-comment-dots text-hb mr-2"></i> 제안 상세 내용</h3>
+                    
+                    <div class="space-y-6 text-[15px] text-gray-700 leading-relaxed mt-4">
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            <h4 class="font-bold text-hb mb-2"><i class="fa-solid fa-1 text-sm opacity-50 mr-1"></i> 현황 및 문제점</h4>
+                            <p id="modalCurrent" class="whitespace-pre-line"></p>
+                        </div>
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            <h4 class="font-bold text-hb mb-2"><i class="fa-solid fa-2 text-sm opacity-50 mr-1"></i> 개선 방안</h4>
+                            <p id="modalImprove" class="whitespace-pre-line"></p>
+                        </div>
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            <h4 class="font-bold text-hb mb-2"><i class="fa-solid fa-3 text-sm opacity-50 mr-1"></i> 기대 효과</h4>
+                            <p id="modalEffect" class="whitespace-pre-line"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="responseSection" class="mb-4">
+                    <h3 class="text-lg font-black text-hb mb-4 flex items-center border-b-2 border-hb pb-2 inline-block w-fit pr-4"><i class="fa-solid fa-reply mr-2"></i> 기관 답변</h3>
+                    <div class="bg-sky-50/50 p-6 md:p-8 rounded-xl border border-sky-200 text-gray-800 leading-relaxed text-[15px] whitespace-pre-line relative shadow-inner">
+                        <div class="absolute top-0 right-8 transform -translate-y-1/2 bg-hb text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">Official</div>
+                        <div class="font-black text-slate-800 mb-4 border-b border-sky-200/50 pb-3 flex items-center">
+                            <i class="fa-solid fa-building-user text-hb mr-2"></i> 답변 부서: <span id="modalDept" class="text-hb ml-2"></span>
+                        </div>
+                        <div id="modalResponseContent" class="text-gray-700"></div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 bg-slate-50 flex justify-end gap-3">
+                <button onclick="closeProposal()" class="px-8 py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-sm font-bold rounded-lg shadow-md transition-colors">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 초기 데이터 및 로어(Lore) 설정 ---
+        const initialProposals = [
+            {
+                id: 112,
+                status: 'adopted',
+                line: '5',
+                title: '5호선 포성산역 휠체어 리프트 경사도 완화 및 배리어 프리 추가 개선안',
+                author: '김*민',
+                date: '2026.04.12',
+                content_current: '평소 5호선을 자주 이용하는 장애인 단체 소속 시민입니다. 5호선 포성산역 등 산악 지형에 위치한 고심도 역사의 경우, 교통약자용 휠체어 리프트의 단차가 여전히 가파르게 느껴지는 구간이 존재합니다. 현재 규격은 법적 기준을 만족하지만 체감상 불안함이 있습니다.',
+                content_improve: '단순히 규격에 맞추는 것을 넘어 휠체어 사용자 입장에서 5도 이하로 단차를 줄여주는 \'추가 완충 경사로 패드\' 설치를 제안합니다. (관련 하중 분산 및 동선 효율에 대한 다중회귀분석 엑셀 시트 첨부합니다.)',
+                content_effect: '포성산 등산객 노령층과 장애인 휠체어 이용자의 안전사고를 원천 차단하고, 효빈메트로의 선도적인 배리어 프리(Barrier-Free) 행정 이미지를 구축할 수 있습니다.',
+                response: '안녕하십니까, 효빈교통공사 정책분석팀 미소하 주무관입니다.\n\n시민님께서 제안해주신 의견과 첨부해주신 정밀한 데이터 분석(다중회귀분석표) 자료에 깊이 감사드립니다. 해당 데이터를 시설 실무 부서와 교차 검증한 결과, 포성산역을 비롯한 고심도 3개 역사의 휠체어 리프트 하중 분산 및 추가 경사로 도입의 경제적·사회적 효용성이 매우 높다고 판단되었습니다.\n\n이에 본 제안을 \'채택\'하여 금년도 하반기 배리어 프리 특별 예산안에 즉각 반영, 시공할 계획입니다. 이동권은 시혜가 아닌 시민의 기본 권리입니다. 소중한 의견 감사합니다.',
+                dept: '안전환경본부 / 정책분석팀'
+            },
+            {
+                id: 111,
+                status: 'adopted',
+                line: 'bh',
+                title: 'HAF 애니메이션 페스티벌 기간 중 효빈항역 임시 코스프레 환복 라운지 설치 제안',
+                author: '이*진',
+                date: '2026.04.10',
+                content_current: '매년 가을 효빈항역을 통해 HAF(효빈 애니메이션 페스티벌)에 참석하는 관람객입니다. 행사 기간 동안 역내 공중화장실에서 코스프레 의상으로 환복하는 인원들 때문에 일반 승객들과 마찰이 잦고 화장실 이용이 매우 불편합니다.',
+                content_improve: '효빈항역 대합실 유휴 공간(B구역 등)에 가설 파티션을 설치하여 관람객 전용 \'임시 환복 라운지 및 메이크업 존\'을 만들어 주시면 좋겠습니다.',
+                content_effect: '일반 시민들의 화장실 이용 불편 민원을 완벽히 해소할 수 있으며, 페스티벌 관람객의 만족도를 높여 코레일과 효빈시의 서브컬처 친화적 행정을 홍보할 수 있습니다.',
+                response: '안녕하십니까, 한국철도공사 효빈지역본부 기획팀 전노아 주임입니다! (찡긋)\n\n제안해주신 내용은 HAF 축제 운영에 있어 반드시 개선되어야 할 핵심 쟁점입니다. 제안을 검토한 결과, 첫째! 일반 승객의 화장실 이용 편의 보장. 둘째! 축제 관람객의 이동 동선 효율화. 셋째! 역사 내 쾌적한 질서 유지라는 세 가지 측면에서 완벽히 타당하다고 판단하였습니다!\n\n이에 즉시 실행 기안서를 작성하여 정시원 본부장님의 특별 결재를 득하였으며, 다가오는 HAF 축제부터 효빈항역 대합실에 전용 \'코스어 웰컴 라운지 및 환복실\'을 공식 임시 운영할 예정입니다. 멋진 제안 감사드립니다!',
+                dept: '한국철도공사 효빈지역본부 기획팀'
+            },
+            {
+                id: 110,
+                status: 'review',
+                line: '7',
+                title: '7호선 임세정/임세하 자매 래핑 트램 일러스트 활용한 공식 굿즈 발매 요청',
+                author: '박*훈',
+                date: '2026.04.08',
+                content_current: '7호선 무가선 트램으로 출퇴근하는 평범한 직장인입니다. 최근 7호선에 운행 중인 분홍색 마스코트(임세정 대리, 임세하 주임 자매) 래핑 트램의 일러스트 작화 퀄리티가 공기업 마스코트라고는 믿기지 않을 정도로 너무 훌륭합니다.',
+                content_improve: '해당 신규 일러스트를 활용한 아크릴 스탠드, 입체 교통카드, 키링 등의 굿즈를 HYOMAC(효빈메트로 공식 굿즈샵) 및 온라인 스토어에서 정식으로 판매해 주실 것을 강력히 건의합니다.',
+                content_effect: '팬들의 수요를 충족시킴과 동시에 효빈교통공사의 굿즈 부대수익을 크게 창출할 수 있습니다. 지갑 열 준비 되어있습니다. 제발 내주세요.',
+                response: '안녕하십니까, 효빈교통공사 부대사업처입니다.\n\n7호선 임세정, 임세하 자매 래핑 트램에 대한 시민 여러분의 뜨거운 관심과 성원에 진심으로 감사드립니다.\n\n현재 해당 자매 캐릭터의 신규 일러스트를 활용한 한정판 굿즈(아크릴 스탠드, 스마트톡, 한정판 교통카드 등) 제작에 대한 타당성 검토 및 원작자와의 라이선스 2차 활용 협의를 긍정적으로 진행 중에 있습니다. 빠른 시일 내에 HYOMAC 운양중앙역점을 통해 긍정적인 소식을 전해드릴 수 있도록 노력하겠습니다.',
+                dept: '부대사업처 광고마케팅팀'
+            },
+            {
+                id: 109,
+                status: 'rejected',
+                line: '1',
+                title: '곽암해수욕장역 대합실 구형 릴레이 제어반 작동 타격음(소음) 제거 요청',
+                author: '최*영',
+                date: '2026.04.05',
+                content_current: '곽암해수욕장역 대합실에 전시된 옛날 장비(1984년식 아날로그 릴레이 제어반)에서 가끔 시연할 때마다 \'딸깍! 탕!\' 하는 기계 타격음이 생각보다 너무 크게 납니다. 벤치에서 쉬고 있다가 깜짝 놀랐습니다.',
+                content_improve: '역사를 상징하는 귀중한 전시물인 건 알겠으나 소음이 신경 쓰입니다. 방음 유리를 씌우거나 아예 소리가 나지 않도록 시연 전원을 영구 차단해 주세요.',
+                content_effect: '역사 내 정숙함을 유지하여 대기하는 일반 승객들의 휴식 환경을 개선할 수 있습니다.',
+                response: '안녕하십니까, 효빈교통공사 역무본부입니다.\n\n시민님께서 제안하신 곽암해수욕장역 전시물 소음 관련 의견 잘 읽어보았습니다.\n\n해당 1984년식 릴레이 제어반은 1호선의 역사를 보존하기 위한 핵심 전시물이며, 특히 1호선 소속 기관사(고나미 등) 및 철도 동호인 전문가들의 강력한 보존 요청에 의해 당시의 \'물리적 접점 구동 타격음\'을 원형 그대로 보존하는 형태로 시연되고 있습니다. \n\n전면 전원 차단 및 무음화 조치(불채택)는 역사적 가치 훼손 우려로 어려운 점 깊은 양해 부탁드립니다. 다만, 소음으로 인한 불편을 줄이기 위해 시연 가능 시간대를 대폭 축소하고, 무분별한 작동을 제한하도록 운영 지침을 일부 변경(역무실 이관 조치)하여 관리하겠습니다.',
+                dept: '역무본부 1호선 운영팀'
+            },
+            {
+                id: 108,
+                status: 'adopted',
+                line: '8',
+                title: '평당고역 및 인근 학교 통학로 고무차륜 분진 저감용 발매트 추가 설치',
+                author: '정*호',
+                date: '2026.04.02',
+                content_current: '평당고등학교 재학생 학부모입니다. 8호선이 고무차륜 AGT 방식이라 소음이 적어 참 좋습니다만, 비가 오거나 습한 날 역 출입구 및 환승 통로 바닥에 검은색 타이어 분진 자국이 묻어나는 경우가 종종 관찰됩니다.',
+                content_improve: '학생들이 많이 다니는 평당고역 출입구 및 대합실 주요 진입로에 특수 분진 흡수용 대형 이물질 제거 발매트를 2중으로 추가 설치해 주셨으면 합니다.',
+                content_effect: '우천 시 바닥 미끄럼 사고를 방지하고, 역사 내부의 미관과 실내 공기질(청결도)을 쾌적하게 유지할 수 있습니다.',
+                response: '안녕하십니까, 시설본부 유지보수팀입니다.\n\n8호선 고무차륜(8000호대) 운행에 따른 역사 환경 개선 의견에 진심으로 감사드립니다. 현장 확인 결과, 8호선 특성상 우천 시 평당고역 등 보행량이 많은 역사를 중심으로 타이어 분진 이염 현상이 일부 확인되었습니다.\n\n이에 제안해주신 \'미세분진 특수 흡착 2중 매트\'를 8호선 전 역사 출입구 및 주요 환승 동선에 전면 추가 설치하는 방안을 \'채택\'하여, 다가오는 장마철 이전인 5월 중 시공 완료할 예정입니다. 쾌적한 통학 환경 조성을 위해 더욱 노력하겠습니다.',
+                dept: '시설본부 유지보수팀'
+            },
+            {
+                id: 107,
+                status: 'review',
+                line: '3',
+                title: '사능역 대합실 내 로컬 빵집 투어(빵지순례) 전용 감성 안내 지도 비치 제안',
+                author: '강*주',
+                date: '2026.03.28',
+                content_current: '사능역 뒷골목 빵집들이 SNS에서 유명해지면서 외지에서 오는 관광객이 부쩍 늘었습니다. 하지만 초행길인 분들은 골목골목 숨어있는 빵집을 찾기 어려워 역무원에게 길을 묻는 경우가 많습니다.',
+                content_improve: '3호선 마스코트 박라미 캐릭터를 활용한 감성적인 디자인의 \'사능동 베이커리 골목 투어 (빵지순례) 안내 지도\' 리플릿을 제작해서 사능역 개찰구 앞 안내 데스크에 상시 비치해 주시면 좋겠습니다.',
+                content_effect: '관광객의 편의가 크게 증진되며, 지역 소상공인 상권 활성화와 3호선 주말 이용객 증대에 큰 시너지 효과를 낼 것입니다.',
+                response: '안녕하십니까, 문화홍보처입니다.\n\n효빈시 로컬 상권 활성화와 3호선 테마 역사 브랜딩을 연계한 훌륭한 제안에 감사드립니다. 사능역은 당사 마스코트 박라미, 다로나 주임 등 사내 직원들에게도 사랑받는 베이커리 명소입니다.\n\n제안해주신 \'박라미 캐릭터 활용 빵지순례 지도\' 제작 건은 현재 부대사업처 및 사능동 지역 상인회와 비용 분담 및 배포 방식을 긍정적으로 협의 중에 있습니다. 더불어 지류 리플릿 제작 외에도 역사 내 디지털 사이니지를 활용한 동적 안내 지도도 병행 송출하는 방안을 묶어 \'검토\' 중입니다.',
+                dept: '문화홍보처 / 역무본부'
+            },
+            {
+                id: 106,
+                status: 'adopted',
+                line: '2',
+                title: '효빈대학교역 5량 편성(2007호) 진입 시 승강장 바닥 하차 유도선 개선',
+                author: '윤*우',
+                date: '2026.03.20',
+                content_current: '2호선은 기본 8량 편성인데, 출퇴근 시간에 가끔 5량짜리 짧은 미니 열차(2007편성)가 들어올 때면 승강장 맨 끝에 서 있다가 열차 문을 놓쳐 100m를 질주해야 하는 불편함이 있습니다.',
+                content_improve: '상단 전광판 텍스트 안내로는 부족합니다. 승강장 바닥 스크린도어 앞에 \'5량 열차 전용 정차 구역\'을 눈에 확 띄는 비취색(형광) 유도선이나 스티커로 직관적으로 표시해 주셨으면 합니다.',
+                content_effect: '승객들이 열차 길이에 맞춰 미리 대기할 수 있어 혼잡한 승강장 내 뛰기 등으로 인한 낙상 사고를 예방하고 탑승 효율을 높일 수 있습니다.',
+                response: '안녕하십니까, 승무본부입니다.\n\n2호선 2007편성(5량) 운용으로 인해 이용에 불편을 드려 죄송합니다. 어간중앙역 하루빈 사원을 비롯한 현장 역무 직원들의 보고를 통해서도 해당 문제점이 지속적으로 제기된 바 있습니다.\n\n시민님의 제안을 적극 수용(\'채택\')하여, 효빈대학교역을 포함한 2호선 전 역사의 승강장 바닥에 \'5량 편성 정차 및 하차 위치 명확화 시인성 스티커(2호선 심벌인 비취색 반사 재질 적용)\' 부착 공사를 즉각 시행토록 시설본부에 작업 지시를 완료하였습니다.',
+                dept: '승무본부 / 시설본부'
+            },
+            {
+                id: 105,
+                status: 'adopted',
+                line: '4',
+                title: '고해역 4호선 다로나 주임님 친절 응대 칭찬 및 역내 순찰 강화 요청',
+                author: '최*호',
+                date: '2026.03.15',
+                content_current: '지난주 고해역에서 굿즈를 잔뜩 들고 길을 잃어 곤란해하던 중, 주황색 유니폼에 클립보드를 든 다로나 주임님이 다가와 역내 지도를 그려주시며 너무나 친절하고 정확하게 길을 안내해 주셨습니다. 정말 감동받았습니다.',
+                content_improve: '칭찬 게시판이 따로 없어 이곳에 남깁니다. 친절한 다로나 주임님께 표창을 건의드리며, 고해역 주변에 외국인 및 타지 관광객이 많아진 만큼 해당 주임님 같은 전문 인력의 대합실 순찰 배치 시간을 늘려주셨으면 합니다.',
+                content_effect: '고해역을 찾는 관광객들에게 효빈교통공사의 친절하고 프로페셔널한 이미지를 심어줄 수 있습니다.',
+                response: '안녕하십니까, 기술본부 산업관리처입니다.\n\n먼저 저희 공사 직원의 응대에 따뜻한 칭찬을 남겨주신 시민님께 진심으로 감사드립니다. 해당 칭찬 사연은 4호선 다로나 주임에게 캡처하여 직접 전달하였으며, 다로나 주임은 "규정에 입각한 당연한 안내였을 뿐"이라며 몹시 부끄러워하면서도 감사의 인사를 전해왔습니다. (해당 건은 사내 친절 우수 사례로 추천되었습니다.)\n\n또한 제안해주신 관광객 증가에 따른 고해역 대합실 순찰 및 안내 인력 추가 배치 건은 \'채택\'되어, 4호선 역무본부와 협의하여 주말 피크 타임대 순찰 스케줄을 즉시 증편 조치하였습니다.',
+                dept: '기술본부 / 역무본부'
+            },
+            {
+                id: 104,
+                status: 'review',
+                line: '6',
+                title: '수능 D-100일 6호선 중수역 수험생 응원 특별 안내방송 편성 건의',
+                author: '이*수',
+                date: '2026.03.02',
+                content_current: '중수동 학원가를 매일 6호선으로 오가는 고3 수험생입니다. 늦은 밤 학원이 끝나고 지친 몸으로 지하철을 타면 기계적인 안내방송만 나와서 마음이 더 삭막해집니다.',
+                content_improve: '학원가 밀집역인 중수역이나 6호선 차내에서 수능 D-100일이나 수능 전날, 6호선 마스코트인 라세나(고3 설정으로 알고 있습니다) 성우님의 목소리로 "수험생 여러분 조금만 더 힘내세요!" 같은 따뜻한 감성 응원 안내방송을 틀어주시면 좋겠습니다.',
+                content_effect: '치열한 입시를 치르는 수험생 승객들에게 큰 위로와 감동을 주어, 효빈메트로의 따뜻한 공기업 이미지를 제고할 수 있습니다.',
+                response: '안녕하십니까, 승무본부 방송기획팀입니다.\n\n늦은 시간까지 학업에 매진하시는 수험생 시민님의 노고에 깊은 응원을 보냅니다. 제안해주신 수능 응원 특별 안내방송 건은 매우 따뜻하고 훌륭한 아이디어입니다.\n\n현재 6호선 상징 캐릭터인 라세나 담당 성우(한국판 김율 님)의 음성 소스를 활용하여, 중수역 등 주요 학원가 밀집 3개 역사 대합실 및 승강장 진입 시 특별 송출하는 방안을 \'긍정 검토\' 중에 있습니다. 안전 안내방송과 겹치지 않는 선에서 최적의 시간대를 조율하여 수험생 여러분께 힘이 되도록 하겠습니다.',
+                dept: '승무본부 방송기획팀'
+            },
+            {
+                id: 103,
+                status: 'rejected',
+                line: '1',
+                title: '1호선 고나미 기관사님 깐깐한 특별 교육 안내방송 음원(ASMR) 발매 요청',
+                author: '하*빈',
+                date: '2026.02.25',
+                content_current: '1호선 안내방송을 들을 때마다 목소리가 너무 고급스럽고 카리스마 넘쳐서 정신이 확 듭니다. 특히 가끔 들려오는 "지금부터 특별 교육입니다."라는 멘트가 묘하게 중독성이 있습니다.',
+                content_improve: '해당 안내방송 멘트와 1호선 구동음을 합친 1시간짜리 수면용/집중용 ASMR 음원을 효빈교통공사 공식 유튜브 채널이나 굿즈샵에 정식으로 발매해 주시기 바랍니다.',
+                content_effect: '수험생 집중력 향상 및 불면증 치료에 탁월한 효과가 있을 것으로 확신합니다. (익명 보장 부탁드립니다)',
+                response: '안녕하십니까, 문화홍보처입니다.\n\n제안해주신 내용은 확인하였습니다. 다만, 제안자님의 성함(하*빈)과 접속 IP가 2호선 어간중앙역 고객센터 내부망으로 확인되었습니다.\n\n해당 제안은 1호선 고나미 기관사 본인에게 전달되었으며, 고 기관사님으로부터 "공식 안내방송 음원을 사적인 수면용 ASMR로 가공하는 것은 공기업 규정 위반이며, 해당 제안자(하 모 사원)는 내일 오전 1호선 승무실로 출두하여 오프라인 특별 교육을 이수할 것"이라는 강경한 답변을 전달받았습니다.\n\n이에 따라 본 제안은 규정상 \'불채택\' 처리되었음을 알려드립니다. 업무에 참고하시기 바랍니다.',
+                dept: '문화홍보처 (feat. 1호선 승무실)'
+            },
+            {
+                id: 102,
+                status: 'adopted',
+                line: '5',
+                title: '5호선 청덕공원역 메트로 팜 연계 어린이 도시농업 체험 프로그램 신설 제안',
+                author: '박*정',
+                date: '2026.02.15',
+                content_current: '청덕공원역 대합실에 있는 수직 정원(Bio-Wall)과 지하 스마트 농장을 아이들이 지나가며 무척 신기해합니다. 하지만 눈으로 보기만 하고 유리벽으로 막혀 있어 교육적 효과가 떨어집니다.',
+                content_improve: '유휴 공간을 활용하여 주말마다 지역 유치원생이나 초등학생들을 대상으로 "메트로 팜 새싹 채소 수확 체험" 같은 예약제 교육 프로그램을 신설해 주셨으면 합니다.',
+                content_effect: '미래 세대에게 지하철이 단순한 대중교통이 아닌 친환경 에코 공간이라는 긍정적 인식을 심어줄 수 있습니다.',
+                response: '안녕하십니까, 부대사업처 공간기획팀입니다.\n\n청덕공원역 에코 스테이션 인프라를 활용한 뜻깊은 교육 프로그램 제안에 감사드립니다. 당사 역시 해당 스마트 농장의 수확물을 시민들과 나눌 방법을 다각도로 모색 중이었습니다.\n\n제안해주신 \'어린이 대상 주말 메트로 팜 수확 체험 프로그램\'은 그 취지와 실현 가능성이 훌륭하여 즉각 \'채택\'되었습니다. 현재 위탁 재배 업체와 협의하여 안전한 체험 동선을 구축 중이며, 이르면 하반기부터 효빈시 관내 유치원 및 초등학교의 단체 견학 코스로 정식 운영을 시작할 계획입니다.',
+                dept: '부대사업처 공간기획팀'
+            },
+            {
+                id: 101,
+                status: 'adopted',
+                line: '2',
+                title: '2호선 어간수산시장역 에스컬레이터 비린내 탈취 및 환기 시스템 개선 건의',
+                author: '정*수',
+                date: '2026.01.30',
+                content_current: '어간수산시장역을 자주 이용하는데, 1번 출구 에스컬레이터를 탈 때 수산시장에서 유입된 해산물 비린내와 물 냄새가 지하 공조 시스템에 갇혀 불쾌감을 줍니다. 특히 여름철에는 더 심합니다.',
+                content_improve: '환풍구 위치를 조정하거나, 에스컬레이터 천장 쪽에 대용량 탈취 필터 및 공기 순환용 에어커튼을 추가로 설치해 주시길 바랍니다.',
+                content_effect: '지하철을 이용하는 일반 승객과 시장 상인들 모두 쾌적한 환경을 누릴 수 있습니다.',
+                response: '안녕하십니까, 시설본부 환경설비팀입니다.\n\n어간수산시장역 특유의 악취 유입 문제로 불편을 드려 대단히 죄송합니다. 지상 상권의 냄새가 지하로 유입되는 현상을 방지하기 위해 정기적인 환기구 세척을 진행 중이나, 구조적 한계가 존재했습니다.\n\n제안해주신 내용은 타당성이 입증되어 \'채택\'되었으며, 1번 출구 에스컬레이터 전면 상단에 고출력 차단용 에어커튼을 설치하고, 지하 1층 공조실에 해양 수산물 악취 전용 플라즈마 탈취 필터를 신규 도입하는 개량 공사를 3월 중으로 착공할 예정입니다. 감사합니다.',
+                dept: '시설본부 환경설비팀'
+            }
+        ];
+
+        // --- 2. 로컬 스토리지 초기화 및 로드 ---
+        function initData() {
+            let storedData = localStorage.getItem('hyobinProposals');
+            if (storedData) {
+                return JSON.parse(storedData);
+            } else {
+                localStorage.setItem('hyobinProposals', JSON.stringify(initialProposals));
+                return initialProposals;
+            }
+        }
+
+        let proposalsData = initData();
+        const itemsPerPage = 6;
+        let currentPage = 1;
+        let currentFilterData = [...proposalsData];
+
+        // 라인(노선) 매핑 정보
+        const lineMap = {
+            '1': { text: '1호선', class: 'badge-line1' },
+            '2': { text: '2호선', class: 'badge-line2' },
+            '3': { text: '3호선', class: 'badge-line3' },
+            '4': { text: '4호선', class: 'badge-line4' },
+            '5': { text: '5호선', class: 'badge-line5' },
+            '6': { text: '6호선', class: 'badge-line6' },
+            '7': { text: '7호선', class: 'badge-line7' },
+            '8': { text: '8호선', class: 'badge-line8' },
+            'bh': { text: '빈효선', class: 'badge-binhyo' },
+            'etc': { text: '기타', class: 'badge-etc' }
+        };
+
+        const statusMap = {
+            'received': { text: '접수', class: 'status-received' },
+            'review': { text: '검토중', class: 'status-review' },
+            'adopted': { text: '채택', class: 'status-adopted' },
+            'rejected': { text: '이관/불채택', class: 'status-rejected' }
+        };
+
+        // --- 3. UI 렌더링 함수 ---
+        function renderTable(page) {
+            const tbody = document.getElementById('boardBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+            
+            if (currentFilterData.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('totalCount').innerText = '0';
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // 정렬: 최신 글(id가 높은 글)이 위로 오도록
+            currentFilterData.sort((a, b) => b.id - a.id);
+
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = currentFilterData.slice(startIndex, endIndex);
+
+            currentItems.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openProposal(item.id);
+                
+                const statusBadge = `<span class="px-2.5 py-1 rounded text-[11px] font-bold ${statusMap[item.status].class} shadow-sm">${statusMap[item.status].text}</span>`;
+                const lineBadge = `<span class="${lineMap[item.line].class} px-2.5 py-1 rounded text-[11px] font-bold shadow-sm">${lineMap[item.line].text}</span>`;
+                
+                // 마스킹 처리된 작성자 (만약 마스킹 안되어있으면 처리)
+                let authorText = item.author;
+                if(authorText.length >= 2 && !authorText.includes('*')) {
+                    authorText = authorText.charAt(0) + '*' + authorText.slice(2);
+                }
+
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${statusBadge}</td>
+                    <td class="hide-on-mobile">${lineBadge}</td>
+                    <td class="title-cell truncate max-w-xs md:max-w-md">${item.title}</td>
+                    <td class="hide-on-mobile text-sm">${authorText}</td>
+                    <td class="text-sm font-medium">${item.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('totalCount').innerText = currentFilterData.length;
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(currentFilterData.length / itemsPerPage);
+            const paginationEl = document.getElementById('pagination');
+            paginationEl.innerHTML = '';
+
+            if(totalPages === 0) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = i === currentPage 
+                    ? 'w-8 h-8 flex items-center justify-center rounded bg-hb text-white font-bold border border-hb shadow-sm'
+                    : 'w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors bg-white';
+                btn.innerText = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable(currentPage);
+                    renderPagination();
+                };
+                paginationEl.appendChild(btn);
+            }
+        }
+
+        // --- 4. 검색 및 필터 기능 ---
+        function searchProposals() {
+            const statusFilter = document.getElementById('searchStatus').value;
+            const lineFilter = document.getElementById('searchLine').value;
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            currentFilterData = proposalsData.filter(item => {
+                const matchStatus = statusFilter === 'all' || item.status === statusFilter;
+                const matchLine = lineFilter === 'all' || item.line === lineFilter;
+                const matchKeyword = keyword === '' || 
+                                     item.title.toLowerCase().includes(keyword) || 
+                                     item.content_current.toLowerCase().includes(keyword) ||
+                                     item.content_improve.toLowerCase().includes(keyword);
+                return matchStatus && matchLine && matchKeyword;
+            });
+
+            currentPage = 1;
+            renderTable(currentPage);
+            renderPagination();
+        }
+
+        // 탭 전환 로직
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-slate-50', 'text-slate-700');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            
+            const selectedBtn = document.getElementById('tab-' + tabId);
+            selectedBtn.classList.add('active');
+            if(tabId === 'write') selectedBtn.classList.remove('bg-slate-50', 'text-slate-700');
+
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+
+            if(tabId === 'board') {
+                searchProposals(); // 보드로 돌아올때 초기화/렌더링
+            }
+        }
+
+        // --- 5. 제안 작성 (실제 데이터 추가 로직) ---
+        function submitProposal(e) {
+            e.preventDefault();
+            
+            const author = document.getElementById('formAuthor').value;
+            const line = document.getElementById('formLine').value;
+            const title = document.getElementById('formTitle').value;
+            const current = document.getElementById('formCurrent').value;
+            const improve = document.getElementById('formImprove').value;
+            const effect = document.getElementById('formEffect').value;
+
+            // 현재 날짜 구하기 (YYYY.MM.DD 형식)
+            const today = new Date();
+            const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
+            
+            // 새 ID 부여
+            const newId = proposalsData.length > 0 ? Math.max(...proposalsData.map(p => p.id)) + 1 : 1;
+
+            const newProposal = {
+                id: newId,
+                status: 'received',
+                line: line,
+                title: title,
+                author: author,
+                date: dateStr,
+                content_current: current,
+                content_improve: improve,
+                content_effect: effect,
+                response: '',
+                dept: ''
+            };
+
+            // 배열에 추가 및 로컬 스토리지 저장
+            proposalsData.push(newProposal);
+            localStorage.setItem('hyobinProposals', JSON.stringify(proposalsData));
+
+            alert("시민 제안이 성공적으로 접수되었습니다!\n소관 부서(1차 검토) 배정 후 심사가 진행됩니다.");
+            
+            // 폼 초기화
+            document.getElementById('proposalForm').reset();
+            
+            // 게시판 탭으로 이동 및 리렌더링
+            document.getElementById('searchStatus').value = 'all';
+            document.getElementById('searchLine').value = 'all';
+            document.getElementById('searchInput').value = '';
+            
+            switchTab('board');
+            window.scrollTo({ top: document.querySelector('.bg-white').offsetTop - 50, behavior: 'smooth' });
+        }
+
+        // --- 6. 모달 (상세보기) 로직 ---
+        const modal = document.getElementById('proposalModal');
+        const modalContent = document.getElementById('modalContent');
+
+        function openProposal(id) {
+            const data = proposalsData.find(item => item.id === id);
+            if(!data) return;
+
+            // 뱃지 설정
+            document.getElementById('modalStatus').className = `px-3 py-1 rounded text-xs font-bold shadow-sm text-white ${statusMap[data.status].class}`;
+            document.getElementById('modalStatus').innerText = statusMap[data.status].text;
+            
+            document.getElementById('modalLineBadge').className = `px-3 py-1 rounded text-xs font-bold shadow-sm text-white ${lineMap[data.line].class}`;
+            document.getElementById('modalLineBadge').innerText = lineMap[data.line].text;
+            
+            // 텍스트 설정
+            document.getElementById('modalTitle').innerText = data.title;
+            let authorText = data.author;
+            if(authorText.length >= 2 && !authorText.includes('*')) {
+                authorText = authorText.charAt(0) + '*' + authorText.slice(2);
+            }
+            document.getElementById('modalAuthor').innerText = authorText;
+            document.getElementById('modalDate').innerText = data.date;
+            
+            // 3단 논리 텍스트 삽입 (줄바꿈 처리 적용)
+            document.getElementById('modalCurrent').innerText = data.content_current;
+            document.getElementById('modalImprove').innerText = data.content_improve;
+            document.getElementById('modalEffect').innerText = data.content_effect;
+            
+            // 답변 영역 표시 여부
+            if(data.status === 'received') {
+                document.getElementById('responseSection').style.display = 'none';
+            } else {
+                document.getElementById('responseSection').style.display = 'block';
+                document.getElementById('modalDept').innerText = data.dept;
+                document.getElementById('modalResponseContent').innerText = data.response;
+            }
+
+            // 모달 열기 애니메이션
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeProposal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        // 모달 닫기 이벤트 리스너
+        modal.addEventListener('click', e => { if (e.target === modal) closeProposal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeProposal(); });
+
+        // 초기 렌더링 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            searchProposals(); // 초기 1회 필터&렌더링 실행
+        });
+    </script>
+    
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>
