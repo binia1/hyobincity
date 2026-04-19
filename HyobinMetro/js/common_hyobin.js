@@ -276,16 +276,18 @@ const headerHTML = `
                                         <a href="report_center.html#commercial">상가무단전대양도신고</a>
                                         <a href="report_center.html#contract">계약관련 부조리 신고</a>
                                     </div>
+<div class="menu-col">
+                                        <h3>부조리신고센터</h3>
+                                        <a href="report_center2.html#subcontract">하도급부조리 신고</a>
+                                        <a href="report_center2.html#proxy">안심 대리신고</a>
+                                        <a href="report_center2.html#public">공익신고</a>
+                                        <a href="report_center2.html#finance">공공재정 부정청구</a>
+                                    </div>
                                     <div class="menu-col">
-                                        <h3>부조리신고센터 2</h3>
-                                        <a href="하도급부조리.html">하도급부조리 신고</a>
-                                        <a href="대리신고.html">부패비리 변호사 대리신고</a>
-                                        <a href="공익신고.html">공익신고</a>
-                                        <a href="공공재정부정청구.html">공공재정 부정청구행위 신고</a>
-                                        <h3 class="mt-4">결재문서/회의록</h3>
-                                        <a href="결재문서.html">결재문서 / 회의록</a>
-                                        <a href="위원회운영현황.html">위원회운영현황</a>
-                                        <a href="민원소통모니터링.html">실시간 민원소통 모니터링</a>
+                                        <h3>투명경영</h3>
+                                        <a href="report_center2.html#documents">결재문서 / 회의록</a>
+                                        <a href="report_center2.html#committee">위원회 운영현황</a>
+                                        <a href="report_center2.html#voc">실시간 민원(VOC)</a>
                                     </div>
                                 </div>
                             </div>
@@ -645,8 +647,12 @@ const sidebarMenuData = {
             {name: "이동형/고정형 영상정보처리방침", href: "clean_privacy.html#cctv"} 
         ] },
         { group: "부조리신고센터 1", items: [ {name: "인사비리 / 공직자비리 신고", href: "report_center.html#personnel"}, {name: "갑의 부당행위 신고", href: "report_center.html#gapjil"}, {name: "예산낭비신고센터", href: "report_center.html#budget"}, {name: "상가무단전대양도신고", href: "report_center.html#commercial"}, {name: "계약관련 부조리 신고", href: "report_center.html#contract"} ] },
-        { group: "부조리신고센터 2", items: [ {name: "하도급부조리 신고", href: "하도급부조리.html"}, {name: "부패비리 변호사 대리신고", href: "대리신고.html"}, {name: "공익신고", href: "공익신고.html"}, {name: "공공재정 부정청구행위 신고", href: "공공재정부정청구.html"}, {name: "결재문서 / 회의록", href: "결재문서.html"}, {name: "위원회운영현황", href: "위원회운영현황.html"}, {name: "실시간 민원소통 모니터링", href: "민원소통모니터링.html"} ] }
-    ],
+{ group: "부조리신고센터 2", items: [ 
+            {name: "하도급부조리 신고", href: "report_center2.html#subcontract"}, 
+            {name: "안심 대리신고", href: "report_center2.html#proxy"}, 
+            {name: "공익신고", href: "report_center2.html#public"}, 
+            {name: "공공재정 부정청구", href: "report_center2.html#finance"} 
+        ] },    ],
     "ESG경영": [
         { group: "ESG경영 안내", items: [ {name: "ESG 경영 실천 선언문", href: "ESG경영실천선언문.html"}, {name: "ESG 대표성과 / 경영성과", href: "ESG대표성과.html"}, {name: "수상실적", href: "수상실적.html"} ] },
         { group: "위원회 및 보고서", items: [ {name: "ESG 경영위원회", href: "ESG경영위원회.html"}, {name: "ESG 경영보고서", href: "ESG경영보고서.html"}, {name: "지속가능경영보고서", href: "지속가능경영보고서.html"} ] },

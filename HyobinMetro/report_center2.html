@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>부조리신고 및 투명경영 - 효빈교통공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 효빈 브랜드 테마 */
+        .text-hb { color: #1e3a8a; } /* 신뢰감 있는 네이비로 톤다운 */
+        .bg-hb { background-color: #1e3a8a; color: white; }
+        .text-hyobin { color: #16A4BE; } /* 효빈 오리지널 시안 */
+
+        /* 세계관 노선 컬러 */
+        .bg-line1 { background-color: #0077DD; color: white; }
+        .bg-line2 { background-color: #00CCAA; color: white; }
+        .bg-line3 { background-color: #FFCC11; color: black; }
+        .bg-line4 { background-color: #FF5522; color: white; }
+        .bg-line5 { background-color: #EE0022; color: white; }
+        .bg-line6 { background-color: #881188; color: white; }
+        .bg-line7 { background-color: #FF8899; color: white; }
+        .bg-line8 { background-color: #9856FF; color: white; }
+        .bg-binhyo { background-color: #6677CC; color: white; }
+        .c-line1 { color: #0077DD; }
+        .c-line7 { color: #FF8899; }
+        .c-linebh { color: #6677CC; }
+
+        /* 고급 SPA 탭 네비게이션 */
+        .spa-tab-nav { display: flex; flex-wrap: wrap; background: white; border-radius: 1rem 1rem 0 0; border: 1px solid #e2e8f0; border-bottom: none; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; z-index: 20; }
+        .spa-tab-group { width: 100%; display: flex; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+        .spa-tab-group:last-child { border-bottom: 3px solid #1e3a8a; }
+        .spa-group-title { padding: 1.1rem 1rem; font-size: 0.75rem; font-weight: 900; color: #64748b; background: #e2e8f0; display: flex; align-items: center; width: 100%; md:width: 140px; border-right: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.05em; }
+        .spa-tab { padding: 1.1rem 0.5rem; font-weight: 700; color: #64748b; cursor: pointer; flex: 1 1 auto; text-align: center; font-size: 0.95rem; transition: all 0.3s; position: relative; border-right: 1px solid #e2e8f0; }
+        .spa-tab:hover { background-color: white; color: #1e3a8a; }
+        .spa-tab.active { color: #1e3a8a; background-color: white; font-weight: 900; box-shadow: inset 0 4px 0 0 #1e3a8a; }
+        
+        /* 콘텐츠 트랜지션 */
+        .spa-content { display: none; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .spa-content.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 타이틀 & 텍스트 */
+        .section-title { font-size: 1.6rem; font-weight: 900; color: #0f172a; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #1e3a8a; display: flex; align-items: center; }
+        .section-subtitle { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-top: 2.5rem; margin-bottom: 1rem; display: flex; align-items: center; }
+        .section-subtitle::before { content: ''; display: inline-block; width: 6px; height: 1.2rem; background-color: #16A4BE; margin-right: 0.5rem; border-radius: 2px; }
+
+        /* 프로세스 화살표 컨테이너 */
+        .process-row { display: flex; flex-wrap: wrap; gap: 1rem; margin: 2rem 0; position: relative; }
+        .process-row::before { content: ''; position: absolute; top: 40px; left: 10%; right: 10%; height: 2px; background: #cbd5e1; z-index: 0; display: none; }
+        @media (min-width: 768px) { .process-row::before { display: block; } }
+        .process-card { flex: 1; min-width: 160px; background: white; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem 1rem; text-align: center; position: relative; z-index: 1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.3s; }
+        .process-card:hover { transform: translateY(-5px); border-color: #1e3a8a; }
+        .p-icon-wrap { width: 4rem; height: 4rem; border-radius: 50%; background: #f8fafc; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #64748b; margin: 0 auto 1rem auto; transition: all 0.3s; }
+        .process-card:hover .p-icon-wrap { background: #1e3a8a; color: white; border-color: #1e3a8a; }
+
+        /* 데이터 테이블 */
+        .hb-table { width: 100%; border-collapse: collapse; border-top: 2px solid #1e3a8a; background: white; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .hb-table th { background-color: #f8fafc; color: #1e293b; font-weight: 800; padding: 1.2rem 0.75rem; border-bottom: 1px solid #cbd5e1; text-align: center; }
+        .hb-table td { padding: 1.2rem 0.75rem; border-bottom: 1px solid #e2e8f0; color: #475569; text-align: center; vertical-align: middle; }
+        .hb-table tr.hoverable:hover td { background-color: #f1f5f9; cursor: pointer; }
+        .hb-table .t-title { text-align: left; padding-left: 1rem; font-weight: 500; color: #0f172a; transition: color 0.2s; }
+        .hb-table tr.hoverable:hover .t-title { color: #1e3a8a; font-weight: 700; text-decoration: underline; }
+
+        /* 실시간 대시보드 위젯 */
+        .dash-widget { background: linear-gradient(135deg, #ffffff, #f8fafc); border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        .dash-widget::after { content: ''; position: absolute; right: -20px; bottom: -20px; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 6rem; color: #f1f5f9; z-index: 0; opacity: 0.5; transform: rotate(-15deg); }
+        .dash-val { position: relative; z-index: 1; font-size: 2.5rem; font-weight: 900; }
+
+        /* CSS Bar Chart */
+        .bar-chart-row { display: flex; align-items: center; margin-bottom: 0.75rem; }
+        .bar-label { width: 80px; font-size: 0.85rem; font-weight: 700; color: #475569; }
+        .bar-wrap { flex-grow: 1; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin: 0 10px; }
+        .bar-fill { height: 100%; border-radius: 6px; animation: expandWidth 1s ease-out forwards; width: 0; }
+        .bar-val { width: 40px; font-size: 0.85rem; font-weight: 800; color: #1e293b; text-align: right; }
+        @keyframes expandWidth { to { width: var(--w); } }
+
+        /* 티커 애니메이션 */
+        .ticker-wrap { overflow: hidden; height: 260px; position: relative; }
+        .ticker-move { animation: tickerUp 20s linear infinite; }
+        .ticker-move:hover { animation-play-state: paused; }
+        @keyframes tickerUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+
+        /* 폼 공통 */
+        .form-label { font-weight: 800; color: #1e293b; font-size: 0.95rem; margin-bottom: 0.5rem; display: block; }
+        .form-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.95rem; transition: all 0.2s; background: #fff; }
+        .form-input:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); outline: none; }
+
+        /* 스크롤바 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        @media (max-width: 768px) { .hide-mobile { display: none; } .spa-group-title { display: none; } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 히어로 비주얼 (무게감, 투명성 강조) -->
+    <div class="w-full bg-[#0f172a] h-[300px] flex flex-col items-center justify-center relative overflow-hidden mt-16 md:mt-20 border-b-4 border-[#1e3a8a] print-hide">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-[#1e3a8a]/60 to-transparent"></div>
+        
+        <!-- 데코 요소 -->
+        <div class="absolute right-0 bottom-0 opacity-5 text-[15rem] leading-none pointer-events-none transform translate-x-1/4 translate-y-1/4"><i class="fa-solid fa-scale-balanced"></i></div>
+
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+            <div class="inline-block mb-4 px-4 py-1.5 border border-sky-400/30 bg-sky-500/20 rounded-full backdrop-blur-sm">
+                <p class="text-sky-300 font-bold tracking-widest text-xs uppercase"><i class="fa-solid fa-gavel mr-2"></i>Hyobin Compliance & Transparency</p>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-5 tracking-tight drop-shadow-lg">부조리신고 및 투명경영</h1>
+            <p class="text-slate-300 text-sm md:text-base font-medium leading-relaxed max-w-2xl mx-auto">
+                반부패 척결과 투명한 정보 공개는 시민을 향한 효빈교통공사의 최우선 약속입니다.<br>
+                비위 행위 익명 제보부터 주요 결재문서 원문 공개까지, 청렴한 효빈을 시민과 함께 만듭니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <main id="main-content" class="flex-grow w-full max-w-[1200px] mx-auto px-4 py-8 bg-transparent mt-2 mb-16 relative z-10 print-hide">
+        
+        <!-- 브레드크럼 -->
+        <div class="flex items-center text-sm text-gray-500 mb-8 bg-white px-6 py-4 rounded-xl border border-slate-200 shadow-sm">
+            <i class="fa-solid fa-house mr-2 hover:text-[#16A4BE] cursor-pointer transition text-slate-400" onclick="location.href='index.html'"></i> 
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px] text-slate-300"></i> <span class="font-medium hover:text-slate-700 cursor-pointer">정보공개</span>
+            <i class="fa-solid fa-chevron-right mx-2 text-[10px] text-slate-300"></i> <span class="font-black text-[#1e3a8a]" id="breadcrumb-current">하도급부조리 신고</span>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            
+            <!-- SPA 탭 네비게이션 -->
+            <div class="spa-tab-nav" id="tabMenu">
+                <div class="spa-tab-group">
+                    <div class="spa-group-title"><i class="fa-solid fa-triangle-exclamation mr-2 text-rose-500"></i>신고센터</div>
+                    <div class="spa-tab active" data-target="subcontract">하도급부조리 신고</div>
+                    <div class="spa-tab" data-target="proxy">안심 대리신고</div>
+                    <div class="spa-tab" data-target="public">공익신고</div>
+                    <div class="spa-tab" data-target="finance">공공재정 부정청구</div>
+                </div>
+                <div class="spa-tab-group">
+                    <div class="spa-group-title"><i class="fa-solid fa-magnifying-glass-chart mr-2 text-sky-500"></i>투명경영</div>
+                    <div class="spa-tab" data-target="documents">결재문서/회의록</div>
+                    <div class="spa-tab" data-target="committee">위원회 운영현황</div>
+                    <div class="spa-tab" data-target="voc">실시간 민원(VOC)</div>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-10 min-h-[700px] bg-white">
+                
+                <!-- ==========================================
+                     1. 하도급부조리 신고 탭 (subcontract)
+                =========================================== -->
+                <div id="content-subcontract" class="spa-content active">
+                    <h2 class="section-title"><i class="fa-solid fa-hard-hat text-amber-500 mr-3"></i>건설·용역 하도급 부조리 신고센터</h2>
+                    <p class="text-slate-600 leading-relaxed mb-8 text-[15px]">
+                        효빈교통공사가 발주한 건설공사 및 기술용역(예: 빈효선 2단계 연장, 7호선 구도심 구간 트램 공사 등) 수행 과정에서 원도급자의 불공정 하도급 행위, 장비 대금 체불, 근로자 임금 미지급 등의 피해를 겪으신 분들을 위한 익명 신고 창구입니다.
+                    </p>
+
+                    <div class="flex flex-col md:flex-row gap-6 mb-10">
+                        <div class="flex-1 bg-rose-50 border border-rose-200 rounded-xl p-6 shadow-sm border-t-4 border-t-rose-500">
+                            <h4 class="font-black text-rose-800 text-lg mb-3 flex items-center"><i class="fa-solid fa-ban mr-2"></i>주요 신고 대상</h4>
+                            <ul class="list-disc list-inside text-sm text-rose-700 space-y-2 font-medium">
+                                <li>불법 하도급 (일괄 하도급, 무면허 재하도급)</li>
+                                <li>하도급 대금 부당 감액 및 지연 이자 미지급</li>
+                                <li>건설기계 대여대금 및 현장 근로자 임금 체불</li>
+                                <li>부당한 특약(산재 처리 전가 등) 설정 행위</li>
+                            </ul>
+                        </div>
+                        <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm border-t-4 border-t-slate-500">
+                            <h4 class="font-black text-slate-800 text-lg mb-3 flex items-center"><i class="fa-solid fa-user-shield mr-2"></i>신고자 보호 및 처리 안내</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-2 font-medium">
+                                <li>제보자의 신원은 <span class="text-blue-600 font-bold">절대 익명 보장</span>되며 암호화 보관됩니다.</li>
+                                <li>접수된 제보는 감사실 직속 '하도급 암행감찰반'이 즉시 조사합니다.</li>
+                                <li>사실 확인 시 원도급사 기성금 지급 중지 및 형사 고발 조치.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 제보 폼 (UI 디테일업) -->
+                    <div class="bg-white border border-slate-300 rounded-2xl p-8 shadow-md">
+                        <h3 class="font-black text-slate-900 text-xl mb-6 pb-2 border-b-2 border-slate-100">하도급 부조리 제보 작성</h3>
+                        <form class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="form-label">관련 공사/용역명 <span class="text-red-500">*</span></label>
+                                    <select class="form-input">
+                                        <option value="">대상 사업을 선택하세요</option>
+                                        <option>빈효선 2단계 (전덕~천주) 대심도 터널 공사</option>
+                                        <option>7호선 트램 (어간중앙~효빈성북문) 궤도 부설</option>
+                                        <option>1호선 곽산역 환승센터 건립 공사</option>
+                                        <option>3호선 사가당역 에스컬레이터 전면 교체</option>
+                                        <option>기타 시설물 개량 및 용역</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">원도급사(시공사) 명칭 <span class="text-red-500">*</span></label>
+                                    <input type="text" class="form-input" placeholder="예: (주)효빈건설">
+                                </div>
+                                <div>
+                                    <label class="form-label">피해 업체명(또는 본인 성명)</label>
+                                    <input type="text" class="form-input" placeholder="익명 제보 시 비워두셔도 됩니다">
+                                </div>
+                                <div>
+                                    <label class="form-label">체불/피해 발생액 (추정)</label>
+                                    <input type="text" class="form-input" placeholder="예: 15,000,000원">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label">부조리 행위 상세 내용 (6하 원칙) <span class="text-red-500">*</span></label>
+                                    <textarea class="form-input h-40 resize-none leading-relaxed" placeholder="피해 발생 일자, 하도급 대금 미지급 사유(원도급사 주장), 부당 특약 강요 내용 등을 최대한 구체적으로 기재해 주십시오."></textarea>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label">증빙 자료 첨부 (계약서, 녹취록, 내역서 등)</label>
+                                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center bg-slate-50 hover:bg-sky-50 hover:border-sky-300 transition cursor-pointer">
+                                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
+                                        <p class="font-bold text-slate-600 mb-1">클릭하여 파일 선택 (최대 50MB, ZIP 압축 권장)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-slate-100 p-4 rounded-lg flex items-start gap-3 mt-4">
+                                <input type="checkbox" id="agreeSub" class="mt-1 w-4 h-4 text-[#1e3a8a] rounded border-gray-300">
+                                <label for="agreeSub" class="text-sm text-slate-700 font-medium">허위 사실을 제보하여 타 업체의 영업을 고의로 방해할 경우, 관련 법령에 따라 민/형사상 책임을 질 수 있음을 확인합니다. (필수)</label>
+                            </div>
+
+                            <div class="text-center pt-4">
+                                <button type="button" class="px-10 py-4 bg-[#1e3a8a] hover:bg-slate-900 text-white text-lg font-black rounded-xl shadow-lg transition transform hover:-translate-y-1"><i class="fa-solid fa-lock mr-2"></i> 보안 암호화 제출</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     2. 안심 대리신고 탭 (proxy)
+                =========================================== -->
+                <div id="content-proxy" class="spa-content">
+                    <h2 class="section-title"><i class="fa-solid fa-user-secret text-slate-700 mr-3"></i>부패/비리 안심 변호사 대리신고제도</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6 text-[15px]">
+                        내부 고발자 및 협력업체의 신분 노출과 불이익을 원천 차단하기 위해 도입된 제도입니다. 제보자가 직접 공사에 신고하지 않고 <strong>외부 독립 '안심 변호사'</strong>가 제보자를 대리하여 공사 감사실에 철저히 익명으로 신고합니다. (변호사 선임 및 상담 비용은 효빈교통공사가 전액 부담합니다.)
+                    </p>
+
+                    <h3 class="section-subtitle">대리신고 4단계 프로세스</h3>
+                    <div class="process-row">
+                        <div class="process-card">
+                            <div class="p-icon-wrap"><i class="fa-solid fa-envelope-open-text"></i></div>
+                            <h4 class="font-black text-slate-800 mb-1">1. 제보 및 상담</h4>
+                            <p class="text-xs text-slate-500">안심 변호사에게 이메일<br>또는 전화로 비밀 제보</p>
+                        </div>
+                        <div class="process-card">
+                            <div class="p-icon-wrap"><i class="fa-solid fa-file-shield"></i></div>
+                            <h4 class="font-black text-slate-800 mb-1">2. 조서 작성</h4>
+                            <p class="text-xs text-slate-500">제보자 신분 철저 은닉 후<br>대리 신고서 작성</p>
+                        </div>
+                        <div class="process-card">
+                            <div class="p-icon-wrap"><i class="fa-solid fa-paper-plane"></i></div>
+                            <h4 class="font-black text-slate-800 mb-1">3. 감사실 접수</h4>
+                            <p class="text-xs text-slate-500">변호사 명의로 공사<br>상임감사에게 직접 제출</p>
+                        </div>
+                        <div class="process-card border-blue-300 bg-blue-50">
+                            <div class="p-icon-wrap !bg-blue-600 !text-white !border-blue-600"><i class="fa-solid fa-gavel"></i></div>
+                            <h4 class="font-black text-blue-900 mb-1">4. 조사/결과 통보</h4>
+                            <p class="text-xs text-blue-700">독립 조사 착수 및 결과를<br>변호사 통해 제보자에게 전달</p>
+                        </div>
+                    </div>
+
+                    <h3 class="section-subtitle">효빈교통공사 위촉 안심 변호사 (2026년 기준)</h3>
+                    <div class="grid md:grid-cols-2 gap-6 mt-6">
+                        <!-- 변호사 1 -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 flex gap-6 shadow-sm hover:shadow-md transition items-center">
+                            <div class="w-24 h-24 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 relative">
+                                <img src="https://placehold.co/100x100/1e3a8a/ffffff?text=Lawyer+A" alt="김항동 변호사" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <h4 class="font-black text-xl text-slate-900">김항동 변호사</h4>
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded">법무법인(유) 항동</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-3">전) 효빈지방검찰청 특수부 검사</p>
+                                <ul class="text-sm text-slate-700 space-y-1.5 font-medium">
+                                    <li><i class="fa-solid fa-phone mr-2 text-slate-400"></i>079-245-1122 (직통)</li>
+                                    <li><i class="fa-solid fa-envelope mr-2 text-slate-400"></i>hd_law@hangdong.kr</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- 변호사 2 -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 flex gap-6 shadow-sm hover:shadow-md transition items-center">
+                            <div class="w-24 h-24 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 relative">
+                                <img src="https://placehold.co/100x100/16A4BE/ffffff?text=Lawyer+B" alt="이평당 변호사" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <h4 class="font-black text-xl text-slate-900">이평당 변호사</h4>
+                                    <span class="px-2 py-0.5 bg-sky-100 text-sky-700 text-[10px] font-bold rounded">평당합동법률사무소</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-3">현) 국민권익위원회 청렴자문위원</p>
+                                <ul class="text-sm text-slate-700 space-y-1.5 font-medium">
+                                    <li><i class="fa-solid fa-phone mr-2 text-slate-400"></i>079-551-8899 (직통)</li>
+                                    <li><i class="fa-solid fa-envelope mr-2 text-slate-400"></i>pd_legal@pdlaw.com</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     3. 공익신고 탭 (public)
+                =========================================== -->
+                <div id="content-public" class="spa-content">
+                    <h2 class="section-title"><i class="fa-solid fa-bullhorn text-emerald-600 mr-3"></i>공익신고 (국민권익위원회 연계)</h2>
+                    <p class="text-slate-600 leading-relaxed mb-8 text-[15px]">
+                        국민의 건강, 안전, 환경, 소비자의 이익 및 공정한 경쟁을 침해하는 『공익신고자 보호법』 상의 위반 행위를 신고하는 창구입니다. 효빈교통공사는 정부의 청렴 포털과 연계하여 철저한 보호 조치를 약속합니다.
+                    </p>
+
+                    <!-- 자가진단 체크리스트 -->
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 mb-8">
+                        <h4 class="font-black text-emerald-800 text-lg mb-4"><i class="fa-solid fa-clipboard-check mr-2"></i>이것이 공익침해행위인가요? (자가진단)</h4>
+                        <div class="grid md:grid-cols-2 gap-4 text-sm text-emerald-900 font-medium">
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-start gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> 지하철 역사 내 소방시설을 고의로 훼손하거나 폐쇄하는 행위 (안전 침해)</div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-start gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> 공사 발주 입찰 과정에서 업체 간 담합 행위 (공정경쟁 침해)</div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-start gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> 차량기지 내 유해화학물질이나 폐유를 무단으로 방류하는 행위 (환경 침해)</div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-500 mt-1"></i> 열차 지연, 에어컨 온도 등 단순 서비스 불만 (👉 고객의 소리로 이동)</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-5 justify-center mt-10">
+                        <a href="https://www.clean.go.kr" target="_blank" class="flex-1 bg-white border-2 border-emerald-500 rounded-2xl p-8 text-center hover:bg-emerald-50 transition shadow-md group relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black px-3 py-1 rounded-bl-lg">정부 통합 접수</div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Anti-Corruption_and_Civil_Rights_Commission_%28South_Korea%29_logo.svg/300px-Anti-Corruption_and_Civil_Rights_Commission_%28South_Korea%29_logo.svg.png" alt="국민권익위원회" class="h-12 mx-auto mb-4 opacity-80 group-hover:opacity-100 transition">
+                            <h4 class="font-black text-slate-900 text-xl mb-2">청렴포털_부패공익신고</h4>
+                            <p class="text-sm text-slate-500 font-medium">국민권익위원회 직접 접수 (법적 보호 최고 등급)</p>
+                        </a>
+                        <div class="flex-1 bg-white border border-slate-300 rounded-2xl p-8 text-center hover:bg-slate-50 transition shadow-sm cursor-pointer">
+                            <i class="fa-solid fa-building-user text-5xl text-slate-400 mb-4"></i>
+                            <h4 class="font-black text-slate-900 text-xl mb-2">공사 자체 감사실 신고</h4>
+                            <p class="text-sm text-slate-500 font-medium">효빈교통공사 감사실 다이렉트 접수 (본인인증 必)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     4. 공공재정 부정청구 탭 (finance)
+                =========================================== -->
+                <div id="content-finance" class="spa-content">
+                    <h2 class="section-title"><i class="fa-solid fa-hand-holding-dollar text-purple-600 mr-3"></i>공공재정 부정청구행위 신고</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6 text-[15px]">
+                        「공공재정 부정청구 금지 및 부정이익 환수 등에 관한 법률」에 따라, 공사가 지급하는 각종 보조금, 보상금, 연구비 등을 <strong>허위·과다 청구</strong>하거나 <strong>목적 외로 사용</strong>하는 행위를 신고하는 곳입니다.
+                    </p>
+
+                    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-8">
+                        <div class="bg-slate-800 text-white font-black p-4 text-center">신고자 보상 및 포상금 지급 기준</div>
+                        <table class="hb-table !mb-0 !border-t-0">
+                            <colgroup><col width="20%"><col width="80%"></colgroup>
+                            <tbody>
+                                <tr>
+                                    <th class="bg-slate-50 border-r border-slate-200">보상금 (최대 30억)</th>
+                                    <td class="text-left font-medium">신고로 인해 공공기관에 직접적인 수입 회복이나 증대(환수액)가 발생한 경우, 환수액의 <strong class="text-purple-600">최대 30%</strong>를 지급</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-slate-50 border-r border-slate-200">포상금 (최대 2억)</th>
+                                    <td class="text-left font-medium">직접적인 수입 회복이 없더라도, 공익 증진을 가져온 경우 <strong class="text-purple-600">최대 2억 원</strong>의 포상금 지급</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-slate-50 border-r border-slate-200">제재부가금</th>
+                                    <td class="text-left font-medium">부정청구 적발 시, 부정이익 전액 환수는 물론 <strong class="text-red-500">최대 5배의 제재부가금</strong>이 추가 부과됩니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <button class="px-8 py-3 bg-purple-700 hover:bg-purple-800 text-white font-black rounded-lg shadow-md transition text-lg"><i class="fa-solid fa-file-arrow-down mr-2"></i> 부정청구 신고서 양식 다운로드 (.hwp)</button>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     5. 결재문서/회의록 탭 (documents)
+                =========================================== -->
+                <div id="content-documents" class="spa-content">
+                    <h2 class="section-title"><i class="fa-solid fa-folder-open text-sky-600 mr-3"></i>주요 결재문서 및 이사회 회의록</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6 text-[15px]">
+                        효빈교통공사는 정보공개법에 따라, 투명한 책임 경영 구현을 위해 이사회/위원회 회의록 및 국장급 이상 주요 정책 결재문서를 원문 그대로 시민에게 공개합니다. (개인정보 등 일부 블라인드 처리)
+                    </p>
+
+                    <!-- 검색 필터 -->
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                        <div class="flex items-center gap-3 w-full md:w-auto flex-wrap">
+                            <select id="docCategory" class="form-input w-full md:w-auto" style="padding: 0.5rem 1rem;">
+                                <option value="all">문서 구분 전체</option>
+                                <option value="회의록">이사회/위원회 회의록</option>
+                                <option value="결재문서">주요 결재문서(국장급 이상)</option>
+                            </select>
+                            <input type="text" id="docSearch" placeholder="제목, 담당부서 검색" class="form-input w-full md:w-64" style="padding: 0.5rem 1rem;">
+                            <button onclick="renderDocTable(1)" class="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 rounded-lg font-bold transition shadow-sm whitespace-nowrap">검색</button>
+                        </div>
+                    </div>
+
+                    <!-- 문서 테이블 -->
+                    <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                        <table class="hb-table !mb-0 !border-t-0 min-w-[800px]">
+                            <thead>
+                                <tr>
+                                    <th class="w-24">문서번호</th>
+                                    <th class="w-28">구분</th>
+                                    <th class="w-auto">문서 제목 / 안건명</th>
+                                    <th class="w-32 hide-mobile">생산 부서</th>
+                                    <th class="w-28">공개 일자</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docBody">
+                                <!-- JS 렌더링 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-right text-xs text-slate-400 mt-2"><i class="fa-solid fa-hand-pointer mr-1"></i>목록을 클릭하시면 문서 원문을 조회할 수 있습니다.</div>
+                    <div id="docPagination" class="flex justify-center mt-6 gap-1"></div>
+                </div>
+
+                <!-- ==========================================
+                     6. 위원회 운영현황 탭 (committee)
+                =========================================== -->
+                <div id="content-committee" class="spa-content">
+                    <h2 class="section-title"><i class="fa-solid fa-users-gear text-slate-700 mr-3"></i>주요 위원회 운영 현황</h2>
+                    <p class="text-slate-600 leading-relaxed mb-8 text-[15px]">
+                        공사의 투명한 의사결정을 담보하기 위해 각 분야별 외부 전문가(시민, 교수, 변호사 등)가 과반수 참여하는 제 위원회를 운영하고 있습니다.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 위원회 카드 1 -->
+                        <div class="border border-slate-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                            <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
+                                <h4 class="font-black text-lg">ESG 경영위원회</h4>
+                                <span class="text-xs bg-emerald-500 px-2 py-1 rounded font-bold">이사회 산하</span>
+                            </div>
+                            <div class="p-5 bg-slate-50">
+                                <ul class="text-sm text-slate-700 space-y-3 font-medium">
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">위원장</span> <span class="text-slate-900 font-black">박효빈 (대표이사/시장)</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">구 성</span> <span>총 7명 (내부 3명, 외부 4명)</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">기 능</span> <span class="leading-relaxed">지속가능경영 중장기 전략 수립 및 ESG 채권 발행 승인 심사</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">주 기</span> <span>분기별 1회 정기 개최</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- 위원회 카드 2 -->
+                        <div class="border border-slate-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                            <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
+                                <h4 class="font-black text-lg">주민참여예산심의위원회</h4>
+                                <span class="text-xs bg-sky-500 px-2 py-1 rounded font-bold">시민 과반</span>
+                            </div>
+                            <div class="p-5 bg-slate-50">
+                                <ul class="text-sm text-slate-700 space-y-3 font-medium">
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">위원장</span> <span class="text-slate-900">민간위원 중 호선 (현: 최*석)</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">구 성</span> <span>총 15명 (시민대표 12명 포함)</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">기 능</span> <span class="leading-relaxed">시민 제안 사업 타당성 심의 및 우선순위 결정 (예산 50억 배정)</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">주 기</span> <span>연 2회 (상/하반기) 개최</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- 위원회 카드 3 -->
+                        <div class="border border-slate-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                            <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
+                                <h4 class="font-black text-lg">인사/징계 위원회</h4>
+                                <span class="text-xs bg-rose-500 px-2 py-1 rounded font-bold">독립 운영</span>
+                            </div>
+                            <div class="p-5 bg-slate-50">
+                                <ul class="text-sm text-slate-700 space-y-3 font-medium">
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">위원장</span> <span class="text-slate-900">경영지원본부장</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">구 성</span> <span>총 7명 (외부 노무사/변호사 필수)</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">기 능</span> <span class="leading-relaxed">임직원 채용, 승진 심사 및 중대 비위 행위자 징계 양정 의결</span></li>
+                                    <li class="flex"><span class="text-slate-400 font-bold w-16 shrink-0">주 기</span> <span>사안 발생 시 수시 개최</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     7. 실시간 민원(VOC) 탭 (voc)
+                =========================================== -->
+                <div id="content-voc" class="spa-content">
+                    <div class="flex flex-col md:flex-row justify-between md:items-end border-b-2 border-slate-800 mb-6 pb-2">
+                        <h2 class="text-2xl font-black text-slate-900"><i class="fa-solid fa-tower-broadcast text-[#16A4BE] mr-2"></i>실시간 민원소통 대시보드</h2>
+                        <div class="text-xs font-bold text-slate-400 flex items-center mt-2 md:mt-0"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>기준: 2026. 04. 16. (실시간 동기화)</div>
+                    </div>
+                    
+                    <p class="text-slate-600 leading-relaxed mb-8 text-[15px]">당일 접수된 민원은 24시간 내 처리를 원칙으로 하며, 빅데이터 기반 키워드 분석을 통해 반복되는 불편사항을 즉시 시정합니다.</p>
+
+                    <!-- 메트릭스 -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="dash-widget">
+                            <p class="text-xs font-black text-slate-400 mb-1">금일 접수 건수</p>
+                            <p class="dash-val text-slate-800">412<span class="text-sm font-bold ml-1">건</span></p>
+                            <style>.dash-widget:nth-child(1)::after { content: '\f0e0'; }</style>
+                        </div>
+                        <div class="dash-widget">
+                            <p class="text-xs font-black text-slate-400 mb-1">처리 완료</p>
+                            <p class="dash-val text-blue-600">385<span class="text-sm font-bold ml-1">건</span></p>
+                            <style>.dash-widget:nth-child(2)::after { content: '\f058'; }</style>
+                        </div>
+                        <div class="dash-widget">
+                            <p class="text-xs font-black text-slate-400 mb-1">당일 처리율</p>
+                            <p class="dash-val text-emerald-500">93.4<span class="text-sm font-bold ml-1">%</span></p>
+                            <style>.dash-widget:nth-child(3)::after { content: '\f201'; }</style>
+                        </div>
+                        <div class="dash-widget">
+                            <p class="text-xs font-black text-slate-400 mb-1">평균 처리 시간</p>
+                            <p class="dash-val text-purple-600">1.1<span class="text-sm font-bold ml-1">시간</span></p>
+                            <style>.dash-widget:nth-child(4)::after { content: '\f017'; }</style>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        <!-- 민원 유형 차트 -->
+                        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+                            <h4 class="font-black text-slate-800 mb-6 text-sm"><i class="fa-solid fa-chart-bar text-slate-400 mr-2"></i>금주 민원 발생 유형</h4>
+                            
+                            <div class="bar-chart-row">
+                                <div class="bar-label">전동차 냉난방</div>
+                                <div class="bar-wrap"><div class="bar-fill bg-sky-500" style="--w: 85%;"></div></div>
+                                <div class="bar-val">85%</div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-label">열차 지연</div>
+                                <div class="bar-wrap"><div class="bar-fill bg-amber-500" style="--w: 42%;"></div></div>
+                                <div class="bar-val">42%</div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-label">시설물 고장</div>
+                                <div class="bar-wrap"><div class="bar-fill bg-rose-500" style="--w: 28%;"></div></div>
+                                <div class="bar-val">28%</div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-label">유실물 문의</div>
+                                <div class="bar-wrap"><div class="bar-fill bg-emerald-500" style="--w: 15%;"></div></div>
+                                <div class="bar-val">15%</div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-label">직원 칭찬</div>
+                                <div class="bar-wrap"><div class="bar-fill bg-indigo-500" style="--w: 8%;"></div></div>
+                                <div class="bar-val">8%</div>
+                            </div>
+                        </div>
+
+                        <!-- 실시간 접수 티커 (로어 반영) -->
+                        <div class="lg:col-span-3 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                            <div class="bg-slate-800 text-white px-5 py-3 text-sm font-bold flex justify-between items-center z-10 shadow-sm">
+                                <span><i class="fa-solid fa-bolt text-yellow-400 mr-2"></i>실시간 접수 현황 (최근 1시간)</span>
+                            </div>
+                            <div class="flex-grow bg-slate-50 p-0 relative overflow-hidden">
+                                <div class="ticker-wrap w-full h-full">
+                                    <ul class="divide-y divide-slate-200 text-sm font-medium ticker-move w-full absolute top-0 left-0">
+                                        <!-- 세트 1 -->
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] rounded shrink-0 font-bold">불편</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line1 font-black">[1호선]</span> 장선역 방면 전동차 에어컨 온도가 너무 낮습니다.</span>
+                                            <span class="text-xs text-emerald-600 font-bold shrink-0">조치완료</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] rounded shrink-0 font-bold">신고</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line8 font-black">[8호선]</span> 평당고역 출구 바닥에 타이어 분진이 너무 까맣습니다. 청소 요망.</span>
+                                            <span class="text-xs text-blue-600 font-bold shrink-0">부서전달</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded shrink-0 font-bold">문의</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-linebh font-black">[빈효선]</span> HAF 기간에 효빈항역 코인락커 추가 설치되나요?</span>
+                                            <span class="text-xs text-emerald-600 font-bold shrink-0">답변완료</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded shrink-0 font-bold">칭찬</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line2 font-black">[2호선]</span> 어간중앙역 하루빈 역무원님, 지갑 찾아주셔서 정말 감사합니다ㅠㅠ</span>
+                                            <span class="text-xs text-emerald-600 font-bold shrink-0">전달완료</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] rounded shrink-0 font-bold">건의</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line3 font-black">[3호선]</span> 사능역 대합실에 빵지순례 지도 비치해주시면 좋겠어요.</span>
+                                            <span class="text-xs text-slate-400 font-bold shrink-0">검토중</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] rounded shrink-0 font-bold">불편</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line7 font-black">[7호선]</span> 트램이 구도심 골목 지날 때 경적소리가 너무 큽니다.</span>
+                                            <span class="text-xs text-blue-600 font-bold shrink-0">부서전달</span>
+                                        </li>
+                                        <!-- 세트 2 (무한 스크롤 효과를 위한 복제) -->
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] rounded shrink-0 font-bold">불편</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line1 font-black">[1호선]</span> 장선역 방면 전동차 에어컨 온도가 너무 낮습니다.</span>
+                                            <span class="text-xs text-emerald-600 font-bold shrink-0">조치완료</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] rounded shrink-0 font-bold">신고</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-line8 font-black">[8호선]</span> 평당고역 출구 바닥에 타이어 분진이 너무 까맣습니다. 청소 요망.</span>
+                                            <span class="text-xs text-blue-600 font-bold shrink-0">부서전달</span>
+                                        </li>
+                                        <li class="px-5 py-4 flex gap-3 items-center hover:bg-white transition bg-slate-50">
+                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded shrink-0 font-bold">문의</span>
+                                            <span class="truncate text-slate-700 flex-grow"><span class="c-linebh font-black">[빈효선]</span> HAF 기간에 효빈항역 코인락커 추가 설치되나요?</span>
+                                            <span class="text-xs text-emerald-600 font-bold shrink-0">답변완료</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- [상세보기 모달 팝업 - 결재문서용] -->
+    <div id="docModal" class="fixed inset-0 z-[100] hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[85vh] transform scale-95 transition-transform duration-300 overflow-hidden" id="docModalContent">
+            
+            <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-start bg-slate-800 text-white shrink-0">
+                <div class="pr-8">
+                    <span id="modalCat" class="px-2 py-0.5 bg-slate-600 rounded text-[10px] font-bold mb-2 inline-block"></span>
+                    <h2 id="modalTitle" class="text-xl font-black leading-tight text-white/95 word-break-keep"></h2>
+                </div>
+                <button onclick="closeDocModal()" class="text-slate-400 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar bg-white flex-grow">
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm grid grid-cols-2 gap-y-3">
+                    <div><span class="text-slate-500 font-bold w-16 inline-block">문서번호</span> <span id="modalId" class="text-slate-900 font-bold"></span></div>
+                    <div><span class="text-slate-500 font-bold w-16 inline-block">공개일자</span> <span id="modalDate" class="text-slate-900"></span></div>
+                    <div class="col-span-2"><span class="text-slate-500 font-bold w-16 inline-block">생산부서</span> <span id="modalDept" class="text-slate-900 font-bold"></span></div>
+                </div>
+
+                <h3 class="font-bold text-slate-800 mb-2 border-b-2 border-slate-800 pb-1 inline-block">문서 요약 (초록)</h3>
+                <div id="modalContentText" class="text-slate-700 leading-relaxed text-[14px] whitespace-pre-line p-4 bg-slate-50 border border-slate-100 rounded-lg mb-6"></div>
+
+                <h3 class="font-bold text-slate-800 mb-2 border-b border-slate-200 pb-1"><i class="fa-solid fa-paperclip text-[#16A4BE] mr-1"></i> 원문 파일</h3>
+                <div class="flex items-center justify-between bg-slate-50 p-3 border border-slate-200 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+                    <div class="flex items-center gap-2"><i class="fa-regular fa-file-pdf text-red-500 text-lg"></i> <span id="modalFileName" class="text-sm font-medium text-slate-700"></span></div>
+                    <span class="text-xs text-slate-500 border border-slate-300 bg-white px-2 py-1 rounded">다운로드</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS 로직 -->
+    <script>
+        // --- 1. 결재문서 더미 데이터 (로어 반영) ---
+        const ITEMS_PER_PAGE = 8;
+        const documentData = [
+            { id: "DOC-26-042", category: "결재문서", title: "빈효선 해안가 지상구간(효빈항 주변) 가동식 방파벽 보강 예산 증액결정안", dept: "건설본부", date: "2026.04.12", content: "여름철 태풍 및 해일 내습 시 빈효선 지상 구간(효빈항역 인근)의 선로 침수를 방지하기 위한 2.5m 가동식 방파벽의 내구성 보강 및 유압 실린더 교체 예산(증액) 승인의 건입니다." },
+            { id: "DOC-26-041", category: "회의록", title: "2026년 제3차 이사회 회의록 (1호선 노후 전동차 40편성 교체 승인안)", dept: "기획조정처", date: "2026.04.05", content: "1호선(파란색 노선) 개통 초기 도입된 구형 쵸퍼제어 전동차 40편성의 내구연한 도래에 따른 신형 VVVF 인버터 전동차 전면 교체 발주 심의 의결서. (원안 가결)" },
+            { id: "DOC-26-040", category: "결재문서", title: "하계 HAF(효빈 애니 페스티벌) 대비 고송교차로역 등 인파밀집역 특별안전대책", dept: "안전환경본부", date: "2026.03.28", content: "HAF 축제 기간 중 2, 6호선 환승역인 고송교차로역의 병목현상 해소를 위해 'Kuku Guard' AI 탐지망 임계치 하향 조정 및 기동 타격대 전진 배치, 그리고 코스어 전용 임시 동선 분리 계획." },
+            { id: "DOC-26-039", category: "결재문서", title: "구 효빈전차 사능선 폐선부지 '시민 녹지 공원' 조성 사업 실시설계 인가", dept: "ESG경영처", date: "2026.03.15", content: "1969년 폐지된 구 효빈전차 사능선 구간의 방치된 폐선 부지를 시민들을 위한 친환경 선형 녹지 공원으로 탈바꿈하기 위한 실시설계 최종 인가 문서." },
+            { id: "DOC-26-038", category: "회의록", title: "제1차 주민참여예산심의위원회 회의록 (5호선 청덕공원역 리프트 철거 및 엘리베이터 신설)", dept: "기획조정처", date: "2026.02.20", content: "시민 제안으로 상정된 5호선 청덕공원역 휠체어 리프트 철거 및 경사형 엘리베이터 신설안에 대한 우선순위 투자 결정 회의록." },
+            { id: "DOC-26-037", category: "결재문서", title: "효빈교통공사-효빈경찰서 '지능형 이상행동 탐지망(Kuku Guard)' 연동 업무협약", dept: "기술본부", date: "2026.02.10", content: "역사 내 흉기 난동 및 오타쿠 대상 혐오 범죄 예방을 위해, 공사 관제실의 Kuku Guard AI 알림을 관할 경찰서 상황실에 3초 내로 즉각 전송하는 핫라인 구축 협약서." },
+            { id: "DOC-26-036", category: "결재문서", title: "2026년 상반기 신입사원(역무, 승무, 차량, 기술) 공개채용 세부계획(안)", dept: "인사처", date: "2026.01.25", content: "총 120명 규모의 2026년도 상반기 신입사원 공채 계획. (NCS 직업기초능력평가 및 블라인드 면접 기준 포함)" },
+            { id: "DOC-26-035", category: "회의록", title: "2025년 제12차 이사회 회의록 (7호선 트램 다회용컵 순환시스템 예산 승인)", dept: "기획조정처", date: "2025.12.18", content: "ESG 환경경영의 일환으로 7호선 무가선 트램 전 역사에 일회용 컵 반입을 제한하고, 다회용 컵(리유저블 컵) 무인 반납기를 설치하는 사업 예산 승인안." },
+            { id: "DOC-26-034", category: "결재문서", title: "7호선 임세정/임세하 자매 래핑 트램 차량 디자인 갱신 원작자 라이선스 계약", dept: "부대사업처", date: "2025.11.30", content: "7호선 분홍색 마스코트(임세정, 임세하) 래핑 트램의 노후 필름 교체 시기에 맞춰, 원작자와의 신규 2차 일러스트 사용권 라이선스 연장 계약 체결안." }
+        ];
+
+        // --- 2. 문서 테이블 렌더링 ---
+        function renderDocTable(page = 1) {
+            const searchKeyword = document.getElementById('docSearch').value.toLowerCase();
+            const categoryValue = document.getElementById('docCategory').value;
+            
+            const filtered = documentData.filter(d => {
+                const matchSearch = d.title.toLowerCase().includes(searchKeyword) || d.dept.toLowerCase().includes(searchKeyword);
+                const matchCategory = categoryValue === 'all' || d.category === categoryValue;
+                return matchSearch && matchCategory;
+            });
+            
+            const tbody = document.getElementById('docBody');
+            tbody.innerHTML = '';
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-slate-400 text-center text-sm bg-slate-50">검색된 문서가 없습니다.</td></tr>`;
+                document.getElementById('docPagination').innerHTML = '';
+                return;
+            }
+
+            const startIdx = (page - 1) * ITEMS_PER_PAGE;
+            const pagedData = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            pagedData.forEach((item) => { 
+                let catBadge = item.category === '회의록' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700';
+                
+                // 로어(노선) 강조
+                let formattedTitle = item.title
+                    .replace(/1호선/g, '<span class="c-line1 font-bold">1호선</span>')
+                    .replace(/5호선/g, '<span class="text-red-500 font-bold">5호선</span>')
+                    .replace(/7호선/g, '<span class="c-line7 font-bold">7호선</span>')
+                    .replace(/빈효선/g, '<span class="c-linebh font-bold">빈효선</span>');
+
+                tbody.innerHTML += `
+                <tr class="hoverable" onclick="openDocModal('${item.id}')">
+                    <td class="font-bold text-slate-400 text-xs">${item.id}</td>
+                    <td><span class="px-2.5 py-1 text-[10px] font-black rounded block text-center ${catBadge}">${item.category}</span></td>
+                    <td class="t-title leading-relaxed">${formattedTitle}</td>
+                    <td class="hide-mobile text-slate-500 text-[13px] text-center font-medium">${item.dept}</td>
+                    <td class="font-bold text-slate-600 text-[13px] text-center">${item.date}</td>
+                </tr>`;
+            });
+
+            // Pagination
+            const pContainer = document.getElementById('docPagination');
+            pContainer.innerHTML = '';
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            if(totalPages > 1) {
+                for(let i=1; i<=totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `w-8 h-8 flex items-center justify-center border border-slate-300 rounded mx-0.5 text-sm transition ${i === page ? 'bg-[#1e3a8a] text-white border-[#1e3a8a] font-bold shadow' : 'text-slate-600 hover:bg-slate-100 bg-white'}`;
+                    btn.innerText = i;
+                    btn.onclick = () => renderDocTable(i);
+                    pContainer.appendChild(btn);
+                }
+            }
+        }
+
+        // --- 3. 모달 (문서 상세보기) 제어 ---
+        const docModal = document.getElementById('docModal');
+        const docModalContent = document.getElementById('docModalContent');
+
+        function openDocModal(id) {
+            const data = documentData.find(d => d.id === id);
+            if(!data) return;
+
+            document.getElementById('modalCat').innerText = data.category;
+            document.getElementById('modalTitle').innerText = data.title;
+            document.getElementById('modalId').innerText = data.id;
+            document.getElementById('modalDate').innerText = data.date;
+            document.getElementById('modalDept').innerText = data.dept;
+            document.getElementById('modalContentText').innerText = data.content;
+            document.getElementById('modalFileName').innerText = `${data.title}_원문.pdf`;
+
+            document.body.style.overflow = 'hidden';
+            docModal.classList.remove('hidden');
+            void docModal.offsetWidth;
+            docModal.classList.remove('opacity-0');
+            docModalContent.classList.remove('scale-95');
+            docModalContent.classList.add('scale-100');
+        }
+
+        function closeDocModal() {
+            docModal.classList.add('opacity-0');
+            docModalContent.classList.remove('scale-100');
+            docModalContent.classList.add('scale-95');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => { docModal.classList.add('hidden'); }, 300);
+        }
+
+        docModal.addEventListener('click', e => { if (e.target === docModal) closeDocModal(); });
+
+        // --- 4. SPA 탭 라우팅 로직 ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.spa-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.spa-tab').forEach(el => el.classList.remove('active'));
+            
+            const targetContent = document.getElementById('content-' + tabId);
+            const targetBtn = document.querySelector(`.spa-tab[data-target="${tabId}"]`);
+            
+            if(targetContent && targetBtn) {
+                targetContent.classList.add('active');
+                targetBtn.classList.add('active');
+                document.getElementById('breadcrumb-current').innerText = targetBtn.innerText.trim();
+                window.history.replaceState(null, null, '#' + tabId);
+
+                if(tabId === 'documents' && document.getElementById('docBody').innerHTML.trim() === '') {
+                    renderDocTable(1);
+                }
+            }
+        }
+
+        // --- 5. 초기화 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.spa-tab').forEach(t => t.addEventListener('click', e => switchTab(e.currentTarget.getAttribute('data-target'))));
+            
+            const searchInput = document.getElementById('docSearch');
+            if(searchInput) searchInput.addEventListener('keypress', e => { if(e.key === 'Enter') renderDocTable(1); });
+            
+            const handleHash = () => {
+                const hash = window.location.hash.replace('#', '');
+                if (hash && document.getElementById('content-' + hash)) switchTab(hash);
+                else switchTab('subcontract');
+            };
+            window.addEventListener('hashchange', handleHash);
+            handleHash();
+        });
+    </script>
+    
+    <!-- 공통 JS -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>
