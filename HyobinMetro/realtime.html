@@ -6,14 +6,11 @@
   <title>실시간 열차운행정보 - 효빈교통공사</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;800;900&display=swap" rel="stylesheet">
-  <!-- 규칙 준수: 아이콘은 FontAwesome 사용 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- 스타일 정의: 노선 색상, 버스 색상 및 UI -->
   <style>
     body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
     
-    /* 효빈교통공사 메인 브랜드 컬러 및 지하철 노선별 고유 색상 */
     :root {
       --hyobin-main: #16A4BE;
       --L1: #0077DD; --L2: #00CCAA; --L3: #FFCC11;
@@ -21,7 +18,6 @@
       --L7: #FF8899; --L8: #9856FF; --BH: #6677CC;
     }
 
-    /* 노선 배지 스타일 */
     .badge-line { padding: 4px 10px; border-radius: 6px; color: white; font-weight: 900; font-size: 0.8rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .bg-l1 { background-color: var(--L1); }
     .bg-l2 { background-color: var(--L2); }
@@ -33,189 +29,173 @@
     .bg-l8 { background-color: var(--L8); }
     .bg-bh { background-color: var(--BH); }
 
-    /* 열차 아이콘 애니메이션 */
     .train-icon { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .train-row:hover .train-icon { transform: translateX(8px) scale(1.1); }
     
-    /* 실시간 깜빡임 효과 */
     .live-dot { height: 8px; width: 8px; background-color: #ef4444; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-    /* 열차 종별 배지 */
     .badge-exp { background-color: #EE0022; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; }
     .badge-loc { background-color: #64748b; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;}
     .badge-shuttle { background-color: var(--hyobin-main); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 800; }
 
-    /* 버스 배지 (3세대 스타더스트 작전 도색 기준) */
     .bus-badge { display: inline-block; padding: 4px 10px; margin: 3px 2px; color: white; border-radius: 12px; font-size: 0.7rem; font-weight: 800; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
   </style>
 
-  <!-- 역 데이터 로드 (파일이 없으면 내장 데이터 사용) -->
   <script src="hyobin_station_data_v2.js" onerror="window.NO_STATION_DATA=true;"></script>
 </head>
 <body class="text-slate-800 flex flex-col min-h-screen">
 
-  <!-- 상단 여백 (공통 스크립트 메가메뉴 공간) -->
   <div class="h-20"></div>
 
-  <!-- 메인 콘텐츠 영역 -->
-  <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow">
+  <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
     
-    <!-- 전체 대시보드 타이틀 -->
-    <div class="col-span-1 lg:col-span-12 flex justify-between items-end border-b-2 pb-4 mb-2" style="border-color: #16A4BE;">
-      <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">
-          <i class="fa-solid fa-satellite-dish" style="color: #16A4BE;"></i> 실시간 열차운행정보
-        </h1>
-        <p class="text-slate-500 mt-1 font-semibold text-sm">HYOBIN METRO Real-time Dashboard</p>
-      </div>
-      <div class="text-right bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
-        <div class="text-xs text-slate-400 font-bold mb-1 uppercase tracking-wider"><span class="live-dot mr-1"></span>LIVE SYSTEM TIME</div>
-        <div id="clock" class="text-xl font-black font-mono text-slate-700">--:--:--</div>
-      </div>
-    </div>
-    
-    <!-- 좌측: 노선 선택 및 범례 패널 -->
-    <section class="lg:col-span-4 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
       
-      <!-- 노선 선택기 -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-route text-slate-400"></i> 운행 노선 선택
-        </h2>
-        <div id="lineList" class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-          <!-- JS로 노선 버튼 생성 -->
+      <div class="col-span-1 lg:col-span-12 flex justify-between items-end border-b-2 pb-4 mb-2" style="border-color: #16A4BE;">
+        <div>
+          <h1 class="text-3xl font-black text-slate-900 tracking-tight">
+            <i class="fa-solid fa-satellite-dish" style="color: #16A4BE;"></i> 실시간 열차운행정보
+          </h1>
+          <p class="text-slate-500 mt-1 font-semibold text-sm">HYOBIN METRO Real-time Dashboard</p>
+        </div>
+        <div class="text-right bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
+          <div class="text-xs text-slate-400 font-bold mb-1 uppercase tracking-wider"><span class="live-dot mr-1"></span>LIVE SYSTEM TIME</div>
+          <div id="clock" class="text-xl font-black font-mono text-slate-700">--:--:--</div>
         </div>
       </div>
-
-      <!-- 버스 연계 범례 (설정 반영) -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-xs font-extrabold text-slate-400 mb-3 uppercase tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-bus"></i> 시내버스 노선 도색 안내
-        </h2>
-        <div class="flex flex-wrap gap-1">
-          <span class="bus-badge" style="background: #01B7ED;">간선</span>
-          <span class="bus-badge" style="background: #37B484;">지선</span>
-          <span class="bus-badge" style="background: #E7D600; color: #222;">순환</span>
-          <span class="bus-badge" style="background: #D81C2F;">급행</span>
-          <span class="bus-badge" style="background: #FF5800;">좌석</span>
-          <span class="bus-badge" style="background: #485EC6;">광역</span>
-          <span class="bus-badge" style="background: #A664A0;">마을</span>
-          <span class="bus-badge" style="background: #84C36E;">공항</span>
-          <span class="bus-badge" style="background: #7777AA;">투어</span>
-        </div>
-        <p class="text-[11px] text-slate-500 mt-3 leading-relaxed font-medium">
-          효빈광역시의 대중교통 색상 체계화 정책(스타더스트 작전)에 따라 시내버스는 기능별로 명확한 컬러 코드 체계를 유지하고 있습니다. 각 도색별 차량 번호 및 상세 연계 환승 정보는 공지사항을 참조해 주시기 바랍니다.
-        </p>
-      </div>
-    </section>
-
-    <!-- 우측: 상세 운행 정보 및 마스코트 -->
-    <section class="lg:col-span-8">
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden min-h-[700px] flex flex-col relative">
+      
+      <section class="lg:col-span-4 space-y-6">
         
-        <!-- 상단 정보창 (마스코트 프로필 포함) -->
-        <div class="p-6 border-b border-slate-100 bg-slate-50 relative overflow-hidden">
-          <!-- 배경 장식 (노선색) -->
-          <div id="headerDeco" class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 transform translate-x-1/3 -translate-y-1/3"></div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <h2 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-route text-slate-400"></i> 운행 노선 선택
+          </h2>
+          <div id="lineList" class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+            </div>
+        </div>
 
-          <div class="flex justify-between items-start relative z-10">
-            <div class="flex-1">
-              <div id="currentLineBadge" class="inline-block mb-3">
-                <span class="badge-line bg-l1 text-base">1호선</span>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <h2 class="text-xs font-extrabold text-slate-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-bus"></i> 시내버스 노선 도색 안내
+          </h2>
+          <div class="flex flex-wrap gap-1">
+            <span class="bus-badge" style="background: #01B7ED;">간선(10)</span>
+            <span class="bus-badge" style="background: #37B484;">지선(100)</span>
+            <span class="bus-badge" style="background: #E7D600; color: #222;">순환</span>
+            <span class="bus-badge" style="background: #D81C2F;">급행</span>
+            <span class="bus-badge" style="background: #FF5800;">좌석</span>
+            <span class="bus-badge" style="background: #485EC6;">광역</span>
+            <span class="bus-badge" style="background: #A664A0;">마을</span>
+            <span class="bus-badge" style="background: #84C36E;">공항</span>
+            <span class="bus-badge" style="background: #7777AA;">투어</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-3 leading-relaxed font-medium">
+            효빈광역시의 대중교통 색상 체계화 정책(스타더스트 작전)에 따라 시내버스는 기능별로 명확한 컬러 코드 체계를 유지하고 있습니다. 각 도색별 차량 번호 및 상세 연계 환승 정보는 공지사항을 참조해 주시기 바랍니다.
+          </p>
+        </div>
+      </section>
+
+      <section class="lg:col-span-8">
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden min-h-[700px] flex flex-col relative">
+          
+          <div class="p-6 border-b border-slate-100 bg-slate-50 relative overflow-hidden">
+            <div id="headerDeco" class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 transform translate-x-1/3 -translate-y-1/3"></div>
+
+            <div class="flex justify-between items-start relative z-10">
+              <div class="flex-1">
+                <div id="currentLineBadge" class="inline-block mb-3">
+                  <span class="badge-line bg-l1 text-base">1호선</span>
+                </div>
+                <h1 id="currentLineTitle" class="text-2xl font-black text-slate-900 mb-1">효빈 1호선 (본선/탄성지선)</h1>
+                <p id="currentLineDesc" class="text-sm text-slate-600 font-bold bg-white inline-block px-3 py-1 rounded-md border border-slate-200">
+                  대형 중전철(9량) • 배차 2분
+                </p>
               </div>
-              <h1 id="currentLineTitle" class="text-2xl font-black text-slate-900 mb-1">효빈 1호선 (본선/탄성지선)</h1>
-              <p id="currentLineDesc" class="text-sm text-slate-600 font-bold bg-white inline-block px-3 py-1 rounded-md border border-slate-200">
-                대형 중전철(9량) • 배차 2분
-              </p>
+              
+              <div class="text-right flex items-center gap-6">
+                <div class="hidden sm:block text-center bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                  <img id="mascotImg" src="이미지/고나미.png" alt="마스코트" class="w-16 h-16 object-contain mb-1" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2U1ZTdlYiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk0YTNiOCI+Tm8gSW1nPC90ZXh0Pjwvc3ZnPg==';">
+                  <div id="mascotName" class="text-[11px] font-extrabold text-slate-600">고나미</div>
+                </div>
+                <div>
+                  <div class="text-xs text-slate-500 font-bold mb-1"><i class="fa-solid fa-train-tram"></i> 활성 열차</div>
+                  <div class="text-4xl font-black text-slate-800"><span id="activeTrainCount">0</span><span class="text-lg text-slate-400 font-normal ml-1">대</span></div>
+                  <div class="text-[11px] text-slate-400 mt-2 font-semibold">보유: <span id="totalFleetCount">-</span>편성</div>
+                </div>
+              </div>
             </div>
             
-            <!-- 마스코트 & 운행 대수 -->
-            <div class="text-right flex items-center gap-6">
-              <div class="hidden sm:block text-center bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
-                <img id="mascotImg" src="이미지/고나미.png" alt="마스코트" class="w-16 h-16 object-contain mb-1" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2U1ZTdlYiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk0YTNiOCI+Tm8gSW1nPC90ZXh0Pjwvc3ZnPg==';">
-                <div id="mascotName" class="text-[11px] font-extrabold text-slate-600">고나미</div>
-              </div>
-              <div>
-                <div class="text-xs text-slate-500 font-bold mb-1"><i class="fa-solid fa-train-tram"></i> 활성 열차</div>
-                <div class="text-4xl font-black text-slate-800"><span id="activeTrainCount">0</span><span class="text-lg text-slate-400 font-normal ml-1">대</span></div>
-                <div class="text-[11px] text-slate-400 mt-2 font-semibold">보유: <span id="totalFleetCount">-</span>편성</div>
-              </div>
+            <div id="tipBox" class="mt-5 bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-700 flex gap-3 items-start shadow-sm">
+              <i class="fa-solid fa-circle-info text-sky-500 text-lg mt-0.5"></i>
+              <span id="tipText" class="leading-relaxed font-medium">안천역, 북구청역 타절 열차가 많습니다. 외곽 이동 시 행선지를 확인하세요.</span>
             </div>
           </div>
+
+          <div class="overflow-x-auto flex-grow">
+            <table class="w-full text-sm text-left relative">
+              <thead class="bg-white text-slate-500 border-b-2 border-slate-200 font-extrabold text-[11px] uppercase sticky top-0 z-10 shadow-sm">
+                <tr>
+                  <th class="px-6 py-4 w-24">열차번호</th>
+                  <th class="px-6 py-4">종별/편성</th>
+                  <th class="px-6 py-4">행선지</th>
+                  <th class="px-6 py-4">현재위치</th>
+                  <th class="px-6 py-4 text-center w-28">상태</th>
+                </tr>
+              </thead>
+              <tbody id="trainListBody" class="divide-y divide-slate-100">
+                </tbody>
+            </table>
+          </div>
           
-          <!-- 상세 안내 팁 박스 (공식화) -->
-          <div id="tipBox" class="mt-5 bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-700 flex gap-3 items-start shadow-sm">
-            <i class="fa-solid fa-circle-info text-sky-500 text-lg mt-0.5"></i>
-            <span id="tipText" class="leading-relaxed font-medium">안천역, 북구청역 타절 열차가 많습니다. 외곽 이동 시 행선지를 확인하세요.</span>
+          <div id="emptyState" class="hidden absolute inset-0 bg-white flex-col items-center justify-center z-20 text-slate-400">
+            <i class="fa-solid fa-train-subway text-6xl mb-4 opacity-20"></i>
+            <span class="text-lg font-bold text-slate-500">현재 운행 중인 열차가 없습니다.</span>
+            <span class="text-sm mt-2">운행 시간이 종료되었거나 시스템 점검 중입니다.</span>
           </div>
         </div>
+      </section>
 
-        <!-- 열차 리스트 테이블 -->
-        <div class="overflow-x-auto flex-grow">
-          <table class="w-full text-sm text-left relative">
-            <thead class="bg-white text-slate-500 border-b-2 border-slate-200 font-extrabold text-[11px] uppercase sticky top-0 z-10 shadow-sm">
-              <tr>
-                <th class="px-6 py-4 w-24">열차번호</th>
-                <th class="px-6 py-4">종별/편성</th>
-                <th class="px-6 py-4">행선지</th>
-                <th class="px-6 py-4">현재위치</th>
-                <th class="px-6 py-4 text-center w-28">상태</th>
-              </tr>
-            </thead>
-            <tbody id="trainListBody" class="divide-y divide-slate-100">
-              <!-- JS로 데이터 로드 -->
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- 데이터 없음 표시 -->
-        <div id="emptyState" class="hidden absolute inset-0 bg-white flex-col items-center justify-center z-20 text-slate-400">
-          <i class="fa-solid fa-train-subway text-6xl mb-4 opacity-20"></i>
-          <span class="text-lg font-bold text-slate-500">현재 운행 중인 열차가 없습니다.</span>
-          <span class="text-sm mt-2">운행 시간이 종료되었거나 시스템 점검 중입니다.</span>
-        </div>
-      </div>
-    </section>
+    </div>
   </main>
 
   <script>
     /**
-     * [효빈광역시 철도 운영 데이터 JSON 구조]
+     * [효빈광역시 철도 운영 데이터 세팅 - 1~8호선 및 빈효선 전역 목록 완벽 반영]
      */
     const HYOBIN_REALTIME_CONFIG = {
       "1": {
         name: "1호선", desc: "도시의 대동맥 (본선/탄성지선)", colorClass: "bg-l1", type: "중형 중전철", cars: 9, fleetSize: 76,
         mascot: "고나미", mascotImg: "고나미",
         tips: "도심 구간(창선~안천)은 출퇴근 시간대 기준 1.5분 배차 간격으로 운행됩니다. 현재 효빈 1호선 공식 홍보대사인 '고나미' 테마 열차가 부정기적으로 운행 중이오니 시민 여러분의 많은 관심 부탁드립니다.",
-        destinations: [{ name: "장선", weight: 20, type: "급행가능" }, { name: "안천", weight: 25, type: "완행" }, { name: "북구청", weight: 10, type: "완행" }, { name: "곽산", weight: 20, type: "급행가능" }, { name: "곽암해수욕장", weight: 10, type: "완행" }, { name: "승남해수욕장", weight: 20, type: "지선" }, { name: "서목", weight: 5, type: "지선급행" }, { name: "창선(셔틀)", weight: 10, type: "셔틀" }],
-        stations: ["곽암해수욕장","곽산","회산","남당","평당","남구청","신거","효빈항","효빈항물류지구","월천","십덕","약맥","창선","중앙로","중구청","내조","효빈","보몽","전천","천왕사","백천","입희","추산","서도","북구청","등기","평전","아진","당안","안천","팔망성","추자","이자출장소","과남","이자공원","정치","영색무","능릉","고해","도향","산형","탄미","약산시청","수구","하내장","요곡","화소","장곡","마현","무기","장선","오석(지선)","장원(지선)","동리","비마리유적지구","사노","청엽구청","아논타워","우전(지선)","창전","창전구청","보통","고무","탄성","탄성군청","야진입구","서목","승남해수욕장"]
+        destinations: [{ name: "장선", weight: 25, type: "급행가능" }, { name: "안천", weight: 15, type: "완행" }, { name: "곽암해수욕장", weight: 20, type: "완행" }, { name: "곽산", weight: 15, type: "급행가능" }, { name: "승남해수욕장", weight: 15, type: "지선완행" }, { name: "서목", weight: 10, type: "지선급행" }],
+        stations: ["곽암해수욕장","곽산","회산","남당","평당","남구청","신거","효빈항","효빈항물류지구","월천","십덕","약맥","창선","중앙로","중구청","내조","효빈","보몽","전천","천왕사","백천","입희","추산","서도","북구청","등기","평전","아진","당안","안천","팔망성","추자","이자출장소","과남","이자공원","정치","영색무","능릉","고해","도향","산형","탄미","약산시청","수구","하내장","요곡","화소","장곡","마현","무기","장선","오석(지선)","장원(지선)","동리(지선)","비마리유적지구(지선)","사노(지선)","청엽구청(지선)","아논타워(지선)","우전(지선)","창전(지선)","창전구청(지선)","보통(지선)","고무(지선)","탄성(지선)","탄성군청(지선)","야진입구(지선)","서목(지선)","승남해수욕장(지선)"]
       },
       "2": {
         name: "2호선", desc: "순환선 & 어간지선", colorClass: "bg-l2", type: "중형 중전철", cars: 8, fleetSize: 60,
         mascot: "하루빈", mascotImg: "하루빈",
         tips: "월천역은 기지 입출고 차량과 순환선 차량이 교차하여 출퇴근 시간대 혼잡도가 높습니다. 2호선 마스코트 '하루빈'과 함께 안전하고 여유로운 환승 대기를 권장해 드립니다.",
-        destinations: [{ name: "내선순환", weight: 30, type: "순환" }, { name: "외선순환", weight: 30, type: "순환" }, { name: "내선(급행)", weight: 10, type: "순환급행" }, { name: "효빈항여객터미널", weight: 10, type: "지선" }, { name: "월천(종착)", weight: 10, type: "입고" }],
-        stations: ["월천","박산","신흥","효빈공단","입동","등동","헌이송","마잡","동곡","쌍엽","엽천","우전","유류","칠심","시로","흑택","상가","하가","당가","신영","채산","남전","중수","사연","입희","입선","북효빈","시청","고송교차로","과송","청덕","과진중앙","사복","당선","효빈대","칠천","소장","중앙로","심동","고도","내항","서신포","운양","어간항","어간수산시장","어간중앙","어간","항동1가","효빈항국제여객터미널"]
+        destinations: [{ name: "내선순환", weight: 35, type: "순환" }, { name: "외선순환", weight: 35, type: "순환" }, { name: "효빈항여객터미널", weight: 20, type: "지선" }, { name: "월천(종착)", weight: 10, type: "입고" }],
+        stations: ["월천","박산","신흥","효빈공단","입동","등동","헌이송","마잡","동곡","쌍엽","엽천","우전","유류","칠심","시로","흑택","상가","하가","당가","신영","채산","남전","중수","사연","입희","입선","북효빈","시청","고송교차로","과송","청덕","과진중앙","사복","당선","효빈대학교","칠천","소장","중앙로","심동","고도","내항","서신포(지선)","운양(지선)","어간항(지선)","어간수산시장(지선)","어간중앙(지선)","어간(지선)","항동1가(지선)","효빈항국제여객터미널(지선)"]
       },
       "3": {
         name: "3호선", desc: "남북 종단 & 공항철도", colorClass: "bg-l3", type: "중형 중전철", cars: 7, fleetSize: 40,
         mascot: "박라미", mascotImg: "박라미",
-        tips: "효빈국제공항 방면 공항급행 열차를 이용하시면 목적지까지 더욱 빠르고 쾌적하게 이동하실 수 있습니다. 상업 밀집 구역인 청엽구청역 등 주요 역에서는 하차 시 안전사고에 유의해 주시기 바랍니다. (3호선 홍보대사: 박라미)",
-        destinations: [{ name: "효빈국제공항", weight: 30, type: "완행" }, { name: "효빈국제공항(급행)", weight: 20, type: "공항급행" }, { name: "팔조", weight: 35, type: "완행" }, { name: "염곡", weight: 5, type: "중간발" }],
-        stations: ["팔조","투자","동곡","효빈남부시외버스터미널","청엽구청","청엽","사가당","덕현","효빈","사능","고속버스터미널","북효빈","청능","효빈복지대","과진","청덕","송덕","고송나루","토모리해수욕장","중만도","신산","주양","염곡","효빈국제공항"]
+        tips: "효빈국제공항 방면 공항급행 열차를 이용하시면 목적지까지 더욱 빠르고 쾌적하게 이동하실 수 있습니다. 상업 밀집 구역인 청엽구청역 등 주요 역에서는 하차 시 안전사고에 유의해 주시기 바랍니다.",
+        destinations: [{ name: "효빈국제공항", weight: 35, type: "완행" }, { name: "효빈국제공항", weight: 25, type: "공항급행" }, { name: "팔조", weight: 35, type: "완행" }, { name: "염곡", weight: 5, type: "중간발" }],
+        stations: ["팔조","투자","동곡","효빈남부시외버스터미널","청엽구청","청엽","사가당","덕현","효빈","사능","고속버스터미널","북효빈","청능","효빈복지대학교","과진","청덕","송덕","고송나루","토모리해수욕장","중만도","신산","주양","염곡","효빈국제공항"]
       },
       "4": {
         name: "4호선", desc: "남서-북동 대각선", colorClass: "bg-l4", type: "중형 중전철", cars: 6, fleetSize: 45,
         mascot: "다로나", mascotImg: "다로나",
-        tips: "이자역은 4호선 및 빈효선(광역전철) 간의 주요 환승 거점으로 출퇴근 시 승강장이 혼잡할 수 있습니다. 시민 여러분께서는 무리한 승차를 삼가시고 다음 열차를 이용해 주시기 바랍니다. (4호선 홍보대사: 다로나)",
-        destinations: [{ name: "천가", weight: 25, type: "완행" }, { name: "천가(급행)", weight: 10, type: "급행" }, { name: "해운산업지구", weight: 25, type: "완행" }, { name: "이자(종착)", weight: 15, type: "타절" }],
+        tips: "이자역은 4호선 및 빈효선(광역전철) 간의 주요 환승 거점으로 출퇴근 시 승강장이 혼잡할 수 있습니다. 시민 여러분께서는 무리한 승차를 삼가시고 다음 열차를 이용해 주시기 바랍니다.",
+        destinations: [{ name: "천가", weight: 40, type: "완행" }, { name: "천가", weight: 15, type: "급행" }, { name: "해운산업지구", weight: 35, type: "완행" }, { name: "이자", weight: 10, type: "타절" }],
         stations: ["해운산업지구","이부","남구청","빙천","고당","사야","신흥","진월천","삼각","오석","장원","신덕","가동사거리","사가당","동덕현","우택","치구","뇌전","하가","백합공원","요우","도변","잠재","앵내","탄자","이자공원","이자","서수","소원","천가"]
       },
       "5": {
         name: "5호선", desc: "캠퍼스 셔틀 (철제차륜 AGT)", colorClass: "bg-l5", type: "철제차륜 AGT", cars: 5, fleetSize: 23,
         mascot: "미소하", mascotImg: "미소하",
-        tips: "효빈대학교 인문/사회과학캠퍼스 등 주요 학원가를 잇는 철제차륜 AGT 노선입니다. 학기 중 캠퍼스 통학 수요가 높게 나타나므로 열차 이용에 참고하시기 바랍니다. (5호선 홍보대사: 미소하)",
+        tips: "효빈대학교 인문/사회과학캠퍼스 등 주요 학원가를 잇는 철제차륜 AGT 노선입니다. 학기 중 캠퍼스 통학 수요가 높게 나타나므로 열차 이용에 참고하시기 바랍니다.",
         destinations: [{ name: "청덕공원", weight: 50, type: "완행" }, { name: "포성산", weight: 50, type: "완행" }],
         stations: ["청덕공원","화환","효빈과학기술원","당선","소조","고속버스터미널","전천","전천중앙","동덕현","청엽국제학교","남우택","진백","시로","루비","도변","포성산"]
       },
@@ -229,31 +209,29 @@
       "7": {
         name: "7호선", desc: "원도심 노면전차 (트램)", colorClass: "bg-l7", type: "노면전차", cars: "2~3", fleetSize: 66,
         mascot: "임세정·임세하", mascotImg: "임세하",
-        tips: "효빈시 원도심의 문화유산과 주요 상권을 잇는 친환경 노면전차(트램)입니다. 중보지선 등 행선지에 따라 차량 편성(2량/3량)이 상이하므로 승차 전 행선판을 반드시 확인하시기 바랍니다. (7호선 홍보대사: 임세정·임세하)",
-        destinations: [{ name: "어간중앙", weight: 35, type: "본선" }, { name: "사능삼거리", weight: 35, type: "본선" }, { name: "조유(중보지선)", weight: 30, type: "지선" }],
-        stations: ["어간중앙","항동3가","효빈항","월천","내항","중앙로","효빈은행","효빈성앞","효빈","사능삼거리","효빈대입구","조유동3가","사중"] // 축약
+        tips: "효빈시 원도심의 문화유산과 주요 상권을 잇는 친환경 노면전차(트램)입니다. 중보지선 등 행선지에 따라 차량 편성(2량/3량)이 상이하므로 승차 전 행선판을 반드시 확인하시기 바랍니다.",
+        destinations: [{ name: "효빈대학교입구", weight: 40, type: "본선" }, { name: "어간중앙", weight: 35, type: "본선" }, { name: "사중", weight: 25, type: "지선" }],
+        stations: ["어간중앙", "어간초등학교", "항동3가", "항만해변", "산홍", "효빈항", "효빈항동부", "분덕", "항동문화회관", "월천", "갑문", "명일", "내항", "내항시장", "만마루", "구 세관", "고도리", "시북", "시남", "우이", "우이문화촌", "심동1가", "심동2가", "중앙로1가", "개항지", "중앙로3가", "중앙로", "원동4가", "중보로", "효빈은행", "구시청앞", "경동", "유내", "리사", "도람", "궁정", "상원초등학교", "효빈성앞", "내조", "중앙고등학교", "내조공원", "효빈역", "사가당공원", "가족센터", "치남", "사능동3가", "유성당", "사능복지관", "사능동1가", "북구 서부어린이회관", "사능삼거리", "봇지마을", "북문로", "효빈성북문", "구 칠천군사기지앞", "당선원마을", "효빈대학교입구", "중동3가(지선)", "색수시장(지선)", "조유동3가(지선)", "조유동2가(지선)", "중구청(지선)", "천석동2가(지선)", "천석동3가(지선)", "서남(지선)", "효빈고등학교(지선)", "사중(지선)"]
       },
       "8": {
         name: "8호선", desc: "남구 왕복 (고가 경전철)", colorClass: "bg-l8", type: "고무차륜 AGT", cars: 4, fleetSize: 26,
         mascot: "유리아", mascotImg: "유리아",
-        tips: "남구 평당지구를 가로지르며 왕복하는 고무차륜 기반의 경전철 노선입니다. 전 구간 고가 구조로 설계되어 쾌적한 도시 경관 조망이 가능합니다. (8호선 홍보대사: 유리아)",
+        tips: "남구 평당지구를 가로지르며 왕복하는 고무차륜 기반의 경전철 노선입니다. 전 구간 고가 구조로 설계되어 쾌적한 도시 경관 조망이 가능합니다.",
         destinations: [{ name: "곽산", weight: 50, type: "완행" }, { name: "신흥", weight: 50, type: "완행" }],
-        stations: ["곽산","남부소방서","능남","평당6동주민센터","남구청","주오","북평단","문화회관","신거","운양중앙","박산","신흥"] // 축약
+        stations: ["곽산", "곽산고등학교", "남부소방서", "부한", "능남", "평당6동주민센터", "남구선거관리위원회", "평곡", "평당고등학교", "사북내", "남구청", "주오", "평당장애인복지관", "북평단", "주곡", "창문공원", "세무지구", "배고", "문화회관", "신거", "평운", "운양중앙", "운촌", "박산", "박산중고등학교", "신흥"]
       },
       "bh": {
         name: "빈효선", desc: "광역전철 (효빈-약산-천주)", colorClass: "bg-bh", type: "대형 중전철", cars: 6, fleetSize: 42,
         mascot: "전노아", mascotImg: "전노아",
-        tips: "효빈광역시와 약산시, 천주시 간 광역 이동을 지원하는 철도망입니다. 일반 완행열차와 급행열차의 정차역이 다르므로, 탑승 전 전광판의 행선지와 종별 안내를 꼼꼼히 확인해 주시기 바랍니다. (빈효선 홍보대사: 전노아)",
-        destinations: [{ name: "효빈항", weight: 30, type: "완행" }, { name: "효빈항(급행)", weight: 15, type: "급행" }, { name: "고남", weight: 30, type: "완행" }, { name: "천주(급행)", weight: 15, type: "급행" }],
-        stations: ["효빈항","오주","효빈동신도시","효빈","전덕","하성천","안천","이자","고해","약산","홍하","대뢰","천주시청","천주","고남"] // 축약
+        tips: "효빈광역시와 약산시, 천주시 간 광역 이동을 지원하는 철도망입니다. 일반 완행열차와 급행열차의 정차역이 다르므로, 탑승 전 전광판의 행선지와 종별 안내를 꼼꼼히 확인해 주시기 바랍니다.",
+        destinations: [{ name: "효빈항", weight: 30, type: "완행" }, { name: "효빈항", weight: 15, type: "급행" }, { name: "고남", weight: 30, type: "완행" }, { name: "고남", weight: 15, type: "급행" }, { name: "천주", weight: 10, type: "완행" }],
+        stations: ["효빈항", "효빈항물류지구", "동신", "진월천", "오주", "효빈동신도시", "장원", "신덕", "효빈", "전덕", "덕현중앙", "하성천", "북택", "수포", "당가", "안천", "타천", "리의", "이자", "영색무", "고해", "영내", "약산", "홍하", "화소", "근강", "궁하", "아이", "서팔", "과림", "시곡", "산취", "대뢰", "빈전", "천주중앙", "천주시청", "천주", "고남"]
       }
     };
 
     let currentLineId = "1";
-    // [추가] 각 노선별 열차들의 상태를 기억하는 객체
     let trainStateMap = {}; 
 
-    // 시간 업데이트 및 출퇴근시간(RH) 판별 로직
     function updateClock() {
       const clockEl = document.getElementById('clock');
       if (!clockEl) return false;
@@ -266,7 +244,6 @@
       return (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20);
     }
 
-    // 좌측 노선 리스트 렌더링
     function renderLineList() {
       const listEl = document.getElementById('lineList');
       listEl.innerHTML = '';
@@ -308,7 +285,6 @@
       return destinations[0];
     }
 
-    // [핵심] 열차 초기화 함수 (최초 1회 또는 운행대수 변경 시 호출)
     function ensureTrainsInitialized(id, config, activeTrains) {
       if (!trainStateMap[id] || trainStateMap[id].length !== activeTrains) {
         let trains = [];
@@ -318,36 +294,31 @@
           trains.push({
             trainNum: trainNum,
             dest: getWeightedDestination(config.destinations),
-            isForward: Math.random() > 0.5, // 주행 방향 (true: 정방향, false: 역방향)
-            stationIdx: Math.floor(Math.random() * stationsLen), // 현재 역 인덱스
-            statusIdx: Math.floor(Math.random() * 4), // 0: 출발대기, 1: 운행중, 2: 진입, 3: 도착
+            isForward: Math.random() > 0.5,
+            stationIdx: Math.floor(Math.random() * stationsLen),
+            statusIdx: Math.floor(Math.random() * 4),
             carsText: (id === "7") ? (Math.random() > 0.5 ? "2량" : "3량") : `${config.cars}량`
           });
         }
-        // 보기 좋게 정렬
         trains.sort((a, b) => a.stationIdx - b.stationIdx);
         trainStateMap[id] = trains;
       }
     }
 
-    // [핵심] 시뮬레이션 틱 (상태 업데이트)
     function tickSimulation() {
-      // 모든 노선의 열차 상태를 업데이트 (백그라운드 주행)
       Object.keys(trainStateMap).forEach(id => {
         const config = HYOBIN_REALTIME_CONFIG[id];
         const stationsLen = config.stations.length;
         let trains = trainStateMap[id];
         
         trains.forEach(t => {
-          // 상태 순환: 0(대기) -> 1(운행중) -> 2(진입) -> 3(도착)
           t.statusIdx = (t.statusIdx + 1) % 4;
 
-          // 운행중(1) 상태가 될 때 역을 한 칸 전진시킴
           if (t.statusIdx === 1) {
             if (t.isForward) {
               if (t.stationIdx < stationsLen - 1) {
                 t.stationIdx++;
-              } else { // 종점 도달 시 방향 전환
+              } else {
                 t.isForward = false;
                 t.stationIdx--;
                 t.dest = getWeightedDestination(config.destinations);
@@ -355,7 +326,7 @@
             } else {
               if (t.stationIdx > 0) {
                 t.stationIdx--;
-              } else { // 기점 도달 시 방향 전환
+              } else {
                 t.isForward = true;
                 t.stationIdx++;
                 t.dest = getWeightedDestination(config.destinations);
@@ -366,12 +337,10 @@
       });
     }
 
-    // 차량 렌더링 
     function renderTrainInfo(id) {
       const config = HYOBIN_REALTIME_CONFIG[id];
       const isRH = updateClock();
       
-      // 상단 정보 업데이트
       document.getElementById('currentLineBadge').innerHTML = `<span class="badge-line ${config.colorClass} text-lg px-4 py-1.5">${config.name}</span>`;
       document.getElementById('currentLineTitle').innerText = config.desc;
       document.getElementById('currentLineDesc').innerText = `${config.type} (${config.cars}량) • 총 ${config.fleetSize}편성 보유`;
@@ -385,15 +354,12 @@
       const colorHex = rootStyles.getPropertyValue(`--L${id.toUpperCase()}`).trim() || rootStyles.getPropertyValue(`--${id.toUpperCase()}`).trim();
       document.getElementById('headerDeco').style.backgroundColor = colorHex || '#16A4BE';
 
-      // 운행 대수 시뮬레이션
       const utilizationRate = isRH ? 0.95 : 0.75; 
-      // RH/NH에 따라 대수가 변동될 수 있음
       const calculatedTrains = Math.floor(config.fleetSize * utilizationRate);
       const activeTrains = Math.max(3, calculatedTrains);
       
       document.getElementById('activeTrainCount').innerText = activeTrains;
 
-      // 열차 데이터 초기화 확인 및 로드
       ensureTrainsInitialized(id, config, activeTrains);
       const currentTrains = trainStateMap[id];
 
@@ -409,7 +375,6 @@
         document.getElementById('emptyState').classList.remove('flex');
       }
 
-      // 테이블에 열차 그리기
       currentTrains.forEach(t => {
         let trainTypeBadge = `<span class="badge-loc">완행</span>`;
         if (t.dest.type.indexOf("급행") > -1) {
@@ -420,9 +385,10 @@
            trainTypeBadge = `<span class="badge-exp">급행</span>`;
         } else if (t.dest.type.indexOf("순환") > -1) {
            trainTypeBadge = `<span class="badge-line" style="background:#E7D600; color:#222; font-size:0.7rem; padding: 2px 6px; margin-left: 6px;">순환</span>`;
+        } else if (t.dest.type.indexOf("지선") > -1) {
+           trainTypeBadge = `<span class="badge-line" style="background:#64748b; color:white; font-size:0.7rem; padding: 2px 6px; margin-left: 6px;">지선</span>`;
         }
 
-        // 상태값 텍스트 및 UI 색상
         let statusStr = "";
         let statusStyle = "";
         let currentLocStr = "";
@@ -430,7 +396,6 @@
         const stArray = config.stations;
         const currentSt = stArray[t.stationIdx];
         
-        // 이전 역 위치 계산
         let prevIdx = t.stationIdx - (t.isForward ? 1 : -1);
         if(prevIdx < 0) prevIdx = 0;
         if(prevIdx >= stArray.length) prevIdx = stArray.length - 1;
@@ -485,12 +450,10 @@
       });
     }
 
-    // 초기화
     window.onload = function() {
       renderLineList();
       selectLine("1"); 
       
-      // 10초마다 시뮬레이션 상태를 한 틱 진행하고 화면을 갱신
       setInterval(() => {
         updateClock();
         tickSimulation();
@@ -501,7 +464,6 @@
     };
   </script>
 
-  <!-- 규칙 준수: 하드코딩 금지, 스크립트로 1줄 공통 호출 -->
   <script src="js/common_hyobin.js"></script>
 </body>
 </html>
