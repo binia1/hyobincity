@@ -679,10 +679,10 @@ const headerHTML = `
                             <div>
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">일반현황 및 시청안내</h4>
                                 <ul class="space-y-1.5 text-[12px] mb-4">
-                                    <li><a href="기본현황.html" class="hover:text-blue-600">기본현황</a></li>
+                                    <li><a href="intro.html" class="hover:text-blue-600">기본현황</a></li>
                                     <li><a href="행정구역로마자표기법.html" class="hover:text-blue-600">행정구역로마자표기법</a></li>
                                     <li><a href="행정구역.html" class="hover:text-blue-600">행정구역</a></li>
-                                    <li><a href="해외자매도시.html" class="hover:text-blue-600">해외자매도시</a></li>
+                                    <li><a href="sister_cities.html" class="hover:text-blue-600">해외자매도시</a></li>
                                     <li><a href="시정구호.html" class="hover:text-blue-600">시정구호</a></li>
                                 </ul>
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">시청안내</h4>

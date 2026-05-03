@@ -2330,20 +2330,41 @@
             ]
         };
 
-        function generateData(category, count, startId) {
-            const data = [];
-            const pool = contentPool[category] || contentPool['news'];
-            for (let i = 0; i < count; i++) {
-                const item = pool[i % pool.length];
-                const dateStr = "2026.03.31"; 
-                const views = Math.floor(Math.random() * 1500) + 50;
-                data.push({
-                    id: startId - i,
-                    dept: item.dept,
-                    title: item.t,
-                    date: dateStr,
-                    views: views,
-                    summary: item.c.replace(/\n/g, '<br>'),
+// 1. 랜덤 날짜 생성 함수 (시작일, 종료일 설정)
+function getRandomDate(start, end) {
+    const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    
+    const year = date.getFullYear();
+    // 월과 일은 2자리 숫자로 맞추기 위해 padStart 사용
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}.${month}.${day}`;
+}
+
+// 2. generateData 함수 내부 적용
+function generateData(category, count, startId) {
+    const data = [];
+    const pool = contentPool[category] || contentPool['news'];
+    
+    // 시작 날짜와 종료 날짜 설정 (예: 2026년 전체 범위)
+    const startDate = new Date(2026, 0, 1); // 2026.01.01
+    const endDate = new Date(2026, 3, 30);  // 2026.04.30 (현재 공문 작성일 기준 근처)
+
+    for (let i = 0; i < count; i++) {
+        const item = pool[i % pool.length];
+        
+        // 고정된 "2026.03.31" 대신 랜덤 함수 호출
+        const dateStr = getRandomDate(startDate, endDate); 
+        
+        const views = Math.floor(Math.random() * 1500) + 50;
+        data.push({
+            id: startId - i,
+            dept: item.dept,
+            title: item.t,
+            date: dateStr,
+            views: views,
+            summary: item.c.replace(/\n/g, '<br>'),
                     content: `<h4 class="text-lg font-black mb-4 text-hyobin-blue border-b border-slate-200 pb-2">[상세 내용]</h4>
                               <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 mb-6 shadow-sm">
                                 <strong class="text-lg text-slate-800 break-words">${item.t}</strong>
@@ -2351,8 +2372,8 @@
                               <div class="text-slate-700 leading-loose min-h-[100px] text-[15px] whitespace-pre-wrap break-words">${item.c}</div>`
                 });
             }
-            return data;
-        }
+    return data;
+}
 
         const db = {
             'news': [...coreData.news, ...generateData('news', 30, 598)], 
