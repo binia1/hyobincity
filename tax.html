@@ -2,49 +2,121 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>지방세 납부 - 효빈광역시</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> body { font-family: 'Noto Sans KR', sans-serif; } </style>
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; } 
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
+    <!-- 헤더 영역 -->
     <div id="common-header"></div>
 
-    <div class="w-full bg-slate-700 py-12 text-center text-white"><h1 class="text-4xl font-black mb-3">지방세 납부</h1><p class="text-slate-300">편리한 지방세 조회 및 납부 서비스를 제공합니다.</p></div>
+    <div class="w-full bg-slate-800 py-16 text-center text-white">
+        <h1 class="text-4xl font-black mb-3">지방세 납부</h1>
+        <p class="text-slate-300">효빈광역시의 투명하고 편리한 납세 행정 서비스</p>
+    </div>
 
     <main class="max-w-4xl mx-auto px-4 py-10 w-full mb-20">
+        
+        <!-- 납부 섹션 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-            <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-blue-600 text-center">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
                 <i data-lucide="monitor" class="w-12 h-12 mx-auto text-blue-600 mb-4"></i>
                 <h3 class="text-xl font-bold mb-2">위택스(Wetax) 납부</h3>
-                <p class="text-sm text-slate-500 mb-6">전국 지방세 신고·납부 서비스</p>
-                <button class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 w-full">위택스 바로가기</button>
+                <p class="text-sm text-slate-500 mb-6">전국 지방세 조회 및 즉시 납부</p>
+                <button onclick="window.open('https://www.wetax.go.kr', '_blank')" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 w-full transition">위택스 이동</button>
             </div>
-            <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-green-600 text-center">
-                <i data-lucide="smartphone" class="w-12 h-12 mx-auto text-green-600 mb-4"></i>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
+                <i data-lucide="phone-call" class="w-12 h-12 mx-auto text-green-600 mb-4"></i>
                 <h3 class="text-xl font-bold mb-2">ARS 간편 납부</h3>
-                <p class="text-sm text-slate-500 mb-6">전화 한 통으로 조회 및 납부</p>
-                <div class="text-2xl font-black text-slate-800">079-1111</div>
+                <p class="text-sm text-slate-500 mb-6">전화 한 통으로 해결하는 지방세</p>
+                <div class="text-2xl font-black text-slate-800 bg-slate-100 py-2 rounded-lg">079-1111</div>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-xl border border-slate-200">
-            <h4 class="font-bold text-lg mb-4 text-slate-800">📅 2025년 주요 지방세 납부 캘린더</h4>
-            <ul class="space-y-3 text-sm text-slate-600">
-                <li class="flex justify-between border-b pb-2"><span>1월</span> <span>등록면허세(면허분)</span></li>
-                <li class="flex justify-between border-b pb-2"><span>6월</span> <span>자동차세(1기분)</span></li>
-                <li class="flex justify-between border-b pb-2"><span>7월</span> <span>재산세(주택1기분, 건축물)</span></li>
-                <li class="flex justify-between border-b pb-2"><span>8월</span> <span>주민세</span></li>
-                <li class="flex justify-between border-b pb-2"><span>9월</span> <span>재산세(주택2기분, 토지)</span></li>
-                <li class="flex justify-between"><span>12월</span> <span>자동차세(2기분)</span></li>
-            </ul>
+        <!-- 세금 계산기 및 탭 메뉴 -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="flex border-b border-slate-100">
+                <button onclick="showTab('calc')" class="tab-trigger flex-1 py-4 font-bold text-blue-600 border-b-2 border-blue-600">자동차세 계산기</button>
+                <button onclick="showTab('calendar')" class="tab-trigger flex-1 py-4 font-bold text-slate-600 hover:bg-slate-50">납부 캘린더</button>
+            </div>
+            
+            <div id="tab-calc" class="tab-content active p-8">
+                <h3 class="font-bold text-lg mb-4">자동차세 간편계산 (배기량 기준)</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <input type="number" id="cc" placeholder="배기량(cc)" class="p-3 border rounded-lg">
+                    <select id="year" class="p-3 border rounded-lg bg-white">
+                        <option value="1">신차(1년차)</option>
+                        <option value="5">5년차 이상</option>
+                        <option value="10">10년차 이상</option>
+                    </select>
+                    <button onclick="calcTax()" class="bg-slate-800 text-white rounded-lg font-bold hover:bg-black">계산</button>
+                </div>
+                <div id="result" class="mt-6 p-4 bg-blue-50 text-blue-800 font-bold rounded-lg text-center">결과를 확인하세요.</div>
+            </div>
+
+            <div id="tab-calendar" class="tab-content p-8">
+                <h3 class="font-bold text-lg mb-4">2026년 주요 납부 일정</h3>
+                <table class="w-full text-sm text-slate-600">
+                    <tr class="border-b"><td class="py-3 font-bold text-blue-600">1월</td><td>등록면허세</td></tr>
+                    <tr class="border-b"><td class="py-3 font-bold text-blue-600">6월</td><td>자동차세 (1기분)</td></tr>
+                    <tr class="border-b"><td class="py-3 font-bold text-blue-600">7월</td><td>재산세 (건축물/주택1)</td></tr>
+                    <tr class="border-b"><td class="py-3 font-bold text-blue-600">8월</td><td>주민세</td></tr>
+                    <tr class="border-b"><td class="py-3 font-bold text-blue-600">9월</td><td>재산세 (토지/주택2)</td></tr>
+                    <tr><td class="py-3 font-bold text-blue-600">12월</td><td>자동차세 (2기분)</td></tr>
+                </table>
+            </div>
         </div>
     </main>
+
     <div id="common-footer"></div>
     <div id="common-modals"></div>
-    <script> lucide.createIcons(); </script>
-<script src="data.js"></script>
+
+    <script>
+        // 모든 기능을 'window' 객체에 등록하여 충돌 방지
+        window.showTab = function(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-trigger').forEach(b => {
+                b.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                b.classList.add('text-slate-600');
+            });
+            document.getElementById(`tab-${id}`).classList.add('active');
+            event.target.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        };
+
+        window.calcTax = function() {
+            const cc = document.getElementById('cc').value;
+            const year = document.getElementById('year').value;
+            if(!cc) return alert("배기량을 입력하세요.");
+            let tax = cc * (cc > 1600 ? 200 : 140);
+            const discount = (year == "5") ? 0.9 : (year == "10") ? 0.5 : 1;
+            document.getElementById('result').innerText = `예상 납부액: ${Math.floor(tax * discount).toLocaleString()}원`;
+        };
+
+        // 로드 순서 제어 (가장 핵심)
+        document.addEventListener('DOMContentLoaded', () => {
+            // 외부 파일이 로드된 후 아이콘 초기화
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // 공통 모달/헤더 푸터가 그려졌는지 확인하고 실행
+            const checkHeader = setInterval(() => {
+                if(document.getElementById('common-header')) {
+                    clearInterval(checkHeader);
+                    console.log("페이지 준비 완료");
+                }
+            }, 100);
+        });
+    </script>
+    
+    <!-- 1. data.js와 script.js를 헤더 로드 스크립트보다 뒤에 두어 꼬임 방지 -->
+    <!-- 2. common121.js는 마지막에 호출하여 충돌 시 이 페이지의 스크립트가 우선하도록 설계 -->
+    <script src="data.js"></script>
     <script src="script.js"></script>
     <script src="common121.js"></script>
 </body>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 시정백서 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('효빈광역시청사배경.png') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 게시판 테이블 전용 스타일 */
+        .stat-table th { background-color: #f8fafc; color: #334155; font-weight: 700; text-align: center; border-top: 2px solid #1e3a8a; border-bottom: 1px solid #cbd5e1; padding: 14px 8px; }
+        .stat-table td { padding: 14px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; text-align: center; color: #475569; }
+        .stat-table tr:hover td { background-color: #f1f5f9; }
+        .title-column { text-align: left !important; font-weight: 600; color: #1e293b; cursor: pointer; transition: color 0.2s; }
+        .title-column:hover { color: #2563eb; text-decoration: underline; }
+        
+        /* 다운로드 버튼 스타일 */
+        .btn-download { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer;}
+        .btn-pdf { border: 1px solid #ef4444; color: #dc2626; background: #fef2f2; }
+        .btn-pdf:hover { background: #ef4444; color: #fff; }
+        .btn-ebook { border: 1px solid #3b82f6; color: #2563eb; background: #eff6ff; }
+        .btn-ebook:hover { background: #3b82f6; color: #fff; }
+
+        /* 검색 폼 스타일 */
+        .search-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; margin-bottom: 30px; }
+        
+        /* 페이징 스타일 */
+        .pagination { display: flex; justify-content: center; gap: 4px; margin-top: 20px; }
+        .pagination a, .pagination button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 4px; transition: all 0.2s; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .pagination a:hover:not(:disabled), .pagination button:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .pagination .active { background: #1e3a8a; color: #fff; border-color: #1e3a8a; pointer-events: none; }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+
+        /* 알림 메시지 박스 */
+        #notification-box {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 알림 박스 -->
+    <div id="notification-box"></div>
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html" class="current">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (시정백서 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">시정백서</strong>
+            </div>
+
+            <!-- 본문 타이틀 -->
+            <h2 class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
+                시정백서
+            </h2>
+
+            <!-- 안내 박스 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 flex items-start gap-4">
+                <div class="bg-blue-600 text-white rounded-full p-3 shrink-0">
+                    <i data-lucide="book-open" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-blue-900 mb-2">효빈광역시 시정백서 개요</h3>
+                    <p class="text-slate-700 leading-relaxed text-sm">
+                        효빈광역시 시정백서는 지난 한 해 동안 시정 각 분야에서 추진한 주요 시책과 사업 성과를 시민들과 공유하고, 향후 시정 운영의 지침으로 삼고자 매년 발간하는 종합 행정 기록물입니다.<br>
+                        ※ 효빈의 역사를 기록하고 행정의 투명성을 높이기 위해 E-Book 및 PDF 형태로 원문 전체를 공개하고 있습니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 검색 박스 -->
+            <div class="search-box">
+                <form onsubmit="event.preventDefault(); executeSearch();" class="flex flex-col md:flex-row gap-4 items-center">
+                    <!-- 연도 선택 -->
+                    <div class="w-full md:w-1/4">
+                        <select id="yearFilter" class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">발간 연도 전체</option>
+                            <option value="2025">2025년</option>
+                            <option value="2024">2024년</option>
+                            <option value="2023">2023년</option>
+                            <option value="2022">2022년</option>
+                            <option value="2021">2021년</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 검색 카테고리 및 입력창 -->
+                    <div class="w-full md:w-3/4 flex flex-col sm:flex-row gap-2">
+                        <select id="searchType" class="border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white sm:w-1/3">
+                            <option value="title">제목</option>
+                        </select>
+                        <div class="flex w-full relative">
+                            <input type="text" id="searchInput" placeholder="검색어를 입력하세요. (예: 시정백서)" class="w-full border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="submit" class="bg-blue-800 text-white px-6 py-3 rounded-r-md hover:bg-blue-900 transition flex items-center gap-2 shrink-0 font-bold">
+                                <i data-lucide="search" class="w-5 h-5"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 데이터 안내 바 -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-bold text-gray-700">
+                    총 <span id="totalCount" class="text-blue-600">0</span>건의 시정백서가 등록되어 있습니다.
+                </div>
+            </div>
+
+            <!-- 시정백서 테이블 -->
+            <div class="overflow-x-auto bg-white border-t border-slate-200 mb-6">
+                <table class="w-full stat-table min-w-[800px]">
+                    <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 12%;">
+                        <col style="width: auto%;">
+                        <col style="width: 25%;">
+                        <col style="width: 15%;">
+                        <col style="width: 12%;">
+                        <col style="width: 8%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>발간연도</th>
+                            <th>제목</th>
+                            <th>자료 열람</th>
+                            <th>담당부서</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                        </tr>
+                    </thead>
+                    <tbody id="boardTableBody">
+                        <!-- JS로 동적 렌더링 -->
+                    </tbody>
+                </table>
+                <!-- 데이터가 없을 때 -->
+                <div id="emptyState" class="hidden py-20 border-b border-slate-200 text-center text-gray-500">
+                    <i data-lucide="file-question" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                    <p class="text-lg font-medium">검색 결과가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 페이징 뷰 컨테이너 -->
+            <div id="paginationContainer" class="pagination">
+                <!-- JS에서 동적 생성 -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 (common121.js가 렌더링) -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // 아코디언 메뉴 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // 알림창
+        function showNotify(msg) {
+            const box = document.getElementById('notification-box');
+            box.innerText = msg;
+            box.style.display = 'block';
+            setTimeout(() => { box.style.display = 'none'; }, 3000);
+        }
+
+        // 파일 열람 기능
+        function downloadPDF(title) {
+            showNotify(`[${title}] 백서 전문 PDF를 다운로드합니다.`);
+            // 실제 환경에서는 백엔드 다운로드 링크로 연결
+        }
+
+        function openEbook(title) {
+            showNotify(`[${title}] E-Book 뷰어를 실행합니다.`);
+            // 실제 환경에서는 외부 솔루션 뷰어 팝업으로 연결
+        }
+
+        function getFileButtons(files, title) {
+            const safeTitle = title.replace(/'/g, "\\'");
+            let html = '';
+            if (files.includes('pdf')) {
+                html += `<button class="btn-download btn-pdf" onclick="event.stopPropagation(); downloadPDF('${safeTitle}')"><i data-lucide="file-text" class="w-3 h-3"></i> PDF 다운로드</button> `;
+            }
+            if (files.includes('ebook')) {
+                html += `<button class="btn-download btn-ebook" onclick="event.stopPropagation(); openEbook('${safeTitle}')"><i data-lucide="book-open" class="w-3 h-3"></i> E-Book 보기</button> `;
+            }
+            return html;
+        }
+
+        // ==========================================
+        // 1. 더미 데이터 생성 (시정백서)
+        // ==========================================
+        const allWhitePaperData = [];
+        let idCounter = 35;
+
+        // 2025년부터 2010년까지의 백서 데이터 생성
+        for (let y = 2025; y >= 2010; y--) {
+            allWhitePaperData.push({
+                id: idCounter--,
+                year: y.toString(),
+                title: `${y}년도 효빈광역시 시정백서`,
+                dept: '기획조정실 기획담당관',
+                date: `${y + 1}-03-15`, // 백서는 다음해 초에 발간
+                views: Math.floor(Math.random() * 5000) + 1000,
+                files: ['pdf', 'ebook']
+            });
+        }
+
+        // ==========================================
+        // 2. 페이징 및 테이블 렌더링 로직
+        // ==========================================
+        let currentFilteredData = [...allWhitePaperData];
+        const itemsPerPage = 10;
+        let currentPage = 1;
+
+        function renderTable() {
+            const tbody = document.getElementById('boardTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const totalCount = document.getElementById('totalCount');
+            
+            totalCount.innerText = currentFilteredData.length;
+            tbody.innerHTML = '';
+
+            if (currentFilteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('block');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('block');
+                
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const pageData = currentFilteredData.slice(startIndex, endIndex);
+                
+                pageData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td class="font-medium text-slate-700">${item.year}</td>
+                        <td class="title-column" onclick="showNotify('시정백서 상세 페이지 연결 준비 중입니다.')">${item.title}</td>
+                        <td>${getFileButtons(item.files, item.title)}</td>
+                        <td class="text-sm">${item.dept}</td>
+                        <td class="text-sm">${item.date}</td>
+                        <td class="text-sm">${item.views.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            if (totalPages === 0) return;
+
+            const isFirstPage = currentPage === 1;
+            
+            container.innerHTML += `<button onclick="goToPage(1)" ${isFirstPage ? 'disabled' : ''} title="처음으로"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>`;
+            container.innerHTML += `<button onclick="goToPage(${currentPage - 1})" ${isFirstPage ? 'disabled' : ''} title="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === currentPage) {
+                    container.innerHTML += `<button class="active">${i}</button>`;
+                } else {
+                    container.innerHTML += `<button onclick="goToPage(${i})">${i}</button>`;
+                }
+            }
+
+            const isLastPage = currentPage === totalPages;
+            
+            container.innerHTML += `<button onclick="goToPage(${currentPage + 1})" ${isLastPage ? 'disabled' : ''} title="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            container.innerHTML += `<button onclick="goToPage(${totalPages})" ${isLastPage ? 'disabled' : ''} title="마지막으로"><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>`;
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function goToPage(pageNum) {
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            if (pageNum < 1 || pageNum > totalPages) return;
+            currentPage = pageNum;
+            renderTable();
+        }
+
+        // ==========================================
+        // 3. 검색 실행
+        // ==========================================
+        function executeSearch() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const searchType = document.getElementById('searchType').value;
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            currentFilteredData = allWhitePaperData.filter(item => {
+                const matchYear = yearFilter === "" || item.year === yearFilter;
+                
+                let matchKeyword = false;
+                if (keyword === "") {
+                    matchKeyword = true;
+                } else {
+                    if (searchType === 'title') {
+                        matchKeyword = item.title.toLowerCase().includes(keyword);
+                    }
+                }
+                
+                return matchYear && matchKeyword;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 초기 실행
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTable();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

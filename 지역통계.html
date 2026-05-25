@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 지역통계 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('효빈광역시청사배경.png') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 통계 테이블 전용 스타일 */
+        .stat-table th { background-color: #f8fafc; color: #334155; font-weight: 700; text-align: center; border-top: 2px solid #1e3a8a; border-bottom: 1px solid #cbd5e1; padding: 14px 8px; }
+        .stat-table td { padding: 14px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; text-align: center; color: #475569; }
+        .stat-table tr:hover td { background-color: #f1f5f9; }
+        .title-column { text-align: left !important; font-weight: 600; color: #1e293b; cursor: pointer; transition: color 0.2s; }
+        .title-column:hover { color: #2563eb; text-decoration: underline; }
+        
+        /* 다운로드 버튼 스타일 */
+        .btn-download { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer;}
+        .btn-pdf { border: 1px solid #ef4444; color: #dc2626; background: #fef2f2; }
+        .btn-pdf:hover { background: #ef4444; color: #fff; }
+        .btn-excel { border: 1px solid #10b981; color: #15803d; background: #ecfdf5; }
+        .btn-excel:hover { background: #10b981; color: #fff; }
+        .btn-hwp { border: 1px solid #3b82f6; color: #2563eb; background: #eff6ff; }
+        .btn-hwp:hover { background: #3b82f6; color: #fff; }
+
+        /* 검색 폼 스타일 */
+        .search-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; margin-bottom: 30px; }
+        
+        /* 페이징 스타일 */
+        .pagination { display: flex; justify-content: center; gap: 4px; margin-top: 20px; }
+        .pagination a, .pagination button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 4px; transition: all 0.2s; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .pagination a:hover:not(:disabled), .pagination button:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .pagination .active { background: #1e3a8a; color: #fff; border-color: #1e3a8a; pointer-events: none; }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+
+        /* 대시보드 카드 디자인 */
+        .dashboard-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; position: relative; overflow: hidden; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .dashboard-card::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: #2563eb; }
+        .dashboard-icon { position: absolute; right: -10px; bottom: -10px; opacity: 0.05; width: 100px; height: 100px; }
+        .dash-value { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html" class="current">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (지역통계 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">지역통계</strong>
+            </div>
+
+            <!-- 본문 타이틀 -->
+            <h2 class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
+                지역통계 (구·군별 지표)
+            </h2>
+
+            <!-- 안내 박스 -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 flex items-start gap-4">
+                <div class="bg-blue-600 text-white rounded-full p-3 shrink-0 mt-1">
+                    <i data-lucide="map" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-blue-900 mb-2">효빈광역시 9개 자치구·군 통계</h3>
+                    <p class="text-slate-700 leading-relaxed text-sm">
+                        효빈광역시 산하 8개 자치구 및 1개 군(북구, 중구, 동구, 서구, 남구, 창전구, 청엽구, 안천구, 탄성군)의 세부적인 지역 통계를 제공합니다.<br>
+                        ※ 각 구군별 경제 규모(GRDP), 인구 밀도, 산업단지 분포 및 상권 등 지역 간 비교·분석이 가능한 기초 데이터를 통합하여 공표합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 지역통계 핵심 지표 대시보드 -->
+            <div class="mb-12">
+                <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i> 주요 지역별 경제 및 인프라 지표
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                    <!-- 주요 거점 상권 -->
+                    <div class="dashboard-card border-l-blue-600 shadow-sm">
+                        <i data-lucide="store" class="dashboard-icon text-blue-600"></i>
+                        <h4 class="text-slate-500 font-bold mb-1 text-sm">주요 거점 상권 분포</h4>
+                        <div class="text-sm text-slate-700 space-y-1.5 mt-2">
+                            <p>• <span class="font-bold text-blue-800">북구:</span> 중앙로, 고송신도시, 중수동</p>
+                            <p>• <span class="font-bold text-blue-800">남구:</span> 평당동 상권</p>
+                            <p>• <span class="font-bold text-blue-800">서부권:</span> 청엽동(청엽구), 창전동(창전구)</p>
+                            <p>• <span class="font-bold text-blue-800">안천구:</span> 안천동, 이자동 일대</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 주요 산업단지 -->
+                    <div class="dashboard-card border-l-emerald-500 shadow-sm">
+                        <i data-lucide="factory" class="dashboard-icon text-emerald-500"></i>
+                        <h4 class="text-slate-500 font-bold mb-1 text-sm">핵심 산업 및 공단 소재지</h4>
+                        <div class="text-sm text-slate-700 space-y-1.5 mt-2">
+                            <p>• <span class="font-bold text-emerald-800">효빈공단:</span> 포장동, 헌이송동 일대</p>
+                            <p>• <span class="font-bold text-emerald-800">평전공단:</span> 평전동 일대 주요 제조 거점</p>
+                            <p>• <span class="font-bold text-emerald-800">도향산업단지:</span> 도향면 신규 조성 산단</p>
+                            <p class="text-xs text-slate-500 pt-1 border-t border-slate-100 mt-2">총 20,573개 제조업체 소재 (2021)</p>
+                        </div>
+                    </div>
+
+                    <!-- 경제규모 비교 -->
+                    <div class="dashboard-card border-l-orange-500 shadow-sm">
+                        <i data-lucide="landmark" class="dashboard-icon text-orange-500"></i>
+                        <h4 class="text-slate-500 font-bold mb-1 text-sm">지역내총생산 (GRDP)</h4>
+                        <div class="dash-value text-orange-600 mb-1 mt-1">170조 8,391억 원</div>
+                        <div class="text-xs text-slate-600 border-t border-slate-100 pt-2 mt-2">
+                            효빈시 전체 170.8조 원 중 각 <strong>자치구별 생산 비중</strong> 및 <strong>1인당 GRDP (평균 5,843만원)</strong> 비교 통계 제공
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 게시판 제목 -->
+            <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2 border-t-2 border-slate-800 pt-6">
+                <i data-lucide="folder-open" class="w-6 h-6"></i> 자치구·군별 지역통계 보고서 검색
+            </h3>
+
+            <!-- 검색 박스 -->
+            <div class="search-box">
+                <form onsubmit="event.preventDefault(); executeStatSearch();" class="flex flex-col md:flex-row gap-4 items-center">
+                    <!-- 연도 선택 -->
+                    <div class="w-full md:w-1/4">
+                        <select id="yearFilter" class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">조사 연도 전체</option>
+                            <option value="2026">2026년도</option>
+                            <option value="2025">2025년도</option>
+                            <option value="2024">2024년도</option>
+                            <option value="2023">2023년도</option>
+                            <option value="2022">2022년도</option>
+                        </select>
+                    </div>
+
+                    <!-- 통계 지표 선택 -->
+                    <div class="w-full md:w-1/4">
+                        <select id="typeFilter" class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">지표 분류 전체</option>
+                            <option value="GRDP">구군별 GRDP</option>
+                            <option value="사업체">구군별 사업체조사</option>
+                            <option value="고용">구군별 고용조사</option>
+                            <option value="기타">기타 지역지표</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 검색 카테고리 및 입력창 -->
+                    <div class="w-full md:w-1/2 flex flex-col sm:flex-row gap-2">
+                        <select id="searchType" class="border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-full sm:w-32 shrink-0">
+                            <option value="title">제목</option>
+                        </select>
+                        <div class="flex w-full relative">
+                            <input type="text" id="searchInput" placeholder="검색어를 입력하세요. (예: 북구, GRDP 등)" class="w-full border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="submit" class="bg-blue-800 text-white px-6 py-3 rounded-r-md hover:bg-blue-900 transition flex items-center gap-2 shrink-0 font-bold">
+                                <i data-lucide="search" class="w-5 h-5"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 데이터 안내 바 -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-bold text-gray-700">
+                    총 <span id="totalCount" class="text-blue-600">0</span>건의 통계자료가 있습니다.
+                </div>
+            </div>
+
+            <!-- 지역통계 테이블 -->
+            <div class="overflow-x-auto bg-white border-t border-slate-200 mb-6">
+                <table class="w-full stat-table min-w-[800px]">
+                    <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: auto;">
+                        <col style="width: 20%;">
+                        <col style="width: 15%;">
+                        <col style="width: 12%;">
+                        <col style="width: 8%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>제목</th>
+                            <th>첨부파일</th>
+                            <th>담당부서</th>
+                            <th>등록일</th>
+                            <th>조회수</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statTableBody">
+                        <!-- JS로 렌더링 -->
+                    </tbody>
+                </table>
+                <!-- 데이터가 없을 때 -->
+                <div id="emptyState" class="hidden py-20 border-b border-slate-200 text-center text-gray-500">
+                    <i data-lucide="file-search" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                    <p class="text-lg">검색 결과가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 페이징 뷰 컨테이너 (JS 동적 렌더링) -->
+            <div id="paginationContainer" class="pagination">
+                <!-- JS에서 버튼 생성 -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 (common121.js가 렌더링) -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // 아코디언 메뉴 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // ==========================================
+        // 1. 더미 데이터 생성 (구·군별 지역통계)
+        // ==========================================
+        const allRegionalData = [];
+        let idCounter = 180;
+
+        const reportTypes = [
+            { type: 'GRDP', titleBase: '효빈광역시 구·군별 지역내총생산(GRDP) 추계 결과', dept: '기획조정실 통계데이터담당관' },
+            { type: '사업체', titleBase: '구·군 단위 사업체 및 종사자 통계 결과', dept: '기획조정실 통계데이터담당관' },
+            { type: '고용', titleBase: '효빈광역시 지역별(구·군) 고용조사 주요결과', dept: '디지털경제실 일자리노동과' },
+            { type: '기타', titleBase: '효빈광역시 구·군별 상권 및 산업단지 동향 분석', dept: '미래기술국 산업정책과' }
+        ];
+
+        // 2026년 ~ 2015년까지의 데이터 생성 (충분한 페이징 테스트를 위해)
+        for (let y = 2026; y >= 2015; y--) {
+            reportTypes.forEach((rt, index) => {
+                let targetYear = y - 1; // 지역통계는 통상 1년 전 데이터를 활용
+                if (rt.type === 'GRDP') targetYear = y - 2; // GRDP는 2년 전 데이터
+                
+                if (targetYear >= 2015) {
+                    allRegionalData.push({
+                        id: idCounter--,
+                        year: y.toString(),
+                        type: rt.type,
+                        title: `${targetYear}년 기준 ${rt.titleBase}`,
+                        dept: rt.dept,
+                        date: `${y}-0${(index % 4) + 6}-1${index + 2}`, // 임의의 등록일 (6월~9월 사이)
+                        views: Math.floor(Math.random() * 600) + 150,
+                        files: ['pdf', 'xls']
+                    });
+                }
+            });
+        }
+
+        // 최신순 정렬
+        allRegionalData.sort((a, b) => b.id - a.id);
+
+        // ==========================================
+        // 2. 페이징 및 테이블 상태 관리
+        // ==========================================
+        let currentFilteredData = [...allRegionalData];
+        const itemsPerPage = 10;
+        let currentPage = 1;
+
+        // 파일 다운로드 관련 함수
+        function downloadPDF() {
+            alert('인쇄 옵션에서 "PDF로 저장"을 선택하여 다운로드할 수 있습니다.');
+            window.print();
+        }
+
+        function downloadExcel(title) {
+            const bom = "\uFEFF"; 
+            const csvContent = bom + 
+                               "구분,북구,중구,동구,서구,남구,창전구,청엽구,안천구,탄성군\n" +
+                               "지역내총생산(조 원),45.2,18.5,22.1,19.8,25.4,12.5,9.8,11.2,6.3\n" +
+                               "사업체수(개),85000,32000,41000,35000,48000,21000,18000,25000,15000\n" +
+                               "주요산업,서비스업,상업,제조업,IT,제조업,농공,어업,제조업,농업\n";
+            
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${title}_구군별_데이터.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function getFileButtons(files, title) {
+            const safeTitle = title.replace(/'/g, "\\'");
+            let html = '';
+            if (files.includes('pdf')) html += `<button class="btn-download btn-pdf" onclick="event.stopPropagation(); downloadPDF()"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button> `;
+            if (files.includes('xls')) html += `<button class="btn-download btn-excel" onclick="event.stopPropagation(); downloadExcel('${safeTitle}')"><i data-lucide="table" class="w-3 h-3"></i> XLS</button> `;
+            return html;
+        }
+
+        // 테이블 렌더링 함수
+        function renderTable() {
+            const tbody = document.getElementById('statTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const totalCount = document.getElementById('totalCount');
+            
+            totalCount.innerText = currentFilteredData.length;
+            tbody.innerHTML = '';
+
+            if (currentFilteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('block');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('block');
+                
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const pageData = currentFilteredData.slice(startIndex, endIndex);
+                
+                pageData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td class="title-column" onclick="alert('지역통계 상세 보고서 페이지 연결 준비 중입니다.')">
+                            <span class="text-[11px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded mr-1">${item.type}</span>
+                            ${item.title}
+                        </td>
+                        <td>${getFileButtons(item.files, item.title)}</td>
+                        <td class="text-sm">${item.dept}</td>
+                        <td class="text-sm">${item.date}</td>
+                        <td class="text-sm">${item.views.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            
+            renderPagination();
+        }
+
+        // 페이징 버튼 렌더링 함수
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            container.innerHTML = '';
+            
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            if (totalPages === 0) return;
+
+            const isFirstPage = currentPage === 1;
+            
+            container.innerHTML += `<button onclick="goToPage(1)" ${isFirstPage ? 'disabled' : ''} title="처음으로"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>`;
+            container.innerHTML += `<button onclick="goToPage(${currentPage - 1})" ${isFirstPage ? 'disabled' : ''} title="이전 페이지"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === currentPage) {
+                    container.innerHTML += `<button class="active">${i}</button>`;
+                } else {
+                    container.innerHTML += `<button onclick="goToPage(${i})">${i}</button>`;
+                }
+            }
+
+            const isLastPage = currentPage === totalPages;
+            
+            container.innerHTML += `<button onclick="goToPage(${currentPage + 1})" ${isLastPage ? 'disabled' : ''} title="다음 페이지"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            container.innerHTML += `<button onclick="goToPage(${totalPages})" ${isLastPage ? 'disabled' : ''} title="마지막으로"><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>`;
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function goToPage(pageNum) {
+            const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+            if (pageNum < 1 || pageNum > totalPages) return;
+            currentPage = pageNum;
+            renderTable();
+        }
+
+        function executeStatSearch() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const searchType = document.getElementById('searchType').value;
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            currentFilteredData = allRegionalData.filter(item => {
+                const matchYear = yearFilter === "" || item.year === yearFilter;
+                const matchType = typeFilter === "" || item.type === typeFilter;
+                
+                let matchKeyword = false;
+                if (keyword === "") {
+                    matchKeyword = true;
+                } else {
+                    if (searchType === 'title') {
+                        matchKeyword = item.title.toLowerCase().includes(keyword);
+                    }
+                }
+                
+                return matchYear && matchType && matchKeyword;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 초기 실행
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTable();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

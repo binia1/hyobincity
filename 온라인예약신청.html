@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온라인예약신청 - 효빈온(ON) 예약</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Card Hover Effects */
+        .res-card {
+            transition: all 0.3s ease;
+        }
+        .res-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .res-card:hover .res-img {
+            transform: scale(1.05);
+        }
+
+        /* Status Tags */
+        .badge-open { background-color: #3b82f6; color: #ffffff; }
+        .badge-closed { background-color: #64748b; color: #ffffff; }
+        .badge-waiting { background-color: #f59e0b; color: #ffffff; }
+
+        .badge-free { border: 1px solid #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .badge-paid { border: 1px solid #8b5cf6; color: #8b5cf6; background-color: #f5f3ff; }
+
+        /* 효빈도시철도 Line Colors (Lore) */
+        .color-line1 { color: #0077DD; font-weight: 900; }
+        .color-line2 { color: #00CCAA; font-weight: 900; }
+        .color-line3 { color: #FFCC11; font-weight: 900; }
+        .color-line4 { color: #FF5522; font-weight: 900; }
+        .color-line5 { color: #EE0022; font-weight: 900; }
+        .color-line6 { color: #881188; font-weight: 900; }
+        .color-line7 { color: #FF8899; font-weight: 900; }
+        .color-line8 { color: #9856FF; font-weight: 900; }
+        .color-binhyo { color: #6677CC; font-weight: 900; }
+
+        /* Modal Overlay */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); }
+
+        /* Tab Styles */
+        .tab-btn { position: relative; color: #64748b; font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { color: #005bac; }
+        .tab-btn.active { color: #005bac; font-weight: 800; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: #005bac;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">효빈온(ON) 예약</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">효빈시의 시설대관, 교육강좌, 체험프로그램을 한곳에서 예약하세요.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 (사이드바 + 메인 컨텐츠) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="sticky top-8 space-y-6">
+                <!-- 시민 광장 메뉴 -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                        시민 광장
+                    </h2>
+                    <ul class="lnb-depth1">
+                        <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    </ul>
+                </div>
+                
+                <!-- 효빈온 예약 메뉴 -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                    <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">효빈온(ON) 예약</h4>
+                    <ul class="space-y-2 text-[14px] font-medium text-slate-600">
+                        <li><a href="온라인예약신청.html" class="text-blue-600 font-bold flex justify-between items-center bg-blue-50 px-3 py-2 rounded">온라인예약신청 <i data-lucide="chevron-right" class="w-3 h-3 text-blue-600"></i></a></li>
+                        <li><a href="바로예약.html" class="hover:text-blue-600 flex justify-between items-center px-3 py-2">바로예약 <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i></a></li>
+                        <li><a href="공용차량신청.html" class="hover:text-blue-600 flex justify-between items-center px-3 py-2">공용차량신청 <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>효빈온(ON) 예약</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">온라인예약신청</span>
+            </div>
+
+            <!-- Page Title -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800 mb-2">온라인예약신청</h2>
+                    <p class="text-slate-600">효빈시에서 운영하는 시설 대관, 문화 교육 강좌, 이색 체험 프로그램을 빠르고 편리하게 예약하세요.</p>
+                </div>
+                <!-- 신청내역 확인 버튼 -->
+                <button onclick="openHistoryModal()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow-md flex items-center justify-center shrink-0">
+                    <i data-lucide="receipt" class="w-5 h-5 mr-2"></i> 신청내역 확인
+                </button>
+            </div>
+
+            <!-- 검색 및 필터 박스 -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">분야 선택</label>
+                        <select id="filter-category" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-hyobin-blue bg-slate-50" onchange="renderCards(1)">
+                            <option value="all">분야 전체</option>
+                            <option value="facility">시설 대관 (체육/문화)</option>
+                            <option value="edu">교육/강좌</option>
+                            <option value="exp">체험/견학</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">지역 선택</label>
+                        <select id="filter-region" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-hyobin-blue bg-slate-50" onchange="renderCards(1)">
+                            <option value="all">지역 전체</option>
+                            <option value="남구">남구</option>
+                            <option value="동구">동구</option>
+                            <option value="북구">북구</option>
+                            <option value="서구">서구</option>
+                            <option value="안천구">안천구</option>
+                            <option value="중구">중구</option>
+                            <option value="창전구">창전구</option>
+                            <option value="청엽구">청엽구</option>
+                            <option value="탄성군">탄성군</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">검색어</label>
+                        <div class="flex">
+                            <input type="text" id="search-input" placeholder="프로그램명 또는 장소 검색" class="w-full border border-slate-300 rounded-l-lg px-4 py-2.5 text-sm focus:outline-none focus:border-hyobin-blue">
+                            <button onclick="renderCards(1)" class="bg-hyobin-dark text-white px-6 py-2.5 rounded-r-lg font-bold hover:bg-blue-900 transition flex items-center justify-center shrink-0">
+                                <i data-lucide="search" class="w-4 h-4 mr-1"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 예약 결과 상단 제어 -->
+            <div class="flex justify-between items-center border-b border-slate-300 pb-2">
+                <div class="text-sm font-medium text-slate-600">
+                    검색 결과 총 <span id="total-count" class="text-hyobin-blue font-bold mx-1">0</span>건
+                </div>
+                <div class="flex gap-3 text-sm">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="filter-open-only" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" onchange="renderCards(1)">
+                        <span class="ml-1.5 text-slate-700 font-medium select-none">접수중인 항목만 보기</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 카드 그리드 영역 -->
+            <div id="reservation-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-[400px] content-start">
+                <!-- JS Rendered -->
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="flex justify-center mt-10" id="pagination-container">
+                <!-- JS Rendered -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 -->
+    <div id="common-footer"></div>
+
+    <!-- 1. 예약 상세 안내 모달 -->
+    <div id="res-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4 transition-opacity duration-300" onclick="closeModal()">
+        <div id="res-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="relative h-48 md:h-64 w-full bg-slate-200 shrink-0">
+                <img id="modal-img" src="" alt="예약 시설 이미지" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <button onclick="closeModal()" class="absolute top-4 right-4 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition backdrop-blur-md">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <div class="absolute bottom-4 left-6 pr-6">
+                    <div class="flex gap-2 mb-2" id="modal-badges">
+                        <!-- JS injected -->
+                    </div>
+                    <h3 id="modal-title" class="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-md">예약 프로그램 제목</h3>
+                </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar bg-slate-50">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <h4 class="font-bold text-lg text-slate-800 border-b pb-2 mb-2"><i data-lucide="info" class="w-5 h-5 inline mr-1 text-blue-600"></i> 이용 정보</h4>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">장소</span>
+                            <span class="text-sm text-slate-800 break-keep" id="modal-location">장소 정보</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">대상</span>
+                            <span class="text-sm text-slate-800 break-keep" id="modal-target">누구나</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">접수기간</span>
+                            <span class="text-sm text-slate-800 font-medium" id="modal-period">2026.00.00 ~ 00.00</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">이용요금</span>
+                            <span class="text-sm text-slate-800 font-bold text-blue-600" id="modal-fee">무료</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">담당부서</span>
+                            <span class="text-sm text-slate-800" id="modal-dept">부서명</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-800 border-b pb-2 mb-4"><i data-lucide="file-text" class="w-5 h-5 inline mr-1 text-blue-600"></i> 상세 안내</h4>
+                        <div id="modal-desc" class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">상세 설명</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border-t bg-white shrink-0 flex justify-end gap-3 items-center">
+                <button onclick="closeModal()" class="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition shadow-sm">닫기</button>
+                <button id="modal-apply-btn" onclick="openApplyModal()" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md flex items-center">
+                    <i data-lucide="calendar-check" class="w-5 h-5 mr-2"></i> 예약 신청하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 실제 예약 신청 폼 모달 -->
+    <div id="apply-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[90] p-4 transition-opacity duration-300" onclick="closeApplyModal()">
+        <div id="apply-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="bg-blue-600 p-5 flex justify-between items-center text-white shrink-0">
+                <h3 class="text-xl font-black flex items-center"><i data-lucide="calendar-check" class="mr-2"></i> 예약 신청 정보입력</h3>
+                <button type="button" onclick="closeApplyModal()" class="text-white hover:text-blue-200 transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form onsubmit="submitReservation(event)" class="flex flex-col h-full overflow-hidden">
+                <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5 bg-slate-50">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-2 shadow-sm">
+                        <p class="text-xs text-slate-500 mb-1 font-bold">신청 프로그램</p>
+                        <p class="font-black text-slate-800 text-lg break-keep" id="apply-program-title">프로그램명</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">신청자 성명 <span class="text-red-500">*</span></label>
+                        <input type="text" id="apply-name" required placeholder="예: 홍길동" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">연락처 <span class="text-red-500">*</span></label>
+                        <input type="tel" id="apply-phone" required placeholder="예: 010-1234-5678" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">희망 일자 <span class="text-red-500">*</span></label>
+                            <input type="date" id="apply-date" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-slate-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">참여 인원 <span class="text-red-500">*</span></label>
+                            <input type="number" id="apply-count" min="1" required placeholder="예: 2" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex items-start pt-2">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" required class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                            <span class="ml-2 text-sm font-medium text-slate-600 select-none">개인정보 수집 및 이용, 취소/환불 규정에 동의합니다. <span class="text-red-500">*</span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="p-5 border-t bg-white rounded-b-2xl flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeApplyModal()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition shadow-sm">취소</button>
+                    <button type="submit" class="px-8 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition shadow-md flex items-center">
+                        예약 확정
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. 신청내역 확인 모달 -->
+    <div id="history-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[100] p-4 transition-opacity duration-300" onclick="closeHistoryModal()">
+        <div id="history-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="bg-indigo-600 p-5 flex justify-between items-center text-white shrink-0">
+                <h3 class="text-xl font-black flex items-center"><i data-lucide="receipt" class="mr-2"></i> 나의 예약 신청 내역</h3>
+                <button type="button" onclick="closeHistoryModal()" class="text-white hover:text-indigo-200 transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-grow bg-slate-50" id="history-list-container">
+                <!-- JS Rendered -->
+            </div>
+            <div class="p-5 border-t bg-white rounded-b-2xl flex justify-end shrink-0">
+                <button type="button" onclick="closeHistoryModal()" class="px-6 py-2.5 bg-slate-600 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 외부 스크립트 연결 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 효빈시 예약 데이터 (효빈시 실제 9개 구/군 행정구역 100% 반영)
+        const reservationData = [
+            // 1~10 (핵심 로어 반영)
+            { id: 1, category: 'facility', region: '서구', status: 'open', feeType: 'free', title: '효빈대학교 베르데 홀 시민 다목적 대관 (무료)', img: '이미지/효빈대학교.png', location: '서구 당선동 효빈대학교 베르데 홀', target: '효빈시민 누구나 (서브컬처 행사 우대)', period: '2026.04.15 ~ 2026.05.31', fee: '무료', dept: '효빈대학교 (079-111-2222)', desc: "천 비서실장이 쇠파이프 난동으로부터 결식아동과 치카리코 패널을 지켜낸 숭고한 성지 '베르데 홀'을 시민 여러분께 특별 개방합니다.\n\n[주의사항]\n폭력적 혐오 행사 기획자나 장난감 총기 소지자(윤모 씨 등)는 현장에서 영구 출입 금지 조치됩니다." },
+            { id: 2, category: 'exp', region: '남구', status: 'open', feeType: 'free', title: '1호선 <span class="color-line1">고나미(파란색)</span> 열차 1일 기관사 체험', img: 'https://placehold.co/600x400/0077DD/ffffff?text=Line+1', location: '남구 곽산동 곽산차량기지', target: '초/중학생 (뱅드림 하나조노 타에 팬 우대)', period: '2026.05.01 ~ 05.20', fee: '무료', dept: '효빈교통공사', desc: "파란색 1호선 마스코트, 엉뚱한 기타리스트 '고나미'(하나조노 타에 콜라보 기획) 테마 열차에서 진행되는 기관사 직업 체험입니다.\n참가자 전원에게 1호선 고나미 한정판 기타 픽을 증정합니다!" },
+            { id: 3, category: 'facility', region: '안천구', status: 'open', feeType: 'paid', title: '당가동 파스텔블루 거리 코스프레 야외 스튜디오 대관', img: 'https://placehold.co/600x400/a7f3d0/1e293b?text=Pastel+Blue', location: '안천구 당가동 파스텔블루 특화거리 일대', target: '코스프레 동호회 및 사진작가', period: '상시 접수', fee: '4시간 30,000원', dept: '안천구청 도시재생과', desc: "L-Project 수혜지, 당가동 거리를 전세 내어 촬영하세요. 과거 Liyuu 성우님이 방문하여 '탕쿠쿠 대첩'을 승리로 이끌었던 '탕쿠쿠의 벽' 앞이 최고의 포토존입니다." },
+            { id: 4, category: 'edu', region: '북구', status: 'open', feeType: 'free', title: '천 비서실장 초청 특강 "덕업일치와 적극행정"', img: 'https://placehold.co/600x400/1e293b/ffffff?text=Special+Lecture', location: '북구 고송동 효빈광역시청 대회의실', target: '예비 공무원 및 청년', period: '2026.04.28 19:00', fee: '무료', dept: '자치행정과', desc: "효빈시청 최고의 다크히어로 '우치우라의 기사' 천 비서실장이 들려주는 생생한 적극행정 스토리.\n질문 채택자에게는 시장실 소장용 한정판 마스코트 굿즈를 증정합니다." },
+            { id: 5, category: 'exp', region: '청엽구', status: 'open', feeType: 'paid', title: '2호선 <span class="color-line2">하루빈(초록색)</span> 느긋한 빵 만들기 원데이 클래스', img: 'https://placehold.co/600x400/00CCAA/ffffff?text=Line+2', location: '청엽구 우전동 제과제빵학원', target: '일반 시민', period: '매주 토요일 14:00', fee: '20,000원', dept: '청엽구청 평생교육과', desc: "세상에서 빵을 가장 사랑하는 초록색 2호선 마스코트 '하루빈'(아오바 모카 콜라보) 테마의 유쾌한 베이킹 클래스." },
+            { id: 6, category: 'edu', region: '북구', status: 'open', feeType: 'paid', title: '사능동 "엠마 빵" 원조 사장님 베이킹 클래스', img: 'https://placehold.co/600x400/f59e0b/ffffff?text=Emma+Bread', location: '북구 사능동 여성회관 요리실', target: '성인 누구나', period: '2026.04.22 14:00', fee: '15,000원', dept: '여성가족과', desc: "박효빈 시장님의 최애 간식! 사능동 명물 '엠마 빵'의 쫄깃한 식감을 직접 배워보는 시간입니다." },
+            { id: 7, category: 'exp', region: '북구', status: 'open', feeType: 'free', title: '3호선 <span class="color-line3">박라미(노란색)</span> 카스밍 로드 야간 투어', img: 'https://placehold.co/600x400/FFCC11/ffffff?text=Line+3', location: '북구 중수동 카스밍 로드 일대', target: '효빈 시민', period: '2026.05.01 ~ 05.10', fee: '무료', dept: '도시재생과', desc: "박효빈 시장님의 사심(?)이 담긴 노란 가로등 불빛이 아름다운 '카스밍 로드(골든 로드)'를 3호선 마스코트 '박라미'(야마부키 사아야 콜라보)와 함께 걷는 낭만 투어." },
+            { id: 8, category: 'facility', region: '북구', status: 'waiting', feeType: 'paid', title: '효빈종합버스터미널 2층 Ani-Station 앞 팝업 대관', img: '이미지/대합실.png', location: '북구 해서동 효빈종합버스터미널', target: '동인 서클, 창작자', period: '2026.06.01 ~ 06.30', fee: '1일 50,000원', dept: '칠양여객고속', desc: "북구 해서동에 위치한 명품 효빈종합버스터미널! 유동인구가 엄청난 2층 팝업 부스를 2차 창작 굿즈 판매용으로 대관해 드립니다. (윤대환 전 시장 시절의 똥색 버스 트라우마는 완전히 지워진 쾌적한 공간입니다.)" },
+            { id: 9, category: 'exp', region: '서구', status: 'open', feeType: 'paid', title: '4호선 <span class="color-line4">다로나(주황색)</span> 별빛 캠핑장 글램핑 예약', img: 'https://placehold.co/600x400/FF5522/ffffff?text=Line+4', location: '서구 내성동 외곽 캠핑장', target: '가족 단위', period: '주말 예약', fee: '80,000원', dept: '공원녹지과', desc: "항상 반짝반짝 별을 쫓는 4호선 주황색 마스코트 '다로나'(토야마 카스미 콜라보) 테마의 야간 캠핑 프로그램." },
+            { id: 10, category: 'exp', region: '청엽구', status: 'open', feeType: 'free', title: '5호선 <span class="color-line5">미소하(빨간색)</span> 강렬한 인디 록 밴드 보컬 코칭', img: 'https://placehold.co/600x400/EE0022/ffffff?text=Line+5', location: '청엽구 우택동 청소년문화의집', target: '중/고교 밴드부', period: '2026.05.08 15:00', fee: '무료', dept: '문화예술유산과', desc: "반항기 넘치는 5호선 빨간색 마스코트 '미소하'(미타케 란 콜라보) 록 스피릿 체험! 인디 밴드 보컬이 직접 멘토링합니다." },
+
+            // 11~20: 완벽한 행정구역 반영
+            { id: 11, category: 'facility', region: '북구', status: 'open', feeType: 'paid', title: '청년 안심주택 \'효빈 하우스\' 1층 공유 주방 대관', img: 'https://placehold.co/600x400/f472b6/ffffff?text=Share+Kitchen', location: '북구 고송동 효빈 하우스', target: '만 19~34세 청년', period: '매주 주말', fee: '4시간 20,000원', dept: '도시재생과', desc: "시청이 위치한 북구 고송동 효빈 하우스! 지역 청년 누구나 저렴하게 대관하여 생일 파티나 창작 모임을 즐길 수 있는 공유 주방입니다." },
+            { id: 12, category: 'exp', region: '동구', status: 'open', feeType: 'paid', title: '6호선 <span class="color-line6">라세나(보라색)</span> 보컬 트레이닝 심화 과정', img: 'https://placehold.co/600x400/881188/ffffff?text=Line+6', location: '동구 사가당동 보컬 아카데미', target: '가창력 향상 희망자', period: '2026.05.15 시작 (4주)', fee: '50,000원', dept: '효빈문화재단', desc: "긍지 높은 보라색 6호선 마스코트 '라세나'(미나토 유키나 콜라보) 급의 압도적 가창력을 얻기 위한 스파르타식 훈련 클래스." },
+            { id: 13, category: 'edu', region: '탄성군', status: 'open', feeType: 'free', title: '도변읍 계층리 구도심 재생 아카데미', img: 'https://placehold.co/600x400/10b981/ffffff?text=Urban+Regeneration', location: '탄성군 도변읍 계층리 복지센터', target: '탄성군 주민', period: '2026.04.20 ~ 05.10', fee: '무료', dept: '탄성군청', desc: "탄성군 도변읍 계층리의 낡은 골목을 되살리기 위한 주민 주도 재생 교육 프로그램입니다." },
+            { id: 14, category: 'exp', region: '탄성군', status: 'open', feeType: 'paid', title: '정근면 사촌리 전통 농기구 및 트랙터 운전 체험', img: 'https://placehold.co/600x400/fb923c/ffffff?text=Farm+Tractor', location: '탄성군 정근면 사촌리 농기계센터', target: '초등생 이상 가족', period: '매주 토요일', fee: '10,000원', dept: '농업기술센터', desc: "정근면 사촌리 일대에서 진행되는 트랙터 시승 및 스마트팜 드론 조종 체험입니다." },
+            { id: 15, category: 'facility', region: '남구', status: 'open', feeType: 'paid', title: '남구 평당동 생태 체육공원 다목적구장 대관', img: 'https://placehold.co/600x400/4ade80/ffffff?text=Sports+Park', location: '남구 평당동 평당1동 다목적구장', target: '체육 동호회', period: '상시 예약', fee: '2시간 30,000원', dept: '남구청 체육과', desc: "남구 평당동에 위치한 쾌적한 다목적 구장입니다. 풋살, 족구 등 야간 이용 가능." },
+            { id: 16, category: 'exp', region: '중구', status: 'open', feeType: 'free', title: '7호선 <span class="color-line7">임세정/임세하(분홍색)</span> 벚꽃 팝업 투어', img: 'https://placehold.co/600x400/FF8899/ffffff?text=Line+7', location: '중구 중앙동 일대 및 7호선 순환', target: '인증샷을 사랑하는 시민', period: '2026.04.15 ~ 04.20', fee: '무료', dept: '효빈교통공사', desc: "허영심 많지만 미워할 수 없는 7호선 자매 '임세정/임세하'(치하야 아논 콜라보) 래핑 열차에서 진행되는 벚꽃 시즌 인증샷 이벤트!" },
+            { id: 17, category: 'exp', region: '창전구', status: 'open', feeType: 'paid', title: '진백동 시로마을 전통주 빚기 명인 체험', img: 'https://placehold.co/600x400/fca5a5/ffffff?text=Traditional+Brew', location: '창전구 진백동 시로동 양조장', target: '성인', period: '매주 일요일', fee: '30,000원', dept: '효빈문화재단', desc: "창전구 진백동 내 시로동 명인과 함께하는 막걸리 빚기 문화 체험 프로그램입니다." },
+            { id: 18, category: 'edu', region: '남구', status: 'open', feeType: 'free', title: '8호선 <span class="color-line8">유리아(연보라색)</span> 어간동 향교역 다도 및 예절 학당', img: 'https://placehold.co/600x400/9856FF/ffffff?text=Line+8', location: '남구 어간동 8호선 향교역사 내', target: '청소년 및 일반 시민', period: '매월 1, 3주 토요일', fee: '무료', dept: '효빈문화재단', desc: "무사도 정신의 연보라색 8호선 '유리아'(와카미야 이브 콜라보) 테마의 전통 예절 및 한복 체험 학당입니다. 8호선 전 지역을 책임지는 남구의 핵심 핫플!" },
+            { id: 19, category: 'facility', region: '탄성군', status: 'waiting', feeType: 'paid', title: '야진읍 아득리 오토캠핑장 데크 예약', img: 'https://placehold.co/600x400/22d3ee/ffffff?text=Auto+Camping', location: '탄성군 야진읍 아득리 캠핑장', target: '캠핑족', period: '상시 (대기필요)', fee: '1박 45,000원', dept: '야진읍사무소', desc: "탄성군 야진읍 아득리 일대 맑은 공기를 자랑하는 인기 오토캠핑장입니다. 예약 경쟁이 치열하여 대기 접수 중입니다." },
+            { id: 20, category: 'exp', region: '탄성군', status: 'open', feeType: 'paid', title: '고해읍 이와리 가을 사과 따기 사전 예약', img: 'https://placehold.co/600x400/ef4444/ffffff?text=Apple+Farm', location: '탄성군 고해읍 이와리 사과농장', target: '가족 단위', period: '2026.09월 중', fee: '체험비 15,000원', dept: '고해읍사무소', desc: "탄성군 고해읍 이와리에 위치한 달콤한 사과 농장에서 미리 예약하는 가을 수확 체험입니다." },
+
+            // 21~40: 나머지 지역
+            { id: 21, category: 'exp', region: '청엽구', status: 'open', feeType: 'paid', title: '우택동 도예 공방 물레 체험', img: 'https://placehold.co/600x400/a8a29e/ffffff?text=Pottery', location: '청엽구 우택동 도예공방', target: '성인 및 커플', period: '매주 수요일', fee: '25,000원', dept: '청엽구청 문화과', desc: "청엽구 우택동에서 나만의 도자기를 빚어보는 힐링 공방 클래스." },
+            { id: 22, category: 'exp', region: '안천구', status: 'open', feeType: 'free', title: '빈효선 <span class="color-binhyo">전노아(연청색)</span> 타천역(성택대 앞) 버스킹 존', img: 'https://placehold.co/600x400/6677CC/ffffff?text=Busking', location: '안천구 악부동 타천동 빈효선 타천역', target: '아마추어 뮤지션', period: '매주 금요일 19:00', fee: '무료', dept: '도시철도과', desc: "연청색 빈효선 마스코트 '전노아'(쿠라타 마시로 콜라보) 테마의 버스킹 무대! 성택대 앞을 청춘의 노래로 채워주세요." },
+            { id: 23, category: 'edu', region: '탄성군', status: 'open', feeType: 'free', title: '흑택면 보습리 청년 농업 아카데미', img: 'https://placehold.co/600x400/84cc16/ffffff?text=Farming', location: '탄성군 흑택면 보습리', target: '귀농 희망 청년', period: '2026.05.01 ~ 06.30', fee: '무료', dept: '탄성군청', desc: "탄성군 흑택면 보습리에서 배우는 체계적인 스마트 청년 농업 교육 과정." },
+            { id: 24, category: 'exp', region: '북구', status: 'open', feeType: 'paid', title: '천왕사동 사찰 템플스테이 (주말)', img: 'https://placehold.co/600x400/57534e/ffffff?text=Temple+Stay', location: '북구 천왕사동 사찰', target: '휴식이 필요한 현대인', period: '매주 토~일 (1박2일)', fee: '60,000원', dept: '북구청 문화과', desc: "북구 천왕사동의 고즈넉한 사찰에서 번뇌를 내려놓고 명상과 다도를 즐기는 템플스테이." },
+            { id: 25, category: 'exp', region: '남구', status: 'open', feeType: 'paid', title: '항동1가 해변 갯벌 쏙 잡이 체험', img: 'https://placehold.co/600x400/60a5fa/ffffff?text=Mudflat', location: '남구 항동1가 해안가', target: '어린이 동반 가족', period: '물때에 따라 변동', fee: '10,000원 (장비 대여)', dept: '남구청 해양과', desc: "남구 항동1가 갯벌에서 장화와 호미를 빌려 신나는 갯벌 생태 체험을 해보세요." },
+            { id: 26, category: 'exp', region: '중구', status: 'closed', feeType: 'paid', title: '내항동 명일동 배낚시 초보자 코스', img: 'https://placehold.co/600x400/2563eb/ffffff?text=Fishing', location: '중구 내항동 명일동 선착장', target: '낚시 입문자', period: '시즌 마감', fee: '50,000원', dept: '중구청 어업과', desc: "중구 내항동 선착장에서 출발하는 짜릿한 선상 낚시 (현재 기상 악화로 시즌 조기 마감)." },
+            { id: 27, category: 'facility', region: '탄성군', status: 'waiting', feeType: 'paid', title: '서목읍 마희리 계곡 방갈로 야영장 대관', img: 'https://placehold.co/600x400/059669/ffffff?text=Valley+Camp', location: '탄성군 서목읍 마희리', target: '가족 단위 피서객', period: '여름 성수기 예약 중', fee: '1일 70,000원', dept: '서목읍사무소', desc: "서목읍 마희리 계곡을 낀 시원한 방갈로. 예약 경쟁이 매우 치열하여 대기 접수 중입니다." },
+            { id: 28, category: 'facility', region: '동구', status: 'open', feeType: 'free', title: '덕현동 구도심 유휴공간 청년 오피스', img: 'https://placehold.co/600x400/d946ef/ffffff?text=Office', location: '동구 덕현동', target: '스타트업 및 예비창업자', period: '상시 (최대 6개월)', fee: '무료', dept: '동구청 일자리과', desc: "동구 덕현동의 빈 상가를 리모델링한 무료 청년 공유 오피스 공간입니다." },
+            { id: 29, category: 'exp', region: '북구', status: 'open', feeType: 'free', title: '산고동 사연동 야간 천체 관측의 밤', img: 'https://placehold.co/600x400/1e1b4b/ffffff?text=Stargazing', location: '북구 산고동 사연동 천문대', target: '시민 누구나', period: '매월 보름 달 없는 밤', fee: '무료', dept: '북구청 공원녹지과', desc: "빛 공해가 적은 사연동 산 정상에서 은하수와 별자리를 관측하는 로맨틱한 행사입니다." },
+            { id: 30, category: 'edu', region: '서구', status: 'open', feeType: 'free', title: '스마트 시정 게시대 어플리케이션 활용법 교육', img: 'https://placehold.co/600x400/f87171/ffffff?text=Smart+App', location: '서구 북성동 내성동1가 정보화교육장', target: '장년층 및 소상공인', period: '2026.04.18 10:00', fee: '무료', dept: '정보화담당관', desc: "합법적인 광고를 쉽게 신청할 수 있는 스마트 시정 게시대 앱 다운로드 및 사용법 교육." },
+            { id: 31, category: 'facility', region: '남구', status: 'open', feeType: 'paid', title: '항동2가 마리나 요트 선상 파티 대관', img: 'https://placehold.co/600x400/0284c7/ffffff?text=Yacht+Party', location: '남구 항동2가 마리나 선착장', target: '소규모 모임 (최대 10인)', period: '상시 접수', fee: '3시간 300,000원', dept: '효빈관광공사', desc: "석양이 지는 남구 효빈항에서 즐기는 프라이빗 요트 대관 서비스입니다." },
+            { id: 32, category: 'exp', region: '안천구', status: 'open', feeType: 'paid', title: '당가동 인디 스테이지 아이돌 댄스 원데이 클래스', img: 'https://placehold.co/600x400/ec4899/ffffff?text=Dance+Class', location: '안천구 당가동 예술의거리 소극장', target: '청소년 및 성인', period: '매주 일요일 16:00', fee: '15,000원', dept: '효빈문화재단', desc: "지하 아이돌 공연장으로 핫한 안천구 당가동 소극장에서 실제 안무가에게 배우는 K-Pop / J-Pop 댄스 클래스." },
+            { id: 33, category: 'edu', region: '북구', status: 'open', feeType: 'free', title: '가족돌봄청년 심리 상담 및 치유 프로그램', img: 'https://placehold.co/600x400/14b8a6/ffffff?text=Counseling', location: '북구 고송동 청년마음건강센터', target: '가족돌봄청년 (영 케어러)', period: '매주 화, 목요일', fee: '무료', dept: '복지정책과', desc: "박효빈 시장님이 강력히 추진한 가족돌봄청년 조례에 따른 무료 심리 지원 1:1 상담 서비스입니다." },
+            { id: 34, category: 'exp', region: '창전구', status: 'open', feeType: 'free', title: '창전동 라노벨 작가 초청 북토크', img: 'https://placehold.co/600x400/8b5cf6/ffffff?text=Book+Talk', location: '창전구 창전동 시립도서관 대강당', target: '만 15세 이상 시민', period: '2026.05.08 14:00', fee: '무료', dept: '도서관정책과', desc: "일본 현지에서 데뷔한 한국인 라이트 노벨 작가를 초청하여 집필 과정과 서브컬처 시장의 전망을 듣습니다." },
+            { id: 35, category: 'facility', region: '동구', status: 'waiting', feeType: 'free', title: '덕현동 길거리 농구장(3on3) 주말 대관', img: 'https://placehold.co/600x400/f97316/ffffff?text=Basketball', location: '동구 덕현동 체육공원', target: '시민 누구나', period: '주말 상시', fee: '무료 (대기 접수)', dept: '동구청 체육과', desc: "우레탄 코트로 리모델링된 덕현동 인기 길거리 농구장. 예약이 치열해 대기 시스템으로 운영됩니다." },
+            { id: 36, category: 'exp', region: '중구', status: 'open', feeType: 'free', title: '중앙동 골목길 스탬프 투어 "효빈 레트로 탐험"', img: 'https://placehold.co/600x400/78716c/ffffff?text=Retro+Tour', location: '중구 중앙동, 조유동 일대', target: '도보 여행객', period: '2026.04 ~ 11월', fee: '무료', dept: '관광진흥과', desc: "오래된 중구 구도심의 흔적을 찾아 떠나는 골목 투어. 완주 시 효빈 굿즈 뱃지 증정." },
+            { id: 37, category: 'edu', region: '청엽구', status: 'open', feeType: 'paid', title: '우전동 시니어 스마트폰 및 키오스크 특강', img: 'https://placehold.co/600x400/3b82f6/ffffff?text=Senior+Edu', location: '청엽구 우전동 노인복지관', target: '만 65세 이상 어르신', period: '매주 월/수 10:00', fee: '5,000원', dept: '노인복지과', desc: "터미널이나 식당에서 당황하지 않게! 무인 발권기(키오스크) 및 스마트폰 배달 앱 사용법 실습." },
+            { id: 38, category: 'facility', region: '안천구', status: 'open', feeType: 'paid', title: '칠채동 시민제안정책포럼 대회의실 대관', img: 'https://placehold.co/600x400/94a3b8/ffffff?text=Forum+Room', location: '안천구 칠채동 시민포럼실', target: '시민단체, 동호회', period: '평일 일과시간 내', fee: '2시간 15,000원', dept: '안천구청 행정지원과', desc: "안천구 칠채동에서 주민자치 회의나 시민 단체 포럼을 진행할 수 있는 쾌적한 빔프로젝터 완비 대회의실." },
+            { id: 39, category: 'exp', region: '북구', status: 'closed', feeType: 'free', title: '효빈시민의 날 기념 "한바다" 대형 퍼레이드 참여자 모집', img: 'https://placehold.co/600x400/0ea5e9/ffffff?text=Parade', location: '북구 고송동 시청 광장 일대', target: '시민 500명', period: '마감', fee: '무료', dept: '문화예술유산과', desc: "효빈시 최고 인기 초귀여운 글래머 마스코트 '한바다'가 이끄는 화려한 시민 퍼레이드! (※ 공익 빌런 돈불라는 안전을 위해 별도 구역에 격리되어 나타납니다.)" },
+            { id: 40, category: 'edu', region: '북구', status: 'open', feeType: 'paid', title: '직장인을 위한 야간 코딩(Python) 입문반', img: 'https://placehold.co/600x400/10b981/ffffff?text=Coding+Class', location: '북구 고송동 효빈 정보화센터', target: '직장인 및 청년', period: '매주 화/목 19:30', fee: '30,000원 (교재비 포함)', dept: '정보화담당관', desc: "퇴근 후 자기계발을 위한 실무형 파이썬(Python) 야간 기초반. 에어컨 빵빵한 실습실 제공." }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        // 탭 전환 로직
+        window.switchTab = function(tab) {
+            document.getElementById('filter-category').value = tab;
+            renderCards(1);
+        }
+
+        // 필터링 및 렌더링
+        window.renderCards = function(page = 1) {
+            currentPage = page;
+            const grid = document.getElementById('reservation-grid');
+            if(!grid) return;
+            
+            const categoryFilter = document.getElementById('filter-category').value;
+            const regionFilter = document.getElementById('filter-region').value;
+            const searchKeyword = document.getElementById('search-input').value.toLowerCase();
+            const openOnly = document.getElementById('filter-open-only').checked;
+
+            // 탭 스타일 동기화
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(categoryFilter === 'all') document.getElementById('tab-all').classList.add('active');
+            else if(categoryFilter === 'facility') document.getElementById('tab-facility')?.classList.add('active');
+            else if(categoryFilter === 'edu') document.getElementById('tab-edu')?.classList.add('active');
+            else if(categoryFilter === 'exp') document.getElementById('tab-exp')?.classList.add('active');
+
+            // 데이터 필터링
+            let filtered = reservationData.filter(item => {
+                const matchCategory = categoryFilter === 'all' || item.category === categoryFilter;
+                const matchRegion = regionFilter === 'all' || item.region === regionFilter;
+                const matchSearch = item.title.toLowerCase().includes(searchKeyword) || item.location.toLowerCase().includes(searchKeyword) || item.desc.toLowerCase().includes(searchKeyword);
+                const matchStatus = !openOnly || item.status === 'open';
+                return matchCategory && matchRegion && matchSearch && matchStatus;
+            });
+
+            document.getElementById('total-count').innerText = filtered.length;
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentItems = filtered.slice(startIdx, endIdx);
+
+            grid.innerHTML = '';
+
+            if(currentItems.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 font-medium">조건에 맞는 예약 항목이 없습니다. 검색 조건을 변경해보세요.</div>`;
+                document.getElementById('pagination-container').innerHTML = '';
+                return;
+            }
+
+            currentItems.forEach(item => {
+                let statusBadge = '';
+                if(item.status === 'open') statusBadge = '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-open shadow-sm">접수중</span>';
+                else if(item.status === 'closed') statusBadge = '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-closed shadow-sm">접수마감</span>';
+                else if(item.status === 'waiting') statusBadge = '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-waiting shadow-sm">예약대기</span>';
+
+                let feeBadge = item.feeType === 'free' 
+                    ? '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-free">무료</span>'
+                    : '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-paid">유료</span>';
+
+                let categoryName = '';
+                if(item.category === 'facility') categoryName = '대관/시설';
+                if(item.category === 'edu') categoryName = '교육/강좌';
+                if(item.category === 'exp') categoryName = '체험/견학';
+
+                // ID를 이용해 모달 호출 (JSON.stringify 문법 에러 방지)
+                const cardHtml = `
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden res-card flex flex-col h-full cursor-pointer" onclick='openModalById(${item.id})'>
+                        <div class="relative h-48 w-full overflow-hidden shrink-0 border-b border-slate-100">
+                            <img src="${item.img}" class="w-full h-full object-cover res-img" alt="예약 섬네일">
+                            <div class="absolute top-3 left-3 flex gap-1.5">
+                                ${statusBadge}
+                                ${feeBadge}
+                            </div>
+                            <div class="absolute bottom-0 right-0 bg-black/60 text-white text-xs px-3 py-1.5 font-bold rounded-tl-lg backdrop-blur-sm">
+                                ${item.region} | ${categoryName}
+                            </div>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-[17px] font-bold text-slate-800 leading-snug mb-3 line-clamp-2 hover:text-blue-600 transition-colors">${item.title}</h3>
+                            <div class="space-y-1.5 text-[13px] text-slate-600 mt-auto">
+                                <p class="flex items-start"><i data-lucide="map-pin" class="w-4 h-4 mr-1.5 text-slate-400 shrink-0 mt-0.5"></i> <span class="line-clamp-1">${item.location}</span></p>
+                                <p class="flex items-start"><i data-lucide="users" class="w-4 h-4 mr-1.5 text-slate-400 shrink-0 mt-0.5"></i> <span class="line-clamp-1">${item.target}</span></p>
+                                <p class="flex items-start"><i data-lucide="calendar" class="w-4 h-4 mr-1.5 text-slate-400 shrink-0 mt-0.5"></i> <span class="font-medium">${item.period}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+
+            renderPagination(filtered.length);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(totalItems) {
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            container.innerHTML = '';
+
+            if(totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-9 h-9 mx-0.5 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === 1 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-blue-50 text-slate-600 bg-white hover:text-blue-600'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) renderCards(currentPage - 1); };
+            container.appendChild(prevBtn);
+
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if(i === currentPage) {
+                    pageBtn.className = 'w-9 h-9 mx-0.5 rounded bg-blue-600 text-white font-bold flex items-center justify-center shadow-md shadow-blue-200';
+                } else {
+                    pageBtn.className = 'w-9 h-9 mx-0.5 rounded border border-slate-200 bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-medium flex items-center justify-center transition';
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => renderCards(i);
+                container.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-9 h-9 mx-0.5 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === totalPages ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-blue-50 text-slate-600 bg-white hover:text-blue-600'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) renderCards(currentPage + 1); };
+            container.appendChild(nextBtn);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 모달 열기 (ID를 매개변수로 받아 에러 방지)
+        window.openModalById = function(id) {
+            const item = reservationData.find(r => r.id === id);
+            if(item) openModal(item);
+        }
+
+        window.openModal = function(item) {
+            document.getElementById('modal-img').src = item.img;
+            
+            let statusBadge = '';
+            if(item.status === 'open') statusBadge = '<span class="px-3 py-1 text-xs font-bold rounded badge-open shadow-sm">접수중</span>';
+            else if(item.status === 'closed') statusBadge = '<span class="px-3 py-1 text-xs font-bold rounded badge-closed shadow-sm">접수마감</span>';
+            else if(item.status === 'waiting') statusBadge = '<span class="px-3 py-1 text-xs font-bold rounded badge-waiting shadow-sm">예약대기</span>';
+
+            let feeBadge = item.feeType === 'free' 
+                ? '<span class="px-3 py-1 text-xs font-bold rounded badge-free">무료</span>'
+                : '<span class="px-3 py-1 text-xs font-bold rounded badge-paid">유료</span>';
+
+            document.getElementById('modal-badges').innerHTML = statusBadge + feeBadge;
+            document.getElementById('modal-title').innerHTML = item.title;
+            document.getElementById('modal-location').innerText = item.location;
+            document.getElementById('modal-target').innerText = item.target;
+            document.getElementById('modal-period').innerText = item.period;
+            document.getElementById('modal-fee').innerText = item.fee;
+            document.getElementById('modal-dept').innerText = item.dept;
+            document.getElementById('modal-desc').innerText = item.desc;
+            
+            // 예약 신청 폼에 프로그램 제목 넘겨주기
+            document.getElementById('apply-program-title').innerHTML = item.title;
+
+            const applyBtn = document.getElementById('modal-apply-btn');
+            if(item.status === 'closed') {
+                applyBtn.classList.add('hidden');
+            } else {
+                applyBtn.classList.remove('hidden');
+                applyBtn.innerHTML = item.status === 'waiting' 
+                    ? '<i data-lucide="clock" class="w-5 h-5 mr-2"></i> 대기 접수하기' 
+                    : '<i data-lucide="calendar-check" class="w-5 h-5 mr-2"></i> 예약 신청하기';
+                applyBtn.className = item.status === 'waiting'
+                    ? 'px-8 py-3 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-600 transition shadow-md flex items-center'
+                    : 'px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md flex items-center';
+            }
+
+            const modal = document.getElementById('res-modal');
+            const content = document.getElementById('res-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); }, 10);
+            document.body.style.overflow = 'hidden';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        window.closeModal = function() {
+            const modal = document.getElementById('res-modal');
+            const content = document.getElementById('res-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // --- 예약 신청 폼 및 내역 저장 로직 ---
+        window.openApplyModal = function() {
+            const modal = document.getElementById('apply-modal');
+            const content = document.getElementById('apply-modal-content');
+            
+            // 입력 폼 초기화
+            document.getElementById('apply-name').value = '';
+            document.getElementById('apply-phone').value = '';
+            document.getElementById('apply-date').value = '';
+            document.getElementById('apply-count').value = '';
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+        }
+
+        window.closeApplyModal = function() {
+            const modal = document.getElementById('apply-modal');
+            const content = document.getElementById('apply-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+            }, 300);
+        }
+
+        window.submitReservation = function(event) {
+            event.preventDefault();
+            
+            const programTitle = document.getElementById('apply-program-title').innerText;
+            const name = document.getElementById('apply-name').value;
+            const phone = document.getElementById('apply-phone').value;
+            const date = document.getElementById('apply-date').value;
+            const count = document.getElementById('apply-count').value;
+
+            // 로컬 스토리지에 저장할 예약 객체 생성
+            const newRes = {
+                id: 'RES-' + Math.floor(Math.random() * 1000000),
+                program: programTitle,
+                name: name,
+                phone: phone,
+                date: date,
+                count: count,
+                status: '예약완료',
+                applyDate: new Date().toLocaleDateString()
+            };
+
+            // 기존 예약 내역 불러오기 및 새 예약 추가
+            let history = JSON.parse(localStorage.getItem('hyobin_reservations') || '[]');
+            history.unshift(newRes);
+            localStorage.setItem('hyobin_reservations', JSON.stringify(history));
+
+            alert('예약 신청이 정상적으로 완료되었습니다.\n[신청내역 확인] 창에서 결과를 조회할 수 있습니다.');
+            closeApplyModal();
+            closeModal();
+        }
+
+        // --- 신청내역 확인 모달 로직 ---
+        window.openHistoryModal = function() {
+            renderHistoryList();
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeHistoryModal = function() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        window.renderHistoryList = function() {
+            const container = document.getElementById('history-list-container');
+            const history = JSON.parse(localStorage.getItem('hyobin_reservations') || '[]');
+            
+            container.innerHTML = '';
+
+            if(history.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mb-3 opacity-50"></i>
+                        <p class="font-medium">예약/신청 내역이 없습니다.</p>
+                    </div>
+                `;
+            } else {
+                history.forEach(item => {
+                    const card = `
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                            <div class="flex justify-between items-start mb-3 border-b border-dashed pb-3">
+                                <div>
+                                    <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded mb-1">${item.status}</span>
+                                    <h4 class="font-bold text-slate-800">${item.program}</h4>
+                                </div>
+                                <span class="text-xs text-slate-400 font-mono">예약번호: ${item.id}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm text-slate-600">
+                                <div><span class="font-medium text-slate-400 mr-2">신청자명</span> ${item.name}</div>
+                                <div><span class="font-medium text-slate-400 mr-2">연락처</span> ${item.phone}</div>
+                                <div><span class="font-medium text-slate-400 mr-2">희망일자</span> <span class="font-bold text-slate-700">${item.date}</span></div>
+                                <div><span class="font-medium text-slate-400 mr-2">참여인원</span> ${item.count}명</div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t text-xs text-right text-slate-400">
+                                접수일: ${item.applyDate}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // Search Input Enter Key
+        document.getElementById('search-input')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') renderCards(1);
+        });
+
+        // 초기 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            // 버튼들 탭 동작을 select box와 동기화 시키기 위해 탭 버튼에도 id 부여 (임의 추가)
+            document.getElementById('filter-category').insertAdjacentHTML('beforebegin', `
+                <div class="hidden" id="tab-all"></div>
+                <div class="hidden" id="tab-facility"></div>
+                <div class="hidden" id="tab-edu"></div>
+                <div class="hidden" id="tab-exp"></div>
+            `);
+            renderCards(1);
+        });
+    </script>
+</body>
+</html>

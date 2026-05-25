@@ -27,7 +27,7 @@ const headerHTML = `
             <ul class="flex justify-between items-center text-[15px] font-bold tracking-tight whitespace-nowrap">
                 
                 <li class="group static px-3 py-4 cursor-pointer">
-                    <span class="hover:text-blue-300 transition block" onclick="location.href='소통참여.html'">소통ㆍ참여</span>
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='공지사항.html'">소통ㆍ참여</span>
                     <div class="absolute left-0 top-full w-full bg-white text-slate-800 shadow-2xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex p-6 z-50 whitespace-normal">
                         <div class="grid grid-cols-4 gap-8 w-full font-normal leading-normal">
                             <div>
@@ -122,7 +122,7 @@ const headerHTML = `
                                                     <li class="pl-2"><a href="안전건설위원회.html" class="hover:text-blue-600 block">안전건설위원회</a></li>
                                                     <li class="pl-2"><a href="도시교통위원회.html" class="hover:text-blue-600 block">도시교통위원회</a></li>
                                                     <li class="pl-2"><a href="교육위원회.html" class="hover:text-blue-600 block">교육위원회</a></li>
-                                                    <li class="pl-2"><a href="예산결산특별위원회.html" class="hover:text-blue-600 block">예산결산특별위원회</a></li>
+                                                    <li class="pl-2"><a href="예산결산예산결산특별위원회.html" class="hover:text-blue-600 block">예산결산특별위원회</a></li>
                                                 </ul>
                                             </li>
                                             <li>
@@ -555,7 +555,7 @@ const headerHTML = `
                 </li>
 
                 <li class="group static px-3 py-4 cursor-pointer">
-                    <span class="hover:text-blue-300 transition block" onclick="location.href='열린민원.html'">열린민원</span>
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='민원업무안내.html'">열린민원</span>
                     <div class="absolute left-0 top-full w-full bg-white text-slate-800 shadow-2xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex p-6 z-50 whitespace-normal">
                         <div class="grid grid-cols-4 gap-8 w-full font-normal leading-normal">
                             <div>
@@ -749,13 +749,12 @@ const headerHTML = `
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">생활정보</h4>
                                 <ul class="space-y-1.5 text-[12px]">
                                     <li><a href="보건의료.html" class="hover:text-blue-600">보건의료</a></li>
-                                    <li><a href="교육도서관.html" class="hover:text-blue-600">교육도서관</a></li>
+                                    <li><a href="library.html" class="hover:text-blue-600">교육도서관</a></li>
                                     <li><a href="환경.html" class="hover:text-blue-600">환경</a></li>
                                     <li><a href="청소.html" class="hover:text-blue-600">청소</a></li>
                                     <li><a href="재난안전.html" class="hover:text-blue-600">재난안전</a></li>
                                     <li><a href="농업.html" class="hover:text-blue-600">농업</a></li>
                                     <li><a href="도시농업.html" class="hover:text-blue-600">도시농업</a></li>
-                                    <li><a href="군공항이전사업.html" class="hover:text-blue-600">군공항이전사업</a></li>
                                 </ul>
                             </div>
                             <div class="border-r border-slate-100 pr-2">
@@ -782,7 +781,7 @@ const headerHTML = `
                             <div class="border-r border-slate-100 pr-2">
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">일자리 / 경제</h4>
                                 <ul class="space-y-1.5 text-[12px]">
-                                    <li><a href="일자리센터.html" class="hover:text-blue-600">일자리센터</a></li>
+                                    <li><a href="job.html" class="hover:text-blue-600">일자리센터</a></li>
                                     <li><a href="공공근로채용.html" class="hover:text-blue-600">공공근로 채용</a></li>
                                     <li><a href="창업지원.html" class="hover:text-blue-600">창업지원</a></li>
                                     <li><a href="직업훈련.html" class="hover:text-blue-600">직업훈련</a></li>
@@ -793,10 +792,10 @@ const headerHTML = `
                             <div>
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">관광 / 문화</h4>
                                 <ul class="space-y-1.5 text-[12px]">
-                                    <li><a href="효빈관광지도.html" class="hover:text-blue-600">효빈 관광지도</a></li>
+                                    <li><a href="tour.html" class="hover:text-blue-600">효빈 관광지도</a></li>
                                     <li><a href="HAF축제.html" class="hover:text-blue-600 text-blue-800">HAF (효빈 애니 축제)</a></li>
                                     <li><a href="banner_3.html" class="hover:text-blue-600">효빈 시티투어</a></li>
-                                    <li><a href="vr랜드마크투어.html" class="hover:text-blue-600">VR 랜드마크 투어</a></li>
+                                    <li><a href="vr.html" class="hover:text-blue-600">VR 랜드마크 투어</a></li>
                                     <li><a href="문화체육관광.html" class="hover:text-blue-600">문화체육관광</a></li>
                                 </ul>
                             </div>
@@ -828,8 +827,22 @@ const headerHTML = `
 `;
 
 const footerHTML = `
-    <footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
+<footer class="bg-white border-t border-slate-200 mt-auto pt-10 pb-12 text-[13px] tracking-tight relative z-10">
         <div class="max-w-6xl mx-auto px-4">
+            
+<div class="page-satisfaction-survey bg-gray-50 border border-gray-200 rounded-xl p-6 mb-10">                <div class="font-bold text-gray-700 mb-3">이 페이지에서 제공하는 정보에 대하여 만족하십니까?</div>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" value="매우만족" checked> 매우만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" value="만족"> 만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" value="보통"> 보통</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" value="불만족"> 불만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" value="매우불만족"> 매우불만족</label>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="satisfaction-comment" placeholder="페이지 품질 향상을 위한 의견을 남겨주세요." class="flex-grow border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                    <button onclick="submitSatisfaction()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-colors whitespace-nowrap shadow-md">평가등록</button>
+                </div>
+            </div>
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-6">
                 <div class="flex flex-wrap gap-x-6 gap-y-2 font-medium text-slate-600 justify-center md:justify-start">
                     <a href="개인정보처리방침.html" class="text-[#2563eb] font-bold hover:underline" data-policy="privacy">개인정보처리방침</a>
@@ -1514,7 +1527,7 @@ const modalsHTML = `
                                         <ul class="hidden pl-3 space-y-1 text-[10px] text-slate-400">
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">의장단 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의장실.html" class="block w-full p-1 hover:text-blue-500">- 의장실</a></li><li><a href="제1부의장실.html" class="block w-full p-1 hover:text-blue-500">- 제1부의장실</a></li><li><a href="제2부의장실.html" class="block w-full p-1 hover:text-blue-500">- 제2부의장실</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">의회사무처 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의회총무담당관.html" class="block w-full p-1 hover:text-blue-500">- 총무담당관</a></li><li><a href="의사담당관.html" class="block w-full p-1 hover:text-blue-500">- 의사담당관</a></li><li><a href="입법정책담당관.html" class="block w-full p-1 hover:text-blue-500">- 입법정책담당관</a></li><li><a href="홍보소통담당관.html" class="block w-full p-1 hover:text-blue-500">- 홍보소통담당관</a></li></ul></li>
-                                            <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">상임위원회 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의회운영위원회.html" class="block w-full p-1 hover:text-blue-500">- 의회운영위원회</a></li><li><a href="행정기획위원회.html" class="block w-full p-1 hover:text-blue-500">- 행정기획위원회</a></li><li><a href="보건복지위원회.html" class="block w-full p-1 hover:text-blue-500">- 보건복지위원회</a></li><li><a href="경제산업위원회.html" class="block w-full p-1 hover:text-blue-500">- 경제산업위원회</a></li><li><a href="문화환경위원회.html" class="block w-full p-1 hover:text-blue-500">- 문화환경위원회</a></li><li><a href="안전건설위원회.html" class="block w-full p-1 hover:text-blue-500">- 안전건설위원회</a></li><li><a href="도시교통위원회.html" class="block w-full p-1 hover:text-blue-500">- 도시교통위원회</a></li><li><a href="교육위원회.html" class="block w-full p-1 hover:text-blue-500">- 교육위원회</a></li><li><a href="예산결산특별위원회.html" class="block w-full p-1 hover:text-blue-500">- 예산결산특별위원회</a></li></ul></li>
+                                            <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">상임위원회 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의회운영위원회.html" class="block w-full p-1 hover:text-blue-500">- 의회운영위원회</a></li><li><a href="행정기획위원회.html" class="block w-full p-1 hover:text-blue-500">- 행정기획위원회</a></li><li><a href="보건복지위원회.html" class="block w-full p-1 hover:text-blue-500">- 보건복지위원회</a></li><li><a href="경제산업위원회.html" class="block w-full p-1 hover:text-blue-500">- 경제산업위원회</a></li><li><a href="문화환경위원회.html" class="block w-full p-1 hover:text-blue-500">- 문화환경위원회</a></li><li><a href="안전건설위원회.html" class="block w-full p-1 hover:text-blue-500">- 안전건설위원회</a></li><li><a href="도시교통위원회.html" class="block w-full p-1 hover:text-blue-500">- 도시교통위원회</a></li><li><a href="교육위원회.html" class="block w-full p-1 hover:text-blue-500">- 교육위원회</a></li><li><a href="예산결산예산결산특별위원회.html" class="block w-full p-1 hover:text-blue-500">- 예산결산특별위원회</a></li></ul></li>
                                         </ul>
                                     </li>
                                     <li>
@@ -1678,8 +1691,8 @@ const modalsHTML = `
                         </ul>
                     </li>
 
-                    <li><a href="소통참여.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">소통·참여</a></li>
-                    <li><a href="열린민원.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">열린민원</a></li>
+                    <li><a href="공지사항.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">소통·참여</a></li>
+                    <li><a href="민원업무안내.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">열린민원</a></li>
                     <li><a href="행정정보공개.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">정보공개</a></li>
                     <li><a href="intro.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">효빈소개</a></li>
                     <li><a href="life.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">분야별 정보</a></li>
@@ -1694,7 +1707,6 @@ const modalsHTML = `
 // ==========================================
 // [스크립트 실행부]
 // ==========================================
-
 document.addEventListener("DOMContentLoaded", function() {
     const oldModals = ['search-overlay', 'language-modal', 'full-menu-modal', 'policy-modal', 'family-site-modal'];
     oldModals.forEach(id => {
@@ -1706,11 +1718,19 @@ document.addEventListener("DOMContentLoaded", function() {
     if(document.getElementById('common-footer')) document.getElementById('common-footer').innerHTML = footerHTML;
     if(document.getElementById('common-modals')) document.getElementById('common-modals').innerHTML = modalsHTML;
     
+    // ==========================================
+    // ★ 만족도 조사 중복 방지 로직 (여기 추가)
+    // ==========================================
+    const surveys = document.querySelectorAll('.page-satisfaction-survey');
+    if (surveys.length > 1) {
+        // 배열의 맨 마지막 요소(보통 공통 푸터에 추가된 놈)를 삭제합니다.
+        surveys[surveys.length - 1].remove();
+    }
+    
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 });
-
 window.goFamilySite = function() {
     const selectBox = document.getElementById('family-site');
     if (selectBox && selectBox.value !== "") {
@@ -1781,4 +1801,26 @@ window.setLanguage = function(lang) {
     }
     
     closeOverlay('language-modal', 'language-content-wrapper');
+};
+window.submitSatisfaction = function() {
+    // 1. 선택된 라디오 버튼의 값 가져오기
+    const selectedRadio = document.querySelector('input[name="satisfaction"]:checked');
+    const selectedValue = selectedRadio ? selectedRadio.value : '미선택';
+    
+    // 2. 작성된 의견 텍스트 가져오기
+    const commentInput = document.getElementById('satisfaction-comment');
+    const comment = commentInput.value.trim();
+    
+    // 3. 실제 서버로 데이터를 전송하려면 이 위치에 fetch API나 AJAX 코드를 작성하시면 됩니다.
+    // 예: fetch('/api/survey', { method: 'POST', body: JSON.stringify({ score: selectedValue, comment: comment }) });
+    
+    // 4. 사용자에게 피드백 제공 (알림창)
+    let alertMessage = "평가가 성공적으로 등록되었습니다.\n소중한 의견 감사합니다!\n\n[제출된 내용]\n평가: " + selectedValue;
+    if (comment !== "") {
+        alertMessage += "\n의견: " + comment;
+    }
+    alert(alertMessage);
+    
+    // 5. 제출 후 입력창 초기화
+    commentInput.value = '';
 };

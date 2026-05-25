@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공용차량신청 - 효빈온(ON) 예약</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* Card Hover Effects */
+        .res-card {
+            transition: all 0.3s ease;
+        }
+        .res-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .res-card:hover .res-img {
+            transform: scale(1.05);
+        }
+
+        /* Status Tags */
+        .badge-open { background-color: #3b82f6; color: #ffffff; }
+        .badge-closed { background-color: #64748b; color: #ffffff; }
+
+        .badge-free { border: 1px solid #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .badge-paid { border: 1px solid #8b5cf6; color: #8b5cf6; background-color: #f5f3ff; }
+
+        /* 효빈도시철도 Line Colors (Lore) */
+        .color-line1 { color: #0077DD; font-weight: 900; }
+        .color-line2 { color: #00CCAA; font-weight: 900; }
+        .color-line3 { color: #FFCC11; font-weight: 900; }
+        .color-line4 { color: #FF5522; font-weight: 900; }
+        .color-line5 { color: #EE0022; font-weight: 900; }
+        .color-line6 { color: #881188; font-weight: 900; }
+        .color-line7 { color: #FF8899; font-weight: 900; }
+        .color-line8 { color: #9856FF; font-weight: 900; }
+        .color-binhyo { color: #6677CC; font-weight: 900; }
+
+        /* Modal Overlay */
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); }
+
+        /* Tab Styles */
+        .tab-btn { position: relative; color: #64748b; font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { color: #005bac; }
+        .tab-btn.active { color: #005bac; font-weight: 800; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: #005bac;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">공용차량신청</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">효빈시의 유휴 공용차량을 시민 및 동아리의 공익 활동을 위해 대여합니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 (사이드바 + 메인 컨텐츠) -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="sticky top-8 space-y-6">
+                <!-- 시민 광장 메뉴 -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">
+                        시민 광장
+                    </h2>
+                    <ul class="lnb-depth1">
+                        <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                        <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    </ul>
+                </div>
+                
+                <!-- 효빈온 예약 메뉴 -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                    <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">효빈온(ON) 예약</h4>
+                    <ul class="space-y-2 text-[14px] font-medium text-slate-600">
+                        <li><a href="온라인예약신청.html" class="hover:text-blue-600 flex justify-between items-center px-3 py-2">온라인예약신청 <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i></a></li>
+                        <li><a href="바로예약.html" class="hover:text-blue-600 flex justify-between items-center px-3 py-2">바로예약 <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i></a></li>
+                        <li><a href="공용차량신청.html" class="text-blue-600 font-bold flex justify-between items-center bg-blue-50 px-3 py-2 rounded">공용차량신청 <i data-lucide="chevron-right" class="w-3 h-3 text-blue-600"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="메인.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>효빈온(ON) 예약</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">공용차량신청</span>
+            </div>
+
+            <!-- Page Title & Guide -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">공용차량신청</h2>
+                <p class="text-slate-600">시청 및 산하기관에서 보유 중인 다양한 테마의 공용차량을 공익 목적을 위해 대여해 드립니다.</p>
+            </div>
+
+            <!-- 안내 박스 -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 shadow-sm flex gap-4 items-start">
+                <div class="bg-white p-3 rounded-full shadow-sm text-indigo-600 shrink-0">
+                    <i data-lucide="car" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[14px] text-slate-700 space-y-2 leading-relaxed">
+                    <p><strong class="text-indigo-800">공용차량 대여 이용 안내</strong></p>
+                    <ul class="list-disc list-inside space-y-1 ml-1 text-slate-600">
+                        <li><strong>이용 대상:</strong> 효빈시에 주소를 둔 시민, 동아리, 소상공인, 복지 단체 등 (만 26세 이상 운전면허 소지자)</li>
+                        <li><strong>이용 목적:</strong> 공익적 행사, 문화/예술 동아리 활동, 봉사활동 등 (영리 목적 대여 불가)</li>
+                        <li><strong>비용:</strong> 대여료는 전액 무료이나, 주행에 따른 <strong>유류비 및 톨게이트 비용은 사용자 부담</strong>입니다.</li>
+                        <li><strong>인수 및 반납:</strong> 각 차량이 소속된 지정된 차량기지 및 행정복지센터에서 직접 인수 및 반납하셔야 합니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 검색 및 필터 박스 -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">차종 선택</label>
+                        <select id="filter-type" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-hyobin-blue bg-slate-50" onchange="renderVehicles(1)">
+                            <option value="all">차종 전체</option>
+                            <option value="van">승합차/미니버스</option>
+                            <option value="truck">트럭/특수차</option>
+                            <option value="sedan">승용/전기차</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">검색어</label>
+                        <div class="flex">
+                            <input type="text" id="search-input" placeholder="차량명 또는 배차 장소 검색" class="w-full border border-slate-300 rounded-l-lg px-4 py-2.5 text-sm focus:outline-none focus:border-hyobin-blue">
+                            <button onclick="renderVehicles(1)" class="bg-hyobin-dark text-white px-6 py-2.5 rounded-r-lg font-bold hover:bg-blue-900 transition flex items-center justify-center shrink-0">
+                                <i data-lucide="search" class="w-4 h-4 mr-1"></i> 검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 결과 상단 제어 -->
+            <div class="flex justify-between items-center border-b border-slate-300 pb-2">
+                <div class="text-sm font-medium text-slate-600">
+                    검색 결과 총 <span id="total-count" class="text-hyobin-blue font-bold mx-1">0</span>대
+                </div>
+                <div>
+                    <button onclick="openHistoryModal()" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 underline">
+                        나의 차량 신청내역 조회
+                    </button>
+                </div>
+            </div>
+
+            <!-- 차량 그리드 영역 -->
+            <div id="vehicle-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-[400px] content-start">
+                <!-- JS Rendered -->
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="flex justify-center mt-10" id="pagination-container">
+                <!-- JS Rendered -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 -->
+    <div id="common-footer"></div>
+
+    <!-- 1. 차량 상세 안내 모달 -->
+    <div id="vehicle-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[80] p-4 transition-opacity duration-300" onclick="closeModal()">
+        <div id="vehicle-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="relative h-48 md:h-64 w-full bg-slate-200 shrink-0">
+                <img id="modal-img" src="" alt="차량 이미지" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <button onclick="closeModal()" class="absolute top-4 right-4 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition backdrop-blur-md">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <div class="absolute bottom-4 left-6 pr-6">
+                    <div class="flex gap-2 mb-2" id="modal-badges">
+                        <!-- JS injected -->
+                    </div>
+                    <h3 id="modal-title" class="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-md">차량 이름</h3>
+                </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar bg-slate-50">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <h4 class="font-bold text-lg text-slate-800 border-b pb-2 mb-2"><i data-lucide="info" class="w-5 h-5 inline mr-1 text-blue-600"></i> 제원 및 정보</h4>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">승차 정원</span>
+                            <span class="text-sm text-slate-800 font-bold" id="modal-capacity">0인승</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">배차 장소</span>
+                            <span class="text-sm text-slate-800 break-keep" id="modal-garage">차고지</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">이용 요금</span>
+                            <span class="text-sm text-slate-800 font-bold text-blue-600" id="modal-fee">무료</span>
+                        </div>
+                        <div class="flex">
+                            <span class="w-20 font-bold text-sm text-slate-500 shrink-0 mt-0.5">관리 부서</span>
+                            <span class="text-sm text-slate-800" id="modal-dept">부서명</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-800 border-b pb-2 mb-4"><i data-lucide="file-text" class="w-5 h-5 inline mr-1 text-blue-600"></i> 상세 안내 및 추천 용도</h4>
+                        <div id="modal-desc" class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">차량 설명</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border-t bg-white shrink-0 flex justify-end gap-3 items-center">
+                <button onclick="closeModal()" class="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition shadow-sm">닫기</button>
+                <button id="modal-apply-btn" onclick="openApplyModal()" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md flex items-center">
+                    <i data-lucide="calendar-check" class="w-5 h-5 mr-2"></i> 차량 배차 신청
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 차량 신청 폼 모달 -->
+    <div id="apply-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[90] p-4 transition-opacity duration-300" onclick="closeApplyModal()">
+        <div id="apply-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="bg-blue-600 p-5 flex justify-between items-center text-white shrink-0">
+                <h3 class="text-xl font-black flex items-center"><i data-lucide="car" class="mr-2"></i> 배차 신청 정보 입력</h3>
+                <button type="button" onclick="closeApplyModal()" class="text-white hover:text-blue-200 transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form onsubmit="submitVehicleReq(event)" class="flex flex-col h-full overflow-hidden">
+                <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-grow space-y-5 bg-slate-50">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-2 shadow-sm">
+                        <p class="text-xs text-slate-500 mb-1 font-bold">신청 차량</p>
+                        <p class="font-black text-slate-800 text-lg break-keep" id="apply-vehicle-title">차량명</p>
+                        <p class="text-xs text-blue-600 font-bold mt-1" id="apply-vehicle-garage">배차지</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">운전자 성명 <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-name" required placeholder="예: 홍길동" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">연락처 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="req-phone" required placeholder="예: 010-1234-5678" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">대여 시작일 <span class="text-red-500">*</span></label>
+                            <input type="date" id="req-start" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-slate-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">반납 예정일 <span class="text-red-500">*</span></label>
+                            <input type="date" id="req-end" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-slate-600">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">대여 목적 (공익성 기재) <span class="text-red-500">*</span></label>
+                        <textarea id="req-purpose" required rows="3" placeholder="동아리 행사, 봉사활동 등 대여 목적을 상세히 기재해주세요." class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition resize-none custom-scrollbar"></textarea>
+                    </div>
+                    <div class="flex items-start pt-2">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" required class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                            <span class="ml-2 text-sm font-medium text-slate-600 select-none">차량 파손 시 원상복구 및 주행 유류비 자부담에 동의합니다. <span class="text-red-500">*</span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="p-5 border-t bg-white rounded-b-2xl flex justify-end gap-2 shrink-0">
+                    <button type="button" onclick="closeApplyModal()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition shadow-sm">취소</button>
+                    <button type="submit" class="px-8 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition shadow-md flex items-center">
+                        배차 신청
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. 신청내역 확인 모달 -->
+    <div id="history-modal" class="modal-overlay fixed inset-0 hidden flex items-center justify-center z-[100] p-4 transition-opacity duration-300" onclick="closeHistoryModal()">
+        <div id="history-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col transform transition-all duration-300 scale-95 opacity-0 overflow-hidden" onclick="event.stopPropagation()">
+            <div class="bg-indigo-600 p-5 flex justify-between items-center text-white shrink-0">
+                <h3 class="text-xl font-black flex items-center"><i data-lucide="receipt" class="mr-2"></i> 나의 차량 신청 내역</h3>
+                <button type="button" onclick="closeHistoryModal()" class="text-white hover:text-indigo-200 transition p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-grow bg-slate-50" id="history-list-container">
+                <!-- JS Rendered -->
+            </div>
+            <div class="p-5 border-t bg-white rounded-b-2xl flex justify-end shrink-0">
+                <button type="button" onclick="closeHistoryModal()" class="px-6 py-2.5 bg-slate-600 text-white rounded-lg font-bold text-sm hover:bg-slate-700 transition shadow-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 외부 스크립트 연결 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+
+    <script>
+        // 공용차량 데이터 (효빈시 로어 및 마스코트 테마 완벽 반영)
+        const vehicleData = [
+            { 
+                id: 201, type: 'van', status: 'open', 
+                title: '1호선 <span class="color-line1">고나미(파란색)</span> 랩핑 미니버스', 
+                img: 'https://placehold.co/600x400/0077DD/ffffff?text=Minibus+Line1', 
+                garage: '남구 곽산동 1호선 곽산차량기지', capacity: '15인승', fee: '무료 (유류비 자부담)', 
+                dept: '효빈교통공사 차량본부', 
+                desc: '파란색 기타리스트 고나미(하나조노 타에 테마) 랩핑이 된 15인승 쏠라티 미니버스입니다.\n\n[추천 용도]\n청소년 인디 밴드 동아리의 악기 수송 및 외부 버스킹 공연 이동 시 대여를 적극 권장합니다.' 
+            },
+            { 
+                id: 202, type: 'truck', status: 'open', 
+                title: '2호선 <span class="color-line2">하루빈(초록색)</span> 베이커리 푸드트럭', 
+                img: 'https://placehold.co/600x400/00CCAA/ffffff?text=Food+Truck+Line2', 
+                garage: '청엽구 청엽1동 주민센터 주차장', capacity: '2인승 (특수)', fee: '무료', 
+                dept: '일자리노동과', 
+                desc: '느긋하게 빵을 사랑하는 초록색 하루빈(아오바 모카 테마) 랩핑 푸드트럭입니다. 조리 시설이 완비되어 있습니다.\n\n[추천 용도]\n취약계층 대상 빵 나눔 봉사활동, 동네 바자회 음식 제공 부스 운영 시 대여 가능합니다.' 
+            },
+            { 
+                id: 203, type: 'truck', status: 'open', 
+                title: '3호선 <span class="color-line3">박라미(노란색)</span> 1톤 더블캡 픽업트럭', 
+                img: 'https://placehold.co/600x400/FFCC11/ffffff?text=Pickup+Line3', 
+                garage: '중구 중앙동 시청 별관 주차장', capacity: '5인승 (적재함 보유)', fee: '무료', 
+                dept: '효빈교통공사 총무팀', 
+                desc: '가족을 살뜰히 챙기는 3호선 노란색 박라미(야마부키 사아야 테마) 랩핑 트럭입니다.\n\n[추천 용도]\n마을 단위 김장 나눔 행사, 대량의 빵이나 구호 물품 운반이 필요한 자원봉사 단체에 유용합니다.' 
+            },
+            { 
+                id: 204, type: 'van', status: 'open', 
+                title: '4호선 <span class="color-line4">다로나(주황색)</span> 랩핑 캠핑카', 
+                img: 'https://placehold.co/600x400/FF5522/ffffff?text=Camping+Car', 
+                garage: '서구 당선동 효빈대학교 대형주차장', capacity: '5인승 (취침 4인)', fee: '무료', 
+                dept: '공원녹지과', 
+                desc: '항상 별을 쫓는 반짝반짝 주황색 다로나(토야마 카스미 테마) 캠핑카입니다.\n\n[추천 용도]\n지역 아동센터 아이들을 위한 야간 천체 관측 및 별빛 캠핑 행사 지원용으로만 대여가 가능합니다.' 
+            },
+            { 
+                id: 205, type: 'truck', status: 'closed', 
+                title: '5호선 <span class="color-line5">미소하(빨간색)</span> 이동식 무대차량', 
+                img: 'https://placehold.co/600x400/EE0022/ffffff?text=Stage+Truck', 
+                garage: '청엽구 우택동 청소년문화의집', capacity: '3인승 (무대 변형)', fee: '무료 (음향기기 포함)', 
+                dept: '문화예술유산과', 
+                desc: '강렬하고 반항적인 빨간색 미소하(미타케 란 테마) 윙바디 무대차량입니다. 앰프와 조명이 내장되어 있습니다.\n\n[현재 상태]\n차량 정비 및 앰프 점검으로 인해 당분간 대여가 중단됩니다.' 
+            },
+            { 
+                id: 206, type: 'van', status: 'open', 
+                title: '6호선 <span class="color-line6">라세나(보라색)</span> 프리미엄 리무진 버스', 
+                img: 'https://placehold.co/600x400/881188/ffffff?text=Limousine+Bus', 
+                garage: '동구 사가당동 동구청 관용차고지', capacity: '28인승 (우등석)', fee: '무료 (운전기사 미제공)', 
+                dept: '효빈교통공사 마케팅팀', 
+                desc: '긍지 높은 보라색 라세나(미나토 유키나 테마)가 그려진 최고급 리무진 버스입니다.\n\n[추천 용도]\n지역 시립 합창단, 성악가들의 원정 공연 및 콩쿠르 이동 시 품격 있는 수송을 지원합니다.' 
+            },
+            { 
+                id: 207, type: 'sedan', status: 'open', 
+                title: '7호선 <span class="color-line7">임세정/임세하(분홍색)</span> 초소형 전기차', 
+                img: 'https://placehold.co/600x400/FF8899/ffffff?text=EV+Car', 
+                garage: '북구 고송동 효빈광역시청 지하주차장', capacity: '2인승', fee: '무료', 
+                dept: '관광진흥과', 
+                desc: '눈에 띄기 좋아하는 7호선 쌍둥이 임세정/임세하(치하야 아논 테마)가 랩핑된 귀여운 2인승 전기차입니다.\n\n[추천 용도]\n대학생들의 효빈시 관광 코스(카스밍 로드, 당가동 등) SNS 홍보 브이로그 촬영 이동 시 제공됩니다.' 
+            },
+            { 
+                id: 208, type: 'van', status: 'open', 
+                title: '8호선 <span class="color-line8">유리아(연보라색)</span> 다인승 승합차', 
+                img: 'https://placehold.co/600x400/9856FF/ffffff?text=Van+Line8', 
+                garage: '남구 어간동 남구청 주차장', capacity: '11인승', fee: '무료', 
+                dept: '효빈문화재단', 
+                desc: '무사도 정신을 외치는 연보라색 유리아(와카미야 이브 테마) 랩핑 스타리아 승합차입니다.\n\n[추천 용도]\n남구 일대(향교역 등) 전통문화, 예절 교육 봉사 동아리의 단체 이동 시 안성맞춤입니다.' 
+            },
+            { 
+                id: 209, type: 'sedan', status: 'open', 
+                title: '빈효선 <span class="color-binhyo">전노아(연청색)</span> 의전용 전기 세단', 
+                img: 'https://placehold.co/600x400/6677CC/ffffff?text=Sedan+LineBinhyo', 
+                garage: '안천구 타천동 성택대 부설 주차장', capacity: '5인승', fee: '무료', 
+                dept: '효빈교통공사 총무팀', 
+                desc: '얌전하고 몽환적인 연청색 전노아(쿠라타 마시로 테마) 랩핑이 들어간 고급 전기 세단입니다.\n\n[추천 용도]\n지역 문학, 시 쓰기 동아리의 조용한 탐방이나 명사 초청 시 의전 차량으로 활용하기 좋습니다.' 
+            },
+            { 
+                id: 210, type: 'bus', status: 'open', 
+                title: '한바다 테마 시티투어 오픈탑 2층 버스', 
+                img: 'https://placehold.co/600x400/0ea5e9/ffffff?text=Hanbada+Bus', 
+                garage: '북구 해서동 효빈종합버스터미널 버스차고지', capacity: '70인승', fee: '무료 (사전 심사 철저)', 
+                dept: '관광진흥과', 
+                desc: '효빈시 최고 인기 초귀여운 글래머 마스코트 \'한바다\' 랩핑 2층 버스입니다.\n\n[주의사항]\n돈불라(빌런) 관련 행사와는 절대 대여가 겹칠 수 없습니다. 대규모 유치원 소풍 및 시민 화합 퍼레이드용으로만 대여됩니다.' 
+            },
+            { 
+                id: 211, type: 'truck', status: 'open', 
+                title: '빌런 돈불라 경고 랩핑 환경 청소차', 
+                img: 'https://placehold.co/600x400/57534e/ffffff?text=Donbulla+Truck', 
+                garage: '서구 청덕동 환경관리사업소', capacity: '3인승 (압축진개차)', fee: '무료', 
+                dept: '자원순환과', 
+                desc: '효빈시 공익 빌런 \'돈불라\'의 쓰레기 무단투기 경고 일러스트가 그려진 5톤 청소차입니다.\n\n[추천 용도]\n마을 단위 대청소 및 플로깅(Plogging) 캠페인을 기획 중인 시민 봉사 단체에 배차를 지원합니다.' 
+            }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 6; // 카드 크기를 고려해 페이지당 6개 표시
+
+        // 탭 전환 로직
+        window.switchTab = function(type) {
+            document.getElementById('filter-type').value = type;
+            renderVehicles(1);
+        }
+
+        // 차량 렌더링
+        window.renderVehicles = function(page = 1) {
+            currentPage = page;
+            const grid = document.getElementById('vehicle-grid');
+            if(!grid) return;
+            
+            const typeFilter = document.getElementById('filter-type').value;
+            const searchKeyword = document.getElementById('search-input').value.toLowerCase();
+
+            // 탭 스타일 동기화
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(typeFilter === 'all') document.getElementById('tab-all').classList.add('active');
+            else if(typeFilter === 'van') document.getElementById('tab-van')?.classList.add('active');
+            else if(typeFilter === 'truck') document.getElementById('tab-truck')?.classList.add('active');
+            else if(typeFilter === 'sedan') document.getElementById('tab-sedan')?.classList.add('active');
+
+            // 데이터 필터링
+            let filtered = vehicleData.filter(item => {
+                const matchType = typeFilter === 'all' || item.type === typeFilter || (typeFilter==='bus' && item.type==='bus'); // 간단 매칭
+                const matchSearch = item.title.toLowerCase().includes(searchKeyword) || item.garage.toLowerCase().includes(searchKeyword);
+                return matchType && matchSearch;
+            });
+
+            document.getElementById('total-count').innerText = filtered.length;
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = startIdx + itemsPerPage;
+            const currentItems = filtered.slice(startIdx, endIdx);
+
+            grid.innerHTML = '';
+
+            if(currentItems.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 font-medium">검색 조건에 맞는 공용차량이 없습니다.</div>`;
+                document.getElementById('pagination-container').innerHTML = '';
+                return;
+            }
+
+            currentItems.forEach(item => {
+                let statusBadge = item.status === 'open' 
+                    ? '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-open shadow-sm">대여가능</span>'
+                    : '<span class="px-2.5 py-1 text-[11px] font-bold rounded badge-closed shadow-sm">점검중</span>';
+
+                let typeName = '';
+                if(item.type === 'van') typeName = '승합차';
+                if(item.type === 'truck') typeName = '특수/트럭';
+                if(item.type === 'sedan') typeName = '승용/전기';
+                if(item.type === 'bus') typeName = '대형버스';
+
+                const cardHtml = `
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden res-card flex flex-col h-full cursor-pointer" onclick='openModalById(${item.id})'>
+                        <div class="relative h-48 w-full overflow-hidden shrink-0 border-b border-slate-100">
+                            <img src="${item.img}" class="w-full h-full object-cover res-img" alt="차량 섬네일">
+                            <div class="absolute top-3 left-3 flex gap-1.5">
+                                ${statusBadge}
+                                <span class="px-2.5 py-1 text-[11px] font-bold rounded badge-free">${item.fee}</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 bg-black/60 text-white text-xs px-3 py-1.5 font-bold rounded-tl-lg backdrop-blur-sm">
+                                ${typeName} | ${item.capacity}
+                            </div>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-[17px] font-bold text-slate-800 leading-snug mb-3 line-clamp-2 hover:text-blue-600 transition-colors">${item.title}</h3>
+                            <div class="space-y-1.5 text-[13px] text-slate-600 mt-auto">
+                                <p class="flex items-start"><i data-lucide="map-pin" class="w-4 h-4 mr-1.5 text-slate-400 shrink-0 mt-0.5"></i> <span class="line-clamp-1">${item.garage}</span></p>
+                                <p class="flex items-start"><i data-lucide="building" class="w-4 h-4 mr-1.5 text-slate-400 shrink-0 mt-0.5"></i> <span class="line-clamp-1">${item.dept}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+
+            renderPagination(filtered.length);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(totalItems) {
+            const container = document.getElementById('pagination-container');
+            if(!container) return;
+            
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            container.innerHTML = '';
+
+            if(totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-9 h-9 mx-0.5 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === 1 ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-blue-50 text-slate-600 bg-white hover:text-blue-600'}`;
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-4 h-4"></i>';
+            prevBtn.onclick = () => { if(currentPage > 1) renderVehicles(currentPage - 1); };
+            container.appendChild(prevBtn);
+
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if(i === currentPage) {
+                    pageBtn.className = 'w-9 h-9 mx-0.5 rounded bg-blue-600 text-white font-bold flex items-center justify-center shadow-md shadow-blue-200';
+                } else {
+                    pageBtn.className = 'w-9 h-9 mx-0.5 rounded border border-slate-200 bg-white hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-medium flex items-center justify-center transition';
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => renderVehicles(i);
+                container.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-9 h-9 mx-0.5 rounded border border-slate-200 flex items-center justify-center transition ${currentPage === totalPages ? 'text-slate-300 bg-slate-50 cursor-not-allowed' : 'hover:bg-blue-50 text-slate-600 bg-white hover:text-blue-600'}`;
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-4 h-4"></i>';
+            nextBtn.onclick = () => { if(currentPage < totalPages) renderVehicles(currentPage + 1); };
+            container.appendChild(nextBtn);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 모달 제어
+        window.openModalById = function(id) {
+            const item = vehicleData.find(v => v.id === id);
+            if(item) openModal(item);
+        }
+
+        window.openModal = function(item) {
+            document.getElementById('modal-img').src = item.img;
+            
+            let statusBadge = item.status === 'open' 
+                ? '<span class="px-3 py-1 text-xs font-bold rounded badge-open shadow-sm">대여가능</span>'
+                : '<span class="px-3 py-1 text-xs font-bold rounded badge-closed shadow-sm">점검중</span>';
+
+            document.getElementById('modal-badges').innerHTML = statusBadge + `<span class="px-3 py-1 text-xs font-bold rounded badge-free">${item.fee}</span>`;
+            document.getElementById('modal-title').innerHTML = item.title;
+            document.getElementById('modal-capacity').innerText = item.capacity;
+            document.getElementById('modal-garage').innerText = item.garage;
+            document.getElementById('modal-fee').innerText = item.fee;
+            document.getElementById('modal-dept').innerText = item.dept;
+            document.getElementById('modal-desc').innerText = item.desc;
+            
+            // 예약 신청 폼에 차량 제목 넘겨주기
+            document.getElementById('apply-vehicle-title').innerHTML = item.title;
+            document.getElementById('apply-vehicle-garage').innerText = `인수/반납 장소: ${item.garage}`;
+
+            const applyBtn = document.getElementById('modal-apply-btn');
+            if(item.status === 'closed') {
+                applyBtn.classList.add('hidden');
+            } else {
+                applyBtn.classList.remove('hidden');
+            }
+
+            const modal = document.getElementById('vehicle-modal');
+            const content = document.getElementById('vehicle-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); }, 10);
+            document.body.style.overflow = 'hidden';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        window.closeModal = function() {
+            const modal = document.getElementById('vehicle-modal');
+            const content = document.getElementById('vehicle-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // --- 신청 폼 로직 ---
+        window.openApplyModal = function() {
+            const modal = document.getElementById('apply-modal');
+            const content = document.getElementById('apply-modal-content');
+            
+            // 초기화
+            document.getElementById('req-name').value = '';
+            document.getElementById('req-phone').value = '';
+            document.getElementById('req-start').value = '';
+            document.getElementById('req-end').value = '';
+            document.getElementById('req-purpose').value = '';
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); }, 10);
+        }
+
+        window.closeApplyModal = function() {
+            const modal = document.getElementById('apply-modal');
+            const content = document.getElementById('apply-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        window.submitVehicleReq = function(event) {
+            event.preventDefault();
+            
+            const vTitle = document.getElementById('apply-vehicle-title').innerText;
+            const name = document.getElementById('req-name').value;
+            const phone = document.getElementById('req-phone').value;
+            const start = document.getElementById('req-start').value;
+            const end = document.getElementById('req-end').value;
+
+            if (start > end) {
+                alert("반납 예정일은 대여 시작일 이후여야 합니다.");
+                return;
+            }
+
+            const newReq = {
+                id: 'VREQ-' + Math.floor(Math.random() * 100000),
+                program: vTitle,
+                name: name,
+                phone: phone,
+                date: `${start} ~ ${end}`,
+                count: '차량 1대',
+                status: '심사중',
+                applyDate: new Date().toLocaleDateString()
+            };
+
+            let history = JSON.parse(localStorage.getItem('hyobin_reservations') || '[]');
+            history.unshift(newReq);
+            localStorage.setItem('hyobin_reservations', JSON.stringify(history));
+
+            alert('공용차량 배차 신청이 완료되었습니다. 담당 부서에서 공익성 심사 후 개별 연락드립니다.');
+            closeApplyModal();
+            closeModal();
+        }
+
+        // --- 신청내역 모달 ---
+        window.openHistoryModal = function() {
+            renderHistoryList();
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeHistoryModal = function() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-modal-content');
+            
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        window.renderHistoryList = function() {
+            const container = document.getElementById('history-list-container');
+            const history = JSON.parse(localStorage.getItem('hyobin_reservations') || '[]');
+            
+            container.innerHTML = '';
+
+            if(history.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mb-3 opacity-50"></i>
+                        <p class="font-medium">차량 및 시설 신청 내역이 없습니다.</p>
+                    </div>
+                `;
+            } else {
+                history.forEach(item => {
+                    let badgeColor = item.status === '심사중' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700';
+                    const card = `
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                            <div class="flex justify-between items-start mb-3 border-b border-dashed pb-3">
+                                <div>
+                                    <span class="inline-block px-2 py-1 ${badgeColor} text-xs font-bold rounded mb-1">${item.status}</span>
+                                    <h4 class="font-bold text-slate-800">${item.program}</h4>
+                                </div>
+                                <span class="text-xs text-slate-400 font-mono">신청번호: ${item.id}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm text-slate-600">
+                                <div class="col-span-2 sm:col-span-1"><span class="font-medium text-slate-400 mr-2">신청자명</span> ${item.name}</div>
+                                <div class="col-span-2 sm:col-span-1"><span class="font-medium text-slate-400 mr-2">연락처</span> ${item.phone}</div>
+                                <div class="col-span-2 sm:col-span-1"><span class="font-medium text-slate-400 mr-2">신청기간</span> <span class="font-bold text-slate-700">${item.date}</span></div>
+                                <div class="col-span-2 sm:col-span-1"><span class="font-medium text-slate-400 mr-2">내용</span> ${item.count}</div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t text-xs text-right text-slate-400">
+                                접수일: ${item.applyDate}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // Search Input Enter Key
+        document.getElementById('search-input')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') renderVehicles(1);
+        });
+
+        // 초기 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('filter-type').insertAdjacentHTML('beforebegin', `
+                <div class="hidden" id="tab-all"></div>
+                <div class="hidden" id="tab-van"></div>
+                <div class="hidden" id="tab-truck"></div>
+                <div class="hidden" id="tab-sedan"></div>
+            `);
+            renderVehicles(1);
+        });
+    </script>
+</body>
+</html>

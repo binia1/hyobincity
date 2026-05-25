@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 통계조사 상세 결과 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 파일 압축 및 통계 시각화 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('효빈광역시청사배경.png') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 게시판 상세뷰 전용 스타일 */
+        .board-view-header { border-top: 2px solid #1e3a8a; border-bottom: 1px solid #cbd5e1; background-color: #fff; }
+        .board-view-meta { border-bottom: 1px solid #e2e8f0; background-color: #f8fafc; }
+        .board-view-meta dl { display: flex; flex-wrap: wrap; margin: 0; }
+        .board-view-meta dt { font-weight: 600; color: #475569; padding: 12px 16px; width: 100px; border-right: 1px solid #e2e8f0; }
+        .board-view-meta dd { color: #334155; padding: 12px 16px; flex: 1; min-width: 200px; border-right: 1px solid #e2e8f0; }
+        .board-view-meta dd:last-child { border-right: none; }
+        
+        .board-view-attach { border-bottom: 1px solid #cbd5e1; padding: 16px; background-color: #fff; }
+        .board-view-content { padding: 40px 20px; min-height: 300px; color: #334155; line-height: 1.8; font-size: 1.05rem; }
+        
+        /* 다운로드 영역 및 버튼 */
+        .chapter-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #fff; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .chapter-box:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .chapter-title { font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        
+        .btn-download { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer;}
+        .btn-pdf { border: 1px solid #ef4444; color: #dc2626; background: #fef2f2; }
+        .btn-pdf:hover { background: #ef4444; color: #fff; }
+        .btn-excel { border: 1px solid #10b981; color: #15803d; background: #ecfdf5; }
+        .btn-excel:hover { background: #10b981; color: #fff; }
+        .btn-hwp { border: 1px solid #3b82f6; color: #2563eb; background: #eff6ff; }
+        .btn-hwp:hover { background: #3b82f6; color: #fff; }
+        .btn-zip { border: 1px solid #8b5cf6; color: #6d28d9; background: #f5f3ff; }
+        .btn-zip:hover { background: #8b5cf6; color: #fff; }
+
+        /* 통계 대시보드 카드 */
+        .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); height: 100%; display: flex; flex-direction: column; justify-content: center;}
+        .stat-card-title { font-size: 0.95rem; font-weight: 700; color: #1e3a8a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .stat-card-value { font-size: 1.8rem; font-weight: 900; color: #1e40af; }
+        
+        /* 프리미엄 데이터 테이블 */
+        .premium-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; border-radius: 8px; overflow: hidden; }
+        .premium-table th { background: #f1f5f9; color: #1e293b; padding: 14px 12px; border: 1px solid #e2e8f0; font-weight: 700; text-align: center; }
+        .premium-table td { padding: 14px 12px; border: 1px solid #e2e8f0; text-align: center; color: #475569; }
+        .premium-table tr:nth-child(even) td { background: #f8fafc; }
+        .premium-table tr:hover td { background: #f1f5f9; }
+
+        .color-badge { display: inline-block; width: 16px; height: 16px; border-radius: 4px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,0.1); }
+
+        /* 알림 메시지 박스 */
+        #notification-box {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; font-weight: 600;
+        }
+
+        /* 동적 테마 컬러 */
+        .theme-purple .board-view-header { border-top-color: #7e22ce; }
+        .theme-purple h4.border-l-4 { border-left-color: #7e22ce; color: #581c87; }
+        .theme-purple .stat-card { background: #faf5ff; border-color: #e9d5ff; }
+        .theme-purple .stat-card-title { color: #7e22ce; }
+        .theme-purple .stat-card-value { color: #581c87; }
+
+        .theme-orange .board-view-header { border-top-color: #ea580c; }
+        .theme-orange h4.border-l-4 { border-left-color: #ea580c; color: #9a3412; }
+        .theme-orange .stat-card { background: #fff7ed; border-color: #ffedd5; }
+        .theme-orange .stat-card-title { color: #ea580c; }
+        .theme-orange .stat-card-value { color: #9a3412; }
+
+        /* 네비게이션 버튼 */
+        .board-nav { border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; margin-top: 2rem;}
+        .board-nav-item { display: flex; padding: 14px 16px; border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s; }
+        .board-nav-item:last-child { border-bottom: none; }
+        .board-nav-label { width: 100px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; }
+        .board-nav-link { flex: 1; color: #1e293b; font-weight: 500; cursor: pointer; }
+        .board-nav-link:hover { color: #3b82f6; text-decoration: underline; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .board-view-content, .board-view-content * { visibility: visible; }
+            .board-view-content { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+            .btn-download, .board-nav { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 다운로드 알림 박스 -->
+    <div id="notification-box"></div>
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li><a href="intro.html" class="lnb-single">일반현황</a></li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li><a href="city_hall.html" class="lnb-single">시청안내</a></li>
+                    <li><a href="상징물.html" class="lnb-single">시의상징</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html" class="current">통계조사</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="history.html" class="lnb-single">효빈의역사</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (상세 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <a href="통계조사.html" class="hover:text-blue-600 transition-colors">통계조사 안내</a>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">조사 결과 상세</strong>
+            </div>
+
+            <h2 id="page-main-title" class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
+                통계조사 상세 결과
+            </h2>
+
+            <article id="dynamic-article" class="mb-10 shadow-lg rounded-2xl overflow-hidden border border-slate-200">
+                <!-- JS를 통해 동적으로 내용이 렌더링됩니다. -->
+            </article>
+
+            <!-- 목록으로 버튼 -->
+            <div class="flex justify-end mb-10">
+                <a href="통계조사.html" class="bg-slate-700 text-white font-bold px-8 py-3 rounded-md hover:bg-slate-800 transition shadow-sm flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5"></i> 목록으로
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- 공통 푸터 -->
+    <div id="common-footer"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // LNB 제어
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    li.classList.remove('active');
+                    if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // 알림창
+        function showNotify(msg) {
+            const box = document.getElementById('notification-box');
+            box.innerText = msg;
+            box.style.display = 'block';
+            setTimeout(() => { box.style.display = 'none'; }, 3000);
+        }
+
+        // 1. 파일 다운로드 로직 (PDF, HWP)
+        function downloadPDF() {
+            showNotify('보고서 전문 인쇄 및 PDF 저장을 준비합니다.');
+            window.print();
+        }
+
+        function downloadHWP(title) {
+            const bom = "\uFEFF";
+            let content = "========================================================\n";
+            content += ` ${title} 요약 결과보고서 \n`;
+            content += "========================================================\n\n";
+            content += "본 문서는 효빈광역시 공식 행정 통계 요약(HWP 예시) 파일입니다.\n상세한 수치 및 분석 결과는 첨부된 엑셀(CSV) 및 압축 데이터를 활용하시기 바랍니다.\n";
+            
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `효빈통계_주요결과_요약.hwp`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotify('한글(HWP) 요약본 다운로드가 완료되었습니다.');
+        }
+
+        // 2. 동적 CSV (엑셀) 생성 로직 (사용자 요청 제원 완벽 반영)
+        function generateCSVContent(type, detail) {
+            const bom = "\uFEFF";
+            let csv = "";
+            
+            if (type === 'ani') {
+                if (detail === '소비층비율') {
+                    csv = bom + "연령대,적극적소비층_공개(%),잠재적소비층_숨덕(%),일반시민(%),응답자수(명)\n10대,45.2,20.1,34.7,8500\n20대,38.5,22.4,39.1,12000\n30대,15.2,25.2,59.6,15500\n40대,5.2,12.3,82.5,9000\n50대이상,1.5,4.1,94.4,5000\n총계,20.4,15.2,64.4,50000\n";
+                } else if (detail === '도시철도') {
+                    csv = bom + "도시철도노선,상징색상,효빈마스코트,뱅드림매칭캐릭터,종합만족도(%)\n1호선,#0077DD(파란색),고나미,하나조노 타에,88.2\n2호선,#00CCAA(초록색),하루빈,아오바 모카,92.5\n3호선,#FFCC11(노란색),박라미,야마부키 사아야,85.4\n4호선,#FF5522(주황색),다로나,토야마 카스미,96.1\n5호선,#EE0022(빨간색),미소하,미타케 란,91.8\n6호선,#881188(보라색),라세나,미나토 유키나,97.4\n7호선,#FF8899(분홍색),임세정/임세하,치하야 아논,95.2\n8호선,#9856FF(연보라색),유리아,와카미야 이브,89.9\n빈효선광역,#6677CC(연청색),전노아,쿠라타 마시로,94.3\n";
+                }
+            } else if (type === 'trans') {
+                if (detail === '시내버스') {
+                    csv = bom + "버스구분,도색테마컬러,뱅드림매칭캐릭터,일평균이용객(명),디자인만족도(%)\n간선,Sky Blue (#01B7ED),오사카 시즈쿠,125000,88.5\n지선,Jade Green (#37B484),미후네 시오리코,95000,87.2\n순환,Pastel Yellow (#E7D600),나카스 카스미,45000,91.4\n급행,Scarlet Red (#D81C2F),유키 세츠나,180000,94.1\n좌석,Vivid Orange (#FF5800),미야시타 아이,65000,85.6\n광역,Royal Blue (#485EC6),아사카 카린,110000,89.3\n마을,Violet (#A664A0),코노에 카나타,35000,86.7\n공항,Light Green (#84C36E),엠마 베르데,25000,90.2\n투어,Navy (#7777AA),시이나 타키,12000,95.8\n";
+                } else if (detail === '공항항만') {
+                    csv = bom + "시설명,여객수(명),물동량(톤)\n효빈국제공항,4500000,125000\n효빈항,850000,24500000\n";
+                }
+            } else if (type === 'biz') {
+                csv = bom + "조사구분,사업체수(개),종사자수(명)\n전국사업체조사,320140,1503000\n광업제조업조사(10인이상),20573,188226\n";
+            } else {
+                csv = bom + `분류,항목,수치\n기본,${detail},0\n`;
+            }
+            return csv;
+        }
+
+        function downloadExcel(type, detail) {
+            const csvContent = generateCSVContent(type, detail);
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `효빈광역시_${type}_${detail}_데이터.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotify(`[${detail}] 상세 엑셀(CSV) 다운로드가 완료되었습니다.`);
+        }
+
+        // 3. 동적 ZIP 압축 파일 생성 로직
+        async function downloadZIP(type) {
+            if (typeof JSZip === 'undefined') { showNotify('오류: 압축 라이브러리 로드 실패'); return; }
+            showNotify('원시데이터 ZIP 압축을 진행 중입니다.');
+            
+            const zip = new JSZip();
+            zip.file("00_데이터활용_안내.txt", "효빈광역시 통계조사 로우(Raw) 데이터입니다.\n개인식별정보는 마스킹 처리되었습니다.");
+            
+            if (type === 'ani') {
+                zip.file("01_서브컬처_응답자_마이크로데이터.csv", "\uFEFF응답자ID,연령,성별,거주지,적극소비여부,최애캐,도시철도만족점수(5점)\nUSER001,20대,여,북구,Y,하나조노 타에,5\nUSER002,30대,남,청엽구,N,미나토 유키나,4\n");
+                zip.file("02_노선별_만족도_원본.csv", generateCSVContent('ani', '도시철도'));
+            } else if (type === 'trans') {
+                zip.file("01_시내버스_노선별_데이터.csv", generateCSVContent('trans', '시내버스'));
+                zip.file("02_운수업_매출조사표.csv", "\uFEFF사업장ID,업종,연간매출액(억원),보유차량대수\nBUS_01,시내버스,150,120\n");
+            } else {
+                zip.file("01_기본통계_자료.csv", "\uFEFF항목,값\n테스트,1234\n");
+            }
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(content);
+            link.download = `효빈통계_${type}_원시데이터_전체.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotify('다중 원시데이터 ZIP 파일 다운로드가 완료되었습니다.');
+        }
+
+        // ==========================================
+        // 4. 동적 렌더링 데이터베이스 구성
+        // ==========================================
+        const surveyDatabase = {
+            'ani': {
+                theme: 'theme-purple',
+                title: '2025년 효빈광역시 애니메이션·서브컬처 산업 및 향유 실태조사 결과',
+                dept: '기획조정실 통계데이터담당관 / 효빈애니메이션본부',
+                desc: `본 조사는 효빈광역시의 핵심 성장 동력인 애니메이션 및 서브컬처 산업 생태계와 시민들의 관련 문화 향유 실태를 정밀 분석한 공식 통계 자료입니다. <br><br>관내 5만 명 표본조사 결과, <strong>시민의 약 20.4%가 온·오프라인에서 적극적으로 문화를 향유하는 '적극적 소비층'</strong>으로 나타났습니다. 타인에게 취향을 공개하지 않는 <strong>'잠재적 소비층(숨덕)' 역시 15.2%</strong>로 두텁게 형성되어, 총 35.6%의 거대한 문화 수요층을 확인했습니다.`,
+                html: `
+                    <!-- 1. 계층 분포 (차트) -->
+                    <div class="mb-14">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">1. 시민 서브컬처 소비 계층 분포</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 h-[300px]">
+                                <canvas id="chart-ani"></canvas>
+                            </div>
+                            <div class="flex flex-col justify-center gap-4">
+                                <div class="stat-card">
+                                    <div class="stat-card-title"><i data-lucide="flame"></i> 적극적 소비층 (Public)</div>
+                                    <div class="stat-card-value">20.4%</div>
+                                    <p class="text-sm text-slate-500 mt-2">커뮤니티 활동, HAF 행사 참여 등 공개적 소비 계층</p>
+                                </div>
+                                <div class="stat-card bg-slate-50 border-slate-200">
+                                    <div class="stat-card-title text-slate-600"><i data-lucide="eye-off"></i> 잠재적 소비층 (Latent)</div>
+                                    <div class="stat-card-value text-slate-700">15.2%</div>
+                                    <p class="text-sm text-slate-500 mt-2">오프라인 비노출, 개인적 콘텐츠 소비 계층</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 도시철도 뱅드림 콜라보 -->
+                    <div class="mb-12">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-4 gap-2">
+                            <h4 class="text-xl font-bold border-l-4 pl-3">2. 효빈도시철도 테마열차 만족도 (BanG Dream! 콜라보)</h4>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                            <table class="premium-table mb-0 min-w-[800px]">
+                                <thead>
+                                    <tr><th>노선</th><th>상징 색상</th><th>마스코트</th><th>뱅드림(BanG Dream!) 매칭</th><th>종합 만족도</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="font-bold">1호선</td><td><span class="color-badge" style="background-color:#0077DD;"></span> 파란색</td><td>고나미</td><td class="font-bold text-[#0077DD]">하나조노 타에</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-right">88.2%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#0077DD] h-2 rounded" style="width:88.2%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">2호선</td><td><span class="color-badge" style="background-color:#00CCAA;"></span> 초록색</td><td>하루빈</td><td class="font-bold text-[#00CCAA]">아오바 모카</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-right">92.5%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#00CCAA] h-2 rounded" style="width:92.5%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">3호선</td><td><span class="color-badge" style="background-color:#FFCC11;"></span> 노란색</td><td>박라미</td><td class="font-bold text-yellow-600">야마부키 사아야</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-right">85.4%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#FFCC11] h-2 rounded" style="width:85.4%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">4호선</td><td><span class="color-badge" style="background-color:#FF5522;"></span> 주황색</td><td>다로나</td><td class="font-bold text-[#FF5522]">토야마 카스미</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-red-600 text-right">96.1%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#FF5522] h-2 rounded" style="width:96.1%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">5호선</td><td><span class="color-badge" style="background-color:#EE0022;"></span> 빨간색</td><td>미소하</td><td class="font-bold text-[#EE0022]">미타케 란</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-right">91.8%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#EE0022] h-2 rounded" style="width:91.8%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">6호선</td><td><span class="color-badge" style="background-color:#881188;"></span> 보라색</td><td>라세나</td><td class="font-bold text-[#881188]">미나토 유키나</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-purple-700 text-right">97.4%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#881188] h-2 rounded" style="width:97.4%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">7호선</td><td><span class="color-badge" style="background-color:#FF8899;"></span> 분홍색</td><td>임세정, 임세하</td><td class="font-bold text-[#FF8899]">치하야 아논</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-right">95.2%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#FF8899] h-2 rounded" style="width:95.2%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">8호선</td><td><span class="color-badge" style="background-color:#9856FF;"></span> 연보라색</td><td>유리아</td><td class="font-bold text-[#9856FF]">와카미야 이브</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-right">89.9%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#9856FF] h-2 rounded" style="width:89.9%"></div></div></div></td></tr>
+                                    <tr class="bg-blue-50/50"><td class="font-bold">빈효선(광역)</td><td><span class="color-badge" style="background-color:#6677CC;"></span> 연청색</td><td>전노아</td><td class="font-bold text-[#6677CC]">쿠라타 마시로</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 font-bold text-blue-700 text-right">94.3%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#6677CC] h-2 rounded" style="width:94.3%"></div></div></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `,
+                chapters: [
+                    { title: '연령별 소비층 분포 현황표', action: '소비층비율' },
+                    { title: '도시철도 노선별 세부 만족도', action: '도시철도' }
+                ],
+                initChart: () => {
+                    const ctx = document.getElementById('chart-ani');
+                    if(ctx) {
+                        new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['적극적 소비층', '잠재적 소비층', '일반 시민'],
+                                datasets: [{ data: [20.4, 15.2, 64.4], backgroundColor: ['#9333ea', '#c084fc', '#e2e8f0'], borderWidth: 0 }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                        });
+                    }
+                }
+            },
+            'trans': {
+                theme: 'theme-orange',
+                title: '2025년 효빈광역시 운수업 및 대중교통 인프라 통계',
+                dept: '교통혁신국 대중교통과',
+                desc: `효빈교통공사가 운영하는 도시철도 및 3세대 '스타더스트 작전' 도색이 적용된 <strong>9개 색상 및 캐릭터 지정 시내버스</strong>의 이용 실태와 효빈국제공항·항만의 수송 실적을 종합한 통계입니다.`,
+                html: `
+                    <div class="mb-12">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-4 gap-2">
+                            <h4 class="text-xl font-bold border-l-4 pl-3">1. 시내버스(3세대) 도색 테마별 만족도 및 캐릭터 매칭</h4>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                            <table class="premium-table mb-0 min-w-[800px]">
+                                <thead><tr><th>버스 구분</th><th>도색 테마 컬러</th><th>뱅드림(BanG Dream!) 매칭</th><th>디자인 만족도</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="font-bold">간선버스</td><td><span class="color-badge" style="background-color:#01B7ED;"></span> Sky Blue</td><td class="font-bold text-[#01B7ED]">오사카 시즈쿠</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">88.5%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#01B7ED] h-2 rounded" style="width:88.5%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">지선버스</td><td><span class="color-badge" style="background-color:#37B484;"></span> Jade Green</td><td class="font-bold text-[#37B484]">미후네 시오리코</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">87.2%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#37B484] h-2 rounded" style="width:87.2%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">순환버스</td><td><span class="color-badge" style="background-color:#E7D600;"></span> Pastel Yellow</td><td class="font-bold text-[#b4a600]">나카스 카스미</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">91.4%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#E7D600] h-2 rounded" style="width:91.4%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">급행버스</td><td><span class="color-badge" style="background-color:#D81C2F;"></span> Scarlet Red</td><td class="font-bold text-[#D81C2F]">유키 세츠나</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold text-red-600">94.1%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#D81C2F] h-2 rounded" style="width:94.1%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">좌석버스</td><td><span class="color-badge" style="background-color:#FF5800;"></span> Vivid Orange</td><td class="font-bold text-[#FF5800]">미야시타 아이</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">85.6%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#FF5800] h-2 rounded" style="width:85.6%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">광역버스</td><td><span class="color-badge" style="background-color:#485EC6;"></span> Royal Blue</td><td class="font-bold text-[#485EC6]">아사카 카린</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">89.3%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#485EC6] h-2 rounded" style="width:89.3%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">마을버스</td><td><span class="color-badge" style="background-color:#A664A0;"></span> Violet</td><td class="font-bold text-[#A664A0]">코노에 카나타</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">86.7%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#A664A0] h-2 rounded" style="width:86.7%"></div></div></div></td></tr>
+                                    <tr><td class="font-bold">공항버스</td><td><span class="color-badge" style="background-color:#84C36E;"></span> Light Green</td><td class="font-bold text-[#84C36E]">엠마 베르데</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold">90.2%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#84C36E] h-2 rounded" style="width:90.2%"></div></div></div></td></tr>
+                                    <tr class="bg-orange-50"><td class="font-bold">투어버스</td><td><span class="color-badge" style="background-color:#7777AA;"></span> Navy</td><td class="font-bold text-[#7777AA]">시이나 타키</td><td><div class="flex items-center justify-center gap-2"><span class="w-12 text-right font-bold text-orange-700">95.8%</span><div class="w-24 bg-slate-200 h-2 rounded"><div class="bg-[#7777AA] h-2 rounded" style="width:95.8%"></div></div></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `,
+                chapters: [
+                    { title: '시내버스 노선/테마별 상세 통계', action: '시내버스' },
+                    { title: '효빈국제공항 및 항만 여객/물류 실적', action: '공항항만' }
+                ]
+            },
+            'biz': {
+                theme: 'theme-biz',
+                title: '2024년 기준 전국사업체조사 효빈광역시 결과',
+                dept: '기획조정실 통계데이터담당관',
+                desc: '효빈시 내 산업활동을 수행하고 있는 종사자 1인 이상 모든 사업체의 지역별 분포 및 고용 구조 파악 결과입니다.<br>총 사업체 수는 약 32만 개이며, 서비스업과 도소매업이 주를 이루고 있습니다.',
+                html: `
+                    <div class="mb-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-8 border-green-600 text-green-900">1. 산업별 사업체 분포</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 h-[300px]">
+                                <canvas id="chart-biz"></canvas>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="stat-card bg-emerald-50 border-emerald-200">
+                                    <div class="stat-card-title text-emerald-800"><i data-lucide="store" class="w-5 h-5"></i> 도매 및 소매업</div>
+                                    <div class="stat-card-value text-emerald-900">85,400개 <span class="text-sm font-normal text-slate-500">(26.7%)</span></div>
+                                </div>
+                                <div class="stat-card bg-green-50 border-green-200">
+                                    <div class="stat-card-title text-green-800"><i data-lucide="utensils" class="w-5 h-5"></i> 숙박 및 음식점업</div>
+                                    <div class="stat-card-value text-green-900">62,100개 <span class="text-sm font-normal text-slate-500">(19.4%)</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                chapters: [
+                    { title: '산업분류별/구군별 사업체 총괄', action: '사업체총괄' },
+                    { title: '종사자 규모별 상세 데이터', action: '종사자규모' }
+                ],
+                initChart: () => {
+                    const ctx = document.getElementById('chart-biz');
+                    if(ctx) {
+                        new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['도매/소매업', '숙박/음식점업', '제조업', '기타 서비스업'],
+                                datasets: [{ data: [26.7, 19.4, 6.4, 47.5], backgroundColor: ['#059669', '#34d399', '#10b981', '#a7f3d0'], borderWidth: 0 }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                        });
+                    }
+                }
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type') || 'ani'; // 기본값은 애니메이션 조사
+            const data = surveyDatabase[type] || surveyDatabase['ani'];
+            
+            document.getElementById('page-main-title').innerText = data.title;
+
+            const html = `
+                <div class="board-view-header p-8 bg-gradient-to-r ${type==='ani' ? 'from-purple-50' : (type==='trans' ? 'from-orange-50' : 'from-green-50')} to-white">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-2">${data.title}</h3>
+                    <p class="text-slate-500 font-medium">효빈광역시 공식 행정 통계 데이터 리포트</p>
+                </div>
+                <div class="board-view-meta">
+                    <dl><dt>담당부서</dt><dd>${data.dept}</dd><dt>등록일</dt><dd>${data.date || '2025-12-15'}</dd><dt>조회수</dt><dd>${data.views ? data.views.toLocaleString() : 12405}</dd></dl>
+                </div>
+                <div class="board-view-attach">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="font-bold text-slate-700 w-24 shrink-0 flex items-center gap-2"><i data-lucide="paperclip" class="w-4 h-4 text-slate-500"></i> 첨부파일</div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="btn-download btn-pdf" onclick="downloadPDF()"><i data-lucide="file-text" class="w-4 h-4"></i> [전문] PDF 다운로드</button>
+                            <button class="btn-download btn-hwp" onclick="downloadHWP('${data.title}')"><i data-lucide="file" class="w-4 h-4"></i> [요약] HWP 다운로드</button>
+                            <button class="btn-download btn-zip" onclick="downloadZIP('${type}')"><i data-lucide="file-archive" class="w-4 h-4"></i> [데이터] 전체 원시자료.zip</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="board-view-content border-b border-slate-300 ${data.theme}">
+                    <div class="prose max-w-none text-slate-700 leading-relaxed mb-12 text-justify break-keep">
+                        <p>${data.desc}</p>
+                    </div>
+                    ${data.html}
+                    
+                    <div class="mb-4 mt-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">세부 주제별 통계표 (엑셀 다운로드)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${data.chapters.map((ch, idx) => `
+                                <div class="chapter-box">
+                                    <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">제${idx+1}장</span> ${ch.title}</div>
+                                    <div class="flex gap-1"><button class="btn-download btn-excel" onclick="downloadExcel('${type}', '${ch.action}')">XLS</button></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="board-nav">
+                    <div class="board-nav-item cursor-pointer hover:bg-slate-50 transition" onclick="showNotify('이전 연도(2024년) 통계 자료로 이동합니다.')">
+                        <div class="board-nav-label"><i data-lucide="chevron-down" class="w-4 h-4"></i> 이전글</div>
+                        <span class="board-nav-link text-slate-600 font-medium">2024년도 해당 조사 결과 보고서</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dynamic-article').innerHTML = html;
+            document.getElementById('dynamic-article').classList.add(data.theme);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (data.initChart) data.initChart();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

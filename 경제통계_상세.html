@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 경제통계 상세 결과 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 파일 압축 및 통계 시각화 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 게시판 상세뷰 전용 스타일 */
+        .board-view-header { border-top: 2px solid #1e3a8a; border-bottom: 1px solid #cbd5e1; background-color: #fff; }
+        .board-view-meta { border-bottom: 1px solid #e2e8f0; background-color: #f8fafc; }
+        .board-view-meta dl { display: flex; flex-wrap: wrap; margin: 0; }
+        .board-view-meta dt { font-weight: 600; color: #475569; padding: 12px 16px; width: 100px; border-right: 1px solid #e2e8f0; }
+        .board-view-meta dd { color: #334155; padding: 12px 16px; flex: 1; min-width: 200px; border-right: 1px solid #e2e8f0; }
+        .board-view-meta dd:last-child { border-right: none; }
+        
+        .board-view-attach { border-bottom: 1px solid #cbd5e1; padding: 16px; background-color: #fff; }
+        .board-view-content { padding: 40px 20px; min-height: 300px; color: #334155; line-height: 1.8; font-size: 1.05rem; }
+        
+        /* 챕터 다운로드 버튼 */
+        .chapter-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background: #fff; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .chapter-box:hover { border-color: #3b82f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .chapter-title { font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        
+        /* 버튼 컴포넌트 */
+        .btn-download { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; border-radius: 4px; transition: all 0.2s; cursor: pointer;}
+        .btn-pdf { border: 1px solid #ef4444; color: #dc2626; background: #fef2f2; }
+        .btn-pdf:hover { background: #ef4444; color: #fff; }
+        .btn-excel { border: 1px solid #10b981; color: #15803d; background: #ecfdf5; }
+        .btn-excel:hover { background: #10b981; color: #fff; }
+        .btn-hwp { border: 1px solid #3b82f6; color: #2563eb; background: #eff6ff; }
+        .btn-hwp:hover { background: #3b82f6; color: #fff; }
+        .btn-zip { border: 1px solid #8b5cf6; color: #6d28d9; background: #f5f3ff; }
+        .btn-zip:hover { background: #8b5cf6; color: #fff; }
+
+        /* 통계 대시보드 카드 */
+        .stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); height: 100%; display: flex; flex-direction: column; justify-content: center;}
+        .stat-card-title { font-size: 0.9rem; font-weight: 700; color: #1e3a8a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .stat-card-value { font-size: 1.8rem; font-weight: 900; color: #1e40af; letter-spacing: -0.5px; }
+        
+        /* 프리미엄 테이블 디자인 */
+        .premium-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
+        .premium-table th { background: #f1f5f9; color: #1e293b; padding: 12px; border: 1px solid #e2e8f0; font-weight: 700; text-align: center; }
+        .premium-table td { padding: 12px; border: 1px solid #e2e8f0; text-align: center; }
+        .premium-table tr:nth-child(even) { background: #f8fafc; }
+
+        /* 알림 메시지 박스 */
+        #notification-box {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; font-weight: 600;
+        }
+
+        /* 동적 테마 컬러 */
+        .theme-grdp .board-view-header { border-top-color: #2563eb; }
+        .theme-grdp h4.border-l-4 { border-left-color: #2563eb; color: #1e3a8a; }
+        
+        .theme-biz .board-view-header { border-top-color: #059669; }
+        .theme-biz h4.border-l-4 { border-left-color: #059669; color: #064e3b; }
+        .theme-biz .stat-card { background: #ecfdf5; border-color: #a7f3d0; }
+        .theme-biz .stat-card-title { color: #047857; }
+        .theme-biz .stat-card-value { color: #064e3b; }
+
+        .theme-mine .board-view-header { border-top-color: #ea580c; }
+        .theme-mine h4.border-l-4 { border-left-color: #ea580c; color: #7c2d12; }
+        .theme-mine .stat-card { background: #fff7ed; border-color: #ffedd5; }
+        .theme-mine .stat-card-title { color: #c2410c; }
+        .theme-mine .stat-card-value { color: #9a3412; }
+
+        .board-nav { border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; margin-top: 2rem;}
+        .board-nav-item { display: flex; padding: 14px 16px; border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s; cursor: pointer; }
+        .board-nav-item:last-child { border-bottom: none; }
+        .board-nav-label { width: 100px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; }
+        .board-nav-link { flex: 1; color: #1e293b; font-weight: 500; }
+        .board-nav-item:hover .board-nav-link { color: #3b82f6; text-decoration: underline; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .board-view-content, .board-view-content * { visibility: visible; }
+            .board-view-content { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+            .btn-download, .board-nav { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 다운로드 알림 박스 -->
+    <div id="notification-box"></div>
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB (전체 복구) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html" class="current">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (상세 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <a href="경제통계.html" class="hover:text-blue-600 transition-colors">경제통계</a>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">조사 결과 상세</strong>
+            </div>
+
+            <h2 id="page-main-title" class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
+                경제통계 상세 결과
+            </h2>
+
+            <article id="dynamic-article" class="mb-10 shadow-lg rounded-2xl overflow-hidden border border-slate-200 bg-white">
+                <!-- JS를 통해 동적으로 내용이 주입됩니다. -->
+            </article>
+
+            <!-- 목록으로 버튼 -->
+            <div class="flex justify-end mb-10">
+                <a href="경제통계.html" class="bg-slate-700 text-white font-bold px-8 py-3 rounded-md hover:bg-slate-800 transition shadow-sm flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5"></i> 목록으로
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- 공통 푸터 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // LNB 제어
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    li.classList.remove('active');
+                    if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // 알림창
+        function showNotify(msg) {
+            const box = document.getElementById('notification-box');
+            box.innerText = msg;
+            box.style.display = 'block';
+            setTimeout(() => { box.style.display = 'none'; }, 3000);
+        }
+
+        // ==========================================
+        // 1. 공통 파일 다운로드 헬퍼
+        // ==========================================
+        function downloadPDF() {
+            showNotify('보고서 전문 인쇄 및 PDF 저장을 준비합니다.');
+            window.print();
+        }
+
+        function downloadHWP(type) {
+            const bom = "\uFEFF";
+            let content = "========================================================\n";
+            content += " 효빈광역시 경제통계 요약 결과보고서\n";
+            content += "========================================================\n\n";
+            if(type === 'GRDP') {
+                content += "[주요 지표 요약]\n- 효빈광역시 지역내총생산(GRDP): 170조 8,391억원 (2020년 기준)\n- 1인당 GRDP: 5,843만 3,000원\n- 지역 총소득: 151조 857억원\n- 개인 소득: 66조 492억원\n- 경제성장률: 5.8% (2019년 기준)\n- 고용률 (OECD 기준): 74.3% (2022년 기준)\n";
+            } else if (type === '사업체') {
+                content += "[주요 지표 요약]\n- 효빈광역시 총 사업체 수: 320,140개\n- 경제활동 인구: 1,772,000명\n- 다핵 주요 상권 현황:\n  * 북구: 고송신도시, 중수동\n  * 남구: 평당동\n  * 청엽구: 청엽동\n  * 안천구: 안천동, 이자동\n  * 창전구: 창전동\n";
+            } else if (type === '광업제조업') {
+                content += "[주요 지표 요약]\n- 제조업체 총계: 20,573개소 (2021년 기준)\n- 종사자 총계: 188,226명\n- 주요 산업단지 입주 현황:\n  * 효빈공단 (포장동, 헌이송동 일대)\n  * 평전공단 (평전동 일대)\n  * 도향산업단지 (도향면 신규 조성 산단)\n";
+            }
+            content += "\n* 본 파일은 HWP 예시 다운로드 파일입니다. 상세 수치는 엑셀을 확인하세요.\n";
+
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `효빈광역시_${type}_주요결과_요약.hwp`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotify('한글(HWP) 요약본 보고서 다운로드가 완료되었습니다.');
+        }
+
+        // CSV 콘텐츠 생성기
+        function generateCSVContent(type, detail) {
+            const bom = "\uFEFF";
+            let csv = "";
+            if (type === 'GRDP') {
+                if (detail === '총괄표') {
+                    csv = bom + "지표명,단위,2019년,2020년,2021년,2022년\n" +
+                                "지역내총생산(GRDP),십억원,161500,170839,178500,185000\n" +
+                                "1인당_GRDP,천원,55200,58433,61000,63500\n" +
+                                "지역총소득,십억원,142500,151085,158000,165000\n" +
+                                "1인당_총소득,천원,48500,51674,54000,56500\n" +
+                                "개인소득,십억원,62000,66049,69000,72500\n" +
+                                "1인당_개인소득,천원,21500,22591,23600,24800\n" +
+                                "경제성장률,%,5.8,3.5,4.2,4.8\n" +
+                                "경제활동인구,천명,1710,1735,1750,1772\n" +
+                                "고용률(OECD기준),%,71.5,72.1,73.0,74.3\n";
+                } else {
+                    csv = bom + "구분,북구,중구,동구,서구,남구,창전구,청엽구,안천구,탄성군\n" +
+                                "GRDP규모(조원),45.2,18.5,22.1,19.8,25.4,12.5,9.8,11.2,6.3\n" +
+                                "전년대비증감률(%),4.2,2.1,3.5,2.8,5.1,1.5,2.0,3.2,1.1\n";
+                }
+            } else if (type === '사업체') {
+                if (detail === '상권현황') {
+                    csv = bom + "구분,핵심상권명,주요업종,사업체수(개),유동인구지수\n" +
+                                "북구,중앙로,도소매/금융/서비스,4500,150.2\n" +
+                                "북구,고송신도시,IT/연구개발/외식,3200,185.5\n" +
+                                "북구,중수동,도매/물류,1500,85.4\n" +
+                                "남구,평당동,숙박/외식/소매,2800,110.3\n" +
+                                "청엽구,청엽동,문화/서비스,1900,95.6\n" +
+                                "안천구,안천동,전통시장/소매,2100,105.8\n" +
+                                "안천구,이자동,특화거리/외식,1200,88.2\n" +
+                                "창전구,창전동,근린상업,1600,75.9\n";
+                } else {
+                    csv = bom + "산업분류,사업체수(개),종사자수(명),비중(%)\n" +
+                                "도매 및 소매업,85400,210500,26.7\n" +
+                                "숙박 및 음식점업,62100,185000,19.4\n" +
+                                "제조업,20573,188226,6.4\n" +
+                                "운수 및 창고업,15200,85000,4.7\n" +
+                                "정보통신업,12500,85000,3.9\n" +
+                                "전문/과학/기술서비스업,14800,95000,4.6\n" +
+                                "기타,109567,654274,34.3\n" +
+                                "총계,320140,1503000,100.0\n";
+                }
+            } else if (type === '광업제조업') {
+                if (detail === '산단현황') {
+                    csv = bom + "산업단지명,위치,조성형태,입주업체수(개),주요유치업종,종사자수(명)\n" +
+                                "효빈공단,포장동 및 헌이송동 일대,국가산업단지,5800,기계/자동차부품/화학,65000\n" +
+                                "평전공단,평전동 일대,일반산업단지,4200,섬유/경공업/식품,48000\n" +
+                                "도향산업단지,도향면 일대,일반산업단지,1500,첨단소재/바이오/IT,22000\n" +
+                                "기타지역,관내 전역,-,9073,다양,53226\n" +
+                                "총계,-,-,20573,-,188226\n";
+                } else {
+                    csv = bom + "업종분류,업체수,출하액(억원),부가가치(억원)\n" +
+                                "자동차 및 트레일러,3500,580000,185000\n" +
+                                "1차 금속 및 금속가공,4200,450000,120000\n" +
+                                "기타 기계 및 장비,3800,380000,115000\n" +
+                                "전자부품/컴퓨터/통신장비,1500,350000,140000\n" +
+                                "화학물질 및 화학제품,2100,290000,95000\n";
+                }
+            } else {
+                csv = bom + `구분,항목,수치\n기본,${detail} 데이터,100\n`;
+            }
+            return csv;
+        }
+
+        function downloadExcel(type, detail) {
+            const csvContent = generateCSVContent(type, detail);
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `효빈광역시_${type}_${detail}_데이터.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotify(`[${detail}] 엑셀(CSV) 데이터 다운로드가 완료되었습니다.`);
+        }
+
+        async function downloadZIP(type) {
+            if (typeof JSZip === 'undefined') { showNotify('오류: 압축 라이브러리 로드 실패'); return; }
+            showNotify('ZIP 파일 압축을 준비 중입니다.');
+            
+            const zip = new JSZip();
+            zip.file("안내사항.txt", `효빈광역시 ${type} 통계 로우(Raw) 데이터 모음입니다.\n* 주의사항: 기업 식별 정보는 모두 마스킹 처리되었습니다.`);
+            
+            if (type === 'GRDP') {
+                zip.file("01_구군별_GRDP_원시데이터.csv", generateCSVContent('GRDP', '총괄표'));
+                zip.file("02_지역경제성장_연도별추이.csv", generateCSVContent('GRDP', '상세'));
+            } else if (type === '사업체') {
+                zip.file("01_산업분류별_사업체_현황.csv", generateCSVContent('사업체', '산업별'));
+                zip.file("02_지역상권별_분석데이터.csv", generateCSVContent('사업체', '상권현황'));
+            } else if (type === '광업제조업') {
+                zip.file("01_산업단지별_입주기업_통계.csv", generateCSVContent('광업제조업', '산단현황'));
+                zip.file("02_제조업_업종별_출하액.csv", generateCSVContent('광업제조업', '업종별'));
+            }
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(content);
+            link.download = `효빈통계_${type}_원시데이터_전체.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotify('원시데이터 ZIP 압축파일 다운로드가 완료되었습니다.');
+        }
+
+        // ==========================================
+        // 2. 동적 렌더링 데이터베이스 (URL Type 기준)
+        // ==========================================
+        const econDatabase = {
+            'GRDP': {
+                theme: 'theme-grdp',
+                title: '2024년 기준 효빈광역시 지역내총생산(GRDP) 및 소득 추계 결과',
+                dept: '기획조정실 통계데이터담당관',
+                date: '2025-12-28',
+                desc: `본 자료는 효빈광역시 내에서 1년간 생산된 부가가치의 합인 지역내총생산(GRDP)과 시민 소득 및 고용 지표를 종합한 공식 통계입니다.<br><br>효빈광역시의 <strong>총 GRDP는 170조 8,391억 원</strong>(2020년 기준), <strong>1인당 GRDP는 5,843만 원</strong>으로 집계되었습니다. 또한 지역 총소득은 151조 857억 원, <strong>고용률(OECD 기준)은 74.3%</strong>(2022년 기준), 경제활동 인구는 177만 명에 달하여 견고한 지역 경제 기반을 입증하고 있습니다.`,
+                html: `
+                    <div class="mb-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">1. 핵심 경제 지표 현황</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="stat-card">
+                                <div class="stat-card-title"><i data-lucide="landmark"></i> 지역내 총생산 (GRDP)</div>
+                                <div class="stat-card-value">170조 8,391억 <span class="text-sm font-normal text-slate-500">원</span></div>
+                                <div class="text-sm font-bold text-blue-600 mt-2 bg-blue-50 py-1 px-2 rounded">1인당 GRDP: 5,843만원</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-title"><i data-lucide="wallet"></i> 효빈 지역 총소득</div>
+                                <div class="stat-card-value">151조 857억 <span class="text-sm font-normal text-slate-500">원</span></div>
+                                <div class="text-sm font-bold text-blue-600 mt-2 bg-blue-50 py-1 px-2 rounded">1인당 개인소득: 2,259만원</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-title"><i data-lucide="briefcase"></i> 고용률 및 경제활동인구</div>
+                                <div class="stat-card-value">74.3% <span class="text-sm font-normal text-slate-500">/ 177.2만명</span></div>
+                                <div class="text-sm font-bold text-blue-600 mt-2 bg-blue-50 py-1 px-2 rounded">경제성장률: 5.8% (2019)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">2. 구·군별 지역내총생산 (GRDP) 규모</h4>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 h-[350px] shadow-sm mb-6">
+                            <canvas id="chart-grdp"></canvas>
+                        </div>
+                        <div class="overflow-x-auto shadow-sm border border-slate-200 rounded-xl">
+                            <table class="premium-table mb-0">
+                                <thead><tr><th>구분</th><th>북구</th><th>중구</th><th>동구</th><th>서구</th><th>남구</th><th>창전구</th><th>청엽구</th><th>안천구</th><th>탄성군</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="font-bold">GRDP (조원)</td><td class="text-blue-700 font-bold">45.2</td><td>18.5</td><td>22.1</td><td>19.8</td><td class="text-blue-600 font-bold">25.4</td><td>12.5</td><td>9.8</td><td>11.2</td><td>6.3</td></tr>
+                                    <tr><td class="font-bold">비중 (%)</td><td>26.4%</td><td>10.8%</td><td>12.9%</td><td>11.6%</td><td>14.9%</td><td>7.3%</td><td>5.7%</td><td>6.6%</td><td>3.7%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `,
+                chapters: [
+                    { title: '거시경제 주요 지표 총괄표', action: '총괄표' },
+                    { title: '구·군별 GRDP 및 소득 상세 데이터', action: '상세' }
+                ],
+                initChart: () => {
+                    new Chart(document.getElementById('chart-grdp'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['북구', '중구', '동구', '서구', '남구', '창전구', '청엽구', '안천구', '탄성군'],
+                            datasets: [{
+                                label: 'GRDP (조 원)',
+                                data: [45.2, 18.5, 22.1, 19.8, 25.4, 12.5, 9.8, 11.2, 6.3],
+                                backgroundColor: ['#1e3a8a', '#93c5fd', '#3b82f6', '#60a5fa', '#2563eb', '#bfdbfe', '#dbeafe', '#93c5fd', '#eff6ff'],
+                                borderRadius: 4
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                    });
+                }
+            },
+            '사업체': {
+                theme: 'theme-biz',
+                title: '2024년 기준 효빈광역시 전국사업체조사 결과',
+                dept: '기획조정실 통계데이터담당관',
+                date: '2025-12-28',
+                desc: `효빈시 내 산업활동을 수행하고 있는 종사자 1인 이상 모든 사업체의 지역별 분포 및 상권 구조 파악 결과입니다.<br><br>총 사업체 수는 <strong>약 32만여 개</strong>이며, 과거 중앙로 중심의 단일 상권에서 벗어나 <strong>북구 고송신도시, 남구 평당동, 청엽구 청엽동, 안천구 안천동/이자동, 창전구 창전동</strong> 등으로 <strong>상권이 다핵화되어 분포</strong>하고 있는 것이 큰 특징입니다.`,
+                html: `
+                    <div class="mb-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">1. 산업별 사업체 분포</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 h-[350px] shadow-sm">
+                                <canvas id="chart-biz"></canvas>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="stat-card">
+                                    <div class="stat-card-title"><i data-lucide="store" class="w-5 h-5"></i> 도매 및 소매업</div>
+                                    <div class="stat-card-value">85,400개 <span class="text-sm font-normal text-slate-500 ml-1">(26.7%)</span></div>
+                                    <p class="text-sm text-emerald-800 mt-1">상업 인프라 핵심 산업</p>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-card-title"><i data-lucide="utensils" class="w-5 h-5"></i> 숙박 및 음식점업</div>
+                                    <div class="stat-card-value">62,100개 <span class="text-sm font-normal text-slate-500 ml-1">(19.4%)</span></div>
+                                    <p class="text-sm text-emerald-800 mt-1">주요 상권 밀집 업종</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">2. 주요 상권 다핵 분포 현황</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                <div class="font-bold text-emerald-800 mb-2 border-b pb-1">북구 거점 상권</div>
+                                <ul class="text-sm text-slate-600 space-y-1">
+                                    <li>• <strong class="text-slate-800">중앙로 일대</strong> (메인)</li>
+                                    <li>• <strong class="text-slate-800">고송신도시</strong> (신도심)</li>
+                                    <li>• <strong class="text-slate-800">중수동</strong></li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                <div class="font-bold text-emerald-800 mb-2 border-b pb-1">남구/서부권 상권</div>
+                                <ul class="text-sm text-slate-600 space-y-1">
+                                    <li>• <strong class="text-slate-800">평당동</strong> (남구 거점)</li>
+                                    <li>• <strong class="text-slate-800">청엽동</strong> (청엽구 거점)</li>
+                                    <li>• <strong class="text-slate-800">창전동</strong> (창전구 거점)</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                <div class="font-bold text-emerald-800 mb-2 border-b pb-1">안천구 거점 상권</div>
+                                <ul class="text-sm text-slate-600 space-y-1">
+                                    <li>• <strong class="text-slate-800">안천동 일대</strong></li>
+                                    <li>• <strong class="text-slate-800">이자동 일대</strong></li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg shadow-sm flex flex-col justify-center text-center">
+                                <div class="text-emerald-900 font-bold text-lg">상권 다핵화 지수</div>
+                                <div class="text-2xl font-black text-emerald-700 mt-1">우수</div>
+                                <div class="text-xs text-slate-500 mt-2">구별 고른 상업 분포</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                chapters: [
+                    { title: '산업분류별 사업체 종합 데이터', action: '산업별' },
+                    { title: '지역 주요 상권별 상세 데이터', action: '상권현황' }
+                ],
+                initChart: () => {
+                    new Chart(document.getElementById('chart-biz'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['도매/소매업', '숙박/음식점업', '제조업', '운수/정보/기타서비스'],
+                            datasets: [{
+                                data: [26.7, 19.4, 6.4, 47.5],
+                                backgroundColor: ['#059669', '#34d399', '#10b981', '#a7f3d0'], borderWidth: 0, hoverOffset: 10
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right' } } }
+                    });
+                }
+            },
+            '광업제조업': {
+                theme: 'theme-mine',
+                title: '2024년 기준 효빈광역시 광업·제조업조사 결과',
+                dept: '미래기술국 산업정책과',
+                date: '2025-12-28',
+                desc: `본 조사는 효빈시 내 종사자 10인 이상 제조 사업체의 구조와 분포, 생산활동 실태를 파악한 경제 통계입니다.<br><br>조사 결과 효빈광역시 내 10인 이상 제조업체는 총 <strong>20,573개</strong>이며, 종사자는 <strong>188,226명</strong>으로 집계되었습니다. 특히 <strong>포장동, 헌이송동 일대의 효빈공단</strong>, <strong>평전동 일대의 평전공단</strong>, 그리고 최근 조성 중인 <strong>도향면의 도향산업단지</strong>를 중심으로 공업과 서비스업이 적절히 조화를 이룬 지역 경제의 근간을 지탱하고 있습니다.`,
+                html: `
+                    <div class="mb-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">1. 제조업 종합 지표 및 주요 산업단지 입주 현황</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-orange-50 border border-orange-200 p-6 rounded-xl flex items-center justify-between">
+                                <div><div class="text-orange-900 font-bold mb-1">총 제조업체 수 (10인 이상)</div><div class="text-3xl font-black text-orange-700">20,573<span class="text-lg font-normal ml-1">개</span></div></div>
+                                <i data-lucide="building-2" class="w-12 h-12 text-orange-200"></i>
+                            </div>
+                            <div class="bg-orange-50 border border-orange-200 p-6 rounded-xl flex items-center justify-between">
+                                <div><div class="text-orange-900 font-bold mb-1">제조업 총 종사자 수</div><div class="text-3xl font-black text-orange-700">188,226<span class="text-lg font-normal ml-1">명</span></div></div>
+                                <i data-lucide="users" class="w-12 h-12 text-orange-200"></i>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="stat-card">
+                                <div class="stat-card-title"><i data-lucide="factory"></i> 효빈공단</div>
+                                <div class="stat-card-value text-orange-700">5,800 <span class="text-sm font-normal text-slate-500">개소</span></div>
+                                <p class="text-sm text-slate-600 font-bold mt-2 pb-1 border-b border-slate-200">포장동, 헌이송동 일대</p>
+                                <p class="text-xs text-slate-500 mt-2 leading-relaxed">기계, 자동차부품, 화학 등 중공업 중심의 효빈시 최대 생산 거점 산단입니다.</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-title"><i data-lucide="factory"></i> 평전공단</div>
+                                <div class="stat-card-value text-orange-700">4,200 <span class="text-sm font-normal text-slate-500">개소</span></div>
+                                <p class="text-sm text-slate-600 font-bold mt-2 pb-1 border-b border-slate-200">평전동 일대</p>
+                                <p class="text-xs text-slate-500 mt-2 leading-relaxed">경공업, 섬유, 식품제조업이 밀집된 전통적인 주요 생산 거점입니다.</p>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-title"><i data-lucide="factory"></i> 도향산업단지</div>
+                                <div class="stat-card-value text-orange-700">1,500 <span class="text-sm font-normal text-slate-500">개소</span></div>
+                                <p class="text-sm text-slate-600 font-bold mt-2 pb-1 border-b border-slate-200">도향면 일대</p>
+                                <p class="text-xs text-slate-500 mt-2 leading-relaxed">최근 신규 조성되어 바이오, 첨단소재 등 IT 융합 기업들이 입주하고 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                chapters: [
+                    { title: '산업단지별 입주기업 통계표', action: '산단현황' },
+                    { title: '제조업 업종별 상세 생산/출하액 데이터', action: '업종별' }
+                ],
+                initChart: () => {}
+            }
+        };
+
+        // 초기화 실행
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type') || 'GRDP'; 
+            const data = econDatabase[type] || econDatabase['GRDP'];
+
+            const html = `
+                <div class="board-view-header p-8 bg-gradient-to-r from-slate-50 to-white">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-2">${data.title}</h3>
+                    <p class="text-slate-500 font-medium">효빈광역시 공식 경제 통계 데이터 리포트</p>
+                </div>
+                <div class="board-view-meta">
+                    <dl><dt>담당부서</dt><dd>${data.dept}</dd><dt>등록일</dt><dd>${data.date}</dd><dt>조회수</dt><dd>${Math.floor(Math.random() * 5000) + 2000}</dd></dl>
+                </div>
+                <div class="board-view-attach">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="font-bold text-slate-700 w-24 shrink-0 flex items-center gap-2"><i data-lucide="paperclip" class="w-4 h-4 text-slate-500"></i> 첨부파일</div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="btn-download btn-pdf" onclick="downloadPDF()"><i data-lucide="file-text" class="w-4 h-4"></i> [전문] PDF 다운로드</button>
+                            <button class="btn-download btn-hwp" onclick="downloadHWP('${type}')"><i data-lucide="file" class="w-4 h-4"></i> [요약] HWP 다운로드</button>
+                            <button class="btn-download btn-zip" onclick="downloadZIP('${type}')"><i data-lucide="file-archive" class="w-4 h-4"></i> [데이터] 원시자료.zip</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="board-view-content border-b border-slate-300 ${data.theme}">
+                    <div class="prose max-w-none text-slate-700 leading-relaxed mb-12 text-justify break-keep">
+                        <p>${data.desc}</p>
+                    </div>
+                    ${data.html}
+                    
+                    <div class="mb-4 mt-12">
+                        <h4 class="text-xl font-bold border-l-4 pl-3 mb-6">세부 주제별 통계 데이터 분할 다운로드 (XLS)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${data.chapters.map((ch, idx) => `
+                                <div class="chapter-box">
+                                    <div class="chapter-title"><span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-sm">제${idx+1}장</span> ${ch.title}</div>
+                                    <div class="flex gap-1"><button class="btn-download btn-excel" onclick="downloadExcel('${type}', '${ch.action}')">XLS</button></div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 이전글 이동 -->
+                <div class="board-nav">
+                    <div class="board-nav-item cursor-pointer hover:bg-slate-50 transition" onclick="showNotify('이전 연도(2023년) 통계 자료로 이동합니다.')">
+                        <div class="board-nav-label"><i data-lucide="chevron-down" class="w-4 h-4"></i> 이전글</div>
+                        <span class="board-nav-link text-slate-600 font-medium">2023년도 해당 조사 결과 보고서</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dynamic-article').innerHTML = html;
+            document.getElementById('dynamic-article').classList.add(data.theme);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (data.initChart) data.initChart();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주민자치 - 효빈광역시 소통·참여</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- 커스텀 스타일 (공통) -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* 소제목 (Bullet Title) */
+        .bullet-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        .bullet-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        /* 관공서 스타일 데이터 표 */
+        .data-table-wrap { overflow-x: auto; border-top: 2px solid #1a365d; background: white; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .data-table { width: 100%; border-collapse: collapse; text-align: center; min-width: 800px; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.95rem; padding: 1rem; border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; white-space: nowrap; }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; vertical-align: middle; }
+        .data-table td:last-child { border-right: none; }
+        .data-table td.text-left { text-align: left; }
+        .data-table tbody tr:hover td { background-color: #f1f5f9; }
+
+        /* 필터 버튼 스타일 */
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #cbd5e1;
+            background-color: white;
+            color: #475569;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .filter-btn:hover {
+            border-color: #005bac;
+            color: #005bac;
+            background-color: #f3f8fd;
+        }
+        .filter-btn.active {
+            background-color: #005bac;
+            color: white;
+            border-color: #005bac;
+            font-weight: 700;
+            box-shadow: 0 4px 6px -1px rgba(0, 91, 172, 0.2);
+        }
+
+        /* 아이콘 뱃지 */
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem 0.8rem;
+            background-color: #f1f5f9;
+            color: #334155;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+        .icon-btn:hover { background-color: #e2e8f0; color: #005bac; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 (서브 비주얼) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 힘으로 도약하는 혁신, 효빈의 내일을 바꿉니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">시민 광장</h2>
+                <ul class="lnb-depth1">
+                    <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 광장</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">주민자치</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2 content-title">주민자치회 및 센터 안내</h2>
+                <p class="text-slate-600">풀뿌리 민주주의의 산실! 시민의 힘으로 지켜낸 효빈광역시, 그 변화의 시작은 우리 동네 주민자치에서 출발합니다.</p>
+            </div>
+
+            <!-- 주민자치회 소개 박스 -->
+            <div class="bg-white border border-blue-100 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-20 h-20 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center shrink-0">
+                    <i data-lucide="users" class="w-10 h-10"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-black text-slate-800 mb-3">효빈광역시 주민자치회란?</h3>
+                    <p class="text-slate-600 leading-relaxed text-[15px] mb-2">
+                        기존 주민자치위원회를 확대 개편한 <strong>'주민자치회'</strong>는 해당 동의 주민을 대표하여 마을의 정책과 예산에 실질적인 결정 권한을 갖는 주민 대표 조직입니다.
+                        과거 대중교통 폐지 및 불합리한 행정에 맞서 싸웠던 시민들의 연대 정신을 계승하여, 박효빈 시장 취임 이후 8구 1군 전역에 전면 도입되었습니다.
+                    </p>
+                    <ul class="list-disc list-inside text-[14px] text-slate-500 space-y-1">
+                        <li><strong>주요 역할:</strong> 마을 자치계획 수립, 주민총회 개최, 동 주민참여예산 사업 심의 및 결정</li>
+                        <li><strong>운영 프로그램:</strong> 문화·여가 강좌, 소외계층 돌봄, HAF(효빈 애니메이션 페스티벌) 동별 연계 행사 기획</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 자치구 필터 영역 -->
+            <div>
+                <h3 class="bullet-title">8구 1군 주민자치센터 현황</h3>
+                
+                <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 mb-6 flex flex-wrap gap-2 items-center" id="district-filters">
+                    <span class="text-sm font-bold text-slate-700 mr-2"><i data-lucide="filter" class="w-4 h-4 inline mr-1"></i>관할구역 선택:</span>
+                    <button class="filter-btn active" onclick="filterCenters('전체')">전체보기</button>
+                    <button class="filter-btn" onclick="filterCenters('효빈광역시')">시청</button>
+                    <button class="filter-btn" onclick="filterCenters('중구')">중구</button>
+                    <button class="filter-btn" onclick="filterCenters('동구')">동구</button>
+                    <button class="filter-btn" onclick="filterCenters('서구')">서구</button>
+                    <button class="filter-btn" onclick="filterCenters('남구')">남구</button>
+                    <button class="filter-btn" onclick="filterCenters('북구')">북구</button>
+                    <button class="filter-btn" onclick="filterCenters('안천구')">안천구</button>
+                    <button class="filter-btn" onclick="filterCenters('창전구')">창전구</button>
+                    <button class="filter-btn" onclick="filterCenters('청엽구')">청엽구</button>
+                    <button class="filter-btn" onclick="filterCenters('탄성군')">탄성군</button>
+                </div>
+
+                <!-- 검색 결과 요약 -->
+                <div class="flex justify-between items-end mb-3">
+                    <p class="text-sm text-slate-600 font-medium">총 <span id="center-count" class="text-hyobin-blue font-bold text-base">0</span>개의 주민자치센터가 있습니다.</p>
+                </div>
+
+                <!-- 데이터 표 -->
+                <div class="data-table-wrap">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width: 12%">
+                            <col style="width: 18%">
+                            <col style="width: 35%">
+                            <col style="width: 15%">
+                            <col style="width: 20%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>구·군명</th>
+                                <th>행정동(센터명)</th>
+                                <th>소재지(주소)</th>
+                                <th>대표전화</th>
+                                <th>프로그램 안내</th>
+                            </tr>
+                        </thead>
+                        <tbody id="center-tbody">
+                            <!-- JS 랜더링 영역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 (디자인 용도, 데이터가 적으면 숨겨도 무방) -->
+                <div class="flex justify-center mt-6">
+                    <div class="flex gap-1" id="pagination-container">
+                        <!-- JS 렌더링 -->
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 외부 스크립트 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 효빈광역시 8구 1군 행정구역 및 079 국번 전화번호 완벽 반영 데이터
+        const centersData = [
+            // 시청·구청
+            { district: '효빈광역시', name: '시청', address: '효빈광역시 북구 효빈로 79(고송8동)', phone: '079-591-2548', url: '시청.html' },
+            { district: '중구', name: '중구청', address: '효빈광역시 중구 중앙로 101(조유동2가)', phone: '079-242-8192', url: '중구청.html' },
+            { district: '북구', name: '북구청', address: '효빈광역시 북구 고중로 2(중수1동)', phone: '079-321-5042', url: '북구청.html' },
+            { district: '동구', name: '동구청', address: '효빈광역시 동구 덕성로 12(덕현2동)', phone: '079-284-1193', url: '동구청.html' },
+            { district: '남구', name: '남구청', address: '효빈광역시 남구 평당중앙로 33(평당3동)', phone: '079-451-9034', url: '남구청.html' },
+            { district: '서구', name: '서구청', address: '효빈광역시 서구 당선동 77(당선4동)', phone: '079-634-2201', url: '서구청.html' },
+            { district: '청엽구', name: '청엽구청', address: '효빈광역시 청엽구 청엽로 51(청엽1동)', phone: '079-781-4920', url: '청엽구청.html' },
+            { district: '창전구', name: '창전구청', address: '효빈광역시 창전구 모포로 21(창전3동)', phone: '079-822-1594', url: '창전구청.html' },
+            { district: '안천구', name: '안천구청', address: '효빈광역시 안천구 안천중앙로 52(안천6동)', phone: '079-915-7732', url: '안천구청.html' },
+            { district: '안천구', name: '안천구청 이자출장소', address: '효빈광역시 안천구 이자로 3(이자4동)', phone: '079-984-2015', url: '안천구청_이자출장소.html' },
+            { district: '탄성군', name: '탄성군청', address: '효빈광역시 탄성군 탄성읍 공리 24', phone: '079-134-8821', url: '탄성군청.html' },
+
+            // 남구 (17개소)
+            { district: '남구', name: '곽산1동', address: '효빈광역시 남구 곽산동 142-3', phone: '079-421-7731', url: '곽산1동.html' },
+            { district: '남구', name: '곽산2동', address: '효빈광역시 남구 곽산동 88', phone: '079-482-1054', url: '곽산2동.html' },
+            { district: '남구', name: '평당1동', address: '효빈광역시 남구 평당동 112', phone: '079-455-2983', url: '평당1동.html' },
+            { district: '남구', name: '평당2동', address: '효빈광역시 남구 평당동 315-1', phone: '079-415-9923', url: '평당2동.html' },
+            { district: '남구', name: '평당3동', address: '효빈광역시 남구 평당동 74', phone: '079-493-2144', url: '평당3동.html' },
+            { district: '남구', name: '평당4동', address: '효빈광역시 남구 평당동 201-8', phone: '079-442-8501', url: '평당4동.html' },
+            { district: '남구', name: '평당5동', address: '효빈광역시 남구 평당동 19', phone: '079-411-3092', url: '평당5동.html' },
+            { district: '남구', name: '평당6동', address: '효빈광역시 남구 평당동 452-2', phone: '079-478-6621', url: '평당6동.html' },
+            { district: '남구', name: '평당7동', address: '효빈광역시 남구 평당동 91', phone: '079-424-1109', url: '평당7동.html' },
+            { district: '남구', name: '어간1동', address: '효빈광역시 남구 어간동 33-5', phone: '079-485-4022', url: '어간1동.html' },
+            { district: '남구', name: '어간2동', address: '효빈광역시 남구 어간동 120', phone: '079-431-7530', url: '어간2동.html' },
+            { district: '남구', name: '어간3동', address: '효빈광역시 남구 어간동 258-4', phone: '079-462-8819', url: '어간3동.html' },
+            { district: '남구', name: '월천동', address: '효빈광역시 남구 월천동 5-11', phone: '079-491-5341', url: '월천동.html' },
+            { district: '남구', name: '항1동', address: '효빈광역시 남구 항동1가 42', phone: '079-324-1845', url: '항1동.html' },
+            { district: '남구', name: '항2동', address: '효빈광역시 남구 항동1가 89-2', phone: '079-381-9023', url: '항2동.html' },
+            { district: '남구', name: '항3동', address: '효빈광역시 남구 항동2가 17', phone: '079-345-6612', url: '항3동.html' },
+            { district: '남구', name: '항4동', address: '효빈광역시 남구 항동3가 204-1', phone: '079-392-4155', url: '항4동.html' },
+
+            // 북구 (24개소)
+            { district: '북구', name: '고송1동', address: '효빈광역시 북구 고송동 55-3', phone: '079-521-8834', url: '고송1동.html' },
+            { district: '북구', name: '고송2동', address: '효빈광역시 북구 고송동 198', phone: '079-584-1029', url: '고송2동.html' },
+            { district: '북구', name: '고송3동', address: '효빈광역시 북구 고송동 301-4', phone: '079-515-7741', url: '고송3동.html' },
+            { district: '북구', name: '고송4동', address: '효빈광역시 북구 고송동 82', phone: '079-543-9205', url: '고송4동.html' },
+            { district: '북구', name: '고송5동', address: '효빈광역시 북구 고송동 415-2', phone: '079-562-3188', url: '고송5동.html' },
+            { district: '북구', name: '고송6동', address: '효빈광역시 북구 고송동 27', phone: '079-591-6452', url: '고송6동.html' },
+            { district: '북구', name: '고송7동', address: '효빈광역시 북구 고송동 110-9', phone: '079-534-2091', url: '고송7동.html' },
+            { district: '북구', name: '고송8동', address: '효빈광역시 북구 고송동 502-1', phone: '079-512-4407', url: '고송8동.html' },
+            { district: '북구', name: '남전동', address: '효빈광역시 북구 남전동 63', phone: '079-371-5520', url: '남전동.html' },
+            { district: '북구', name: '오내1동', address: '효빈광역시 북구 오내동 221-5', phone: '079-318-8493', url: '오내1동.html' },
+            { district: '북구', name: '오내2동', address: '효빈광역시 북구 오내동 44', phone: '079-354-1102', url: '오내2동.html' },
+            { district: '북구', name: '중수1동', address: '효빈광역시 북구 중수동 41', phone: '079-314-8825', url: '중수1동.html' },
+            { district: '북구', name: '중수2동', address: '효빈광역시 북구 중수동 158-3', phone: '079-382-7034', url: '중수2동.html' },
+            { district: '북구', name: '중수3동', address: '효빈광역시 북구 중수동 90', phone: '079-331-4921', url: '중수3동.html' },
+            { district: '북구', name: '중수4동', address: '효빈광역시 북구 중수동 312-7', phone: '079-365-8810', url: '중수4동.html' },
+            { district: '북구', name: '사능1동', address: '효빈광역시 북구 사능동3가 77', phone: '079-341-9082', url: '사능1동.html' },
+            { district: '북구', name: '사능2동', address: '효빈광역시 북구 사능동2가 134-2', phone: '079-375-1145', url: '사능2동.html' },
+            { district: '북구', name: '산고동', address: '효빈광역시 북구 추산동 9', phone: '079-328-6631', url: '산고동.html' },
+            { district: '북구', name: '소조동', address: '효빈광역시 북구 소조동 265-4', phone: '079-351-3098', url: '소조동.html' },
+            { district: '북구', name: '진희동', address: '효빈광역시 북구 진희동 188-9', phone: '079-392-5014', url: '진희동.html' },
+            { district: '북구', name: '천왕사동', address: '효빈광역시 북구 천왕사동 32', phone: '079-366-7421', url: '천왕사동.html' },
+            { district: '북구', name: '청능동', address: '효빈광역시 북구 청능동 105-1', phone: '079-335-2980', url: '청능동.html' },
+            { district: '북구', name: '채산동', address: '효빈광역시 북구 채산동 18', phone: '079-394-2563', url: '채산동.html' },
+            { district: '북구', name: '포산동', address: '효빈광역시 북구 포산동 514', phone: '079-381-4456', url: '포산동.html' },
+
+            // 서구 (17개소)
+            { district: '서구', name: '과진1동', address: '효빈광역시 서구 과진동 88-2', phone: '079-624-1593', url: '과진1동.html' },
+            { district: '서구', name: '과진2동', address: '효빈광역시 서구 과진동 150', phone: '079-681-4022', url: '과진2동.html' },
+            { district: '서구', name: '과진3동', address: '효빈광역시 서구 과진동 304-5', phone: '079-655-8819', url: '과진3동.html' },
+            { district: '서구', name: '과진4동', address: '효빈광역시 서구 과진동 21', phone: '079-612-3904', url: '과진4동.html' },
+            { district: '서구', name: '과진5동', address: '효빈광역시 서구 과진동 412-8', phone: '079-693-7741', url: '과진5동.html' },
+            { district: '서구', name: '과진6동', address: '효빈광역시 서구 과진동 76', phone: '079-641-2055', url: '과진6동.html' },
+            { district: '서구', name: '과진7동', address: '효빈광역시 서구 과진동 189-1', phone: '079-678-5532', url: '과진7동.html' },
+            { district: '서구', name: '당선1동', address: '효빈광역시 서구 당선동 53', phone: '079-635-1108', url: '당선1동.html' },
+            { district: '서구', name: '당선2동', address: '효빈광역시 서구 당선동 227-4', phone: '079-614-9920', url: '당선2동.html' },
+            { district: '서구', name: '당선3동', address: '효빈광역시 서구 당선동 110', phone: '079-662-4813', url: '당선3동.html' },
+            { district: '서구', name: '당선4동', address: '효빈광역시 서구 당선동 385-2', phone: '079-651-7049', url: '당선4동.html' },
+            { district: '서구', name: '북성동', address: '효빈광역시 서구 북문동2가 40', phone: '079-684-2256', url: '북성동.html' },
+            { district: '서구', name: '사복1동', address: '효빈광역시 서구 사복동 166-7', phone: '079-621-8890', url: '사복1동.html' },
+            { district: '서구', name: '사복2동', address: '효빈광역시 서구 사복동 8', phone: '079-695-3142', url: '사복2동.html' },
+            { district: '서구', name: '청덕1동', address: '효빈광역시 서구 청덕동 291-3', phone: '079-633-5011', url: '청덕1동.html' },
+            { district: '서구', name: '청덕2동', address: '효빈광역시 서구 청덕동 65', phone: '079-674-8293', url: '청덕2동.html' },
+            { district: '서구', name: '청덕3동', address: '효빈광역시 서구 청덕동 104-1', phone: '079-618-4457', url: '청덕3동.html' },
+
+            // 안천구 (21개소)
+            { district: '안천구', name: '뇌전동', address: '효빈광역시 안천구 뇌전동 33', phone: '079-942-1598', url: '뇌전동.html' },
+            { district: '안천구', name: '당가1동', address: '효빈광역시 안천구 당가동 152-8', phone: '079-981-4033', url: '당가1동.html' },
+            { district: '안천구', name: '당가2동', address: '효빈광역시 안천구 당가동 70', phone: '079-955-8821', url: '당가2동.html' },
+            { district: '안천구', name: '백합동', address: '효빈광역시 안천구 백합동 218-5', phone: '079-912-3914', url: '백합동.html' },
+            { district: '안천구', name: '북택동', address: '효빈광역시 안천구 북택동 11', phone: '079-993-7750', url: '북택동.html' },
+            { district: '안천구', name: '성저동', address: '효빈광역시 안천구 성저동 50', phone: '079-921-8801', url: '성저동.html' },
+            { district: '안천구', name: '악부동', address: '효빈광역시 안천구 악부동 188-3', phone: '079-995-3153', url: '악부동.html' },
+            { district: '안천구', name: '안천1동', address: '효빈광역시 안천구 안천동 405-2', phone: '079-941-2066', url: '안천1동.html' },
+            { district: '안천구', name: '안천2동', address: '효빈광역시 안천구 안천동 88', phone: '079-978-5541', url: '안천2동.html' },
+            { district: '안천구', name: '안천3동', address: '효빈광역시 안천구 안천동 173-1', phone: '079-935-1119', url: '안천3동.html' },
+            { district: '안천구', name: '안천4동', address: '효빈광역시 안천구 안천동 22', phone: '079-914-9931', url: '안천4동.html' },
+            { district: '안천구', name: '안천5동', address: '효빈광역시 안천구 안천동 310-4', phone: '079-962-4824', url: '안천5동.html' },
+            { district: '안천구', name: '안천6동', address: '효빈광역시 안천구 안천동 95', phone: '079-951-7058', url: '안천6동.html' },
+            { district: '안천구', name: '안천7동', address: '효빈광역시 안천구 안천동 427-6', phone: '079-984-2267', url: '안천7동.html' },
+            { district: '안천구', name: '이십기동', address: '효빈광역시 안천구 이십기동 6', phone: '079-933-5022', url: '이십기동.html' },
+            { district: '안천구', name: '이자1동', address: '효빈광역시 안천구 이자동 254-1', phone: '079-974-8304', url: '이자1동.html' },
+            { district: '안천구', name: '이자2동', address: '효빈광역시 안천구 이자동 81', phone: '079-918-4468', url: '이자2동.html' },
+            { district: '안천구', name: '이자3동', address: '효빈광역시 안천구 이자동 119-5', phone: '079-952-1927', url: '이자3동.html' },
+            { district: '안천구', name: '이자4동', address: '효빈광역시 안천구 이자동 302', phone: '079-985-6610', url: '이자4동.html' },
+            { district: '안천구', name: '창건동', address: '효빈광역시 안천구 창건동 47-2', phone: '079-924-3085', url: '창건동.html' },
+            { district: '안천구', name: '칠채동', address: '효빈광역시 안천구 능릉동 165', phone: '079-961-8842', url: '칠채동.html' },
+
+            // 중구 (11개소)
+            { district: '중구', name: '고도동', address: '효빈광역시 중구 우이동 28-4', phone: '079-242-1598', url: '고도동.html' },
+            { district: '중구', name: '궁영동', address: '효빈광역시 중구 영동1가 110', phone: '079-281-4033', url: '궁영동.html' },
+            { district: '중구', name: '내조1동', address: '효빈광역시 중구 내조동 305-1', phone: '079-255-8821', url: '내조1동.html' },
+            { district: '중구', name: '내조2동', address: '효빈광역시 중구 내조동 72', phone: '079-212-3914', url: '내조2동.html' },
+            { district: '중구', name: '내항동', address: '효빈광역시 중구 내항동 144-8', phone: '079-293-7750', url: '내항동.html' },
+            { district: '중구', name: '신덕동', address: '효빈광역시 중구 신덕동 55', phone: '079-241-2066', url: '신덕동.html' },
+            { district: '중구', name: '약맥동', address: '효빈광역시 중구 목동 219-3', phone: '079-278-5541', url: '약맥동.html' },
+            { district: '중구', name: '유내동', address: '효빈광역시 중구 유내동 90', phone: '079-235-1119', url: '유내동.html' },
+            { district: '중구', name: '조유동', address: '효빈광역시 중구 조유동5가 411-2', phone: '079-214-9931', url: '조유동.html' },
+            { district: '중구', name: '중앙동', address: '효빈광역시 중구 중앙로3가 18', phone: '079-262-4824', url: '중앙동.html' },
+            { district: '중구', name: '중정동', address: '효빈광역시 중구 완동1가 277-5', phone: '079-251-7058', url: '중정동.html' },
+
+            // 동구 (14개소)
+            { district: '동구', name: '덕현1동', address: '효빈광역시 동구 덕현동 102-1', phone: '079-221-8801', url: '덕현1동.html' },
+            { district: '동구', name: '덕현2동', address: '효빈광역시 동구 덕현동 45', phone: '079-295-3153', url: '덕현2동.html' },
+            { district: '동구', name: '덕현3동', address: '효빈광역시 동구 덕현동 318-6', phone: '079-233-5022', url: '덕현3동.html' },
+            { district: '동구', name: '덕현4동', address: '효빈광역시 동구 덕현동 17', phone: '079-274-8304', url: '덕현4동.html' },
+            { district: '동구', name: '덕현5동', address: '효빈광역시 동구 덕현동 250-3', phone: '079-218-4468', url: '덕현5동.html' },
+            { district: '동구', name: '덕현6동', address: '효빈광역시 동구 덕현동 99', phone: '079-252-1927', url: '덕현6동.html' },
+            { district: '동구', name: '덕현7동', address: '효빈광역시 동구 덕현동 411-8', phone: '079-285-6610', url: '덕현7동.html' },
+            { district: '동구', name: '덕현9동', address: '효빈광역시 동구 덕현동 22', phone: '079-224-3085', url: '덕현9동.html' },
+            { district: '동구', name: '덕현11동', address: '효빈광역시 동구 덕현동 83', phone: '079-284-2267', url: '덕현11동.html' },
+            { district: '동구', name: '사가당1동', address: '효빈광역시 동구 사가당동 135-4', phone: '079-261-8842', url: '사가당1동.html' },
+            { district: '동구', name: '사가당2동', address: '효빈광역시 동구 사가당동 60', phone: '079-242-9915', url: '사가당2동.html' },
+            { district: '동구', name: '사가당3동', address: '효빈광역시 동구 사가당동 288-1', phone: '079-281-5534', url: '사가당3동.html' },
+            { district: '동구', name: '사가당4동', address: '효빈광역시 동구 사가당동 14', phone: '079-255-2089', url: '사가당4동.html' },
+            { district: '동구', name: '전천동', address: '효빈광역시 동구 전천동 170-5', phone: '079-212-7741', url: '전천동.html' },
+
+            // 창전구 (15개소)
+            { district: '창전구', name: '광정동', address: '효빈광역시 창전구 광정동 82', phone: '079-293-1102', url: '광정동.html' },
+            { district: '창전구', name: '동곡동', address: '효빈광역시 창전구 동곡동 309-2', phone: '079-241-8856', url: '동곡동.html' },
+            { district: '창전구', name: '쌍엽1동', address: '효빈광역시 창전구 쌍엽동 250-1', phone: '079-893-7750', url: '쌍엽1동.html' },
+            { district: '창전구', name: '쌍엽2동', address: '효빈광역시 창전구 쌍엽동 63', phone: '079-841-2066', url: '쌍엽2동.html' },
+            { district: '창전구', name: '유류동', address: '효빈광역시 창전구 유류동 314-4', phone: '079-878-5541', url: '유류동.html' },
+            { district: '창전구', name: '진백동', address: '효빈광역시 창전구 진백동 55', phone: '079-278-3924', url: '진백동.html' },
+            { district: '창전구', name: '창전1동', address: '효빈광역시 창전구 창전동 18', phone: '079-835-1119', url: '창전1동.html' },
+            { district: '창전구', name: '창전2동', address: '효빈광역시 창전구 창전동 199-2', phone: '079-814-9931', url: '창전2동.html' },
+            { district: '창전구', name: '창전3동', address: '효빈광역시 창전구 창전동 77', phone: '079-862-4824', url: '창전3동.html' },
+            { district: '창전구', name: '창전4동', address: '효빈광역시 창전구 창전동 405-6', phone: '079-851-7058', url: '창전4동.html' },
+            { district: '창전구', name: '창전5동', address: '효빈광역시 창전구 창전동 421-3', phone: '079-842-1598', url: '창전5동.html' },
+            { district: '창전구', name: '칠심1동', address: '효빈광역시 창전구 칠심동 90', phone: '079-881-4033', url: '칠심1동.html' },
+            { district: '창전구', name: '칠심2동', address: '효빈광역시 창전구 칠심동 115-8', phone: '079-855-8821', url: '칠심2동.html' },
+            { district: '창전구', name: '칠심3동', address: '효빈광역시 창전구 칠심동 27', phone: '079-812-3914', url: '칠심3동.html' },
+            { district: '창전구', name: '팔조동', address: '효빈광역시 창전구 팔조동 32', phone: '079-884-2267', url: '팔조동.html' },
+
+            // 청엽구 (16개소)
+            { district: '청엽구', name: '동리동', address: '효빈광역시 청엽구 동리동 401-7', phone: '079-761-8842', url: '동리동.html' },
+            { district: '청엽구', name: '등동', address: '효빈광역시 청엽구 등동 50', phone: '079-742-9915', url: '등동.html' },
+            { district: '청엽구', name: '마잡1동', address: '효빈광역시 청엽구 마잡동 173-2', phone: '079-781-5534', url: '마잡1동.html' },
+            { district: '청엽구', name: '마잡2동', address: '효빈광역시 청엽구 마잡동 8', phone: '079-755-2089', url: '마잡2동.html' },
+            { district: '청엽구', name: '비마리동', address: '효빈광역시 청엽구 비마동 255-9', phone: '079-712-7741', url: '비마리동.html' },
+            { district: '청엽구', name: '우전1동', address: '효빈광역시 청엽구 우전동 155-3', phone: '079-721-8801', url: '우전1동.html' },
+            { district: '청엽구', name: '우전2동', address: '효빈광역시 청엽구 우전동 80', phone: '079-795-3153', url: '우전2동.html' },
+            { district: '청엽구', name: '우전3동', address: '효빈광역시 청엽구 우전동 210-5', phone: '079-733-5022', url: '우전3동.html' },
+            { district: '청엽구', name: '우택동', address: '효빈광역시 청엽구 우택동 14', phone: '079-774-8304', url: '우택동.html' },
+            { district: '청엽구', name: '입빈동', address: '효빈광역시 청엽구 입동3가 62', phone: '079-793-1102', url: '입빈동.html' },
+            { district: '청엽구', name: '청엽1동', address: '효빈광역시 청엽구 청엽동 332-1', phone: '079-718-4468', url: '청엽1동.html' },
+            { district: '청엽구', name: '청엽2동', address: '효빈광역시 청엽구 청엽동 91', phone: '079-752-1927', url: '청엽2동.html' },
+            { district: '청엽구', name: '청엽3동', address: '효빈광역시 청엽구 청엽동 188-4', phone: '079-785-6610', url: '청엽3동.html' },
+            { district: '청엽구', name: '청엽4동', address: '효빈광역시 청엽구 청엽동 25', phone: '079-724-3085', url: '청엽4동.html' },
+            { district: '청엽구', name: '청엽5동', address: '효빈광역시 청엽구 청엽동 114-5', phone: '079-741-8856', url: '청엽5동.html' },
+            { district: '청엽구', name: '청엽6동', address: '효빈광역시 청엽구 청엽동 30', phone: '079-778-3924', url: '청엽6동.html' },
+
+            // 탄성군 (10개소)
+            { district: '탄성군', name: '고해읍', address: '효빈광역시 탄성군 고해읍 고해리 142-3', phone: '079-142-1598', url: '고해읍.html' },
+            { district: '탄성군', name: '도변읍', address: '효빈광역시 탄성군 도변읍 도변리 88', phone: '079-181-4033', url: '도변읍.html' },
+            { district: '탄성군', name: '도변읍 앵내출장소', address: '효빈광역시 탄성군 도변읍 앵내리 215-1', phone: '079-155-8821', url: '도변읍_앵내출장소.html' },
+            { district: '탄성군', name: '도향면', address: '효빈광역시 탄성군 도향면 분음리 74', phone: '079-112-3914', url: '도향면.html' },
+            { district: '탄성군', name: '서목읍', address: '효빈광역시 탄성군 서목읍 서목리 301-8', phone: '079-193-7750', url: '서목읍.html' },
+            { district: '탄성군', name: '소원면', address: '효빈광역시 탄성군 소원면 소원리 19', phone: '079-141-2066', url: '소원면.html' },
+            { district: '탄성군', name: '야진읍', address: '효빈광역시 탄성군 야진읍 야진리 452-2', phone: '079-178-5541', url: '야진읍.html' },
+            { district: '탄성군', name: '정근면', address: '효빈광역시 탄성군 정근면 층부리 91', phone: '079-135-1119', url: '정근면.html' },
+            { district: '탄성군', name: '탄성읍', address: '효빈광역시 탄성군 탄성읍 탄성리 133-5', phone: '079-114-9931', url: '탄성읍.html' },
+            { district: '탄성군', name: '흑택면', address: '효빈광역시 탄성군 흑택면 흑택리 120', phone: '079-162-4824', url: '흑택면.html' }
+        ];
+
+        let currentFilter = '전체';
+
+        function renderTable(data) {
+            const tbody = document.getElementById('center-tbody');
+            tbody.innerHTML = '';
+            
+            if(data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-slate-500">등록된 주민자치센터가 없습니다.</td></tr>';
+                document.getElementById('center-count').innerText = '0';
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-bold text-slate-700">${item.district}</td>
+                    <td class="font-bold text-hyobin-blue">${item.name}</td>
+                    <td class="text-left text-sm">${item.address}</td>
+                    <td class="text-sm tracking-wide font-medium">${item.phone}</td>
+                    <td>
+                        <a href="${item.url}" onclick="alert('해당 동 주민자치센터 홈페이지로 이동합니다.'); return false;" class="icon-btn">
+                            <i data-lucide="external-link" class="w-4 h-4 mr-1"></i> 바로가기
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('center-count').innerText = data.length;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        window.filterCenters = function(district) {
+            currentFilter = district;
+            
+            // 버튼 활성화 스타일 변경
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.innerText.trim() === district || (district === '전체' && btn.innerText.trim() === '전체보기')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 데이터 필터링
+            if (district === '전체') {
+                renderTable(centersData);
+            } else {
+                const filtered = centersData.filter(item => item.district === district);
+                renderTable(filtered);
+            }
+        }
+
+        // 초기 렌더링
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTable(centersData);
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>적극행정 - 효빈광역시 소통·참여</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- 커스텀 스타일 (공통) -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('이미지/시정소식배경.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* 소제목 (Bullet Title) */
+        .bullet-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        .bullet-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #005bac;
+            border-radius: 50%;
+        }
+
+        /* 관공서 스타일 데이터 표 */
+        .data-table-wrap { overflow-x: auto; margin-bottom: 2rem; border-top: 2px solid #1a365d; }
+        .data-table { width: 100%; border-collapse: collapse; background: white; text-align: center; }
+        .data-table th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 0.95rem; padding: 1rem; border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-size: 0.95rem; color: #475569; }
+        .data-table td:last-child { border-right: none; }
+        .data-table td.text-left { text-align: left; }
+        .data-table tbody tr:hover td { background-color: #f1f5f9; }
+
+        /* 비전 맵 (도식화) 스타일 */
+        .vision-box {
+            background: linear-gradient(135deg, #005bac 0%, #1a365d 100%);
+            color: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 프로세스 화살표 스타일 */
+        .process-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+        }
+        @media (max-width: 768px) {
+            .process-arrow { transform: rotate(90deg); margin: 1rem 0; }
+        }
+
+        /* 탭 버튼 스타일 */
+        .tab-btn { position: relative; color: #64748b; font-weight: 500; transition: all 0.2s; }
+        .tab-btn:hover { color: #005bac; }
+        .tab-btn.active { color: #005bac; font-weight: 800; }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: #005bac;
+        }
+
+        /* 탭 콘텐츠 숨김 */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-gray-800 antialiased bg-slate-50 flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <!-- 공통 헤더 렌더링 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 (서브 비주얼) -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden mt-16 lg:mt-28">
+        <div class="relative z-10 text-center px-4 w-full mt-4">
+            <h1 class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">소통·참여</h1>
+            <p class="text-lg md:text-xl font-light opacity-90">시민의 힘으로 도약하는 혁신, 효빈의 내일을 바꿉니다.</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0">시민 광장</h2>
+                <ul class="lnb-depth1">
+                    <li><a href="참여광장.html">참여광장 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민의소리.html">시민의 소리 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="칭찬합니다.html">칭찬합니다(효빈온) <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="구인구직참여.html">구인구직참여 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="적극행정.html">적극행정 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="주민자치.html">주민자치 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="고향사랑기부제.html">고향사랑기부제 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="시민제안정책포럼.html">시민제안정책포럼 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0 space-y-8">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 광장</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold">적극행정</span>
+            </div>
+
+            <!-- Page Title -->
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2 content-title">적극행정</h2>
+                <p class="text-slate-600">불합리한 규제를 타파하고 시민의 권익을 향상시키는 효빈광역시의 능동적인 행정 제도를 안내합니다.</p>
+            </div>
+
+            <!-- 탭 메뉴 -->
+            <div class="flex border-b border-slate-300 w-full mt-6">
+                <button onclick="changeTab('intro')" id="tab-intro" class="tab-btn active w-1/3 py-3.5 text-center text-[15px] sm:text-base">제도 안내</button>
+                <button onclick="changeTab('cases')" id="tab-cases" class="tab-btn w-1/3 py-3.5 text-center text-[15px] sm:text-base">우수사례</button>
+                <button onclick="changeTab('report')" id="tab-report" class="tab-btn w-1/3 py-3.5 text-center text-[15px] sm:text-base">신고·추천</button>
+            </div>
+
+            <!-- [탭 1] 제도 안내 -->
+            <div id="content-intro" class="tab-content active space-y-10">
+                
+                <!-- 적극행정이란? (정의 박스) -->
+                <div class="bg-white border border-blue-100 rounded-2xl p-8 shadow-sm flex flex-col md:flex-row gap-6 items-center relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-5">
+                        <i data-lucide="lightbulb" class="w-64 h-64 text-hyobin-blue"></i>
+                    </div>
+                    <div class="w-16 h-16 bg-blue-50 text-hyobin-blue rounded-full flex items-center justify-center shrink-0 z-10">
+                        <i data-lucide="sparkles" class="w-8 h-8"></i>
+                    </div>
+                    <div class="z-10">
+                        <h3 class="text-xl font-black text-slate-800 mb-3">적극행정이란?</h3>
+                        <p class="text-slate-600 leading-relaxed text-[15px]">
+                            공무원이 <strong>불합리한 규제의 개선 등 공공의 이익을 위하여 창의성과 전문성을 바탕으로 적극적으로 업무를 처리하는 행위</strong>를 말합니다. 
+                            효빈광역시는 전임 행정(윤대환 전 시장 체제)의 관행과 탁상행정을 타파하고, 박효빈 시장을 필두로 오직 시민의 이동권과 생활 권익 향상을 위해 한계 없는 행정 혁신을 실천하고 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 비전 및 핵심 전략 도식화 -->
+                <div>
+                    <h3 class="bullet-title">2026 효빈광역시 적극행정 추진 비전</h3>
+                    <div class="vision-box mb-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-20">
+                            <i data-lucide="compass" class="w-32 h-32"></i>
+                        </div>
+                        <h4 class="text-blue-200 font-bold mb-2">VISION 2026</h4>
+                        <h2 class="text-2xl md:text-3xl font-black mb-1">시민의 힘으로 도약하는 효빈,</h2>
+                        <h2 class="text-2xl md:text-3xl font-black text-yellow-300">적극행정으로 체감하는 혁신!</h2>
+                    </div>
+
+                    <!-- 4대 추진 과제 테이블 -->
+                    <div class="data-table-wrap">
+                        <table class="data-table">
+                            <colgroup>
+                                <col style="width: 20%">
+                                <col style="width: 40%">
+                                <col style="width: 40%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>분야</th>
+                                    <th>추진 과제</th>
+                                    <th>주요 내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" class="font-bold bg-slate-50 border-b border-e2e8f0">적극행정<br>문화 조성</td>
+                                    <td class="text-left font-bold text-slate-800">1. 적극행정 공무원 우대 강화</td>
+                                    <td class="text-left">
+                                        - 적극행정 우수공무원 선발 및 특별승진/승급 부여<br>
+                                        - 성과상여금 최고등급 부여 및 포상금 확대 적용
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left font-bold text-slate-800">2. 적극행정 공무원 보호 및 지원</td>
+                                    <td class="text-left">
+                                        - <strong>사전컨설팅 감사 제도</strong> 상시 운영<br>
+                                        - 적극행정 면책 제도 운영 및 소송 비용 지원
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2" class="font-bold bg-slate-50">시민 체감<br>혁신 창출</td>
+                                    <td class="text-left font-bold text-slate-800">3. 소극행정 예방 및 혁파</td>
+                                    <td class="text-left">
+                                        - 소극행정 신고센터 상시 운영 (국민신문고 연계)<br>
+                                        - 복지부동, 선례 답습 등 시민 불편 야기 관행 엄중 문책
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left font-bold text-slate-800">4. 적극행정 참여 및 소통 강화</td>
+                                    <td class="text-left">
+                                        - 시민제안정책포럼 연계 시민 참여형 과제 발굴<br>
+                                        - 애니메이션 축제(HAF) 등 민관 협력 거버넌스 적극 구축
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 핵심 제도 절차 안내 -->
+                <div class="mt-12">
+                    <h3 class="bullet-title">핵심 지원 제도 절차</h3>
+                    
+                    <!-- 사전컨설팅 감사 -->
+                    <div class="mb-10">
+                        <h4 class="font-bold text-lg text-hyobin-dark mb-4 flex items-center">
+                            <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-hyobin-blue"></i> 
+                            사전컨설팅 감사 제도
+                        </h4>
+                        <p class="text-sm text-slate-600 mb-4">공무원이 인가·허가 등 규제 관련 업무를 적극적으로 추진하기 곤란한 경우, 감사 부서에 사전 컨설팅을 신청하여 그 의견대로 업무를 처리하면 면책해 주는 제도입니다.</p>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 p-6 bg-white border border-slate-200 rounded-xl shadow-sm text-center">
+                            <div class="flex-1 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">1</div>
+                                <h5 class="font-bold text-slate-800 mb-1">컨설팅 신청</h5>
+                                <p class="text-xs text-slate-500">담당 부서 &rarr; 감사위원회</p>
+                            </div>
+                            <div class="process-arrow"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+                            <div class="flex-1 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">2</div>
+                                <h5 class="font-bold text-slate-800 mb-1">내용 검토 및 위원회</h5>
+                                <p class="text-xs text-slate-500">법률 자문 및 적극행정위원회</p>
+                            </div>
+                            <div class="process-arrow"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+                            <div class="flex-1 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">3</div>
+                                <h5 class="font-bold text-slate-800 mb-1">의견 통보</h5>
+                                <p class="text-xs text-slate-500">컨설팅 결과 및 대안 제시</p>
+                            </div>
+                            <div class="process-arrow"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+                            <div class="flex-1 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                <div class="w-10 h-10 bg-hyobin-blue text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold"><i data-lucide="check" class="w-5 h-5"></i></div>
+                                <h5 class="font-bold text-hyobin-blue mb-1">업무 처리 및 면책</h5>
+                                <p class="text-xs text-blue-600">의견대로 처리 시 감사 면제</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- [탭 2] 우수사례 -->
+            <div id="content-cases" class="tab-content space-y-8">
+                <h3 class="bullet-title">효빈광역시 적극행정 주요 우수사례</h3>
+                <p class="text-slate-600 mb-6 text-sm">기존의 관행을 깨고, 부서 간 장벽을 허물어 시민의 불편을 해소한 효빈시 공직자들의 창의적인 행정 실천 사례입니다.</p>
+
+                <!-- 사례 1: 대중교통 (트램) -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="bg-[#FF8899] px-6 py-4 flex justify-between items-center text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-white/30 px-2 py-1 rounded text-xs font-bold text-white">교통·관광</span>
+                            <h4 class="font-bold text-lg text-white drop-shadow-sm">7호선(노면전차) 친환경 부활 및 글로벌 IP 홍보대사 위촉</h4>
+                        </div>
+                        <i data-lucide="tram-front" class="w-6 h-6 text-white opacity-90"></i>
+                    </div>
+                    <div class="p-6 text-[15px] text-slate-700 leading-relaxed bg-slate-50/50">
+                        <p class="mb-3"><strong>[문제 상황]</strong> 전임 시장(윤대환)의 일방적인 전차 폐지 정책으로 인해 구도심 교통망이 단절되고, 상권이 급격히 붕괴될 위기에 처했습니다. 철도안전법 등 기존 규제로 인해 즉각적인 복구가 어려운 상황이었습니다.</p>
+                        <p class="mb-3"><strong>[적극행정 실천]</strong> 박효빈 시장 취임 직후, 대중교통혁신TF는 국토부와 십수 차례 협의를 거쳐 기존 폐철도 부지를 적극 활용하는 '규제 샌드박스 특례'를 이끌어냈습니다. 이를 통해 <span class="text-[#FF8899] font-bold">분홍색 7호선</span>을 친환경 노면전차(트램)로 성공적으로 부활시켰습니다.</p>
+                        <p><strong>[시민 체감]</strong> 나아가 조례를 유연하게 해석하여 글로벌 애니메이션 IP인 '러브라이브! 니지가사키 학원 스쿨 아이돌 동호회'를 7호선 명예 홍보대사로 위촉, 국내외 성지순례 관광객을 유치하며 구도심 상권 매출을 전년 대비 180% 상승시키는 기적을 만들었습니다.</p>
+                    </div>
+                </div>
+
+                <!-- 사례 2: 버스 준공영제 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="bg-[#005bac] px-6 py-4 flex justify-between items-center text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold">민생·제도</span>
+                            <h4 class="font-bold text-lg">버스업체 횡포 근절 및 3세대 완전 준공영제 조기 도입</h4>
+                        </div>
+                        <i data-lucide="bus" class="w-6 h-6 opacity-80"></i>
+                    </div>
+                    <div class="p-6 text-[15px] text-slate-700 leading-relaxed bg-slate-50/50">
+                        <p class="mb-3"><strong>[문제 상황]</strong> 과거 일부 버스 회사들의 독과점 횡포와 무단 결행, 잦은 노선 변경으로 인해 시민들의 출퇴근 이동권이 심각하게 침해받고 있었습니다.</p>
+                        <p class="mb-3"><strong>[적극행정 실천]</strong> 교통행정과는 시민 협의체와 연대하여 민간 업체의 재무 구조를 투명하게 감사했습니다. 업체들의 행정소송 압박이 있었으나, '적극행정 지원 위원회'를 열어 담당 공무원을 보호(면책)하며 시내버스 공공성 강화 조례를 강행 통과시켰습니다.</p>
+                        <p><strong>[시민 체감]</strong> 노선을 전면 개편하고, 간선(<span style="color:#01B7ED; font-weight:bold;">파랑</span>), 순환(<span style="color:#E7D600; font-weight:bold;">노랑</span>), 지선(<span style="color:#37B484; font-weight:bold;">초록</span>), 광역(<span style="color:#485EC6; font-weight:bold;">진파랑</span>), 좌석(<span style="color:#FF5800; font-weight:bold;">주황</span>), 마을(<span style="color:#A664A0; font-weight:bold;">자주</span>), 공항(<span style="color:#84C36E; font-weight:bold;">연두</span>), 시티투어(<span style="color:#7777AA; font-weight:bold;">보라</span>), 급행(<span style="color:#D81C2F; font-weight:bold;">빨강</span>) 등 9개 기능별 고유 도색을 전면 적용한 3세대 준공영제를 정착시켰습니다. 정시성이 획기적으로 향상되어 대중교통 만족도 전국 1위를 달성했습니다.</p>
+                    </div>
+                </div>
+
+                <!-- 사례 3: 도시재생 (L-Project) -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="bg-[#10B981] px-6 py-4 flex justify-between items-center text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold">도시재생</span>
+                            <h4 class="font-bold text-lg">L-Project: 당가동 파스텔블루 거리 상권 기적의 부활</h4>
+                        </div>
+                        <i data-lucide="store" class="w-6 h-6 opacity-80"></i>
+                    </div>
+                    <div class="p-6 text-[15px] text-slate-700 leading-relaxed bg-slate-50/50">
+                        <p class="mb-3"><strong>[문제 상황]</strong> 안천구 당가동 일대는 빈 점포가 늘어나며 슬럼화가 진행 중이었습니다. 상인들은 상권 활성화를 요구했으나, 구도심 지구단위계획 규제에 묶여 테마 거리 조성이 지연되고 있었습니다.</p>
+                        <p class="mb-3"><strong>[적극행정 실천]</strong> 도시재생과와 위생과는 사전컨설팅 감사를 통해 건축물 용도변경 절차를 간소화하고, 옥외 영업 규제를 한시적으로 유예하는 '팝업 존(Pop-up Zone)' 특례를 신설했습니다.</p>
+                        <p><strong>[시민 체감]</strong> 이를 바탕으로 'BanG Dream!(뱅드림!)'의 인기 밴드 'Pastel*Palettes'와 공식 콜라보레이션을 체결, 거리를 온통 파스텔 톤으로 물들이는 <strong class="text-emerald-600">L-Project</strong>를 성공시켰습니다. 굿즈샵, 콜라보 카페가 줄지어 입점하며 청년 유동 인구가 300% 증가했습니다.</p>
+                    </div>
+                </div>
+
+                <!-- 사례 4: 문화 행정 (HAF) -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="bg-amber-500 px-6 py-4 flex justify-between items-center text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold">문화·안전</span>
+                            <h4 class="font-bold text-lg">HAF(효빈 애니메이션 페스티벌) 원스톱 행정 지원 패스트트랙</h4>
+                        </div>
+                        <i data-lucide="party-popper" class="w-6 h-6 opacity-80"></i>
+                    </div>
+                    <div class="p-6 text-[15px] text-slate-700 leading-relaxed bg-slate-50/50">
+                        <p class="mb-3"><strong>[문제 상황]</strong> 매년 여름 개최되는 서브컬처 대축제 HAF 개최 시, 도로 점용, 야외 무대 가설, 인파 밀집에 따른 안전 관리 인허가 부서가 5개 구청(중/동/서/남/북구) 및 여러 부서로 분산되어 주최 측의 애로사항이 컸습니다.</p>
+                        <p class="mb-3"><strong>[적극행정 실천]</strong> 문화관광과를 컨트롤타워로 삼아 효빈경찰청, 소방본부, 도로교통과가 모두 참여하는 '합동 원스톱 인허가 패스트트랙 창구'를 축제 3개월 전부터 선제적으로 가동했습니다.</p>
+                        <p><strong>[시민 체감]</strong> 행정 처리 기간을 기존 45일에서 10일로 단축했으며, 야간 코스프레 퍼레이드 시 완벽한 폴리스 라인을 구축해 단 한 건의 안전사고 없이 8구 1군 지역 경제 전반에 막대한 부가가치를 창출했습니다.</p>
+                    </div>
+                </div>
+
+                <!-- 사례 5: 도서지역 드론 배송 -->
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center text-white">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold">혁신기술</span>
+                            <h4 class="font-bold text-lg">탄성군·안천구 도서해안지역 '스마트 드론 긴급 배송' 구축</h4>
+                        </div>
+                        <i data-lucide="package" class="w-6 h-6 opacity-80"></i>
+                    </div>
+                    <div class="p-6 text-[15px] text-slate-700 leading-relaxed bg-slate-50/50">
+                        <p class="mb-3"><strong>[문제 상황]</strong> 탄성군과 안천구의 서남해안 도서 지역 주민들은 기상 악화 시 여객선 결항으로 인해 긴급 구급약품 및 우편물 수령에 심각한 불편을 겪었습니다.</p>
+                        <p class="mb-3"><strong>[적극행정 실천]</strong> 스마트도시과 담당 공무원은 비행 금지 구역 관련 규제를 풀기 위해 군부대 및 항공청을 직접 방문해 설득했습니다. 또한 민간 드론 업체와의 협약을 주도하여 예산을 절감하며 실증 사업을 통과시켰습니다.</p>
+                        <p><strong>[시민 체감]</strong> 배에 의존하던 긴급 물류망을 하늘길로 전환, 의약품 배송 시간을 120분에서 15분으로 단축하여 도서 지역 시민들의 생명권과 생활 편의를 크게 보장했습니다.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- [탭 3] 신고 및 추천 -->
+            <div id="content-report" class="tab-content space-y-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 우수공무원 추천 -->
+                    <div class="border-2 border-blue-600 rounded-2xl p-8 bg-white text-center flex flex-col items-center hover:-translate-y-1 transition duration-300 shadow-md">
+                        <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-5">
+                            <i data-lucide="award" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 mb-3">적극행정 우수공무원 추천</h3>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                            규제 개혁, 신규 정책 발굴 등 시민의 입장에서<br>
+                            효빈시 발전에 기여한 공무원을 칭찬해 주세요.
+                        </p>
+                        <button onclick="alert('본인 인증 후 추천 게시판으로 이동합니다.')" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow hover:bg-blue-700 transition w-full md:w-auto">
+                            우수공무원 추천하기
+                        </button>
+                    </div>
+
+                    <!-- 소극행정 신고 -->
+                    <div class="border-2 border-red-500 rounded-2xl p-8 bg-white text-center flex flex-col items-center hover:-translate-y-1 transition duration-300 shadow-md">
+                        <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-5">
+                            <i data-lucide="alert-triangle" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 mb-3">소극행정 신고센터</h3>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                            복지부동, 탁상행정, 관행 답습 등<br>
+                            공무원의 소극적 업무 행태를 신고해 주세요.
+                        </p>
+                        <button onclick="alert('국민신문고 소극행정 신고센터로 연결됩니다.')" class="bg-red-500 text-white px-8 py-3 rounded-full font-bold shadow hover:bg-red-600 transition w-full md:w-auto">
+                            소극행정 신고하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 신고 기준 및 FAQ -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+                    
+                    <!-- 소극행정 유형 가이드 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center border-b pb-2">
+                            <i data-lucide="search" class="w-5 h-5 mr-2 text-hyobin-blue"></i> 소극행정 신고 대상 (유형)
+                        </h4>
+                        <ul class="space-y-4 text-[14px] text-slate-600 mt-4">
+                            <li class="flex gap-3">
+                                <span class="bg-red-100 text-red-600 font-bold px-2 py-1 rounded text-xs h-fit shrink-0">적당주의</span>
+                                <p>주어진 업무를 게을리하거나, 부서 간 책임을 떠넘겨 민원 처리를 지연시키는 행위</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-orange-100 text-orange-600 font-bold px-2 py-1 rounded text-xs h-fit shrink-0">탁상행정</span>
+                                <p>현장 확인 없이 기존 법령이나 지침만을 기계적으로 해석하여 시민의 불편을 초래하는 행위</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-yellow-100 text-yellow-700 font-bold px-2 py-1 rounded text-xs h-fit shrink-0">관행답습</span>
+                                <p>과거의 불합리한 관행(예: 윤대환 전 시장 시절의 버스 업체 감싸기 등)을 이유로 새로운 정책 도입이나 개선을 기피하는 행위</p>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-slate-200 text-slate-700 font-bold px-2 py-1 rounded text-xs h-fit shrink-0">규제남용</span>
+                                <p>권위적인 태도로 불필요한 서류를 요구하거나 불합리한 조건을 부과하는 행위</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- FAQ -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-800 mb-4 flex items-center border-b pb-2">
+                            <i data-lucide="help-circle" class="w-5 h-5 mr-2 text-hyobin-blue"></i> 자주 묻는 질문 (FAQ)
+                        </h4>
+                        <div class="space-y-3 mt-4 text-[14px]">
+                            <details class="group border border-slate-200 rounded-lg open:bg-slate-50">
+                                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-4 text-slate-700">
+                                    <span>Q. 단순 민원이나 제안도 신고 대상인가요?</span>
+                                    <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                                </summary>
+                                <div class="text-slate-600 mt-2 p-4 pt-0 leading-relaxed border-t border-slate-100">
+                                    A. 아닙니다. 부서의 정책에 대한 불만 제기, 단순 민원 접수, 새로운 정책 제안 등은 소극행정 신고 대상이 아닙니다. 이러한 내용은 <strong><a href="시민의소리.html" class="text-hyobin-blue underline">시민의 소리</a></strong> 또는 시민제안정책포럼을 이용해 주시기 바랍니다.
+                                </div>
+                            </details>
+                            <details class="group border border-slate-200 rounded-lg open:bg-slate-50">
+                                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-4 text-slate-700">
+                                    <span>Q. 신고 시 익명이 보장되나요?</span>
+                                    <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                                </summary>
+                                <div class="text-slate-600 mt-2 p-4 pt-0 leading-relaxed border-t border-slate-100">
+                                    A. 네, 신고자 및 추천자의 개인정보는 『공익신고자 보호법』 및 관련 법령에 따라 철저히 보호되며, 신고로 인한 어떠한 불이익도 받지 않도록 효빈시 차원에서 엄격히 관리하고 있습니다.
+                                </div>
+                            </details>
+                            <details class="group border border-slate-200 rounded-lg open:bg-slate-50">
+                                <summary class="flex justify-between items-center font-bold cursor-pointer list-none p-4 text-slate-700">
+                                    <span>Q. 우수공무원 포상은 어떻게 이루어지나요?</span>
+                                    <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                                </summary>
+                                <div class="text-slate-600 mt-2 p-4 pt-0 leading-relaxed border-t border-slate-100">
+                                    A. 시민과 부서장의 추천을 받은 후보자를 대상으로 '적극행정 위원회'의 심의를 거쳐 매 반기별로 선발합니다. 선발된 공무원에게는 시장 표창과 함께 특별승진, 포상금, 성과급 최고등급 등의 파격적인 인센티브가 부여됩니다.
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 및 모달 렌더링 영역 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 외부 스크립트 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        // 탭 전환 스크립트
+        function changeTab(tabId) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            // 모든 콘텐츠 숨김
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // 선택된 탭 활성화
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`content-${tabId}`).classList.add('active');
+        }
+
+        // 초기 아이콘 렌더링
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

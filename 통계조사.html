@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>효빈통계 - 통계조사 안내 | 효빈광역시 공식 홈페이지</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('효빈광역시청사배경.png') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 통계조사 개요 테이블 (DL 리스트형) */
+        .survey-info-wrap { border-top: 2px solid #1e3a8a; }
+        .survey-info-row { display: flex; border-bottom: 1px solid #e2e8f0; }
+        .survey-info-dt { width: 180px; background-color: #f8fafc; font-weight: 700; color: #334155; padding: 16px 20px; display: flex; align-items: center; border-right: 1px solid #e2e8f0; flex-shrink: 0;}
+        .survey-info-dd { flex: 1; padding: 16px 20px; color: #475569; line-height: 1.6; }
+        
+        @media (max-width: 768px) {
+            .survey-info-row { flex-direction: column; }
+            .survey-info-dt { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; }
+            .survey-info-dd { padding: 12px 16px; }
+        }
+
+        /* 탭 버튼 콘텐츠 제어 */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-grid { display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid #d1d5db; border-radius: 0.5rem; overflow: hidden; margin-bottom: 2rem; background: #f3f4f6;}
+        @media (min-width: 768px) {
+            .tab-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .tab-grid { grid-template-columns: repeat(6, 1fr); }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
+
+    <!-- 공통 헤더 영역 -->
+    <div id="common-header"></div>
+
+    <!-- 타이틀 배너 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 좌측 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="찾아오시는길.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html" class="current">통계조사</a></li>
+                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html">역대시장</a></li>
+                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 (통계조사 영역) -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈통계
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">통계조사 안내</strong>
+            </div>
+
+            <!-- 본문 타이틀 -->
+            <h2 class="text-3xl font-black text-gray-900 content-title flex flex-col sm:flex-row items-start sm:items-end justify-between gap-2">
+                <span>통계조사 안내</span>
+                <span class="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded">효빈광역시 기획조정실 통계데이터담당관</span>
+            </h2>
+
+            <!-- 데이터 분류 탭 (6가지 조사 반영) -->
+            <div class="tab-grid">
+                <button id="tab-ani" onclick="switchSurveyTab('ani')" class="py-4 text-[14px] font-bold text-white bg-purple-800 border-r border-b lg:border-b-0 border-purple-900 transition relative overflow-hidden">
+                    <span class="relative z-10">애니·서브컬처 조사</span>
+                </button>
+                <button id="tab-biz" onclick="switchSurveyTab('biz')" class="py-4 text-[14px] font-bold text-gray-600 bg-gray-100 border-r border-b lg:border-b-0 border-gray-300 hover:bg-gray-200 transition">전국사업체조사</button>
+                <button id="tab-mine" onclick="switchSurveyTab('mine')" class="py-4 text-[14px] font-bold text-gray-600 bg-gray-100 border-r md:border-r-0 lg:border-r border-b lg:border-b-0 border-gray-300 hover:bg-gray-200 transition">광업·제조업조사</button>
+                <button id="tab-social" onclick="switchSurveyTab('social')" class="py-4 text-[14px] font-bold text-gray-600 bg-gray-100 border-r border-b lg:border-b-0 border-gray-300 hover:bg-gray-200 transition">효빈사회조사</button>
+                <button id="tab-service" onclick="switchSurveyTab('service')" class="py-4 text-[14px] font-bold text-gray-600 bg-gray-100 border-r border-b md:border-b-0 border-gray-300 hover:bg-gray-200 transition">서비스업조사</button>
+                <button id="tab-trans" onclick="switchSurveyTab('trans')" class="py-4 text-[14px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border-b md:border-b-0 transition">운수업조사</button>
+            </div>
+
+            <!-- 0. 효빈 서브컬처 실태조사 콘텐츠 (효빈시 특화) -->
+            <div id="content-ani" class="tab-content active">
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-8 relative overflow-hidden">
+                    <i data-lucide="gamepad-2" class="w-32 h-32 text-purple-200 absolute right-4 top-4 opacity-50"></i>
+                    <h3 class="text-xl font-bold text-purple-900 mb-2 flex items-center gap-2 relative z-10">
+                        <i data-lucide="sparkles" class="w-6 h-6"></i> 효빈광역시 애니메이션·서브컬처 산업 실태조사
+                    </h3>
+                    <p class="text-slate-800 leading-relaxed relative z-10">
+                        효빈시의 핵심 정체성이자 성장 동력인 애니메이션 및 서브컬처 산업의 생태계와 시민들의 관련 문화 향유 실태를 정밀하게 파악하기 위한 <strong>효빈광역시만의 고유 특화 지정통계</strong>입니다.<br>
+                        현재 효빈 시민의 약 20%가 적극적 문화 소비층으로 파악되고 있으며, 이 조사 데이터를 통해 숨겨진 잠재 소비층의 비율과 경제적 파급 효과를 심층 분석하여 <strong>L-Project 추진 및 HAF(효빈 애니메이션 페스티벌) 인프라 확충의 핵심 지표</strong>로 활용합니다.
+                    </p>
+                </div>
+
+                <div class="survey-info-wrap bg-white">
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">법적 근거</div>
+                        <div class="survey-info-dd">효빈광역시 애니메이션 산업 육성 및 지원에 관한 조례 제7조 및 통계법 제18조 일반통계</div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 목적</div>
+                        <div class="survey-info-dd">
+                            - 효빈시 내 서브컬처 및 애니메이션 산업 종사자 현황 파악<br>
+                            - 시민들의 적극적 소비층(관련 콘텐츠 헤비 유저) 및 잠재적/비공개 소비층(이른바 '숨은 소비층') 규모 및 지출 실태 도출<br>
+                            - 뱅드림 콜라보 열차(도시철도 1~8호선) 및 효빈공단 내 서브컬처 테마 인프라에 대한 만족도 측정
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 주기 / 시기</div>
+                        <div class="survey-info-dd">
+                            <span class="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">매년 1회</span><br>
+                            - 실시 시기: 매년 10월 ~ 11월 중 (HAF 축제 직후 1개월간)
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 대상</div>
+                        <div class="survey-info-dd">
+                            관내 애니메이션·서브컬처 관련 사업체 및 <strong>만 12세 이상 효빈 시민, HAF 행사 방문 내외국인 관광객 표본 50,000명</strong>
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 항목</div>
+                        <div class="survey-info-dd">
+                            소비 행태(공개적 소비/비공개적 소비 여부), 주력 소비 콘텐츠(애니, 게임, 코믹스 등), 굿즈 및 행사 월평균 지출액, 선호 장르, 시내 주요 성지(랜드마크) 방문 횟수 등 총 24개 특화 항목
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 방법</div>
+                        <div class="survey-info-dd">
+                            온라인/모바일 설문조사 및 만화애니메이션의전당, 주요 지하철 역사 등 거점 대면 면접 조사 병행
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <a href="서브컬쳐통계.html" class="bg-purple-800 text-white font-bold px-8 py-3 rounded-md hover:bg-purple-900 transition shadow-sm flex items-center gap-2">
+                        애니메이션·서브컬처 실태조사 결과 보러가기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 1. 전국사업체조사 콘텐츠 -->
+            <div id="content-biz" class="tab-content">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="building" class="w-6 h-6"></i> 전국사업체조사 (효빈광역시)
+                    </h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        전국사업체조사는 효빈시 내에서 산업활동을 수행하고 있는 모든 사업체의 지역별 분포 및 고용 구조를 파악하기 위해 매년 실시되는 국가 기본 통계조사입니다.<br>
+                        우리 시 경제 정책 수립, 170조 원 규모의 지역내총생산(GRDP) 추계, 학술 연구 등의 기초자료로 널리 활용됩니다.
+                    </p>
+                </div>
+
+                <div class="survey-info-wrap bg-white">
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">법적 근거</div>
+                        <div class="survey-info-dd">통계법 제17조 및 제18조 규정에 의한 지정통계 (승인번호 제101037호)</div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 목적</div>
+                        <div class="survey-info-dd">
+                            - 효빈시 내 모든 사업체의 분포 및 종사자 등 고용구조 파악<br>
+                            - 소상공인 및 중소기업 지원 정책 수립의 기초자료 제공<br>
+                            - 사업체 및 기업체 관련 표본 통계조사의 모집단 명부 제공
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 주기 / 시기</div>
+                        <div class="survey-info-dd">
+                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">매년 1회</span><br>
+                            - 실시 시기: 매년 2월 ~ 3월 중 (약 25일간)
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 대상</div>
+                        <div class="survey-info-dd">
+                            조사기준일(전년도 12월 31일) 현재 효빈광역시 관내(8개 구·1개 군)에서 산업활동을 수행하고 있는 <strong class="text-emerald-700">종사자 1인 이상의 모든 사업체 (약 32만여 개)</strong>
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 항목</div>
+                        <div class="survey-info-dd">
+                            사업체명, 대표자명, 소재지, 창설연월, 조직형태, 사업의 종류(주요 영업 활동), 종사자 수, 연간 매출액, 프랜차이즈 가입 여부 등 총 10개 공통 항목
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 방법</div>
+                        <div class="survey-info-dd">
+                            조사원이 사업체를 직접 방문하여 응답자와 면접 조사 원칙 (코로나19 등 필요 시 인터넷, 이메일, 전화 조사 등 비대면 조사 병행)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <a href="경제통계.html" class="bg-blue-800 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-900 transition shadow-sm flex items-center gap-2">
+                        사업체조사 결과(보고서) 열람하기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. 광업·제조업조사 콘텐츠 -->
+            <div id="content-mine" class="tab-content">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="factory" class="w-6 h-6"></i> 광업·제조업조사 (효빈광역시)
+                    </h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        효빈공단, 평전공단 및 도향산업단지 등 효빈시에 위치한 광업·제조업 부문에 대한 산업구조와 분포, 생산활동 실태를 파악하는 핵심 경제 통계조사입니다.<br>
+                        우리 시 2만여 개에 달하는 주요 제조 산업의 변동을 측정하여 경제 정책 및 산단 고도화 계획 수립의 기초자료로 활용됩니다.
+                    </p>
+                </div>
+
+                <div class="survey-info-wrap bg-white">
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">법적 근거</div>
+                        <div class="survey-info-dd">통계법 제17조 규정에 의한 지정통계 (승인번호 제101009호)</div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 목적</div>
+                        <div class="survey-info-dd">
+                            - 효빈시 광업 및 제조업 부문의 구조, 분포 파악<br>
+                            - 효빈공단 등 주요 산단의 거시 경제 분석 자료 제공 및 정부의 중소기업 육성 시책 마련<br>
+                            - 지역 소득 추계 및 산업 연관표 작성 기초 자료 제공
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 주기 / 시기</div>
+                        <div class="survey-info-dd">
+                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">매년 1회</span><br>
+                            - 실시 시기: 매년 6월 ~ 7월 중
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 대상</div>
+                        <div class="survey-info-dd">
+                            조사기준일(전년도 12월 31일) 현재 효빈광역시 관내에 사업장이 있는 광업, 제조업 사업체 중 <strong class="text-emerald-700">종사자 10인 이상인 사업체 (약 20,573개 사업체, 188,226명 종사 규모 대상)</strong>
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 항목</div>
+                        <div class="survey-info-dd">
+                            종사자 수, 연간 급여액, 연간 출하액(매출액), 수입액, 주요 생산비, 연말 재고액, 유형자산 연간 증감액 등 13개 항목
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 방법</div>
+                        <div class="survey-info-dd">
+                            조사원이 사업체를 직접 방문하는 면접 조사 및 기업의 자발적 인터넷 조사를 병행하여 실시
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <a href="경제통계.html" class="bg-blue-800 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-900 transition shadow-sm flex items-center gap-2">
+                        광업·제조업조사 결과 보러가기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. 효빈사회조사 콘텐츠 -->
+            <div id="content-social" class="tab-content">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="clipboard-list" class="w-6 h-6"></i> 효빈사회조사
+                    </h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        효빈 시민의 삶의 질과 관련된 주관적 의식, 사회적 관심사 및 생활 실태를 종합적이고 심층적으로 측정하는 지역 고유 조사입니다.<br>
+                        주거, 교통, 환경뿐만 아니라 지역 문화 향유 실태 등을 포괄하여 시민 맞춤형 복지 및 행정 정책 수립에 핵심적으로 반영됩니다.
+                    </p>
+                </div>
+
+                <div class="survey-info-wrap bg-white">
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">법적 근거</div>
+                        <div class="survey-info-dd">통계법 제18조에 의한 일반통계 (승인번호 제211005호)</div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 목적</div>
+                        <div class="survey-info-dd">
+                            - 효빈 시민의 삶의 수준 및 사회적 변동 양상, 주관적 웰빙 파악<br>
+                            - 시민 체감형 정책 수립 및 지역 균형 발전의 방향성 제시<br>
+                            - 시정 주요 시책에 대한 시민 여론 파악
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 주기 / 시기</div>
+                        <div class="survey-info-dd">
+                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">매년 1회</span><br>
+                            - 실시 시기: 매년 8월 ~ 9월 중 (약 20일간)
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 대상</div>
+                        <div class="survey-info-dd">
+                            효빈광역시에 거주하는 만 15세 이상 가구원 중 <strong class="text-emerald-700">통계적 기법으로 표본 추출된 약 20,000 가구</strong>
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 항목</div>
+                        <div class="survey-info-dd">
+                            가족, 보건, 교육, 노동, 소득·소비, 주거·교통, 환경, 안전, 문화·여가 등 7개 부문 60여 개 항목
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 방법</div>
+                        <div class="survey-info-dd">
+                            전문 조사원이 표본 가구를 직접 방문하여 조사표를 바탕으로 질의하는 대면 면접 조사 원칙
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <a href="효빈사회조사.html" class="bg-blue-800 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-900 transition shadow-sm flex items-center gap-2">
+                        효빈사회조사 결과 및 원시데이터 보러가기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. 서비스업조사 콘텐츠 -->
+            <div id="content-service" class="tab-content">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-6 h-6"></i> 서비스업조사 (효빈광역시)
+                    </h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        효빈시 내 서비스업(도소매, 숙박, 음식, 정보통신 및 문화콘텐츠 산업) 부문의 구조와 경영 실태를 면밀히 파악하기 위한 조사입니다.<br>
+                        특히 효빈시의 신성장 동력인 <strong>문화콘텐츠 산업 및 다핵화된 지역 상권</strong>의 규모와 성장성을 분석하는 데 귀중한 자료로 활용됩니다.
+                    </p>
+                </div>
+
+                <div class="survey-info-wrap bg-white">
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">법적 근거</div>
+                        <div class="survey-info-dd">통계법 제17조 규정에 의한 지정통계 (승인번호 제101038호)</div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 목적</div>
+                        <div class="survey-info-dd">
+                            - 효빈 지역 3차 산업(서비스업)의 구조 및 경영 실태 파악<br>
+                            - 도소매업, 숙박음식점업 등 지역 소상공인 실태 파악 및 지원 정책 입안<br>
+                            - 중앙로, 고송신도시 등 다핵 상권별 경쟁력 분석
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 주기 / 시기</div>
+                        <div class="survey-info-dd">
+                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">매년 1회</span><br>
+                            - 실시 시기: 매년 6월 중
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 대상</div>
+                        <div class="survey-info-dd">
+                            한국표준산업분류 상 도매 및 소매업, 숙박 및 음식점업, 정보통신업(콘텐츠 제작업 포함), 전문과학기술서비스업 등에 해당하는 <strong class="text-emerald-700">효빈시 내 표본 사업체</strong>
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 항목</div>
+                        <div class="survey-info-dd">
+                            사업체 일반현황, 영업수익(매출액), 영업비용, 종사자 수, 매장 면적, 프랜차이즈 가입 현황, 전자상거래 여부 등
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 방법</div>
+                        <div class="survey-info-dd">
+                            면접조사 및 인터넷/스마트폰(모바일) 기반의 전자 조사 병행
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 운수업조사 콘텐츠 -->
+            <div id="content-trans" class="tab-content">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                    <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="bus" class="w-6 h-6"></i> 운수업조사 (효빈광역시)
+                    </h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        육상, 해상, 항공을 아우르는 효빈시 운송 산업의 현황을 파악하기 위한 조사입니다.<br>
+                        <strong>도시철도 1~8호선 및 빈효선 광역전철</strong>, <span style="color:#01B7ED; font-weight:bold;">간선</span>/<span style="color:#37B484; font-weight:bold;">지선</span> 등 9개 색상으로 통합 관리되는 효빈 시내버스, 그리고 <strong>효빈국제공항</strong>과 <strong>효빈항</strong>의 수송 실적을 분석하여 대중교통 인프라 정책에 반영합니다.
+                    </p>
+                </div>
+
+                <div class="survey-info-wrap bg-white">
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">법적 근거</div>
+                        <div class="survey-info-dd">통계법 제17조 규정에 의한 지정통계 (승인번호 제101007호)</div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 목적</div>
+                        <div class="survey-info-dd">
+                            - 효빈시 관내 운수업(육상, 해상, 항공운송업 및 보관·창고업)의 경영실태 파악<br>
+                            - 대중교통(도시철도, 3세대 도색 시내버스) 및 광역 교통망(공항, 항만) 인프라 확충 정책의 객관적 지표 활용
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 주기 / 시기</div>
+                        <div class="survey-info-dd">
+                            <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">매년 1회</span><br>
+                            - 실시 시기: 매년 5월 ~ 6월 중
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 대상</div>
+                        <div class="survey-info-dd">
+                            조사기준일(전년도 12월 31일) 기준 효빈광역시에 본사 또는 주사무소를 둔 운수업 영위 기업체 및 소규모 화물·택시 운송 사업자
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 항목</div>
+                        <div class="survey-info-dd">
+                            조직형태, 종사자 수, 보유 차량/선박/항공기 대수, 운수 수입, 연간 영업비용 및 연료비 지출액 등
+                        </div>
+                    </div>
+                    <div class="survey-info-row">
+                        <div class="survey-info-dt">조사 방법</div>
+                        <div class="survey-info-dd">
+                            관할 구·군을 통한 조사원 면접 조사 및 인터넷 기반 비대면 조사
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터/모달 영역 (common121.js가 렌더링) -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="효빈광역시로고.png" onerror="this.remove()"></script>
+    <script>
+        // 아코디언 메뉴 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // 탭 제어 함수 (총 6개 탭 지원)
+        function switchSurveyTab(tab) {
+            const tabs = ['ani', 'biz', 'mine', 'social', 'service', 'trans'];
+            
+            tabs.forEach(t => {
+                const btnEl = document.getElementById('tab-' + t);
+                const contentEl = document.getElementById('content-' + t);
+                
+                if (t === tab) {
+                    // 활성화
+                    let baseClass = "py-4 text-[14px] font-bold text-white border-r md:border-b-0 border-b transition shadow-none z-10 relative";
+                    if (t === 'ani') {
+                        btnEl.className = baseClass + " bg-purple-800 border-purple-900";
+                    } else {
+                        btnEl.className = baseClass + " bg-blue-800 border-blue-900";
+                    }
+                    if (t === 'trans') btnEl.className += " col-span-2 lg:col-span-1";
+                    
+                    contentEl.classList.add('active');
+                } else {
+                    // 비활성화
+                    btnEl.className = "py-4 text-[14px] font-bold text-gray-600 bg-gray-100 border-r md:border-b-0 border-b border-gray-300 hover:bg-gray-200 transition shadow-inner" + (t==='trans'?" col-span-2 lg:col-span-1":"");
+                    contentEl.classList.remove('active');
+                }
+            });
+        }
+
+        // 초기 실행
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+    <script src="common121.js"></script>
+</body>
+</html>

@@ -27,7 +27,7 @@ const headerHTML = `
             <ul class="flex justify-between items-center text-[15px] font-bold tracking-tight whitespace-nowrap">
                 
                 <li class="group static px-3 py-4 cursor-pointer">
-                    <span class="hover:text-blue-300 transition block" onclick="location.href='소통참여.html'">소통ㆍ참여</span>
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='공지사항.html'">소통ㆍ참여</span>
                     <div class="absolute left-0 top-full w-full bg-white text-slate-800 shadow-2xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex p-6 z-50 whitespace-normal">
                         <div class="grid grid-cols-4 gap-8 w-full font-normal leading-normal">
                             <div>
@@ -122,7 +122,7 @@ const headerHTML = `
                                                     <li class="pl-2"><a href="안전건설위원회.html" class="hover:text-blue-600 block">안전건설위원회</a></li>
                                                     <li class="pl-2"><a href="도시교통위원회.html" class="hover:text-blue-600 block">도시교통위원회</a></li>
                                                     <li class="pl-2"><a href="교육위원회.html" class="hover:text-blue-600 block">교육위원회</a></li>
-                                                    <li class="pl-2"><a href="예산결산특별위원회.html" class="hover:text-blue-600 block">예산결산특별위원회</a></li>
+                                                    <li class="pl-2"><a href="예산결산예산결산특별위원회.html" class="hover:text-blue-600 block">예산결산특별위원회</a></li>
                                                 </ul>
                                             </li>
                                             <li>
@@ -555,7 +555,7 @@ const headerHTML = `
                 </li>
 
                 <li class="group static px-3 py-4 cursor-pointer">
-                    <span class="hover:text-blue-300 transition block" onclick="location.href='열린민원.html'">열린민원</span>
+                    <span class="hover:text-blue-300 transition block" onclick="location.href='민원업무안내.html'">열린민원</span>
                     <div class="absolute left-0 top-full w-full bg-white text-slate-800 shadow-2xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex p-6 z-50 whitespace-normal">
                         <div class="grid grid-cols-4 gap-8 w-full font-normal leading-normal">
                             <div>
@@ -749,13 +749,12 @@ const headerHTML = `
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">생활정보</h4>
                                 <ul class="space-y-1.5 text-[12px]">
                                     <li><a href="보건의료.html" class="hover:text-blue-600">보건의료</a></li>
-                                    <li><a href="교육도서관.html" class="hover:text-blue-600">교육도서관</a></li>
+                                    <li><a href="library.html" class="hover:text-blue-600">교육도서관</a></li>
                                     <li><a href="환경.html" class="hover:text-blue-600">환경</a></li>
                                     <li><a href="청소.html" class="hover:text-blue-600">청소</a></li>
                                     <li><a href="재난안전.html" class="hover:text-blue-600">재난안전</a></li>
                                     <li><a href="농업.html" class="hover:text-blue-600">농업</a></li>
                                     <li><a href="도시농업.html" class="hover:text-blue-600">도시농업</a></li>
-                                    <li><a href="군공항이전사업.html" class="hover:text-blue-600">군공항이전사업</a></li>
                                 </ul>
                             </div>
                             <div class="border-r border-slate-100 pr-2">
@@ -782,7 +781,7 @@ const headerHTML = `
                             <div class="border-r border-slate-100 pr-2">
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">일자리 / 경제</h4>
                                 <ul class="space-y-1.5 text-[12px]">
-                                    <li><a href="일자리센터.html" class="hover:text-blue-600">일자리센터</a></li>
+                                    <li><a href="job.html" class="hover:text-blue-600">일자리센터</a></li>
                                     <li><a href="공공근로채용.html" class="hover:text-blue-600">공공근로 채용</a></li>
                                     <li><a href="창업지원.html" class="hover:text-blue-600">창업지원</a></li>
                                     <li><a href="직업훈련.html" class="hover:text-blue-600">직업훈련</a></li>
@@ -793,10 +792,10 @@ const headerHTML = `
                             <div>
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">관광 / 문화</h4>
                                 <ul class="space-y-1.5 text-[12px]">
-                                    <li><a href="효빈관광지도.html" class="hover:text-blue-600">효빈 관광지도</a></li>
+                                    <li><a href="tour.html" class="hover:text-blue-600">효빈 관광지도</a></li>
                                     <li><a href="HAF축제.html" class="hover:text-blue-600 text-blue-800">HAF (효빈 애니 축제)</a></li>
                                     <li><a href="banner_3.html" class="hover:text-blue-600">효빈 시티투어</a></li>
-                                    <li><a href="vr랜드마크투어.html" class="hover:text-blue-600">VR 랜드마크 투어</a></li>
+                                    <li><a href="vr.html" class="hover:text-blue-600">VR 랜드마크 투어</a></li>
                                     <li><a href="문화체육관광.html" class="hover:text-blue-600">문화체육관광</a></li>
                                 </ul>
                             </div>
@@ -1514,7 +1513,7 @@ const modalsHTML = `
                                         <ul class="hidden pl-3 space-y-1 text-[10px] text-slate-400">
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">의장단 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의장실.html" class="block w-full p-1 hover:text-blue-500">- 의장실</a></li><li><a href="제1부의장실.html" class="block w-full p-1 hover:text-blue-500">- 제1부의장실</a></li><li><a href="제2부의장실.html" class="block w-full p-1 hover:text-blue-500">- 제2부의장실</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">의회사무처 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의회총무담당관.html" class="block w-full p-1 hover:text-blue-500">- 총무담당관</a></li><li><a href="의사담당관.html" class="block w-full p-1 hover:text-blue-500">- 의사담당관</a></li><li><a href="입법정책담당관.html" class="block w-full p-1 hover:text-blue-500">- 입법정책담당관</a></li><li><a href="홍보소통담당관.html" class="block w-full p-1 hover:text-blue-500">- 홍보소통담당관</a></li></ul></li>
-                                            <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">상임위원회 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의회운영위원회.html" class="block w-full p-1 hover:text-blue-500">- 의회운영위원회</a></li><li><a href="행정기획위원회.html" class="block w-full p-1 hover:text-blue-500">- 행정기획위원회</a></li><li><a href="보건복지위원회.html" class="block w-full p-1 hover:text-blue-500">- 보건복지위원회</a></li><li><a href="경제산업위원회.html" class="block w-full p-1 hover:text-blue-500">- 경제산업위원회</a></li><li><a href="문화환경위원회.html" class="block w-full p-1 hover:text-blue-500">- 문화환경위원회</a></li><li><a href="안전건설위원회.html" class="block w-full p-1 hover:text-blue-500">- 안전건설위원회</a></li><li><a href="도시교통위원회.html" class="block w-full p-1 hover:text-blue-500">- 도시교통위원회</a></li><li><a href="교육위원회.html" class="block w-full p-1 hover:text-blue-500">- 교육위원회</a></li><li><a href="예산결산특별위원회.html" class="block w-full p-1 hover:text-blue-500">- 예산결산특별위원회</a></li></ul></li>
+                                            <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">상임위원회 <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="의회운영위원회.html" class="block w-full p-1 hover:text-blue-500">- 의회운영위원회</a></li><li><a href="행정기획위원회.html" class="block w-full p-1 hover:text-blue-500">- 행정기획위원회</a></li><li><a href="보건복지위원회.html" class="block w-full p-1 hover:text-blue-500">- 보건복지위원회</a></li><li><a href="경제산업위원회.html" class="block w-full p-1 hover:text-blue-500">- 경제산업위원회</a></li><li><a href="문화환경위원회.html" class="block w-full p-1 hover:text-blue-500">- 문화환경위원회</a></li><li><a href="안전건설위원회.html" class="block w-full p-1 hover:text-blue-500">- 안전건설위원회</a></li><li><a href="도시교통위원회.html" class="block w-full p-1 hover:text-blue-500">- 도시교통위원회</a></li><li><a href="교육위원회.html" class="block w-full p-1 hover:text-blue-500">- 교육위원회</a></li><li><a href="예산결산예산결산특별위원회.html" class="block w-full p-1 hover:text-blue-500">- 예산결산특별위원회</a></li></ul></li>
                                         </ul>
                                     </li>
                                     <li>
@@ -1678,8 +1677,8 @@ const modalsHTML = `
                         </ul>
                     </li>
 
-                    <li><a href="소통참여.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">소통·참여</a></li>
-                    <li><a href="열린민원.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">열린민원</a></li>
+                    <li><a href="공지사항.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">소통·참여</a></li>
+                    <li><a href="민원업무안내.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">열린민원</a></li>
                     <li><a href="행정정보공개.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">정보공개</a></li>
                     <li><a href="intro.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">효빈소개</a></li>
                     <li><a href="life.html" class="block p-3 hover:text-blue-600 transition-colors border-b border-gray-100">분야별 정보</a></li>

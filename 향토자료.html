@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>효빈의역사 - 향토자료 | 효빈광역시 공식 홈페이지</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Noto Sans KR) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- 분리한 커스텀 스타일 연결 -->
     <link rel="stylesheet" href="style.css">
     <style> 
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
@@ -48,32 +44,23 @@
         .board-title-col { text-align: left; font-weight: 500; color: #1e293b; cursor: pointer; transition: color 0.2s; }
         .board-title-col:hover { color: #2563eb; text-decoration: underline; }
 
-        /* 모달 애니메이션 */
-        .scale-enter { transform: scale(0.95); opacity: 0; }
-        .scale-active { transform: scale(1); opacity: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .fade-enter { opacity: 0; pointer-events: none; }
-        .fade-enter-active { opacity: 1; pointer-events: auto; transition: opacity 0.3s ease; }
-
+        /* 스크롤바 숨김 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative overflow-x-hidden text-gray-800 scroll-smooth">
     
-    <!-- 1. 최상단 헤더 -->
     <div id="common-header"></div>
 
-    <!-- 2. 서브 비주얼 -->
     <div class="sub-visual h-48 md:h-56 flex items-center justify-center text-center px-4 shrink-0">
         <div class="relative z-10 w-full max-w-4xl">
             <h1 class="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight text-shadow-strong">효빈소개</h1>
         </div>
     </div>
 
-    <!-- 3. 본문 컨테이너 (1400px 규격 반영) -->
     <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
         
-        <!-- 아코디언 LNB (좌측 메뉴) -->
         <aside class="w-full md:w-64 shrink-0">
             <div class="lnb-wrap sticky top-4 z-10">
                 <div class="lnb-title">효빈소개</div>
@@ -140,10 +127,7 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-grow min-w-0 flex flex-col pb-20">
-            
-            <!-- 우측 상단 유틸리티 아이콘 3개 (관공서 디자인) -->
             <div class="flex justify-end mb-2">
                 <div class="flex bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
                     <button class="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-slate-50 border-r border-slate-200 transition" title="관심스크랩"><i data-lucide="star" class="w-4 h-4"></i></button>
@@ -152,7 +136,6 @@
                 </div>
             </div>
 
-            <!-- Breadcrumb -->
             <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 shrink-0">
                 <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
                 <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
@@ -162,24 +145,22 @@
 
             <h2 class="text-3xl font-black text-gray-900 content-title shrink-0">향토자료</h2>
 
-            <!-- 게시판 검색 영역 -->
-            <div class="board-search-box flex-col sm:flex-row items-center mt-2">
-                <select class="border border-gray-300 rounded px-3 py-2 text-sm text-gray-600 outline-none focus:border-blue-500 bg-white">
-                    <option>제목+내용</option>
-                    <option>제목</option>
-                    <option>내용</option>
-                    <option>작성자</option>
-                </select>
-                <div class="flex w-full sm:w-auto">
-                    <input type="text" placeholder="검색어" class="border border-gray-300 rounded-l px-3 py-2 text-sm w-full sm:w-64 outline-none focus:border-blue-500">
-                    <button class="bg-slate-900 text-white px-5 py-2 font-bold text-sm hover:bg-black transition rounded-r shrink-0">검색</button>
-                </div>
-                <button class="bg-white border border-gray-300 p-2 rounded text-gray-600 hover:bg-gray-50 transition shrink-0">
-                    <i data-lucide="calendar" class="w-5 h-5"></i>
-                </button>
-            </div>
+<div class="board-search-box flex-col sm:flex-row items-center mt-2">
+    <select id="hb-search-type" class="border border-gray-300 rounded px-3 py-2 text-sm text-gray-600 outline-none bg-white">
+        <option value="all">제목+내용</option>
+        <option value="title">제목</option>
+        <option value="content">내용</option>
+    </select>
+    <div class="flex w-full sm:w-auto">
+        <input type="text" id="hb-search-keyword" placeholder="검색어를 입력하세요" class="border border-gray-300 rounded-l px-3 py-2 text-sm w-full sm:w-64 outline-none focus:border-blue-500">
+        <button type="button" id="hb-btn-search" class="bg-slate-900 text-white px-5 py-2 font-bold text-sm hover:bg-black transition rounded-r shrink-0">검색</button>
+    </div>
+    
+    <div class="relative flex items-center">
+        <input type="date" id="hb-search-date" class="border border-gray-300 p-1.5 rounded text-gray-600 bg-white outline-none text-sm h-[38px] focus:border-blue-500">
+    </div>
+</div>
 
-            <!-- 리스트 컨트롤 영역 -->
             <div class="flex justify-between items-end mb-3">
                 <div class="text-sm text-slate-600">
                     전체게시글 : <strong class="text-blue-600">8</strong> / 전체페이지 : <strong class="text-slate-800">1</strong>
@@ -194,7 +175,6 @@
                 </div>
             </div>
 
-            <!-- 향토자료 게시판 테이블 -->
             <div class="overflow-x-auto w-full">
                 <table class="board-table w-full min-w-[700px]">
                     <colgroup>
@@ -216,78 +196,66 @@
                         </tr>
                     </thead>
                     <tbody id="board-list">
-                        <!-- JS 렌더링 영역 -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
-            <!-- 페이지네이션 -->
             <div class="flex justify-center mt-8">
                 <div class="flex items-center gap-1">
                     <button class="w-8 h-8 flex items-center justify-center border border-gray-200 text-gray-400 rounded bg-white cursor-not-allowed"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>
                     <button class="w-8 h-8 flex items-center justify-center border border-gray-200 text-gray-400 rounded bg-white cursor-not-allowed mr-2"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                    
                     <button class="w-8 h-8 flex items-center justify-center border border-slate-700 bg-slate-800 text-white font-bold rounded">1</button>
-                    
                     <button class="w-8 h-8 flex items-center justify-center border border-gray-200 text-gray-400 rounded bg-white cursor-not-allowed ml-2"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     <button class="w-8 h-8 flex items-center justify-center border border-gray-200 text-gray-400 rounded bg-white cursor-not-allowed"><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- 6. 페이지 하단 푸터 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
 
-    <!-- 향토자료 상세 보기 모달 -->
-    <div id="article-modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeArticleModal()">
-        <div id="article-modal-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden transform scale-95 transition-all duration-300 opacity-0 flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
-            <!-- Header -->
+    <div id="hb-safe-modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] items-center justify-center p-4" style="display: none !important;">    
+        <div id="hb-safe-modal-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl transform transition-all duration-300 scale-95 opacity-0">            
             <div class="bg-slate-50 px-6 py-5 border-b border-slate-200 flex justify-between items-start">
                 <div class="pr-6">
-                    <span id="modal-category" class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded mb-2">카테고리</span>
-                    <h2 id="modal-title" class="text-xl font-bold text-slate-800 leading-snug break-keep">게시글 제목</h2>
+                    <span id="hb-val-category" class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded mb-2">카테고리</span>
+                    <h2 id="hb-val-title" class="text-xl font-bold text-slate-800 leading-snug break-keep">게시글 제목</h2>
                     <div class="flex items-center gap-4 mt-3 text-xs text-slate-500 font-medium">
                         <span class="flex items-center gap-1"><i data-lucide="user" class="w-3.5 h-3.5"></i> 관리자</span>
-                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> <span id="modal-date"></span></span>
-                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5"></i> <span id="modal-views"></span></span>
+                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> <span id="hb-val-date"></span></span>
+                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5"></i> <span id="hb-val-views"></span></span>
                     </div>
                 </div>
-                <button onclick="closeArticleModal()" class="p-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-full text-slate-500 transition shrink-0">
+                <button id="hb-btn-close-x" class="p-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-full text-slate-500 transition shrink-0">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             
-            <!-- 첨부파일 영역 -->
             <div class="bg-slate-100 px-6 py-3 border-b border-slate-200 flex items-center gap-3">
                 <i data-lucide="paperclip" class="w-4 h-4 text-slate-500"></i>
                 <a href="#" class="text-sm text-blue-600 hover:underline font-medium flex items-center gap-1">
-                    <span id="modal-file-name">첨부파일.pdf</span>
+                    <span id="hb-val-file">첨부파일.pdf</span>
                     <i data-lucide="download" class="w-3 h-3 text-slate-400"></i>
                 </a>
             </div>
 
-            <!-- Body -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-8">
-                <div id="modal-content" class="prose prose-slate max-w-none text-slate-700 leading-loose break-keep text-justify">
-                    <!-- 내용 삽입 -->
-                </div>
+            <div class="flex-1 overflow-y-auto max-h-[50vh] p-8 custom-scrollbar">
+                <div id="hb-val-content" class="prose prose-slate max-w-none text-slate-700 leading-loose break-keep text-justify">
+                    </div>
             </div>
             
             <div class="bg-slate-50 px-6 py-4 flex justify-center border-t border-slate-200 shrink-0">
-                <button onclick="closeArticleModal()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-10 rounded-lg transition-colors shadow-sm">목록으로</button>
+                <button id="hb-btn-close-bottom" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-10 rounded-lg transition-colors shadow-sm">목록으로</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 아코디언 메뉴 작동 스크립트
+        // 아코디언 메뉴 작동 스크립트 (기존 유지)
         function toggleLnb(btn) {
             const parentLi = btn.parentElement;
             const icon = btn.querySelector('i');
-            
             if (parentLi.classList.contains('active')) {
                 parentLi.classList.remove('active');
                 if(icon) icon.classList.remove('rotate-180');
@@ -302,8 +270,9 @@
             }
         }
 
-        // 향토자료 데이터 8건 (위키 설정 완벽 융합)
-        const boardData = [
+        // 전체 기능 캡슐화 (외부 스크립트 충돌 원천 차단)
+        document.addEventListener('DOMContentLoaded', () => {
+       const boardData = [
             {
                 id: 8,
                 category: "[지명유래]",
@@ -431,78 +400,155 @@
                 `
             }
         ];
+            // 1. 리스트 렌더링 (인라인 onclick 제거, 속성으로 데이터 삽입)
+            const tbody = document.getElementById('board-list');
+            boardData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td class="board-title-col hb-click-trigger" data-id="${item.id}">
+                        <span class="text-slate-500 font-bold mr-1">${item.category}</span> ${item.title}
+                    </td>
+                    <td>${item.author}</td>
+                    <td class="font-mono text-sm">${item.date}</td>
+                    <td><button class="w-8 h-8 rounded border border-slate-200 flex items-center justify-center mx-auto text-slate-400 hover:text-blue-600"><i data-lucide="save" class="w-4 h-4"></i></button></td>
+                    <td class="font-mono text-sm">${item.views}</td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-        // 렌더링 로직
-        const tbody = document.getElementById('board-list');
-        
-        boardData.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.id}</td>
-                <td class="board-title-col" onclick="openArticleModal(${item.id})">
-                    <span class="text-slate-500 font-bold mr-1">${item.category}</span> ${item.title}
-                </td>
-                <td>${item.author}</td>
-                <td class="font-mono text-sm">${item.date}</td>
-                <td>
-                    <button class="w-8 h-8 rounded border border-slate-200 flex items-center justify-center mx-auto text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition" title="${item.file}">
-                        <i data-lucide="save" class="w-4 h-4"></i>
-                    </button>
-                </td>
-                <td class="font-mono text-sm">${item.views}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+            // 2. 이벤트 위임으로 클릭 감지 (common121.js 간섭 방지)
+            document.addEventListener('click', function(e) {
+                // 모달 열기 감지
+                const openTrigger = e.target.closest('.hb-click-trigger');
+                if (openTrigger) {
+                    const id = parseInt(openTrigger.getAttribute('data-id'), 10);
+                    openSafeModal(id);
+                }
 
-        // 모달 로직
-        const modalBackdrop = document.getElementById('article-modal-backdrop');
-        const modalPanel = document.getElementById('article-modal-panel');
-        const mCategory = document.getElementById('modal-category');
-        const mTitle = document.getElementById('modal-title');
-        const mDate = document.getElementById('modal-date');
-        const mViews = document.getElementById('modal-views');
-        const mFileName = document.getElementById('modal-file-name');
-        const mContent = document.getElementById('modal-content');
+                // 모달 닫기 감지 (배경, X버튼, 하단버튼)
+                if (e.target.id === 'hb-safe-modal-backdrop' || 
+                    e.target.closest('#hb-btn-close-x') || 
+                    e.target.closest('#hb-btn-close-bottom')) {
+                    closeSafeModal();
+                }
+                // [기능 추가] 리스트를 화면에 그리는 공통 함수로 분리
+function renderBoardList(filteredData) {
+    const tbody = document.getElementById('board-list');
+    tbody.innerHTML = ''; // 기존 리스트 초기화
 
-        function openArticleModal(id) {
-            const data = boardData.find(d => d.id === id);
-            if(!data) return;
+    if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-slate-400">검색 결과가 없습니다.</td></tr>`;
+        return;
+    }
 
-            mCategory.innerText = data.category;
-            mTitle.innerText = data.title;
-            mDate.innerText = data.date;
-            mViews.innerText = data.views;
-            mFileName.innerText = data.file;
-            mContent.innerHTML = data.content;
+    filteredData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.id}</td>
+            <td class="board-title-col hb-click-trigger" data-id="${item.id}">
+                <span class="text-slate-500 font-bold mr-1">${item.category}</span> ${item.title}
+            </td>
+            <td>${item.author}</td>
+            <td class="font-mono text-sm">${item.date}</td>
+            <td><button class="w-8 h-8 rounded border border-slate-200 flex items-center justify-center mx-auto text-slate-400 hover:text-blue-600"><i data-lucide="save" class="w-4 h-4"></i></button></td>
+            <td class="font-mono text-sm">${item.views}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    // 아이콘 다시 그리기
+    if(typeof lucide !== 'undefined') lucide.createIcons();
+}
 
-            modalBackdrop.classList.remove('hidden');
-            setTimeout(() => {
-                modalBackdrop.classList.add('open');
-                modalBackdrop.classList.add('fade-enter-active');
-                modalPanel.classList.add('scale-active');
-            }, 10);
-            document.body.style.overflow = 'hidden'; 
+// [기능 추가] 통합 검색 및 날짜 필터링 로직
+function 기능을_수행하는_검색함수() {
+    const type = document.getElementById('hb-search-type').value;
+    const keyword = document.getElementById('hb-search-keyword').value.trim().toLowerCase();
+    const selectedDate = document.getElementById('hb-search-date').value; // YYYY-MM-DD 형식
+
+    const filtered = boardData.filter(item => {
+        // 1. 단어 검색 조건 매칭
+        let matchKeyword = false;
+        if (keyword === '') {
+            matchKeyword = true;
+        } else if (type === 'all') {
+            matchKeyword = item.title.toLowerCase().includes(keyword) || item.content.toLowerCase().includes(keyword);
+        } else if (type === 'title') {
+            matchKeyword = item.title.toLowerCase().includes(keyword);
+        } else if (type === 'content') {
+            matchKeyword = item.content.toLowerCase().includes(keyword);
         }
 
-        function closeArticleModal() {
-            modalBackdrop.classList.remove('fade-enter-active');
-            modalPanel.classList.remove('scale-active');
-            setTimeout(() => {
-                modalBackdrop.classList.remove('open');
-                modalBackdrop.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
+        // 2. 날짜 선택 조건 매칭
+        let matchDate = true;
+        if (selectedDate !== '') {
+            matchDate = item.date === selectedDate;
         }
 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") closeArticleModal();
-        });
+        return matchKeyword && matchDate;
+    });
 
-        // 아이콘 렌더링
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-        });
+    // 필터링된 결과로 테이블 다시 그리기
+    renderBoardList(filtered);
+}
 
+// [이벤트 바인딩] 버튼 클릭 및 엔터키 이벤트 연결
+document.getElementById('hb-btn-search').addEventListener('click', 기능을_수행하는_검색함수);
+document.getElementById('hb-search-keyword').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') 기능을_수행하는_검색함수();
+});
+document.getElementById('hb-search-date').addEventListener('change', 기능을_수행하는_검색함수);
+
+// 최초 1회 전체 리스트 로드
+renderBoardList(boardData);
+            });
+
+            // 3. 모달 제어 함수
+            function openSafeModal(id) {
+                const data = boardData.find(d => d.id === id);
+                if (!data) return;
+
+                // 데이터 꽂아넣기
+                document.getElementById('hb-val-category').innerText = data.category;
+                document.getElementById('hb-val-title').innerText = data.title;
+                document.getElementById('hb-val-date').innerText = data.date;
+                document.getElementById('hb-val-views').innerText = data.views;
+                document.getElementById('hb-val-file').innerText = data.file;
+                document.getElementById('hb-val-content').innerHTML = data.content;
+
+                // 강제 표시
+                const backdrop = document.getElementById('hb-safe-modal-backdrop');
+                const panel = document.getElementById('hb-safe-modal-panel');
+                
+                backdrop.style.setProperty('display', 'flex', 'important');
+                
+                setTimeout(() => {
+                    panel.style.opacity = "1";
+                    panel.style.transform = "scale(1)";
+                }, 10);
+                
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSafeModal() {
+                const backdrop = document.getElementById('hb-safe-modal-backdrop');
+                const panel = document.getElementById('hb-safe-modal-panel');
+                
+                panel.style.opacity = "0";
+                panel.style.transform = "scale(0.95)";
+                
+                setTimeout(() => {
+                    backdrop.style.setProperty('display', 'none', 'important');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+
+            // 아이콘 최종 렌더링
+            if(typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
     </script>
     <script src="common121.js"></script>
 </body>
