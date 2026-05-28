@@ -851,7 +851,7 @@ const footerHTML = `
                             <option value="facility_corp.html">효빈시설공단</option>
                         </optgroup>
                         <optgroup label="유관기관">
-                            <option value="city_council.html">효빈시의회</option>
+                            <option value="시의회.html">효빈시의회</option>
                             <option value="education_office.html">효빈교육청</option>
                             <option value="police_agency.html">효빈경찰청</option>
                             <option value="fire_dept.html">효빈소방본부</option>

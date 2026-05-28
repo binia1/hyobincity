@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교육 - 대학협력 및 평생학습 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 서브페이지 전용 디자인 (교육 테마: 도서관/캠퍼스) */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(15, 23, 42, 0.85); /* 짙은 네이비 톤 */ }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e40af; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e40af; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        
+        /* 단일 링크 메뉴용 (SPA) */
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: all 0.2s; cursor: pointer; position: relative; }
+        .lnb-single:hover { background-color: #f8fafc; color: #1d4ed8; }
+        .lnb-single.current { background-color: #eff6ff; color: #1e40af; font-weight: 700; border-left: 4px solid #1e40af; padding-left: calc(1.25rem - 4px); }
+
+        /* 타이틀 및 UI 스타일 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e40af; }
+        .bullet-title { position: relative; padding-left: 16px; margin-top: 3rem; margin-bottom: 1.25rem; color: #1e40af; font-size: 1.35rem; font-weight: 700; }
+        .bullet-title::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 18px; background-color: #3b82f6; border-radius: 2px; }
+        
+        /* SPA 섹션 표시 제어 */
+        .spa-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .spa-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 대학 카드 스타일 확장 */
+        .univ-card { border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; background: #fff; display: flex; flex-col; justify-content: space-between; height: 100%; }
+        .univ-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #bfdbfe; }
+        .univ-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; margin-right: 0.25rem; }
+        .badge-national { background-color: #1d4ed8; }
+        .badge-private { background-color: #059669; }
+        .badge-special { background-color: #8b5cf6; }
+        
+        /* 외부 링크 카드 */
+        .link-card { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #cbd5e1; background: #f8fafc; transition: all 0.2s; cursor: pointer; }
+        .link-card:hover { background: #eff6ff; border-color: #93c5fd; }
+
+        /* 데이터 테이블 */
+        .data-table { width: 100%; border-top: 2px solid #1e3a8a; border-collapse: collapse; font-size: 0.95rem; text-align: center; margin-bottom: 2rem; background-color: #fff; }
+        .data-table th, .data-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 12px 10px; line-height: 1.6; vertical-align: middle; }
+        .data-table th:last-child, .data-table td:last-child { border-right: none; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; }
+        .data-table td { color: #334155; }
+
+        /* 스텝(프로세스) UI */
+        .step-container { display: flex; flex-direction: column; md:flex-row; gap: 1rem; margin-top: 1rem; margin-bottom: 2rem; }
+        .step-item { flex: 1; background: #fff; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; text-align: center; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; background: #1e40af; color: white; border-radius: 50%; font-weight: 900; margin-bottom: 0.75rem; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <!-- 1. 최상단 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 3. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">교육</h1>
+    </div>
+
+    <!-- 4. 본문 컨테이너 -->
+    <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 사이드바 LNB (SPA 네비게이션) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">교육 / 학습</div>
+                <ul class="lnb-depth1">
+                    <li><a onclick="navigateSPA('sec-univ', this, '관내 대학 협력망')" class="lnb-single current">관내 대학 협력망</a></li>
+                    <li><a onclick="navigateSPA('sec-talent', this, '미래인재 육성 지원')" class="lnb-single">미래인재 육성 지원</a></li>
+                    <li><a onclick="navigateSPA('sec-loan', this, '학자금대출 이자지원')" class="lnb-single">학자금대출 이자지원</a></li>
+                    <li><a onclick="navigateSPA('sec-lifelong', this, '효빈시민 평생학습')" class="lnb-single">효빈시민 평생학습</a></li>
+                    <li><a onclick="navigateSPA('sec-sites', this, '평생학습 사이트 안내')" class="lnb-single">평생학습 사이트 안내</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content (SPA 영역) -->
+        <main class="flex-grow min-w-0 pb-10">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 교육 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="breadcrumb-current">관내 대학 협력망</strong>
+            </div>
+
+            <!-- SECTION 1: 대학협력 -->
+            <section id="sec-univ" class="spa-section active">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">관내 대학 협력망</h2>
+                    <span class="text-gray-500 font-medium">University Cooperation Network</span>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-6 mb-8 shadow-sm">
+                    <h3 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="building-2" class="w-5 h-5"></i> 산·학·관이 하나 되는 지식 공동체, 효빈
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed text-[0.95rem]">
+                        효빈광역시는 관내 3개 국공립 대학 및 4개 우수 명문 사학들과 견고한 산·학·관 협력망(Hyobin Univ-Network)을 구축하고 있습니다. 해양 물류, 스마트 모빌리티, 첨단 IT, 서브컬처 애니메이션 등 우리 시의 핵심 전략 산업과 각 대학의 특성화 학과를 연계하여, 청년 일자리를 창출하고 글로벌 혁신 인재를 양성합니다.
+                    </p>
+                </div>
+
+                <h3 class="bullet-title">국·공립 대학교</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div>
+                                <span class="univ-badge badge-national">국립 거점</span>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">효빈대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Hyobin National Univ.</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                서구 당선동에 대규모 산학협력 캠퍼스를 보유한 효빈의 대표 거점 국립대입니다. 첨단 공학과 사회복지학 융합 연구에 있어 전국 최고의 성과를 냅니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                                <span class="text-xs font-bold text-gray-800 block mb-1">시 연계 특성화 분야</span>
+                                <ul class="text-xs text-gray-600 list-disc list-inside space-y-1">
+                                    <li>AI·로보틱스 융합공학부</li>
+                                    <li>미래 복지행정학과 (맞춤형 복지 연계)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div>
+                                <span class="univ-badge badge-national">국립 특수</span>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">효빈해양대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Hyobin Nat'l Maritime Univ.</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                항만 도시 효빈의 정체성을 상징하는 해양 특성화 국립대입니다. 남구 항동 물류단지와 인접해 있어 실무 중심의 글로벌 해양 인재를 전 세계로 배출합니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                                <span class="text-xs font-bold text-gray-800 block mb-1">시 연계 특성화 분야</span>
+                                <ul class="text-xs text-gray-600 list-disc list-inside space-y-1">
+                                    <li>스마트 항만물류시스템학과</li>
+                                    <li>해양경찰·해양생태관리 전공</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div>
+                                <span class="univ-badge badge-national">국립 교육</span>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">효빈교육대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Hyobin Nat'l Univ. of Education</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                창의적이고 따뜻한 초등 교육 전문 교원을 양성합니다. 효빈시 공교육의 질적 향상과 4차 산업혁명 대비 에듀테크(Edu-Tech) 연구의 중심지입니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                                <span class="text-xs font-bold text-gray-800 block mb-1">시 연계 특성화 분야</span>
+                                <ul class="text-xs text-gray-600 list-disc list-inside space-y-1">
+                                    <li>미래 에듀테크(AI 교육) 전공</li>
+                                    <li>다문화 및 특수통합 초등교육</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="bullet-title">주요 명문 사립 대학교</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div><span class="univ-badge badge-private">사립 명문</span><span class="univ-badge badge-special">예술/미디어</span></div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">엽월대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Yeopwol Univ.</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                창전구의 젊은 문화를 주도하는 명문 사학입니다. 북구 탄성군의 서브컬처 인프라와 강력히 연계하여, 만화·애니메이션·디지털 미디어 분야에서 국내 최고 수준의 크리에이터를 양성합니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100 flex gap-2 flex-wrap">
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">웹툰창작학과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">e-스포츠미디어과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">실용음악(밴드)과</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div><span class="univ-badge badge-private">사립 명문</span><span class="univ-badge badge-special">IT/융복합</span></div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">삼선대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Samseon Univ.</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                창전구 칠심동에 위치한 유서 깊은 사학 재단으로, 인문학과 첨단 IT를 융합한 융·복합 교과 과정을 선도합니다. 산학협력단이 지역 스타트업 보육을 집중 지원하고 있습니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100 flex gap-2 flex-wrap">
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">인문콘텐츠기획과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">사이버보안학과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">데이터사이언스</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div><span class="univ-badge badge-private">사립 명문</span><span class="univ-badge badge-special">기초/의생명</span></div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">평안명대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Pyeonganmyeong Univ.</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                전통과 학문적 깊이를 중시하는 종합 대학교입니다. 순수 기초 학문, 의학 및 바이오 헬스케어 분야에서 탄탄한 연구 실적을 보유하며 지역 종합병원들과 연계된 의료 인재를 배출합니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100 flex gap-2 flex-wrap">
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">바이오신약개발과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">노인복지재활학과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">기초과학연구소</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="univ-card">
+                        <div class="p-6">
+                            <div><span class="univ-badge badge-private">사립 명문</span><span class="univ-badge badge-special">실무/디자인</span></div>
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">광연대학교</h4>
+                            <p class="text-gray-500 text-xs font-medium mb-4">Gwangyeon Univ.</p>
+                            <p class="text-[0.9rem] text-gray-700 leading-relaxed mb-4">
+                                산업 현장 맞춤형 실용 학문에 특화된 사립대입니다. 청엽구 및 창전구의 주요 공단 기업들과 산학 협력을 통해 즉시 투입 가능한 스마트 제조 전문 기술 인력과 산업 디자이너를 집중 양성합니다.
+                            </p>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100 flex gap-2 flex-wrap">
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">스마트모빌리티과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">산업패션디자인과</span>
+                                <span class="text-xs bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">반도체공정학과</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: 미래인재 육성 지원 -->
+            <section id="sec-talent" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">미래인재 육성 지원</h2>
+                    <span class="text-gray-500 font-medium">Future Talent Nurturing Programs</span>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-6 mb-8 shadow-sm">
+                    <p class="text-indigo-900 leading-relaxed font-medium">
+                        효빈광역시는 획일적인 주입식 교육을 탈피하고, 청년들이 자신만의 개성과 특기를 살려 세계 무대로 나아갈 수 있도록 <strong class="text-indigo-700">효빈형 특화 인재 육성 프로젝트</strong>를 전폭적으로 가동하고 있습니다.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Program 1 -->
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-sm hover:border-indigo-300 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+                            <i data-lucide="rocket" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">스타더스트 글로벌 프런티어</h4>
+                        <p class="text-[0.9rem] text-gray-600 leading-relaxed mb-4 min-h-[4rem]">
+                            탄성군 고송신도시의 '스타더스트 콤플렉스'와 연계하여 서브컬처 콘텐츠(애니메이션, 게임 기획) 크리에이터 유망주를 발굴합니다. 선발자에게는 전용 작업실 무상 임대 및 일본 누마즈시 등 해외 선진지 견학 비용 전액을 지원합니다.
+                        </p>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                            <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">청년미래국 주관</span>
+                            <span class="text-xs text-gray-500">매년 3월 모집</span>
+                        </div>
+                    </div>
+
+                    <!-- Program 2 -->
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-sm hover:border-green-300 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-4">
+                            <i data-lucide="cpu" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">첨단 IT·반도체 영재 아카데미</h4>
+                        <p class="text-[0.9rem] text-gray-600 leading-relaxed mb-4 min-h-[4rem]">
+                            효빈대 공과대학 및 희산공업 등 관내 주요 산단 인프라를 활용하여 초·중·고교생 대상의 심화 과학 코딩 및 로봇 제어(AI) 교육을 주말마다 무상 실시합니다. 실무형 해커톤 대회를 통해 실전 감각을 기릅니다.
+                        </p>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">교육지원과 주관</span>
+                            <span class="text-xs text-gray-500">상/하반기 모집</span>
+                        </div>
+                    </div>
+
+                    <!-- Program 3 -->
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-sm hover:border-blue-300 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+                            <i data-lucide="train" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">박신유 모빌리티 청년 장학생</h4>
+                        <p class="text-[0.9rem] text-gray-600 leading-relaxed mb-4 min-h-[4rem]">
+                            효빈시의 대중교통 복지화를 이끈 박신유 전 대표의 철학을 기리기 위해, 도시철도·스마트 모빌리티·교통행정 분야를 전공하는 관내 대학생에게 전액 장학금 및 효빈교통공사 인턴십 기회를 최우선으로 제공합니다.
+                        </p>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                            <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">교통정책과 주관</span>
+                            <span class="text-xs text-gray-500">매년 9월 모집</span>
+                        </div>
+                    </div>
+
+                    <!-- Program 4 -->
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-sm hover:border-cyan-300 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center mb-4">
+                            <i data-lucide="anchor" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-gray-900 mb-2">아쿠아 마린(Aqua Marine) 리더스</h4>
+                        <p class="text-[0.9rem] text-gray-600 leading-relaxed mb-4 min-h-[4rem]">
+                            효빈항 및 해양 물류 산업의 차세대 리더를 육성하는 실무형 교육입니다. 효빈해양대학교 실습선 승선 체험, 글로벌 항만(싱가포르, 로테르담) 견학, 그리고 해양 생태계 보존 프로젝트(플로깅 등)를 종합적으로 지원합니다.
+                        </p>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                            <span class="text-xs font-semibold text-cyan-600 bg-cyan-50 px-2 py-1 rounded">항만물류국 주관</span>
+                            <span class="text-xs text-gray-500">매년 5월 모집</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: 학자금대출 이자지원 -->
+            <section id="sec-loan" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">대학(원)생 학자금대출 이자지원</h2>
+                    <span class="text-gray-500 font-medium">Student Loan Interest Support</span>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-100 rounded-lg p-6 mb-8 shadow-sm flex flex-col md:flex-row gap-6 items-center">
+                    <div class="flex-shrink-0 text-amber-500">
+                        <i data-lucide="piggy-bank" class="w-16 h-16"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-amber-900 mb-2">학비 걱정 없는 효빈, 이자는 효빈시가 부담합니다!</h3>
+                        <p class="text-gray-700 leading-relaxed text-[0.95rem]">
+                            효빈광역시는 지역 청년들이 경제적 어려움 없이 학업과 취업 준비에 전념할 수 있도록, 한국장학재단에서 받은 학자금 대출로 인해 발생하는 <strong class="text-amber-700 bg-amber-100 px-1 rounded">최근 6개월분 이자 전액</strong>을 한국장학재단 대출 계좌로 상환 처리해 드립니다.
+                        </p>
+                    </div>
+                </div>
+
+                <h3 class="bullet-title">지원 절차 안내</h3>
+                <div class="flex flex-col md:flex-row gap-4 mb-10 text-sm">
+                    <div class="flex-1 bg-white border border-gray-200 rounded-lg p-5 text-center shadow-sm relative">
+                        <div class="text-gray-400 font-black text-3xl absolute top-3 right-4 opacity-20">01</div>
+                        <div class="text-blue-600 mb-3 flex justify-center"><i data-lucide="mouse-pointer-click" class="w-8 h-8"></i></div>
+                        <h4 class="font-bold text-gray-900 mb-2">온라인 신청</h4>
+                        <p class="text-gray-600 text-[0.8rem] leading-snug">효빈시 누리집 접수<br>(상반기 4월, 하반기 9월)</p>
+                    </div>
+                    <div class="hidden md:flex items-center text-gray-300"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+                    <div class="flex-1 bg-white border border-gray-200 rounded-lg p-5 text-center shadow-sm relative">
+                        <div class="text-gray-400 font-black text-3xl absolute top-3 right-4 opacity-20">02</div>
+                        <div class="text-blue-600 mb-3 flex justify-center"><i data-lucide="file-search" class="w-8 h-8"></i></div>
+                        <h4 class="font-bold text-gray-900 mb-2">서류 및 자격 심사</h4>
+                        <p class="text-gray-600 text-[0.8rem] leading-snug">주민등록, 대출정보 등<br>관할 부서 및 장학재단 심사</p>
+                    </div>
+                    <div class="hidden md:flex items-center text-gray-300"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+                    <div class="flex-1 bg-white border border-gray-200 rounded-lg p-5 text-center shadow-sm relative">
+                        <div class="text-gray-400 font-black text-3xl absolute top-3 right-4 opacity-20">03</div>
+                        <div class="text-blue-600 mb-3 flex justify-center"><i data-lucide="landmark" class="w-8 h-8"></i></div>
+                        <h4 class="font-bold text-gray-900 mb-2">장학재단 기금 송금</h4>
+                        <p class="text-gray-600 text-[0.8rem] leading-snug">효빈시청 → 한국장학재단<br>대출 이자액 일괄 송금</p>
+                    </div>
+                    <div class="hidden md:flex items-center text-gray-300"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+                    <div class="flex-1 bg-white border border-gray-200 rounded-lg p-5 text-center shadow-sm relative">
+                        <div class="text-gray-400 font-black text-3xl absolute top-3 right-4 opacity-20">04</div>
+                        <div class="text-blue-600 mb-3 flex justify-center"><i data-lucide="check-circle-2" class="w-8 h-8"></i></div>
+                        <h4 class="font-bold text-gray-900 mb-2">이자 상환 완료</h4>
+                        <p class="text-gray-600 text-[0.8rem] leading-snug">개인별 계좌 상환 반영<br>결과 SMS 개별 통보</p>
+                    </div>
+                </div>
+
+                <h3 class="bullet-title">지원 대상 및 자격</h3>
+                <table class="data-table mb-10">
+                    <colgroup>
+                        <col style="width: 25%;">
+                        <col style="width: 75%;">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th class="text-left bg-gray-50 border-b border-gray-300">주민등록 요건</th>
+                            <td class="text-left border-b border-gray-300 font-medium">공고일 기준 본인 또는 직계존속이 효빈광역시에 <span class="text-blue-600">1년 이상</span> 주민등록이 되어 있는 자</td>
+                        </tr>
+                        <tr>
+                            <th class="text-left bg-gray-50 border-b border-gray-300">학적 요건</th>
+                            <td class="text-left border-b border-gray-300 text-[0.9rem] leading-relaxed">
+                                전국 소재 대학교(원) 재학생, 휴학생 및 졸업 후 5년 이내 미취업자 (졸업유예자 포함)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-left bg-gray-50 border-b border-gray-300">지원 대상 대출</th>
+                            <td class="text-left border-b border-gray-300 text-[0.9rem]">한국장학재단 취업후상환 학자금대출, 일반상환 학자금대출 (생활비 대출 이자 포함)</td>
+                        </tr>
+                        <tr>
+                            <th class="text-left bg-gray-50 border-b border-gray-300">지원 방식</th>
+                            <td class="text-left border-b border-gray-300 text-[0.9rem]">발생한 이자를 효빈시가 대출 계좌로 상환 <span class="text-red-500 text-xs font-bold">(※ 개인 계좌로 현금 입금되지 않음)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- SECTION 4: 효빈시민 평생학습 -->
+            <section id="sec-lifelong" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">효빈시민 평생학습</h2>
+                    <span class="text-gray-500 font-medium">Lifelong Learning for Citizens</span>
+                </div>
+
+                <p class="text-gray-700 leading-relaxed mb-8">
+                    나이, 성별, 직업에 구애받지 않고 언제 어디서나 배움의 기쁨을 누릴 수 있는 '평생학습도시 효빈'을 만들어갑니다. 각 세대와 계층의 라이프스타일에 맞춘 다채로운 온·오프라인 평생교육 프로그램이 관내 9개 구·군 평생학습관을 통해 연중 상시 운영됩니다.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Category 1 -->
+                    <div class="flex bg-gray-50 p-6 rounded-lg border border-gray-200 gap-4 hover:bg-white hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="sun" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">은가비 시니어 아카데미 (실버)</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                100세 시대를 맞이하여 어르신들의 인지 건강과 사회 참여를 돕습니다. 기초 스마트폰/키오스크 활용법부터, 시니어 모델 교실, 자서전 쓰기, 기초 생활 문해 교실을 각 노인종합복지관과 연계하여 무상 운영합니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div class="flex bg-gray-50 p-6 rounded-lg border border-gray-200 gap-4 hover:bg-white hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="briefcase" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">내일(My Job) 리스타트 (직업전환)</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                경력 단절 여성, 조기 은퇴자, 실직 시민의 재도약을 지원합니다. 바리스타, 제과제빵, 드론 조종, 반려동물 관리사 등 취창업과 직결되는 실무 자격증 취득 과정을 국비 및 시비 지원으로 운영합니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div class="flex bg-gray-50 p-6 rounded-lg border border-gray-200 gap-4 hover:bg-white hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="palette" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">덕업일치 문화·창작 공방</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                효빈시만의 서브컬처 인프라를 활용하여, 웹소설 창작 기초, 아이패드 디지털 드로잉, 나만의 굿즈(아크릴 스탠드) 제작하기 등 취미를 심화시켜 제2의 자아를 발견하는 이색 평생학습 교실입니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Category 4 -->
+                    <div class="flex bg-gray-50 p-6 rounded-lg border border-gray-200 gap-4 hover:bg-white hover:shadow-md transition-all">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="ship" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">효빈시민 해양·인문학 강좌</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                저명한 인문학, 역사, 해양학 강사를 초빙하여 매월 정기 강연(효빈 아고라 특강)을 엽니다. 항만 도시의 역사 탐방, 해양 생태계 보존 시민 활동가 양성 과정 등 시민 의식을 높이는 교양 강좌가 진행됩니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: 평생학습 사이트 안내 -->
+            <section id="sec-sites" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">평생학습 사이트 안내</h2>
+                    <span class="text-gray-500 font-medium">Lifelong Learning Portals & Links</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div class="link-card" onclick="window.open('#','_blank')">
+                        <div>
+                            <div class="text-xs font-bold text-blue-600 mb-1">효빈시 공식 운영</div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">효빈 e-배움터</h4>
+                            <p class="text-sm text-gray-500">외국어, 자격증, IT 등 1,500여 개 무료 인강</p>
+                        </div>
+                        <div class="text-blue-500 bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="link-card" onclick="window.open('#','_blank')">
+                        <div>
+                            <div class="text-xs font-bold text-blue-600 mb-1">오프라인 강좌 신청</div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">효빈시민대학 수강신청</h4>
+                            <p class="text-sm text-gray-500">구·군별 평생학습관 오프라인 강좌 통합 접수</p>
+                        </div>
+                        <div class="text-blue-500 bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="link-card" onclick="window.open('#','_blank')">
+                        <div>
+                            <div class="text-xs font-bold text-purple-600 mb-1">서브컬처 특화 교육</div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">스타더스트 크리에이터 허브</h4>
+                            <p class="text-sm text-gray-500">탄성군 연계 만화/애니메이션 전문 교육 포털</p>
+                        </div>
+                        <div class="text-blue-500 bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="link-card" onclick="window.open('#','_blank')">
+                        <div>
+                            <div class="text-xs font-bold text-green-600 mb-1">IT 인재 양성</div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">효빈 데브(Dev) 캠퍼스</h4>
+                            <p class="text-sm text-gray-500">개발자 지망생 대상 부트캠프 및 온라인 코딩 실습</p>
+                        </div>
+                        <div class="text-blue-500 bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="link-card" onclick="window.open('#','_blank')">
+                        <div>
+                            <div class="text-xs font-bold text-gray-500 mb-1">교육부 국가포털</div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">국가평생학습포털 늘배움</h4>
+                            <p class="text-sm text-gray-500">전국 단위 평생학습 네트워크 및 강좌 검색</p>
+                        </div>
+                        <div class="text-blue-500 bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div class="link-card" onclick="window.open('#','_blank')">
+                        <div>
+                            <div class="text-xs font-bold text-gray-500 mb-1">오픈 코스웨어 (MOOC)</div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">K-MOOC (한국형 온라인 공개강좌)</h4>
+                            <p class="text-sm text-gray-500">국내 명문 대학의 우수 강좌를 온라인 무료 수강</p>
+                        </div>
+                        <div class="text-blue-500 bg-white p-2 rounded-full shadow-sm border border-gray-100">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 6. 페이지 하단 푸터 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 연결 -->
+    <script src="common121.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lucide 아이콘 초기화
+            lucide.createIcons();
+            
+            // 페이지 로드 시 해시값 체크 후 해당 탭으로 이동
+            const hash = window.location.hash.substring(1);
+            if(hash && document.getElementById(hash)) {
+                const targetBtn = document.querySelector(`.lnb-single[onclick*="${hash}"]`);
+                if(targetBtn) {
+                    navigateSPA(hash, targetBtn, targetBtn.innerText);
+                }
+            }
+        });
+
+        // SPA 네비게이션 함수
+        function navigateSPA(sectionId, btnElement, breadcrumbText) {
+            // 1. 모든 섹션 숨기기
+            const sections = document.querySelectorAll('.spa-section');
+            sections.forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // 2. 타겟 섹션 보이기
+            const targetSection = document.getElementById(sectionId);
+            if(targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // 3. LNB 메뉴 스타일 업데이트
+            const lnbBtns = document.querySelectorAll('.lnb-single');
+            lnbBtns.forEach(btn => {
+                btn.classList.remove('current');
+            });
+            if(btnElement) {
+                btnElement.classList.add('current');
+            }
+
+            // 4. 브레드크럼(경로) 텍스트 업데이트
+            const breadcrumb = document.getElementById('breadcrumb-current');
+            if(breadcrumb && breadcrumbText) {
+                breadcrumb.innerText = breadcrumbText;
+            }
+            
+            // 5. URL 해시 업데이트 (사용자가 새로고침해도 해당 탭 유지)
+            window.location.hash = sectionId;
+
+            // 6. 스크롤을 컨텐츠 시작점으로 이동
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>농업 - 도시농업 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 서브페이지 전용 디자인 (농업 테마에 맞는 이미지로 변경) */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(20, 83, 45, 0.85); /* 농업에 어울리는 짙은 녹색 톤 */ }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #14532d; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #14532d; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f0fdf4; color: #166534; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #15803d; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #15803d; font-weight: 700; }
+        
+        /* 3뎁스 스타일 */
+        .lnb-depth3 { padding-left: 1.5rem; padding-bottom: 0.75rem; border-top: 1px dashed #e5e7eb; margin-top: 0.5rem; padding-top: 0.5rem; }
+        .lnb-depth3 a { display: flex; align-items: center; padding: 0.35rem 1rem; color: #4b5563; font-size: 0.85rem; position: relative; transition: all 0.2s; }
+        .lnb-depth3 a.anchor-link::before { content: '·'; position: absolute; left: 0.2rem; color: #9ca3af; font-weight: bold; }
+        .lnb-depth3 a:hover, .lnb-depth3 a.current-sub { color: #15803d; font-weight: 700; background-color: #f0fdf4; border-radius: 4px; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f0fdf4; color: #166534; }
+
+        /* 타이틀 및 데이터 표 스타일 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #14532d; }
+        .bullet-title { position: relative; padding-left: 16px; margin-top: 3.5rem; margin-bottom: 1.25rem; color: #14532d; font-size: 1.35rem; font-weight: 700; scroll-margin-top: 80px; }
+        .bullet-title::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 18px; background-color: #22c55e; border-radius: 2px; }
+        
+        .data-table { width: 100%; border-top: 2px solid #14532d; border-collapse: collapse; font-size: 0.9rem; text-align: center; margin-bottom: 2rem; background-color: #fff; }
+        .data-table th, .data-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 12px 10px; line-height: 1.6; vertical-align: middle; }
+        .data-table th:last-child, .data-table td:last-child { border-right: none; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; }
+        .data-table td { color: #334155; }
+        .data-table tr:hover td { background-color: #f0fdf4; }
+        
+        /* 배지(구분) 스타일 - 동적 할당용 */
+        .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: white; white-space: nowrap; margin-bottom: 0.25rem;}
+        .badge-type1 { background-color: #3b82f6; } /* 옥상텃밭 */
+        .badge-type2 { background-color: #10b981; } /* 주말농장 */
+        .badge-type3 { background-color: #8b5cf6; } /* 수직/실내농장 */
+        .badge-type4 { background-color: #f43f5e; } /* 공동체텃밭 */
+        .badge-type5 { background-color: #f59e0b; } /* 테마/치유농장 */
+        .badge-type6 { background-color: #64748b; } /* 기타 */
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <!-- 1. 최상단 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 3. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">농업</h1>
+    </div>
+
+    <!-- 4. 본문 컨테이너 -->
+    <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10">
+        
+        <!-- 아코디언 LNB (좌측 메뉴) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">농업/농촌</div>
+                <ul class="lnb-depth1">
+                    <li><a href="농업정책.html" class="lnb-single">농업·농촌 정책</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">지역별 농업 현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="지역별농업현황.html">농업 주산지 (탄성/외곽)</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="지역특산물.html" class="lnb-single">지역 농특산물</a></li>
+                    <li><a href="농업기술센터.html" class="lnb-single">농업기술센터</a></li>
+                    <li><a href="귀농귀촌.html" class="lnb-single">귀농·귀촌 지원</a></li>
+                    <!-- 현재 페이지 활성화 -->
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">도시농업 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li>
+                                <a href="도시농업.html" class="current">효빈시 도시농업 현황</a>
+                                <ul class="lnb-depth3 flex flex-col gap-1">
+                                    <li><a href="#gu-중구" class="anchor-link">중구</a></li>
+                                    <li><a href="#gu-남구" class="anchor-link">남구</a></li>
+                                    <li><a href="#gu-서구" class="anchor-link">서구</a></li>
+                                    <li><a href="#gu-북구" class="anchor-link">북구</a></li>
+                                    <li><a href="#gu-동구" class="anchor-link">동구</a></li>
+                                    <li><a href="#gu-청엽구" class="anchor-link">청엽구</a></li>
+                                    <li><a href="#gu-창전구" class="anchor-link">창전구 도심</a></li>
+                                    <li><a href="#gu-안천구" class="anchor-link">안천구 도심</a></li>
+                                    <li><a href="#gu-탄성군" class="anchor-link">탄성군 도심</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈 <i data-lucide="chevron-right" class="w-4 h-4"></i> 농업/농촌 <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">도시농업</strong>
+            </div>
+
+            <div class="content-title">
+                <h2 class="text-3xl font-black text-gray-900 m-0">효빈광역시 도시농업 현황</h2>
+                <span class="text-gray-500 font-medium">Urban Agriculture in Hyobin</span>
+            </div>
+
+            <div class="bg-green-50 border border-green-100 rounded-lg p-6 mb-8">
+                <h3 class="font-bold text-green-900 mb-3 flex items-center gap-2">
+                    <i data-lucide="leaf" class="w-5 h-5"></i> 빌딩 숲 속에서 피어나는 녹색 휴식과 상생의 가치
+                </h3>
+                <p class="text-gray-700 leading-relaxed text-[0.95rem]">
+                    효빈광역시의 도시농업은 단순한 작물 재배를 넘어, 각 구별 도심의 특성(서브컬처, 대학, 산업단지, 해양 물류 등)과 결합한 혁신적인 공동체 복지 모델입니다. 옥상 텃밭부터 첨단 수직농장, 테마형 시민농장에 이르기까지 팍팍한 도심 생활에 활력을 불어넣는 힐링 인프라를 소개합니다.
+                </p>
+            </div>
+
+            <!-- 빠른 이동 앵커 링크 -->
+            <div class="flex flex-wrap gap-2 mb-10 pb-4 border-b border-gray-200" id="quick-links">
+                <span class="px-2 py-1.5 text-gray-500 font-bold text-sm mr-1">구·군별 보기:</span>
+                <!-- JS에서 버튼 동적 생성 -->
+            </div>
+
+            <!-- 테이블 컨테이너 -->
+            <div id="welfare-tables-container">
+                <!-- JS로 각 구별 테이블 동적 생성 -->
+            </div>
+            
+            <!-- 관리부서 정보 -->
+            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div>자료관리 담당자 : 미래농산업국 도시농업지원팀 | 연락처 : 079-591-3100</div>
+                <div class="mt-2 md:mt-0">최종업데이트 : 2026-05-28</div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 6. 페이지 하단 푸터 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 연결 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+    <script>
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li.active').forEach(li => {
+                    li.classList.remove('active');
+                    let activeIcon = li.querySelector('.lnb-toggle i');
+                    if(activeIcon) activeIcon.classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                if(icon) icon.classList.add('rotate-180');
+            }
+        }
+
+        // CSV 데이터 (각 구별 도심지 특성을 반영한 도시농업 설정 완벽 윤문)
+        const rawCSVData = `구·군,지역(동/읍),시설명,유형,위치,특화 프로그램 및 비고
+중구,도심,전차길 테마 옥상농원,옥상텃밭,중구 구(舊) 전차 차고지 옥상,"퇴역 전차(7호선)의 부품과 레일을 업사이클링한 플랜트 박스를 활용하여, 원도심 주민들에게 역사적 향수와 녹색 휴식 공간을 제공합니다."
+중구,도심,우이동 나눔 주말농장,주말농장,중구 우이동 10-2,"도심 속 유휴 부지를 활용한 가족 단위 주말농장으로, 수확한 친환경 농산물을 인근 무료 급식소에 기부하는 나눔 복지를 실현합니다."
+남구,도심,항동 컨테이너 스마트팜,수직농장,남구 항동4가 항만 배후지,"폐컨테이너를 개조한 첨단 LED 수직농장으로, 항만·물류 교대 근로자들이 24시간 언제든 방문하여 엽채류를 수확하고 스트레스를 해소할 수 있습니다."
+남구,도심,평당 근로자 치유 텃밭,치유농장,남구 평당동 55,"산업단지 근로자의 직무 스트레스와 우울증 예방을 위해, 시각적 안정감을 주는 컬러 테라피(꽃창포 등) 식물 위주로 조성된 치유형 텃밭입니다."
+서구,도심,효빈대 캠퍼스 에코팜,학교텃밭,서구 당선동 효빈대학교 내,"사회복지학대학 및 농생명 융합 랩실과 연계하여, 청년들이 직접 스마트 관수 시스템을 설계하고 작물을 재배하는 청년 주도형 캠퍼스 농장입니다."
+서구,도심,사복 청년 공유 텃밭,공동체텃밭,서구 사복동 120,"취업 준비 및 학업 스트레스에 지친 청년(1인가구)들을 위해 소규모 구획으로 분양되는 공유 텃밭으로, 매월 청년 샐러드 파티가 열립니다."
+북구,도심,고송 스타더스트 시민농장,테마농장,북구 고송신도시 공원 부지,"서브컬처 중심지 특성을 반영하여 파스텔 옐로우 등 특정 색상의 꽃과 작물 구역을 나누어, 팬덤과 시민이 함께 가꾸는 이색 테마 농장입니다."
+북구,도심,애니메이커 옥상 정원,옥상텃밭,북구 평전동 애니메이커 공단 옥상,"웹툰·애니메이션 창작자들의 안구 건조 및 피로 회복을 돕기 위해, 시야가 탁 트인 공단 건물 옥상에 녹색 허브와 덩굴 식물 위주로 조성된 정원입니다."
+동구,도심,사가당 리듬 텃밭,치유농장,동구 사가당동 21,"시각장애인 및 노년층을 위해 식물을 만질 때마다 센서가 반응하여 맑은 악기 소리가 나는 음파 반응형 스마트 치유 농장입니다."
+동구,도심,덕현 도심형 버섯재배사,실내농장,동구 덕현동 지식산업센터 내,"도심 빌딩 내부의 일정한 온습도를 활용하여 무농약 표고버섯 및 느타리버섯을 재배하며, 지역 밴드 동아리의 수익 창출원으로도 활용됩니다."
+청엽구,도심,마잡 베이커리 밀밭 정원,테마농장,청엽구 마잡동 42,"지역 특화 상권(제과제빵)과 연계하여 도심 한복판에 관상용 우리 밀과 보리를 식재, 제빵 특화 거리를 상징하는 아름다운 금빛 물결 경관을 제공합니다."
+청엽구,도심,비마 허브 테라피 농원,옥상텃밭,청엽구 비마동 89,"라벤더, 캐모마일 등 심신 안정에 탁월한 허브류를 집중 재배하여, 수면 장애를 겪는 시민이나 수험생들에게 수면 디톡스 원예 치료를 지원합니다."
+창전구,도심,보통동 표준 시민텃밭,주말농장,창전구 보통동 101,"'가장 평범하고 보편적인 일상이 최고의 복지'라는 보통동의 슬로건에 맞추어, 누구나 쉽게 접근하고 재배할 수 있는 표준화된 매뉴얼의 국민 텃밭입니다."
+창전구,도심,쌍엽 자치 옥상 텃밭,옥상텃밭,창전구 쌍엽동 노인복지관 옥상,"어르신 자치 위원회가 주도적으로 작물 선정부터 수확, 김장 나눔까지 전 과정을 기획하고 실행하는 선진적인 시니어 주도형 도심 농업 모델입니다."
+안천구,도심,타천 은하수 옥상농원,테마농장,안천구 타천동 성택대학교 인근,"대학생들과 인근 주민들이 함께 야간 조명(은하수 LED) 아래에서 원예 활동을 즐길 수 있도록 24시간 개방되는 독특한 야간 개장 텃밭입니다."
+안천구,도심,팔망성 허브 정원,공동체텃밭,안천구 팔망성동 14,"바닥 조명(마법진 패턴)과 방사형 구획 설계를 통해 독특한 경관을 자아내며, 구민들에게 시각적 즐거움과 함께 신선한 식용 허브를 제공합니다."
+탄성군,도변읍,도변 마린 옥상팜,옥상텃밭,탄성군 도변읍 요우리 상가 옥상,"해양 도시의 정체성을 담아 요트 돛 모양의 그늘막을 설치하고, 바닷바람에 강한 내염성 작물 위주로 식재하여 도변읍의 랜드마크로 자리 잡았습니다."
+탄성군,탄성읍,공리 행정복합 텃밭,관공서텃밭,탄성군 탄성읍 공리 군청사 옥상,"탄성군청 공무원과 민원인들이 틈틈이 휴식을 취할 수 있도록 청사 옥상에 조성되었으며, 수확된 채소는 군청 구내식당 특식으로 제공됩니다."
+탄성군,서목읍,서목 수직농장 랩(Lab),수직농장,탄성군 서목읍 승남리 12,"겨울철 한랭한 기후와 강한 바닷바람의 영향을 받지 않도록, 폐공장을 리모델링하여 외부 환경을 완벽히 통제하는 첨단 실내 수직 농장입니다."`;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // 파싱 로직 (띄어쓰기 및 따옴표 완벽 보호)
+            const lines = rawCSVData.trim().split('\n');
+            const dataRows = lines.slice(1).filter(line => line.trim().length > 0).map(line => {
+                const row = [];
+                let cell = '';
+                let inQuote = false;
+                for (let i = 0; i < line.length; i++) {
+                    let char = line[i];
+                    if (char === '"') {
+                        inQuote = !inQuote;
+                    } else if (char === ',' && !inQuote) {
+                        row.push(cell.trim());
+                        cell = '';
+                    } else {
+                        cell += char;
+                    }
+                }
+                row.push(cell.trim());
+                return row;
+            });
+
+            const agricultureByGu = {};
+            // 명시된 구/군 순서 보장
+            const guOrderList = ['중구', '남구', '서구', '북구', '동구', '청엽구', '창전구', '안천구', '탄성군'];
+
+            // 시설 유형별 배지 색상 매핑
+            const badgeMap = {
+                '옥상텃밭': 'badge-type1',
+                '주말농장': 'badge-type2',
+                '수직농장': 'badge-type3',
+                '실내농장': 'badge-type3',
+                '공동체텃밭': 'badge-type4',
+                '테마농장': 'badge-type5',
+                '치유농장': 'badge-type5',
+                '학교텃밭': 'badge-type6',
+                '관공서텃밭': 'badge-type6'
+            };
+
+            // 데이터 분류 작업
+            dataRows.forEach(row => {
+                if (row.length < 6) return;
+                
+                const gu = row[0]; // 구·군
+                const areaDetail = row[1]; // 지역(도심/읍 등)
+                const facName = row[2]; // 시설명
+                const type = row[3]; // 유형
+                const location = row[4]; // 위치
+                const program = row[5]; // 특화 프로그램
+
+                if (!agricultureByGu[gu]) agricultureByGu[gu] = [];
+
+                agricultureByGu[gu].push({
+                    areaDetail: areaDetail,
+                    name: facName,
+                    type: type,
+                    location: location,
+                    program: program,
+                    badgeClass: badgeMap[type] || 'bg-gray-500'
+                });
+            });
+
+            const quickLinksContainer = document.getElementById('quick-links');
+            const tablesContainer = document.getElementById('welfare-tables-container');
+
+            guOrderList.forEach(gu => {
+                if (!agricultureByGu[gu] || agricultureByGu[gu].length === 0) return;
+                const sectionId = `gu-${gu}`;
+
+                // 1. 빠른 이동 링크 생성
+                const linkObj = document.createElement('a');
+                linkObj.href = `#${sectionId}`;
+                linkObj.className = "px-3 py-1.5 bg-green-50 text-green-800 font-medium rounded hover:bg-green-100 transition-colors text-sm border border-green-200";
+                linkObj.innerText = gu;
+                quickLinksContainer.appendChild(linkObj);
+
+                // 2. 구·군별 테이블 생성
+                const items = agricultureByGu[gu];
+                const rowsHtml = items.map(item => `
+                    <tr class="text-sm">
+                        <td class="text-left font-bold text-green-900 border-b border-gray-300">
+                            <span class="badge ${item.badgeClass}">${item.type}</span><br>
+                            <span class="text-[16px] mt-1 inline-block">${item.name}</span>
+                        </td>
+                        <td class="text-left font-medium text-gray-800 border-b border-gray-300">
+                            ${item.location}
+                        </td>
+                        <td class="text-left text-gray-700 text-[0.9rem] leading-relaxed border-b border-gray-300">
+                            ${item.program}
+                        </td>
+                    </tr>
+                `).join('');
+
+                const sectionHtml = `
+                    <section id="${sectionId}" class="mb-12">
+                        <h3 class="bullet-title">${gu} 도심 농업 현황</h3>
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+                            <table class="data-table !border-t-0 !mb-0 min-w-[800px]">
+                                <thead>
+                                    <tr>
+                                        <th width="25%" class="border-b border-gray-300">유형 및 시설명</th>
+                                        <th width="25%" class="border-b border-gray-300">상세 위치</th>
+                                        <th width="50%" class="border-b border-gray-300">특화 프로그램 및 비고</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                `;
+                tablesContainer.insertAdjacentHTML('beforeend', sectionHtml);
+            });
+            
+            // 동적 생성 후 아이콘 렌더링 한 번 더 실행
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

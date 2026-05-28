@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>복지 - 아동·청소년시설 (지역아동센터) | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1593115057322-e94b77572f20?q=80&w=2071&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+        
+        /* 3뎁스 스타일 */
+        .lnb-depth3 { padding-left: 1.5rem; padding-bottom: 0.75rem; border-top: 1px dashed #e5e7eb; margin-top: 0.5rem; padding-top: 0.5rem; }
+        .lnb-depth3 a { display: flex; align-items: center; padding: 0.35rem 1rem; color: #4b5563; font-size: 0.85rem; position: relative; transition: all 0.2s; }
+        .lnb-depth3 a.anchor-link::before { content: '·'; position: absolute; left: 0.2rem; color: #9ca3af; font-weight: bold; }
+        .lnb-depth3 a:hover, .lnb-depth3 a.current-sub { color: #2563eb; font-weight: 700; background-color: #f1f5f9; border-radius: 4px; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        /* 타이틀 및 데이터 표 스타일 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+        .bullet-title { position: relative; padding-left: 16px; margin-top: 2rem; margin-bottom: 1.25rem; color: #1e3a8a; font-size: 1.35rem; font-weight: 700; }
+        .bullet-title::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 18px; background-color: #2563eb; border-radius: 2px; }
+        
+        .data-table { width: 100%; border-top: 2px solid #1e3a8a; border-collapse: collapse; font-size: 0.9rem; text-align: center; margin-bottom: 2rem; background-color: #fff; }
+        .data-table th, .data-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 12px 10px; line-height: 1.5; vertical-align: middle; }
+        .data-table th:last-child, .data-table td:last-child { border-right: none; }
+        .data-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 0 #cbd5e1; }
+        .data-table td { color: #334155; }
+        .data-table tr:hover td { background-color: #f1f5f9; }
+        
+        .search-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .search-input { flex-grow: 1; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 16px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .search-select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 16px; font-size: 0.95rem; outline: none; background-color: #fff; cursor: pointer; min-width: 160px; }
+        .search-btn { background-color: #1e3a8a; color: #fff; border: none; border-radius: 6px; padding: 10px 24px; font-weight: 700; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; gap: 6px; }
+        .search-btn:hover { background-color: #1e40af; }
+        
+        .empty-msg { padding: 40px; color: #64748b; font-size: 1.1rem; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <!-- 1. 최상단 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 3. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">복지</h1>
+    </div>
+
+    <!-- 4. 본문 컨테이너 -->
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10">
+        
+        <!-- 아코디언 LNB (좌측 메뉴) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">복지</div>
+                <ul class="lnb-depth1">
+                    <li><a href="맞춤형복지.html" class="lnb-single">맞춤형복지</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">분야별 복지시설 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="종합복지관.html">종합사회복지관</a></li>
+                            <li><a href="노인복지.html">노인복지시설</a></li>
+                            <li><a href="장애인복지.html">장애인복지시설</a></li>
+                            <li>
+                                <a href="아동청소년복지.html" class="current">아동·청소년시설</a>
+                                <ul class="lnb-depth3 flex flex-col gap-1">
+                                    <li><a href="아동청소년복지.html#type-청소년수련원" class="anchor-link">청소년수련원</a></li>
+                                    <li><a href="아동청소년복지.html#type-청소년수련관" class="anchor-link">청소년수련관</a></li>
+                                    <li><a href="아동청소년복지.html#type-청소년문화의집" class="anchor-link">청소년문화의집</a></li>
+                                    <li><a href="아동청소년복지.html#type-유스호스텔" class="anchor-link">유스호스텔</a></li>
+                                    <li><a href="아동청소년복지.html#type-청소년특화시설" class="anchor-link">청소년 특화시설</a></li>
+                                    <li><a href="지역아동센터.html" class="anchor-link">지역아동센터</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a href="여성가족복지.html">여성·가족시설</a></li>
+                            <li><a href="보호자활지원.html">보호·자활시설</a></li>
+                            <li><a href="특수복지.html">효빈 특수복지시설</a></li>
+                            <li><a href="근로자복지.html">근로자 복지시설</a></li>
+
+                        </ul>
+                    </li>
+                    <li><a href="보육포털.html" class="lnb-single">보육포털</a></li>
+                    <li><a href="보건의료.html" class="lnb-single">보건의료</a></li>
+                    <li><a href="복지정책자료.html" class="lnb-single">복지정책자료</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈 <i data-lucide="chevron-right" class="w-4 h-4"></i> 복지 <i data-lucide="chevron-right" class="w-4 h-4"></i> 분야별 복지시설 <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">지역아동센터</strong>
+            </div>
+
+            <div class="content-title">
+                <h2 class="text-3xl font-black text-gray-900 m-0">지역아동센터 현황</h2>
+                <span class="text-gray-500 font-medium">Local Children's Centers</span>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-6 mb-8">
+                <h3 class="font-bold text-yellow-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="baby" class="w-5 h-5"></i> 안심하고 맡길 수 있는 우리 동네 아동 돌봄망
+                </h3>
+                <p class="text-gray-700 leading-relaxed text-[0.95rem]">
+                    지역아동센터는 방과 후 돌봄이 필요한 지역사회 아동의 건전한 육성을 위하여 보호, 교육, 건전한 놀이와 오락 제공 등 종합적인 복지 서비스를 제공하는 시설입니다. 효빈광역시 내 관할 구·군별 시설 목록을 검색을 통해 편리하게 확인하실 수 있습니다.
+                </p>
+            </div>
+
+            <!-- 검색 필터 -->
+            <div class="search-box">
+                <select id="gu-select" class="search-select">
+                    <option value="">전체 구·군</option>
+                    <option value="중구">중구</option>
+                    <option value="동구">동구</option>
+                    <option value="서구">서구</option>
+                    <option value="남구">남구</option>
+                    <option value="북구">북구</option>
+                    <option value="안천구">안천구</option>
+                    <option value="창전구">창전구</option>
+                    <option value="청엽구">청엽구</option>
+                    <option value="탄성군">탄성군</option>
+                </select>
+                <div class="relative flex-grow flex items-center gap-2">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3"></i>
+                    <input type="text" id="search-input" class="search-input pl-10" placeholder="시설명 또는 소재지(동)를 입력하세요" onkeyup="if(event.key==='Enter') filterTable()">
+                    <button class="search-btn" onclick="filterTable()">검색</button>
+                </div>
+            </div>
+
+            <!-- 테이블 상단 카운트 -->
+            <div class="mb-3 text-sm text-gray-600 font-medium flex justify-between items-end">
+                <span>총 <strong id="total-count" class="text-blue-700 text-base">232</strong>건의 시설이 검색되었습니다.</span>
+                <span class="text-xs text-gray-400">* 시설명 가나다순, 구별 정렬</span>
+            </div>
+
+            <!-- 테이블 컨테이너 (스크롤 포함) -->
+            <div class="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                <div class="overflow-x-auto max-h-[800px] overflow-y-auto">
+                    <table class="data-table !border-t-0 !mb-0 w-full min-w-[900px]">
+                        <thead>
+                            <tr>
+                                <th width="8%">관할구</th>
+                                <th width="8%">연번</th>
+                                <th width="20%">시설명</th>
+                                <th width="15%">운영주체</th>
+                                <th width="14%">소재지 (법정동)</th>
+                                <th width="35%">상세 설명 및 특징</th>
+                            </tr>
+                        </thead>
+                        <tbody id="center-tbody" class="divide-y divide-gray-200">
+                            <!-- JS 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 관리부서 정보 -->
+            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div>자료관리 담당자 : 아동복지과 | 연락처 : 079-510-3377</div>
+                <div class="mt-2 md:mt-0">최종업데이트 : 2026-05-27</div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 6. 페이지 하단 푸터 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+    <script>
+        // 아코디언 메뉴 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li.active').forEach(li => {
+                    li.classList.remove('active');
+                    let activeIcon = li.querySelector('.lnb-toggle i');
+                    if(activeIcon) activeIcon.classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                if(icon) icon.classList.add('rotate-180');
+            }
+        }
+
+        // 전체 데이터 (위키 밈 제거 후 관공서용 정제)
+        const centerData = [
+            { gu: "중구", num: 1, name: "우이 지역아동센터", operator: "굿네이버스", location: "중구 우이동", desc: "하교 후 아동들에게 영양이 풍부한 수제 간식을 매일 제공하며, 가정과 같이 따뜻하고 안정적인 돌봄 환경을 조성하여 학부모 만족도가 매우 높습니다." },
+            { gu: "중구", num: 2, name: "지유 지역아동센터", operator: "튜튜 복지재단", location: "중구 지유동1가", desc: "음악과 리듬을 접목한 창의적인 방과 후 영어 교실을 운영하며, 아동의 신체 발달을 고려한 고단백 맞춤형 간식을 제공하여 건강한 성장을 돕습니다." },
+            { gu: "중구", num: 3, name: "삼각 지역아동센터", operator: "삼각복지재단", location: "중구 삼각동", desc: "천문학 및 기초 과학 탐구에 특화된 시청각 교육 환경을 갖추고 있으며, 우주 과학 특화 프로그램을 통해 아동들의 진로 탐색을 적극 지원합니다." },
+            { gu: "중구", num: 4, name: "리사 지역아동센터", operator: "금취복지재단", location: "중구 리사동", desc: "아동의 정서 발달을 돕는 요리 교실(제과제빵) 및 미술 체험 프로그램을 운영하여 다재다능한 재능 발굴 및 심리적 안정감을 제공합니다." },
+            { gu: "중구", num: 5, name: "내조 지역아동센터", operator: "효빈복지재단", location: "중구 내조동", desc: "중구 최대 인구 밀집 지역인 내조동의 핵심 돌봄 거점으로, 구도심의 풍부한 지역사회 어르신 네트워크와 연계한 세대 간 교류 프로그램을 실천합니다." },
+            { gu: "동구", num: 1, name: "덕현 지역아동센터", operator: "빙천복지재단", location: "동구 덕현동", desc: "기초 학력 증진을 위한 체계적인 학습 지도와 원칙을 중시하는 올바른 생활 습관 형성에 주력하여 자기주도적인 학습 태도를 기릅니다." },
+            { gu: "동구", num: 2, name: "덕현 빙천 지역아동센터", operator: "빙천복지재단", location: "동구 덕현동", desc: "미술 및 추상 예술 창작 활동을 통해 아동의 자율성과 창의력을 극대화하는 개방형 교육 방식을 채택하고 있습니다." },
+            { gu: "동구", num: 3, name: "덕현 새롬 지역아동센터", operator: "효빈생명의전화", location: "동구 덕현동", desc: "과거 대중교통 이용에 불편을 겪었던 지역 주민들의 의견을 수렴하여, 아동들의 안전하고 쾌적한 통학을 보장하는 우수 송영 차량을 운행합니다." },
+            { gu: "동구", num: 4, name: "덕현 어울림 지역아동센터", operator: "초록우산", location: "동구 덕현동", desc: "10만 대단지 아파트 배후 수요를 감당하는 거점 센터로, 다수의 아동이 함께 어울리며 협동심을 기를 수 있는 체계적인 단체 야외 활동을 지도합니다." },
+            { gu: "동구", num: 5, name: "덕현 푸른나무 지역아동센터", operator: "효빈복지재단", location: "동구 덕현동", desc: "도심 속 자연 친화 활동을 표방하여 원내 텃밭 가꾸기 및 식생활 개선 생태 프로그램을 통해 아동의 정서적 순화와 식습관 교정을 돕습니다." },
+            { gu: "동구", num: 6, name: "덕현 해오름 지역아동센터", operator: "흑택재단", location: "동구 덕현동", desc: "맞벌이 부부의 양육 부담을 덜기 위해 이른 아침부터 운영하는 조기 보호 특화 시설로, 차분한 아침 독서와 엄격한 예절 교육을 병행합니다." },
+            { gu: "동구", num: 7, name: "덕현 은혜 지역아동센터", operator: "기독교대한감리회", location: "동구 덕현동", desc: "정기적인 학예회 및 연극 발표회를 통해 아동들의 표현력을 향상시키며, 식전 예절 교육 등 바른 인성 함양에 힘씁니다." },
+            { gu: "동구", num: 8, name: "덕현 둥지 지역아동센터", operator: "레이어스 사회복지회", location: "동구 덕현동", desc: "늦은 시간까지 부모를 기다리는 아동을 위한 안전한 둥지 역할을 수행하며, 조기 기초 경제 지식 및 금융 리터러시 교육을 지원합니다." },
+            { gu: "동구", num: 9, name: "사가당 지역아동센터", operator: "동조희복지재단", location: "동구 사가당동", desc: "심리 상담 교구를 활용한 정서 지원 프로그램을 통해 아동의 진로와 학업에 대한 동기부여를 이끌어내는 자기주도적 성장을 도모합니다." },
+            { gu: "동구", num: 10, name: "사가당 튼튼 지역아동센터", operator: "사계복지재단", location: "동구 사가당동", desc: "주말 가족 연계 자연 생태 체험(곤충 탐구 등) 및 캠프를 주도하여 아동의 강인한 체력 증진과 학부모의 양육 부담 완화를 동시에 충족시킵니다." },
+            { gu: "동구", num: 11, name: "사가당 해피 지역아동센터", operator: "화원복지재단", location: "동구 사가당동", desc: "센터 내 소형 동물(토끼 등) 사육장을 운영하며, 생명 존중 교육과 정서 교감을 통해 아동들의 심리적 안정감과 책임감을 고취시킵니다." },
+            { gu: "동구", num: 12, name: "사가당 꿈나무 지역아동센터", operator: "현권복지재단", location: "동구 사가당동", desc: "탄탄한 재단 후원을 바탕으로 질 높고 풍성한 급·간식을 제공하며, 아동의 신체 발육을 위한 최고 수준의 영양 복지를 실현하고 있습니다." },
+            { gu: "동구", num: 13, name: "전천 지역아동센터", operator: "팔번복지재단", location: "동구 전천동", desc: "인구 1.7만 전천동의 대표 돌봄 기관으로, 맞벌이 가정 아동의 숙제 지도부터 학교 준비물 관리까지 빈틈없고 묵묵한 학업 서포트를 자랑합니다." },
+            { gu: "동구", num: 14, name: "전천 다솜 지역아동센터", operator: "미셸 복지재단", location: "동구 전천동", desc: "영유아 및 저학년 아동에 특화된 친화적 돌봄 환경을 갖추었으며, 동물 캐릭터 등을 활용한 유희적 접근으로 아동의 시설 적응력을 높입니다." },
+            { gu: "서구", num: 1, name: "과진 지역아동센터", operator: "환산복지재단", location: "서구 과진동", desc: "9만 인구 과진동의 제1센터로서, 타인을 배려하고 공감하는 인성 교육을 바탕으로 아동 상호 간의 유대감과 성숙한 또래 문화를 조성합니다." },
+            { gu: "서구", num: 2, name: "과진 소망 지역아동센터", operator: "소원복지재단", location: "서구 과진동", desc: "우수한 재정 지원을 바탕으로 전문 셰프 수준의 고급 영양 식단 및 다국적 미식 체험을 제공하여 아동의 미각 발달과 문화적 경험을 넓힙니다." },
+            { gu: "서구", num: 3, name: "과진 파스텔파레트 지역아동센터", operator: "파스텔복지회", location: "서구 과진동", desc: "예체능 및 무용 특화 교육을 통해 아동들의 끼와 재능을 발굴하고, 정기적인 지역 무대 공연 참여로 창의력과 자신감을 고취시킵니다." },
+            { gu: "서구", num: 4, name: "과진 환산 지역아동센터", operator: "환산복지재단", location: "서구 과진동", desc: "실패를 두려워하지 않는 긍정적 마인드셋(Mindset) 훈련을 중시하며, 아동들이 목표를 향해 끝까지 도전하는 회복 탄력성을 길러줍니다." },
+            { gu: "서구", num: 5, name: "과진 새별 지역아동센터", operator: "빙천복지재단", location: "서구 과진동", desc: "자유로운 신체 활동 시간과 엄격한 기초 학력 지도 시간을 철저히 분리 운영하여 균형 잡힌 전인 교육을 실천하는 과진동 선호도 1위 시설입니다." },
+            { gu: "서구", num: 6, name: "당선 지역아동센터", operator: "사계복지재단", location: "서구 당선동", desc: "과학 영재 육성을 목표로, 폐가전 분해 조립 및 기초 기계공학 체험 교실을 운영하여 미래 이공계 인재의 창의적 문제 해결 능력을 기릅니다." },
+            { gu: "서구", num: 7, name: "당선 에디슨 지역아동센터", operator: "대화복지재단", location: "서구 당선동", desc: "4차 산업혁명 시대에 발맞춰 기초 코딩(C언어, 파이썬 등) 및 알고리즘 교육을 집중 지원하는 IT 인재 특화 돌봄 센터입니다." },
+            { gu: "서구", num: 8, name: "당선 마루 지역아동센터", operator: "국목전 복지회", location: "서구 당선동", desc: "전통 한옥식 마루 인테리어 환경 속에서 예절 교육과 다도 체험, 고전 독서를 지도하며 차분하고 예의 바른 인성을 함양합니다." },
+            { gu: "서구", num: 9, name: "당선 사계 지역아동센터", operator: "사계복지재단", location: "서구 당선동", desc: "당선동 인근 산림과 연계한 자연 숲 생태 탐험 프로그램을 특화하여, 관찰력과 환경 보호 의식을 기르는 생태 전문가 육성 교실을 운영합니다." },
+            { gu: "서구", num: 10, name: "청덕 지역아동센터", operator: "레이어스 사회복지회", location: "서구 청덕동", desc: "일반 합창 대신 밴드 악기(기타, 앰프 등) 연주를 가르치는 실용 음악 특화 교육으로 아동들의 예술적 감각과 협동심을 동시에 성장시킵니다." },
+            { gu: "서구", num: 11, name: "청덕 레이어스 지역아동센터", operator: "레이어스 사회복지회", location: "서구 청덕동", desc: "초등 고학년 및 청소년 특화 밴드 동아리를 적극 운영하며, 학업 스트레스와 반항기 에너지를 음악으로 건전하게 배출하도록 유도합니다." },
+            { gu: "서구", num: 12, name: "청덕 한빛 지역아동센터", operator: "천조복지재단", location: "서구 청덕동", desc: "최신 디지털 트렌드를 반영하여 영상 미디어 제작 및 편집 교육을 실시하며, 아동의 표현력 강화와 뉴미디어 크리에이터 역량을 기릅니다." },
+            { gu: "서구", num: 13, name: "청덕 하모니 지역아동센터", operator: "삽곡복지재단", location: "서구 청덕동", desc: "매일 점심시간마다 진행되는 합창단 훈련 및 화음 연습을 통해 공동체 의식을 기르고 지역사회 공연 봉사로 정서적 교감을 나눕니다." },
+            { gu: "서구", num: 14, name: "사복 지역아동센터", operator: "학교법인 효빈복지대", location: "서구 사복동", desc: "효빈대학교 복지학과와 연계하여 대학생 멘토들이 아동의 1:1 방과 후 학습 지도는 물론 친밀한 정서적 유대 활동을 활발히 지원합니다." },
+            { gu: "서구", num: 15, name: "사복 대학마을 지역아동센터", operator: "효빈사회복지협의회", location: "서구 사복동", desc: "대학 캠퍼스 인근 위치를 살려 대학생 자원봉사자들의 교육 실습 장소로 활용되며, 활기찬 청년들의 에너지가 아동 보육에 시너지를 냅니다." },
+            { gu: "서구", num: 16, name: "사복 샬롬 지역아동센터", operator: "기독교대한감리회", location: "서구 사복동", desc: "정기적인 '달란트 경제 시장' 체험 행사를 개최하여, 놀이를 통한 올바른 경제 관념 확립 및 성취감 고취 교육의 요람으로 자리 잡고 있습니다." },
+            { gu: "서구", num: 17, name: "효빈엘림지역아동센터", operator: "엘림복지회", location: "서구 내성동1가", desc: "과거 효빈시장(박효빈)이 멘토링 활동을 펼쳤던 유서 깊은 교육 성지로, 보건복지부 우수 시설로 다수 선정된 모범적인 아동 돌봄의 표준입니다." },
+            { gu: "서구", num: 18, name: "내성2가 지역아동센터", operator: "시택복지재단", location: "서구 내성동2가", desc: "올바른 예절과 긍정적인 자기표현 훈련을 중시하며, 활기차고 밝은 인사 문화를 의무화하여 아동의 적극적인 사회성을 함양합니다." },
+            { gu: "서구", num: 19, name: "내성3가 지역아동센터", operator: "뇌전복지재단", location: "서구 내성동3가", desc: "명작 문학 낭독 및 연극 대본 읽기 프로그램을 통해 아동들의 어휘력, 발표력 및 예술적 감수성을 키워주는 문예 특화 돌봄 기관입니다." },
+            { gu: "서구", num: 20, name: "북문1가 지역아동센터", operator: "낭원복지재단", location: "서구 북문동1가", desc: "인구 491명의 소규모 마을 특성을 살려, 효빈산 인근의 자연 지형을 활용한 정기 등산 및 하이킹 프로그램으로 아동의 강인한 체력을 기릅니다." },
+            { gu: "서구", num: 21, name: "북문2가 지역아동센터", operator: "정중복지재단", location: "서구 북문동2가", desc: "자유분방한 놀이 분위기 속에서도 상호 존중과 예의범절을 철저히 지도하여, 긍정적인 에너지와 올바른 도덕성을 동시에 갖추게 합니다." },
+            { gu: "서구", num: 22, name: "칠천 지역아동센터", operator: "삼선복지재단", location: "서구 칠천동", desc: "효빈시의 '청학동'이라 불릴 만큼 전통적인 인성 교육과 예절 지도를 엄격하게 실시하여, 지역 어르신들에게 칭찬받는 모범 아동을 육성합니다." },
+            { gu: "북구", num: 1, name: "고송 지역아동센터", operator: "효빈복지재단", location: "북구 고송동", desc: "인구 23만 고송동의 대표 센터로 자연 친화적인 생태 탐구 및 수집 활동을 장려하여 아동의 관찰력을 키우고 훌륭한 자연사 전시 공간을 운영합니다." },
+            { gu: "북구", num: 2, name: "고송 해오름 지역아동센터", operator: "청산복지재단", location: "북구 고송동", desc: "아동의 사소한 상처도 놓치지 않는 세심한 응급 처치와 따뜻한 정서적 위안을 바탕으로 한 밀착형 보건·안전 돌봄 원칙을 준수합니다." },
+            { gu: "북구", num: 3, name: "고송 새롬 지역아동센터", operator: "굿네이버스", location: "북구 고송동", desc: "대단지 아파트 상가에 위치해 학부모 수요가 매우 높으며, 식물 도감을 활용한 심화 생태 영재 육성 프로그램으로 유명한 우수 시설입니다." },
+            { gu: "북구", num: 4, name: "고송 푸른솔 지역아동센터", operator: "사계복지재단", location: "북구 고송동", desc: "폐건전지와 미니카 조립 등 기계공학적 기초 과학 실험을 일상화하여 아이들의 이과적 탐구심과 문제 해결 능력을 자극합니다." },
+            { gu: "북구", num: 5, name: "고송 은혜 지역아동센터", operator: "효빈복지재단", location: "북구 고송동", desc: "일반 동요를 넘어 록 밴드 음악 등 다양한 장르의 음악을 접목한 독창적인 합창 교육을 통해 풍부한 감정 표현력과 성량을 기릅니다." },
+            { gu: "북구", num: 6, name: "고송 다솜 지역아동센터", operator: "삼선복지재단", location: "북구 고송동", desc: "역동적인 탬버린 율동과 신체 발현 활동을 적극 권장하여 아동들의 억눌린 에너지를 건전하게 발산하도록 돕는 열정적인 보육 현장입니다." },
+            { gu: "북구", num: 7, name: "고송 어울림 지역아동센터", operator: "흑택재단", location: "북구 고송동", desc: "소음과 외부 자극에 민감하거나 소극적인 아동들을 위해 정숙을 유지하는 암묵적인 룰을 적용, 도서관처럼 차분하고 고요한 힐링 공간을 제공합니다." },
+            { gu: "북구", num: 8, name: "고송 토모리 지역아동센터", operator: "마이고복지회", location: "북구 고송동", desc: "고송동 인구 과밀 해소를 위해 신설된 맞춤형 센터로, 아동 한 명 한 명을 평생의 가족처럼 끝까지 책임지겠다는 원장의 헌신적인 철학이 돋보입니다." },
+            { gu: "북구", num: 9, name: "고송 마이고 지역아동센터", operator: "마이고복지회", location: "북구 고송동", desc: "청소년 밴드 합주 및 심화 음악 활동을 적극 지원하여 '길 잃은 아이들'이 예술적 열정을 통해 올바른 길을 찾도록 돕는 문화 소통의 보금자리입니다." },
+            { gu: "북구", num: 10, name: "중수 지역아동센터", operator: "청산복지재단", location: "북구 중수동", desc: "애교와 긍정적인 언어 사용을 장려하여 아동들의 밝은 자아상 형성을 돕고, 인구 13만 중수동의 수요를 안정적으로 소화하는 돌봄 핫플레이스입니다." },
+            { gu: "북구", num: 11, name: "중수 나래 지역아동센터", operator: "효빈복지재단", location: "북구 중수동", desc: "전통적인 수제 간식(특제 잼 빵) 제공 등 먹거리 복지에 심혈을 기울여, 중수동 아동들이 방과 후 가장 기다리는 든든한 소울 푸드 급식소입니다." },
+            { gu: "북구", num: 12, name: "중수 빛누리 지역아동센터", operator: "굿네이버스", location: "북구 중수동", desc: "전면 거울이 시공된 무용실을 갖추고 전문 댄스 스포츠 및 안무 교육을 지원하여 지역 댄스 경연 대회 1위를 휩쓰는 예체능 영재 발굴 센터입니다." },
+            { gu: "북구", num: 13, name: "중수 샘물 지역아동센터", operator: "삼선복지재단", location: "북구 중수동", desc: "보편적이고 평범한 일상 돌봄을 지향하나, 아이들의 넘치는 활동량과 높은 참여율 덕분에 가장 활기차고 에너지 넘치는 분위기를 자아냅니다." },
+            { gu: "북구", num: 14, name: "중수 카스카스 아동센터", operator: "니지동복지재단", location: "북구 중수동", desc: "센터 고유의 독창적이고 명랑한 브랜딩을 바탕으로 시설에 대한 강한 자부심을 심어주며, 원장과 아동 간 격의 없는 수평적 소통을 자랑합니다." },
+            { gu: "북구", num: 15, name: "중수 니지가사키 아동센터", operator: "니지동복지재단", location: "북구 중수동", desc: "마치 아이돌 육성 기관처럼 아동들의 개성과 재능을 존중하며, 매일 아침 독특한 시그니처 포즈로 출석 체크를 하는 유쾌한 돌봄 환경을 제공합니다." },
+            { gu: "북구", num: 16, name: "오내 지역아동센터", operator: "시택복지재단", location: "북구 오내동", desc: "인구 5만 오내동의 제1센터로, 타인에 대한 밝은 미소와 긍정적인 제스처(인사)를 엄격히 교육하여 아동의 훌륭한 사회성 발달을 책임집니다." },
+            { gu: "북구", num: 17, name: "오내 늘푸른 지역아동센터", operator: "효빈생명의전화", location: "북구 오내동", desc: "부모님의 퇴근 시간까지 기초 학력 증진 학습지 지도를 꼼꼼히 병행하며, 조용하고 안정된 면학 분위기를 유지하는 안전한 보금자리입니다." },
+            { gu: "북구", num: 18, name: "오내 꿈나무 지역아동센터", operator: "대화복지재단", location: "북구 오내동", desc: "오내동 공학 영재들의 성지로, 장난감 블록과 기초 기계 키트를 활용한 로봇 조립 활동을 통해 논리적 사고와 성취감을 극대화합니다." },
+            { gu: "북구", num: 19, name: "진희 지역아동센터", operator: "서목사회복지회", location: "북구 진희동", desc: "무뚝뚝해 보이지만 실제로는 아동들의 식단과 간식을 누구보다 살뜰하게 챙기는 '츤데레'식의 진정성 있는 밀착 돌봄으로 유명한 상징적 센터입니다." },
+            { gu: "북구", num: 20, name: "진희 동행 지역아동센터", operator: "동조희복지재단", location: "북구 진희동", desc: "엄격한 생활 규율 지도를 표방하면서도 하원 시에는 아동들에게 푸짐한 수제 간식을 안겨주는 등 사랑과 훈육의 완벽한 조화를 이룹니다." },
+            { gu: "북구", num: 21, name: "포산 지역아동센터", operator: "흑택재단", location: "북구 포산동", desc: "인구 1.4만의 포산동 핵심 시설로, 시설 내 안전 규정과 공공장소 예절을 엄격하게 적용하여 뛰어난 도덕성을 갖춘 아동을 배출합니다." },
+            { gu: "북구", num: 22, name: "포산 희망 지역아동센터", operator: "약궁복지재단", location: "북구 포산동", desc: "안전한 스포츠용구(플라스틱 펜싱 등)를 활용한 진취적인 체육 활동을 통해 아동들의 승부욕, 페어플레이 정신, 신체적 민첩성을 기릅니다." },
+            { gu: "북구", num: 23, name: "남전 지역아동센터", operator: "약궁복지재단", location: "북구 남전동", desc: "예절 및 정신 수양 교육의 일환으로 전통 검도를 응용한 생활 체조를 도입하여, 아이들에게 강인한 체력과 절도 있는 청소 습관 등을 가르칩니다." },
+            { gu: "북구", num: 24, name: "남전 약궁 지역아동센터", operator: "기라복지재단", location: "북구 남전동", desc: "끝말잇기 등 다양한 지적 놀이를 통해 건전한 승부욕을 자극하며, 아동들이 패배를 인정하고 다시 도전하는 회복 탄력성을 집중적으로 육성합니다." },
+            { gu: "북구", num: 25, name: "사능2가 지역아동센터", operator: "회주복지재단", location: "북구 사능동2가", desc: "1.1만 명이 사는 사능동2가 대장 센터로, 시설 내 체계화된 베이킹 설비를 활용한 훌륭한 제과제빵 특화 교육으로 지역 내 인지도가 높습니다." },
+            { gu: "북구", num: 26, name: "사능2가 샬롬 지역아동센터", operator: "회주복지재단", location: "북구 사능동2가", desc: "전문 베이커리 수준의 수제 빵을 급식으로 제공하며, 아이들이 직접 빵 반죽을 치대는 촉각 놀이를 통해 학업 스트레스를 해소하도록 돕습니다." },
+            { gu: "북구", num: 27, name: "천왕사 지역아동센터", operator: "천왕사복지회", location: "북구 천왕사동", desc: "감정 표현이 서툰 아이들이 스케치북이나 도구를 활용해 마음을 표현하고 소통하도록 돕는 차분한 감성 미술 테라피 특화 센터입니다." },
+            { gu: "북구", num: 28, name: "천왕사 슬기 지역아동센터", operator: "천왕사복지회", location: "북구 천왕사동", desc: "방과 후 정보올림피아드 국가대표급 수준의 고급 코딩 교실(파이썬 등)을 운영하며, 아동 주도의 게임 개발 등 IT 영재 교육의 메카입니다." },
+            { gu: "북구", num: 29, name: "청능 지역아동센터", operator: "빙천복지재단", location: "북구 청능동", desc: "단호하고 철저한 학습 관리 시스템을 도입하여, 방과 후 숙제와 기본 학업을 100% 완료해야만 귀가할 수 있는 등 높은 학업 성취도를 견인합니다." },
+            { gu: "북구", num: 30, name: "입희 지역아동센터", operator: "동조희복지재단", location: "북구 입희동", desc: "인구 5천 명 입희동의 유일한 보금자리로, 아이들 스스로 정리정돈을 완벽히 해내는 기적 같은 자율 규율 시스템이 안착된 모범 기관입니다." },
+            { gu: "북구", num: 31, name: "사연 지역아동센터", operator: "효빈사회복지협의회", location: "북구 사연동", desc: "할로윈 등 절기별 테마 이벤트와 심리 상담 카드 놀이를 결합한 지역 친화형 축제를 개최하여 아동과 마을 주민 간의 소통을 선도합니다." },
+            { gu: "북구", num: 32, name: "등기 지역아동센터", operator: "등도사회복지재단", location: "북구 등기동", desc: "숏폼 동영상 제작 및 크리에이터(인플루언서) 직업 체험 프로그램을 선도적으로 운영하여 아동의 디지털 미디어 역량과 발표력을 극대화합니다." },
+            { gu: "북구", num: 33, name: "사능3가 지역아동센터", operator: "회주복지재단", location: "북구 사능동3가", desc: "아이들이 직접 구운 유기농 쿠키를 인근 경로당에 기부하는 봉사 프로그램을 통해 1-3세대 간의 훈훈한 화합과 효(孝) 사상을 실천합니다." },
+            { gu: "북구", num: 34, name: "채산 지역아동센터", operator: "레이어스 사회복지회", location: "북구 채산동", desc: "식품단지 배후 지역의 특성을 살려 까다로운 입맛을 가진 아동들에게 철저한 영양 교육과 식습관 팩트 폭격을 통해 편식을 완벽히 교정합니다." },
+            { gu: "북구", num: 35, name: "해서 지역아동센터", operator: "효빈복지재단", location: "북구 해서동", desc: "인구 2천 명 소규모 동네의 유일한 센터로, 아이들이 옹기종기 모여 자기주도 학습지를 푸는 전형적이고 따뜻한 시골 학당 분위기를 간직하고 있습니다." },
+            { gu: "북구", num: 36, name: "생곡 지역아동센터", operator: "송포복지재단", location: "북구 생곡동", desc: "신체 활동 강화를 위해 여름방학 수영 단체 훈련 등 고강도 해양 스포츠 기초 교육을 실시하여 아동들의 뛰어난 체력과 수영 영법을 완성합니다." },
+            { gu: "북구", num: 37, name: "사능1가 지역아동센터", operator: "회주복지재단", location: "북구 사능동1가", desc: "늦게 퇴근하는 공단 근로자 맞벌이 가정을 위한 야간 보호 특화 센터로, 드럼 등 타악기를 활용한 방음 음악실에서 아동의 스트레스를 해소합니다." },
+            { gu: "북구", num: 38, name: "서도 지역아동센터", operator: "튜튜 복지재단", location: "북구 서도동", desc: "현대 팝송과 리듬(랩)을 결합한 기적의 파닉스 영어 교육법을 도입하여, 놀이처럼 즐겁게 외국어 발음을 익히는 글로벌 인재를 육성합니다." },
+            { gu: "북구", num: 39, name: "평전 지역아동센터", operator: "피방사회복지재단", location: "북구 평전동", desc: "평전공단 애니메이커 공장 인근에 위치하며, 휴식 시간마다 교육용 애니메이션을 시청하며 쾌적하고 편안하게 숙면을 취할 수 있는 수면 특화 존을 운영합니다." },
+            { gu: "북구", num: 40, name: "추산 지역아동센터", operator: "피방사회복지재단", location: "북구 추산동", desc: "수줍음 많은 아동들을 위해 베이스 기타 등 밴드 악기 연주를 소그룹으로 세심하게 지도하며, 점진적인 예술 활동으로 내면의 자신감을 이끌어냅니다." },
+            { gu: "북구", num: 41, name: "신영 지역아동센터", operator: "효빈생명의전화", location: "북구 신영동", desc: "신영산업단지 IT 벤처 종사자 부모들을 위해 심야 시간대 야간 돌봄을 철저히 보장하며, 공단 인프라와 어우러진 안정적인 수면 환경을 제공합니다." },
+            { gu: "북구", num: 42, name: "입선 지역아동센터", operator: "월드비전", location: "북구 입선동", desc: "다문화 가정 자녀 비중이 높은 점을 고려해, 명절마다 아시아 각국(태국, 중국 등)의 전통 식문화를 체험하는 글로벌 포트럭 파티 급식을 운영합니다." },
+            { gu: "북구", num: 43, name: "아자 지역아동센터", operator: "삼동회", location: "북구 아자동", desc: "인구 631명의 소규모 마을에서 아동의 자유로운 상상력을 극대화하기 위해, 캔버스에 흑백 위주의 독특한 문양(마법진 등)을 그리는 창의 미술 교실을 운영합니다." },
+            { gu: "북구", num: 44, name: "아진 지역아동센터", operator: "효빈사회복지협의회", location: "북구 아진동", desc: "지역 라면 공장 인프라와 연계하여 아동들에게 든든한 맞춤형 간식(컵라면 등)을 수시로 제공하는 등 인구 521명의 끈끈하고 조용한 돌봄 쉼터입니다." },
+            { gu: "안천구", num: 1, name: "안천 지역아동센터", operator: "효빈복지재단", location: "안천구 안천동", desc: "인구 11만 8천 안천동의 거점 대장 센터로, 대기 번호가 세 자릿수에 달할 만큼 입소문이 자자하며 체계적인 학습 및 방과 후 종합 복지 시스템의 롤모델입니다." },
+            { gu: "안천구", num: 2, name: "안천 푸른나무 지역아동센터", operator: "초록우산", location: "안천구 안천동", desc: "활동성이 넘치는 아동들을 위해 방과 후 야외 운동(축구 등) 풀타임 체육 활동을 적극 장려하며, 건강한 체력 단련과 페어플레이 정신을 기릅니다." },
+            { gu: "안천구", num: 3, name: "안천 은하수 지역아동센터", operator: "동조희복지재단", location: "안천구 안천동", desc: "밤 10시까지 불이 꺼지지 않는 야간 보호 전담 시설로, 저녁 간식 시간에 심리 상담 카드(타로)를 활용한 흥미진진한 스토리텔링 정서 지원을 제공합니다." },
+            { gu: "안천구", num: 4, name: "안천 나눔 지역아동센터", operator: "월드비전", location: "안천구 안천동", desc: "다문화 및 맞벌이 가정 특화 시설로, 원어민 수준의 프리토킹 능력을 갖춘 초등학생을 다수 배출하는 훌륭한 글로벌 외국어 회화 교육의 장입니다." },
+            { gu: "안천구", num: 5, name: "안천 꿈나무 지역아동센터", operator: "사계복지재단", location: "안천구 안천동", desc: "지원받은 기초 과학 실험 키트를 활용해 매일 다채로운 화학 반응(화산 폭발 등) 실험을 진행하며 미래 이공계 인재들의 호기심을 폭발시킵니다." },
+            { gu: "안천구", num: 6, name: "이자 지역아동센터", operator: "송포복지재단", location: "안천구 이자동", desc: "11만 8천 인구 이자동의 1번 센터로, 전문 피아노 학원 못지않은 그랜드 피아노 설비를 갖추고 고품격 클래식 음악 교육을 무상으로 지원합니다." },
+            { gu: "안천구", num: 7, name: "이자 해오름 지역아동센터", operator: "기라복지재단", location: "안천구 이자동", desc: "클래식 피아노 연주와 현대적인 방송 안무(아이돌 댄스) 교육의 독창적인 콜라보를 통해 지역 경로잔치 등 무대 공연을 싹쓸이하는 예체능 영재 센터입니다." },
+            { gu: "안천구", num: 8, name: "이자 다솜 지역아동센터", operator: "효빈생명의전화", location: "안천구 이자동", desc: "대규모 수용 인원을 감당하기 위해 철저한 인원 체크(호각 등)와 안전 규율을 바탕으로 한 안전 최우선의 야외 바깥 놀이 활동을 보장합니다." },
+            { gu: "안천구", num: 9, name: "이자 동행 지역아동센터", operator: "빙천복지재단", location: "안천구 이자동", desc: "이자동 내 기초 학력 기강의 상징으로, 엄격한 과제 지도와 자기주도 학습 습관 형성을 통해 중학교 진학 시 최상위권 성적을 보장하는 학업 특화 기관입니다." },
+            { gu: "안천구", num: 10, name: "이자 새빛 지역아동센터", operator: "삼선복지재단", location: "안천구 이자동", desc: "우아한 클래식 음악을 감상하며 집중력과 창의력을 요하는 점토 공예(조소) 활동을 병행하는 등 정서적 안정에 탁월한 예술 융합형 센터입니다." },
+            { gu: "안천구", num: 11, name: "당가 지역아동센터", operator: "사회복지법인 월드비전", location: "안천구 당가동", desc: "인구 3.7만 당가동의 다문화 아동 특화 시설로, 미디어 댄스 영상 시청 및 중화권 간식(탕후루 등) 배식 등 다국적 문화 수용성을 높입니다." },
+            { gu: "안천구", num: 12, name: "당가 스마일 지역아동센터", operator: "굿네이버스", location: "안천구 당가동", desc: "중국어, 베트남어, 영어 등 다양한 이주 배경 언어가 섞인 진정한 글로벌 회화의 장으로, 떡볶이 대신 마라탕 등 현지 식문화를 적극 반영한 급식을 실시합니다." },
+            { gu: "안천구", num: 13, name: "탄자 지역아동센터", operator: "화원복지재단", location: "안천구 탄자동", desc: "인구 3.2만 탄자동에 위치하며, 마당에서 소동물(토끼)을 사육하고 텃밭 농사를 짓는 체험을 통해 생명 존중과 땀의 가치를 배우는 자연 친화적 보육 공간입니다." },
+            { gu: "안천구", num: 14, name: "탄자 한마음 지역아동센터", operator: "흑택재단", location: "안천구 탄자동", desc: "인사 예절과 목소리 크기를 엄격하게 지도하며, 올바른 예절이 체화될 때까지 반복 교육하는 등 전통적인 인성 및 규율 훈련 시스템이 탁월한 곳입니다." },
+            { gu: "안천구", num: 15, name: "창건 지역아동센터", operator: "삼선복지재단", location: "안천구 창건동", desc: "인구 2만 창건동의 차분하고 조용한 보금자리로, 블록 장난감을 활용해 거대한 건축물을 설계하고 완성하는 뛰어난 공간 지각 능력자들을 길러냅니다." },
+            { gu: "안천구", num: 16, name: "창건 예닮 지역아동센터", operator: "효빈사회복지협의회", location: "안천구 창건동", desc: "매일 오후 특정 시간대 전 원생이 모여 EBS 등 공영 교육 방송을 단체 시청하며, 학업 집중도와 시청각 학습 효과를 높이는 가장 모범적인 시설입니다." },
+            { gu: "안천구", num: 17, name: "북택 지역아동센터", operator: "북택복지회", location: "안천구 북택동", desc: "넘치는 에너지를 가진 아동들을 위해 우천 시에도 거친 구기 종목(피구 등) 체육 활동을 강력히 지휘하는 텐션 높은 원장님의 열정이 돋보입니다." },
+            { gu: "안천구", num: 18, name: "성저 지역아동센터", operator: "백금사회복지회", location: "안천구 성저동", desc: "인구 1.5만의 성저동 소재. 철저한 과제 완수를 조건으로 온라인 E-스포츠(게임) 코칭 및 티어 승급 혜택을 제공하는 신개념 디지털 보상형 센터입니다." },
+            { gu: "안천구", num: 19, name: "하구 지역아동센터", operator: "북택복지회", location: "안천구 하구동", desc: "수제 크로켓(고로케) 등 양질의 간식을 풍부하게 제공하며, 압도적인 기초 체력 육성을 통해 관내 체육대회 우승 트로피를 싹쓸이하는 스포츠 명문입니다." },
+            { gu: "안천구", num: 20, name: "팔망성 지역아동센터", operator: "약채복지재단", location: "안천구 팔망성동", desc: "인구 1.3만의 독특한 지명을 지닌 마을로, 미술 시간에 어두운 톤의 마커만을 활용한 창의적인 기하학적 문양(마법진 등) 그리기 특화 교실을 운영합니다." },
+            { gu: "안천구", num: 21, name: "제택 지역아동센터", operator: "시택복지재단", location: "안천구 제택동", desc: "인구 8,500명 동네. 자존감이 높은 차세대 예체능(아이돌) 지망생들을 위해 엄격한 무대 매너와 혹독한 멘탈 트레이닝을 실시하는 프로페셔널 훈련소입니다." },
+            { gu: "안천구", num: 22, name: "하가 지역아동센터", operator: "송포복지재단", location: "안천구 하가동", desc: "해병대 캠프에 버금가는 강력한 체력 단련장 콘셉트로 수영과 장거리 뜀걸음을 매일 지도하며, 막대한 활동량을 보완하기 위해 풍성한 식사를 배급합니다." },
+            { gu: "안천구", num: 23, name: "이십기 지역아동센터", operator: "국목전 복지회", location: "안천구 이십기동", desc: "대청마루에서 한국 문학과 고전을 탐독하며 어휘력을 기르고, 지역 특유의 정겨운 어조(\"~즈라\")를 계승하는 독서광들의 인문학적 모임 장소입니다." },
+            { gu: "안천구", num: 24, name: "영색무 지역아동센터", operator: "등도사회복지재단", location: "안천구 영색무동", desc: "아동들의 역동적인 숏폼(틱톡) 댄스와 랜덤 플레이 댄스 활동을 전폭 지원하여, 신체 바닥 마감재가 마모될 정도로 엄청난 활동 에너지를 분출합니다." },
+            { gu: "안천구", num: 25, name: "리의 지역아동센터", operator: "효빈사회복지협의회", location: "안천구 리의동", desc: "5.1천 명의 평화로운 아파트 상가에 위치해, 학원 통학 대기 시간 동안 만화책 등 다채로운 도서를 열람하며 안전하게 쉬어가는 참새 방앗간 역할을 합니다." },
+            { gu: "안천구", num: 26, name: "신동 지역아동센터", operator: "현권복지재단", location: "안천구 신동", desc: "4.9천 명의 소규모 동네이나 막강한 재단 자본력을 바탕으로 최신 보드게임 및 디지털 콘솔 기기를 상시 구비하여 아동 출석률 100%를 달성합니다." },
+            { gu: "안천구", num: 27, name: "백합 지역아동센터", operator: "화원복지재단", location: "안천구 백합동", desc: "인구 4.3천 명 동네. 꽃내음이 은은하게 퍼지는 온실 같은 분위기 속에서 정서적 안정과 소근육 발달에 탁월한 십자수 및 수공예 클래스를 운영합니다." },
+            { gu: "안천구", num: 28, name: "악부 지역아동센터", operator: "동조희복지재단", location: "안천구 악부동", desc: "동네 피아노 학원을 대체할 만큼 수준 높은 악보 해석 및 관현악 합주 수업이 센터 내에서 무료로 이루어지는 공공 예술 교육 특화 구역입니다." },
+            { gu: "안천구", num: 29, name: "서수 지역아동센터", operator: "사계복지재단", location: "안천구 서수동", desc: "3.2천 명 거주 지역으로, 매년 여름철 마당에 거대한 간이 수영장을 설치하여 동네 워터파크로 변신하는 등 압도적인 물놀이 복지를 선사합니다." },
+            { gu: "안천구", num: 30, name: "상가 지역아동센터", operator: "튜튜 복지재단", location: "안천구 상가동", desc: "상가 밀집 지역에서 장사하는 부모님을 둔 아동들이 모여, 최신 영어 랩을 흥얼거리며 리듬감 있게 자기주도적 숙제를 마치는 힙한 면학 분위기입니다." },
+            { gu: "안천구", num: 31, name: "무로 지역아동센터", operator: "피방사회복지재단", location: "안천구 무로동", desc: "2천 명 거주 무로동 소재. 원생 인원수에 맞춰 푹신한 빈백 소파가 1:1로 구비되어 있어, 방과 후 아동 전원이 완벽한 숙면을 취하는 평화의 전당입니다." },
+            { gu: "안천구", num: 32, name: "뇌전 지역아동센터", operator: "뇌전복지재단", location: "안천구 뇌전동", desc: "1,200명의 작은 동네 특화 시설. 아동들이 포도주스를 마시며 셰익스피어식 낭만적인 연극 톤으로 문학 작품을 토론하는 고품격 감성 연기 스쿨입니다." },
+            { gu: "안천구", num: 33, name: "세익 지역아동센터", operator: "빙천복지재단", location: "안천구 세익동", desc: "1,000명의 세익동 소재. 극소수 정예 인원으로 원장의 1:1 밀착 학업 마크가 들어가, 수학 등 기초 교과 성적이 단기간에 수직 상승하는 학습 기관입니다." },
+            { gu: "안천구", num: 34, name: "능릉 지역아동센터", operator: "대화복지재단", location: "안천구 능릉동", desc: "능릉동 빌라촌 내 위치. 공학 지식이 풍부한 근무 인력을 활용해 아동들의 고장 난 장난감을 1초 만에 분해·수리해 주는 창의적 리사이클링을 실천합니다." },
+            { gu: "안천구", num: 35, name: "상점 지역아동센터", operator: "효빈상인연합회", location: "안천구 상점동", desc: "1,111명의 시장통 상점가 자녀들이 방과 후 모여 장부 기장법과 기초 경제(잔돈 계산 등) 산술 능력을 조기 교육받는 실전 경제 교실입니다." },
+            { gu: "창전구", num: 1, name: "창전 지역아동센터", operator: "효빈복지재단", location: "창전구 창전동", desc: "인구 12만 창전동의 거점 센터. 방대한 숙제와 과업을 앞두고 부담감을 느끼면서도 결국 끝까지 포기하지 않고 완수해 내는 책임감 고취 훈련의 산실입니다." },
+            { gu: "창전구", num: 2, name: "창전 나래 지역아동센터", operator: "효빈생명의전화", location: "창전구 창전동", desc: "소심하고 위축된 아동들의 자존감을 높이기 위해, 작은 성취에도 칭찬 스티커와 열렬한 격려를 아끼지 않는 심리적 안전 기지 역할을 수행합니다." },
+            { gu: "창전구", num: 3, name: "창전 에덴 지역아동센터", operator: "동조희복지재단", location: "창전구 창전동", desc: "센터 내에 나비 표본과 정교한 유리공예품이 갤러리처럼 상설 전시되어 있어, 아동들에게 몽환적이고 박물관 같은 품격 있는 미적 경험을 선사합니다." },
+            { gu: "창전구", num: 4, name: "창전 꿈터 지역아동센터", operator: "개인", location: "창전구 창전동", desc: "효빈시의 희귀한 개인 운영 센터 중 하나로 30년 역사를 자랑하며, 넉넉한 인심으로 졸업생 청소년들까지 찾아와 무상 급식을 나누는 따뜻한 사랑방입니다." },
+            { gu: "창전구", num: 5, name: "창전 밝은빛 지역아동센터", operator: "굿네이버스", location: "창전구 창전동", desc: "창전동 아파트 상가에 위치하며, 사교육비 절감을 위해 원어민 강사의 재능기부 자원봉사를 유치하여 고품질의 무료 영어 회화 클래스를 제공합니다." },
+            { gu: "창전구", num: 6, name: "창전 한아름 지역아동센터", operator: "사계복지재단", location: "창전구 창전동", desc: "과학 상자 조립 및 로보틱스 기초 교육을 통해 지역 내 발명 대회 입상을 싹쓸이하는 등 손재주가 남다른 발명 영재들의 엘리트 코스입니다." },
+            { gu: "창전구", num: 7, name: "창전 반석 지역아동센터", operator: "기독교대한감리회", location: "창전구 창전동", desc: "주말 종교 시설과 연계하여 성가대 합창 등 화음 연습을 실시하며, 크리스마스 등 연말 행사에 수준 높은 칸타타 공연을 선보이는 감성 충만 센터입니다." },
+            { gu: "창전구", num: 8, name: "창전 해오름 지역아동센터", operator: "화원복지재단", location: "창전구 창전동", desc: "12만 거대 인구 수요를 감당하면서도 마당 내에 소형 동물(토끼 등) 사육장을 기어코 마련하여 생태 교육을 병행하는 자연 친화주의 돌봄 공간입니다." },
+            { gu: "창전구", num: 9, name: "칠심 지역아동센터", operator: "삼선복지재단", location: "창전구 칠심동", desc: "인구 8.3만 칠심동 소재. 눈에 띄지 않는 평범함을 교훈으로 삼지만, 체계적인 자기주도 학습 지도를 통해 원생 다수가 최상위권 성적을 기록하는 비범한 곳입니다." },
+            { gu: "창전구", num: 10, name: "칠심 푸른초장 지역아동센터", operator: "초록우산", location: "창전구 칠심동", desc: "아동들에게 일찌감치 공무원, 은행원 등 안정적이고 현실적인 직업 윤리와 건전한 경제 관념을 심어주는 지극히 얌전하고 모범적인 진로 교육 기관입니다." },
+            { gu: "창전구", num: 11, name: "칠심 동행 지역아동센터", operator: "개인", location: "창전구 칠심동", desc: "퇴직 교장 선생님 부부가 직접 사비로 운영하며, 사자소학과 철저한 전통 예절 교육을 무료로 제공하여 지역 내 학부모 만족도가 최고조에 달합니다." },
+            { gu: "창전구", num: 12, name: "칠심 해솔 지역아동센터", operator: "효빈복지재단", location: "창전구 칠심동", desc: "찰흙 놀이 등 평범한 미술 교과를 통해 아동들의 숨겨진 조소(조각) 예술성을 폭발시켜, 유명 예술 작품을 본뜬 정교한 찰흙 빚기 기현상이 벌어지는 곳입니다." },
+            { gu: "창전구", num: 13, name: "칠심 미소 지역아동센터", operator: "시택복지재단", location: "창전구 칠심동", desc: "가장 조용한 동네에 위치하지만, 식사 전 의무적으로 밝은 미소와 긍정적인 제스처(애교)를 지어야 하는 높은 텐션의 식사 예절 훈련 구역입니다." },
+            { gu: "창전구", num: 14, name: "쌍엽 지역아동센터", operator: "쌍엽복지재단", location: "창전구 쌍엽동", desc: "인구 5.1만 쌍엽동 위치. 자치 반장을 맡은 고학년 아동이 솔선수범하여 저학년 아동들을 일렬로 세우고 예절을 가르치는 강력한 학생 자치 문화를 자랑합니다." },
+            { gu: "창전구", num: 15, name: "쌍엽 보듬 지역아동센터", operator: "레이어스 사회복지회", location: "창전구 쌍엽동", desc: "원생 자치 회의를 정기적으로 열어 그날의 간식 및 놀이 활동을 민주적 다수결로 결정하는 등 아동의 진취적인 독립심과 민주주의 교육을 선도합니다." },
+            { gu: "창전구", num: 16, name: "쌍엽 중앙 지역아동센터", operator: "효빈사회복지협의회", location: "창전구 쌍엽동", desc: "매일 칠판에 개인별 과업 리스트를 세밀하게 적어두고, 스스로 완수할 때까지 자발적으로 남아서 학습을 끝마치고 귀가하는 책임감 만렙 육성소입니다." },
+            { gu: "창전구", num: 17, name: "진백 지역아동센터", operator: "월드비전", location: "창전구 진백동", desc: "인구 2만 명. 진백·광정산업단지 인접 센터로, 인근 고등학교 우수 인재들의 멘토링 봉사 연계를 통해 학업 노하우와 진로 썰을 생생하게 전수받습니다." },
+            { gu: "창전구", num: 18, name: "진백 빛솔 지역아동센터", operator: "빙천복지재단", location: "창전구 진백동", desc: "공단 지식산업센터 근로자 자녀 비율이 높아 스마트 IT 기기 및 컴퓨터 수리에 능통한 디지털 영재 초등학생들이 자체적으로 전산망을 유지 보수합니다." },
+            { gu: "창전구", num: 19, name: "동곡 지역아동센터", operator: "화원복지재단", location: "창전구 동곡동", desc: "1.7만 동곡동 위치. 아동임에도 트렌디한 패션 센스와 뉴미디어 유행(숏폼 댄스 등)에 민감하게 반응하여 틱톡 등 창작 안무의 성지로 각광받습니다." },
+            { gu: "창전구", num: 20, name: "동곡 숲 지역아동센터", operator: "시택복지재단", location: "창전구 동곡동", desc: "최신 인터넷 밈(Meme)과 트렌드 흐름을 완벽하게 꿰뚫고 있는 이른바 '인싸' 아동들의 집결지로, 유행에 뒤처지는 강사들을 매정하게 일깨우는 활기찬 곳입니다." },
+            { gu: "창전구", num: 21, name: "팔조 지역아동센터", operator: "회주복지재단", location: "창전구 팔조동", desc: "1.6만 팔조동 위치. 놀이 시간과 학업 시간이 분 단위 타이머로 한 치의 오차 없이 관리되는 스파르타식 시간 관리 및 자기 통제력 훈련의 산실입니다." },
+            { gu: "창전구", num: 22, name: "시로 지역아동센터", operator: "기라복지재단", location: "창전구 시로동", desc: "1.1만 시로동 제1센터. 다소 소극적인 뉘앙스를 풍기면서도 자신들에게 주어진 방과 후 학습지(구몬 등)를 묵묵히 100% 달성해 내는 성실함의 표본입니다." },
+            { gu: "창전구", num: 23, name: "시로 나래 지역아동센터", operator: "효빈복지재단", location: "창전구 시로동", desc: "1만 1천 명 시로동의 초과 돌봄 수요를 분산 신설. 방과 후 시간에 바이올린 등 고급 클래식 악기 합주를 훈련하는 우아하고 예술적인 특화 보육 공간입니다." },
+            { gu: "창전구", num: 24, name: "투자 지역아동센터", operator: "천왕사복지회", location: "창전구 투자동", desc: "7.8천 투자동 소재. 미적 감각과 SNS 사진 촬영 구도(인스타 감성)에 남다른 집착을 보이는 아동들을 위해 최적의 푸드 스타일링 교육을 병행합니다." },
+            { gu: "창전구", num: 25, name: "보통 지역아동센터", operator: "약궁복지재단", location: "창전구 보통동", desc: "7.4천 보통동 소재. 평범하고 무난한 일상을 모토로 삼지만, 관내 연합 체육 대회가 열리면 숨겨왔던 압도적인 피지컬과 1등급 운동 신경을 대폭발시킵니다." },
+            { gu: "창전구", num: 26, name: "유류 지역아동센터", operator: "흑택재단", location: "창전구 유류동", desc: "7.2천 유류동 거점. 원장의 깐깐한 지도 아래 지역 내 가장 인사성이 바르고 예의범절이 투철한 아이들로 개조시키는 마법의 90도 배꼽 인사 패시브 구역." },
+            { gu: "창전구", num: 27, name: "마시 지역아동센터", operator: "송포복지재단", location: "창전구 마시동", desc: "인구 1,528명의 초소형 동네로 전교생이 30명 남짓. 여름엔 계곡 물장구, 겨울엔 비료 포대 썰매 등 다 같이 뭉쳐 노는 끈끈한 시골 공동체 갬성을 뽐냅니다." },
+            { gu: "창전구", num: 28, name: "광정 지역아동센터", operator: "대화복지재단", location: "창전구 광정동", desc: "1,161명 거주, 가스단지 인접 위험 지역 특성에 맞춰 매일 소화기 사용법과 비상 대피로 훈련을 실시하여 아동 안전 지식수준이 소방관에 필적합니다." },
+            { gu: "청엽구", num: 1, name: "청엽 지역아동센터", operator: "고판수복지재단", location: "청엽구 청엽동", desc: "인구 17만 청엽동의 상징적 1번 센터로, 인근 유명 베이커리와 협약을 맺어 매일 최고급 신상 수제 빵을 무상 간식으로 배급하는 엄청난 복지를 자랑합니다." },
+            { gu: "청엽구", num: 2, name: "청엽 푸른나무 지역아동센터", operator: "효빈복지재단", location: "청엽구 청엽동", desc: "과도한 학업 경쟁에 지친 아동들을 위해 무리한 학습을 강요하지 않고, 원장과 함께 나른하게 눕거나 휴식하며 정서적 번아웃을 예방하는 힐링 평화 지대입니다." },
+            { gu: "청엽구", num: 3, name: "청엽 새롬 지역아동센터", operator: "개인", location: "청엽구 청엽동", desc: "효빈시의 희귀한 개인 운영 센터 중 하나로, 대형 재단 틈바구니에서도 원장 사비로 인근 빵집 제과를 대량 공수해 먹이는 눈물겨운 헌신과 로컬 인심을 자랑합니다." },
+            { gu: "청엽구", num: 4, name: "청엽 다솜 지역아동센터", operator: "사회복지법인 삼동회", location: "청엽구 청엽동", desc: "스스로 숙제를 완료할 시 도장을 부여하는 포인트 카드 제도를 정착시켰으며, 주말 빵 뷔페 보상을 통해 아동들의 자발적인 학업 출석률 100%를 유지합니다." },
+            { gu: "청엽구", num: 5, name: "청엽 어울림 지역아동센터", operator: "피방사회복지재단", location: "청엽구 청엽동", desc: "교대 근무 등 맞벌이 부부를 위해, 아동들이 수면 부족을 느끼지 않고 눈치 보지 않으며 편히 잠들 수 있도록 전면 매트리스 도배 수면실을 특화 운영합니다." },
+            { gu: "청엽구", num: 6, name: "청엽 소망 지역아동센터", operator: "초록우산", location: "청엽구 청엽동", desc: "청엽 대규모 아파트 단지 중앙에 위치해 입소 대기 번호가 50번대를 넘어가며, 하원 피크 타임 시 학부모 픽업 차량으로 인해 일대 교통 마비가 빚어지는 인기 시설입니다." },
+            { gu: "청엽구", num: 7, name: "청엽 한마음 지역아동센터", operator: "월드비전", location: "청엽구 청엽동", desc: "음악 치료 전문가인 센터장의 재능 기부로 방과 후 교실이 순식간에 어쿠스틱 밴드 연습실로 변모하여, 아동들이 기타를 연주하며 스트레스를 해소합니다." },
+            { gu: "청엽구", num: 8, name: "청엽 은혜 지역아동센터", operator: "기독교대한감리회", location: "청엽구 청엽동", desc: "주말 주일학교 공간을 평일 보육 시설로 활용. 간식 전 기도가 일사불란하고 전광석화처럼 진행되는 등 아이들의 질서정연한 단체 기강이 확실히 잡힌 곳입니다." },
+            { gu: "청엽구", num: 9, name: "청엽 희망 지역아동센터", operator: "효빈사회복지협의회", location: "청엽구 청엽동", desc: "아파트 상가 2층 소재. 창문 너머 1층 베이커리의 향긋한 빵 냄새가 24시간 올라와, 정규 급식을 배불리 먹은 아동들의 식욕을 무한대로 자극하는 부작용이 있습니다." },
+            { gu: "청엽구", num: 10, name: "청엽 샬롬 지역아동센터", operator: "빙천복지재단", location: "청엽구 청엽동", desc: "자유로운 청엽동 센터들 중 유일하게 군대식(?) 엄격한 규율을 채택, 간식 취식 전 손 씻기와 2열 종대 대기 등 철저한 위생 및 질서 통제 시스템을 운영합니다." },
+            { gu: "청엽구", num: 11, name: "청엽 빛누리 지역아동센터", operator: "사계복지재단", location: "청엽구 청엽동", desc: "전원 스마트 패드(태블릿)를 지급받아 첨단 디지털 맞춤형 학습을 진행하나, 아동들이 교육망을 우회하여 딴짓을 시도하다 적발되어 압수당하는 해프닝이 잦습니다." },
+            { gu: "청엽구", num: 12, name: "우전 지역아동센터", operator: "사회복지법인 삼동회", location: "청엽구 우전동", desc: "인구 9.9만 우전동 제1센터. 사춘기 스트레스 해소용 미니 드럼 및 타악기 세트가 거실 중앙에 완비되어 매일 거칠고 파워풀한 록 콘서트가 열리는 시설입니다." },
+            { gu: "청엽구", num: 13, name: "우전 둥지 지역아동센터", operator: "동조희복지재단", location: "청엽구 우전동", desc: "다소 어두운 판타지 문학(중2병) 특화 정서 지원 센터로, 스케치북에 마법진 등 추상적인 기호만 잔뜩 그려대어 검은색 크레파스 재고가 항상 동나는 곳입니다." },
+            { gu: "청엽구", num: 14, name: "우전 튼튼 지역아동센터", operator: "레이어스 사회복지회", location: "청엽구 우전동", desc: "단순 체육 활동을 넘어 헤비메탈 록 음악을 브금(BGM)으로 깔고 미친 듯이 줄넘기를 시키는 등 록 페스티벌 급의 고강도 유산소 체력 소진 프로그램입니다." },
+            { gu: "청엽구", num: 15, name: "우전 새빛 지역아동센터", operator: "튜튜 복지재단", location: "청엽구 우전동", desc: "게임과 e스포츠에 관심이 높은 아동들을 위해 주말 자체 리그를 개최하고, 우승 보상으로 육포 등 영양 간식을 지급하며 건전한 게임 문화를 유도합니다." },
+            { gu: "청엽구", num: 16, name: "우전 글로벌 지역아동센터", operator: "월드비전", location: "청엽구 우전동", desc: "록 음악 리듬감과 영어 딕션 교실을 융합시켜, 아동들이 리듬을 타며 건들거리는 힙합 스웨그 모션으로 고급 영어 단어를 줄줄 외우는 기적의 회화 스쿨입니다." },
+            { gu: "청엽구", num: 17, name: "우전 엘림 지역아동센터", operator: "효빈복지재단", location: "청엽구 우전동", desc: "우전동 아파트 상가 소재. 밴드부 선배들을 동경하는 초등학생들이 빗자루를 기타 삼아 에어 기타 록스타 빙의 놀이를 즐기는 유쾌한 낭만의 장입니다." },
+            { gu: "청엽구", num: 18, name: "우전 참사랑 지역아동센터", operator: "천왕사복지회", location: "청엽구 우전동", desc: "우전동의 소란스럽고 에너제틱한 지역 분위기를 감당하지 못하는 내향적이고 조용한 아이들만을 위한 철통 방음 피난처이자 고요한 독서실입니다." },
+            { gu: "청엽구", num: 19, name: "마잡 지역아동센터", operator: "개인", location: "청엽구 마잡동", desc: "효빈시의 희귀한 개인 운영 센터로 인구 3만 공단 밀집지 위치. 공단 출신 원장 부부가 굶주린 아이들에게 산더미 같은 고봉밥과 집밥 뷔페를 무한 제공합니다." },
+            { gu: "청엽구", num: 20, name: "마잡 어깨동무 지역아동센터", operator: "효빈사회복지협의회", location: "청엽구 마잡동", desc: "2차전지 첨단산단 배후지로 부모의 잦은 철야 야근을 감안, 늦은 밤까지 남은 원생들 간에 강한 전우애(?)를 다지는 야간 특화 의리의 돌봄 센터입니다." },
+            { gu: "청엽구", num: 21, name: "마잡 해솔 지역아동센터", operator: "흑택재단", location: "청엽구 마잡동", desc: "공단 인근 특유의 거친 분위기를 쇄신하기 위해 원장이 직접 강력한 인성 및 예절 교육을 주도하여, 모든 아동의 인사를 90도 폴더 각도로 개조해 놓습니다." },
+            { gu: "청엽구", num: 22, name: "우택 지역아동센터", operator: "약궁복지재단", location: "청엽구 우택동", desc: "인구 3만의 우택동 거점. 지극히 평범하고 눈에 띄지 않으나, 묵묵히 주어지는 숙제와 임무를 완벽하게 해내는 모범생들의 집결지이자 학업 롤모델입니다." },
+            { gu: "청엽구", num: 23, name: "우택 예닮 지역아동센터", operator: "효빈생명의전화", location: "청엽구 우택동", desc: "학생회장 출신의 엘리트 센터장이 상주하며, 채점 오답 노트를 꼼꼼히 작성하지 않으면 귀가를 불허하는 등 사교육을 압살하는 깐깐한 학업 지도를 실시합니다." },
+            { gu: "청엽구", num: 24, name: "우택 늘푸른 지역아동센터", operator: "기라복지재단", location: "청엽구 우택동", desc: "조용한 주거 동네에서 유일하게 폭발적인 승부욕을 지닌 원장님이 지휘하여, 관내 연합 체육대회 출전 시 무조건 종합 1위 트로피를 싹쓸이하는 엘리트 체육 센터." },
+            { gu: "청엽구", num: 25, name: "비마 지역아동센터", operator: "피방사회복지재단", location: "청엽구 비마동", desc: "인구 2.7만 비마동 특화. 아동들의 예술적 공감 능력과 감수성이 매우 뛰어나, 슬픈 가족 영화 한 편만 틀어도 전 원생이 단체로 오열 바다가 되는 감성 폭발 구역입니다." },
+            { gu: "청엽구", num: 26, name: "비마 포근 지역아동센터", operator: "피방사회복지재단", location: "청엽구 비마동", desc: "눈물도 많고 수면욕도 많은 동네 특성을 반영, 원생 전원에게 개인 빈백 소파 1개씩을 완비하여 방과 후 언제든 편안하게 숙면할 수 있는 꿀잠 특화 지대입니다." },
+            { gu: "청엽구", num: 27, name: "효빈1가 지역아동센터", operator: "효빈복지재단", location: "청엽구 효빈동1가", desc: "인구 2.5만 공무원 및 사무직 배후 주거지. 초등학생임에도 부모의 영향을 받아 경제, 주식, 부동산 시황을 진지하게 논하는 극강의 조숙한 조기 경제 교육의 장입니다." },
+            { gu: "청엽구", num: 28, name: "효빈1가 에덴 지역아동센터", operator: "동조희복지재단", location: "청엽구 효빈동1가", desc: "백색소음 클래식을 BGM으로 틀어두고 타로카드 성격·심리 테스트를 주기적으로 제공하여 학부모들에게 가장 고상하고 우아하다는 극찬을 받는 심리 센터입니다." },
+            { gu: "청엽구", num: 29, name: "등동 지역아동센터", operator: "기라복지재단", location: "청엽구 등동", desc: "인구 2.1만 등동 소재. 디지털 기기를 멀리하고 길가의 예쁜 돌멩이나 가을 낙엽을 주워 전시하는 아날로그적 감성과 자연주의 보육의 끝판왕입니다." },
+            { gu: "청엽구", num: 30, name: "사노 지역아동센터", operator: "삼선복지재단", location: "청엽구 사노동", desc: "인구 1.7만 사노동 거점. 외부로 크게 눈에 띄지는 않지만 단 한 건의 안전사고나 불만 민원 없이 완벽하게 굴러가는 정교한 시계 톱니바퀴 같은 평화의 상징입니다." },
+            { gu: "청엽구", num: 31, name: "동리 지역아동센터", operator: "등도사회복지재단", location: "청엽구 동리동", desc: "인구 1.6만 동리동 관할. 헌신적인 센터장이 체력적 한계를 극복하며 매일 아동 100명분의 영양 수제 쿠키를 손수 구워내는 눈물겨운 정성이 깃든 빵 굽는 센터." },
+            { gu: "청엽구", num: 32, name: "헌이송 지역아동센터", operator: "흑택재단", location: "청엽구 헌이송동", desc: "인구 1.4만 대규모 석유화학단지 배후. 깐깐하고 엄격한 전통 예절 교육을 수료한 아동들이 공단 근로자들에게 예의 바르다고 칭찬받는 모범 인성 교육관입니다." },
+            { gu: "청엽구", num: 33, name: "효빈2가 지역아동센터", operator: "효빈사회복지협의회", location: "청엽구 효빈동2가", desc: "인구 6.4천 명의 한적하고 여유로운 동네 분위기를 살려, 스마트폰 대신 센터 앞 넓은 공터에서 무궁화 꽃이 피었습니다 등 전통 놀이를 부활시킨 아날로그 쉼터." },
+            { gu: "청엽구", num: 34, name: "입동3가 지역아동센터", operator: "국목전 복지회", location: "청엽구 입동3가", desc: "인구 4.1천 명 외곽. 원생들이 마룻바닥에 옹기종기 모여 앉아 구수한 향토 어조(\"~즈라\")로 대화를 나누며 제철 귤을 까먹는 서당 콘셉트의 친환경 보육원." },
+            { gu: "청엽구", num: 35, name: "서증 지역아동센터", operator: "대화복지재단", location: "청엽구 서증동", desc: "2.1천 명 거주, 공학적 재능이 뛰어난 아동들을 육성하여 동네 가전제품 고장 시 초등학생들이 드라이버를 들고 출장 수리를 나간다는 전설적인 실습 센터입니다." },
+            { gu: "청엽구", num: 36, name: "입동2가 지역아동센터", operator: "빙천복지재단", location: "청엽구 입동2가", desc: "1.8천 명 규모. 적은 원생 수를 십분 활용해 원장의 1:1 하드코어 스파르타 과외를 실시하여, 동네 모든 아동이 학업 엘리트로 성장하는 통과 의례 관문입니다." },
+            { gu: "청엽구", num: 37, name: "입동1가 지역아동센터", operator: "낭원복지재단", location: "청엽구 입동1가", desc: "인구 1,398명 청엽구 최소 동네. 비좁은 원도심 골목길 지리 탐험 프로그램을 통해 택시 기사보다 동네 지도를 더 완벽히 꿰뚫는 꼬마 탐험가 지리 영재 육성소." },
+            { gu: "남구", num: 1, name: "평당 지역아동센터", operator: "풍천복지재단", location: "남구 평당동", desc: "16.4만 평당동 대장 센터. 식자재 예산을 극단적으로 절약하기 위해 베란다 텃밭 생오이 등 초저가 자급자족 유기농 식단을 강제(?)하여 경제관념을 가르칩니다." },
+            { gu: "남구", num: 2, name: "평당 평원 지역아동센터", operator: "평원복지재단", location: "남구 평당동", desc: "학업보다는 아동의 자율성과 창의성 발현을 중시하여, 거실에 둥글게 모여 떡볶이를 먹으며 통기타 코드를 연주하는 자유로운 낭만 보육 시스템을 적용합니다." },
+            { gu: "남구", num: 3, name: "평당 해오름 지역아동센터", operator: "효빈복지재단", location: "남구 평당동", desc: "공단 3교대 철야 부모들을 위한 밤 10시 심야 연장 보호 특화로, 밤늦게까지 남은 아동들과 센터장이 경제 보드게임(브루마블)을 하며 졸음을 이겨내는 야간 쉼터." },
+            { gu: "남구", num: 4, name: "평당 새별 지역아동센터", operator: "굿네이버스", location: "남구 평당동", desc: "최고의 교육열을 자랑하는 평당신도시 대규모 단지 내 위치. 고학년 아동들이 자발적으로 중학 수학 정석 선행 학습을 마스터하는 압도적인 면학 분위기를 조성합니다." },
+            { gu: "남구", num: 5, name: "평당 어울림 지역아동센터", operator: "기독교대한감리회", location: "남구 평당동", desc: "식사 전 엄청나게 우렁찬 감사 기도로 음식의 소중함을 배우며, 반찬 투정 시 원장(목사님)의 30분 특별 인성 설교를 들어야 하는 강력한 식습관 교정소입니다." },
+            { gu: "남구", num: 6, name: "평당 둥지 지역아동센터", operator: "초록우산", location: "남구 평당동", desc: "초등 저학년생 특화 보육 공간. 아동 발달을 위한 필수 코스로 매일 오후 2시 엄격한 강제 낮잠(숙면) 시간을 의무화하여 건강한 성장을 돕습니다." },
+            { gu: "남구", num: 7, name: "평당 빛누리 지역아동센터", operator: "빙천복지재단", location: "남구 평당동", desc: "원칙주의 기강 확립을 최우선으로 삼아 철저한 예절 교육을 실시, 출신 아동들이 공단 어르신들에게 인사성 바른 효자·효녀로 극찬받는 모범 인성 학당입니다." },
+            { gu: "남구", num: 8, name: "평당 소망 지역아동센터", operator: "흑택재단", location: "남구 평당동", desc: "얌전하고 조용한 아동들만 모였지만 뛰어난 공간 지각 능력을 발휘해, 장난감 블록만으로 효빈시청 건물을 완벽 축소 구현해 내는 꼬마 건축 영재들의 모임." },
+            { gu: "남구", num: 9, name: "평당 푸른솔 지역아동센터", operator: "레이어스 사회복지회", location: "남구 평당동", desc: "밴드 록 음악에 심취한 고학년 상남자 특화 센터. 대형 스크린으로 록 페스티벌 라이브를 시청하며 소시지 등 고열량 육류 간식을 뜯어 먹는 야성적인 보육 현장." },
+            { gu: "남구", num: 10, name: "어간 지역아동센터", operator: "동조희복지재단", location: "남구 어간동", desc: "인구 5.2만 어간동 관할. 그날 숙제를 모두 마친 아동에게 보상으로 신비로운 심리 타로카드를 점쳐 주며, 학업에 대한 긴장감과 흥미를 동시에 제공하는 점술(?) 센터." },
+            { gu: "남구", num: 11, name: "어간 시택 지역아동센터", operator: "시택복지재단", location: "남구 어간동", desc: "엄격한 긍정 에너지 강제 주입 구역. 배식 전 반드시 얼굴 가득 활짝 웃으며 애교 시그니처 멘트(\"니코니코니\")를 외쳐야만 밥을 제공하는 무자비한 스마일 훈련소." },
+            { gu: "남구", num: 12, name: "어간 은하수 지역아동센터", operator: "효빈생명의전화", location: "남구 어간동", desc: "별 관측이 취미인 센터장의 열정으로 옥상 천체망원경이 완비됨. 심야 시간까지 대기하는 아동들을 대상으로 스파르타식 우주 별자리 강제 주입식 교육을 실시함." },
+            { gu: "남구", num: 13, name: "어간 참사랑 지역아동센터", operator: "삼선복지재단", location: "남구 어간동", desc: "지극히 평범하고 보편적인 일상 돌봄을 지향하지만, 이상하게도 이 센터를 거쳐 간 아동들이 초등학교 전교 회장단을 모조리 싹쓸이하는 비범한 리더십 명당입니다." },
+            { gu: "남구", num: 14, name: "어간 동행 지역아동센터", operator: "효빈사회복지협의회", location: "남구 어간동", desc: "부모님의 잦은 교대 근무로 생일 파티를 챙기지 못하는 아동들을 위해, 매월 말일 센터 전체를 화려한 뷔페식 이벤트 파티장으로 완벽하게 대관·변신시킵니다." },
+            { gu: "남구", num: 15, name: "항동1가 지역아동센터", operator: "송포복지재단", location: "남구 항동1가", desc: "인구 4.4만 항동물류단지 배후. 해병대 캠프에 버금가는 해양 생존 수영 및 고강도 뜀걸음 훈련을 통해 압도적인 심폐지구력을 자랑하는 체육 최강 센터." },
+            { gu: "남구", num: 16, name: "항동1가 바다 지역아동센터", operator: "월드비전", location: "남구 항동1가", desc: "항만 수산시장 연계 특화로 매일 최고급 제철 해산물 간식이 보급되며, 여름 캠프 시 아동들이 맨손으로 바지락을 캐오는 등 완벽한 갯벌 생존형 보육을 실시합니다." },
+            { gu: "남구", num: 17, name: "항동1가 푸른초장 지역아동센터", operator: "기독교대한감리회", location: "남구 항동1가", desc: "공단 유해 매연으로부터 아동들의 호흡기를 보호하고자 실내 전체를 아마존 열대우림 뺨치는 수백 개의 공기정화 식물로 뒤덮어 버린 극단적 자연주의 식물원 센터." },
+            { gu: "남구", num: 18, name: "항동2가 지역아동센터", operator: "효빈항만공사", location: "남구 항동2가", desc: "2.1만 인구. 효빈항만공사의 파격적인 예산 지원. 해운·물류 노동자 자녀들이 모여 지게차 톤수와 국제 컨테이너 규격을 구구단처럼 줄줄 외우는 물류 영재 요람." },
+            { gu: "남구", num: 19, name: "항동2가 나래 지역아동센터", operator: "등도사회복지재단", location: "남구 항동2가", desc: "거친 항만 컨테이너 박스를 배경으로 힙합 틱톡(숏폼) 댄스 릴스를 촬영하는 것에 진심인 아이들이 모여, 유튜브 알고리즘을 지배하는 인플루언서 지망생 군단." },
+            { gu: "남구", num: 20, name: "항동3가 지역아동센터", operator: "세이브더칠드런", location: "남구 항동3가", desc: "인구 4.7천. 산업용 쇳덩이 파이프와 매연 공장 굴뚝이 난무하는 살벌한 회색빛 동네에서, 유일하게 알록달록한 뽀로로 벽화가 칠해져 있는 유일무이한 힐링 안전지대." },
+            { gu: "남구", num: 21, name: "곽산 지역아동센터", operator: "대화복지재단", location: "남구 곽산동", desc: "인구 3.8만 곽산동. 값비싼 교구 대신 고장 난 선풍기와 장난감을 기부받아 아동들이 직접 십자드라이버로 분해·수리하며 기계 공학 원리를 터득하는 꼬마 공돌이 양성소." },
+            { gu: "남구", num: 22, name: "곽산 튼튼 지역아동센터", operator: "화원복지재단", location: "남구 곽산동", desc: "다량의 어쿠스틱 기타가 구비되어 있어, 흙먼지를 뒤집어쓰고 축구를 뛰고 온 아동들이 땀 냄새를 풍기며 서정적인 통기타를 연주하는 야성미 넘치는 낭만 센터." },
+            { gu: "남구", num: 23, name: "운양 지역아동센터", operator: "사계복지재단", location: "남구 운양동", desc: "1.2만 인구 운양동 소재. 항공 우주 과학 실험에 심취하여 툭하면 강력한 압축 물로켓을 쏘아 올려 한전 긴급 출동을 유발할 만큼 열정적인 이과 실험실." },
+            { gu: "남구", num: 24, name: "고당 지역아동센터", operator: "조향복지재단", location: "남구 고당동", desc: "9.9천 명 고당동. 심각한 길치 속성의 원장님이 주도하는 스릴 넘치는(?) 야외 현장 학습 덕분에, 아동 스스로 독도법과 생존 지리 감각을 터득하는 기적의 서바이벌 센터." },
+            { gu: "남구", num: 25, name: "고당 정중 지역아동센터", operator: "정중복지재단", location: "남구 고당동", desc: "겉보기엔 온갖 블록과 물감이 난무하는 시끌벅적한 난장판 놀이방이지만, 어른의 등장과 동시에 전원이 기계처럼 90도 폴더 인사를 박는 기묘한 꼬마 선비들의 집단." },
+            { gu: "남구", num: 26, name: "월천 지역아동센터", operator: "산재피해자 재활협회", location: "남구 월천동", desc: "9.3천 공단 배후 월천동. 산재 및 영세 근로자 자녀 특화로, 부모의 권리를 위해 초등학생들이 웬만한 노무사 뺨치는 산재 보상법과 근로기준법을 빠삭하게 꿰뚫고 있음." },
+            { gu: "남구", num: 27, name: "신흥 지역아동센터", operator: "대한적십자사", location: "남구 신흥동", desc: "8.3천 신흥동 관할. 적십자사 특화 응급 처치 조기 교육을 마스터하여, 친구가 놀이터에서 무릎이 까지면 알아서 소독약과 거즈를 들고 뛰어나오는 구급대원 유망주들." },
+            { gu: "남구", num: 28, name: "박산 지역아동센터", operator: "효빈사회복지협의회", location: "남구 박산동", desc: "6.4천 박산동 소재. 최신식 교구는 없지만, 옹기종기 모여 앉아 구몬 등 기초 종이 학습지를 풀며 찐감자와 요구르트를 간식으로 나눠 먹는 푸근한 시골 서당 스타일." },
+            { gu: "남구", num: 29, name: "포장 지역아동센터", operator: "기아자동차 복지재단", location: "남구 포장동", desc: "인구 109명, 거대 포장공단 덤프트럭이 문 앞을 질주하는 한복판 위험 지대에 세워진 강력한 오아시스. 기아차 하청 공장 노동자들의 마음을 달래는 든든한 벙커." },
+            { gu: "탄성군", num: 1, name: "앵내 지역아동센터", operator: "앵판복지재단", location: "도변읍 앵내리", desc: "탄성군 인구 1위(3.9만) 앵내리의 근본 센터. 고난도 문학 연극 대본 리딩을 시켜, 완벽한 아나운서급 발성 및 정확한 표준어 딕션을 구사하는 언어 천재들을 육성합니다." },
+            { gu: "탄성군", num: 2, name: "앵내 빛솔 지역아동센터", operator: "빙천복지재단", location: "도변읍 앵내리", desc: "농번기 수확 철 등 부모가 가장 바쁠 때에도 아동의 숙제 알림장과 준비물을 기어코 다 챙겨오게 만드는, 구역 내 가장 규율이 빡세고 잔소리 레벨이 높은 호랑이 센터." },
+            { gu: "탄성군", num: 3, name: "도변 지역아동센터", operator: "도변복지재단", location: "도변읍 도변리", desc: "2.1만 도변리 제1센터. 해양 소년단 장교 출신 센터장의 지휘 아래 외부 인솔 시 완벽한 오와 열을 맞추고 해군식 복창(\"요소로!\")을 실시하는 강력한 해양 규율 지대." },
+            { gu: "탄성군", num: 4, name: "도변 푸른바다 지역아동센터", operator: "효빈생명의전화", location: "도변읍 도변리", desc: "2만이 넘는 도변리 돌봄 초과 수요를 감당하기 위해 급파된 제2센터. 여름 방학이면 전 원생을 세일러복 단체 활동복으로 환복시키고 해양 바다 생존 수영을 강제 마스터시킴." },
+            { gu: "탄성군", num: 5, name: "요우 지역아동센터", operator: "도변복지재단", location: "도변읍 요우리", desc: "2.2만 요우리 관할. 해양·조선산업 배후지 특화로, 매일 아침 전 원생 대상 해상 국민 건강 체조(라디오 체조)를 실시하며 예비 항해사와 외항선 선장 꿈나무를 육성함." },
+            { gu: "탄성군", num: 6, name: "탄성 지역아동센터", operator: "효빈복지재단", location: "탄성읍 탄성리", desc: "탄성군청 소재지 1.7만 탄성리의 심장. 지역 유력 인사와 군수가 선거철 및 명절만 되면 1순위로 떡을 돌리러 방문하며 눈도장을 찍는 지방 행정·정치적 요충지 쉼터." },
+            { gu: "탄성군", num: 7, name: "미성 지역아동센터", operator: "기라복지재단", location: "탄성읍 미성리", desc: "5.9천 시골 미성리에 숨겨진 예체능 사관학교. 연말 학예회 동요 댄스 무대 퀄리티가 대형 연예 기획사 연습생들의 월말 평가를 가볍게 능가하는 압도적인 칼군무 센터." },
+            { gu: "탄성군", num: 8, name: "서목 지역아동센터", operator: "서목사회복지회", location: "서목읍 서목리", desc: "1.2만 서목리 조선소 근로자 자녀 위주 보육. 센터장이 무뚝뚝하게 \"딱히 사준 건 아니야\"라며 츤데레 화법을 구사하지만, 창고엔 항상 최고급 프리미엄 장난감이 풀세트로 구비됨." },
+            { gu: "탄성군", num: 9, name: "루비 지역아동센터", operator: "흑택재단", location: "흑택면 루비리", desc: "1만 인구 루비리 관할. 극도로 소심하고 낯가림이 심한 방어적 성향의 아동들을 자극하지 않기 위해, 외부 소음을 완벽히 차단하고 정적이고 조용한 1:1 미술 놀이에 집중함." },
+            { gu: "탄성군", num: 10, name: "흑택 지역아동센터", operator: "흑택재단", location: "흑택면 흑택리", desc: "8.7천 인구. 엄격한 대청마루 서당식 한문 쓰기 예절 교육 특화. 방문객 인사 시 90도 각도를 지키지 않으면 센터장(훈장님)의 불호령(\"뿌뿌-!\")이 떨어지는 기강 확실한 곳." },
+            { gu: "탄성군", num: 11, name: "소원 지역아동센터", operator: "소원복지재단", location: "소원면 소원리", desc: "8.4천 인구 농어촌. 막강한 재단 지원금을 바탕으로 깡촌 지역아동센터 식단에 트러플 파스타 등 5성급 셰프 특식이 나오며, 영어 회화 중심의 파격적인 귀족 보육을 제공함." },
+            { gu: "탄성군", num: 12, name: "고해 지역아동센터", operator: "삼동회", location: "고해읍 고해리", desc: "7.1천 읍내 소재. 노후화된 건물 겉모습과 달리 내부에 수천만 원대 밴드 일렉 악기 풀세트가 구비되어 있어, 농한기에 동네 어르신들을 초청해 광란의 록 콘서트를 개최함." },
+            { gu: "탄성군", num: 13, name: "천가 지역아동센터", operator: "기라복지재단", location: "고해읍 천가리", desc: "6.5천 인구 귤 특산지. 가을만 되면 아동 전원이 귤밭 수확 체험 알바(?)에 무보수로 자진 투입되어, 손끝이 노랗게 물들 때까지 귤을 까먹으며 비타민 C를 무한 섭취하는 농촌 힐링." },
+            { gu: "탄성군", num: 14, name: "이와 지역아동센터", operator: "효빈사회복지협의회", location: "고해읍 이와리", desc: "인구 7.7천 명 탄탄한 감귤밭 배후 동네. 답답한 교실 대신 드넓은 과수원 생태 교육을 진행하며, 오후 새참으로 갓 구운 고구마와 귤을 배 터지게 먹이는 넉넉한 시골 인심 센터." },
+            { gu: "탄성군", num: 15, name: "파래 지역아동센터", operator: "입원복지재단", location: "서목읍 파래리", desc: "4.5천 인구. 미용 및 미술 색채 특화 구역. 미술 시간에 제공되는 크레파스를 무조건 투톤 파스텔 색상으로 칠하게 만드는 독특한 미적 강박 교육으로 예술적 감각을 극대화함." },
+            { gu: "탄성군", num: 16, name: "야진 지역아동센터", operator: "초록우산", location: "야진읍 야진리", desc: "3.9천 야진읍. 전형적인 시골 센터의 교과서. 디지털 기기 반입을 금지하고, 방과 후 거실 장판에 누워 찐감자와 옥수수를 뜯어 먹으며 만화영화를 시청하는 느림의 미학." },
+            { gu: "탄성군", num: 17, name: "층부 지역아동센터", operator: "레이어스 사회복지회", location: "정근면 층부리", desc: "1.2천 명 소규모 면사무소 소재지. 농촌의 적막함을 깨기 위해 원생들이 다 같이 인디 밴드를 결성, 앰프를 켜놓고 일렉 기타 베이스를 튕기며 자라나는 농촌 힙스터들의 둥지." },
+            { gu: "탄성군", num: 18, name: "춘일경 지역아동센터", operator: "사계복지재단", location: "도향면 춘일경리", desc: "인구 537명의 소멸 위기 마을을 꿋꿋이 지키는 최후의 보루. 애절한 연극 대본 리딩 및 낭만 문학을 가르치며, 사소한 다툼도 슬픈 명대사 연기로 승화시키는 기묘한 시골 학당." }
+        ];
+
+        // 테이블 렌더링 함수
+        function renderTable(data) {
+            const tbody = document.getElementById('center-tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-msg">검색된 시설이 없습니다.</td></tr>`;
+                document.getElementById('total-count').innerText = "0";
+                return;
+            }
+
+            let rows = '';
+            data.forEach(item => {
+                rows += `
+                    <tr>
+                        <td class="font-bold text-gray-700 bg-gray-50 border-r border-gray-200">${item.gu}</td>
+                        <td class="text-gray-500 font-medium">${item.num}</td>
+                        <td class="font-bold text-blue-900 text-left px-3">${item.name}</td>
+                        <td class="text-gray-600">${item.operator}</td>
+                        <td class="text-left px-3 text-gray-800 font-medium">${item.location}</td>
+                        <td class="text-left text-gray-700 text-[0.85rem] px-3 py-3 leading-relaxed break-keep">${item.desc}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = rows;
+            document.getElementById('total-count').innerText = data.length;
+        }
+
+        // 검색 필터링 로직
+        function filterTable() {
+            const selectedGu = document.getElementById('gu-select').value;
+            const searchKeyword = document.getElementById('search-input').value.trim().toLowerCase();
+
+            const filteredData = centerData.filter(item => {
+                const matchGu = selectedGu === "" || item.gu === selectedGu;
+                const matchKeyword = item.name.toLowerCase().includes(searchKeyword) || 
+                                     item.location.toLowerCase().includes(searchKeyword);
+                return matchGu && matchKeyword;
+            });
+
+            renderTable(filteredData);
+        }
+
+        // DOM 로드 시 초기 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            if(window.lucide) lucide.createIcons();
+            
+            // 초기 데이터 세팅 (232개 로드)
+            renderTable(centerData);
+
+            // 셀렉트 박스 체인지 이벤트 바인딩
+            document.getElementById('gu-select').addEventListener('change', filterTable);
+        });
+    </script>
+</body>
+</html>

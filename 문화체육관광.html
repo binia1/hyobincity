@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문화·관광 - 문화체육관광 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 서브페이지 전용 디자인 (문화/관광 테마) */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=2020&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(88, 28, 135, 0.75); /* 우아한 퍼플 톤 */ }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #6b21a8; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #6b21a8; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        
+        /* 단일 링크 메뉴용 (SPA) */
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: all 0.2s; cursor: pointer; position: relative; }
+        .lnb-single:hover { background-color: #f8fafc; color: #7e22ce; }
+        .lnb-single.current { background-color: #faf5ff; color: #6b21a8; font-weight: 700; border-left: 4px solid #6b21a8; padding-left: calc(1.25rem - 4px); }
+
+        /* 타이틀 및 UI 스타일 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #6b21a8; }
+        .bullet-title { position: relative; padding-left: 16px; margin-top: 3rem; margin-bottom: 1.25rem; color: #6b21a8; font-size: 1.35rem; font-weight: 700; }
+        .bullet-title::before { content: ''; position: absolute; left: 0; top: 6px; width: 5px; height: 18px; background-color: #a855f7; border-radius: 2px; }
+        
+        /* SPA 섹션 표시 제어 */
+        .spa-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .spa-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 카드 스타일 */
+        .tour-card { border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; background: #fff; height: 100%; display: flex; flex-direction: column; }
+        .tour-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #d8b4fe; }
+        .tour-img { height: 180px; background-color: #f1f5f9; background-size: cover; background-position: center; position: relative; }
+        .tour-badge { position: absolute; top: 10px; left: 10px; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .tour-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        /* 컬러 배지 */
+        .bg-haf { background-color: #FF4500; } /* 오렌지 레드 */
+        .bg-ttour { background-color: #7777AA; } /* 라벤더 퍼플 */
+        .bg-nature { background-color: #059669; }
+        .bg-sports { background-color: #2563eb; }
+
+        /* 데이터 테이블 */
+        .data-table { width: 100%; border-top: 2px solid #6b21a8; border-collapse: collapse; font-size: 0.95rem; text-align: center; margin-bottom: 2rem; background-color: #fff; }
+        .data-table th, .data-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 12px 10px; line-height: 1.6; vertical-align: middle; }
+        .data-table th:last-child, .data-table td:last-child { border-right: none; }
+        .data-table th { background-color: #faf5ff; color: #1e293b; font-weight: 700; }
+        .data-table td { color: #334155; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <!-- 1. 최상단 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 3. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">문화·관광</h1>
+    </div>
+
+    <!-- 4. 본문 컨테이너 -->
+    <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 사이드바 LNB (SPA 네비게이션) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4">
+                <div class="lnb-title">문화체육관광</div>
+                <ul class="lnb-depth1">
+                    <li><a onclick="navigateSPA('sec-vision', this, '효빈 문화·관광 비전')" class="lnb-single current">효빈 문화·관광 비전</a></li>
+                    <li><a onclick="navigateSPA('sec-haf', this, '효빈 애니메이션 페스티벌')" class="lnb-single">효빈 애니메이션 페스티벌 (HAF)</a></li>
+                    <li><a onclick="navigateSPA('sec-spots', this, '테마별 관광 명소')" class="lnb-single">테마별 관광 명소</a></li>
+                    <li><a onclick="navigateSPA('sec-sports', this, '체육 및 레저 시설')" class="lnb-single">체육 및 레저 시설</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content (SPA 영역) -->
+        <main class="flex-grow min-w-0 pb-10">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 문화체육관광 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="breadcrumb-current">효빈 문화·관광 비전</strong>
+            </div>
+
+            <!-- ==========================================
+                 SECTION 1: 효빈 문화·관광 비전
+            =========================================== -->
+            <section id="sec-vision" class="spa-section active">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">효빈 문화·관광 비전</h2>
+                    <span class="text-gray-500 font-medium">Hyobin Tourism Vision & L-Project</span>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-100 rounded-lg p-6 mb-8 shadow-sm">
+                    <h3 class="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i> 일상과 환상이 교차하는 도시, 효빈
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed text-[0.95rem]">
+                        효빈광역시는 수백 년간 이어져 온 아름다운 자연 지명과 역사적 유산이, 현대의 글로벌 대중문화(서브컬처)와 기적적으로 조화를 이루는 세계 유일의 도시입니다. 박효빈 시장의 핵심 정책인 <strong>'L-Project'</strong>를 바탕으로 도심 철도망과 상권을 결합하여, 시민들에게는 활력 넘치는 일상을, 전 세계 관광객에게는 잊지 못할 '성지순례'의 감동을 선사합니다.
+                    </p>
+                </div>
+
+                <h3 class="bullet-title">효빈시티투어버스 (T-Tour)</h3>
+                <div class="flex flex-col md:flex-row gap-6 items-start mb-8">
+                    <div class="w-full md:w-5/12 rounded-lg overflow-hidden shadow-md relative">
+                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600&auto=format&fit=crop" alt="효빈시티투어버스" class="w-full h-full object-cover">
+                        <div class="absolute top-2 left-2 bg-[#7777AA] text-white text-xs font-bold px-2 py-1 rounded shadow">라벤더 퍼플 (#7777AA)</div>
+                    </div>
+                    <div class="w-full md:w-7/12">
+                        <h4 class="text-xl font-bold text-gray-900 mb-2">도심을 잇는 보랏빛 낭만</h4>
+                        <p class="text-gray-700 leading-relaxed mb-4 text-[0.9rem]">
+                            효빈광역시 관광정책과에서 직접 운영하는 공식 시티투어버스는 효빈시의 상징색인 <strong>라벤더 퍼플</strong> 도색을 채택하고 있습니다. 과거의 획일적인 노선을 벗어나, 관광객의 세분화된 취향을 반영한 10개의 다채로운 노선을 운영 중입니다.
+                        </p>
+                        <div class="bg-gray-50 border border-gray-200 rounded p-4">
+                            <ul class="space-y-3 text-sm text-gray-800">
+                                <li class="flex items-start gap-2">
+                                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">T01</span>
+                                    <span><strong>중앙도심 순환 (기본 코스):</strong> 내항 - 중앙로 - 시청 - 박물관을 잇는 클래식 투어.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="bg-pink-600 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">T03</span>
+                                    <span><strong>전지역 성지순례 (하드코어):</strong> 효빈역을 시작으로 주요 굿즈샵과 성지(애니메이트, 아논타워 등)를 쉴 틈 없이 순환하는 베스트셀러 노선.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="bg-green-600 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">T07</span>
+                                    <span><strong>레일네임 투어:</strong> 철도와 특정 캐릭터의 이름이 같은 역(효빈, 보몽, 사가당 등)만 골라 다니는 스탬프 전용 코스.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="bg-purple-800 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">T10</span>
+                                    <span><strong>야간 특화 노선:</strong> 안전하고 낭만적인 야경 감상을 위한 나이트 투어 (시즌 한정 특별 성우 안내방송 송출).</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="bullet-title">관광 인프라 3대 핵심 전략</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg text-center shadow-sm">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="train-track" class="w-6 h-6"></i></div>
+                        <h5 class="font-bold text-gray-900 mb-2">모빌리티 연계 (L-Project)</h5>
+                        <p class="text-xs text-gray-600">1~8호선 및 빈효선 광역전철망을 관광의 대동맥으로 활용하여, 역세권 상권과 관광지를 촘촘히 잇습니다.</p>
+                    </div>
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg text-center shadow-sm">
+                        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
+                        <h5 class="font-bold text-gray-900 mb-2">포용적 문화 정책</h5>
+                        <p class="text-xs text-gray-600">누구나 안전하게 문화를 향유할 수 있도록 '쿠쿠스 배리어(안전 조례)'와 '블루버드 정책(취약계층 지원)'을 강력히 추진합니다.</p>
+                    </div>
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg text-center shadow-sm">
+                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="map-pin" class="w-6 h-6"></i></div>
+                        <h5 class="font-bold text-gray-900 mb-2">로컬 헤리티지 보존</h5>
+                        <p class="text-xs text-gray-600">구도심의 레트로 거리, 폐공장, 농어촌의 자연환경을 훼손하지 않고 독창적인 테마 관광 자원으로 재창조합니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SECTION 2: 효빈 애니메이션 페스티벌 (HAF)
+            =========================================== -->
+            <section id="sec-haf" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">효빈 애니메이션 페스티벌 (HAF)</h2>
+                    <span class="text-gray-500 font-medium">Hyobin Animation Festival : The Grand Slam</span>
+                </div>
+
+                <div class="bg-[#FF4500]/10 border border-[#FF4500]/30 rounded-lg p-6 mb-8 shadow-sm flex flex-col md:flex-row gap-6 items-center">
+                    <div class="flex-shrink-0 text-[#FF4500]">
+                        <i data-lucide="ticket" class="w-16 h-16"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-[#FF4500] mb-2">도시 전체가 무대가 되는 7일간의 기적</h3>
+                        <p class="text-gray-800 leading-relaxed text-[0.95rem]">
+                            대한민국 최대 규모의 도심형 서브컬처 복합 축제. 매년 8월 중순, 11개 자치구·군 전역에서 <strong>7일간(월~일)</strong> 분산 개최됩니다. HAF는 특정 건물에 국한되지 않으며, '효빈 도시철도'망을 혈관 삼아 도시 전체가 거대한 행사장으로 변모하는 세계 유일의 도심형 성지순례 축제입니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <!-- HAF PASS -->
+                    <div>
+                        <h3 class="bullet-title !mt-0">HAF PASS (효빈 트래블 패스포트)</h3>
+                        <p class="text-sm text-gray-600 mb-4">행사 기간 발급되는 마패이자 자유이용권 (앱 및 실물 수첩).</p>
+                        <div class="bg-white border border-gray-200 rounded p-4 shadow-sm h-full">
+                            <ul class="space-y-4">
+                                <li class="flex items-start gap-3">
+                                    <i data-lucide="train" class="w-5 h-5 text-indigo-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-gray-900 block text-sm">무제한 교통 혜택</strong>
+                                        <p class="text-xs text-gray-600">효빈 도시철도 1~8호선 및 빈효선 광역전철 7일간 무제한 탑승.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i data-lucide="map" class="w-5 h-5 text-indigo-600 mt-0.5"></i>
+                                    <div>
+                                        <strong class="text-gray-900 block text-sm">스탬프 랠리 미션</strong>
+                                        <p class="text-xs text-gray-600">11개 ZONE 순회 인증. 올클리어 시 '명예 기관사' 위촉패 증정.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 주요 프로그램 -->
+                    <div>
+                        <h3 class="bullet-title !mt-0">주요 프로그램</h3>
+                        <p class="text-sm text-gray-600 mb-4">단순 전시를 넘어선 압도적인 몰입형 콘텐츠.</p>
+                        <div class="bg-white border border-gray-200 rounded p-4 shadow-sm h-full">
+                            <ul class="space-y-3 text-sm">
+                                <li><strong class="text-purple-700">HAF Grand Opening:</strong> 효빈 시립 오케스트라 애니송 콘서트</li>
+                                <li><strong class="text-purple-700">HADP (DJ Party):</strong> 국내외 유명 애니송 DJ 초청 야외 클럽 파티</li>
+                                <li><strong class="text-purple-700">Seiyuu Talk & Live:</strong> 한일 유명 성우 초청 프리미엄 팬미팅</li>
+                                <li><strong class="text-purple-700">효빈 이타샤 모터쇼:</strong> 시청 앞 광장 전국 최대 규모 이타샤 전시</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="bullet-title">주요 개최 구역 (11 ZONE)</h3>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+                    <table class="data-table !mb-0 min-w-[800px]">
+                        <colgroup>
+                            <col style="width: 12%;">
+                            <col style="width: 20%;">
+                            <col style="width: 53%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>ZONE</th>
+                                <th>거점 장소</th>
+                                <th>주요 테마 및 행사 내용</th>
+                                <th>연계 노선</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 1 (HQ)</td>
+                                <td class="font-medium text-gray-900">북구 HSCO</td>
+                                <td class="text-left text-sm">글로벌 기업 엑스포, Creator's Market (대규모 동인 2차 창작 판매전)</td>
+                                <td class="text-sm font-semibold">1, 3, 5, 7호선</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 2</td>
+                                <td class="font-medium text-gray-900">북구 효빈종합운동장</td>
+                                <td class="text-left text-sm">메인 스테이지, 대형 애니송 오케스트라 및 야간 DJ 파티 (HADP)</td>
+                                <td class="text-sm font-semibold">1, 2호선</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 3</td>
+                                <td class="font-medium text-gray-900">북구 교통공사 본부</td>
+                                <td class="text-left text-sm">HAF 공식 굿즈 메인 팝업 스토어, 한정판 교통카드 발급처</td>
+                                <td class="text-sm font-semibold">2, 6호선</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 4</td>
+                                <td class="font-medium text-gray-900">서구 효빈대학교</td>
+                                <td class="text-left text-sm">스쿨 아이돌 테마, 청춘 코스프레 챔피언십, 스카이 뮤직 테라스</td>
+                                <td class="text-sm font-semibold">2, 5호선</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 6</td>
+                                <td class="font-medium text-gray-900">청엽구 아논타워</td>
+                                <td class="text-left text-sm">지하상가 가챠 굿즈 미로존, 55층 전망대 '관종력 디지털 방명록'</td>
+                                <td class="text-sm font-semibold">1호선</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 9</td>
+                                <td class="font-medium text-gray-900">안천구 당가역 거리</td>
+                                <td class="text-left text-sm">글로벌 스트리트 푸드 페스티벌 (초코바나나 테마 특화 거리)</td>
+                                <td class="text-sm font-semibold">2, 빈효선</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-purple-700">ZONE 11</td>
+                                <td class="font-medium text-gray-900">탄성군 도변읍 요소로 광장</td>
+                                <td class="text-left text-sm">지역 특산물 연계 마켓, 해안선 퍼레이드 및 야간 등대 라이트업</td>
+                                <td class="text-sm font-semibold">4호선</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SECTION 3: 테마별 관광 명소
+            =========================================== -->
+            <section id="sec-spots" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">테마별 관광 명소</h2>
+                    <span class="text-gray-500 font-medium">Thematic Tourist Attractions</span>
+                </div>
+
+                <p class="text-gray-700 leading-relaxed mb-8 text-[0.95rem]">
+                    효빈시는 각 구·군마다 각기 다른 매력을 품고 있습니다. 럭셔리한 스텔스 관광지부터 빵 냄새 가득한 구도심, 대자연과 락(Rock) 스피릿이 공존하는 외곽 지역까지. 자연 지명과 글로벌 IP가 우연히, 그리고 완벽하게 겹쳐진 효빈시만의 기적 같은 테마 구역을 소개합니다.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 창전구 -->
+                    <div class="tour-card">
+                        <div class="tour-img" style="background-image: url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=800&auto=format&fit=crop');">
+                            <span class="tour-badge bg-blue-600">럭셔리 & 스텔스 (창전구)</span>
+                        </div>
+                        <div class="tour-content">
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">우아함 속에 숨겨진 클래식</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
+                                해안 부촌이자 법조·금융의 중심지. '광정, 마시, 보통, 동곡, 투자, 쌍엽, 진백' 등 지역 고유 지명들을 모티브로 우아한 스텔스 관광을 구축했습니다.
+                            </p>
+                            <ul class="text-xs text-gray-700 space-y-1 bg-gray-50 p-3 rounded">
+                                <li>• <strong>진백 화이트 가든:</strong> 순백의 꽃과 푸른 나비 테마 산책로</li>
+                                <li>• <strong>보통의 거리:</strong> 미슐랭급 퀄리티를 자랑하는 기만형(?) 맛집 거리</li>
+                                <li>• <strong>창전 시사이드 콘서트홀:</strong> 바이올린 케이스 모양의 해안 공연장</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 청엽구 -->
+                    <div class="tour-card">
+                        <div class="tour-img" style="background-image: url('https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800&auto=format&fit=crop');">
+                            <span class="tour-badge bg-orange-500">베이커리 & 노을 (청엽구)</span>
+                        </div>
+                        <div class="tour-content">
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">거대한 오븐이 된 도심</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
+                                거대한 도심 전체가 빵 냄새로 진동하는 빵지순례의 성지(Bread City). 해 질 녘(Afterglow)에 펼쳐지는 감성적인 수변 인프라가 매력적입니다.
+                            </p>
+                            <ul class="text-xs text-gray-700 space-y-1 bg-gray-50 p-3 rounded">
+                                <li>• <strong>청엽 베이커리 거리:</strong> 주말마다 빵 냄새가 진동하는 특화 상권</li>
+                                <li>• <strong>우전천 사운드 브리지:</strong> 걸으면 드럼 사운드가 울리는 인터랙티브 다리</li>
+                                <li>• <strong>비마리 노을 스카이워크:</strong> 노을 시간대 분홍색 라이트업 데크</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 안천구 -->
+                    <div class="tour-card">
+                        <div class="tour-img" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800&auto=format&fit=crop');">
+                            <span class="tour-badge bg-green-600">자연 & 글로벌 (안천구)</span>
+                        </div>
+                        <div class="tour-content">
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">서해의 낭만과 이색 테마</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
+                                갯벌 생태계와 8090 레트로가 공존하는 곳. 누마즈시와의 자매결연을 바탕으로 독보적인 해안·글로벌 테마를 완성했습니다.
+                            </p>
+                            <ul class="text-xs text-gray-700 space-y-1 bg-gray-50 p-3 rounded">
+                                <li>• <strong>타천국 입국 심사대:</strong> 지역 명칭(타천)을 살린 이색 테마 관문</li>
+                                <li>• <strong>당가 글로벌 스트리트:</strong> 초코바나나와 중화 디저트의 퓨전 거리</li>
+                                <li>• <strong>이자 피아노 음악분수:</strong> 피아노 선율과 사쿠라 핑크 불빛의 앙상블</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 탄성군 -->
+                    <div class="tour-card">
+                        <div class="tour-img" style="background-image: url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=800&auto=format&fit=crop');">
+                            <span class="tour-badge bg-purple-600">농촌 & 락 스피릿 (탄성군)</span>
+                        </div>
+                        <div class="tour-content">
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">대자연과 밴드 사운드의 충돌</h4>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-grow">
+                                효빈 유일의 군 단위 지역. 고해, 도변, 서목, 도향면 등 평화로운 농어촌 지명 속에 뜨거운 락(Rock) 스피릿이 흐르는 기적의 땅입니다.
+                            </p>
+                            <ul class="text-xs text-gray-700 space-y-1 bg-gray-50 p-3 rounded">
+                                <li>• <strong>요소로 해안전망대:</strong> 탁 트인 서해 바다를 향해 외치는 푸른 등대</li>
+                                <li>• <strong>도향 복숭아 사이다 팩토리:</strong> 지역 특산물과 락을 결합한 양조 견학장</li>
+                                <li>• <strong>서목 록 페스티벌 광장:</strong> 앰프 시설이 빵빵한 상설 야외 공연장</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 SECTION 4: 체육 및 레저 시설
+            =========================================== -->
+            <section id="sec-sports" class="spa-section">
+                <div class="content-title">
+                    <h2 class="text-3xl font-black text-gray-900 m-0">체육 및 레저 시설</h2>
+                    <span class="text-gray-500 font-medium">Sports & Leisure Facilities</span>
+                </div>
+
+                <!-- 효빈종합운동장 포커스 -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-10">
+                    <div class="h-64 bg-gray-200 relative" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop'); background-size: cover; background-position: center;">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 md:p-10">
+                            <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded w-fit mb-2 shadow">효빈의 랜드마크</span>
+                            <h3 class="text-3xl md:text-4xl font-black text-white drop-shadow-lg">효빈종합운동장 <span class="text-lg font-normal text-gray-200 ml-2">북구 입희동</span></h3>
+                        </div>
+                    </div>
+                    <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+                        <div class="flex-grow">
+                            <p class="text-gray-700 leading-relaxed mb-4 text-[0.95rem]">
+                                수용 인원 4만 2천 명을 자랑하는 효빈시 최대의 체육 인프라입니다. K리그 경기가 열리는 열정의 현장이자, 매년 봄 수천 명의 코스어가 집결하여 시청까지 행진하는 <strong>'북구 코스프레 페스티벌'</strong>의 공식 출발점이기도 합니다. 주말이면 축구 유니폼을 입은 팬들과 화려한 코스튬을 입은 시민들이 한데 섞여 서로를 존중하는, 효빈시만의 독특한 포용 문화를 엿볼 수 있습니다.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <strong class="block text-purple-800 mb-1">별칭 '타키의 스타디움'</strong>
+                                    <p class="text-xs text-gray-600 leading-snug">소재지인 입희(立希)동의 지명 유래를 살려, 운동장 입구에는 대형 드럼 스틱 조형물이 설치되어 있습니다. 매점의 명물 '입희 핫도그(매운맛)'도 인기입니다.</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                                    <strong class="block text-purple-800 mb-1">입희 e스포츠 경기장 확장</strong>
+                                    <p class="text-xs text-gray-600 leading-snug">실내체육관을 대대적으로 리모델링하여, 글로벌 e스포츠 대회를 유치할 수 있는 5,000석 규모의 최첨단 아레나 조성이 2026년 완료 목표로 진행 중입니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="bullet-title">권역별 주요 체육·레저 시설</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="border border-gray-200 p-5 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <div class="text-blue-600 mb-3"><i data-lucide="waves" class="w-8 h-8"></i></div>
+                        <h5 class="font-bold text-gray-900 mb-2">곽암 마린 스포츠 파크</h5>
+                        <p class="text-sm text-gray-600 mb-2 font-semibold">남구 곽산동 곽암해수욕장</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">도심 속 청정 해변에서 서핑, 패들보드, 카누 등 해양 스포츠 아카데미를 운영합니다. 매년 여름 전국 규모의 비치 발리볼 대회가 개최됩니다.</p>
+                    </div>
+                    <div class="border border-gray-200 p-5 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <div class="text-green-600 mb-3"><i data-lucide="accessibility" class="w-8 h-8"></i></div>
+                        <h5 class="font-bold text-gray-900 mb-2">효빈 반다비 체육센터</h5>
+                        <p class="text-sm text-gray-600 mb-2 font-semibold">탄성군 미성리</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">장애인과 비장애인이 장벽 없이 함께 이용하는 패럴림픽 표준 체육관입니다. 수중 재활 수영장과 보치아 전용 구장을 완비하였습니다.</p>
+                    </div>
+                    <div class="border border-gray-200 p-5 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                        <div class="text-orange-500 mb-3"><i data-lucide="bike" class="w-8 h-8"></i></div>
+                        <h5 class="font-bold text-gray-900 mb-2">운양천 수변 레저 파크</h5>
+                        <p class="text-sm text-gray-600 mb-2 font-semibold">청엽구 우전천 연선</p>
+                        <p class="text-xs text-gray-500 leading-relaxed">야간 조명이 설치된 15km의 자전거 전용 도로와 인라인 스케이트장, 익스트림 X-게임장, 3on3 스트리트 농구장을 연중무휴 개방합니다.</p>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 6. 페이지 하단 푸터 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 스크립트 연결 -->
+    <script src="common121.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lucide 아이콘 초기화
+            lucide.createIcons();
+            
+            // 페이지 로드 시 해시값 체크 후 해당 탭으로 이동
+            const hash = window.location.hash.substring(1);
+            if(hash && document.getElementById(hash)) {
+                const targetBtn = document.querySelector(`.lnb-single[onclick*="${hash}"]`);
+                if(targetBtn) {
+                    navigateSPA(hash, targetBtn, targetBtn.innerText);
+                }
+            }
+        });
+
+        // SPA 네비게이션 함수
+        function navigateSPA(sectionId, btnElement, breadcrumbText) {
+            // 1. 모든 섹션 숨기기
+            const sections = document.querySelectorAll('.spa-section');
+            sections.forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // 2. 타겟 섹션 보이기
+            const targetSection = document.getElementById(sectionId);
+            if(targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // 3. LNB 메뉴 스타일 업데이트
+            const lnbBtns = document.querySelectorAll('.lnb-single');
+            lnbBtns.forEach(btn => {
+                btn.classList.remove('current');
+            });
+            if(btnElement) {
+                btnElement.classList.add('current');
+            }
+
+            // 4. 브레드크럼(경로) 텍스트 업데이트
+            const breadcrumb = document.getElementById('breadcrumb-current');
+            if(breadcrumb && breadcrumbText) {
+                breadcrumb.innerText = breadcrumbText;
+            }
+            
+            // 5. URL 해시 업데이트
+            window.location.hash = sectionId;
+
+            // 6. 스크롤 위치 보정
+            window.scrollTo({ top: 250, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
