@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매장 방문 후기 - 효빈교통공사 콜라보 카페</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --line1: #0077DD; --line2: #00CCAA; --line3: #FFCC11; --line4: #FF5522;
+            --line5: #EE0022; --line6: #881188; --line7: #FF8899; --line8: #9856FF;
+            --line-binhyo: #6677CC;
+        }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f4f9; }
+        .star-rating i { cursor: pointer; transition: color 0.2s, transform 0.1s; }
+        .star-rating i:hover, .star-rating i.active { color: #facc15; transform: scale(1.1); }
+        .review-card { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 커스텀 알림창(토스트) 애니메이션 */
+        #toast { transition: opacity 0.3s, transform 0.3s; }
+        .toast-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast-hide { opacity: 0; transform: translateX(-50%) translateY(20px); pointer-events: none; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen">
+
+    <!-- 헤더 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="hyobin_collab_cafe.html" class="text-gray-500 hover:text-blue-600 transition font-bold flex items-center bg-gray-100 px-3 py-2 rounded-xl">
+                <i class="fa-solid fa-arrow-left mr-2"></i>카페 메인으로
+            </a>
+            <h1 class="text-xl font-black tracking-tight flex items-center gap-2">
+                <span>HYOBIN CAFE <span class="text-blue-600">REVIEW</span></span>
+            </h1>
+            <div class="w-24"></div> <!-- 여백 맞춤용 -->
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- 매장 정보 헤더 (JS로 동적 렌더링) -->
+        <section id="storeInfoHeader" class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8 flex flex-col md:flex-row">
+            <!-- 데이터 로딩 전 플레이스홀더 -->
+            <div class="p-8 text-center w-full text-gray-400 font-bold animate-pulse">매장 정보를 불러오는 중입니다...</div>
+        </section>
+
+        <!-- 리뷰 작성 폼 -->
+        <section class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+            <h3 class="text-lg font-black mb-4 relative z-10"><i class="fa-solid fa-pen-to-square text-sky-500 mr-2"></i>방문 후기 남기기</h3>
+            <div class="mb-4 relative z-10">
+                <p class="text-sm font-bold text-gray-600 mb-2">이 매장의 만족도는 어떠셨나요?</p>
+                <div class="star-rating text-3xl text-gray-200 flex gap-2" id="starInput">
+                    <i class="fa-solid fa-star" data-val="1"></i>
+                    <i class="fa-solid fa-star" data-val="2"></i>
+                    <i class="fa-solid fa-star" data-val="3"></i>
+                    <i class="fa-solid fa-star" data-val="4"></i>
+                    <i class="fa-solid fa-star" data-val="5"></i>
+                </div>
+                <input type="hidden" id="ratingValue" value="0">
+            </div>
+            <div class="mb-4 relative z-10">
+                <textarea id="reviewText" rows="3" class="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm" placeholder="메뉴 맛은 어땠나요? 최애 캐릭터 굿즈는 뽑으셨나요? 생생한 후기를 남겨주세요!&#13;&#10;(욕설 및 비방 작성 시, 5호선 미소하 주임의 통계적 제재 및 1호선 고나미 기관사의 특별 교육이 실시될 수 있습니다.)"></textarea>
+            </div>
+            <div class="flex justify-between items-center relative z-10">
+                <div class="flex items-center text-sm text-gray-500">
+                    <label class="cursor-pointer hover:text-blue-500 transition font-bold bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                        <i class="fa-solid fa-camera mr-1"></i>사진 첨부
+                        <input type="file" class="hidden" accept="image/*">
+                    </label>
+                </div>
+                <button onclick="submitReview()" class="bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-black px-8 py-3 rounded-xl transition shadow-lg transform hover:-translate-y-1">
+                    리뷰 등록하기
+                </button>
+            </div>
+        </section>
+
+        <!-- 리뷰 리스트 (JS로 동적 렌더링) -->
+        <section>
+            <div class="flex justify-between items-end mb-6 px-2 border-b-2 border-gray-200 pb-2">
+                <h3 class="text-2xl font-black">시민들의 생생한 리뷰 <span id="reviewCount" class="text-blue-600 text-lg ml-1">0</span></h3>
+                <select class="text-sm border-gray-200 rounded-lg focus:ring-blue-500 text-gray-600 font-bold p-2 bg-white shadow-sm cursor-pointer">
+                    <option>최신순</option>
+                    <option>별점 높은 순</option>
+                    <option>별점 낮은 순</option>
+                </select>
+            </div>
+            
+            <div id="reviewContainer" class="space-y-4">
+                <!-- 리뷰 아이템들이 여기에 추가됩니다 -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500 mt-auto">
+        <p>ⓒ Hyobin Transport Corporation. All rights reserved.</p>
+        <p class="mt-2 font-bold text-gray-600">※ 허위 리뷰 작성 시 철도안전법이 아닌 정보통신망법에 의해 처벌받을 수 있습니다.</p>
+    </footer>
+
+    <!-- 커스텀 토스트 알림창 -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold flex items-center z-[100] toast-hide">
+        <i class="fa-solid fa-check-circle text-green-400 text-xl mr-3"></i>
+        <span id="toastMsg">리뷰가 성공적으로 등록되었습니다!</span>
+    </div>
+
+    <script>
+        // 지점 데이터베이스
+        const storeDB = {
+            "loc_hyobin1": { name: "효빈역플래그십 (1층)", line: "본점", color: "#005BAC", img: "./매장이미지/효빈역플래그십(1층).png", desc: "콜라보 카페 & 굿즈의 심장! 오픈런 1순위 성지입니다.", rating: "4.8" },
+            "loc_hyobin2": { name: "효빈역플래그십 (2층)", line: "본점 라운지", color: "#005BAC", img: "./매장이미지/효빈역플래그십(2층).png", desc: "전동차 구동음이 브금으로 깔리는 최고의 뷰 맛집 라운지.", rating: "4.9" },
+            "loc_hq": { name: "효빈교통공사 본사점", line: "직영 매장", color: "#1f2937", img: "./매장이미지/효빈교통공사본점.png", desc: "고인물 직원들의 덕력 창고. 박물관급 굿즈들이 전시되어 있습니다.", rating: "4.7" },
+            "loc_airport1": { name: "효빈국제공항점", line: "공항 한정", color: "#1f2937", img: "./매장이미지/효빈국제공항점.png", desc: "출국 전 마지막 지갑 털이 장소. 외국인 덕후 환영!", rating: "4.6" },
+            "loc_airport2": { name: "박라미 굿즈샵 (공항)", line: "3호선 특화", color: "#FFCC11", img: "./매장이미지/박라미 굿즈샵(공항).png", desc: "4개 국어 환영 데스크와 빛나는 금발의 라미 누나가 반겨줍니다.", rating: "4.9" },
+            "loc_gosong": { name: "고송교차로역점", line: "2·6호선", color: "#00CCAA", img: "./매장이미지/고송교차로역점.png", desc: "환승 지옥이자 뱅드림 토모리 성지. 점장님이 밴드 음악만 틉니다.", rating: "4.5" },
+            "loc_changseon": { name: "창선역점", line: "1호선 라인", color: "#0077DD", img: "./매장이미지/창선역점.png", desc: "철도 모형의 메카. 1호선 고나미 기관사님 출몰 주의 구역.", rating: "4.8" },
+            "loc_changjeon": { name: "창전구청역점", line: "다꾸 특화", color: "#1f2937", img: "./매장이미지/창전구청역점.png", desc: "주변 학원가 학생들을 위한 문구/다꾸 스티커 전문 매장.", rating: "4.6" },
+            "loc_cheongyeop": { name: "청엽구청역점", line: "친환경 굿즈", color: "#1f2937", img: "./매장이미지/청엽구청역점.png", desc: "아오바 모카 빵집 순례길의 시작점. 하루빈 역무원의 은신처입니다.", rating: "4.7" },
+            "loc_ija": { name: "이자공원역점", line: "4호선 특화", color: "#FF5522", img: "./매장이미지/이자공원역점.png", desc: "리코 성지이자 피아노 버스킹의 낭만이 있는 다로나 주임 관할 구역.", rating: "4.8" },
+            "loc_sojo": { name: "소조역점", line: "선물 세트", color: "#EE0022", img: "./매장이미지/소조역점.png", desc: "엠마의 온기가 느껴지는 디저트 틴케이스 특화 매장입니다.", rating: "4.9" },
+            "loc_jungsu": { name: "중수역점", line: "6호선 특화", color: "#881188", img: "./매장이미지/중수역점.png", desc: "나카스 카스미 성지. 하교 시간엔 중수여고 학생들로 미어터집니다.", rating: "4.7" },
+            "loc_jungang": { name: "중앙로1가역점", line: "7호선 라인", color: "#FF8899", img: "./매장이미지/중앙로1가역점.png", desc: "트램이 지나가는 길목의 지상 로드샵. 임세정 대리의 눈물겨운 성지.", rating: "4.9" },
+            "loc_unyang": { name: "운양중앙역점", line: "8호선 라인", color: "#9856FF", img: "./매장이미지/운양중앙역점.png", desc: "채광 좋은 통유리 카페. 유리아의 몽키스패너 굿즈 절찬 판매중!", rating: "4.8" },
+            "loc_ai": { name: "아이역점 (테마점)", line: "빈효선 테마", color: "#6677CC", img: "./매장이미지/아이역점.png", desc: "점장님이 미야시타 아이 오시. 입장 시 아재개그를 견뎌야 합니다.", rating: "4.5" },
+            "loc_you": { name: "도변요우점 (테마점)", line: "4호선 테마", color: "#FF5522", img: "./매장이미지/도변요우점.png", desc: "입장 시 '전속전진 요소로!'를 외치지 않으면 입장이 제한됩니다.", rating: "4.6" }
+        };
+
+        // 지점별 기본(초기) 리뷰 데이터 (세계관 밈 200% 반영)
+        const initialReviewsDB = {
+            "loc_hyobin1": [
+                { author: "철싸대감별사", star: 5, date: "1일 전", text: "본점 스케일 미쳤네요;; 중복 가챠 교환존에서 하루빈 넨도 코난 파츠 겨우 구했습니다. 음료 양 250ml인 거 진짜 신의 한 수! 4잔 마시고 코스터 4개 뽑음 ㅋㅋㅋ" },
+                { author: "지갑다털림", star: 4, date: "3일 전", text: "전노아 심해푸딩 사러 갔는데 결제 줄 앞에서 코레일 정시원 본부장님이 법인카드로 100개 긁는 거 직관함 ㄷㄷ 본부장님 울면서 결제하시던데요?" },
+                { author: "FM마녀팬", star: 5, date: "1주일 전", text: "전시장 안에 있는 1호선 구형 릴레이 제어반 만지려다가 등 뒤에서 고나미 선배님이 '특별 교육입니다'라고 하셔서 엎드려 뻗쳤습니다. 오히려 좋아." }
+            ],
+            "loc_hyobin2": [
+                { author: "창가자리사수", star: 5, date: "2일 전", text: "2층 뷰가 미쳤습니다. 1호선 전동차 들어오는 거 보면서 블루 크림 소다 마시면 그곳이 바로 극락... 근데 옆자리 여성분이 고음질 마이크로 전동차 소리 녹음하고 계셨음. ㄷㄷ" },
+                { author: "F학점동맹", star: 5, date: "1주일 전", text: "라운지 소파 짱 편해요! 박라미 피자 시켰는데 피자 치즈 결이 무슨 통계학 그래프 같았습니다 ㅠㅠ 맛있어서 눈물 남. 내 학점도 치즈처럼 늘어났으면..." }
+            ],
+            "loc_hq": [
+                { author: "신입사원", star: 4, date: "어제", text: "점심시간에 내려가면 목에 사원증 걸고 진지하게 가챠 캡슐 까고 있는 대리님들 볼 수 있습니다. ㅋㅋㅋ 사내 복지가 이런 거군요. 빛효빈 시장님 충성충성!" },
+                { author: "예산팀분쇄기", star: 5, date: "5일 전", text: "매장 구석에서 미소하 주임님이 빨간 바인더로 탁상행정 기안서 찢고 있는 거 봤습니다 ㄷㄷ 웃으면서 팩폭 날리는데 알바생들 다 얼어붙음." }
+            ],
+            "loc_airport2": [
+                { author: "프레이밍장인", star: 5, date: "2시간 전", text: "출국 전에 들렀는데 라미 누나 등신대 패널 진짜 미쳤습니다 비율 ㄷㄷ 근데 매장 안내방송 4개국어로 나오다가 갑자기 사능동 빵집 식빵 얘기는 왜 나오는 건가요 ㅋㅋㅋㅋ" },
+                { author: "여권도둑", star: 5, date: "3일 전", text: "공항 한정판 여권 케이스 퀄리티 짱짱! 외국인 친구가 굿즈 30만 원어치 지르고 EMS로 부쳤어요. 라미 스무디 먹고 당 충전 빡!" }
+            ],
+            "loc_gosong": [
+                { author: "돌맹이", star: 5, date: "1일 전", text: "점장님이 뱅드림에 진짜 진심이시네요 ㅋㅋㅋ 매장 BGM으로 MyGO 노래만 나옵니다. 길 잃어버려서 어버버하고 있는데 하루빈 역무원님이 웃으면서 길 찾아주심 ㅠㅠ" },
+                { author: "마아야모드", star: 4, date: "4일 전", text: "환승역이라 사람 진짜 많음. 새치기하는 진상 아저씨 있었는데 하루빈님이 갑자기 안경(없는) 스윽 올리면서 차가운 목소리로 팩폭해서 쫓아냄. 와 포상인 줄 알았습니다." },
+                { author: "숨덕탐지기", star: 5, date: "1주일 전", text: "하루빈 역무원님 CCTV 사각지대에서 모카빵 드시는 거 목격했습니다. 쉿, 비밀로 해드릴게요." }
+            ],
+            "loc_changseon": [
+                { author: "IGBT성애자", star: 5, date: "어제", text: "여긴 찐입니다. 초창기 릴레이 제어반 레플리카 샀는데 타격음 예술이네요. 아까 8호선 유리아 학생이 몽키스패너 들고 침 흘리면서 구경하는 거 봤습니다 ㅋㅋㅋ 조만간 다 뜯길 듯." },
+                { author: "특별교육생", star: 5, date: "1주일 전", text: "매장에서 뛰다가 고나미 선배님한테 걸려서 철도안전법 제48조 암송하고 풀려났습니다 ㅠㅠ 고음질 마이크 들고 계시던데 포스 장난 아님." }
+            ],
+            "loc_changjeon": [
+                { author: "수능특강3회독", star: 4, date: "2일 전", text: "여기 다꾸 스티커 짱 많아요! 근데 방금 라세나 주임님이 모의고사 영어 3등급 성적표 들고 울면서 마스킹 테이프 사가는 거 봄 ㅠㅠ 세나 화이팅!!" }
+            ],
+            "loc_cheongyeop": [
+                { author: "빵순이", star: 5, date: "3일 전", text: "하루빈 역무원님이 뿌린 주변 '아오바 모카 빵집 투어 지도' 겟! 에코백 사서 거기에 모카빵 가득 채워갑니다 ㅎㅎ 친환경 테마라 그런지 매장 냄새도 좋아요." },
+                { author: "민초단수장", star: 5, date: "1주일 전", text: "카페 메뉴에 민트초코가 없어서 아쉽지만, 2호선 그린 에이드로 대리 만족합니다. 치약 맛 만세!" }
+            ],
+            "loc_ija": [
+                { author: "리코샌드위치", star: 5, date: "어제", text: "매장 밖 피아노에서 누가 스노하레 치길래 떼창하고 들어왔습니다 ㅋㅋㅋ 4호선 다로나 주임님 관할이라 그런지 매장 정리정돈 각이 미쳤어요. 먼지 하나 없음." },
+                { author: "호루라기", star: 4, date: "5일 전", text: "오렌지 프라페 퀄리티 대박. 알바생이 좀 소심해 보였는데 누가 스크린도어 기대니까 갑자기 로봇 목소리로 철도법 읊어서 상황 종결시킴 ㄷㄷ 햄스터가 아니라 터미네이터였음." }
+            ],
+            "loc_sojo": [
+                { author: "빨간바인더", star: 5, date: "2일 전", text: "명절 선물용으로 틴케이스 세트 샀습니다. 미소하 주임님이 통계 돌려서 가장 가성비 좋은 쿠키만 모아놨다더니 진짜네요 ㅋㅋㅋ 마라맛 5단계 떡볶이는 안 파나요?" }
+            ],
+            "loc_jungsu": [
+                { author: "시간표강박증", star: 5, date: "어제", text: "중수여고 하교 시간 피해서 오세요 학생들 진짜 많음 ㅋㅋㅋ 매장에 L-O-V-E 카스밍 박스 산더미처럼 쌓여있어서 사진 찍기 좋습니다. 구석에서 수능특강 푸는 라세나 ㅠㅠ 파이팅!" },
+                { author: "이어폰잭팟", star: 5, date: "1주일 전", text: "보랏빛 치즈케익 존맛탱! 라세나 캔뱃지 뽑고 싶었는데 하루빈 넨도만 연속 3번 나옴 ㅠㅠ 라세나 주임님 영어 단어장 보면서 자고 있길래 안 깨우고 나왔습니다." }
+            ],
+            "loc_jungang": [
+                { author: "트램의낭만", star: 5, date: "1일 전", text: "유럽풍 테라스에서 트램 지나가는 거 보면서 딸기 크림 라떼 마시니까 진짜 감동입니다. 임세정 대리님이 윤대환 시장 맞서서 맨몸으로 지켜낸 노선 ㅠㅠ 충성충성!" },
+                { author: "K장녀", star: 5, date: "4일 전", text: "매장에 노면전차 다이캐스트 퀄리티 미쳤어요. 근데 세정 대리님 목소리로 '뒤로 한 걸음 물러서!!' 방송 나오면 동생들 빙의해서 자동 반사로 쫄게 됨 ㅋㅋㅋ 성량 대박임." }
+            ],
+            "loc_unyang": [
+                { author: "채광맛집", star: 5, date: "어제", text: "통유리창이라 사진 진짜 예쁘게 나옵니다! 연보라 쉐이크 당 충전 대박 ㅋㅋㅋ 유리아 몽키스패너 미니 공구 세트 샀는데 진짜 볼트 조여짐 미친 실용성 ㄷㄷ" },
+                { author: "비상정지", star: 4, date: "6일 전", text: "야바이 야바이 스고이!! 유리아 텐션 미쳤음 ㅋㅋㅋ 매장에 카페 머신 뜯어져 있던데 혹시 유리아가 분해한 건가요? 세하 주임님이 백허그로 말리는 거 봄 ㅋㅋ" }
+            ],
+            "loc_ai": [
+                { author: "다자레", star: 4, date: "1일 전", text: "들어가자마자 점장님이 '소다가 톡 쏘다니!' 이딴 아재개그 쳐서 1차 멘붕. 근데 전노아 주임님 심해푸딩 먹고 맛있어서 2차 멘붕. 아이역점 폼 미쳤따리" },
+                { author: "어뮤즈의광견", star: 5, date: "3일 전", text: "어제 저녁에 전노아 주임님 취해서 점장님이랑 개그 배틀 뜨는 거 봤습니다 ㅋㅋㅋㅋ 행정 서류 찢으면서 소맥 마시던데 진짜 광견 그 자체였음." }
+            ],
+            "loc_you": [
+                { author: "전속전진", star: 5, date: "어제", text: "매장 문 열기 전에 심호흡하고 '전속전진 요소로!!' 외쳤더니 알바생이 찐텐으로 경례 받아줌 ㅋㅋㅋㅋ 수치사할 뻔했지만 4호선 그라탕 먹고 멘탈 회복했습니다." },
+                { author: "햄스터", star: 5, date: "3일 전", text: "다로나 주임님도 여기 올 땐 소심함 버리고 요소로 외치시나요? ㅋㅋㅋ 테마 진짜 확실하네요. 그라탕에 4호선 열차 쿠키 졸귀탱" }
+            ]
+        };
+
+        // URL 파라미터에서 store id 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentStoreId = urlParams.get('store');
+        
+        // 유효하지 않은 값이면 기본값(본점) 설정
+        if (!currentStoreId || !storeDB[currentStoreId]) {
+            currentStoreId = "loc_hyobin1"; 
+        }
+
+        const storeInfo = storeDB[currentStoreId];
+        
+        // localStorage 키 설정
+        const STORAGE_KEY = 'hyobin_cafe_reviews';
+
+        // 페이지 초기 렌더링
+        window.onload = () => {
+            // 1. 매장 정보 헤더 렌더링
+            const headerHtml = `
+                <div class="w-full md:w-1/3 relative h-48 md:h-auto">
+                    <img src="${storeInfo.img}" onerror="this.src='https://via.placeholder.com/400x300?text=이미지+로드+실패'" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <span class="absolute bottom-4 left-4 bg-white text-gray-800 text-xs font-black px-3 py-1 rounded-full shadow-md" style="color: ${storeInfo.color}">${storeInfo.line}</span>
+                </div>
+                <div class="w-full md:w-2/3 p-6 md:p-8 flex flex-col justify-center">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-2xl md:text-3xl font-black text-gray-800">${storeInfo.name}</h2>
+                        <div class="bg-blue-50 text-blue-600 font-black px-3 py-1 rounded-lg flex items-center shadow-sm">
+                            <i class="fa-solid fa-star text-yellow-400 mr-1"></i> ${storeInfo.rating}
+                        </div>
+                    </div>
+                    <p class="text-gray-500 font-bold mb-4 leading-relaxed">${storeInfo.desc}</p>
+                    <div class="flex gap-2">
+                        <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded font-bold border border-gray-200"><i class="fa-solid fa-check text-green-500 mr-1"></i>스탬프 랠리 가능</span>
+                        <span class="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded font-bold border border-gray-200"><i class="fa-solid fa-check text-green-500 mr-1"></i>Tax-Free</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('storeInfoHeader').innerHTML = headerHtml;
+
+            // 2. 리뷰 리스트 초기화 및 렌더링
+            initReviews();
+        };
+
+        // 별점 UI 이벤트
+        const stars = document.querySelectorAll('.star-rating i');
+        const ratingInput = document.getElementById('ratingValue');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const val = this.getAttribute('data-val');
+                ratingInput.value = val;
+                
+                stars.forEach(s => {
+                    if (s.getAttribute('data-val') <= val) {
+                        s.classList.add('active', 'text-yellow-400');
+                        s.classList.remove('text-gray-200');
+                    } else {
+                        s.classList.remove('active', 'text-yellow-400');
+                        s.classList.add('text-gray-200');
+                    }
+                });
+            });
+        });
+
+        // 리뷰 데이터 초기화 및 병합 (기본 DB + localStorage)
+        function getReviews() {
+            // 로컬 스토리지에서 유저가 쓴 리뷰 불러오기
+            let storedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            let userReviews = storedData[currentStoreId] || [];
+            let defaultReviews = initialReviewsDB[currentStoreId] || [];
+            
+            // 유저 작성 리뷰가 최신이 되도록 합치기
+            return [...userReviews, ...defaultReviews];
+        }
+
+        // 리뷰 렌더링 함수
+        function initReviews() {
+            const container = document.getElementById('reviewContainer');
+            const reviews = getReviews();
+            document.getElementById('reviewCount').textContent = reviews.length;
+            
+            container.innerHTML = '';
+            
+            if (reviews.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 font-bold bg-white rounded-2xl border border-gray-100">아직 등록된 후기가 없습니다. 첫 번째 리뷰를 남겨주세요!</div>`;
+                return;
+            }
+
+            reviews.forEach((rev, index) => {
+                let starsHtml = '';
+                for(let i=0; i<5; i++) {
+                    if(i < rev.star) starsHtml += `<i class="fa-solid fa-star text-yellow-400"></i>`;
+                    else starsHtml += `<i class="fa-solid fa-star text-gray-200"></i>`;
+                }
+
+                // 랜덤 프로필 아이콘 배경색 지정
+                const colors = ['bg-blue-100 text-blue-500', 'bg-green-100 text-green-500', 'bg-purple-100 text-purple-500', 'bg-orange-100 text-orange-500', 'bg-pink-100 text-pink-500'];
+                const avatarColor = colors[index % colors.length];
+
+                const html = `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 review-card">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center font-black text-xs">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <span class="font-black text-gray-700">${rev.author}</span>
+                                    <span class="text-xs text-gray-400 font-bold">• ${rev.date}</span>
+                                </div>
+                                <div class="text-xs ml-10">${starsHtml}</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm leading-relaxed ml-10">${rev.text}</p>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // 토스트 알림창 띄우기
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = message;
+            toast.classList.remove('toast-hide');
+            toast.classList.add('toast-show');
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+                toast.classList.add('toast-hide');
+            }, 3000);
+        }
+
+        // 새 리뷰 제출 함수
+        function submitReview() {
+            const text = document.getElementById('reviewText').value;
+            const rating = document.getElementById('ratingValue').value;
+
+            if (rating === "0") {
+                showToast("앗! 별점을 먼저 선택해주세요.");
+                document.getElementById('toast').classList.replace('text-white', 'text-yellow-100');
+                document.querySelector('#toast i').className = "fa-solid fa-triangle-exclamation text-yellow-400 text-xl mr-3";
+                return;
+            }
+            if (text.trim() === "") {
+                showToast("리뷰 내용을 입력해주세요!");
+                document.getElementById('toast').classList.replace('text-white', 'text-yellow-100');
+                document.querySelector('#toast i').className = "fa-solid fa-triangle-exclamation text-yellow-400 text-xl mr-3";
+                return;
+            }
+
+            // 날짜 포맷 (예: 2026-04-14)
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+            // 새 리뷰 객체 생성
+            const newReview = {
+                author: "효빈시민_" + Math.floor(Math.random() * 9000 + 1000),
+                star: parseInt(rating),
+                date: "방금 전 (" + dateString + ")",
+                text: text.replace(/\n/g, "<br>")
+            };
+
+            // LocalStorage에 저장
+            let storedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            if (!storedData[currentStoreId]) {
+                storedData[currentStoreId] = [];
+            }
+            storedData[currentStoreId].unshift(newReview); // 유저 리뷰 배열 최상단에 추가
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
+
+            // 폼 초기화
+            document.getElementById('reviewText').value = "";
+            ratingInput.value = "0";
+            stars.forEach(s => {
+                s.classList.remove('active', 'text-yellow-400');
+                s.classList.add('text-gray-200');
+            });
+
+            // 화면 재렌더링
+            initReviews();
+            
+            // 미소하 드립 성공 알림창
+            document.getElementById('toast').classList.replace('text-yellow-100', 'text-white');
+            document.querySelector('#toast i').className = "fa-solid fa-check-circle text-green-400 text-xl mr-3";
+            showToast("리뷰 등록 완료! (미소하 주임이 통계 데이터로 수집했습니다 📈)");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매장 방문 후기 - 효빈교통공사 콜라보 카페</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --line1: #0077DD; --line2: #00CCAA; --line3: #FFCC11; --line4: #FF5522;
+            --line5: #EE0022; --line6: #881188; --line7: #FF8899; --line8: #9856FF;
+            --line-binhyo: #6677CC;
+        }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f4f9; }
+        .star-rating i { cursor: pointer; transition: color 0.2s, transform 0.1s; }
+        .star-rating i:hover, .star-rating i.active { color: #facc15; transform: scale(1.1); }
+        .review-card { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 커스텀 알림창(토스트) 애니메이션 */
+        #toast { transition: opacity 0.3s, transform 0.3s; }
+        .toast-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast-hide { opacity: 0; transform: translateX(-50%) translateY(20px); pointer-events: none; }
+        /* 빌런 댓글 강조 스타일 */
+        .villain-card { border-left: 6px solid #1f2937 !important; background-color: #fff1f2 !important; }
+        .reply-box { border-left: 4px solid #3b82f6; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen">
+
+    <!-- 헤더 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-gray-500 hover:text-blue-600 transition font-bold flex items-center bg-gray-100 px-3 py-2 rounded-xl text-sm">
+                <i class="fa-solid fa-arrow-left mr-2"></i>카페 메인으로
+            </a>
+            <h1 class="text-xl font-black tracking-tight flex items-center gap-2">
+                <span>HYOBIN CAFE <span class="text-blue-600">REVIEW</span></span>
+            </h1>
+            <div class="w-24"></div> <!-- 여백 맞춤용 -->
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- 매장 정보 헤더 -->
+        <section id="storeInfoHeader" class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8 flex flex-col md:flex-row">
+            <div class="p-8 text-center w-full text-gray-400 font-bold animate-pulse">매장 정보를 불러오는 중입니다...</div>
+        </section>
+
+        <!-- 리뷰 작성 폼 -->
+        <section class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+            <h3 class="text-lg font-black mb-4 relative z-10"><i class="fa-solid fa-pen-to-square text-sky-500 mr-2"></i>방문 후기 남기기</h3>
+            <div class="mb-4 relative z-10">
+                <p class="text-sm font-bold text-gray-600 mb-2">이 매장의 만족도는 어떠셨나요?</p>
+                <div class="star-rating text-3xl text-gray-200 flex gap-2" id="starInput">
+                    <i class="fa-solid fa-star" data-val="1"></i>
+                    <i class="fa-solid fa-star" data-val="2"></i>
+                    <i class="fa-solid fa-star" data-val="3"></i>
+                    <i class="fa-solid fa-star" data-val="4"></i>
+                    <i class="fa-solid fa-star" data-val="5"></i>
+                </div>
+                <input type="hidden" id="ratingValue" value="0">
+            </div>
+            <div class="mb-4 relative z-10">
+                <textarea id="reviewText" rows="4" class="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm" placeholder="메뉴 맛은 어땠나요? 생생한 후기를 남겨주세요!&#13;&#10;(※ 욕설, 선정적 발언, 근거 없는 비방은 마스코트들의 팩폭 답변과 함께 법적 조치를 받을 수 있습니다.)"></textarea>
+            </div>
+            <div class="flex justify-between items-center relative z-10">
+                <div class="flex items-center text-sm text-gray-500 font-bold">
+                    <i class="fa-solid fa-shield-halved text-green-500 mr-2"></i>클린 리뷰 필터링 가동 중
+                </div>
+                <button onclick="submitReview()" class="bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-black px-8 py-3 rounded-xl transition shadow-lg transform hover:-translate-y-1">
+                    리뷰 등록하기
+                </button>
+            </div>
+        </section>
+
+        <!-- 리뷰 리스트 -->
+        <section>
+            <div class="flex justify-between items-end mb-6 px-2 border-b-2 border-gray-200 pb-2">
+                <h3 class="text-2xl font-black">시민들의 생생한 리뷰 <span id="reviewCount" class="text-blue-600 text-lg ml-1">0</span></h3>
+                <select id="sortSelect" onchange="renderReviews()" class="text-sm border-gray-200 rounded-lg focus:ring-blue-500 text-gray-600 font-bold p-2 bg-white shadow-sm cursor-pointer">
+                    <option value="new">최신순</option>
+                    <option value="high">별점 높은 순</option>
+                    <option value="low">별점 낮은 순</option>
+                </select>
+            </div>
+            
+            <div id="reviewContainer" class="space-y-4">
+                <!-- 리뷰 아이템들이 여기에 추가됩니다 -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500 mt-auto">
+        <p>ⓒ Hyobin Transport Corporation. All rights reserved.</p>
+        <p class="mt-1">※ 허위 리뷰 작성 시 철도안전법이 아닌 정보통신망법에 의해 처벌받을 수 있습니다.</p>
+    </footer>
+
+    <!-- 커스텀 토스트 알림창 -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold flex items-center z-[100] toast-hide">
+        <i class="fa-solid fa-check-circle text-green-400 text-xl mr-3"></i>
+        <span id="toastMsg">리뷰가 성공적으로 등록되었습니다!</span>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'hyobin_cafe_reviews_v5';
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentStoreId = urlParams.get('store') || "loc_hyobin1";
+
+        const storeDB = {
+            "loc_hyobin1": { name: "효빈역플래그십 (1층)", line: "본점", color: "#005BAC", img: "매장이미지/효빈역플래그십(1층).png", desc: "콜라보 카페 & 굿즈의 심장! 오픈런 1순위 성지입니다.", rating: "4.8" },
+            "loc_hyobin2": { name: "효빈역플래그십 (2층)", line: "본점 라운지", color: "#005BAC", img: "매장이미지/효빈역플래그십(2층).png", desc: "전동차 구동음이 브금으로 깔리는 최고의 뷰 맛집 라운지.", rating: "4.9" },
+            "loc_hq": { name: "효빈교통공사 본사점", line: "직영 매장", color: "#1f2937", img: "매장이미지/효빈교통공사본점.png", desc: "고인물 직원들의 덕력 창고. 박물관급 굿즈들이 전시되어 있습니다.", rating: "4.7" },
+            "loc_airport1": { name: "효빈국제공항점", line: "공항 한정", color: "#1f2937", img: "매장이미지/효빈국제공항점.png", desc: "출국 전 마지막 지갑 털이 장소. 외국인 덕후 환영!", rating: "4.6" },
+            "loc_airport2": { name: "박라미 굿즈샵 (공항)", line: "3호선 특화", color: "#FFCC11", img: "매장이미지/박라미 굿즈샵(공항).png", desc: "4개 국어 환영 데스크와 빛나는 금발의 라미 누나가 반겨줍니다.", rating: "4.9" },
+            "loc_gosong": { name: "고송교차로역점", line: "2·6호선", color: "#00CCAA", img: "매장이미지/고송교차로역점.png", desc: "환승 지옥이자 뱅드림 토모리 성지. 점장님이 밴드 음악만 틉니다.", rating: "4.5" },
+            "loc_changseon": { name: "창선역점", line: "1호선 라인", color: "#0077DD", img: "매장이미지/창선역점.png", desc: "철도 모형의 메카. 1호선 고나미 기관사님 출몰 주의 구역.", rating: "4.8" },
+            "loc_changjeon": { name: "창전구청역점", line: "다꾸 특화", color: "#1f2937", img: "매장이미지/창전구청역점.png", desc: "주변 학원가 학생들을 위한 문구/다꾸 스티커 전문 매장.", rating: "4.6" },
+            "loc_cheongyeop": { name: "청엽구청역점", line: "친환경 굿즈", color: "#1f2937", img: "매장이미지/청엽구청역점.png", desc: "아오바 모카 빵집 순례길의 시작점. 하루빈 역무원의 은신처입니다.", rating: "4.7" },
+            "loc_ija": { name: "이자공원역점", line: "4호선 특화", color: "#FF5522", img: "매장이미지/이자공원역점.png", desc: "리코 성지이자 피아노 버스킹의 낭만이 있는 다로나 주임 관할 구역.", rating: "4.8" },
+            "loc_sojo": { name: "소조역점", line: "선물 세트", color: "#EE0022", img: "매장이미지/소조역점.png", desc: "엠마의 온기가 느껴지는 디저트 틴케이스 특화 매장입니다.", rating: "4.9" },
+            "loc_jungsu": { name: "중수역점", line: "6호선 특화", color: "#881188", img: "매장이미지/중수역점.png", desc: "나카스 카스미 성지. 하교 시간엔 중수여고 학생들로 미어터집니다.", rating: "4.7" },
+            "loc_jungang": { name: "중앙로1가역점", line: "7호선 라인", color: "#FF8899", img: "매장이미지/중앙로1가역점.png", desc: "트램이 지나가는 길목의 지상 로드샵. 임세정 대리의 눈물겨운 성지.", rating: "4.9" },
+            "loc_unyang": { name: "운양중앙역점", line: "8호선 라인", color: "#9856FF", img: "매장이미지/운양중앙역점.png", desc: "채광 좋은 통유리 카페. 유리아의 몽키스패너 굿즈 절찬 판매중!", rating: "4.8" },
+            "loc_ai": { name: "아이역점 (테마점)", line: "빈효선 테마", color: "#6677CC", img: "매장이미지/아이역점.png", desc: "점장님이 미야시타 아이 오시. 입장 시 아재개그를 견뎌야 합니다.", rating: "4.5" },
+            "loc_you": { name: "도변요우점 (테마점)", line: "4호선 테마", color: "#FF5522", img: "매장이미지/도변요우점.png", desc: "입장 시 '전속전진 요소로!'를 외치지 않으면 입장이 제한됩니다.", rating: "4.6" }
+        };
+
+        const SECURITY = {
+            // 실제 욕설 및 비하 단어의 다양한 변형 패턴 대응
+            badPatterns: /씨[발바팔벌벌바]|시[발바벌벌바]|ㅅㅂ|ㅂㅅ|병[신신씬]|지[랄랄]|[좆좃]나|개[새세]끼|미[친친]|앰[창창]|느[금금]|한[남녀]|상[폐페]|천[박박]|선[정정]적|가[슴슴]|섹[스스]|성[인인]물/gi,
+            villainProfiles: [
+                { id: "ichaya", name: "이차야", keywords: ["선정적", "가슴", "옷", "복장", "천박", "저질", "애들", "성적", "노출", "성상품화"],
+                  response: { author: "효빈교통공사 복지본부 미소하", text: "고객님~ 캐릭터의 볼륨감은 수송 분담률에 따른 중력 가속도를 견디기 위한 과학적 보정치입니다!^^ 편향된 시각으로 허위 비방을 지속하실 경우, 제 빨간 바인더에 적힌 '민사상 손해배상 합의금 통계표'를 직접 보게 되실 거예요. (방긋!)" } },
+                { id: "woosinmyeon", name: "우신면", keywords: ["조망권", "집값", "시끄러", "철거", "고가", "의원", "행정", "너드", "공고생"],
+                  response: { author: "효빈교통공사 기획본부 전노아", text: "전직 의원님! 낙선 축하드려요! 찡긋! 귀하가 주장하시는 행정 오류를 반박할 핵심 이유는 딱 세 가지입니다. 첫째, 8호선 소음은 법적 기준치 이하입니다. 둘째, 귀하의 펜트하우스 조망권보다 시민 이동권이 300% 더 소중합니다. 셋째, 까라면 까세요! 행정의 기본도 모르시나 보네!" } },
+                { id: "yunjaehun", name: "윤재훈", keywords: ["트램", "고철", "폐선", "도로", "체증", "시장", "가짜", "부조리"],
+                  response: { author: "효빈교통공사 법무팀 (임세정 대리 대행)", text: "윤재훈 씨, 과거 7호선 트램 선로 무단 침입으로 인한 급제동 유발 전과를 잊으셨나요? 본인 목숨 구해준 트램을 고철이라 비하하시다니. 한 번만 더 허위 사실 유포하면 임세정 대리님이 확성기로 귀청을 터뜨린 후 즉시 구속 수사 밟겠다고 하십니다." } },
+                { id: "jeongcheolgyu", name: "정철규", keywords: ["정신병", "거세", "광대", "만화 쪼가리", "농촌", "고추", "계집애들", "수용소", "저질"],
+                  response: { author: "효빈교통공사 예산팀 미소하", text: "정철규 전 위원장님~ 청년들의 문화 소비는 효빈시 지역내총생산(GRDP)을 견인하는 핵심 산업입니다!^^ 득표율 6.33%로 3위 낙선하신 분의 행정 조언은 통계적 유의성이 매우 떨어지네요. 카페에서 소란 피우지 마시고 시골 가서 고추나 따시길 권장합니다~ 방긋!" } },
+                { id: "gujinnae", name: "구진내", keywords: ["소꿉장난", "일본 밴드", "국격", "인형", "나부랭이", "냄새"],
+                  response: { author: "효빈교통공사 기획본부 전노아", text: "구진내 의원님! 찡긋! 타당성 검토(B/C) 0.4도 안 나오는 산단 예산안 들고 오시는 분이 국격을 논하시나요? 의원님 지역구인 하정시 교차로 정비나 쫀쫀하게 해오세요! 아, 매장에서 냄새나니까 빨리 나가주세요!" } },
+                { id: "student_a", name: "부동산학과A씨", keywords: ["나약함", "모노레일", "출교", "부동산", "음모론", "선거", "부정"],
+                  response: { author: "효빈교통공사 승무본부 고나미", text: "출교생 A씨, 귀하의 발언은 철도안전법 제48조(철도 보호) 및 형법상 명예훼손죄에 해당할 확률이 99.7%입니다. 논리적 근거 없는 비방은 규정 위반입니다. 지금 즉시 이 구역에서 퇴거하지 않으시면 귀하에 대한 아주 긴 '특별 교육(형사 고발)'을 실시하겠습니다." } }
+            ]
+        };
+
+        // 16개 매장별 고유 스토리 및 75+개 리뷰 데이터 (정철규, 구진내 추가 반영)
+        const initialReviewsDB = {
+            "loc_hyobin1": [
+                { author: "정철규", star: 1, date: "2026-04-10", text: "다 큰 어른이 만화 쪼가리나 보고 앉아있는 건 정신병입니다. 이런 오타쿠 수용소 지을 돈으로 경로당이나 지어야지. 젊은 것들이 시골 가서 고추나 딸 생각은 안 하고 에어컨 바람 쐬면서 계집애들 인형이나 사고 있으니 나라 꼴이 이 모양이지!", reply: SECURITY.villainProfiles[3].response },
+                { author: "부동산학과A씨", star: 1, date: "2026-04-09", text: "여전히 모노레일이나 타고 다니는 나약한 오타쿠들이 득실거리는군요. 캐릭터 가슴만 크게 그려서 선정적이고 천박합니다. 효빈시의 수치.", reply: SECURITY.villainProfiles[5].response },
+                { author: "철싸대01", star: 5, date: "2026-04-14", text: "본점 폼 미쳤다 ㄷㄷ 고나미 기관사님 제복 캔뱃지 뽑았는데 실물 영접한 느낌임. 블루 소다 양이 250ml라서 올클리어 하기 딱 좋음." },
+                { author: "시장님지지자", star: 5, date: "2026-04-13", text: "박효빈 시장님이 만든 캐릭터 사업 덕분에 효빈시 부채 다 갚겠네 ㅋㅋㅋ 빌런들 짖어도 기차는 갑니다~" },
+                { author: "가챠는나의힘", star: 5, date: "2026-04-12", text: "네소베리 감촉 진짜 미쳤음... 고나미 네소베리 안고 1호선 타면 인싸 가능?" },
+                { author: "FM마녀팬", star: 5, date: "2026-04-11", text: "매장에서 뛰다가 고나미 선배님한테 걸려서 철도안전법 낭독했는데 오히려 포상이었음 ㅋㅋㅋ 목소리 짱 고급짐." }
+            ],
+            "loc_hyobin2": [
+                { author: "구진내", star: 1, date: "2026-04-14", text: "명색이 공기업이란 곳에서 웬 듣도 보도 못한 일본 밴드 나부랭이 노래나 틀어놓고! 정치가 소꿉장난이냐! 국격이 땅바닥에 떨어지는구나!", reply: SECURITY.villainProfiles[4].response },
+                { author: "창가자리사수", star: 5, date: "2026-04-13", text: "2층 뷰가 미쳤습니다. 통유리창으로 1호선 전동차 들어오는 거 보면서 블루 크림 소다 마시면 그곳이 바로 극락... 근데 아까 옆자리 여성분이 고음질 마이크 꺼내서 전동차 VVVF 소리 녹음하고 계셨음." },
+                { author: "F학점동맹", star: 5, date: "2026-04-12", text: "라운지 소파 짱 편해요! 박라미 노선도 피자 시켰는데, 피자 치즈 늘어나는 결이 무슨 통계학 그래프 같았습니다 ㅠㅠ 맛있어서 눈물 남." },
+                { author: "사진구도장인", star: 4, date: "2026-04-11", text: "해 질 무렵(골든 아워)에 맞춰서 왔는데 자연광 진짜 예쁘게 듭니다. 여기서 3호선 옐로우 스무디 놓고 찍으면 무조건 인생샷 건져요." },
+                { author: "소다덕후", star: 5, date: "2026-04-10", text: "블루 크림 소다 진짜 달달하고 맛있습니다. 근데 먹고 나서 치과 가야 할 것 같음 ㅋㅋ" }
+            ],
+            "loc_hq": [
+                { author: "이차야", star: 1, date: "2026-04-13", text: "직원들이 대놓고 씹덕 인형이나 만지고 있다니 공기업 수준 잘 봤습니다. 복장이 저질스럽고 선정적이네요.", reply: SECURITY.villainProfiles[0].response },
+                { author: "신입직원", star: 4, date: "2026-04-14", text: "점심시간에 1층 내려가면 상사분들이 진지하게 가챠 캡슐 까고 있는 거 보고 문화충격 ㅋㅋㅋ 사내 분위기 진짜 유연하고 좋습니다." },
+                { author: "예산팀분쇄기", star: 5, date: "2026-04-11", text: "매장 구석 테이블에서 미소하 주임님이 빨간 바인더 꺼내놓고 탁상행정 기안서 다중회귀분석으로 찢고 있는 거 봤습니다 ㄷㄷ" },
+                { author: "재고찾아삼만리", star: 5, date: "2026-04-10", text: "다른 매장들 다 품절이었던 '미소하 B2 특대형 태피스트리' 여기서 겨우 샀습니다!! 직영점 창고 스케일 굿." },
+                { author: "진상퇴치", star: 5, date: "2026-04-09", text: "밑에 별점 테러한 사람 보소 ㅋㅋ 5천억 흑자 기업한테 세금 낭비 드립치네. 미소하 주임님 팩폭 나이스!" }
+            ],
+            "loc_airport1": [
+                { author: "정철규", star: 1, date: "2026-04-14", text: "계집애들이 공항에서 만화나 보고 앉아있으니까 애를 안 낳는 거야. 집에서 밥이나 해야지 저런 거 보는 놈들은 다 거세시켜야 돼.", reply: SECURITY.villainProfiles[3].response },
+                { author: "여권도둑", star: 5, date: "2026-04-13", text: "공항 한정판 여권 케이스 퀄리티 짱짱! 외국인 친구가 여기서 굿즈 30만 원어치 지르고 글로벌 EMS 서비스로 일본으로 부쳤어요." },
+                { author: "비행기놓칠뻔", star: 4, date: "2026-04-12", text: "아니 굿즈 구경하다가 비행기 놓칠 뻔했습니다;;; 출국 전 지갑 털기 완벽한 구조네요." },
+                { author: "캐리어풀방", star: 5, date: "2026-04-10", text: "해외 출장 갈 때마다 여기서 지인들 선물 사가는데 반응 진짜 좋습니다." },
+                { author: "텍스프리", star: 5, date: "2026-04-09", text: "면세 받아서 싸게 잘 샀습니다. 굿즈샵 직원이 4개국어 하심 ㄷㄷ" }
+            ],
+            "loc_airport2": [
+                { author: "프레이밍장인", star: 5, date: "2026-04-14", text: "출국 전에 들렀는데 라미 누나 등신대 패널 진짜 미쳤습니다. 근데 매장 안내방송 4개국어로 나오다가 사능동 빵집 식빵 얘기는 왜 나오는 건가요 ㅋㅋㅋㅋ" },
+                { author: "오타쿠일본어", star: 4, date: "2026-04-13", text: "라미 주임님 일본어 안내방송 딕션 좋긴 한데... 묘하게 애니메이션에서 자주 쓰는 오타쿠 억양이 묻어납니다 ㅋㅋㅋㅋ" },
+                { author: "F학점의요정", star: 5, date: "2026-04-12", text: "라미 스무디 마시면서 멍때리고 있는데, 어떤 금발 대학생이 스마트폰으로 학사경고장 조회하면서 오열하고 뛰쳐나갔습니다. 힘내십쇼..." },
+                { author: "빵지순례", star: 5, date: "2026-04-10", text: "공항에 빵 냄새가 진동을 합니다. 여기서 파는 초코 소라빵 존맛!" },
+                { author: "금발쿨뷰티", star: 5, date: "2026-04-09", text: "라미 눈나 나죽어!!! 굿즈 일러스트 폼 미쳤습니다." }
+            ],
+            "loc_gosong": [
+                { author: "구진내", star: 1, date: "2026-04-14", text: "일본 만화영화 놀이터가 됐어! 가방에 계집애들 인형이나 달고 다니니 국격이 땅바닥에 떨어지지! 공기업이 소꿉장난하는 곳이냐!", reply: SECURITY.villainProfiles[4].response },
+                { author: "돌맹이", star: 5, date: "2026-04-13", text: "점장님이 뱅드림에 진짜 찐으로 진심이시네요 ㅋㅋㅋ 매장 브금으로 하루 종일 MyGO!!!!! 노래만 나옵니다." },
+                { author: "마아야모드", star: 4, date: "2026-04-12", text: "환승역이라 사람 진짜 많음. 새치기하는 진상 아저씨 있었는데, 하루빈 역무원님이 갑자기 안경 올리는 시늉하면서 차가운 목소리로 팩폭해서 쫓아냈어요. 포상인 줄 알았습니다." },
+                { author: "숨덕탐지기", star: 5, date: "2026-04-10", text: "하루빈 역무원님 에스컬레이터 뒤편에서 아바라 벤티 사이즈 들고 모카빵 몰래 드시는 거 목격했습니다. 비밀로 할게요." },
+                { author: "환승러", star: 4, date: "2026-04-08", text: "사람 너무 많은데 동선 통제는 기가 막히게 잘 되네요. 2호선 짬바 어디 안 갑니다." }
+            ],
+            "loc_changseon": [
+                { author: "IGBT성애자", star: 5, date: "2026-04-14", text: "여긴 철싸대들의 진정한 성지입니다. 초창기 릴레이 제어반 레플리카 샀는데 타격음 예술이네요. 아까 8호선 유리아 학생이 몽키스패너 꺼내 들고 침 흘리는 거 봤습니다 ㅋㅋㅋ" },
+                { author: "안전운행이상무", star: 5, date: "2026-04-13", text: "다이캐스트 모형 구경하다가 신나서 좀 뛰었는데, 고나미 선배님한테 뒷덜미 잡혀서 철도안전법 제48조 암송하고 풀려났습니다 ㅠㅠ" },
+                { author: "철덕아재", star: 4, date: "2026-04-11", text: "1호선 구형 저항제어 열차 모형 퀄리티 보고 감탄해서 두 개 집어갑니다." },
+                { author: "무스케익", star: 5, date: "2026-04-10", text: "1호선 무스케익 먹기 아까울 정도로 예뻐요. 철도 모형 구경하면서 먹기 딱 좋습니다." },
+                { author: "안전제일", star: 5, date: "2026-04-09", text: "고나미 네소베리 품절 안 된 유일한 매장이었음! 감사합니다!" }
+            ],
+            "loc_changjeon": [
+                { author: "수능특강3회독", star: 4, date: "2026-04-14", text: "다꾸 스티커랑 문구류 굿즈 짱 많아요! 근데 방금 라세나 주임님이 모의고사 '영어 3등급' 성적표 들고 예쁜 마스킹 테이프 사가는 거 봄 ㅠㅠ 세나야 수능 화이팅!!" },
+                { author: "다이어리장인", star: 5, date: "2026-04-13", text: "마스킹 테이프 색감 진짜 예쁘게 잘 뽑혔습니다. 3호선 박라미 주임님도 학사경고장 이걸로 꾸민다면서요? 저도 오답노트 꾸밀 예정 ㅋㅋㅋ" },
+                { author: "타임어택", star: 5, date: "2026-04-12", text: "라세나 주임님 굿즈 고를 때 목에 스톱워치 걸고 15분 컷 맞추면서 고르시던데요 ㄷㄷ 시간표 강박증 리스펙합니다." },
+                { author: "학원가좀비", star: 5, date: "2026-04-10", text: "학원 끝나고 여기서 보랏빛 라떼 마시는 게 유일한 낙입니다." },
+                { author: "EBS매니아", star: 5, date: "2026-04-09", text: "조용하고 아늑해서 좋네요. 스티커 많이 사갑니다." }
+            ],
+            "loc_cheongyeop": [
+                { author: "빵순이", star: 5, date: "2026-04-14", text: "하루빈 역무원님이 직접 만들어서 뿌린 주변 '아오바 모카 빵집 투어 지도' 겟했습니다! 에코백 사서 거기에 갓 구운 모카빵 가득 채워가요 ㅎㅎ" },
+                { author: "민초단수장", star: 5, date: "2026-04-13", text: "콜라보 카페 메뉴에 민트초코가 없는 게 아쉽지만, 그린 에이드로 대리 만족합니다. 민초는 도료가 아닙니다!" },
+                { author: "월급루팡", star: 4, date: "2026-04-12", text: "왠지 구석 자리에 있으면 하루빈 주임님이 일 안 하고 인스타 하러 올 것 같은 아늑함이 있습니다." },
+                { author: "친환경러", star: 5, date: "2026-04-10", text: "텀블러 굿즈 디자인 완전 취저! 여기서 에코백 사서 매일 씁니다." },
+                { author: "동네주민", star: 5, date: "2026-04-09", text: "빵집 냄새나서 굿즈 사면서 배고파짐 ㅋㅋㅋ" }
+            ],
+            "loc_ija": [
+                { author: "구진내", star: 1, date: "2026-04-14", text: "역 광장에 만화영화 캐릭터 세워놓고 일본 노래나 부르고 다니니 국격이 땅바닥에 떨어지지! 정치가 소꿉장난이냐! 냄새나는 오타쿠들 싹 다 치워라!", reply: SECURITY.villainProfiles[4].response },
+                { author: "리코샌드위치", star: 5, date: "2026-04-13", text: "매장 밖 이자공원 피아노에서 누가 스노하레 치길래 오타쿠들 5명이서 떼창하고 들어왔습니다 ㅋㅋㅋ 4호선 다로나 주임님 관할이라 매장 먼지 하나 없음." },
+                { author: "호루라기", star: 4, date: "2026-04-12", text: "오렌지 프라페 퀄리티 대박. 알바생이 평소엔 엄청 소심한데, 취객이 스크린도어 기대니까 갑자기 AI 로봇 목소리로 철도안전법 읊어서 상황 종결시킴 ㄷㄷ 햄스터가 아니라 터미네이터였음." },
+                { author: "체크리스트", star: 5, date: "2026-04-10", text: "다로나 주임님 클립보드 살짝 봤는데, 빵집 출빵 시간 엑셀 매크로로 정리되어 있었습니다. 진정한 빵 데이터의 지배자." },
+                { author: "피아노버스킹", star: 5, date: "2026-04-09", text: "매장 밖에서 들리는 피아노 소리 너무 좋네요. 분위기 깡패!" }
+            ],
+            "loc_sojo": [
+                { author: "빨간바인더", star: 5, date: "2026-04-14", text: "명절 선물용 틴케이스 세트 샀습니다. 미소하 주임님이 통계 돌려서 가장 가성비 좋은 쿠키만 모아놨다더니 진짜 맛있네요 ㅋㅋㅋ 엽떡 굿즈는 안 파나요?" },
+                { author: "엠마의온기", star: 5, date: "2026-04-13", text: "빵집 테러 미수 사건 이후로 이 동네 상인분들 똘똘 뭉친 거 너무 보기 좋습니다 ㅠㅠ 매장 분위기도 엄청 따뜻하고 훈훈해요." },
+                { author: "팩트폭격", star: 4, date: "2026-04-12", text: "쿠키 보는데 미소하 주임님이 해맑게 '당류 초과 섭취 시 대사증후군 발병률이 34% 증가한답니다^^'라고 팩폭해서 하나만 샀습니다..." },
+                { author: "선물요정", star: 5, date: "2026-04-10", text: "쿠키 세트 퀄리티 미쳤음! 다 먹고 틴케이스에 영수증 모아두고 있습니다." },
+                { author: "디저트러버", star: 5, date: "2026-04-09", text: "선물용으로 샀는데 받는 사람이 너무 좋아하네요." }
+            ],
+            "loc_jungsu": [
+                { author: "시간표강박증", star: 5, date: "2026-04-14", text: "중수여고 하교 시간 피해서 오세요 학생들 진짜 많이 옴 ㅋㅋㅋ 매장 입구에 L-O-V-E 카스밍 박스 산더미처럼 쌓여있습니다. 구석 테이블에서 수능특강 풀다 잠든 라세나 발견 ㅠㅠ" },
+                { author: "이어폰잭팟", star: 5, date: "2026-04-13", text: "보랏빛 치즈케익 존맛탱! 라세나 캔뱃지 뽑고 싶었는데 하루빈 넨도만 연속 3번 나옴 ㅠㅠ 라세나 주임님 단어장 펴놓고 자고 있길래 조용히 나왔습니다." },
+                { author: "카나타오시", star: 4, date: "2026-04-12", text: "라세나 주임님 무선 이어폰에서 영어 듣기 평가가 아니라 코노에 카나타 ASMR 새어 나오는 거 제가 다 들었습니다 ㅋㅋㅋ" },
+                { author: "학생회장", star: 5, date: "2026-04-10", text: "시험 끝나고 친구들이랑 카페 메뉴 다 털었습니다. 보라선 라떼 달달해요!" },
+                { author: "수능대박", star: 5, date: "2026-04-08", text: "라세나 주임님 파이팅! 굿즈 보면서 힐링하고 갑니다." }
+            ],
+            "loc_jungang": [
+                { author: "윤재훈", star: 1, date: "2026-04-14", text: "트램 이거 완전 교통 체증의 주범 고철 덩어리 아닙니까? 게다가 무슨 역무원들 옷은 짝 달라붙어서 가슴 튀어나오고 선정적이고 씹덕같고 시끄러워 죽겠네요. 당장 폐선해야 합니다.", reply: SECURITY.villainProfiles[2].response },
+                { author: "트램의낭만", star: 5, date: "2026-04-13", text: "유럽풍 테라스에서 무가선 트램 지나가는 거 보면서 딸기 크림 라떼 마시니까 진짜 감동입니다. 임세정 대리님이 지켜낸 노선 ㅠㅠ 충성충성!" },
+                { author: "K장녀", star: 5, date: "2026-04-12", text: "노면전차 다이캐스트 퀄리티 미쳤어요. 근데 갑자기 세정 대리님 목소리로 '안전선 뒤로 한 걸음 물러서!!' 하고 사자후 방송 나오면 자동 반사로 쫄게 됨 ㅋㅋㅋ" },
+                { author: "단백질벤토", star: 5, date: "2026-04-10", text: "세정 대리님이 싸온 도시락 굿즈 샀는데 진짜 억척스러운 엄마의 맛이 납니다. 이거 먹고 코딩 밤새워 할 수 있을 듯." },
+                { author: "트램수호대", star: 5, date: "2026-04-09", text: "위에 악플 단 윤재훈씨 양심 좀 챙기쇼 ㅋㅋ 트램 덕분에 목숨 건진 사람이. 세정 대리님 사랑합니다!!" }
+            ],
+            "loc_unyang": [
+                { author: "정철규", star: 1, date: "2026-04-14", text: "어린놈들이 대낮부터 만화 쪼가리나 보고 있네. 저 공고생 여자애는 옷을 뭐 저렇게 입었어! 계집애들이 저러니까 애를 안 낳지. 오타쿠 수용소 당장 폐쇄해!", reply: SECURITY.villainProfiles[3].response },
+                { author: "우신면", star: 1, date: "2026-04-13", text: "8호선 고가도로 때문에 내 펜트하우스 조망권 다 망쳤는데, 카페까지 열어서 씹덕들 모여들고 시끄럽기 짝이 없네. 저 공고생(유리아) 캐릭터는 몽키스패너를 왜 들고 다녀? 교육적으로 매우 불량함.", reply: SECURITY.villainProfiles[1].response },
+                { author: "채광맛집", star: 5, date: "2026-04-12", text: "통유리창으로 햇빛 쫙 들어오고 사진 예쁘게 나옵니다! 연보라 쉐이크 당 충전 대박 ㅋㅋㅋ 유리아 몽키스패너 미니 공구 세트 진짜로 볼트 조여짐;; 실용성 ㄷㄷ" },
+                { author: "비상정지", star: 4, date: "2026-04-10", text: "야바이 야바이 스고이!! 매장에 카페 머신 커버 뜯어져 있던데 혹시 유리아가 호기심에 분해한 건가요? 세하 주임님이 백허그로 말리면서 끌고 가는 거 봄 ㅋㅋ" },
+                { author: "우신면아웃", star: 5, date: "2026-04-09", text: "우리 막내 유리아 백수 만들 뻔했던 정치인 현수막 몽키스패너로 뜯어버리는 짤방 스티커 여기서 팔고 있네요 ㅋㅋㅋ 당장 샀습니다." }
+            ],
+            "loc_ai": [
+                { author: "다자레", star: 4, date: "2026-04-14", text: "들어가자마자 점장님이 '소다가 톡 쏘다니!' 이딴 아재개그 쳐서 1차 멘붕. 근데 전노아 주임님 심해푸딩 먹고 너무 영롱해서 2차 멘붕. 아이(Ai)역점 테마 미쳤따리" },
+                { author: "어뮤즈의광견", star: 5, date: "2026-04-13", text: "카페 마감 시간 쯤에 전노아 주임님 취해서 점장님이랑 개그 배틀 뜨는 거 봤습니다 ㅋㅋㅋㅋ 행정 서류 찢으면서 소맥 마시던데 진짜 광견 그 자체였음." },
+                { author: "행정프리패스", star: 5, date: "2026-04-12", text: "노아 주임님이 해맑게 웃으면서 지방계약법 운운하며 본사 예산팀 털어버리는 거 직관했습니다. 웃는 얼굴에 침 못 뱉는다는 속담의 인간화." },
+                { author: "아이오시", star: 5, date: "2026-04-10", text: "다자레를 견뎌야 굿즈를 살 수 있는 마의 구간... 그래도 즐겁습니다 ㅋㅋㅋ 노아 소다 존맛!" },
+                { author: "소맥요정", star: 5, date: "2026-04-09", text: "전노아 텐션은 아이돌인데 하는 행동은 부장님이야 ㅋㅋㅋ 매력 터짐." }
+            ],
+            "loc_you": [
+                { author: "전속전진", star: 5, date: "2026-04-14", text: "문 열기 전에 심호흡하고 '전속전진 요소로!!' 외쳤더니 알바생이 찐텐으로 경례 받아줌 ㅋㅋㅋㅋ 수치사할 뻔했지만 4호선 그라탕 먹고 멘탈 회복했습니다." },
+                { author: "햄스터", star: 5, date: "2026-04-13", text: "평소엔 햄스터처럼 벌벌 떠는 다로나 주임님도 여기 올 땐 소심함 버리고 요소로 외치시나요? ㅋㅋㅋ 그라탕에 4호선 열차 쿠키 졸귀탱입니다." },
+                { author: "요소로광장", star: 4, date: "2026-04-12", text: "매장 앞 요소로 광장에서 특산물 장터 열리길래 구경 왔다가 굿즈만 10만 원어치 지르고 갑니다. 요우역 콜라보 최고다아앗!" },
+                { author: "부끄럼쟁이", star: 4, date: "2026-04-10", text: "요소로 못 외쳐서 문 앞에서 10분 고민하다가 모기 소리로 하고 들어감 ㅠㅠ 다로나 주임님 심정이 이해가 됩니다." },
+                { author: "호루라기", star: 5, date: "2026-04-09", text: "여기 굿즈샵 직원분들 제복 핏 완전 멋있음. 전속전진!" }
+            ]
+        };
+
+        // 부족한 더미 데이터 자동 생성 (각 매장당 최소 5~6개 보장, 총합 75+ 유지)
+        const commonReviews = [
+            { author: "덕후왕", star: 5, text: "메뉴판 일러스트 코스터 받으려고 음료 5잔 마심 ㅋㅋㅋ 배 안 불러서 다행이다." },
+            { author: "시민비둘기", star: 4, text: "지점마다 인테리어가 캐릭터 특색 맞춰서 달라서 구경하는 재미가 쏠쏠합니다." },
+            { author: "F학점구원", star: 5, text: "라미 스무디 먹고 전공 학점 포기했습니다. 사진 찍는 게 더 소중하죠." },
+            { author: "몽키스패너", star: 5, text: "유리아 굿즈 퀄리티 무엇? 진짜 기계 고쳐질 것 같음." },
+            { author: "빨간바인더", star: 5, text: "미소하 떡볶이 먹고 팩폭 맞은 것처럼 머리가 띵함 ㅋㅋㅋ 매운데 맛있다." }
+        ];
+
+        Object.keys(storeDB).forEach(id => {
+            if(!initialReviewsDB[id]) initialReviewsDB[id] = [];
+            while(initialReviewsDB[id].length < 5) {
+                const rand = commonReviews[Math.floor(Math.random()*commonReviews.length)];
+                const randomDay = Math.floor(Math.random()*14) + 1;
+                initialReviewsDB[id].push({...rand, author: rand.author + "_" + Math.floor(Math.random()*100), date: `2026-04-${String(randomDay).padStart(2,'0')}`});
+            }
+        });
+
+        window.onload = () => {
+            renderHeader();
+            renderReviews();
+        };
+
+        function renderHeader() {
+            const storeInfo = storeDB[currentStoreId];
+            const headerHtml = `
+                <div class="w-full md:w-1/3 relative h-48 md:h-auto">
+                    <img src="${storeInfo.img}" onerror="this.src='https://via.placeholder.com/400x300?text=이미지+로드+실패'" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <span class="absolute bottom-4 left-4 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border border-white/20" style="background-color: ${storeInfo.color}">${storeInfo.line}</span>
+                </div>
+                <div class="w-full md:w-2/3 p-6 md:p-8 flex flex-col justify-center">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-2xl md:text-3xl font-black text-gray-800">${storeInfo.name}</h2>
+                        <div class="bg-blue-50 text-blue-600 font-black px-3 py-1 rounded-lg flex items-center shadow-sm border border-blue-100">
+                            <i class="fa-solid fa-star text-yellow-400 mr-1"></i> ${storeInfo.rating}
+                        </div>
+                    </div>
+                    <p class="text-gray-500 font-bold mb-4 leading-relaxed">${storeInfo.desc}</p>
+                    <div class="flex gap-2">
+                        <span class="bg-gray-50 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-bold border border-gray-200"><i class="fa-solid fa-check text-green-500 mr-1"></i>스탬프 랠리 가능</span>
+                        <span class="bg-gray-50 text-gray-600 text-xs px-3 py-1.5 rounded-lg font-bold border border-gray-200"><i class="fa-solid fa-plane-departure text-blue-500 mr-1"></i>Global Tax-Free</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('storeInfoHeader').innerHTML = headerHtml;
+        }
+
+        const stars = document.querySelectorAll('.star-rating i');
+        const ratingInput = document.getElementById('ratingValue');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const val = this.getAttribute('data-val');
+                ratingInput.value = val;
+                stars.forEach(s => {
+                    if (s.getAttribute('data-val') <= val) {
+                        s.classList.add('active', 'text-yellow-400');
+                        s.classList.remove('text-gray-200');
+                    } else {
+                        s.classList.remove('active', 'text-yellow-400');
+                        s.classList.add('text-gray-200');
+                    }
+                });
+            });
+        });
+
+        function getReviews() {
+            let storedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            let userReviews = storedData[currentStoreId] || [];
+            let defaultReviews = initialReviewsDB[currentStoreId] || [];
+            let allReviews = [...userReviews, ...defaultReviews];
+            
+            const sortType = document.getElementById('sortSelect').value;
+            if(sortType === 'high') allReviews.sort((a,b) => b.star - a.star);
+            else if(sortType === 'low') allReviews.sort((a,b) => a.star - b.star);
+            
+            return allReviews;
+        }
+
+        window.renderReviews = function() {
+            const container = document.getElementById('reviewContainer');
+            const reviews = getReviews();
+            document.getElementById('reviewCount').textContent = reviews.length;
+            container.innerHTML = '';
+
+            reviews.forEach((rev, index) => {
+                let starsHtml = '';
+                for(let i=0; i<5; i++) {
+                    starsHtml += `<i class="fa-solid fa-star ${i < rev.star ? 'text-yellow-400' : 'text-gray-200'}"></i>`;
+                }
+
+                const colors = ['bg-blue-100 text-blue-500', 'bg-green-100 text-green-500', 'bg-purple-100 text-purple-500', 'bg-orange-100 text-orange-500', 'bg-pink-100 text-pink-500'];
+                let avatarColor = colors[index % colors.length];
+                let isVillain = rev.star === 1;
+
+                if(rev.author.match(/A씨|우신면|윤재훈|이차야|정철규|구진내/)) {
+                    avatarColor = "bg-gray-800 text-red-500";
+                }
+
+                let replyHtml = '';
+                if(rev.reply) {
+                    replyHtml = `
+                    <div class="mt-4 bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-xl shadow-inner reply-box">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-building-shield text-blue-600"></i>
+                            <span class="font-black text-sm text-gray-800">${rev.reply.author}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 font-bold leading-relaxed">${rev.reply.text}</p>
+                    </div>`;
+                }
+
+                const html = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 review-card ${isVillain ? 'villain-card' : ''}">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center font-black text-sm">
+                                    <i class="fa-solid fa-${isVillain ? 'skull' : 'user'}"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 mb-0.5">
+                                        <span class="font-black text-gray-800">${rev.author}</span>
+                                        <span class="text-xs text-gray-400 font-bold">${rev.date}</span>
+                                    </div>
+                                    <div class="text-xs">${starsHtml}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ml-[52px]">
+                            <p class="text-gray-600 text-sm leading-relaxed bg-gray-50/50 p-3 rounded-xl border border-gray-50">${rev.text}</p>
+                            ${replyHtml}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        };
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = message;
+            toast.classList.remove('toast-hide');
+            toast.classList.add('toast-show');
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+                toast.classList.add('toast-hide');
+            }, 3000);
+        }
+
+        function submitReview() {
+            const text = document.getElementById('reviewText').value;
+            const ratingInputVal = document.getElementById('ratingValue').value;
+            const rating = parseInt(ratingInputVal);
+
+            if (rating === 0) { showToast("앗! 별점을 먼저 선택해주세요."); return; }
+            if (text.trim() === "") { showToast("리뷰 내용을 입력해주세요!"); return; }
+
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+            const newReview = {
+                author: "효빈시민_" + Math.floor(Math.random() * 9000 + 1000),
+                star: rating,
+                date: dateString,
+                text: text.replace(/\n/g, "<br>")
+            };
+
+            // 🛡️ 빌런 판정 및 욕설 필터링 로직
+            if (SECURITY.badPatterns.test(text)) {
+                newReview.reply = {
+                    author: "효빈교통공사 법무팀",
+                    text: "부적절한 언어 사용 및 비하 발언이 감지되었습니다. 본 내용은 데이터 아카이브에 영구 저장되며, 향후 민·형사상 법적 증거로 활용될 수 있음을 엄중히 고지합니다. 건전한 리뷰 문화를 저해하지 마십시오."
+                };
+            } else if (rating === 1) {
+                for (const profile of SECURITY.villainProfiles) {
+                    if (profile.keywords.some(key => text.includes(key))) {
+                        newReview.reply = profile.response;
+                        break;
+                    }
+                }
+            }
+
+            let storedData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            if (!storedData[currentStoreId]) storedData[currentStoreId] = [];
+            storedData[currentStoreId].unshift(newReview);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
+
+            document.getElementById('reviewText').value = "";
+            document.getElementById('ratingValue').value = "0";
+            const starsUI = document.querySelectorAll('.star-rating i');
+            starsUI.forEach(s => { s.classList.remove('active', 'text-yellow-400'); s.classList.add('text-gray-200'); });
+
+            document.getElementById('sortSelect').value = 'new';
+            renderReviews();
+            
+            if (newReview.reply) {
+                document.getElementById('toast').classList.replace('text-white', 'text-red-100');
+                document.querySelector('#toast i').className = "fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3";
+                showToast("악성 리뷰가 감지되어 효빈교통공사의 법적/행정적 답변이 등록되었습니다.");
+            } else {
+                document.getElementById('toast').classList.replace('text-red-100', 'text-white');
+                document.querySelector('#toast i').className = "fa-solid fa-check-circle text-green-400 text-xl mr-3";
+                showToast("리뷰 등록 완료! (미소하 주임이 통계 데이터로 수집했습니다 📈)");
+            }
+        }
+    </script>
+</body>
+</html>

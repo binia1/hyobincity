@@ -1,0 +1,122 @@
+let myMarkers = JSON.parse(localStorage.getItem('hyobin_markers')) || [];
+let addedCount = 0;
+let mergedCount = 0;
+
+// 1. 버스 종류별 설정 (지선버스가 일반버스 역할)
+const typeColors = { "간선": "#01B7ED", "지선": "#37B484", "마을": "#A664A0" };
+const intervalMap = { "마을": 450, "지선": 550, "간선": 800 };
+
+function getDist(lat1, lng1, lat2, lng2) {
+    return Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2));
+}
+
+let actualBusData = (typeof busData !== 'undefined') ? busData : (typeof rawBusJson !== 'undefined' ? rawBusJson.lines : []);
+let currentAdjustY = (typeof adjustY !== 'undefined') ? adjustY : 0;
+
+// 2. 간선, 지선, 마을버스 필터링
+let normalBuses = actualBusData.filter(b => {
+    let typeName = b.type || "";
+    if (!typeName) {
+        if (b.name.includes("간선")) typeName = "간선";
+        else if (b.name.includes("지선")) typeName = "지선";
+        else if (b.name.includes("마을")) typeName = "마을";
+    }
+    return ['간선', '지선', '마을'].includes(typeName);
+});
+
+normalBuses.forEach(bus => {
+    let bType = bus.type || (bus.name.includes("간선") ? "간선" : bus.name.includes("지선") ? "지선" : "마을");
+    let bColor = typeColors[bType] || "#333";
+    let formattedBusName = `<span style="color:${bColor}; font-weight:bold;">[${bType}]</span> ${bus.name}`;
+    let interval = intervalMap[bType] || 600;
+    
+    if (!bus.points || bus.points.length < 2) return;
+
+    let pts = bus.points.map(p => [p[0] + currentAdjustY, p[1]]);
+    let currentDist = 0;
+    let stopPointsToCreate = [];
+
+    for (let i = 0; i < pts.length - 1; i++) {
+        let p1 = pts[i]; let p2 = pts[i+1];
+        if (i === 0) stopPointsToCreate.push({ lat: p1[0], lng: p1[1] });
+
+        let segDist = getDist(p1[0], p1[1], p2[0], p2[1]);
+        let distLeft = segDist; let currPt = p1;
+        
+        while (currentDist + distLeft >= interval) {
+            let walk = interval - currentDist;
+            let ratio = walk / segDist;
+            let newLat = currPt[0] + (p2[0] - currPt[0]) * ratio;
+            let newLng = currPt[1] + (p2[1] - currPt[1]) * ratio;
+            stopPointsToCreate.push({ lat: newLat, lng: newLng });
+            currPt = [newLat, newLng]; distLeft -= walk; segDist -= walk; currentDist = 0;
+        }
+        currentDist += distLeft;
+    }
+    stopPointsToCreate.push({ lat: pts[pts.length-1][0], lng: pts[pts.length-1][1] });
+
+    // 3. 법정동 우선 이름 짓기 로직
+    stopPointsToCreate.forEach(pt => {
+        let targetLat = pt.lat;
+        let targetLng = pt.lng;
+
+        let existingStop = myMarkers.find(m => m.type === 'busStop' && getDist(m.lat, m.lng, targetLat, targetLng) < 250);
+        
+        if (existingStop) {
+            let busSet = new Set(existingStop.allPassingBuses || []);
+            busSet.add(formattedBusName);
+            existingStop.allPassingBuses = Array.from(busSet);
+            existingStop.passingBuses = Array.from(busSet);
+            mergedCount++;
+        } else {
+            let baseName = "임시";
+            let nearbyLandmark = allLandmarks.find(m => m.type !== 'busStop' && getDist(m.lat, m.lng, targetLat, targetLng) < 300);
+
+            if (nearbyLandmark) {
+                baseName = nearbyLandmark.name.replace(/역$/, '').split('·')[0].split('(')[0].trim();
+            } else if (typeof getFullAddress === 'function') {
+                let addr = getFullAddress(targetLat, targetLng);
+                if (addr && addr !== "미지정") {
+                    // 🚨 [수정 핵심] 괄호 안의 법정동명 추출 (예: "내조2동 (내조동)" -> "내조동")
+                    let legalMatch = addr.match(/\(([^)]+)\)/);
+                    if (legalMatch) {
+                        baseName = legalMatch[1].trim();
+                    } else {
+                        baseName = addr.split(' ').pop().replace(/\(.*\)/, '');
+                        if(['읍', '면', '시', '군', '구'].includes(baseName.slice(-1))) baseName = "임시";
+                    }
+                }
+            }
+
+            // 🚨 [수정 핵심] 순차 번호 부여 (리 단위 정밀 매칭)
+            let finalName = "";
+            if (baseName.endsWith("리")) {
+                let riPrefix = baseName.replace(/\d+리$/, '').replace(/리$/, '');
+                let riCount = myMarkers.filter(m => m.type === 'busStop' && m.name.startsWith(riPrefix) && m.name.includes("리")).length;
+                finalName = riPrefix + (riCount + 1) + "리 정류장";
+            } else {
+                let normalCount = myMarkers.filter(m => m.type === 'busStop' && m.name.startsWith(baseName)).length;
+                finalName = (normalCount > 0) ? `${baseName} (${normalCount + 1}) 정류장` : `${baseName} 정류장`;
+            }
+
+            let newStop = {
+                name: finalName,
+                lat: Math.round(targetLat),
+                lng: Math.round(targetLng),
+                type: 'busStop',
+                color: '#333',
+                allPassingBuses: [formattedBusName],
+                passingBuses: [formattedBusName],
+                isManual: false
+            };
+            
+            myMarkers.push(newStop);
+            addedCount++;
+        }
+    });
+});
+
+localStorage.setItem('hyobin_markers', JSON.stringify(myMarkers));
+
+alert(`✅ 법정동 우선 정류장 살포 완료!\n\n- 신규 생성: ${addedCount}개\n- 노선 병합: ${mergedCount}건\n\n행정동 대신 법정동 이름이 우선 적용되었으며, "리" 번호도 꼬임 없이 생성되었습니다.`);
+location.reload();

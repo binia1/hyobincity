@@ -399,13 +399,14 @@ const headerHTML = `
                                         <a href="캐릭터_임세하.html" class="font-bold text-purple-600"><span style="color:#FF8899;">[7호선]</span> 임세하</a>
                                         <a href="캐릭터_유리아.html" class="font-bold text-purple-600"><span style="color:#9856FF;">[8호선]</span> 유리아</a>
                                         <a href="캐릭터_전노아.html" class="font-bold text-purple-600"><span style="color:#6677CC;">[빈효선]</span> 전노아</a>
+                                        <a href="캐릭터_심세이.html" class="font-bold text-purple-600"><span style="color:#33aaff;">[창전선]</span> 심세이</a>
                                     </div>
                                     <div class="menu-col bg-sky-50 p-4 rounded-lg">
                                         <h3 class="!border-sky-400 !text-sky-700">효빈 메트로 굿즈</h3>
                                         <a href="goods.html" class="font-bold text-sky-700"><i class="fa-solid fa-store mr-1"></i>공식 온라인 굿즈샵</a>
-                                        <a href="효빈교통공사본점.html">오프라인 스토어 본점 안내</a>
-                                        <a href="효빈역플래그십.html">효빈역 플래그십 스토어</a>
-                                        <a href="팝업스토어안내.html">팝업스토어 / 콜라보 안내</a>
+                                        <a href="매장상세.html?id=hq">오프라인 스토어 본점 안내</a>
+                                        <a href="매장상세.html?id=hyobin">효빈역 플래그십 스토어</a>
+                                        <a href="콜라보카페/index.html">팝업스토어 / 콜라보 안내</a>
                                     </div>
                                     <div class="menu-col bg-orange-50 p-4 rounded-lg">
                                         <h3 class="!border-orange-400 !text-orange-700">서브컬처 연계사업</h3>
