@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="이미지/logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성지순례 스탬프 투어 - 효빈교통공사 효빈위키</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 효빈도시철도 노선별 공식 테마 색상 */
+        .line-1 { background-color: #0077DD; color: white; }
+        .line-2 { background-color: #00CCAA; color: white; }
+        .line-3 { background-color: #FFCC11; color: black; }
+        .line-4 { background-color: #FF5522; color: white; }
+        .line-5 { background-color: #EE0022; color: white; }
+        .line-6 { background-color: #881188; color: white; }
+        .line-7 { background-color: #FF8899; color: white; }
+        .line-8 { background-color: #9856FF; color: white; }
+        .line-bh { background-color: #6677CC; color: white; }
+        .line-dj1 { background-color: #FF4F91; color: white; }
+        .line-korail { background-color: #005BAC; color: white; }
+        
+        /* 스탬프 카드 애니메이션 및 스타일 */
+        .stamp-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .stamp-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        
+        .stamped { border-color: #10b981; background-color: #ecfdf5; }
+        .stamped .stamp-overlay { opacity: 1; transform: scale(1) rotate(-15deg); }
+        
+        .stamp-overlay {
+            opacity: 0;
+            transform: scale(2) rotate(0deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            pointer-events: none;
+        }
+
+        .filter-btn { transition: all 0.2s ease; }
+        .filter-btn.active { background-color: #1e293b; color: white; font-weight: bold; }
+        
+        /* 프로그레스 바 애니메이션 */
+        #progressBar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- 내부 경로 표시 -->
+    <div class="pt-6 pb-2 px-4 max-w-[1200px] mx-auto text-sm text-gray-500">
+        <i class="fa-solid fa-house"></i> HOME <i class="fa-solid fa-chevron-right mx-2 text-xs"></i> 캐릭터/IP사업 <i class="fa-solid fa-chevron-right mx-2 text-xs"></i> 서브컬처 연계사업 <i class="fa-solid fa-chevron-right mx-2 text-xs"></i> <span class="font-bold text-gray-800">지하철 애니 성지순례 (스탬프 투어)</span>
+    </div>
+
+    <!-- 헤더 섹션 (히어로) -->
+    <header class="bg-slate-900 text-white py-16 px-4 relative overflow-hidden mt-4">
+        <!-- 배경 장식 -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+        <div class="absolute -right-20 -bottom-20 text-slate-800 text-[200px] font-black opacity-50 pointer-events-none">
+            <i class="fa-solid fa-map-location-dot"></i>
+        </div>
+        
+        <div class="max-w-[1200px] mx-auto relative z-10 text-center md:text-left flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <h3 class="text-pink-400 font-bold tracking-widest mb-2 flex items-center justify-center md:justify-start">
+                    <i class="fa-solid fa-star mr-2"></i> OTAKU PILGRIMAGE MAP
+                </h3>
+                <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tight">내 최애가 역 이름이라고?! <br class="hidden md:block">운명적인 성지순례</h1>
+                <p class="text-slate-300 text-lg max-w-2xl leading-relaxed mb-6">
+                    효빈 도시철도 곳곳에 숨겨진 애니메이션 캐릭터들의 이름을 찾아보세요.<br>우연이라기엔 너무나 완벽한, 기적 같은 만남이 기다립니다! 아래 목록에서 다녀온 역을 클릭해 스탬프를 모아보세요.
+                </p>
+                <button onclick="resetStamps()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm border border-slate-700 transition shadow-md">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> 스탬프 초기화
+                </button>
+            </div>
+            
+            <!-- 진행률 표시기 -->
+            <div class="mt-8 md:mt-0 bg-slate-800 p-6 rounded-2xl border border-slate-700 w-full md:w-80 shadow-2xl">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-slate-400 font-bold text-sm">성지순례 달성률</span>
+                    <span class="text-2xl font-black text-white"><span id="stampCount">0</span> <span class="text-slate-500 text-lg">/ <span id="totalCount">65</span></span></span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-3 mb-3 overflow-hidden">
+                    <div id="progressBar" class="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 h-3 rounded-full" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-slate-400 text-center" id="motivationalText">순례의 길을 떠나볼까요?</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="max-w-[1200px] mx-auto px-4 py-12 flex flex-col md:flex-row gap-8">
+        
+        <!-- 왼쪽 사이드바 (서브 네비게이션) -->
+        <aside class="w-full md:w-64 flex-shrink-0 hidden md:block">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="bg-[#0077DD] text-white font-bold p-4 text-lg">
+                    캐릭터/IP사업
+                </div>
+                <ul class="divide-y divide-gray-100">
+                    <li><a href="#" class="block p-4 hover:bg-gray-50 text-gray-700 font-medium"><i class="fa-solid fa-caret-right text-gray-300 mr-2"></i>효빈 호선별 마스코트 1</a></li>
+                    <li><a href="#" class="block p-4 hover:bg-gray-50 text-gray-700 font-medium"><i class="fa-solid fa-caret-right text-gray-300 mr-2"></i>효빈 호선별 마스코트 2</a></li>
+                    <li><a href="#" class="block p-4 hover:bg-gray-50 text-gray-700 font-medium"><i class="fa-solid fa-caret-right text-gray-300 mr-2"></i>효빈 메트로 굿즈</a></li>
+                    <li class="bg-blue-50">
+                        <a href="#" class="block p-4 text-[#0077DD] font-bold"><i class="fa-solid fa-caret-down mr-2"></i>서브컬처 연계사업</a>
+                        <ul class="pl-8 pb-3 space-y-2 text-sm text-gray-600">
+                            <li><a href="#" class="hover:text-[#0077DD] font-bold text-[#0077DD]"><i class="fa-solid fa-location-dot mr-1"></i> 지하철 애니 성지순례</a></li>
+                            <li><a href="#" class="hover:text-[#0077DD]">러브라이브! 콜라보 현황</a></li>
+                            <li><a href="#" class="hover:text-[#0077DD]">BanG Dream! 콜라보 현황</a></li>
+                            <li><a href="#" class="hover:text-[#0077DD]">성지순례 스탬프 투어 신청</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 요약 통계 배너 -->
+            <div class="mt-6 bg-gradient-to-br from-indigo-50 to-pink-50 border border-indigo-100 rounded-lg p-5 shadow-sm">
+                <h4 class="font-bold text-gray-800 border-b border-indigo-200 pb-2 mb-3"><i class="fa-solid fa-chart-pie text-indigo-500 mr-1"></i> 등록된 성지 현황</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">전체 등록 성지</span>
+                        <span class="font-black text-indigo-600">60+곳</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">MyGO!!!!! 관련</span>
+                        <span class="font-bold text-gray-800">8곳</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Aqours 관련</span>
+                        <span class="font-bold text-gray-800">10곳</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 우측 성지순례 그리드 영역 -->
+        <div class="flex-grow">
+            <!-- 필터 버튼 -->
+            <div class="flex flex-wrap gap-2 mb-8 justify-center md:justify-start" id="filterContainer">
+                <button class="filter-btn active bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50" data-filter="all">
+                    <i class="fa-solid fa-bolt text-yellow-400 mr-1"></i> 전체 보기
+                </button>
+                <button class="filter-btn bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-gray-50" data-filter="BanG Dream!">
+                    <i class="fa-solid fa-guitar text-blue-500 mr-1"></i> BanG Dream!
+                </button>
+                <button class="filter-btn bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-gray-50" data-filter="Love Live!">
+                    <i class="fa-solid fa-microphone-lines text-pink-500 mr-1"></i> Love Live!
+                </button>
+                <button class="filter-btn bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-gray-50" data-filter="Others">
+                    <i class="fa-solid fa-compact-disc text-emerald-500 mr-1"></i> 기타 (봇치/케이온 등)
+                </button>
+            </div>
+
+            <!-- 성지 리스트 그리드 -->
+            <div id="stationGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 자바스크립트로 동적 렌더링 됨 -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 자바스크립트 로직 -->
+    <script>
+        // 성지순례 전체 데이터베이스 (65개역)
+        const stations = [
+            // --- MyGO!!!!! (BanG Dream!) ---
+            { id: "mygo_1", name: "고송교차로역", line: "2, 6호선", address: "북구 고송동 112-2", char: "타카마츠 토모리", franchise: "BanG Dream!", desc: "보컬 토모리의 성씨(高松) 한자가 완벽하게 일치합니다! 마이고 팬들의 제1성지.", visitors: 107157 },
+            { id: "mygo_2", name: "입희역", line: "1, 2호선", address: "북구 입희동 8-9", char: "시이나 타키", franchise: "BanG Dream!", desc: "드러머 타키(立希)의 이름 한자가 역명과 완전히 똑같습니다. 강렬한 드럼 비트가 들리는 듯한 환승역!", visitors: 50591 },
+            { id: "mygo_3", name: "고송역", line: "6호선", address: "북구 고송동 431", char: "타카마츠 토모리", franchise: "BanG Dream!", desc: "토모리의 성씨(高松) 한자가 들어간 역. 고송 시리즈 '토모리 3대장' 중 하나입니다.", visitors: 43213 },
+            { id: "mygo_4", name: "고송나루역", line: "3, 6호선", address: "북구 고송동 323", char: "타카마츠 토모리", franchise: "BanG Dream!", desc: "나루터의 고즈넉함과 토모리의 감성이 어우러지는 환승 성지입니다.", visitors: 37095 },
+            { id: "mygo_5", name: "진희역", line: "6호선", address: "북구 진희동 221", char: "시이나 마키 / 니시키노 마키", franchise: "BanG Dream!", desc: "타키의 언니 마키, 그리고 뮤즈의 마키! 이름 한자(真姫)가 같아 두 팬덤이 교차하는 대통합의 장소입니다.", visitors: 32492 },
+            { id: "mygo_6", name: "동고송역", line: "6호선", address: "북구 고송동 345", char: "타카마츠 토모리", franchise: "BanG Dream!", desc: "토모리의 성씨(高松)가 들어간 동쪽 역. 고송 투어의 필수 코스.", visitors: 28412 },
+            { id: "mygo_7", name: "아논타워역", line: "1호선", address: "청엽구 청엽동 98", char: "치하야 아논", franchise: "BanG Dream!", desc: "이름에 건물을 붙이기 좋아하는 관종 아논에게 딱 맞는 '아논 타워' 역!", visitors: 20232 },
+            { id: "mygo_8", name: "영색무역", line: "1, 빈효선", address: "안천구 영색무동 211", char: "실루엣 댄스", franchise: "BanG Dream!", desc: "마이고의 명곡 '실루엣 댄스(影色舞)'의 한자 표기가 그대로 역명인 기적의 장소.", visitors: 11054 },
+            { id: "mygo_9", name: "등동역", line: "2호선", address: "청엽구 등동 10", char: "타카마츠 토모리", franchise: "BanG Dream!", desc: "토모리의 이름(燈) 한자에 동네 동(洞)을 붙인 이름. 등불이 밝혀주는 따뜻한 동네입니다.", visitors: 8127 },
+            { id: "mygo_10", name: "잠재역", line: "4호선", address: "탄성군 도변읍 잠재리 145", char: "잠재표명", franchise: "BanG Dream!", desc: "마이고 데뷔곡 느낌이 물씬! 역명판을 보며 '잠재표명'을 흥얼거리는 팬들이 자주 목격됩니다.", visitors: 2492 },
+            { id: "mygo_11", name: "토모리해수욕장역", line: "3호선", address: "북구 고송동 103", char: "타카마츠 토모리", franchise: "BanG Dream!", desc: "이름이 토모리 그 자체! 해수욕장 이름이 어떻게 토모리...? 팬들이 가장 놀라워하는 자연 성지.", visitors: 11322 },
+
+            // --- Afterglow (BanG Dream!) ---
+            { id: "after_1", name: "청엽구청역", line: "1, 3호선", address: "청엽구 청엽동 93", char: "아오바 모카", franchise: "BanG Dream!", desc: "모카 쨩의 성씨(靑葉, 아오바) 한자를 한국식으로 읽으면 청엽! 구청 이름마저 모카입니다.", visitors: 62170 },
+            { id: "after_2", name: "마잡역", line: "2, 6호선", address: "청엽구 마잡동 3", char: "아오바 모카", franchise: "BanG Dream!", desc: "모카의 이름을 중국어로 번안했을 때 나오는 한자와 일치하는 글로벌 성지.", visitors: 40513 },
+            { id: "after_3", name: "청엽역", line: "3호선", address: "청엽구 청엽동 9-3", char: "아오바 모카", franchise: "BanG Dream!", desc: "모카의 성씨(靑葉) 한자 그대로 역명입니다. 청엽구청역과 함께 묶이는 더블 성지.", visitors: 22919 },
+            { id: "after_4", name: "우택역", line: "4호선", address: "청엽구 우택동 19", char: "하자와 츠구미", franchise: "BanG Dream!", desc: "츠구미의 성씨(羽澤, 하자와) 한자를 한국식으로 읽으면 '우택'입니다. 츠구미의 성실함이 느껴집니다.", visitors: 19023 },
+            { id: "after_5", name: "비마역", line: "6호선", address: "청엽구 비마동 532", char: "우에하라 히마리", franchise: "BanG Dream!", desc: "히마리의 이름을 중국어로 번안했을 때의 한자 일부와 일치합니다.", visitors: 17921 },
+            { id: "after_6", name: "동리역", line: "1호선", address: "청엽구 동리동 1-7", char: "하자와 츠구미", franchise: "BanG Dream!", desc: "츠구미의 이름을 중국어로 번안했을 때의 한자와 일치하는 성지입니다.", visitors: 15322 },
+            { id: "after_7", name: "남우택역", line: "5호선", address: "청엽구 우택동 1465", char: "하자와 츠구미", franchise: "BanG Dream!", desc: "성씨(羽澤) 한자가 들어간 또 하나의 역. 우택역 남쪽에 위치해 우택 로드를 완성합니다.", visitors: 15022 },
+            { id: "after_8", name: "청엽국제학교역", line: "5호선", address: "청엽구 청엽동 435", char: "아오바 모카", franchise: "BanG Dream!", desc: "모카의 성씨(靑葉)가 들어간 학교 역명. 모카가 다닐 것만 같은 학교 이름이네요.", visitors: 9382 },
+            { id: "after_9", name: "비마리유적지구역", line: "1호선", address: "청엽구 비마동 10-23", char: "우에하라 히마리", franchise: "BanG Dream!", desc: "히마리의 중국어 번안 한자가 들어간 유적지구. 역사적인 느낌이 묘하게 어울립니다.", visitors: 8192 },
+
+            // --- Morfonica (BanG Dream!) ---
+            { id: "morfo_1", name: "동곡역", line: "2, 3호선", address: "창전구 동곡동 16", char: "키리가야 토우코", franchise: "BanG Dream!", desc: "토우코(透子)의 성씨(桐谷, 키리가야) 한자와 유사성이 높은 숨겨진 명소.", visitors: 35549 },
+            { id: "morfo_2", name: "시로역", line: "2, 5호선", address: "창전구 시로동 46", char: "쿠라타 마시로", franchise: "BanG Dream!", desc: "마'시로' 쨩의 이름 뒤 두 글자를 그대로 사용! 시로(白)라는 한자가 순수함과 어울립니다.", visitors: 30424 },
+            { id: "morfo_3", name: "창전구청역", line: "1호선", address: "창전구 창전동 2-19", char: "쿠라타 마시로", franchise: "BanG Dream!", desc: "마시로의 성씨(倉田, 쿠라타) 한자가 들어간 구청 역입니다.", visitors: 30273 },
+            { id: "morfo_4", name: "쌍엽역", line: "2호선", address: "창전구 쌍엽동 9", char: "후타바 츠쿠시", franchise: "BanG Dream!", desc: "성씨 '후타바(双葉)'의 뜻인 '쌍엽'을 그대로 씁니다. 리더 츠쿠시 쨩의 든든한 성지.", visitors: 23292 },
+            { id: "morfo_5", name: "칠심역", line: "2호선", address: "창전구 칠심동 616", char: "히로마치 나나미", franchise: "BanG Dream!", desc: "나나미(七深)의 이름 한자를 한국식으로 읽으면 '칠심'. 천재의 기운이 느껴집니다.", visitors: 23232 },
+            { id: "morfo_6", name: "창전역", line: "1호선", address: "창전구 유류동 388", char: "쿠라타 마시로", franchise: "BanG Dream!", desc: "마시로의 성씨(倉田) 한자와 일치하는 역.", visitors: 15492 },
+            { id: "morfo_7", name: "진백역", line: "5호선", address: "창전구 진백동 1651", char: "쿠라타 마시로", franchise: "BanG Dream!", desc: "마시로의 이름(真白)을 중국어로 번안한 한자와 일치합니다.", visitors: 10292 },
+            { id: "morfo_8", name: "보통역", line: "1호선", address: "창전구 창전동 639", char: "히로마치 나나미", franchise: "BanG Dream!", desc: "나나미의 말버릇 '보통(普通)'이 그대로 역 이름으로! 그토록 원하던 보통의 삶이 실현되었습니다.", visitors: 10238 },
+            { id: "morfo_9", name: "팔조역", line: "3호선", address: "창전구 팔조동 220-2", char: "야시오 루이", franchise: "BanG Dream!", desc: "루이의 성씨(八潮) 한자를 한국식으로 읽으면 팔조! 지적인 이미지가 어울리는 역입니다.", visitors: 8832 },
+            { id: "morfo_10", name: "투자역", line: "3호선", address: "창전구 투자동 12", char: "키리가야 토우코", franchise: "BanG Dream!", desc: "토우코의 이름(透子) 한자를 한국식으로 읽은 역명. 주식 투자가 아닙니다!", visitors: 5428 },
+
+            // --- Poppin'Party (BanG Dream!) ---
+            { id: "pop_1", name: "사능역", line: "3호선", address: "북구 사능동3가 432", char: "야마부키 사아야", franchise: "BanG Dream!", desc: "사아야의 이름(沙綾) 한자가 완벽하게 일치합니다. 근처 빵집에 가보고 싶어지네요.", visitors: 10283 },
+            { id: "pop_2", name: "산취역", line: "빈효선", address: "덕빈북도 천주시 사야리 519", char: "야마부키 사아야", franchise: "BanG Dream!", desc: "사아야의 성씨(山吹) 한자를 한국식으로 읽으면 산취! 사능역과 함께 사아야의 위엄을 뽐냅니다.", visitors: 5682 },
+            { id: "pop_3", name: "유성당역", line: "7호선", address: "북구 사능동2가 842", char: "이치가야 아리사", franchise: "BanG Dream!", desc: "아리사의 전당포 '유성당'과 이름이 같습니다! 포피파의 아지트가 역 이름으로 강림.", visitors: 2001 },
+            { id: "pop_4", name: "시곡역", line: "빈효선", address: "덕빈북도 천주시 유소리 1027", char: "이치가야 아리사", franchise: "BanG Dream!", desc: "아리사의 성씨(市ヶ谷) 한자와 유사한 느낌의 역명입니다.", visitors: 1992 },
+            { id: "pop_5", name: "사능복지관역", line: "7호선", address: "북구 사능동2가 852", char: "야마부키 사아야", franchise: "BanG Dream!", desc: "사아야(沙綾)의 이름이 들어간 복지관 역. 착한 마음씨가 묻어납니다.", visitors: 1582 },
+            { id: "pop_6", name: "사능동3가역", line: "7호선", address: "북구 사능동3가 688", char: "야마부키 사아야", franchise: "BanG Dream!", desc: "사능동 투어의 일환인 사아야 로드 역.", visitors: 1322 },
+            { id: "pop_7", name: "사능삼거리역", line: "7호선", address: "북구 사능동1가 220", char: "야마부키 사아야", franchise: "BanG Dream!", desc: "사능동의 중심 삼거리에서 사아야를 외쳐보세요.", visitors: 1204 },
+            { id: "pop_8", name: "사능동1가역", line: "7호선", address: "북구 사능동1가 753", char: "야마부키 사아야", franchise: "BanG Dream!", desc: "사능동 빵집 투어의 훌륭한 시작점입니다.", visitors: 1043 },
+
+            // --- Other BanG Dream! (Roselia, Pasupale, HHW, Glitter*Green, Ave Mujica) ---
+            { id: "othb_1", name: "우전역", line: "1, 2호선", address: "청엽구 우전동 4-15", char: "우다가와 자매", franchise: "BanG Dream!", desc: "우다가와(宇田川) 자매의 성씨 앞글자 한자(宇田)가 역 이름. 아코와 토모에의 합동 성지.", visitors: 44081 },
+            { id: "othb_2", name: "리의역", line: "빈효선", address: "안천구 리의동 20", char: "우자와 리이", franchise: "BanG Dream!", desc: "이름(리이)이 그대로 역 이름이 된 글리터 그린 팬들을 위한 희귀 성지.", visitors: 18372 },
+            { id: "othb_3", name: "백합공원역", line: "4호선", address: "안천구 백합동 352", char: "우시고메 유리", franchise: "BanG Dream!", desc: "유리의 이름(ゆり)이 백합을 뜻한다는 점에서 유래한 아름다운 공원 역.", visitors: 8822 },
+            { id: "othb_4", name: "삼각역", line: "4호선", address: "중구 삼각동 3", char: "미스미 우이카", franchise: "BanG Dream!", desc: "우이카의 성씨(三角) 한자가 완벽하게 일치합니다. 아베 무지카 팬들의 숨겨진 성지.", visitors: 6235 },
+            { id: "othb_5", name: "리사역", line: "7호선", address: "중구 리사동 559", char: "이마이 리사", franchise: "BanG Dream!", desc: "역 이름이 그냥 '리사'입니다. 완벽 그 자체! 쿠키를 구워가고 싶네요.", visitors: 4931 },
+            { id: "othb_6", name: "빙천역", line: "4호선", address: "남구 고간동 53", char: "히카와 자매", franchise: "BanG Dream!", desc: "히카와(氷川) 자매의 성씨 한자를 한국식으로 읽으면 빙천! 사요와 히나 팬들의 성지.", visitors: 4822 },
+            { id: "othb_7", name: "서수역", line: "4호선", address: "안천구 서수동 134-2", char: "토가와 미즈호", franchise: "BanG Dream!", desc: "사키코의 어머니 미즈호(瑞穂)의 한자를 한국식으로 읽은 깊은 서사가 담긴 역.", visitors: 3928 },
+            { id: "othb_8", name: "추자역", line: "1호선", address: "안천구 추자동 719", char: "니쥿키 히나코", franchise: "BanG Dream!", desc: "히나코의 이름(雛子) 한자를 한국식으로 읽으면 '추자'입니다. 글그 리더의 성지.", visitors: 3312 },
+            { id: "othb_9", name: "뇌전역", line: "4호선", address: "안천구 뇌전동 228", char: "세타 카오루", franchise: "BanG Dream!", desc: "카오루의 성씨(瀬田)에서 유래한 덧없는(儚い) 세상의 기운이 느껴지는 역입니다.", visitors: 3093 },
+            { id: "othb_10", name: "사야역", line: "4호선", address: "남구 박산동 51", char: "히카와 사요", franchise: "BanG Dream!", desc: "사요(紗夜)의 이름 사야와 발음이 같습니다. 로젤리아 팬들의 체크 포인트.", visitors: 2092 },
+            { id: "othb_11", name: "만마루역", line: "7호선", address: "중구 내항동 461", char: "마루야마 아야", franchise: "BanG Dream!", desc: "아야 쨩의 별명 '만마루 산'이 그대로 역 이름으로! 동글동글 귀여운 역.", visitors: 2039 },
+            { id: "othb_12", name: "북택역", line: "빈효선", address: "안천구 북택동 730", char: "키타자와 하구미", franchise: "BanG Dream!", desc: "하구미의 성씨(北沢) 한자를 한국식으로 읽으면 북택입니다. 밝은 에너지가 뿜뿜!", visitors: 9183 },
+
+            // --- Love Live! ---
+            { id: "ll_1", name: "중수역", line: "2, 6호선", address: "북구 중수동 1-23", char: "나카스 카스미", franchise: "Love Live!", desc: "카스밍의 성씨(中須) 한국식 독음! 세계 제일 귀여운 카스밍의 초거대 메이저 성지.", visitors: 78315 },
+            { id: "ll_2", name: "이자역", line: "4, 빈효선", address: "안천구 이자동 9-19", char: "사쿠라우치 리코", franchise: "Love Live!", desc: "리코(莉子)의 이름 한자가 완벽하게 일치! 리코 쨩 빔을 맞을 수 있는 리코 유니버스의 중심.", visitors: 72063 },
+            { id: "ll_3", name: "이자공원역", line: "1, 4호선", address: "안천구 이자동 1835", char: "사쿠라우치 리코", franchise: "Love Live!", desc: "리코의 이름이 들어간 아름다운 공원. 피아노 조형물 앞 인증샷이 필수입니다.", visitors: 58559 },
+            { id: "ll_4", name: "도변역", line: "4, 5호선", address: "탄성군 도변읍 도변리", char: "와타나베 요우", franchise: "Love Live!", desc: "요우 소로! 와타나베(渡辺)의 한국식 독음 '도변'. 도변읍 요우리의 전설이 시작된 곳.", visitors: 36621 },
+            { id: "ll_5", name: "당가역", line: "2, 빈효선", address: "안천구 당가동 717", char: "탕 쿠쿠", franchise: "Love Live!", desc: "쿠쿠의 이름(唐可可) 앞 두 글자가 역 이름과 일치! 상하이의 열정이 느껴지는 디저트 성지.", visitors: 34294 },
+            { id: "ll_6", name: "앵내역", line: "4호선", address: "탄성군 도변읍 앵내리", char: "사쿠라우치 리코", franchise: "Love Live!", desc: "리코의 성씨(桜内)를 한국식으로 읽으면 앵내. 4호선을 완벽한 리코 라인으로 만듭니다.", visitors: 22782 },
+            { id: "ll_7", name: "소조역", line: "5호선", address: "북구 소조동 912", char: "미나미 코토리", franchise: "Love Live!", desc: "코토리(小鳥)의 한자와 조(助)가 결합된 작은 새 역명. 뮤즈 팬들의 든든한 둥지.", visitors: 21123 },
+            { id: "ll_8", name: "아이역", line: "빈효선", address: "덕빈북도 천주시 아이동", char: "미야시타 아이", franchise: "Love Live!", desc: "역 이름이 대놓고 'Ai'입니다. 다자레 폭격이 쏟아지는 하이텐션 메가스토어가 위치해 있습니다.", visitors: 17931 },
+            { id: "ll_9", name: "요우역", line: "4호선", address: "탄성군 도변읍 요우리", char: "와타나베 요우", franchise: "Love Live!", desc: "역 이름이 '요우(曜)'. 실제 행정구역이 '요우리'라는 자연이 낳은 기적의 성지입니다.", visitors: 17392 },
+            { id: "ll_10", name: "천왕사역", line: "1호선", address: "북구 천왕사동 11-13", char: "텐노지 리나", franchise: "Love Live!", desc: "리나 쨩 보드! 성씨(天王寺)의 한국식 독음. IT 너드들의 은밀한 순례 코스.", visitors: 15622 },
+            { id: "ll_11", name: "궁하역", line: "빈효선", address: "덕빈북도 천주시 궁하동", char: "미야시타 아이", franchise: "Love Live!", desc: "성씨(宮下)의 한국식 독음 '궁하'. 아이 역과 함께 빈효선을 아이 쨩의 독무대로 만듭니다.", visitors: 14621 },
+            { id: "ll_12", name: "이자출장소역", line: "1호선", address: "안천구 이십기동 341", char: "사쿠라우치 리코", franchise: "Love Live!", desc: "리코(莉子)의 이름이 들어간 출장소. 안천구청은 이자동을 리코동으로 개명해야 합니다.", visitors: 14283 },
+            { id: "ll_13", name: "고해역", line: "1, 빈효선", address: "탄성군 고해읍 이와리", char: "타카미 치카", franchise: "Love Live!", desc: "대장 치카의 성씨(高海) 한자 한국식 독음. 귤을 들고 인증샷을 찍는 기묘한 문화가 있습니다.", visitors: 14290 },
+            { id: "ll_14", name: "타천역", line: "빈효선", address: "안천구 타천동 79", char: "츠시마 요시코", franchise: "Love Live!", desc: "요하네 강림! '타천(墮天)'이라는 중2병 가득한 지명이 리틀 데몬들을 부릅니다.", visitors: 13485 },
+            { id: "ll_15", name: "과남역", line: "1호선", address: "안천구 이자동 2-10", char: "마츠우라 카난", franchise: "Love Live!", desc: "카난의 이름(果南) 한자가 완벽 일치. 허그 시요! 다이빙 슈트가 어울리는 역.", visitors: 10326 },
+            { id: "ll_16", name: "루비역", line: "5호선", address: "탄성군 흑택면 루비리", char: "쿠로사와 루비", franchise: "Love Live!", desc: "탄성군 흑택면 루비리! 지명부터 발음까지 루비 그 자체. 간바루비 자판기가 시급합니다.", visitors: 8827 },
+            { id: "ll_17", name: "보몽역", line: "1호선", address: "동구 전천동 3-1", char: "우에하라 아유무", franchise: "Love Live!", desc: "아유무의 이름(歩夢) 한자 독음 '보몽'. 혐오 빌런이 팩폭 맞고 쫓겨난 역사적 현장입니다.", visitors: 8642 },
+            { id: "ll_18", name: "화환역", line: "5호선", address: "서구 청덕동 1453", char: "쿠니키다 하나마루", franchise: "Love Live!", desc: "하나마루(花丸) 한자 한국식 독음 '화환'. 미래즈라~! 4차원 문물을 구경해보세요.", visitors: 7592 },
+            { id: "ll_19", name: "흑택역", line: "2호선", address: "탄성군 흑택면 흑택리", char: "쿠로사와 자매", franchise: "Love Live!", desc: "쿠로사와(黒澤) 성씨 독음. 다이아 선배의 학생회실 바이브가 풍기는 중후한 성지.", visitors: 6263 },
+            { id: "ll_20", name: "소원역", line: "4호선", address: "탄성군 소원면 소원리", char: "오하라 마리", franchise: "Love Live!", desc: "마리의 성씨(小原) 독음. 내리면 마리처럼 '샤이니~!'를 외쳐 부자가 될 것 같은 착각을 줍니다.", visitors: 5462 },
+            { id: "ll_21", name: "서목역", line: "1호선", address: "탄성군 서목읍 서목리", char: "니시키노 마키", franchise: "Love Live!", desc: "마키 성씨(西木野) 앞 두 글자(西木)를 따온 역. 츤데레 마키 오시들의 필수 코스입니다.", visitors: 24032 },
+            { id: "ll_22", name: "야진입구역", line: "1호선", address: "탄성군 탄성읍 미성리", char: "니시키노 마키", franchise: "Love Live!", desc: "마키의 이름과 성씨의 한자가 미묘하게 교차하는 집요한 3연타석 성지 투어의 종착지.", visitors: 20232 },
+            { id: "ll_23", name: "천가역", line: "4호선", address: "탄성군 고해읍 천가리", char: "타카미 치카", franchise: "Love Live!", desc: "치카의 이름(千歌) 한자가 완벽 일치! 고해역과 묶어 치카 세트를 완성해보세요.", visitors: 4173 },
+            { id: "ll_24", name: "과림역", line: "빈효선", address: "덕빈북도 천주시 과림읍", char: "아사카 카린", franchise: "Love Live!", desc: "카린 선배의 이름(果林) 독음. 성숙하고 섹시한 아우라가 뿜어져 나오는 기분을 만끽하세요.", visitors: 3852 },
+            { id: "ll_25", name: "근강역", line: "빈효선", address: "덕빈북도 약산시 근강면", char: "코노에 카나타", franchise: "Love Live!", desc: "카나타의 성씨(近江) 한국식 독음. 이상하게 이 역만 지나면 승객들이 잠에 빠져든다는 괴담이 있습니다.", visitors: 1928 },
+            { id: "ll_26", name: "상원초등학교역", line: "7호선", address: "중구 만실동 130", char: "우에하라 아유무", franchise: "Love Live!", desc: "아유무의 성씨(上原) 한국식 독음 '상원'. 아유무 투어 코스를 짤 때 히든 핵심 축입니다.", visitors: 1792 },
+            { id: "ll_27", name: "낙주역", line: "일반철도", address: "낙주시 낙주역로", char: "오니츠카 나츠미", franchise: "Love Live!", desc: "나츠미(낫츠)와 낙주의 발음 유사성을 빌미로 오니나츠 CEO가 KTX 정차역을 무단 점거(?)한 굿즈샵 성지.", visitors: 23150 },
+
+            // --- Others (Bocchi the Rock!, K-ON!, Girls Band Cry) ---
+            { id: "oth_1", name: "홍하역", line: "빈효선", address: "덕빈북도 약산시 니지리", char: "이지치 니지카", franchise: "Others", desc: "니지카의 이름(虹夏) 한자를 한국식으로 읽으면 홍하! 결속밴드의 리더 성지입니다.", visitors: 1632 },
+            { id: "oth_2", name: "봇지마을역", line: "7호선", address: "북구 내성동2가 868", char: "고토 히토리", franchise: "Others", desc: "기타 히어로의 충격적인 마을 등장! 봇치 쨩이 이 역을 보면 기절할지도 모르는 봇치 팬들의 은신처.", visitors: 901 },
+            { id: "oth_3", name: "추산역", line: "1호선", address: "북구 추산동 1-15", char: "아키야마 미오", franchise: "Others", desc: "미오의 성씨(秋山) 한자를 한국식으로 읽은 추산. 베이스 소리가 들릴 것 같은 케이온 성지.", visitors: 5433 },
+            { id: "oth_4", name: "무기역", line: "1호선", address: "덕빈북도 약산시 무기리", char: "코토부키 츠무기", franchise: "Others", desc: "단무지 눈썹의 무기 쨩 별명이 그대로! 여유롭게 홍차 한 잔 하고 싶은 역입니다.", visitors: 5001 },
+            { id: "oth_5", name: "우이문화촌역", line: "7호선", address: "중구 우이동 852", char: "히라사와 우이", franchise: "Others", desc: "유이의 천사 동생, 우이 쨩처럼 따뜻하고 포근한 분위기의 문화촌 역입니다.", visitors: 3955 },
+            { id: "oth_6", name: "우이역", line: "7호선", address: "중구 우이동 322", char: "히라사와 우이", franchise: "Others", desc: "이름(우이) 그대로 사용된 귀여운 역명입니다.", visitors: 1049 },
+            { id: "oth_7", name: "도향역", line: "1호선", address: "탄성군 도향면 분음리", char: "카와라기 모모카", franchise: "Others", desc: "걸크러시 폭발! 모모카 님의 이름(桃香) 한자를 한국식으로 읽은 '도향'. 걸밴크 팬들의 절대 성지.", visitors: 2232 }
+        ];
+
+        // 노선 정보 파싱 및 뱃지 생성 함수
+        function getLineBadges(lineString) {
+            const lines = lineString.split(',').map(l => l.trim());
+            let badgesHTML = '';
+            
+            lines.forEach(line => {
+                let colorClass = 'bg-gray-500 text-white';
+                if(line.includes('1호선')) colorClass = 'line-1';
+                else if(line.includes('2호선')) colorClass = 'line-2';
+                else if(line.includes('3호선')) colorClass = 'line-3';
+                else if(line.includes('4호선')) colorClass = 'line-4';
+                else if(line.includes('5호선')) colorClass = 'line-5';
+                else if(line.includes('6호선')) colorClass = 'line-6';
+                else if(line.includes('7호선')) colorClass = 'line-7';
+                else if(line.includes('8호선')) colorClass = 'line-8';
+                else if(line.includes('빈효선')) colorClass = 'line-bh';
+                else if(line.includes('덕주')) colorClass = 'line-dj1';
+                else if(line.includes('일반철도')) colorClass = 'line-korail';
+                
+                badgesHTML += `<span class="${colorClass} px-2 py-0.5 rounded text-xs font-black shadow-sm mr-1.5"><i class="fa-solid fa-train-subway mr-1 opacity-80"></i>${line}</span>`;
+            });
+            return badgesHTML;
+        }
+
+        // 숫자 콤마 포맷팅
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // 스탬프 로컬 스토리지 관리
+        let savedStamps = JSON.parse(localStorage.getItem('hyobin_stamps') || '[]');
+
+        function toggleStamp(stationId) {
+            const index = savedStamps.indexOf(stationId);
+            const cardElem = document.getElementById(`card-${stationId}`);
+            const btnElem = document.getElementById(`btn-${stationId}`);
+            
+            if (index > -1) {
+                // Remove stamp
+                savedStamps.splice(index, 1);
+                cardElem.classList.remove('stamped');
+                btnElem.innerHTML = '<i class="fa-solid fa-stamp mr-1"></i> 성지순례 체크인 (스탬프 찍기)';
+                btnElem.className = 'w-full py-2.5 rounded-lg text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors duration-200 relative z-10';
+            } else {
+                // Add stamp
+                savedStamps.push(stationId);
+                cardElem.classList.add('stamped');
+                btnElem.innerHTML = '<i class="fa-solid fa-check-circle mr-1"></i> 순례 완료 (취소)';
+                btnElem.className = 'w-full py-2.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors duration-200 relative z-10';
+            }
+            
+            localStorage.setItem('hyobin_stamps', JSON.stringify(savedStamps));
+            updateProgress();
+        }
+
+        // 스탬프 초기화
+        function resetStamps() {
+            if(confirm("정말 모든 스탬프 기록을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+                savedStamps = [];
+                localStorage.setItem('hyobin_stamps', JSON.stringify(savedStamps));
+                renderStations('all'); // Re-render to clear UI
+                updateProgress();
+            }
+        }
+
+        // 진행률 업데이트
+        function updateProgress() {
+            const count = savedStamps.length;
+            const total = stations.length;
+            const percentage = (count / total) * 100;
+            
+            document.getElementById('stampCount').textContent = count;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            
+            const msgElem = document.getElementById('motivationalText');
+            if (count === 0) msgElem.textContent = "순례의 길을 떠나볼까요?";
+            else if (count < 10) msgElem.textContent = "좋은 출발입니다! 덕력을 불태워보세요.";
+            else if (count < 30) msgElem.textContent = "진정한 오타쿠의 길을 걷고 계시는군요!";
+            else if (count < total) msgElem.textContent = "놀랍습니다! 효빈시 명예시민이 코앞입니다.";
+            else msgElem.textContent = "🎉 완벽한 럽순이/뱅도리/결속밴더 인정! 축하합니다!";
+        }
+
+        // 역 카드 렌더링
+        function renderStations(filter) {
+            const container = document.getElementById('stationGrid');
+            container.innerHTML = '';
+            
+            // 필터링 적용
+            let filtered = stations;
+            if(filter !== 'all') {
+                filtered = stations.filter(s => {
+                    if (filter === 'Others') return s.franchise === 'Others';
+                    return s.franchise.includes(filter);
+                });
+            }
+
+            // 방문객 수 기준으로 내림차순 정렬 (높은 곳이 인기 성지)
+            filtered.sort((a, b) => b.visitors - a.visitors);
+
+            filtered.forEach(station => {
+                const isStamped = savedStamps.includes(station.id);
+                
+                const card = document.createElement('div');
+                card.id = `card-${station.id}`;
+                card.className = `stamp-card bg-white rounded-2xl p-5 relative overflow-hidden flex flex-col h-full ${isStamped ? 'stamped' : ''} shadow-sm`;
+                
+                // IP Franchise Color / Icon logic
+                let ipIcon = ''; let ipColor = '';
+                if(station.franchise.includes('BanG Dream!')) { ipIcon = 'fa-guitar'; ipColor = 'text-blue-500'; }
+                else if(station.franchise.includes('Love Live!')) { ipIcon = 'fa-microphone-lines'; ipColor = 'text-pink-500'; }
+                else { ipIcon = 'fa-compact-disc'; ipColor = 'text-emerald-500'; }
+
+                card.innerHTML = `
+                    <div class="stamp-overlay text-emerald-500 text-7xl drop-shadow-md">
+                        <i class="fa-solid fa-stamp"></i>
+                    </div>
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-wrap flex gap-1">
+                            ${getLineBadges(station.line)}
+                        </div>
+                        <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded-full"><i class="fa-solid fa-users mr-1"></i>${formatNumber(station.visitors)}명</span>
+                    </div>
+                    
+                    <h3 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">${station.name}</h3>
+                    <p class="text-xs text-gray-400 mb-4"><i class="fa-solid fa-map-pin mr-1"></i>${station.address}</p>
+                    
+                    <div class="bg-slate-50 border border-slate-100 rounded-lg p-3 mb-4 flex-grow relative z-10">
+                        <p class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                            <i class="fa-solid ${ipIcon} ${ipColor} mr-1.5"></i> ${station.char}
+                        </p>
+                        <p class="text-[13px] text-slate-600 leading-snug break-keep">${station.desc}</p>
+                    </div>
+                    
+                    <button id="btn-${station.id}" onclick="toggleStamp('${station.id}')" class="${isStamped 
+                        ? 'w-full py-2.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors duration-200 relative z-10' 
+                        : 'w-full py-2.5 rounded-lg text-sm font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors duration-200 relative z-10'}">
+                        ${isStamped ? '<i class="fa-solid fa-check-circle mr-1"></i> 순례 완료 (취소)' : '<i class="fa-solid fa-stamp mr-1"></i> 성지순례 체크인 (스탬프 찍기)'}
+                    </button>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // 데이터가 없는 경우 (필터 에러 등 방어 코드)
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400"><i class="fa-solid fa-ghost text-4xl mb-3"></i><br>해당 조건의 성지가 존재하지 않습니다.</div>`;
+            }
+        }
+
+        // 필터링 이벤트 리스너 설정
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // active 클래스 변경
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'bg-[#1e293b]', 'text-white'));
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.add('bg-white', 'text-gray-700');
+                    b.classList.remove('active');
+                });
+                
+                const target = e.currentTarget;
+                target.classList.remove('bg-white', 'text-gray-700');
+                target.classList.add('active', 'bg-[#1e293b]', 'text-white');
+                
+                // 렌더링 호출
+                renderStations(target.dataset.filter);
+            });
+        });
+
+        // 초기 실행
+        renderStations('all');
+        updateProgress();
+    </script>
+
+    <!-- 외부 스크립트 강제 유지 -->
+    <script src="js/common_hyobin.js"></script>
+</body>
+</html>

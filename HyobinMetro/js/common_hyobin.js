@@ -406,6 +406,7 @@ const headerHTML = `
                                         <a href="goods.html" class="font-bold text-sky-700"><i class="fa-solid fa-store mr-1"></i>공식 온라인 굿즈샵</a>
                                         <a href="매장상세.html?id=hq">오프라인 스토어 본점 안내</a>
                                         <a href="매장상세.html?id=hyobin">효빈역 플래그십 스토어</a>
+                                        <a href="new_arrival.html">굿즈안내</a>
                                         <a href="콜라보카페/index.html">팝업스토어 / 콜라보 안내</a>
                                     </div>
                                     <div class="menu-col bg-orange-50 p-4 rounded-lg">
