@@ -49,7 +49,7 @@ const headerHTML = `
             <div class="max-w-[1400px] mx-auto px-4 h-20 flex justify-between items-center relative">
                 <a href="index.html" class="flex items-center gap-3 group shrink-0">
                     <!-- 로고 이미지 정확히 매칭 -->
-                    <img src="이미지/logo.png" onerror="this.src='https://placehold.co/100x48/16A4BE/ffffff?text=LOGO'" alt="효빈교통공사 로고" class="h-12 w-auto transition-transform group-hover:scale-105">
+                    <img src="이미지/logo.webp" onerror="this.src='https://placehold.co/100x48/16A4BE/ffffff?text=LOGO'" alt="효빈교통공사 로고" class="h-12 w-auto transition-transform group-hover:scale-105">
                     <div class="flex flex-col">
                         <span class="text-2xl font-black text-slate-800 tracking-tighter leading-none">효빈교통공사</span>
                         <span class="text-[10px] font-bold text-[#16A4BE] tracking-widest mt-1 uppercase">Hyobin Metro</span>
@@ -457,7 +457,7 @@ const footerHTML = `
                 <div class="lg:col-span-4 flex flex-col justify-between h-full">
                     <div>
                         <div class="flex items-center gap-3 mb-4">
-                            <img src="이미지/logo.png" onerror="this.src='https://placehold.co/100x48/16A4BE/ffffff?text=LOGO'" alt="효빈교통공사 로고" class="h-10 w-auto bg-white p-1 rounded">
+                            <img src="이미지/logo.webp" onerror="this.src='https://placehold.co/100x48/16A4BE/ffffff?text=LOGO'" alt="효빈교통공사 로고" class="h-10 w-auto bg-white p-1 rounded">
                             <span class="text-2xl font-black text-white">효빈교통공사</span>
                         </div>
                         <div class="text-xs leading-relaxed text-slate-400 space-y-1">
@@ -563,8 +563,8 @@ const footerHTML = `
 
                     <div class="mt-6 flex flex-col items-end gap-3 w-full">
                         <div class="flex gap-2">
-                            <img src="이미지/wa_mark.png" onerror="this.src='https://placehold.co/100x40/1e293b/ffffff?text=WA+인증마크'" alt="과학기술정보통신부 WEB접근성 인증마크" class="h-10 rounded border border-slate-700 shadow-sm" title="국가공인 웹접근성 우수사이트 인증">
-                            <img src="이미지/isms_mark.png" onerror="this.src='https://placehold.co/100x40/1e293b/ffffff?text=ISMS+인증'" alt="한국인터넷진흥원 ISMS 인증마크" class="h-10 rounded border border-slate-700 shadow-sm" title="정보보호 관리체계 인증">
+                            <img src="이미지/wa_mark.webp" onerror="this.src='https://placehold.co/100x40/1e293b/ffffff?text=WA+인증마크'" alt="과학기술정보통신부 WEB접근성 인증마크" class="h-10 rounded border border-slate-700 shadow-sm" title="국가공인 웹접근성 우수사이트 인증">
+                            <img src="이미지/isms_mark.webp" onerror="this.src='https://placehold.co/100x40/1e293b/ffffff?text=ISMS+인증'" alt="한국인터넷진흥원 ISMS 인증마크" class="h-10 rounded border border-slate-700 shadow-sm" title="정보보호 관리체계 인증">
                         </div>
                         <a href="#top" class="mt-2 text-xs font-bold text-slate-400 hover:text-white bg-slate-800 px-3 py-1.5 rounded inline-flex items-center"><i class="fa-solid fa-arrow-up mr-2"></i>맨 위로</a>
                     </div>

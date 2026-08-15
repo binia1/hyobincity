@@ -7,7 +7,7 @@ const headerHTML = `
     <header class="bg-[#1e293b] text-white">
         <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
             <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
-                <img src="logo.png" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <img src="logo.webp" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                 <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
             </div>
             <div class="flex items-center space-x-5 text-gray-300">
@@ -909,7 +909,7 @@ const footerHTML = `
                 </div>
                 <div class="flex items-center space-x-3 flex-shrink-0">
                     <div class="h-14 w-auto flex items-center">
-                         <img src="logo.png" alt="하단 로고" class="h-full w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                         <img src="logo.webp" alt="하단 로고" class="h-full w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                          <div class="w-32 h-14 border border-slate-200 rounded-lg bg-white hidden items-center justify-center text-slate-400 text-xs font-bold shadow-sm">[로고 이미지]</div>
                     </div>
                     <div class="border border-slate-200 rounded-lg p-2 bg-white flex items-center space-x-2 shadow-sm h-14 cursor-pointer hover:border-green-500 transition">
