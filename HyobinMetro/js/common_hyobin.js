@@ -81,13 +81,14 @@ const headerHTML = `
                                     </div>
                                     <div class="menu-col">
                                         <h3>이용고객 편의시설</h3>
-                                        <a href="welfare_companion.html">배려시설 현황</a>
+                                        <a href="배려시설_현황.html">배려시설 현황</a>
                                         <a href="승강설비 가동현황.html">승강설비 가동현황</a>
                                         <a href="accessible.html">휠체어 이용 승·하차 안내</a>
                                         <a href="무인편의기기.html">무인편의기기</a>
                                         <a href="문화공간.html">문화공간</a>
-                                        <a href="환승주차장.html">환승주차장 / 자전거보관함</a>
-                                        <a href="welfare_family.html">수유실</a>
+                                        <a href="환승주차장.html">환승주차장</a>
+                                        <a href="자전거 보관함.html">자전거보관함</a>
+                                        <a href="수유실.html">수유실</a>
                                     </div>
                                     <div class="menu-col">
                                         <h3>효빈 특화서비스 및 기타</h3>
@@ -582,7 +583,7 @@ const sidebarMenuData = {
     "이용정보": [
         { group: "사이버스테이션/운행", items: [ {name: "사이버스테이션(노선도)", href: "map.html"}, {name: "실시간열차운행정보", href: "realtime.html"}, {name: "열차서행정보(선로공사)", href: "열차서행정보.html"}, {name: "간편지연증명서", href: "delay_proof.html"}, {name: "출구/시설물 안내", href: "exit_facilities_offline_v2.html"} ] },
         { group: "운임제도", items: [ {name: "운임안내", href: "fare.html"}, {name: "승차권안내", href: "승차권안내.html"}, {name: "단체권운임안내", href: "단체권운임안내.html"}, {name: "여객운송약관(1~8호선)", href: "terms.html"}, {name: "여객운송약관(빈효선)", href: "여객운송약관_빈효선.html"} ] },
-        { group: "이용고객 편의시설", items: [ {name: "배려시설 현황", href: "welfare_companion.html"}, {name: "승강설비 가동현황", href: "승강설비 가동현황.html"}, {name: "휠체어 이용 승·하차 안내", href: "accessible.html"}, {name: "무인편의기기", href: "무인편의기기.html"}, {name: "문화공간", href: "문화공간.html"}, {name: "환승주차장 / 자전거보관함", href: "환승주차장.html"}, {name: "수유실", href: "수유실.html"} ] },
+        { group: "이용고객 편의시설", items: [ {name: "배려시설 현황", href: "배려시설_현황.html"}, {name: "승강설비 가동현황", href: "승강설비 가동현황.html"}, {name: "휠체어 이용 승·하차 안내", href: "accessible.html"}, {name: "무인편의기기", href: "무인편의기기.html"}, {name: "문화공간", href: "문화공간.html"}, {name: "환승주차장", href: "환승주차장.html"}, {name: "자전거보관함", href: "자전거 보관함.html"}, {name: "수유실", href: "수유실.html"} ] },
         { group: "효빈 특화서비스 및 기타", items: [ {name: "효빈광역환승센터", href: "효빈광역환승센터.html"}, {name: "효빈러기지(H-luggage)", href: "효빈러기지.html"}, {name: "효빈스토리지(개인창고)", href: "효빈스토리지.html"}, {name: "효빈라커(H-Locker)", href: "효빈라커.html"}, {name: "유실물센터 안내", href: "lost_found.html"} ] }
     ],
     "안전환경": [
@@ -758,7 +759,7 @@ function initHyobinUI() {
         document.body.insertAdjacentHTML('beforeend', footerHTML);
     }
 
-    // URL 및 Title 기반 현재 카테고리 및 경로 판별 (해시 # 포함)
+// URL 및 Title 기반 현재 카테고리 및 경로 판별 (해시 # 포함)
     let currentPath = '';
     let currentHash = window.location.hash || '';
     
@@ -768,24 +769,47 @@ function initHyobinUI() {
         currentPath = window.location.pathname.split('/').pop();
     }
     
-    // 전체 경로 조합 (예: 경영정보.html#overview)
     const fullCurrentPath = currentPath + currentHash;
     const pageTitle = document.title || '';
     
     // 메인 페이지(index.html)는 사이드바 생략
     if (currentPath === 'index.html' || currentPath === '') return;
 
-    // 카테고리 매칭 로직 (Title 또는 Path 기반)
-    let activeCategory = '안전환경';
-    if (pageTitle.includes('정보공개') || currentPath.includes('public') || currentPath.includes('data') || currentPath.includes('신고') || currentPath.includes('청렴')) activeCategory = '정보공개';
-    else if (pageTitle.includes('이용') || pageTitle.includes('운임') || pageTitle.includes('러기지') || currentPath.includes('info') || currentPath.includes('fare') || currentPath.includes('map') || currentPath.includes('증명서') || currentPath.includes('주차장')) activeCategory = '이용정보';
-    else if (pageTitle.includes('참여') || pageTitle.includes('질문') || currentPath.includes('QA') || currentPath.includes('participation') || currentPath.includes('견학') || currentPath.includes('모니터')) activeCategory = '시민 참여';
-    else if (pageTitle.includes('알림') || pageTitle.includes('공지') || pageTitle.includes('보도') || currentPath.includes('notice') || currentPath.includes('입찰') || currentPath.includes('계약') || currentPath.includes('광고')) activeCategory = '알림마당';
-    else if (pageTitle.includes('ESG') || currentPath.includes('esg') || currentPath.includes('사회공헌') || currentPath.includes('채권')) activeCategory = 'ESG경영';
-    else if (pageTitle.includes('소개') || pageTitle.includes('조직') || pageTitle.includes('오시는') || currentPath.includes('about') || currentPath.includes('경영정보') || currentPath.includes('행정정보') || currentPath.includes('산업현황') || currentPath.includes('역사관')) activeCategory = '공사 소개';
-    else if (pageTitle.includes('캐릭터') || pageTitle.includes('굿즈') || pageTitle.includes('성지') || currentPath.includes('mascot') || currentPath.includes('goods') || currentPath.includes('콜라보') || currentPath.includes('애니')) activeCategory = '캐릭터/IP사업';
+    // [핵심 해결] 파일명별 카테고리 직관 매핑 (인코딩/루프 오류 원천 차단)
+    const exactCategoryMap = {
+        // 이용정보
+        'map.html': '이용정보', 'realtime.html': '이용정보', '열차서행정보.html': '이용정보', 'delay_proof.html': '이용정보', 'exit_facilities_offline_v2.html': '이용정보',
+        'fare.html': '이용정보', '승차권안내.html': '이용정보', '단체권운임안내.html': '이용정보', 'terms.html': '이용정보', '여객운송약관_빈효선.html': '이용정보',
+        '배려시설_현황.html': '이용정보', '승강설비 가동현황.html': '이용정보', 'accessible.html': '이용정보', '무인편의기기.html': '이용정보', '문화공간.html': '이용정보', 
+        '환승주차장.html': '이용정보', '자전거 보관함.html': '이용정보', '수유실.html': '이용정보',
+        '효빈광역환승센터.html': '이용정보', '효빈러기지.html': '이용정보', '효빈스토리지.html': '이용정보', '효빈라커.html': '이용정보', 'lost_found.html': '이용정보',
 
-    // 2. 사이드바 자동 삽입 및 HTML 구조 자동 교정
+        // 캐릭터 / IP사업
+        'mascot.html': '캐릭터/IP사업', 'goods.html': '캐릭터/IP사업', 'anime_tour.html': '캐릭터/IP사업',
+        '캐릭터_고나미.html': '캐릭터/IP사업', '캐릭터_하루빈.html': '캐릭터/IP사업', '캐릭터_박라미.html': '캐릭터/IP사업', '캐릭터_다로나.html': '캐릭터/IP사업',
+        '캐릭터_미소하.html': '캐릭터/IP사업', '캐릭터_라세나.html': '캐릭터/IP사업', '캐릭터_임세정.html': '캐릭터/IP사업', '캐릭터_임세하.html': '캐릭터/IP사업', '캐릭터_유리아.html': '캐릭터/IP사업', '캐릭터_전노아.html': '캐릭터/IP사업'
+    };
+
+    let activeCategory = exactCategoryMap[currentPath] || '이용정보'; // 매핑에 없으면 기본 이용정보로 안착
+
+    // 만약 매핑에 없는 파일이라도 sidebarMenuData를 통해 정밀 탐색 (이중 방어)
+    if (!exactCategoryMap[currentPath]) {
+        for (const [categoryName, groups] of Object.entries(sidebarMenuData)) {
+            let found = false;
+            for (const group of groups) {
+                for (const item of group.items) {
+                    if (!item) continue;
+                    if (currentPath === item.href || pageTitle.includes(item.name)) {
+                        activeCategory = categoryName;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+    }    // 2. 사이드바 자동 삽입 및 HTML 구조 자동 교정
     let mainContent = document.getElementById('main-content');
     let mainTag = document.querySelector('main');
     

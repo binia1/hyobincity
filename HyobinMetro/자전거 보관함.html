@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자전거 보관함 - 효빈교통공사</title>
+    <link rel="icon" href="이미지/효빈교통공사로고.webp">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 역 정보 데이터 불러오기 -->
+    <script src="station_info.js"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈도시철도 지정 노선 색상 */
+        .color-line1 { color: #0077DD; } 
+        .color-line2 { color: #00CCAA; } 
+        .color-line3 { color: #FFCC11; } 
+        .color-line4 { color: #FF5522; } 
+        .color-line5 { color: #EE0022; } 
+        .color-line6 { color: #881188; } 
+        .color-line7 { color: #FF8899; } 
+        .color-line8 { color: #9856FF; } 
+        .color-lineBH { color: #6677CC; } 
+
+        /* 테이블 스타일 */
+        .bike-table th { 
+            background-color: #f8fafc; 
+            color: #334155; 
+            font-weight: 700; 
+            padding: 14px 12px; 
+            border-bottom: 2px solid #e2e8f0; 
+            text-align: center; 
+            font-size: 0.95rem;
+        }
+        .bike-table td { 
+            padding: 14px 12px; 
+            border-bottom: 1px solid #e2e8f0; 
+            color: #475569; 
+            text-align: center; 
+            vertical-align: middle; 
+            font-size: 0.95rem;
+        }
+        .bike-table tr:hover td { background-color: #f1f5f9; }
+
+        /* 라디오 버튼 탭 스타일 */
+        .line-radio { display: none; }
+        .line-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9999px;
+            background-color: white;
+            color: #64748b;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .line-label i { margin-right: 6px; font-size: 1.1em; }
+
+        #line1:checked ~ .tabs label[for="line1"] { background-color: #0077DD; color: white; border-color: #0077DD; }
+        #line2:checked ~ .tabs label[for="line2"] { background-color: #00CCAA; color: white; border-color: #00CCAA; }
+        #line3:checked ~ .tabs label[for="line3"] { background-color: #FFCC11; color: white; border-color: #FFCC11; }
+        #line4:checked ~ .tabs label[for="line4"] { background-color: #FF5522; color: white; border-color: #FF5522; }
+        #line5:checked ~ .tabs label[for="line5"] { background-color: #EE0022; color: white; border-color: #EE0022; }
+        #line6:checked ~ .tabs label[for="line6"] { background-color: #881188; color: white; border-color: #881188; }
+        #line7:checked ~ .tabs label[for="line7"] { background-color: #FF8899; color: white; border-color: #FF8899; }
+        #line8:checked ~ .tabs label[for="line8"] { background-color: #9856FF; color: white; border-color: #9856FF; }
+        #lineBH:checked ~ .tabs label[for="lineBH"] { background-color: #6677CC; color: white; border-color: #6677CC; }
+
+        .step-box {
+            position: relative;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            flex: 1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .step-box::after {
+            content: '\f054';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.25rem;
+            z-index: 10;
+        }
+        .step-box:last-child::after { display: none; }
+        
+        @media (max-width: 768px) {
+            .step-box::after {
+                right: 50%;
+                bottom: -20px;
+                top: auto;
+                transform: translateX(50%) rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-bicycle mr-2"></i>이용고객 편의시설</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">자전거 보관함</h1>
+                        <p class="text-sky-100 mt-3 font-medium">대중교통 친화도시 효빈! 시민 여러분의 편리한 자전거 환승을 위해 주요 역마다 대규모 사물함형 보관소를 운영합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 w-full">
+            
+            <!-- 이용 방법 안내 -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 mb-6 border-b-2 border-slate-100 pb-3"><i class="fa-solid fa-lock text-sky-600 mr-2"></i>사물함형 자전거 보관함 사용 방법</h2>
+                
+                <h3 class="font-bold text-lg text-slate-700 mb-4 flex items-center gap-2"><span class="bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-sm">A</span> 자전거 보관 방법</h3>
+                <div class="flex flex-col md:flex-row gap-4 mb-10">
+                    <div class="step-box">
+                        <i class="fa-solid fa-hand-pointer text-3xl text-sky-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">1. 보관 선택</p>
+                        <p class="text-xs text-slate-500 mt-1">키오스크 화면에서<br>'자전거 보관' 터치</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-box-open text-3xl text-sky-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">2. 보관함 선택</p>
+                        <p class="text-xs text-slate-500 mt-1">화면에서 미사용 중인<br>파란색 보관함 터치</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-mobile-screen-button text-3xl text-sky-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">3. 정보 입력</p>
+                        <p class="text-xs text-slate-500 mt-1">본인 명의의<br>휴대폰 번호 입력</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-comment-sms text-3xl text-sky-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">4. 인증번호</p>
+                        <p class="text-xs text-slate-500 mt-1">문자로 전송된<br>6자리 인증번호 입력</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-bicycle text-3xl text-sky-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">5. 자전거 보관</p>
+                        <p class="text-xs text-slate-500 mt-1">문이 열리면 보관 후<br>보관증 수령 및 문 닫기</p>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-lg text-slate-700 mb-4 flex items-center gap-2"><span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm">B</span> 자전거 찾기 방법</h3>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="step-box">
+                        <i class="fa-solid fa-magnifying-glass text-3xl text-emerald-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">1. 찾기 선택</p>
+                        <p class="text-xs text-slate-500 mt-1">키오스크 화면에서<br>'자전거 찾기' 터치</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-box text-3xl text-emerald-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">2. 보관함 선택</p>
+                        <p class="text-xs text-slate-500 mt-1">본인이 보관 중인<br>빨간색 보관함 터치</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-mobile-screen-button text-3xl text-emerald-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">3. 정보 입력</p>
+                        <p class="text-xs text-slate-500 mt-1">보관 시 입력했던<br>휴대폰 번호 재입력</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-comment-sms text-3xl text-emerald-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">4. 인증번호</p>
+                        <p class="text-xs text-slate-500 mt-1">새로 전송된<br>찾기용 인증번호 입력</p>
+                    </div>
+                    <div class="step-box">
+                        <i class="fa-solid fa-person-biking text-3xl text-emerald-500 mb-3"></i>
+                        <p class="font-bold text-slate-700">5. 자전거 회수</p>
+                        <p class="text-xs text-slate-500 mt-1">문이 열리면 자전거를<br>꺼내고 문 닫기</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 노선별 현황 -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2"><i class="fa-solid fa-train-subway text-hyobin mr-2"></i>노선별 자전거 보관함 설치 현황</h2>
+                    
+                    <div class="line-selector">
+                        <input type="radio" name="line-select" id="line1" class="line-radio" value="효빈1호선" checked>
+                        <input type="radio" name="line-select" id="line2" class="line-radio" value="효빈 2호선">
+                        <input type="radio" name="line-select" id="line3" class="line-radio" value="효빈 3호선">
+                        <input type="radio" name="line-select" id="line4" class="line-radio" value="효빈 4호선">
+                        <input type="radio" name="line-select" id="line5" class="line-radio" value="효빈 5호선">
+                        <input type="radio" name="line-select" id="line6" class="line-radio" value="효빈 6호선">
+                        <input type="radio" name="line-select" id="line7" class="line-radio" value="효빈 7호선">
+                        <input type="radio" name="line-select" id="line8" class="line-radio" value="효빈 8호선">
+                        <input type="radio" name="line-select" id="lineBH" class="line-radio" value="빈효선 광역전철">
+
+                        <div class="tabs flex flex-wrap gap-2">
+                            <label for="line1" class="line-label"><i class="fa-solid fa-circle color-line1"></i> 1호선</label>
+                            <label for="line2" class="line-label"><i class="fa-solid fa-circle color-line2"></i> 2호선</label>
+                            <label for="line3" class="line-label"><i class="fa-solid fa-circle color-line3"></i> 3호선</label>
+                            <label for="line4" class="line-label"><i class="fa-solid fa-circle color-line4"></i> 4호선</label>
+                            <label for="line5" class="line-label"><i class="fa-solid fa-circle color-line5"></i> 5호선</label>
+                            <label for="line6" class="line-label"><i class="fa-solid fa-circle color-line6"></i> 6호선</label>
+                            <label for="line7" class="line-label"><i class="fa-solid fa-circle color-line7"></i> 7호선</label>
+                            <label for="line8" class="line-label"><i class="fa-solid fa-circle color-line8"></i> 8호선</label>
+                            <label for="lineBH" class="line-label"><i class="fa-solid fa-circle color-lineBH"></i> 빈효선</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 보관함 현황 표 -->
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full bike-table whitespace-nowrap min-w-[700px]">
+                        <thead>
+                            <tr>
+                                <th class="w-1/4">역명</th>
+                                <th class="w-1/4">보관소 위치</th>
+                                <th class="w-1/4">보관 가능 대수</th>
+                                <th class="w-1/4">비고 (CCTV 유무)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bike-tbody">
+                            <tr><td colspan="4" class="py-10 text-slate-400">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TMI 로어 박스 -->
+                <div class="mt-12 bg-slate-800 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg border-t-4 border-emerald-500">
+                    <h4 class="font-bold text-emerald-400 mb-5 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb"></i> [TMI] 효빈도시철도 자전거 보관함 로어
+                    </h4>
+                    <ul class="space-y-4 text-sm text-slate-300 relative z-10">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-emerald-500 mt-1"></i>
+                            <div>
+                                <strong class="color-line3 block mb-1">3호선 박라미의 아지트:</strong>
+                                등산과 액티비티 매니아인 <strong>박라미</strong>는 주말마다 자신의 고가 산악자전거(MTB)를 3호선 대형 역사 보관함에 맡겨두고 산으로 향합니다. 가끔 인증번호를 까먹어서 관제실에 전화를 걸어 "아따 내 자전거 좀 꺼내도고!" 라며 사투리를 남발해 직원들을 당황하게 합니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-emerald-500 mt-1"></i>
+                            <div>
+                                <strong class="color-line2 block mb-1">2호선 하루빈의 퇴근길 썰:</strong>
+                                2호선 <strong>하루빈</strong>은 환경 보호를 핑계로 2호선 순환선을 자전거로 완주하려다 30분 만에 체력이 방전되어, 결국 역사 앞 보관함에 자전거를 박아두고 지하철로 쾌적하게 퇴근했다는 전설이 내려옵니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-emerald-500 mt-1"></i>
+                            <div>
+                                <strong class="color-lineBH block mb-1">빈효선 전노아의 취미 생활:</strong>
+                                빈효선 <strong>전노아</strong>는 역사 주변에 어지럽게 방치된 공유 자전거와 킥보드를 보관함 주변에 칼각으로 정리하는 기묘한 강박(?)이 있습니다. 특정 역 보관함 주변이 유독 깨끗하다면 전노아가 순찰을 다녀간 흔적입니다.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script src="js/common_hyobin.js"></script>
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const stations = (typeof stationData !== 'undefined') ? stationData : [];
+    const tbody = document.getElementById("bike-tbody");
+    const radioButtons = document.querySelectorAll(".line-radio");
+
+    function hasBikeStorage(station) {
+        // [수정됨] 7호선(트램) 예외 처리: 이름이 '정확히' 일치하는 역만 허용
+        if (station.line.includes('7호선')) {
+            const allowed7LineStations = ['효빈항', '월천', '중앙로', '중보로', '효빈', '효빈성앞'];
+            return allowed7LineStations.includes(station.name);
+        }
+
+        const idNum = parseInt(station.id.replace(/[^0-9]/g, '')) || 1;
+        const exits = parseInt(station.exits) || 2;
+        const transferCount = station.transfer ? station.transfer.length : 0;
+        
+        if (transferCount > 0) return true;
+        if (exits >= 4) return true;
+        if (idNum % 2 === 0 || idNum % 3 === 0) return true;
+
+        return false; 
+    }
+
+    // [수정됨] 역 이름을 인자로 받아 효빈성앞 역 예외 처리 추가
+    function generateStorageInfo(station) {
+        const idNum = parseInt(station.id.replace(/[^0-9]/g, '')) || 1;
+        const exits = parseInt(station.exits) || 2;
+        const transferCount = station.transfer ? station.transfer.length : 0;
+        
+        let capacity = (exits * 10) + (transferCount * 30) + (idNum % 5 * 10);
+        let location = (idNum % 4 !== 0) ? `${(idNum % exits) + 1}번 출구 앞 (외부)` : `대합실 중앙 (내부)`;
+
+        // 효빈성앞 예외 강제 덮어쓰기
+        if (station.name === '효빈성앞') {
+            capacity = 40; // 임의의 적당한 대수
+            location = '<span class="font-bold text-purple-600">역 내부 아님 (성문 앞 관련 시설)</span>';
+        }
+
+        return { capacity, location };
+    }
+
+    function renderTable(selectedLine) {
+        tbody.innerHTML = "";
+        
+        const filteredStations = stations.filter(s => s.line.includes(selectedLine) && !s.line.includes("지선") && hasBikeStorage(s));
+        
+        if (filteredStations.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-12 text-slate-500 font-medium bg-slate-50">해당 노선에는 자전거 보관함이 설치된 역이 없습니다.</td></tr>`;
+            return;
+        }
+
+        filteredStations.forEach(station => {
+            const info = generateStorageInfo(station);
+            
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="font-bold text-slate-800">${station.name}</td>
+                <td class="text-slate-600 text-sm">${info.location}</td>
+                <td class="font-bold text-sky-600">${info.capacity}대</td>
+                <td class="text-sm text-slate-500">24시간 CCTV 녹화중</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener("change", (e) => {
+            renderTable(e.target.value);
+        });
+    });
+
+    if (stations.length > 0) {
+        renderTable("효빈1호선");
+    }
+});
+    </script>
+</body>
+</html>

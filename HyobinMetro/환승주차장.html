@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>환승주차장 - 효빈교통공사</title>
+    <link rel="icon" href="이미지/효빈교통공사로고.webp">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 역 정보 데이터 불러오기 -->
+    <script src="station_info.js"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈도시철도 지정 노선 색상 */
+        .color-line1 { color: #0077DD; } 
+        .color-line2 { color: #00CCAA; } 
+        .color-line3 { color: #FFCC11; } 
+        .color-line4 { color: #FF5522; } 
+        .color-line5 { color: #EE0022; } 
+        .color-line6 { color: #881188; } 
+        .color-line7 { color: #FF8899; } 
+        .color-line8 { color: #9856FF; } 
+        .color-lineBH { color: #6677CC; } 
+
+        /* 테이블 스타일 */
+        .parking-table th { 
+            background-color: #f8fafc; 
+            color: #334155; 
+            font-weight: 700; 
+            padding: 14px 12px; 
+            border-bottom: 2px solid #e2e8f0; 
+            text-align: center; 
+            font-size: 0.95rem;
+        }
+        .parking-table td { 
+            padding: 14px 12px; 
+            border-bottom: 1px solid #e2e8f0; 
+            color: #475569; 
+            text-align: center; 
+            vertical-align: middle; 
+            font-size: 0.95rem;
+        }
+        .parking-table tr:hover td { background-color: #f1f5f9; }
+
+        /* 라디오 버튼 탭 스타일 */
+        .line-radio { display: none; }
+        .line-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9999px;
+            background-color: white;
+            color: #64748b;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .line-label i { margin-right: 6px; font-size: 1.1em; }
+
+        #line1:checked ~ .tabs label[for="line1"] { background-color: #0077DD; color: white; border-color: #0077DD; }
+        #line2:checked ~ .tabs label[for="line2"] { background-color: #00CCAA; color: white; border-color: #00CCAA; }
+        #line3:checked ~ .tabs label[for="line3"] { background-color: #FFCC11; color: white; border-color: #FFCC11; }
+        #line4:checked ~ .tabs label[for="line4"] { background-color: #FF5522; color: white; border-color: #FF5522; }
+        #line5:checked ~ .tabs label[for="line5"] { background-color: #EE0022; color: white; border-color: #EE0022; }
+        #line6:checked ~ .tabs label[for="line6"] { background-color: #881188; color: white; border-color: #881188; }
+        #line7:checked ~ .tabs label[for="line7"] { background-color: #FF8899; color: white; border-color: #FF8899; }
+        #line8:checked ~ .tabs label[for="line8"] { background-color: #9856FF; color: white; border-color: #9856FF; }
+        #lineBH:checked ~ .tabs label[for="lineBH"] { background-color: #6677CC; color: white; border-color: #6677CC; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-square-parking mr-2"></i>이용고객 편의시설</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">환승주차장</h1>
+                        <p class="text-sky-100 mt-3 font-medium">대중교통 중심 도시 효빈! 자동차 통행을 줄이고 지하철 환승을 돕기 위해 3개 노선 이상이 교차하는 핵심 교통 거점역에 대규모 공영 주차장을 운영합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 w-full">
+            
+            <!-- 이용 안내 박스 -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-8">
+                <div class="flex flex-col sm:flex-row gap-6 items-center">
+                    <div class="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0 text-blue-600">
+                        <i class="fa-solid fa-car text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">효빈교통공사 환승주차장 이용 안내</h3>
+                        <ul class="text-slate-600 text-sm space-y-1 list-disc list-inside">
+                            <li><strong>운영 시간:</strong> 24시간 연중무휴 (일부 구역 제외)</li>
+                            <li><strong>주차 요금:</strong> 기본 30분 1,000원 / 추가 10분당 300원 / 1일 주차 최고 15,000원</li>
+                            <li><strong>환승객 요금 감면:</strong> 효빈도시철도를 이용하신 후 교통카드로 주차 요금을 결제하시면 <strong>해당 요금의 80%가 자동 감면</strong>됩니다.</li>
+                            <li><strong>유의사항:</strong> 효빈광역시는 대중교통 이용률이 매우 높아 일반 주차장의 수요가 적은 편입니다. 따라서 3개 이상 노선이 교차하는 환승역에만 거점형으로 설치되어 있습니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 노선별 현황 -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10">
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2"><i class="fa-solid fa-train-subway text-hyobin mr-2"></i>노선별 환승주차장 설치 현황</h2>
+                    
+                    <div class="line-selector">
+                        <input type="radio" name="line-select" id="line1" class="line-radio" value="효빈1호선" checked>
+                        <input type="radio" name="line-select" id="line2" class="line-radio" value="효빈 2호선">
+                        <input type="radio" name="line-select" id="line3" class="line-radio" value="효빈 3호선">
+                        <input type="radio" name="line-select" id="line4" class="line-radio" value="효빈 4호선">
+                        <input type="radio" name="line-select" id="line5" class="line-radio" value="효빈 5호선">
+                        <input type="radio" name="line-select" id="line6" class="line-radio" value="효빈 6호선">
+                        <input type="radio" name="line-select" id="line7" class="line-radio" value="효빈 7호선">
+                        <input type="radio" name="line-select" id="line8" class="line-radio" value="효빈 8호선">
+                        <input type="radio" name="line-select" id="lineBH" class="line-radio" value="빈효선 광역전철">
+
+                        <div class="tabs flex flex-wrap gap-2">
+                            <label for="line1" class="line-label"><i class="fa-solid fa-circle color-line1"></i> 1호선</label>
+                            <label for="line2" class="line-label"><i class="fa-solid fa-circle color-line2"></i> 2호선</label>
+                            <label for="line3" class="line-label"><i class="fa-solid fa-circle color-line3"></i> 3호선</label>
+                            <label for="line4" class="line-label"><i class="fa-solid fa-circle color-line4"></i> 4호선</label>
+                            <label for="line5" class="line-label"><i class="fa-solid fa-circle color-line5"></i> 5호선</label>
+                            <label for="line6" class="line-label"><i class="fa-solid fa-circle color-line6"></i> 6호선</label>
+                            <label for="line7" class="line-label"><i class="fa-solid fa-circle color-line7"></i> 7호선</label>
+                            <label for="line8" class="line-label"><i class="fa-solid fa-circle color-line8"></i> 8호선</label>
+                            <label for="lineBH" class="line-label"><i class="fa-solid fa-circle color-lineBH"></i> 빈효선</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주차장 현황 표 -->
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full parking-table whitespace-nowrap min-w-[700px]">
+                        <thead>
+                            <tr>
+                                <th class="w-1/5">역명</th>
+                                <th class="w-1/5">주차 면수</th>
+                                <th class="w-1/5">환승 할인율</th>
+                                <th class="w-1/5">일 최대 요금</th>
+                                <th class="w-1/5">관리사무소</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parking-tbody">
+                            <tr><td colspan="5" class="py-10 text-slate-400">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TMI 로어 박스 -->
+                <div class="mt-12 bg-slate-800 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg border-t-4 border-blue-500">
+                    <h4 class="font-bold text-blue-400 mb-5 text-xl flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb"></i> [TMI] 효빈도시철도 환승주차장에 얽힌 로어
+                    </h4>
+                    <ul class="space-y-4 text-sm text-slate-300 relative z-10">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-blue-500 mt-1"></i>
+                            <div>
+                                <strong class="color-line3 block mb-1">3호선 박라미의 야매 연습장:</strong>
+                                효빈광역시는 자동차 이용객이 너무 없어서, 거대한 환승주차장조차 주말에는 텅텅 비기 일쑤입니다. <strong>3호선 박라미</strong>는 비번 날마다 텅 빈 주차장 꼭대기 층에서 산악자전거 윌리(앞바퀴 들기) 연습을 하다가 관제실 CCTV에 걸려 시말서를 쓴 적이 있습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-blue-500 mt-1"></i>
+                            <div>
+                                <strong class="color-line1 block mb-1">1호선 고나미의 방송 징크스:</strong>
+                                환승주차장에서 출차 전 정산을 잊고 차단기 앞에서 당황하는 시민들이 가끔 있습니다. 그럴 때마다 스피커에서 <strong>1호선 고나미</strong>가 녹음한 "고객님, 정산은 사전정산기를 이용해주시기 바랍니다" 라는 차분한 음성이 흘러나오는데, 운전자들은 고나미의 목소리가 너무 친절해서 화를 내려다가도 참게 된다고 합니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-quote-left text-blue-500 mt-1"></i>
+                            <div>
+                                <strong class="color-line4 block mb-1">4호선 다로나의 고양이 급식소:</strong>
+                                한겨울, 주차장 지하 구석 따뜻한 배관 근처에 길고양이들이 모여들자, <strong>4호선 다로나</strong>가 휴게시간마다 내려가 몰래 밥을 챙겨주고 있습니다. 공사 측도 이를 알지만 워낙 주차장이 넓고 한적하여 모른 척 눈감아주고 있다는 훈훈한 괴담이 있습니다.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 공통 스크립트 연결 -->
+    <script src="js/common_hyobin.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const stations = (typeof stationData !== 'undefined') ? stationData : [];
+            const tbody = document.getElementById("parking-tbody");
+            const radioButtons = document.querySelectorAll(".line-radio");
+
+            // 환승주차장 배치 기준: 총 환승 노선이 3개 이상인 경우에만 생성
+            // (본인 노선 1개 + transfer 배열 내 환승역 2개 이상 = 총 3개 노선 교차)
+            function hasParkingLot(station) {
+                const transferCount = station.transfer ? station.transfer.length : 0;
+                return transferCount >= 2; 
+            }
+
+            // 주차장 세부 정보 생성
+            function generateParkingInfo(idNum, transferCount) {
+                // 환승 노선이 많을수록 주차 면수를 크게 할당 (기본 300대 이상)
+                const capacity = (transferCount * 150) + (idNum % 7 * 50) + 120;
+                
+                const prefix = "079-400"; 
+                const suffix = (idNum * 13 + 2000).toString().slice(-4);
+                const phone = `${prefix}-${suffix}`;
+
+                return {
+                    capacity: capacity,
+                    phone: phone
+                };
+            }
+
+            function renderTable(selectedLine) {
+                tbody.innerHTML = "";
+                
+                // 선택 노선의 역들 중, 지선 제외하고 3개 노선 이상 교차역만 필터링
+                const filteredStations = stations.filter(s => s.line.includes(selectedLine) && !s.line.includes("지선") && hasParkingLot(s));
+                
+                if (filteredStations.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-slate-500 font-medium bg-slate-50">해당 노선에는 환승 노선 3개 이상의 거점역이 없어 환승주차장이 존재하지 않습니다.</td></tr>`;
+                    return;
+                }
+
+                filteredStations.forEach(station => {
+                    const idNum = parseInt(station.id.replace(/[^0-9]/g, '')) || 1;
+                    const transferCount = station.transfer ? station.transfer.length : 0;
+                    const info = generateParkingInfo(idNum, transferCount);
+                    
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td class="font-bold text-slate-800">${station.name}</td>
+                        <td class="text-slate-600 font-bold">${info.capacity}면</td>
+                        <td class="font-bold text-blue-600">80% 감면</td>
+                        <td class="text-sm text-slate-600">15,000원</td>
+                        <td class="text-sm text-slate-500">${info.phone}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            radioButtons.forEach(radio => {
+                radio.addEventListener("change", (e) => {
+                    renderTable(e.target.value);
+                });
+            });
+
+            // 초기 렌더링
+            if (stations.length > 0) {
+                renderTable("효빈1호선");
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-red-500 font-bold bg-red-50">오류: station_info.js 파일에서 데이터를 불러오지 못했습니다.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+</html>

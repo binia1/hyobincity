@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수유실 안내 - 효빈교통공사</title>
+    <link rel="icon" href="이미지/효빈교통공사로고.webp">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 역 정보 데이터 불러오기 -->
+    <script src="station_info.js"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 효빈교통공사 메인 테마 색상 */
+        .text-hyobin { color: #16A4BE; }
+        .bg-hyobin { background-color: #16A4BE; }
+        .border-hyobin { border-color: #16A4BE; }
+
+        /* 효빈도시철도 지정 노선 색상 */
+        .color-line1 { color: #0077DD; } 
+        .color-line2 { color: #00CCAA; } 
+        .color-line3 { color: #FFCC11; } 
+        .color-line4 { color: #FF5522; } 
+        .color-line5 { color: #EE0022; } 
+        .color-line6 { color: #881188; } 
+        .color-line7 { color: #FF8899; } 
+        .color-line8 { color: #9856FF; } 
+        .color-lineBH { color: #6677CC; } 
+
+        /* 테이블 스타일 */
+        .nursing-table th { 
+            background-color: #f8fafc; 
+            color: #334155; 
+            font-weight: 700; 
+            padding: 14px 12px; 
+            border-bottom: 2px solid #e2e8f0; 
+            text-align: center; 
+            font-size: 0.95rem;
+        }
+        .nursing-table td { 
+            padding: 14px 12px; 
+            border-bottom: 1px solid #e2e8f0; 
+            color: #475569; 
+            text-align: center; 
+            vertical-align: middle; 
+            font-size: 0.95rem;
+        }
+        .nursing-table tr:hover td { background-color: #f1f5f9; }
+
+        /* 라디오 버튼 탭 스타일 */
+        .line-radio { display: none; }
+        .line-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9999px;
+            background-color: white;
+            color: #64748b;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .line-label i { margin-right: 6px; font-size: 1.1em; }
+
+        /* 선택된 라디오 버튼별 디자인 설정 */
+        #line1:checked ~ .tabs label[for="line1"] { background-color: #0077DD; color: white; border-color: #0077DD; }
+        #line2:checked ~ .tabs label[for="line2"] { background-color: #00CCAA; color: white; border-color: #00CCAA; }
+        #line3:checked ~ .tabs label[for="line3"] { background-color: #FFCC11; color: white; border-color: #FFCC11; }
+        #line4:checked ~ .tabs label[for="line4"] { background-color: #FF5522; color: white; border-color: #FF5522; }
+        #line5:checked ~ .tabs label[for="line5"] { background-color: #EE0022; color: white; border-color: #EE0022; }
+        #line6:checked ~ .tabs label[for="line6"] { background-color: #881188; color: white; border-color: #881188; }
+        #line7:checked ~ .tabs label[for="line7"] { background-color: #FF8899; color: white; border-color: #FF8899; }
+        #line8:checked ~ .tabs label[for="line8"] { background-color: #9856FF; color: white; border-color: #9856FF; }
+        #lineBH:checked ~ .tabs label[for="lineBH"] { background-color: #6677CC; color: white; border-color: #6677CC; }
+
+        .location-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .loc-inside { background-color: #dbeafe; color: #1e40af; }
+        .loc-outside { background-color: #fef3c7; color: #b45309; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <main class="flex-grow">
+        <!-- 상단 헤더 영역 -->
+        <section class="bg-sky-900 text-white border-b border-sky-800 pb-12 pt-16 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex items-start justify-between gap-6 flex-wrap">
+                    <div>
+                        <p class="text-sm font-extrabold text-sky-300 tracking-widest mb-2"><i class="fa-solid fa-baby-carriage mr-2"></i>이용고객 편의시설</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white">수유실 안내</h1>
+                        <p class="text-sky-100 mt-3 font-medium">유아와 함께하는 외출이 편안할 수 있도록 주요 거점 역사에 쾌적한 수유 공간을 제공합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 -mt-8 relative z-20 w-full">
+            
+            <!-- 이용 안내 박스 -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-8 flex flex-col sm:flex-row gap-6 items-center">
+                <div class="bg-sky-50 w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0 text-sky-600">
+                    <i class="fa-solid fa-person-breastfeeding text-3xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">수유실 이용 안내</h3>
+                    <ul class="text-slate-600 text-sm space-y-1 list-disc list-inside">
+                        <li><strong>이용 시간:</strong> 06:00 ~ 23:00 (역사 운영시간 내 이용 가능)</li>
+                        <li><strong>이용 방법:</strong> 역무실에 비치된 인터폰을 호출하거나, 해당 역 마스코트 캐릭터 그림이 있는 벨을 누르시면 직원이 개방해 드립니다.</li>
+                        <li><strong>구비 시설:</strong> 기저귀 교환대, 수유 소파, 세면대, 정수기, 전자레인지 (역사별 상이)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10">
+                
+                <!-- 노선 선택 탭 -->
+                <div class="mb-6">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2"><i class="fa-solid fa-train-subway text-hyobin mr-2"></i>노선별 수유실 현황</h2>
+                    
+                    <div class="line-selector">
+                        <input type="radio" name="line-select" id="line1" class="line-radio" value="효빈1호선" checked>
+                        <input type="radio" name="line-select" id="line2" class="line-radio" value="효빈 2호선">
+                        <input type="radio" name="line-select" id="line3" class="line-radio" value="효빈 3호선">
+                        <input type="radio" name="line-select" id="line4" class="line-radio" value="효빈 4호선">
+                        <input type="radio" name="line-select" id="line5" class="line-radio" value="효빈 5호선">
+                        <input type="radio" name="line-select" id="line6" class="line-radio" value="효빈 6호선">
+                        <input type="radio" name="line-select" id="line7" class="line-radio" value="효빈 7호선">
+                        <input type="radio" name="line-select" id="line8" class="line-radio" value="효빈 8호선">
+                        <input type="radio" name="line-select" id="lineBH" class="line-radio" value="빈효선 광역전철">
+
+                        <div class="tabs flex flex-wrap gap-2">
+                            <label for="line1" class="line-label"><i class="fa-solid fa-circle color-line1"></i> 1호선</label>
+                            <label for="line2" class="line-label"><i class="fa-solid fa-circle color-line2"></i> 2호선</label>
+                            <label for="line3" class="line-label"><i class="fa-solid fa-circle color-line3"></i> 3호선</label>
+                            <label for="line4" class="line-label"><i class="fa-solid fa-circle color-line4"></i> 4호선</label>
+                            <label for="line5" class="line-label"><i class="fa-solid fa-circle color-line5"></i> 5호선</label>
+                            <label for="line6" class="line-label"><i class="fa-solid fa-circle color-line6"></i> 6호선</label>
+                            <label for="line7" class="line-label"><i class="fa-solid fa-circle color-line7"></i> 7호선</label>
+                            <label for="line8" class="line-label"><i class="fa-solid fa-circle color-line8"></i> 8호선</label>
+                            <label for="lineBH" class="line-label"><i class="fa-solid fa-circle color-lineBH"></i> 빈효선</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 수유실 현황 표 -->
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full nursing-table whitespace-nowrap min-w-[700px]">
+                        <thead>
+                            <tr>
+                                <th class="w-1/4">역명</th>
+                                <th class="w-1/4">위치 (운임구역)</th>
+                                <th class="w-2/4">상세 위치 안내</th>
+                                <th class="w-1/4">역무실 연락처</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nursing-tbody">
+                            <!-- JS를 통해 station_info.js 데이터를 기반으로 자동 렌더링 됩니다. -->
+                            <tr><td colspan="4" class="py-10 text-slate-400">데이터를 불러오는 중입니다...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TMI 로어 박스 -->
+                <div class="mt-12 bg-pink-50 rounded-2xl p-6 text-slate-800 relative overflow-hidden shadow-sm border border-pink-200">
+                    <div class="absolute -right-4 -top-4 text-pink-100 text-9xl opacity-50"><i class="fa-solid fa-heart"></i></div>
+                    <h4 class="font-bold text-pink-600 mb-5 text-xl flex items-center gap-2 relative z-10">
+                        <i class="fa-solid fa-circle-info"></i> [TMI] 효빈도시철도 수유실 로어
+                    </h4>
+                    <ul class="space-y-4 text-sm text-slate-700 relative z-10">
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-star text-pink-400 mt-1"></i>
+                            <div>
+                                <strong class="color-line5 block mb-1">5호선 미소하의 따뜻한 배려:</strong>
+                                5호선 수유실에는 <strong>미소하</strong>가 직접 고른 동화책과 아이들을 위한 모빌이 기본적으로 비치되어 있습니다. 미소하의 섬세한 성격 덕분에 5호선 수유실의 청결도와 만족도는 효빈도시철도 내에서 1위를 차지하고 있습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-star text-pink-400 mt-1"></i>
+                            <div>
+                                <strong class="text-fuchsia-600 block mb-1">덕주1호선 이덕희의 기저귀 자판기 도입:</strong>
+                                덕주1호선 수유실 앞에는 <strong>이덕희</strong>의 건의로 급하게 기저귀나 물티슈가 필요한 부모님들을 위한 전용 미니 자판기가 설치되어 호평을 받고 있습니다.
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="fa-solid fa-star text-pink-400 mt-1"></i>
+                            <div>
+                                <strong class="color-line4 block mb-1">4호선 다로나의 철저한 비상물품 관리:</strong>
+                                4호선 다로나는 매주 수유실의 전자레인지와 정수기 필터 교체 주기를 꼼꼼히 체크하는 것으로 유명합니다. 가끔 순찰을 돌다가 수유실에서 아기를 안고 있는 승객을 보면 다정하게 다가가 작은 간식을 건네기도 합니다.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- JS 메뉴 스크립트 (경로는 사용자 환경에 맞게 유지) -->
+    <script src="js/common_hyobin.js"></script>
+
+    <!-- 수유실 데이터 자동 렌더링 스크립트 -->
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const stations = (typeof stationData !== 'undefined') ? stationData : [];
+    const tbody = document.getElementById("nursing-tbody");
+    const radioButtons = document.querySelectorAll(".line-radio");
+
+    function hasNursingRoom(station) {
+        // [수정됨] 7호선(트램) 예외 처리: 이름이 '정확히' 일치하는 역만 허용
+        if (station.line.includes('7호선')) {
+            const allowed7LineStations = ['효빈항', '월천', '중앙로', '중보로', '효빈', '효빈성앞'];
+            return allowed7LineStations.includes(station.name);
+        }
+
+        const idNum = parseInt(station.id.replace(/[^0-9]/g, '')) || 1;
+        const exits = parseInt(station.exits) || 2;
+        const transferCount = station.transfer ? station.transfer.length : 0;
+        
+        if (transferCount >= 2) return true; 
+        if (exits >= 8) return true;
+        if (transferCount === 1 && idNum % 2 === 0) return true;
+        if (idNum % 9 === 0) return true; 
+
+        return false; 
+    }
+
+    // [수정됨] 역 이름을 인자로 받아 효빈성앞 역 예외 처리 추가
+    function generateLocation(idNum, stationName) {
+        if (stationName === '효빈성앞') {
+            return {
+                badge: '<span class="location-badge loc-outside" style="background-color: #f3e8ff; color: #7e22ce;">성 내부 시설</span>',
+                detail: '역 내부가 아님 (효빈성 내부 수유 시설 이용)'
+            };
+        }
+
+        const isInside = idNum % 3 === 0; 
+        if (isInside) {
+            return {
+                badge: '<span class="location-badge loc-inside">운임구역 내</span>',
+                detail: '고객안내센터 옆 (개찰구 내부)'
+            };
+        } else {
+            return {
+                badge: '<span class="location-badge loc-outside">운임구역 밖</span>',
+                detail: '대합실 중앙 타는곳 방면 (개찰구 외부)'
+            };
+        }
+    }
+
+    function generatePhone(idNum) {
+        const prefix = "079-300"; 
+        const suffix = (idNum * 17 + 1000).toString().slice(-4);
+        return `${prefix}-${suffix}`;
+    }
+
+    function renderTable(selectedLine) {
+        tbody.innerHTML = "";
+        
+        const filteredStations = stations.filter(s => s.line.includes(selectedLine) && !s.line.includes("지선") && hasNursingRoom(s));
+        
+        if (filteredStations.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-12 text-slate-500 font-medium bg-slate-50">해당 노선에는 수유실이 설치된 역이 없습니다.</td></tr>`;
+            return;
+        }
+
+        filteredStations.forEach(station => {
+            const idNum = parseInt(station.id.replace(/[^0-9]/g, '')) || 1;
+            // 역 이름을 함께 전달하여 예외처리 판별
+            const loc = generateLocation(idNum, station.name);
+            const phone = generatePhone(idNum);
+            
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="font-bold text-slate-800">${station.name}</td>
+                <td>${loc.badge}</td>
+                <td class="text-slate-600 text-sm">${loc.detail}</td>
+                <td class="font-medium text-slate-600">${phone}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener("change", (e) => {
+            renderTable(e.target.value);
+        });
+    });
+
+    if (stations.length > 0) {
+        renderTable("효빈1호선");
+    }
+});
+    </script>
+</body>
+</html>
