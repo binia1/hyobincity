@@ -82,7 +82,7 @@ const headerHTML = `
                                     <div class="menu-col">
                                         <h3>이용고객 편의시설</h3>
                                         <a href="welfare_companion.html">배려시설 현황</a>
-                                        <a href="승강설비가동현황.html">승강설비 가동현황</a>
+                                        <a href="승강설비 가동현황.html">승강설비 가동현황</a>
                                         <a href="accessible.html">휠체어 이용 승·하차 안내</a>
                                         <a href="무인편의기기.html">무인편의기기</a>
                                         <a href="문화공간.html">문화공간</a>
@@ -582,7 +582,7 @@ const sidebarMenuData = {
     "이용정보": [
         { group: "사이버스테이션/운행", items: [ {name: "사이버스테이션(노선도)", href: "map.html"}, {name: "실시간열차운행정보", href: "realtime.html"}, {name: "열차서행정보(선로공사)", href: "열차서행정보.html"}, {name: "간편지연증명서", href: "delay_proof.html"}, {name: "출구/시설물 안내", href: "exit_facilities_offline_v2.html"} ] },
         { group: "운임제도", items: [ {name: "운임안내", href: "fare.html"}, {name: "승차권안내", href: "승차권안내.html"}, {name: "단체권운임안내", href: "단체권운임안내.html"}, {name: "여객운송약관(1~8호선)", href: "terms.html"}, {name: "여객운송약관(빈효선)", href: "여객운송약관_빈효선.html"} ] },
-        { group: "이용고객 편의시설", items: [ {name: "배려시설 현황", href: "welfare_companion.html"}, {name: "승강설비 가동현황", href: "승강설비가동현황.html"}, {name: "휠체어 이용 승·하차 안내", href: "accessible.html"}, {name: "무인편의기기", href: "무인편의기기.html"}, {name: "문화공간", href: "문화공간.html"}, {name: "환승주차장 / 자전거보관함", href: "환승주차장.html"}, {name: "수유실", href: "welfare_family.html"} ] },
+        { group: "이용고객 편의시설", items: [ {name: "배려시설 현황", href: "welfare_companion.html"}, {name: "승강설비 가동현황", href: "승강설비 가동현황.html"}, {name: "휠체어 이용 승·하차 안내", href: "accessible.html"}, {name: "무인편의기기", href: "무인편의기기.html"}, {name: "문화공간", href: "문화공간.html"}, {name: "환승주차장 / 자전거보관함", href: "환승주차장.html"}, {name: "수유실", href: "수유실.html"} ] },
         { group: "효빈 특화서비스 및 기타", items: [ {name: "효빈광역환승센터", href: "효빈광역환승센터.html"}, {name: "효빈러기지(H-luggage)", href: "효빈러기지.html"}, {name: "효빈스토리지(개인창고)", href: "효빈스토리지.html"}, {name: "효빈라커(H-Locker)", href: "효빈라커.html"}, {name: "유실물센터 안내", href: "lost_found.html"} ] }
     ],
     "안전환경": [
