@@ -7,7 +7,7 @@ const headerHTML = `
     <header class="bg-[#1e293b] text-white">
         <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
             <div class="flex items-center cursor-pointer gap-3" onclick="location.href='index.html'">
-                <img src="logo.webp" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <img src="효빈시_로고.webp" alt="효빈광역시 로고" class="h-10 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                 <span class="text-2xl font-bold tracking-wider">효빈광역시</span>
             </div>
             <div class="flex items-center space-x-5 text-gray-300">
