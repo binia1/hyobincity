@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="이미지/logo.webp">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일자리&경제 - 재정세정 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 비주얼 및 LNB */
+        .sub-visual { background: linear-gradient(135deg, #1e293b 0%, #0369a1 100%); position: relative; overflow: hidden; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px; opacity: 0.15; }
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; position: relative; }
+        .lnb-single:hover, .lnb-depth1 > li.active .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; font-weight: 700; }
+        .lnb-depth1 > li.active .lnb-single.current::after { content: ''; position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; background-color: #1e3a8a; border-radius: 50%; }
+
+        /* 타이틀 & 컴포넌트 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+        .popup-zone { background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%); border-radius: 1rem; position: relative; overflow: hidden; }
+        .popup-zone::after { content: ''; position: absolute; right: -20px; bottom: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; }
+        .quick-btn { transition: all 0.3s ease; cursor: pointer; }
+        .quick-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-color: #bae6fd; background-color: #f0f9ff; }
+        .service-card { border: 1px solid #e2e8f0; transition: all 0.3s ease; cursor: pointer; }
+        .service-card:hover { border-color: #0ea5e9; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15); }
+
+        /* 데이터 테이블 */
+        .data-table { width: 100%; border-top: 2px solid #1e3a8a; border-collapse: collapse; background: #fff; margin-bottom: 2rem; }
+        .data-table th, .data-table td { border-bottom: 1px solid #e5e7eb; padding: 1.125rem 1rem; text-align: center; vertical-align: middle; }
+        .data-table th { background-color: #f8fafc; font-weight: 700; color: #374151; border-left: 1px solid #e5e7eb; }
+        .data-table th:first-child { border-left: none; }
+        .data-table td { color: #4b5563; border-left: 1px solid #e5e7eb; line-height: 1.5; }
+        .data-table td:first-child { border-left: none; }
+        .data-table tbody tr { transition: background-color 0.2s; }
+        .data-table tbody tr:hover, .data-table tbody tr.clickable-row:hover { background-color: #eff6ff; }
+        .data-table tbody tr.clickable-row { cursor: pointer; }
+        
+        @media (max-width: 768px) {
+            .data-table th, .data-table td { padding: 0.75rem 0.5rem; font-size: 0.875rem; }
+            .data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+
+        /* 탭 메뉴 */
+        .tab-btn { transition: all 0.2s; border-bottom: 1px solid #cbd5e1; }
+        .tab-btn.active { border: 1px solid #cbd5e1; border-bottom: none; border-top: 3px solid #1e3a8a; color: #1e3a8a; font-weight: 800; background-color: #fff; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        
+        /* 뱃지 및 그래프 바 */
+        .tax-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; }
+        .badge-national { background-color: #fef08a; color: #854d0e; border: 1px solid #fde047; }
+        .badge-local { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .progress-bar-bg { background-color: #e2e8f0; border-radius: 9999px; height: 12px; width: 100%; overflow: hidden; margin-top: 6px; }
+        .progress-bar-fill { height: 100%; border-radius: 9999px; transition: width 1s ease-in-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 모달 및 스크롤바 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .modal { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .modal-visible { opacity: 1; visibility: visible; pointer-events: auto; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden text-gray-800 scroll-smooth">
+    
+    <!-- 1. 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 2. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex flex-col items-center justify-center text-center px-4 shrink-0">
+        <div class="relative z-10 w-full max-w-4xl">
+            <h1 class="text-4xl md:text-5xl font-black mb-2 text-white tracking-tight">일자리&경제</h1>
+            <p class="text-sky-100 text-lg font-medium">알권리의 보장, 투명한 재정</p>
+        </div>
+    </div>
+
+    <!-- 3. 본문 컨테이너 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 아코디언 LNB -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4 z-10">
+                <div class="lnb-title">일자리&경제</div>
+                <ul class="lnb-depth1">
+                    <li><a href="job.html" class="lnb-single">일자리센터</a></li>
+                    <li><a href="공공근로채용.html" class="lnb-single">공공근로 채용</a></li>
+                    <li><a href="창업지원.html" class="lnb-single">창업지원</a></li>
+                    <li><a href="직업훈련.html" class="lnb-single">직업훈련</a></li>
+                    <li><a href="산업경제.html" class="lnb-single">산업경제</a></li>
+                    <li class="active"><a href="재정세정.html" class="lnb-single current">재정세정</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow min-w-0 flex flex-col pb-20">
+            
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 shrink-0">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 일자리&경제 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">재정·세정</strong>
+            </div>
+
+            <h2 class="text-3xl font-black text-gray-900 content-title shrink-0">재정·세정</h2>
+
+            <div class="bg-sky-50 border border-sky-100 rounded-2xl p-6 md:p-8 mb-10 flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-20 h-20 bg-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                    <i data-lucide="landmark" class="w-10 h-10 text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-sky-900 mb-2">시민과 함께하는 투명하고 건전한 효빈광역시 재정</h3>
+                    <p class="text-slate-700 leading-relaxed break-keep text-[0.95rem]">
+                        효빈광역시는 박효빈 시장의 '투명한 시정, 건전한 재정' 기조 아래, 시민의 소중한 세금이 낭비 없이 쓰이도록 철저하게 관리하고 있습니다. 
+                        재정 운용 상황을 상세하게 공개하고, 안천구에 위치한 효빈지방국세청 등 유관기관과의 긴밀한 협력을 통해 시민 편의를 최우선으로 제공합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- POPUP ZONE + 퀵링크 6개 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
+                <!-- POPUP ZONE -->
+                <div class="lg:col-span-4 popup-zone p-6 flex flex-col justify-center text-center shadow-md">
+                    <div class="flex items-center justify-center gap-2 mb-2 text-red-900 font-bold">
+                        <i data-lucide="bell-ring" class="w-5 h-5"></i> POPUP ZONE
+                    </div>
+                    <div class="text-red-800 font-bold text-sm mb-1">체납기간 1년이상! 체납액 1천만원 이상!</div>
+                    <h3 class="text-2xl font-black text-red-950 mb-6 leading-tight">고액·상습 체납자<br>명단공개</h3>
+                    <button onclick="openDelinquentModal()" class="bg-red-950 text-white py-2 px-6 rounded-full font-bold text-sm hover:bg-red-800 transition mx-auto flex items-center gap-2 z-10">
+                        명단 확인하기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- 우리시 살림살이 6버튼 -->
+                <div class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">우리시 살림살이</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div onclick="switchTabAndScroll('tab-budget', 'budget-highlight')" class="quick-btn border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 bg-slate-50">
+                            <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center"><i data-lucide="pie-chart" class="w-5 h-5"></i></div>
+                            <span class="font-bold text-slate-700 text-sm">효빈광역시 총예산</span>
+                        </div>
+                        <div onclick="switchTabAndScroll('tab-budget', 'budget-details')" class="quick-btn border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 bg-slate-50">
+                            <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center"><i data-lucide="file-check-2" class="w-5 h-5"></i></div>
+                            <span class="font-bold text-slate-700 text-sm">세입세출 세부내역</span>
+                        </div>
+                        <div onclick="switchTabAndScroll('tab-budget', 'financial-disclosure')" class="quick-btn border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 bg-slate-50">
+                            <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center"><i data-lucide="search" class="w-5 h-5"></i></div>
+                            <span class="font-bold text-slate-700 text-sm">재정공시 검색</span>
+                        </div>
+                        <div onclick="alert('예산낭비 신고센터로 연결합니다.\n신고된 내용은 감사관실에서 신속히 조사하여 조치합니다.')" class="quick-btn border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 bg-slate-50">
+                            <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                            <span class="font-bold text-slate-700 text-sm">예산낭비신고</span>
+                        </div>
+                        <div onclick="alert('지방세 전자송달 신청 페이지로 이동합니다.\n전자송달 신청 시 건당 세액공제 혜택이 제공됩니다.')" class="quick-btn border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 bg-slate-50">
+                            <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><i data-lucide="mail-check" class="w-5 h-5"></i></div>
+                            <span class="font-bold text-slate-700 text-sm">전자송달신청</span>
+                        </div>
+                        <a href="https://www.wetax.go.kr" target="_blank" class="quick-btn border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 bg-slate-50">
+                            <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center"><i data-lucide="monitor-smartphone" class="w-5 h-5"></i></div>
+                            <span class="font-bold text-slate-700 text-sm">지방세납부 위택스</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 주요 서비스 4종 -->
+            <div class="mb-14">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-1.5 h-6 bg-sky-800"></div>
+                    <h3 class="text-2xl font-bold text-gray-900">주요 서비스</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- 시민참여예산 모달 연결 -->
+                    <div onclick="openCitizenBudgetModal()" class="service-card bg-white p-5 rounded-xl flex flex-col h-full group">
+                        <div class="flex items-start justify-between mb-4">
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-sky-600">효빈광역시<br>시민참여예산</h4>
+                            <div class="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center text-sky-600"><i data-lucide="users" class="w-5 h-5"></i></div>
+                        </div>
+                        <div class="mt-auto text-right font-bold text-sm text-slate-500 flex items-center justify-end gap-1 group-hover:text-sky-600">제안하기 <i data-lucide="arrow-right" class="w-4 h-4"></i></div>
+                    </div>
+                    
+                    <!-- 탭 이동 (재정 현황) -->
+                    <div onclick="switchTabAndScroll('tab-budget', 'budget-highlight')" class="service-card bg-white p-5 rounded-xl flex flex-col h-full group">
+                        <div class="flex items-start justify-between mb-4">
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-sky-600">효빈광역시<br>예산</h4>
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600"><i data-lucide="bar-chart-3" class="w-5 h-5"></i></div>
+                        </div>
+                        <ul class="text-xs text-slate-500 space-y-1 mb-4 flex-grow">
+                            <li>- 총예산</li>
+                            <li>- 시본청예산규모</li>
+                            <li>- 자치구예산규모</li>
+                            <li>- 재정자립도</li>
+                        </ul>
+                        <div class="mt-auto text-right font-bold text-sm text-slate-500 flex items-center justify-end gap-1 group-hover:text-sky-600">상세보기 <i data-lucide="arrow-right" class="w-4 h-4"></i></div>
+                    </div>
+
+                    <!-- 탭 이동 (재정공시 표) -->
+                    <div onclick="switchTabAndScroll('tab-budget', 'financial-disclosure')" class="service-card bg-white p-5 rounded-xl flex flex-col h-full group">
+                        <div class="flex items-start justify-between mb-4">
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-sky-600">재정공시</h4>
+                            <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i data-lucide="megaphone" class="w-5 h-5"></i></div>
+                        </div>
+                        <div class="mt-auto text-right font-bold text-sm text-slate-500 flex items-center justify-end gap-1 group-hover:text-sky-600">게시판 이동 <i data-lucide="arrow-right" class="w-4 h-4"></i></div>
+                    </div>
+
+                    <!-- 마을세무사 모달 연결 -->
+                    <div onclick="openVillageTaxModal()" class="service-card bg-white p-5 rounded-xl flex flex-col h-full group">
+                        <div class="flex items-start justify-between mb-4">
+                            <h4 class="font-bold text-lg text-slate-800 group-hover:text-sky-600">효빈광역시<br>마을세무사</h4>
+                            <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600"><i data-lucide="user-check" class="w-5 h-5"></i></div>
+                        </div>
+                        <div class="mt-auto text-right font-bold text-sm text-slate-500 flex items-center justify-end gap-1 group-hover:text-sky-600">상담 신청 <i data-lucide="arrow-right" class="w-4 h-4"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 종합 탭 영역 -->
+            <div id="tab-section-start" class="mb-12">
+                <div class="flex bg-slate-100 rounded-t-lg border-b border-slate-300">
+                    <button onclick="switchTab('tab-budget')" id="btn-budget" class="tab-btn active flex-1 py-4 text-center font-bold text-slate-500 bg-white border-t-[3px] border-[#1e3a8a] rounded-tl-lg">재정 현황 및 예산</button>
+                    <button onclick="switchTab('tab-tax')" id="btn-tax" class="tab-btn flex-1 py-4 text-center font-bold text-slate-500 bg-slate-100">지방세 안내 및 세무관서</button>
+                    <button onclick="switchTab('tab-office')" id="btn-office" class="tab-btn flex-1 py-4 text-center font-bold text-slate-500 bg-slate-100 rounded-tr-lg">청사 및 관서 안내</button>
+                </div>
+
+                <!-- 탭 컨텐츠 1: 재정 현황 및 예산 (상세화) -->
+                <div id="tab-budget" class="tab-content active bg-white border border-t-0 border-slate-300 p-6 rounded-b-lg space-y-10">
+                    
+                    <!-- 예산 규모 하이라이트 -->
+                    <div id="budget-highlight" class="pt-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-1.5 h-6 bg-sky-800"></div>
+                            <h4 class="font-bold text-xl text-slate-800">2026년 효빈광역시 예산 규모 총괄</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gradient-to-br from-sky-500 to-sky-700 p-6 rounded-2xl shadow-md flex flex-col items-center justify-center text-center text-white">
+                                <div class="font-bold mb-2 opacity-90">2026년도 총 예산액</div>
+                                <div class="text-3xl font-black">14조 5,320억 원</div>
+                                <div class="mt-4 text-sm bg-white/20 px-3 py-1 rounded-full font-medium">전년 대비 6.2% 증액 (건전재정 기조)</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center text-center">
+                                <div class="text-slate-500 font-bold mb-2">일반회계</div>
+                                <div class="text-2xl font-black text-slate-800">11조 2,100억 원</div>
+                                <div class="progress-bar-bg mt-4"><div class="progress-bar-fill bg-sky-500" style="width: 77.1%;"></div></div>
+                                <div class="mt-2 text-xs text-slate-500 text-right">총 예산의 77.1%</div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center text-center">
+                                <div class="text-slate-500 font-bold mb-2">특별회계 및 기금</div>
+                                <div class="text-2xl font-black text-slate-800">3조 3,220억 원</div>
+                                <div class="progress-bar-bg mt-4"><div class="progress-bar-fill bg-emerald-500" style="width: 22.9%;"></div></div>
+                                <div class="mt-2 text-xs text-slate-500 text-right">총 예산의 22.9%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 분야별 예산 현황 -->
+                    <div id="budget-details" class="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8">
+                        <div class="flex justify-between items-end mb-6 border-b border-slate-200 pb-3">
+                            <h4 class="font-bold text-lg text-slate-800">2026년 일반회계 분야별 세출 예산 현황</h4>
+                            <span class="text-sm text-slate-500 font-medium">단위: 억 원</span>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-5">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">사회복지 (효빈대 복지정책 인프라 확충)</span><span class="text-sky-700">4조 5,961억 (41.0%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-sky-500" style="width: 41.0%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">교통 및 물류 (창전선/빈효선 조기 구축)</span><span class="text-emerald-600">1조 6,815억 (15.0%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-emerald-500" style="width: 15.0%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">문화 및 관광 (효빈애니메이션페스티벌 등)</span><span class="text-purple-600">1조 1,210억 (10.0%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-purple-500" style="width: 10.0%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">환경 (덕현동 및 고송해안로 정비)</span><span class="text-teal-600">9,528억 (8.5%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-teal-500" style="width: 8.5%;"></div></div>
+                                </div>
+                            </div>
+                            <div class="space-y-5">
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">일반공공행정</span><span class="text-orange-500">7,847억 (7.0%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-orange-400" style="width: 7.0%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">교육 (효빈광역시교육청 전출금)</span><span class="text-blue-500">6,165억 (5.5%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-blue-400" style="width: 5.5%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">산업·중소기업 및 에너지</span><span class="text-indigo-500">5,044억 (4.5%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-indigo-400" style="width: 4.5%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-sm mb-1 font-bold"><span class="text-slate-700">보건, 안전, 농림, 기타</span><span class="text-slate-400">9,530억 (8.5%)</span></div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill bg-slate-300" style="width: 8.5%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 세입세출예산서 리스트 (누락 없는 전체본) -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-2">
+                            <h4 class="font-bold text-lg text-slate-800">세입세출예산서 고시 내역</h4>
+                            <div class="flex gap-2">
+                                <button class="w-8 h-8 rounded border border-slate-300 flex items-center justify-center hover:bg-slate-50"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                <button class="w-8 h-8 rounded border border-slate-300 flex items-center justify-center hover:bg-slate-50"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                        <ul class="divide-y divide-slate-100 bg-slate-50 rounded-xl border border-slate-200 p-2">
+                            <li class="py-3 hover:bg-white px-4 rounded transition cursor-pointer flex flex-col md:flex-row gap-2 md:items-center">
+                                <div class="text-sky-600 font-bold w-28 shrink-0">2026-06-29</div>
+                                <div class="flex-grow">
+                                    <strong class="text-slate-800 block text-base">2026년 제1회 추경예산</strong>
+                                    <p class="text-slate-500 text-sm truncate">세입·세출 예산서세입·세출 예산서를 나타낸 표입니다.예산총칙A-1예산규모회계별예산규모B-1세입총괄표총괄B-2...</p>
+                                </div>
+                            </li>
+                            <li class="py-3 hover:bg-white px-4 rounded transition cursor-pointer flex flex-col md:flex-row gap-2 md:items-center">
+                                <div class="text-sky-600 font-bold w-28 shrink-0">2026-01-08</div>
+                                <div class="flex-grow">
+                                    <strong class="text-slate-800 block text-base">2026년 본예산</strong>
+                                    <p class="text-slate-500 text-sm truncate">세입·세출 예산서세입·세출 예산서를 안내하는 표 입니다.재정여건 및 시정방향A-1예산총칙B-1예산규모회계별예...</p>
+                                </div>
+                            </li>
+                            <li class="py-3 hover:bg-white px-4 rounded transition cursor-pointer flex flex-col md:flex-row gap-2 md:items-center">
+                                <div class="text-sky-600 font-bold w-28 shrink-0">2026-01-07</div>
+                                <div class="flex-grow">
+                                    <strong class="text-slate-800 block text-base">2025년 제3회 추경예산</strong>
+                                    <p class="text-slate-500 text-sm truncate">세입ㆍ세출 예산서세입ㆍ세출 예산서를 나타낸 표입니다.예산총칙A-1예산규모회계별예산규모B-1세입총괄표총괄B-2...</p>
+                                </div>
+                            </li>
+                            <li class="py-3 hover:bg-white px-4 rounded transition cursor-pointer flex flex-col md:flex-row gap-2 md:items-center">
+                                <div class="text-sky-600 font-bold w-28 shrink-0">2025-12-16</div>
+                                <div class="flex-grow">
+                                    <strong class="text-slate-800 block text-base">2025년 제2회 추경예산</strong>
+                                    <p class="text-slate-500 text-sm truncate">세입·세출 예산서세입·세출 예산서를 나타낸 표입니다.예산총칙A-1예산규모회계별예산규모B-1세입총괄표총괄B-2...</p>
+                                </div>
+                            </li>
+                            <li class="py-3 hover:bg-white px-4 rounded transition cursor-pointer flex flex-col md:flex-row gap-2 md:items-center">
+                                <div class="text-sky-600 font-bold w-28 shrink-0">2025-07-23</div>
+                                <div class="flex-grow">
+                                    <strong class="text-slate-800 block text-base">2025년 제1회 추경예산</strong>
+                                    <p class="text-slate-500 text-sm truncate">세입·세출 예산서세입·세출 예산서를 나타낸 표입니다.예산총칙A-1예산규모회계별예산규모B-1세입총괄표총괄B-2...</p>
+                                </div>
+                            </li>
+                            <li class="py-3 hover:bg-white px-4 rounded transition cursor-pointer flex flex-col md:flex-row gap-2 md:items-center">
+                                <div class="text-sky-600 font-bold w-28 shrink-0">2025-01-07</div>
+                                <div class="flex-grow">
+                                    <strong class="text-slate-800 block text-base">2025년 본예산</strong>
+                                    <p class="text-slate-500 text-sm truncate">세입·세출 예산서세입·세출 예산서를 안내하는 표 입니다.재정여건 및 시정방향A-1예산총칙B-1예산규모회계별예...</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 재정공시 게시판 -->
+                    <div id="financial-disclosure">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-6 bg-sky-800"></div>
+                                <h4 class="font-bold text-xl text-slate-800">지방재정공시 게시판</h4>
+                            </div>
+                            <!-- 실시간 검색 UI -->
+                            <div class="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden w-full md:w-80 shadow-sm focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 transition">
+                                <input type="text" id="disclosureSearchInput" onkeyup="filterDisclosureTable()" placeholder="공시 제목, 분류 등 검색어 입력" class="w-full px-4 py-2 text-sm outline-none">
+                                <button class="bg-slate-50 px-3 py-2 border-l border-slate-300 text-slate-500 hover:text-sky-600 transition"><i data-lucide="search" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="data-table-wrap border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                            <table class="data-table min-w-[800px] mb-0 border-top-0" id="disclosureTable">
+                                <colgroup>
+                                    <col style="width: 8%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 50%;">
+                                    <col style="width: 15%;">
+                                    <col style="width: 15%;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>번호</th>
+                                        <th>분류</th>
+                                        <th>제목</th>
+                                        <th>등록일</th>
+                                        <th>조회/첨부</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    <tr class="clickable-row" onclick="openBudgetModal('2026년 효빈광역시 본예산 (세입/세출) 확정 공시')">
+                                        <td>105</td>
+                                        <td><span class="text-sky-600 font-bold bg-sky-50 px-2 py-1 rounded">예산공시</span></td>
+                                        <td class="text-left font-bold text-slate-800">2026년 효빈광역시 본예산 (세입/세출) 확정 공시</td>
+                                        <td>2026-01-05</td>
+                                        <td><div class="flex justify-center gap-2 text-slate-400"><span class="text-xs">3,402</span><i data-lucide="file-down" class="w-4 h-4"></i></div></td>
+                                    </tr>
+                                    <tr class="clickable-row" onclick="openBudgetModal('2026년 상반기 효빈교통공사(도시철도) 특별회계 자금운용 현황')">
+                                        <td>104</td>
+                                        <td><span class="text-slate-600 font-bold bg-slate-100 px-2 py-1 rounded">자금운용</span></td>
+                                        <td class="text-left text-slate-700">2026년 상반기 효빈교통공사(도시철도) 특별회계 자금운용 현황</td>
+                                        <td>2026-07-12</td>
+                                        <td><div class="flex justify-center gap-2 text-slate-400"><span class="text-xs">1,204</span><i data-lucide="file-down" class="w-4 h-4"></i></div></td>
+                                    </tr>
+                                    <tr class="clickable-row" onclick="openBudgetModal('제9회 효빈애니메이션페스티벌(HAF) 관련 문화체육기금 집행 내역 공시')">
+                                        <td>103</td>
+                                        <td><span class="text-purple-600 font-bold bg-purple-50 px-2 py-1 rounded">기금운용</span></td>
+                                        <td class="text-left text-slate-700">제9회 효빈애니메이션페스티벌(HAF) 관련 문화체육기금 집행 내역 공시</td>
+                                        <td>2026-05-20</td>
+                                        <td><div class="flex justify-center gap-2 text-slate-400"><span class="text-xs">5,190</span><i data-lucide="file-down" class="w-4 h-4"></i></div></td>
+                                    </tr>
+                                    <tr class="clickable-row" onclick="openBudgetModal('2025년 회계연도 결산 기준 재정공시 (결산)')">
+                                        <td>102</td>
+                                        <td><span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">결산공시</span></td>
+                                        <td class="text-left font-bold text-slate-800">2025년 회계연도 결산 기준 재정공시 (결산)</td>
+                                        <td>2026-08-31</td>
+                                        <td><div class="flex justify-center gap-2 text-slate-400"><span class="text-xs">4,122</span><i data-lucide="file-down" class="w-4 h-4"></i></div></td>
+                                    </tr>
+                                    <tr class="clickable-row" onclick="openBudgetModal('주민참여예산제 2026년도 반영 결과 안내')">
+                                        <td>101</td>
+                                        <td><span class="text-orange-600 font-bold bg-orange-50 px-2 py-1 rounded">주민참여</span></td>
+                                        <td class="text-left text-slate-700">주민참여예산제 2026년도 제안 사업 심의 및 반영 결과 안내</td>
+                                        <td>2025-12-20</td>
+                                        <td><div class="flex justify-center gap-2 text-slate-400"><span class="text-xs">2,881</span><i data-lucide="file-down" class="w-4 h-4"></i></div></td>
+                                    </tr>
+                                    <tr class="clickable-row" onclick="openBudgetModal('효빈광역시 공공자금 운용 현황 공시 (2025년 하반기)')">
+                                        <td>100</td>
+                                        <td><span class="text-slate-600 font-bold bg-slate-100 px-2 py-1 rounded">자금운용</span></td>
+                                        <td class="text-left text-slate-700">효빈광역시 공공자금 운용 현황 공시 (2025년 하반기)</td>
+                                        <td>2026-01-15</td>
+                                        <td><div class="flex justify-center gap-2 text-slate-400"><span class="text-xs">954</span><i data-lucide="file-down" class="w-4 h-4"></i></div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 컨텐츠 2: 지방세 안내 및 세무관서 -->
+                <div id="tab-tax" class="tab-content bg-white border border-t-0 border-slate-300 p-6 rounded-b-lg space-y-8">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                        <a href="https://www.wetax.go.kr" target="_blank" class="hover-card bg-white p-6 rounded-2xl border border-slate-200 text-center flex flex-col items-center justify-center group">
+                            <div class="w-14 h-14 bg-sky-50 rounded-full flex items-center justify-center mb-3 text-sky-600">
+                                <i data-lucide="monitor" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-lg mb-1 group-hover:text-sky-600 transition">위택스 (Wetax)</h4>
+                            <p class="text-xs text-slate-500">전국 지방세 신고·납부 시스템</p>
+                        </a>
+                        <div class="hover-card bg-white p-6 rounded-2xl border border-slate-200 text-center flex flex-col items-center justify-center group cursor-pointer" onclick="alert('효빈광역시 ARS 납부 시스템 전화번호: 1544-0000\n안내 멘트에 따라 가상계좌 또는 신용카드 결제를 진행하십시오.')">
+                            <div class="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mb-3 text-emerald-600">
+                                <i data-lucide="phone-call" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-lg mb-1 group-hover:text-emerald-600 transition">ARS 납부</h4>
+                            <p class="text-xs text-slate-500">전화 한 통으로 간편 조회 및 납부</p>
+                        </div>
+                        <div class="hover-card bg-white p-6 rounded-2xl border border-slate-200 text-center flex flex-col items-center justify-center group cursor-pointer" onclick="openConsultModal()">
+                            <div class="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center mb-3 text-orange-600">
+                                <i data-lucide="headset" class="w-7 h-7"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-lg mb-1 group-hover:text-orange-600 transition">납세자보호관 상담</h4>
+                            <p class="text-xs text-slate-500">지방세 고충 및 권리보호 상담 예약</p>
+                        </div>
+                    </div>
+
+                    <!-- 지방세 납기 달력 -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-4 mt-8">
+                            <div class="w-1.5 h-6 bg-sky-800"></div>
+                            <h4 class="font-bold text-xl text-slate-800">2026년 주요 세금 납기표 (상세)</h4>
+                        </div>
+                        <div class="data-table-wrap border border-slate-200 rounded-xl overflow-hidden">
+                            <table class="data-table min-w-[800px] mb-0 border-top-0">
+                                <colgroup>
+                                    <col style="width: 15%;">
+                                    <col style="width: 25%;">
+                                    <col style="width: 60%;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>납기월 및 기간</th>
+                                        <th>세목</th>
+                                        <th>납세의무자 및 납부 대상 상세내용</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">1월 (16일~31일)</td>
+                                        <td><span class="tax-badge badge-local">지방세</span> 등록면허세(면허분)<br><span class="tax-badge badge-local">지방세</span> 자동차세(연납)</td>
+                                        <td class="text-left text-sm text-slate-600">- 각종 면허(인허가, 등록, 신고 등)를 받은 자 (매년 1월 1일 기준)<br>- 1월 중 자동차세 연납 시 연세액의 일정 비율 공제 혜택 부여</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">5월 (1일~31일)</td>
+                                        <td><span class="tax-badge badge-national">국세</span> 종합소득세<br><span class="tax-badge badge-local">지방세</span> 개인지방소득세</td>
+                                        <td class="text-left text-sm text-slate-600">- 전년도 종합소득이 있는 개인 (관할 세무서 및 지자체 확정신고·납부)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">6월 (16일~30일)</td>
+                                        <td><span class="tax-badge badge-local">지방세</span> 자동차세 (1기분)</td>
+                                        <td class="text-left text-sm text-slate-600">- 6월 1일 현재 자동차, 건설기계 등 소유자 (상반기분 부과)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">7월 (16일~31일)</td>
+                                        <td><span class="tax-badge badge-local">지방세</span> 재산세 (주택 1/2, 건축물)</td>
+                                        <td class="text-left text-sm text-slate-600">- 6월 1일 현재 주택(세액의 1/2), 상가 및 일반 건축물, 선박, 항공기 소유자</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">8월 (16일~31일)</td>
+                                        <td><span class="tax-badge badge-local">지방세</span> 주민세 (개인분, 사업소분)</td>
+                                        <td class="text-left text-sm text-slate-600">- 7월 1일 현재 효빈광역시에 주소를 둔 세대주 (개인분)<br>- 관내에 사업소를 둔 직전 연도 부가가치세 과세표준 8천만 원 이상 사업자 (사업소분)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">9월 (16일~30일)</td>
+                                        <td><span class="tax-badge badge-local">지방세</span> 재산세 (주택 나머지 1/2, 토지)</td>
+                                        <td class="text-left text-sm text-slate-600">- 6월 1일 현재 주택(세액의 나머지 1/2), 토지(나대지, 상가 부속토지 등) 소유자</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">12월 (16일~31일)</td>
+                                        <td><span class="tax-badge badge-local">지방세</span> 자동차세 (2기분)</td>
+                                        <td class="text-left text-sm text-slate-600">- 12월 1일 현재 자동차, 건설기계 등 소유자 (하반기분 부과)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 컨텐츠 3: 청사 및 관서 안내 (11개 구·군청 전체 포함) -->
+                <div id="tab-office" class="tab-content bg-white border border-t-0 border-slate-300 p-6 rounded-b-lg space-y-12">
+                    
+                    <!-- 구/군청사 현황 테이블 -->
+                    <div class="pt-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-1.5 h-6 bg-slate-800"></div>
+                            <h4 class="font-bold text-xl text-slate-800">구·군청사 소재지 현황</h4>
+                        </div>
+                        <div class="data-table-wrap border border-slate-200 rounded-xl overflow-hidden">
+                            <table class="data-table min-w-[1000px] mb-0 border-top-0">
+                                <thead>
+                                    <tr>
+                                        <th>관할 지역</th>
+                                        <th>청사명</th>
+                                        <th>소재지 (도로명)</th>
+                                        <th>우편번호</th>
+                                        <th>대표 전화번호</th>
+                                        <th>소재 법정동</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>효빈광역시</td><td class="font-bold text-slate-800">효빈광역시청</td><td class="text-left">효빈광역시 북구 효빈로 79</td><td>79791</td><td class="font-medium text-sky-700">079-591-2548</td><td>고송동</td></tr>
+                                    <tr><td>효빈광역시 중구</td><td class="font-bold text-slate-800">중구청</td><td class="text-left">효빈광역시 중구 중앙로 101</td><td>77014</td><td class="font-medium text-sky-700">079-242-8192</td><td>조유동2가</td></tr>
+                                    <tr><td>효빈광역시 북구</td><td class="font-bold text-slate-800">북구청</td><td class="text-left">효빈광역시 북구 중탄로 2</td><td>79088</td><td class="font-medium text-sky-700">079-321-5042</td><td>중수동</td></tr>
+                                    <tr><td>효빈광역시 동구</td><td class="font-bold text-slate-800">동구청</td><td class="text-left">효빈광역시 동구 덕성로 12</td><td>78032</td><td class="font-medium text-sky-700">079-284-1193</td><td>덕현2동</td></tr>
+                                    <tr><td>효빈광역시 남구</td><td class="font-bold text-slate-800">남구청</td><td class="text-left">효빈광역시 남구 평당관통로 33</td><td>78519</td><td class="font-medium text-sky-700">079-451-9034</td><td>평당3동</td></tr>
+                                    <tr><td>효빈광역시 서구</td><td class="font-bold text-slate-800">서구청</td><td class="text-left">효빈광역시 서구 당선동 77</td><td>77582</td><td class="font-medium text-sky-700">079-634-2201</td><td>당선4동</td></tr>
+                                    <tr><td>효빈광역시 청엽구</td><td class="font-bold text-slate-800">청엽구청</td><td class="text-left">효빈광역시 청엽구 청엽로 51</td><td>79511</td><td class="font-medium text-sky-700">079-781-4920</td><td>청엽1동</td></tr>
+                                    <tr><td>효빈광역시 창전구</td><td class="font-bold text-slate-800">창전구청</td><td class="text-left">효빈광역시 창전구 모포로 21</td><td>78805</td><td class="font-medium text-sky-700">079-822-1594</td><td>창전3동</td></tr>
+                                    <tr><td>효빈광역시 안천구</td><td class="font-bold text-slate-800">안천구청</td><td class="text-left">효빈광역시 안천구 안천중앙로 52</td><td>77840</td><td class="font-medium text-sky-700">079-915-7732</td><td>안천6동</td></tr>
+                                    <tr><td>효빈광역시 안천구</td><td class="font-bold text-slate-800">안천구청 이자출장소</td><td class="text-left">효빈광역시 안천구 이자로 3</td><td>77894</td><td class="font-medium text-sky-700">079-984-2015</td><td>이자4동</td></tr>
+                                    <tr><td>효빈광역시 탄성군</td><td class="font-bold text-slate-800">탄성군청</td><td class="text-left">효빈광역시 탄성군 탄성읍 공리 24</td><td>79910</td><td class="font-medium text-sky-700">079-134-8821</td><td>공리</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 효빈지방국세청 및 세무서 현황 (전체 세무서 포함) -->
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-1.5 h-6 bg-yellow-600"></div>
+                            <h4 class="font-bold text-xl text-slate-800">효빈지방국세청 산하 세무서 현황</h4>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-4 mb-6">
+                            <div class="flex flex-col md:flex-row items-center justify-between bg-white border border-slate-300 p-6 rounded-2xl shadow-sm hover:border-sky-500 transition">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-14 h-14 bg-yellow-50 rounded-xl flex items-center justify-center text-yellow-600 border border-yellow-200 shadow-inner">
+                                        <i data-lucide="landmark" class="w-7 h-7"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1.5">
+                                            <span class="tax-badge badge-national">국세청 소속</span>
+                                            <h4 class="text-xl font-bold text-slate-900">효빈지방국세청</h4>
+                                            <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">1966년 설립</span>
+                                        </div>
+                                        <p class="text-sm text-slate-600"><i data-lucide="map-pin" class="w-3.5 h-3.5 inline text-slate-400 mr-1"></i> 효빈광역시 안천구 이자동 192-4 (이자1동)</p>
+                                        <p class="text-sm text-slate-600 mt-1"><i data-lucide="phone" class="w-3.5 h-3.5 inline text-slate-400 mr-1"></i> 대표전화: 079-952-6100 (관할: 효빈광역시, 덕빈북도, 덕빈남도)</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 md:mt-0 text-right w-full md:w-auto">
+                                    <button onclick="alert('효빈지방국세청 웹사이트로 이동합니다.')" class="inline-flex items-center justify-center px-5 py-2.5 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-900 transition shadow-md">
+                                        홈페이지 이동
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-table-wrap border border-slate-200 rounded-xl overflow-hidden mb-6">
+                            <table class="data-table min-w-[900px] mb-0 border-top-0">
+                                <colgroup>
+                                    <col style="width: 20%;">
+                                    <col style="width: 35%;">
+                                    <col style="width: 30%;">
+                                    <col style="width: 15%;">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>세무서명</th>
+                                        <th>관할 구역</th>
+                                        <th>소재지</th>
+                                        <th>전화번호</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">효빈세무서</td>
+                                        <td class="text-left text-sm">남구, 중구, 서구(북성동)</td>
+                                        <td class="text-left text-sm">남구 어간동 28</td>
+                                        <td class="font-medium text-sky-700">079-245-8200</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">북효빈세무서</td>
+                                        <td class="text-left text-sm">북구, 서구(북성동 제외)</td>
+                                        <td class="text-left text-sm">북구 고송해안로 35 (고송동)</td>
+                                        <td class="font-medium text-sky-700">079-517-5050</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">남효빈세무서</td>
+                                        <td class="text-left text-sm">청엽구, 동구</td>
+                                        <td class="text-left text-sm">청엽구 등동 291</td>
+                                        <td class="font-medium text-sky-700">079-743-9110</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">동효빈세무서</td>
+                                        <td class="text-left text-sm">안천구, 탄성군(일부)</td>
+                                        <td class="text-left text-sm">안천구 이자동 918-6 (이자3동)</td>
+                                        <td class="font-medium text-sky-700">079-928-3340</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-bold text-slate-800">효빈창전세무서</td>
+                                        <td class="text-left text-sm">창전구, 탄성군(일부), 선곡군 잔여</td>
+                                        <td class="text-left text-sm">창전구 생덕동 428-2</td>
+                                        <td class="font-medium text-sky-700">079-861-7720</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 푸터 및 공통 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 모달 1: 고액·상습 체납자 명단 -->
+    <div id="delinquentModal" class="modal modal-hidden fixed inset-0 z-[80] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDelinquentModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-8 relative z-10 transform transition-all scale-100 border border-slate-200 flex flex-col max-h-[90vh]">
+            <button onclick="closeDelinquentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="flex items-center gap-4 mb-6 border-b border-slate-200 pb-5 shrink-0">
+                <div class="w-14 h-14 bg-red-50 rounded-xl flex items-center justify-center text-red-600 border border-red-100 shadow-inner">
+                    <i data-lucide="alert-octagon" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">효빈광역시 고액·상습 체납자 명단 공개</h2>
+                    <p class="text-slate-500 mt-1 text-sm font-medium">체납기간 1년 이상, 체납액 1천만 원 이상인 자 (지방세기본법 제140조에 의거)</p>
+                </div>
+            </div>
+
+            <!-- 모달 내부 스크롤 영역 -->
+            <div class="custom-scroll overflow-y-auto pr-2 mb-6">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-sm text-red-800 leading-relaxed font-medium">
+                    <i data-lucide="info" class="w-4 h-4 inline-block relative -top-0.5 mr-1"></i>
+                    아래 명단은 조세 정의 실현을 위해 법적 절차를 거쳐 공개된 악의적 체납자들입니다. 압류 회피, 허위사실 유포로 인한 배상금 미납, 은닉 등 반사회적 행위가 결합된 악질적 사례를 우선 공개합니다.
+                </div>
+
+                <div class="space-y-4">
+                    <!-- 체납자 1: 임기춘 -->
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:bg-slate-50 transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded">No. 1</span>
+                                <h3 class="text-xl font-black text-slate-900">임기춘 <span class="text-sm font-normal text-slate-500 ml-1">(1989.10.07 출생 / 효빈광역시 동구 덕현동)</span></h3>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500 font-bold mb-1">총 체납액</div>
+                                <div class="text-xl font-black text-red-600">1억 5,400만 원</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div class="col-span-1 text-slate-500 font-bold bg-slate-100 p-2 rounded text-center h-full flex flex-col justify-center">
+                                전(前) 기자<br><span class="text-xs font-normal">(조선일보 파면)</span>
+                            </div>
+                            <div class="col-span-3 bg-white border border-slate-200 p-3 rounded text-slate-700 leading-relaxed">
+                                <span class="font-bold text-red-700">[체납 사유 및 요지]</span><br>
+                                이른바 '효빈시 찌라시 멸망전'의 주범. 조회수에 눈이 멀어 악의적인 편집(마녀사냥)으로 미성년자에게 정서적 살인미수를 가한 언론 조작범입니다.<br>
+                                언론중재위원회 난동 사건 직후 파면되었으며, 수억 원대의 구상권 청구 소송에서 패소하였음에도 재산을 고의로 은닉하고 지방소득세 등 관련 세금 5건을 철저히 납부 기피 중인 악질 체납자입니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 체납자 2: 윤만우 -->
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:bg-slate-50 transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded">No. 2</span>
+                                <h3 class="text-xl font-black text-slate-900">윤만우 <span class="text-sm font-normal text-slate-500 ml-1">(1994.10.07 출생 / 효빈광역시 동구 덕현동)</span></h3>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500 font-bold mb-1">총 체납액</div>
+                                <div class="text-xl font-black text-red-600">8,500만 원</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div class="col-span-1 text-slate-500 font-bold bg-slate-100 p-2 rounded text-center h-full flex flex-col justify-center">
+                                무직<br><span class="text-xs font-normal">(윤대환 전 시장 장남)</span>
+                            </div>
+                            <div class="col-span-3 bg-white border border-slate-200 p-3 rounded text-slate-700 leading-relaxed">
+                                <span class="font-bold text-red-700">[체납 사유 및 요지]</span><br>
+                                '분식집 패드립 난동 사건'으로 현행범 체포된 바 있는 인물. 과거 아버지의 권력을 믿고 갑질을 일삼다 몰락 후 반지하에 거주 중입니다.<br>
+                                동생(윤재훈) 지지자를 대상으로 한 가상화폐(코인) 사기 수익금에 대한 종합소득세 신고를 고의로 누락하였으며, 각종 폭행 합의금 및 과태료, 지방세 등 3건을 체납하고 재산 추적을 회피하고 있습니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 체납자 3: 장동우 -->
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-red-300 hover:bg-slate-50 transition">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded">No. 3</span>
+                                <h3 class="text-xl font-black text-slate-900">장동우 <span class="text-sm font-normal text-slate-500 ml-1">(1989.02.08 출생 / 현재 효빈교도소 수감)</span></h3>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500 font-bold mb-1">총 체납액</div>
+                                <div class="text-xl font-black text-red-600">4,200만 원</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div class="col-span-1 text-slate-500 font-bold bg-slate-100 p-2 rounded text-center h-full flex flex-col justify-center">
+                                수감자<br><span class="text-xs font-normal">(자유와혁신당 당원)</span>
+                            </div>
+                            <div class="col-span-3 bg-white border border-slate-200 p-3 rounded text-slate-700 leading-relaxed">
+                                <span class="font-bold text-red-700">[체납 사유 및 요지]</span><br>
+                                이른바 '안천대교 비아냥충'. 극단적 선택을 시도하는 피해자에게 2차 가해를 가하다 체포된 악질 방구석 여포입니다.<br>
+                                이후 만취 음주운전 및 경찰관 폭행으로 실형(효빈교도소)을 선고받았으며, 억대의 민사 소송 위자료 판결 후 가압류를 회피하기 위해 주민세, 재산세 등 총 7건을 고의로 장기 체납하고 있습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center shrink-0 border-t border-slate-200 pt-4 mt-auto">
+                <button onclick="closeDelinquentModal()" class="px-10 py-3 bg-slate-800 text-white rounded-lg font-bold hover:bg-slate-900 transition shadow-md">
+                    명단 닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 예산 공시 상세 보기 -->
+    <div id="budgetModal" class="modal modal-hidden fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeBudgetModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 relative z-10 transform transition-all scale-100 border border-slate-200">
+            <button onclick="closeBudgetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                <div class="w-12 h-12 bg-sky-50 rounded-lg flex items-center justify-center text-sky-600">
+                    <i data-lucide="file-text" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h2 id="budgetModalTitle" class="text-xl font-bold text-slate-800">공시 제목</h2>
+                    <p class="text-slate-500 mt-1 text-sm">담당부서: 기획조정실 예산담당관 | 조회수: 3,402</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-xl text-sm text-slate-700 leading-relaxed mb-6 border border-slate-200 min-h-[120px]">
+                해당 재정공시 문서는 시민의 알 권리 보장과 행정 투명성 제고를 위해 PDF 형식으로 제공됩니다. 상세한 세입 및 세출 내역, 부서별 성과 계획서 등은 첨부파일을 다운로드하여 확인해 주시기 바랍니다.
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="alert('첨부파일 다운로드가 시작됩니다.')" class="flex items-center justify-between bg-white border border-slate-300 p-4 rounded-lg hover:border-sky-500 transition group w-full text-left">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-down" class="text-slate-400 group-hover:text-sky-500 transition"></i>
+                        <span class="font-bold text-slate-700 text-sm">공시전문_최종본.pdf</span>
+                    </div>
+                    <span class="text-xs text-slate-400 font-medium">4.2 MB</span>
+                </button>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button onclick="closeBudgetModal()" class="px-8 py-3 bg-slate-800 text-white rounded-lg font-bold hover:bg-slate-900 transition shadow-md">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: 시민참여예산 제안 -->
+    <div id="citizenBudgetModal" class="modal modal-hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCitizenBudgetModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10 transform transition-all scale-100 border border-slate-200">
+            <button onclick="closeCitizenBudgetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-sky-50 rounded-full flex items-center justify-center mx-auto mb-4 text-sky-600 border border-sky-100"><i data-lucide="users" class="w-8 h-8"></i></div>
+                <h2 class="text-2xl font-bold text-slate-800">시민참여예산 제안</h2>
+                <p class="text-slate-500 mt-2 text-sm">시민 여러분의 소중한 아이디어가<br>효빈광역시의 내일을 만듭니다.</p>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('시민참여예산 제안이 접수되었습니다.\n담당 부서 검토 후 연락드리겠습니다.'); closeCitizenBudgetModal();" class="space-y-4">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1.5">사업 제목</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1.5">제안 내용</label><textarea rows="3" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required></textarea></div>
+                <button type="submit" class="w-full bg-slate-800 text-white py-3.5 rounded-lg font-bold hover:bg-slate-900 shadow-md transition mt-2">제안서 제출하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 모달: 마을세무사 상담 -->
+    <div id="villageTaxModal" class="modal modal-hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeVillageTaxModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10 transform transition-all scale-100 border border-slate-200">
+            <button onclick="closeVillageTaxModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600 border border-indigo-100"><i data-lucide="user-check" class="w-8 h-8"></i></div>
+                <h2 class="text-2xl font-bold text-slate-800">마전세무사 무료 상담</h2>
+                <p class="text-slate-500 mt-2 text-sm">영세 소상공인과 취약계층을 위해<br>우리 동네 마을세무사가 무료 상담을 지원합니다.</p>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('관할 지역 마을세무사에게 상담이 예약되었습니다.\n순차적으로 연락드리겠습니다.'); closeVillageTaxModal();" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">거주 구/군 선택</label>
+                    <select class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm bg-slate-50 focus:bg-white">
+                        <option>북구</option><option>중구</option><option>서구</option><option>동구</option><option>남구</option><option>청엽구</option><option>창전구</option><option>안천구</option><option>탄성군</option>
+                    </select>
+                </div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1.5">연락처</label><input type="text" placeholder="010-0000-0000" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required></div>
+                <button type="submit" class="w-full bg-slate-800 text-white py-3.5 rounded-lg font-bold hover:bg-slate-900 shadow-md transition mt-2">상담 예약 접수</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 모달: 납세자보호관 상담 -->
+    <div id="consultModal" class="modal modal-hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeConsultModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10 transform transition-all scale-100 border border-slate-200">
+            <button onclick="closeConsultModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600 border border-orange-100"><i data-lucide="headset" class="w-8 h-8"></i></div>
+                <h2 class="text-2xl font-bold text-slate-800">납세자보호관 상담 예약</h2>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('상담 예약이 접수되었습니다.\n담당 납세자보호관이 입력하신 연락처로 연락드릴 예정입니다.'); closeConsultModal();" class="space-y-5">
+                <div><label class="block text-sm font-bold text-slate-700 mb-1.5">신청자 성명 (또는 법인명)</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required></div>
+                <div><label class="block text-sm font-bold text-slate-700 mb-1.5">연락처</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required></div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">상담 분야</label>
+                    <select class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 outline-none transition text-sm bg-slate-50 focus:bg-white">
+                        <option>지방세 고충 민원 처리</option><option>세무조사 기간 연장 및 연기</option><option>기한 연장 및 징수 유예</option><option>기타 권리보호 요청</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-slate-800 text-white py-3.5 rounded-lg font-bold hover:bg-slate-900 shadow-md transition mt-2">상담 예약 접수하기</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 스크립트 제어 영역 -->
+    <script>
+        // 탭 전환 스크립트
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-white', 'border-t-[3px]', 'border-[#1e3a8a]');
+                btn.classList.add('bg-slate-100');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + tabId.split('-')[1]);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-white', 'border-t-[3px]', 'border-[#1e3a8a]');
+                activeBtn.classList.remove('bg-slate-100');
+            }
+            
+            const activeContent = document.getElementById(tabId);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+        }
+
+        // 탭 변경 후 특정 섹션으로 스크롤 이동 기능
+        function switchTabAndScroll(tabId, elementId) {
+            switchTab(tabId);
+            setTimeout(() => {
+                const target = document.getElementById(elementId) || document.getElementById('tab-section-start');
+                if(target) {
+                    const yOffset = -80; // 상단 헤더 여백 고려
+                    const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({top: y, behavior: 'smooth'});
+                }
+            }, 50);
+        }
+        
+        // 재정공시 테이블 실시간 검색 필터
+        function filterDisclosureTable() {
+            let input = document.getElementById("disclosureSearchInput");
+            let filter = input.value.toUpperCase();
+            let table = document.getElementById("disclosureTable");
+            let tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName("td");
+                let rowText = "";
+                for (let j = 1; j < td.length; j++) {
+                    if (td[j]) {
+                        rowText += td[j].textContent || td[j].innerText;
+                    }
+                }
+                if (rowText.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+
+        // 모달 열기/닫기 공통 함수
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('modal-hidden');
+                modal.classList.add('modal-visible');
+            } else {
+                modal.classList.remove('modal-visible');
+                modal.classList.add('modal-hidden');
+            }
+        }
+
+        // 개별 모달 래퍼
+        function openDelinquentModal() { toggleModal('delinquentModal', true); }
+        function closeDelinquentModal() { toggleModal('delinquentModal', false); }
+        
+        function openCitizenBudgetModal() { toggleModal('citizenBudgetModal', true); }
+        function closeCitizenBudgetModal() { toggleModal('citizenBudgetModal', false); }
+        
+        function openVillageTaxModal() { toggleModal('villageTaxModal', true); }
+        function closeVillageTaxModal() { toggleModal('villageTaxModal', false); }
+        
+        function openBudgetModal(title) { 
+            document.getElementById('budgetModalTitle').textContent = title;
+            toggleModal('budgetModal', true); 
+        }
+        function closeBudgetModal() { toggleModal('budgetModal', false); }
+        
+        function openConsultModal() { toggleModal('consultModal', true); }
+        function closeConsultModal() { toggleModal('consultModal', false); }
+
+        window.onload = function() {
+            if(window.lucide) {
+                lucide.createIcons();
+            }
+        };
+    </script>
+    
+    <!-- 필수 유지 스크립트 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+</body>
+</html>

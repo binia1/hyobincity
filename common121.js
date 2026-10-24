@@ -793,7 +793,7 @@ const headerHTML = `
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">관광 / 문화</h4>
                                 <ul class="space-y-1.5 text-[12px]">
                                     <li><a href="tour.html" class="hover:text-blue-600">효빈 관광지도</a></li>
-                                    <li><a href="HAF축제.html" class="hover:text-blue-600 text-blue-800">HAF (효빈 애니 축제)</a></li>
+                                    <li><a href="haf_2026_site.html" class="hover:text-blue-600 text-blue-800">HAF (효빈 애니 축제)</a></li>
                                     <li><a href="banner_3.html" class="hover:text-blue-600">효빈 시티투어</a></li>
                                     <li><a href="vr.html" class="hover:text-blue-600">VR 랜드마크 투어</a></li>
                                     <li><a href="문화체육관광.html" class="hover:text-blue-600">문화체육관광</a></li>

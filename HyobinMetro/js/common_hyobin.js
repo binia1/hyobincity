@@ -464,7 +464,7 @@ const footerHTML = `
                         <div class="text-xs leading-relaxed text-slate-400 space-y-1">
                             <p class="font-bold text-slate-200">본사: 효빈광역시 북구 고송동 39-7</p>
                             <p>설립일: 2016년 7월 9일 (전신: 효빈도시공사 도시철도본부)</p>
-                            <p>대표자: 최대현 | 사업자등록번호: 199-06-00322</p>
+                            <p>대표자: 정시원 | 사업자등록번호: 199-06-00322</p>
                             <p>미션: 안전과 문화 융합의 효빈메트로</p>
                             <p>비전: 안전과 문화, 시민 행복, 친절</p>
                             <p class="pt-2 text-slate-500 font-mono text-[10px]">

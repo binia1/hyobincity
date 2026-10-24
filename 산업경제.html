@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="이미지/logo.webp">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일자리&경제 - 산업경제 | 효빈광역시 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    <style> 
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        
+        /* 서브페이지 전용 디자인 (공통) */
+        .sub-visual { background: linear-gradient(135deg, #1e293b 0%, #047857 100%); position: relative; overflow: hidden; }
+        .sub-visual::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px; opacity: 0.15; }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; position: relative; }
+        .lnb-single:hover, .lnb-depth1 > li.active .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; font-weight: 700; }
+        .lnb-depth1 > li.active .lnb-single.current::after { content: ''; position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; background-color: #1e3a8a; border-radius: 50%; }
+
+        /* 타이틀 디자인 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 관공서 스타일 데이터 테이블 */
+        .data-table { width: 100%; border-top: 2px solid #1e3a8a; border-collapse: collapse; background: #fff; margin-bottom: 2rem; }
+        .data-table th, .data-table td { border-bottom: 1px solid #e5e7eb; padding: 1.125rem 1rem; text-align: center; vertical-align: middle; }
+        .data-table th { background-color: #f8fafc; font-weight: 700; color: #374151; border-left: 1px solid #e5e7eb; }
+        .data-table th:first-child { border-left: none; }
+        .data-table td { color: #4b5563; border-left: 1px solid #e5e7eb; line-height: 1.5; }
+        .data-table td:first-child { border-left: none; }
+        .data-table tbody tr.clickable-row { cursor: pointer; transition: background-color 0.2s; }
+        .data-table tbody tr.clickable-row:hover { background-color: #eff6ff; }
+        
+        @media (max-width: 768px) {
+            .data-table th, .data-table td { padding: 0.75rem 0.5rem; font-size: 0.875rem; }
+            .data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+
+        /* 호버 효과 카드 */
+        .hover-card { transition: all 0.3s ease; }
+        .hover-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); border-color: #10b981; }
+
+        /* 산업단지 ZONE 뱃지 */
+        .zone-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; }
+        
+        /* 스크롤바 커스텀 및 모달 */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .modal { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .modal-visible { opacity: 1; visibility: visible; pointer-events: auto; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden text-gray-800 scroll-smooth">
+    
+    <!-- 1. 최상단 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 2. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center text-center px-4 shrink-0">
+        <div class="relative z-10 w-full max-w-4xl">
+            <h1 class="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight text-shadow-strong">일자리&경제</h1>
+        </div>
+    </div>
+
+    <!-- 3. 본문 컨테이너 -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 아코디언 LNB (좌측 메뉴) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4 z-10">
+                <div class="lnb-title">일자리&경제</div>
+                <ul class="lnb-depth1">
+                    <li><a href="job.html" class="lnb-single">일자리센터</a></li>
+                    <li><a href="공공근로채용.html" class="lnb-single">공공근로 채용</a></li>
+                    <li><a href="창업지원.html" class="lnb-single">창업지원</a></li>
+                    <li><a href="직업훈련.html" class="lnb-single">직업훈련</a></li>
+                    <li class="active"><a href="산업경제.html" class="lnb-single current">산업경제</a></li>
+                    <li><a href="재정세정.html" class="lnb-single">재정세정</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow min-w-0 flex flex-col pb-20">
+            
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 shrink-0">
+                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> 일자리&경제 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">산업경제</strong>
+            </div>
+
+            <h2 class="text-3xl font-black text-gray-900 content-title shrink-0">산업경제 (효빈 7대 핵심 산단)</h2>
+
+            <!-- 도입부 안내 -->
+            <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 md:p-8 mb-12 flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                    <i data-lucide="factory" class="w-10 h-10 text-white"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-emerald-900 mb-2">지속가능한 미래 성장, 효빈광역시 산업 인프라</h3>
+                    <p class="text-slate-700 leading-relaxed break-keep text-[0.95rem]">
+                        효빈광역시는 지역 경제를 견인하는 7대 핵심 산업단지를 통해 스마트 제조, 친환경 에너지, 첨단 물류의 허브로 도약하고 있습니다. 박효빈 시장의 균형발전 계획에 따라, 각 구역(ZONE)별 특화된 인프라를 바탕으로 국내외 기업들에게 최적의 투자 환경을 제공합니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 주요 메뉴 바로가기 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                <!-- 입주기업 안내 버튼 -->
+                <div onclick="scrollToComplex()" class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover-card cursor-pointer group">
+                    <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition duration-300 shadow-sm border border-emerald-100 group-hover:border-emerald-600">
+                        <i data-lucide="map" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-3">산업단지 현황 및 조회</h3>
+                    <p class="text-slate-500 mb-6 break-keep text-sm">효빈시 관내 7대 핵심 산업단지의<br>위치, 유치 업종 및 상세 구역을 확인하세요.</p>
+                    <button class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold group-hover:bg-emerald-700 transition w-full md:w-auto shadow-md">
+                        단지별 상세정보 검색
+                    </button>
+                </div>
+
+                <!-- 기업지원 버튼 -->
+                <div onclick="openInvestModal()" class="bg-white p-8 rounded-2xl border border-slate-200 text-center hover-card cursor-pointer group">
+                    <div class="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition duration-300 shadow-sm border border-orange-100 group-hover:border-orange-600">
+                        <i data-lucide="trending-up" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-3">투자유치 및 기업지원</h3>
+                    <p class="text-slate-500 mb-6 break-keep text-sm">지방세 감면, 입지 보조금 등<br>효빈시만의 파격적인 인센티브를 상담받으세요.</p>
+                    <button class="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold group-hover:bg-orange-700 transition w-full md:w-auto shadow-md">
+                        원스톱 상담 예약
+                    </button>
+                </div>
+            </div>
+
+            <!-- 검색 및 필터 영역 (스크립트 기반 동적 테이블 렌더링) -->
+            <section id="complexSection" class="mb-14">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-1.5 h-6 bg-emerald-700"></div>
+                    <h3 class="text-2xl font-bold text-gray-900 flex-grow">관내 산업단지 현황</h3>
+                    <div class="text-slate-500 text-sm">총 <span id="totalCount" class="text-emerald-600 font-bold">0</span>개 단지</div>
+                    <button onclick="initComplexes()" class="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 bg-slate-100 border border-slate-200 rounded hover:bg-slate-200 transition text-sm font-medium whitespace-nowrap ml-2">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 전체보기
+                    </button>
+                </div>
+
+                <!-- 검색바 -->
+                <div class="flex flex-col md:flex-row gap-3 bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6">
+                    <div class="relative flex-grow min-w-[150px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="map-pin" class="text-slate-400 w-5 h-5"></i>
+                        </div>
+                        <select id="districtSelect" onchange="filterComplexes()" class="pl-10 w-full h-12 rounded-lg border-slate-300 border focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white text-slate-700 outline-none text-sm font-medium">
+                            <option value="">전체 지역 (구/군)</option>
+                            <option value="남구">남구</option>
+                            <option value="동구">동구</option>
+                            <option value="북구">북구</option>
+                            <option value="서구">서구</option>
+                            <option value="안천구">안천구</option>
+                            <option value="중구">중구</option>
+                            <option value="창전구">창전구</option>
+                            <option value="청엽구">청엽구</option>
+                            <option value="탄성군">탄성군</option>
+                        </select>
+                    </div>
+                    <div class="relative flex-grow-[2]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="text-slate-400 w-5 h-5"></i>
+                        </div>
+                        <input type="text" id="searchInput" onkeyup="filterComplexes()" placeholder="산업단지명, 핵심 유치업종, 상세 주소 검색" class="pl-10 w-full h-12 rounded-lg border-slate-300 border focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm">
+                    </div>
+                    <button onclick="filterComplexes()" class="bg-slate-800 text-white px-8 h-12 rounded-lg font-bold hover:bg-slate-900 transition flex items-center justify-center gap-2 shadow-sm whitespace-nowrap">
+                        검색
+                    </button>
+                </div>
+
+                <!-- 리스트 테이블 -->
+                <div class="data-table-wrap border border-slate-200 rounded-xl overflow-hidden">
+                    <table class="data-table min-w-[1000px] mb-0 border-top-0">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 20%;">
+                            <col style="width: 25%;">
+                            <col style="width: 30%;">
+                            <col style="width: 10%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>관할구역</th>
+                                <th>산업단지명</th>
+                                <th>주요 위치 (동/리)</th>
+                                <th>핵심 유치업종</th>
+                                <th>상세</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complexListBody" class="divide-y divide-slate-100">
+                            <!-- JS를 통해 데이터 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 검색 결과 없음 표시 -->
+                <div id="noResult" class="hidden py-16 text-center bg-white border border-slate-200 rounded-xl mt-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4 border border-slate-100">
+                        <i data-lucide="file-question" class="w-8 h-8 text-slate-400"></i>
+                    </div>
+                    <p class="text-lg text-slate-700 font-bold mb-1">조건에 맞는 산업단지 정보가 없습니다.</p>
+                    <p class="text-sm text-slate-500">다른 구/군이나 검색어를 입력해보세요.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 6. 페이지 하단 푸터 및 공통 모달 컨테이너 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 기업 투자유치 상담 모달 (팝업) -->
+    <div id="investModal" class="modal modal-hidden fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeInvestModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10 transform transition-all scale-100 border border-slate-200">
+            <button onclick="closeInvestModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600 border border-orange-100">
+                    <i data-lucide="headset" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">투자유치 원스톱 상담</h2>
+                <p class="text-slate-500 mt-2 text-sm">입지 보조금 및 세제 감면 혜택을 확인하세요.</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); alert('상담 신청이 완료되었습니다.\n전담 PM(Project Manager)이 1영업일 이내에 연락드리겠습니다.'); closeInvestModal();" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">기업명 (또는 단체명)</label>
+                    <input type="text" placeholder="기업명을 입력하세요" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">담당자 연락처</label>
+                    <input type="text" placeholder="010-0000-0000" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm bg-slate-50 focus:bg-white" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">관심 산업단지</label>
+                    <select class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition text-sm bg-slate-50 focus:bg-white">
+                        <option>항동물류지구</option>
+                        <option>서목해양공단</option>
+                        <option>진백-광정산업단지</option>
+                        <option>채산식품단지</option>
+                        <option>평전공단</option>
+                        <option>뇌전공업단지</option>
+                        <option>효빈공단</option>
+                        <option>아직 결정하지 않음</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-slate-800 text-white py-3.5 rounded-lg font-bold hover:bg-slate-900 shadow-md transition mt-2">
+                    상담 예약 신청하기
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 산업단지 상세정보 모달 -->
+    <div id="complexDetailModal" class="modal modal-hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeComplexDetail()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[90vh] md:h-auto md:max-h-[85vh] relative z-10 flex flex-col overflow-hidden transform transition-all scale-100 border border-slate-200">
+            
+            <!-- 모달 헤더 -->
+            <div class="px-8 py-6 border-b border-slate-200 flex justify-between items-start bg-slate-50">
+                <div class="pr-8">
+                    <div id="modalGu" class="text-sm font-bold text-emerald-600 mb-2">관할구역</div>
+                    <h2 id="modalTitle" class="text-2xl font-black text-slate-900 leading-tight">산업단지명</h2>
+                </div>
+                <button onclick="closeComplexDetail()" class="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-200 transition bg-white border border-slate-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- 모달 내용 (스크롤 가능) -->
+            <div class="p-8 overflow-y-auto custom-scroll flex-grow bg-white">
+                <!-- 요약 정보 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-2 text-xs text-slate-500 font-bold mb-2">
+                            <i data-lucide="briefcase" class="w-4 h-4"></i> 핵심 유치업종
+                        </div>
+                        <div id="modalIndustry" class="text-slate-800 font-bold text-base break-keep"></div>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-2 text-xs text-slate-500 font-bold mb-2">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i> 주요 관할 동/리
+                        </div>
+                        <div id="modalLocation" class="text-slate-800 font-medium text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- ZONE 별 세부구역 설명 영역 -->
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
+                            산단 개요 및 ZONE 상세 설명
+                        </h4>
+                        <div id="modalDesc" class="text-sm text-slate-700 leading-relaxed bg-white border border-slate-200 rounded-xl p-6">
+                            <!-- JS를 통해 동적 주입 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 버튼 영역 -->
+            <div class="p-6 border-t border-slate-200 flex gap-3 bg-slate-50">
+                <button onclick="closeComplexDetail()" class="flex-1 py-3.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-100 transition shadow-sm">
+                    닫기
+                </button>
+                <button onclick="closeComplexDetail(); openInvestModal();" class="flex-[2] py-3.5 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-900 shadow-md transition flex items-center justify-center gap-2">
+                    <i data-lucide="headset" class="w-4 h-4"></i> 이 산단으로 입주 상담하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 데이터 및 기능 스크립트 -->
+    <script>
+        // 효빈광역시 7대 산업단지 설정 데이터 (위키 100% 반영)
+        const rawComplexData = [
+            {
+                id: "c-1",
+                name: "항동물류지구",
+                gu: "남구",
+                location: "항동 1가, 2가, 3가 일원",
+                industry: "식품 클러스터, 소비재, 일반제조, 물류",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">효빈시 내외곽을 잇는 거대 복합 물류망 거점입니다. 채산식품단지, 효빈공단과 연계되어 전문적이고 효율적인 물류 시스템을 구축하고 있습니다.</p>
+                    <div class="space-y-3">
+                        <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
+                            <span class="zone-badge bg-orange-200 text-orange-800">ZONE A</span>
+                            <strong class="block text-slate-800 mt-1 mb-1">항동 1·2가 (식품 클러스터 & 소비재)</strong>
+                            <p class="text-slate-600 text-xs">식품 및 생활 소비재 물류 중심 허브</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <span class="zone-badge bg-slate-200 text-slate-700">ZONE B</span>
+                            <strong class="block text-slate-800 mt-1 mb-1">항동 3가 (일반 제조 & 기계 부품)</strong>
+                            <p class="text-slate-600 text-xs">뇌전공업단지 등과 연계된 기계부품 인프라 물류</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <span class="zone-badge bg-blue-200 text-blue-800">ZONE C</span>
+                            <strong class="block text-slate-800 mt-1 mb-1">어간역 철도물류기지 연계구역</strong>
+                            <p class="text-slate-600 text-xs">광역 철도망을 이용한 내륙 화물 수송 핵심 교점</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: "c-2",
+                name: "서목해양공단",
+                gu: "탄성군",
+                location: "서목읍 조산리 일원",
+                industry: "조선, 해양플랜트, 철강",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">국내 최고 수준의 선박 건조 및 해양 기술력을 보유한 해안 산업거점입니다. 최근 신증설 투자 기업을 대상으로 파격적인 부지 매입비 지원이 이루어지고 있습니다.</p>
+                    <div class="space-y-3">
+                        <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-100">
+                            <span class="zone-badge bg-cyan-200 text-cyan-800">ZONE A</span>
+                            <strong class="block text-slate-800 mt-1 mb-1">조산리 (조선 및 해양플랜트 & 철강)</strong>
+                            <p class="text-slate-600 text-xs">효빈시 해양 경제의 중추 역할을 수행하는 대형 선박 및 플랜트 특화 구역</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: "c-3",
+                name: "진백-광정산업단지",
+                gu: "창전구",
+                location: "광정동, 진백동",
+                industry: "친환경 에너지, 신소재, 스마트그리드",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">친환경 신재생 에너지와 미래형 첨단 소재 기업이 집적된 스마트 산단입니다. 창전구의 쾌적한 인프라를 바탕으로 친환경 딥테크 기업들의 입주가 활발합니다.</p>
+                    <ul class="list-disc list-inside text-xs text-slate-600 space-y-1">
+                        <li>지방세 (취득세 및 재산세) 장기 감면 혜택 지구</li>
+                        <li>효빈대학교 연계 산학협력 R&D 최적화 인프라</li>
+                    </ul>
+                `
+            },
+            {
+                id: "c-4",
+                name: "채산식품단지",
+                gu: "북구",
+                location: "채산동",
+                industry: "식품산업, F&B, 식가공",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">대규모 식음료 가공 및 식품 산업 밸류체인이 구성된 곳입니다.</p>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <p class="text-slate-700 text-sm font-bold mb-2">주요 특징</p>
+                        <p class="text-slate-600 text-xs leading-relaxed">인접한 <strong>평전공단</strong>과 연계하여 효빈시 뿐만 아니라 전국 단위의 먹거리 유통망을 책임지는 식량 안보의 핵심 기지입니다. 항동물류지구 ZONE A를 통해 전국으로 직배송됩니다.</p>
+                    </div>
+                `
+            },
+            {
+                id: "c-5",
+                name: "평전공단",
+                gu: "북구",
+                location: "평전동, 신영동",
+                industry: "대기업 중심 첨단 제조업",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">글로벌 대기업 중심의 하이테크 생산 기지 및 R&D 센터가 밀집된 북구의 핵심 인프라 구역입니다.</p>
+                    <ul class="list-disc list-inside text-xs text-slate-600 space-y-1">
+                        <li>첨단 반도체 및 정밀 전자기기 생산 라인</li>
+                        <li>채산식품단지와의 연계 시너지 창출</li>
+                        <li>최대 15년 지방세 감면 등 대형 투자 특화 지원</li>
+                    </ul>
+                `
+            },
+            {
+                id: "c-6",
+                name: "뇌전공업단지",
+                gu: "안천구",
+                location: "뇌전동",
+                industry: "전력산업, 중전기기, 송배전 설비",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">박효빈 시장의 4대 중점 발전 계획 중 하나인 전력 인프라 확충의 전초기지입니다.</p>
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                        <p class="text-slate-700 text-sm font-bold mb-2">특화 분야</p>
+                        <p class="text-slate-600 text-xs leading-relaxed">중전기기, 송배전 설비 등 국가 및 광역 전력망 유지에 필수적인 핵심 부품 제조업체들이 밀집해 있으며, 항동물류지구 ZONE B를 통해 자재를 수급받고 있습니다.</p>
+                    </div>
+                `
+            },
+            {
+                id: "c-7",
+                name: "효빈공단",
+                gu: "남구·청엽구·창전구",
+                location: "신흥, 포장, 헌이송, 마잡, 동곡, 팔조",
+                industry: "일반 제조, 뿌리산업",
+                descHtml: `
+                    <p class="mb-4 text-slate-600">효빈시 경제 성장의 기틀을 마련한 역사적인 최대 규모 원도심형 복합 공단입니다.</p>
+                    <ul class="list-disc list-inside text-xs text-slate-600 space-y-1">
+                        <li>남구, 청엽구, 창전구 3개 구에 걸친 방대한 면적</li>
+                        <li>기초 소재 생산부터 가공까지 자체 풀밸류체인 형성</li>
+                        <li>노후 공정의 스마트화·자동화 전환 자금 우대 대출 지원 지구</li>
+                    </ul>
+                `
+            }
+        ];
+
+        let currentComplexes = [];
+        let selectedComplex = null; 
+
+        // 동적 테이블 렌더링 함수
+        function renderComplexTable(data) {
+            const tbody = document.getElementById('complexListBody');
+            const noResult = document.getElementById('noResult');
+            const totalCount = document.getElementById('totalCount');
+            const dataTableWrap = document.querySelector('.data-table-wrap');
+            
+            tbody.innerHTML = '';
+            totalCount.textContent = data.length;
+
+            if (data.length === 0) {
+                dataTableWrap.classList.add('hidden');
+                noResult.classList.remove('hidden');
+                return;
+            } else {
+                dataTableWrap.classList.remove('hidden');
+                noResult.classList.add('hidden');
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row group';
+                tr.onclick = () => openComplexDetail(item.id);
+
+                tr.innerHTML = `
+                    <td class="text-center">
+                        <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold border border-slate-200">${item.gu}</span>
+                    </td>
+                    <td class="text-left font-bold text-slate-800 text-[15px] group-hover:text-emerald-600 transition">
+                        ${item.name}
+                    </td>
+                    <td class="text-left text-sm text-slate-600">
+                        ${item.location}
+                    </td>
+                    <td class="text-center text-sm font-medium text-slate-700 break-keep">
+                        ${item.industry}
+                    </td>
+                    <td class="text-center">
+                        <button class="text-xs bg-white border border-slate-300 text-slate-600 px-2 py-1 rounded hover:bg-slate-100 hover:text-slate-800 transition">보기</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 검색 필터 로직
+        function filterComplexes() {
+            const districtVal = document.getElementById('districtSelect').value;
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().replace(/\s/g, '');
+
+            const filtered = currentComplexes.filter(item => {
+                // 구/군 다중 매칭 처리 (효빈공단의 경우 '남구·청엽구·창전구' 텍스트를 포함하므로)
+                const matchDistrict = districtVal === "" || item.gu.includes(districtVal);
+                const targetString = `${item.name}${item.location}${item.industry}`.toLowerCase().replace(/\s/g, '');
+                const matchSearch = targetString.includes(searchVal);
+                return matchDistrict && matchSearch;
+            });
+            renderComplexTable(filtered);
+        }
+
+        // 초기화
+        function initComplexes() {
+            currentComplexes = [...rawComplexData];
+            document.getElementById('districtSelect').value = '';
+            document.getElementById('searchInput').value = '';
+            renderComplexTable(currentComplexes);
+        }
+
+        function scrollToComplex() {
+            document.getElementById('complexSection').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => document.getElementById('searchInput').focus(), 500);
+        }
+
+        // --- 모달 로직 ---
+        function openInvestModal() {
+            const modal = document.getElementById('investModal');
+            modal.classList.remove('modal-hidden');
+            modal.classList.add('modal-visible');
+        }
+
+        function closeInvestModal() {
+            const modal = document.getElementById('investModal');
+            modal.classList.remove('modal-visible');
+            modal.classList.add('modal-hidden');
+        }
+
+        function openComplexDetail(id) {
+            selectedComplex = currentComplexes.find(c => c.id === id);
+            if(!selectedComplex) return;
+
+            document.getElementById('modalGu').textContent = selectedComplex.gu;
+            document.getElementById('modalTitle').textContent = selectedComplex.name;
+            document.getElementById('modalIndustry').textContent = selectedComplex.industry;
+            document.getElementById('modalLocation').textContent = selectedComplex.location;
+            document.getElementById('modalDesc').innerHTML = selectedComplex.descHtml;
+
+            const modal = document.getElementById('complexDetailModal');
+            modal.classList.remove('modal-hidden');
+            modal.classList.add('modal-visible');
+            
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function closeComplexDetail() {
+            const modal = document.getElementById('complexDetailModal');
+            modal.classList.remove('modal-visible');
+            modal.classList.add('modal-hidden');
+            selectedComplex = null;
+        }
+
+        window.onload = function() {
+            initComplexes();
+            if(window.lucide) lucide.createIcons();
+        };
+
+    </script>
+    
+    <!-- 사용자 요청 필수 유지 스크립트 영역 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+</body>
+</html>
