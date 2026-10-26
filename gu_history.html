@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>역대 구청장/군수 안내</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="gu_data.js"></script>
+<script src="gu_automator.js"></script>
+</head>
+<body class="bg-slate-50 text-gray-800">
+
+    <div class="max-w-4xl mx-auto py-10 px-4">
+        <!-- 1. JS가 치환할 자리들 (id로 뚫어둠) -->
+        <h1 id="page-title" class="text-4xl font-black text-blue-700 mb-2">OO구청</h1>
+        <p class="text-slate-500 mb-8"><span id="page-address">주소</span> | <span id="page-phone">전화번호</span></p>
+
+        <h2 class="text-2xl font-bold mb-4 border-b-2 border-slate-300 pb-2">역대 <span id="head-title">구청장</span></h2>
+        
+        <table class="w-full bg-white border border-slate-200 shadow-sm rounded text-center">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="py-3 border-b">대수(임기)</th>
+                    <th class="py-3 border-b">정당</th>
+                    <th class="py-3 border-b">성명</th>
+                </tr>
+            </thead>
+            <!-- 2. JS가 표 내용을 주입할 자리 -->
+            <tbody id="history-table-body">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. 주소창에서 ?gu=buk 부분을 가져옴
+            const urlParams = new URLSearchParams(window.location.search);
+            let guKey = urlParams.get('gu');
+            
+            // 만약 주소창에 ?gu= 가 없으면 기본값으로 중구를 띄움
+            if (!guKey || !guDatabase[guKey]) {
+                guKey = 'jung'; 
+            }
+
+            // 2. gu_data.js 에서 해당 구청 데이터 뽑기
+            const data = guDatabase[guKey];
+
+            // 3. HTML 요소들을 데이터로 갈아끼움
+            document.getElementById('page-title').textContent = data.title; // ex) 북구청
+            document.getElementById('page-address').textContent = data.address;
+            document.getElementById('page-phone').textContent = data.phone;
+            document.getElementById('head-title').textContent = data.headTitle; // 구청장 or 군수
+            document.title = `역대 ${data.headTitle} | ${data.title}`;
+
+            // 4. 역대 구청장 표 그리기
+            const tbody = document.getElementById('history-table-body');
+            let rowsHtml = '';
+            
+            if (data.history.length === 0) {
+                rowsHtml = `<tr><td colspan="3" class="py-10 text-slate-500">등록된 역대 ${data.headTitle} 데이터가 없습니다.</td></tr>`;
+            } else {
+                data.history.forEach(item => {
+                    // 당 색상 입히기 로직 (간단 예시)
+                    let partyColor = "text-slate-700";
+                    if (item.party.includes("민주") || item.party === "새정치국민회의" || item.party === "열린우리당") partyColor = "text-blue-600 font-bold";
+                    if (item.party.includes("한나라") || item.party.includes("새누리") || item.party.includes("자유민주") || item.party === "민주자유당") partyColor = "text-red-600 font-bold";
+                    
+                    rowsHtml += `
+                        <tr class="border-b hover:bg-slate-50 transition">
+                            <td class="py-3 font-medium">${item.term}</td>
+                            <td class="py-3 ${partyColor}">${item.party}</td>
+                            <td class="py-3 font-bold text-lg text-slate-900">${item.name}</td>
+                        </tr>
+                    `;
+                });
+            }
+            tbody.innerHTML = rowsHtml;
+        });
+    </script>
+</body>
+</html>

@@ -809,15 +809,14 @@ const headerHTML = `
                     <div class="absolute right-0 top-full mt-0 w-80 bg-white text-slate-800 font-normal shadow-xl border-t-[3px] border-blue-600 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col z-50 p-4 whitespace-normal">
                         <p class="text-sm text-slate-500 font-bold mb-3 border-b pb-2">효빈광역시 행정구역</p>
                         <div class="grid grid-cols-3 gap-2 text-center text-[13px]">
-                            <a href="북구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">북구</a>
-                            <a href="중구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">중구</a>
-                            <a href="동구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">동구</a>
-                            <a href="서구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">서구</a>
-                            <a href="남구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">남구</a>
-                            <a href="탄성군.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">탄성군</a>
-                            <a href="창전구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">창전구</a>
-                            <a href="청엽구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">청엽구</a>
-                            <a href="안천구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">안천구</a>
+                            <a href="북구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">북구</a>
+                            <a href="중구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">중구</a>                            <a href="동구.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">동구</a>
+                            <a href="서구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">서구</a>
+                            <a href="남구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">남구</a>
+                            <a href="탄성군소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">탄성군</a>
+                            <a href="창전구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">창전구</a>
+                            <a href="청엽구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">청엽구</a>
+                            <a href="안천구소개.html" class="p-2 hover:bg-blue-50 hover:text-blue-600 rounded border border-slate-100 transition">안천구</a>
                         </div>
                     </div>
                 </li>
@@ -853,9 +852,21 @@ const footerHTML = `
                     <a href="contact.html" class="hover:text-slate-900 hover:underline" data-policy="directions">찾아오시는 길</a>
                 </div>
                 
-                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                    <select id="family-site" class="border border-slate-300 rounded px-3 py-1.5 text-slate-600 outline-none hover:border-slate-400 transition bg-white w-full md:w-48">
+<div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <select id="family-site" class="border border-slate-300 rounded px-3 py-1.5 text-slate-600 outline-none hover:border-slate-400 transition bg-white w-full md:w-56">
                         <option value="">유관기관 바로가기</option>
+                        <optgroup label="본청 및 자치구·군">
+                            <option value="index.html">효빈광역시청 (본청)</option>
+                            <option value="index.html?gu=jung">효빈광역시 중구청</option>
+                            <option value="index.html?gu=dong">효빈광역시 동구청</option>
+                            <option value="index.html?gu=seo">효빈광역시 서구청</option>
+                            <option value="index.html?gu=nam">효빈광역시 남구청</option>
+                            <option value="index.html?gu=buk">효빈광역시 북구청</option>
+                            <option value="index.html?gu=changjeon">효빈광역시 창전구청</option>
+                            <option value="index.html?gu=cheongyeop">효빈광역시 청엽구청</option>
+                            <option value="index.html?gu=ancheon">효빈광역시 안천구청</option>
+                            <option value="index.html?gu=tanseong">효빈광역시 탄성군청</option>
+                        </optgroup>
                         <optgroup label="산하기관">
                             <option value="HyobinMetro/index.html">효빈교통공사</option>
                             <option value="culture_foundation.html">효빈문화공단</option>
@@ -892,8 +903,7 @@ const footerHTML = `
                         <i data-lucide="layers" class="w-4 h-4 inline-block align-text-bottom"></i> 세부조직도
                     </button>
                 </div>
-            </div>
-            
+            </div>            
             <div class="flex flex-col md:flex-row justify-between items-end md:items-start gap-8">
                 <div class="text-slate-500 space-y-2 leading-relaxed flex-grow w-full md:w-auto">
                     <p class="text-slate-600"><span class="mr-2">(우) 79791</span><span>효빈광역시 북구 효빈로 79(고송8동)</span></p>
@@ -1705,7 +1715,247 @@ const modalsHTML = `
 `;
 
 // ==========================================
-// [스크립트 실행부]
+// [스크립트 실행부 - 무한루프 완벽 제거 버전]
+// ==========================================
+
+window.guDatabase = window.guDatabase || {    "jung": { 
+        name: "중구", title: "중구청", headTitle: "구청장", headName: "구성연", 
+        color: "#BB9955", textColor: "#ffffff",
+        addr: "효빈광역시 중구 중앙로 101 (조유동)", phone: "079-242-8192", fax: "079-242-8191", duty: "079-242-8190",
+        sloganPre: "역사와 미래가 공존하는 중심!", ribbon: "구민이 행복한 역사문화 중심도시, 효빈 중구"
+    },
+    "dong": { 
+        name: "동구", title: "동구청", headTitle: "구청장", headName: "조우영", 
+        color: "#FF9922", textColor: "#ffffff",
+        addr: "효빈광역시 동구 덕성로 12 (덕현2동)", phone: "079-284-1193", fax: "079-284-1192", duty: "079-284-1191",
+        sloganPre: "생동하는 활력, 도약하는 동구!", ribbon: "내일이 더 빛나는 희망찬 효빈 동구"
+    },
+    "seo": { 
+        name: "서구", title: "서구청", headTitle: "구청장", headName: "부서원", 
+        color: "#00AABB", textColor: "#ffffff",
+        addr: "효빈광역시 서구 당선동 77 (당선4동)", phone: "079-634-2201", fax: "079-634-2200", duty: "079-634-2199",
+        sloganPre: "쾌적한 삶터, 명품 교육·주거도시!", ribbon: "사람과 자연이 조화로운 명품 효빈 서구"
+    },
+    "nam": { 
+        name: "남구", title: "남구청", headTitle: "구청장", headName: "오전희", 
+        color: "#DDBBFF", textColor: "#1e293b",
+        addr: "효빈광역시 남구 평당중앙로 33 (평당3동)", phone: "079-451-9034", fax: "079-451-9033", duty: "079-451-9032",
+        sloganPre: "살기 좋은 남구, 구민이 주인인 도시!", ribbon: "모두의 밝은 미래, 따뜻하고 행복한 효빈 남구"
+    },
+    "buk": { 
+        name: "북구", title: "북구청", headTitle: "구청장", headName: "김지언", 
+        color: "#7799CC", textColor: "#ffffff",
+        addr: "효빈광역시 북구 고중로 2 (중수1동)", phone: "079-321-5042", fax: "079-321-5041", duty: "079-321-5040",
+        sloganPre: "행정·문화·상업의 핵심 허브!", ribbon: "구민과 함께 미래를 여는 중심도시 효빈 북구"
+    },
+    "cheongyeop": { 
+        name: "청엽구", title: "청엽구청", headTitle: "구청장", headName: "권상남", 
+        color: "#006699", textColor: "#ffffff",
+        addr: "효빈광역시 청엽구 청엽로 51 (청엽1동)", phone: "079-781-4920", fax: "079-781-4919", duty: "079-781-4918",
+        sloganPre: "글로벌 미래교육과 경제의 중심!", ribbon: "세계로 뻗어가는 명품 혁신도시 효빈 청엽구"
+    },
+    "changjeon": { 
+        name: "창전구", title: "창전구청", headTitle: "구청장", headName: "전역헌", 
+        color: "#33AAFF", textColor: "#ffffff",
+        addr: "효빈광역시 창전구 모포로 21 (창전3동)", phone: "079-822-1594", fax: "079-822-1593", duty: "079-822-1592",
+        sloganPre: "스마트 교통과 미래산업의 요충지!", ribbon: "새롭게 도약하는 역동적인 스마트 효빈 창전구"
+    },
+    "ancheon": { 
+        name: "안천구", title: "안천구청", headTitle: "구청장", headName: "이규희", 
+        color: "#AA66DD", textColor: "#ffffff",
+        addr: "효빈광역시 안천구 안천중앙로 52 (안천6동)", phone: "079-915-7732", fax: "079-915-7731", duty: "079-915-7730",
+        sloganPre: "사통팔달 광역교통과 첨단문화의 만남!", ribbon: "다채로운 매력이 넘치는 활력도시 효빈 안천구"
+    },
+    "tanseong": { 
+        name: "탄성군", title: "탄성군청", headTitle: "군수", headName: "성선설", 
+        color: "#BBFF64", textColor: "#1e293b",
+        addr: "효빈광역시 탄성군 탄성읍 공리 24", phone: "079-134-8821", fax: "079-134-8820", duty: "079-134-8819",
+        sloganPre: "청정 자연과 첨단 해양산업의 조화!", ribbon: "자연과 사람이 함께 웃는 풍요로운 효빈 탄성군"
+    }
+};
+
+function applyGuTheme() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const guKey = urlParams.get('gu');
+    if (!guKey || !guDatabase[guKey]) return;
+
+    const data = guDatabase[guKey];
+    const regionTitle = data.title;     // "남구청"
+    const regionName = data.name;       // "남구"
+    const headName = data.headName;     // "오전희"
+    const headTitle = data.headTitle;   // "구청장"
+    const cleanHeadTitle = regionName.endsWith('구') && headTitle === '구청장' ? `${regionName}청장` : `${regionName}${headTitle}`;
+
+    // 1. 탭 제목 변경
+    document.title = document.title.replace(/효빈광역시/g, regionTitle);
+
+    // 2. 상단 헤더 & 네비게이션 변환
+    const headerWrap = document.getElementById('common-header');
+    if (headerWrap) {
+        const topHeader = headerWrap.querySelector('header');
+        if (topHeader) {
+            topHeader.style.backgroundColor = data.color;
+            topHeader.style.color = data.textColor;
+            
+            const logoImg = topHeader.querySelector('img');
+            if (logoImg) {
+                // 남구.webp가 없으면 효빈시_로고.webp나 logo.webp가 대신 뜨도록 방어!
+                logoImg.setAttribute('onerror', "if(!this.dataset.fb){this.dataset.fb='1'; this.src='이미지/logo.webp';}else{this.style.display='none';}");
+                logoImg.src = `이미지/${regionName}.webp`;
+                logoImg.style.display = 'block';
+            }
+            const logoSpan = topHeader.querySelector('span.text-2xl');
+            if (logoSpan) {
+                logoSpan.textContent = regionTitle;
+                logoSpan.style.color = data.textColor;
+            }
+            const iconDiv = topHeader.querySelector('.text-gray-300');
+            if (iconDiv) iconDiv.style.color = data.textColor;
+        }
+
+        const navBar = headerWrap.querySelector('nav');
+        if (navBar && !navBar.dataset.guDone) {
+            navBar.style.borderTopColor = data.color;
+            navBar.innerHTML = navBar.innerHTML
+                .replace(/효빈소개/g, `${regionName}소개`)
+                .replace(/시장실/g, `${headTitle}실`)
+                .replace(/시장에게 바란다/g, `${headTitle}에게 바란다`)
+                .replace(/역대시장/g, `역대${headTitle}`)
+                .replace(/시정구호/g, `구정구호`)
+                .replace(/시정백서/g, `구정백서`);
+            navBar.dataset.guDone = "true";
+        }
+    }
+
+    // 3. 메인 페이지(index.html) 비주얼 변환
+    const mainVisual = document.querySelector('.main-visual-content');
+    if (mainVisual) {
+        // 좌측 구청장 영역
+        const sloganPre = mainVisual.querySelector('[data-i18n-key="main-slogan-pre"], .auto-gu-slogan-pre');
+        if (sloganPre) {
+            sloganPre.removeAttribute('data-i18n-key');
+            sloganPre.textContent = data.sloganPre;
+        }
+        const headText = mainVisual.querySelector('[data-i18n-key="main-slogan-main"], .auto-gu-head-text');
+        if (headText) {
+            headText.removeAttribute('data-i18n-key');
+            headText.textContent = `${cleanHeadTitle} ${headName}입니다.`;
+        }
+        const headImg = mainVisual.querySelector('.auto-gu-head-img, img[alt*="시장"]');
+        if (headImg) {
+            headImg.src = `이미지/${headName}.webp`;
+            headImg.alt = `${headName} ${headTitle}`;
+            headImg.style.display = 'block';
+        }
+
+        // 우측 마스코트 영역 (한바다 대신 구청 상징/로고로 변경)
+        const mascotPre = mainVisual.querySelector('[data-i18n-key="mascot-title-pre"]');
+        if (mascotPre) {
+            mascotPre.removeAttribute('data-i18n-key');
+            mascotPre.textContent = `효빈광역시 ${regionName}`;
+        }
+        const mascotTitle = mainVisual.querySelector('[data-i18n-key="mascot-title"]');
+        if (mascotTitle) {
+            mascotTitle.removeAttribute('data-i18n-key');
+            mascotTitle.textContent = `${regionName}의 상징`;
+        }
+        const mascotName = mainVisual.querySelector('[data-i18n-key="mascot-name"]');
+        if (mascotName) {
+            mascotName.removeAttribute('data-i18n-key');
+            mascotName.textContent = `${regionTitle} 안내`;
+        }
+        const mascotImg = mainVisual.querySelector('img[alt="마스코트"]');
+        if (mascotImg) {
+            mascotImg.setAttribute('onerror', "if(!this.dataset.fb){this.dataset.fb='1'; this.src='이미지/한바다.webp';}");
+            mascotImg.src = `이미지/${regionName}.webp`;
+            mascotImg.className = "w-full h-full object-contain p-4 bg-white/80";
+        }
+    }
+
+    // 4. 메인 뒷배경 이미지 (남구청.webp, 없으면 main_bg.webp로 복구해서 회색창 방지!)
+    const bgImg = document.querySelector('section img[alt="배경 이미지"]');
+    if (bgImg) {
+        bgImg.setAttribute('onerror', "if(!this.dataset.fb){this.dataset.fb='1'; this.src='이미지/main_bg.webp';}else{this.style.display='none';}");
+        bgImg.src = `이미지/${regionTitle}.webp`;
+        bgImg.style.display = 'block';
+    }
+
+    // 서브페이지 상단 배너 배경
+    const subVisual = document.querySelector('.sub-visual');
+    if (subVisual) {
+        subVisual.style.backgroundImage = `url('이미지/${regionTitle}.webp'), url('효빈광역시청사배경.webp'), linear-gradient(to right, ${data.color}, #1e3a8a)`;
+    }
+
+    // 5. 리본 슬로건 & 아이콘 메뉴
+    const ribbon = document.querySelector('.ribbon-main');
+    if (ribbon) {
+        ribbon.removeAttribute('data-i18n-key');
+        ribbon.textContent = data.ribbon;
+        ribbon.style.backgroundColor = data.color;
+        ribbon.style.color = data.textColor;
+    }
+    const menuContainer = document.getElementById('menu-container');
+    if (menuContainer && !menuContainer.dataset.guDone) {
+        menuContainer.innerHTML = menuContainer.innerHTML
+            .replace(/시장에게<br>바란다/g, `${headTitle}에게<br>바란다`)
+            .replace(/시정뉴스/g, `${regionName.slice(0,-1)}정뉴스`);
+        menuContainer.dataset.guDone = "true";
+    }
+
+    // 6. 하단 푸터 변환
+    const footerWrap = document.getElementById('common-footer');
+    if (footerWrap && !footerWrap.dataset.guDone && footerWrap.innerHTML.trim() !== "") {
+        footerWrap.innerHTML = footerWrap.innerHTML
+            .replace(/효빈광역시 북구 효빈로 79\(고송8동\)/g, data.addr)
+            .replace(/079-591-2548/g, data.phone)
+            .replace(/079-591-2547/g, data.fax)
+            .replace(/079-591-2546/g, data.duty)
+            .replace(/HYOBIN CITY/g, `HYOBIN ${guKey.toUpperCase()}`);
+        
+        const footerLogo = footerWrap.querySelector('img[alt="하단 로고"]');
+        if (footerLogo) {
+            footerLogo.setAttribute('onerror', "if(!this.dataset.fb){this.dataset.fb='1'; this.src='이미지/logo.webp';}");
+            footerLogo.src = `이미지/${regionName}.webp`;
+        }
+        footerWrap.dataset.guDone = "true";
+    }
+
+    // 7. 서브페이지 (통계연보 등) 제목/설명 자동 치환
+    ['hero-title', 'lnb-main-title', 'bread-1', 'bread-2', 'info-box-title'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.dataset.guDone) {
+            el.innerHTML = el.innerHTML.replace(/효빈광역시/g, regionTitle).replace(/효빈/g, regionName);
+            el.dataset.guDone = "true";
+        }
+    });
+    const infoBoxDesc = document.getElementById('info-box-desc');
+    if (infoBoxDesc && !infoBoxDesc.dataset.guDone) {
+        infoBoxDesc.innerHTML = infoBoxDesc.innerHTML.replace(/효빈광역시/g, regionTitle);
+        infoBoxDesc.dataset.guDone = "true";
+    }
+
+    // 8. 페이지 내 모든 링크에 ?gu=남구 유지시키기
+    document.querySelectorAll('a[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        if (href && href.includes('.html') && !href.includes('gu=') && !href.startsWith('http') && !href.match(/(동|읍|면|구|군)\.html/)) {
+            if (href.includes('#')) {
+                const parts = href.split('#');
+                a.setAttribute('href', `${parts[0]}${parts[0].includes('?') ? '&' : '?'}gu=${guKey}#${parts[1]}`);
+            } else {
+                a.setAttribute('href', `${href}${href.includes('?') ? '&' : '?'}gu=${guKey}`);
+            }
+        }
+    });
+    document.querySelectorAll('[onclick*="location.href"]').forEach(el => {
+        const oc = el.getAttribute('onclick');
+        if (oc && oc.includes('.html') && !oc.includes('gu=')) {
+            el.setAttribute('onclick', oc.replace(/\.html'/g, `.html?gu=${guKey}'`));
+        }
+    });
+}
+
+// ==========================================
+// [초기화 실행] 헤더/푸터 생성 직후 바로 구청 테마 적용!
 // ==========================================
 document.addEventListener("DOMContentLoaded", function() {
     const oldModals = ['search-overlay', 'language-modal', 'full-menu-modal', 'policy-modal', 'family-site-modal'];
@@ -1718,19 +1968,21 @@ document.addEventListener("DOMContentLoaded", function() {
     if(document.getElementById('common-footer')) document.getElementById('common-footer').innerHTML = footerHTML;
     if(document.getElementById('common-modals')) document.getElementById('common-modals').innerHTML = modalsHTML;
     
-    // ==========================================
-    // ★ 만족도 조사 중복 방지 로직 (여기 추가)
-    // ==========================================
     const surveys = document.querySelectorAll('.page-satisfaction-survey');
     if (surveys.length > 1) {
-        // 배열의 맨 마지막 요소(보통 공통 푸터에 추가된 놈)를 삭제합니다.
         surveys[surveys.length - 1].remove();
     }
     
+    // ★ 헤더/푸터를 그린 직후 바로 구청 테마 덮어씌우기 실행!
+    applyGuTheme();
+    // 혹시 script.js가 뒤늦게 글씨를 덮어쓰는 경우를 대비해 0.1초 뒤 한 번만 더 확인
+    setTimeout(applyGuTheme, 100);
+
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 });
+
 window.goFamilySite = function() {
     const selectBox = document.getElementById('family-site');
     if (selectBox && selectBox.value !== "") {
@@ -1760,13 +2012,11 @@ window.toggleMobileMenu = function(btn) {
                 }
             }
         });
-
         submenu.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-        
+        if (icon) icon.classList.add('rotate-180');
     } else {
         submenu.classList.add('hidden');
-        icon.classList.remove('rotate-180');
+        if (icon) icon.classList.remove('rotate-180');
     }
 };
 
@@ -1794,33 +2044,53 @@ window.closeOverlay = function(modalId, contentId) {
 
 window.setLanguage = function(lang) {
     alert("선택하신 언어(" + lang + ")로 변경합니다.");
-    
-    // script.js에 정의된 실제 언어 변경 로직 호출
     if (typeof applyTranslation === 'function') {
         applyTranslation(lang);
     }
-    
+    setTimeout(applyGuTheme, 50); // 언어 변경 후에도 구청 이름 유지
     closeOverlay('language-modal', 'language-content-wrapper');
 };
+
 window.submitSatisfaction = function() {
-    // 1. 선택된 라디오 버튼의 값 가져오기
     const selectedRadio = document.querySelector('input[name="satisfaction"]:checked');
     const selectedValue = selectedRadio ? selectedRadio.value : '미선택';
-    
-    // 2. 작성된 의견 텍스트 가져오기
     const commentInput = document.getElementById('satisfaction-comment');
     const comment = commentInput.value.trim();
     
-    // 3. 실제 서버로 데이터를 전송하려면 이 위치에 fetch API나 AJAX 코드를 작성하시면 됩니다.
-    // 예: fetch('/api/survey', { method: 'POST', body: JSON.stringify({ score: selectedValue, comment: comment }) });
-    
-    // 4. 사용자에게 피드백 제공 (알림창)
     let alertMessage = "평가가 성공적으로 등록되었습니다.\n소중한 의견 감사합니다!\n\n[제출된 내용]\n평가: " + selectedValue;
     if (comment !== "") {
         alertMessage += "\n의견: " + comment;
     }
     alert(alertMessage);
-    
-    // 5. 제출 후 입력창 초기화
     commentInput.value = '';
 };
+
+// 행정복지센터(동/읍/면) 및 구청/군청 링크 클릭 시 자동 라우팅!
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (!link) return;
+    
+    const href = link.getAttribute('href');
+    if (!href) return;
+
+    // 1. 북구.html, 남구.html 등을 누르면 index.html?gu=buk 등으로 이동
+    const guMap = {
+        '중구.html': 'jung', '동구.html': 'dong', '서구.html': 'seo',
+        '남구.html': 'nam', '북구.html': 'buk', '청엽구.html': 'cheongyeop',
+        '창전구.html': 'changjeon', '안천구.html': 'ancheon', '탄성군.html': 'tanseong'
+    };
+    for (let file in guMap) {
+        if (href.endsWith(file)) {
+            e.preventDefault();
+            window.location.href = `index.html?gu=${guMap[file]}`;
+            return;
+        }
+    }
+
+    // 2. 고송8동.html 등을 누르면 행정복지센터.html?dong=고송8동 으로 이동
+    if (href.match(/(동|읍|면)\.html$/)) {
+        e.preventDefault(); 
+        const targetName = decodeURIComponent(href.replace('.html', ''));
+        window.location.href = `행정복지센터.html?dong=${targetName}`;
+    }
+});
