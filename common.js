@@ -34,7 +34,7 @@ const headerHTML = `
                                 <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">시민 경청</h4>
                                 <ul class="space-y-2 text-[13px]">
                                     <li><a href="mayor.html" class="hover:text-blue-600">시장실</a></li>
-                                    <li><a href="petition.html" class="hover:text-blue-600">시장에게 바란다</a></li>
+                                    <li><a href="시장에게바란다.html" class="hover:text-blue-600">시장에게 바란다</a></li>
                                     <li><a href="통합자료실.html" class="hover:text-blue-600">통합자료실</a></li>
                                     <li><a href="질의답변.html" class="hover:text-blue-600">질의답변</a></li>
                                     <li><a href="일일브리핑.html" class="hover:text-blue-600">일일 브리핑</a></li>
@@ -642,7 +642,7 @@ const headerHTML = `
                                 </ul>
                             </div>
                             <div>
-                                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">특화사업 현황 (효빈위키)</h4>
+                                <h4 class="font-bold text-blue-700 mb-3 border-b-2 border-blue-100 pb-2">특화사업 현황</h4>
                                 <ul class="space-y-1.5 text-[12px]">
                                     <li><a href="효빈현대백화점사업.html" class="hover:text-blue-600">효빈현대백화점 사업 (고송동)</a></li>
                                     <li><a href="효빈신세계백화점사업.html" class="hover:text-blue-600">효빈신세계백화점 사업 (종합버스터미널)</a></li>

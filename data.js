@@ -364,7 +364,7 @@ const SEARCH_INDEX = [
   { id:"culture", type:"서비스", title:"문화&행사", dept:"", date:"", tags:["문화","행사","축제"], url:"culture.html", summary:"문화행사/축제 정보" },
   { id:"economy", type:"서비스", title:"금융관련", dept:"", date:"", tags:["금융","지원","경제"], url:"economy.html", summary:"금융/경제 관련 안내" },
   { id:"bus", type:"서비스", title:"버스", dept:"", date:"", tags:["버스","노선","정류장"], url:"bus.html", summary:"버스 노선/시간표 안내" },
-  { id:"petition", type:"서비스", title:"시장에게 바란다", dept:"", date:"", tags:["건의","제안","참여"], url:"petition.html", summary:"시민 건의/제안 접수" },
+  { id:"petition", type:"서비스", title:"시장에게 바란다", dept:"", date:"", tags:["건의","제안","참여"], url:"시장에게바란다.html", summary:"시민 건의/제안 접수" },
   { id:"org", type:"서비스", title:"조직도", dept:"", date:"", tags:["조직","부서","전화"], url:"org.html", summary:"조직/부서 안내" },
 
   // 참여/소통
