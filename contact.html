@@ -4,84 +4,769 @@
     <link rel="icon" href="이미지/logo.webp">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>문의 - 효빈광역시</title>
+    <title>시청안내 - 찾아오시는길 | 효빈광역시 공식 홈페이지</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style> body { font-family: 'Noto Sans KR', sans-serif; } </style>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual-overlay { position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); transition: background-color 0.3s; }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
+
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 교통 배지 스타일 */
+        .bus-badge { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 0.75rem; color: #ffffff; margin-right: 4px; flex-shrink: 0; }
+        .svg-subway-logo { width: 22px; height: 22px; object-fit: contain; display: inline-block; vertical-align: middle; margin-right: 4px; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="bg-slate-50 min-h-screen flex flex-col relative text-gray-800 scroll-smooth">
+
+    <!-- 1. 최상단 헤더 -->
     <div id="common-header"></div>
 
-    <div class="w-full bg-slate-700 py-12 text-center text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-slate-900 opacity-60"></div>
+    <!-- 2. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center text-center px-4">
+        <div class="sub-visual-overlay" id="sub-visual-bg"></div>
         <div class="relative z-10">
-            <h1 class="text-4xl font-black mb-3">오시는 길 & 문의</h1>
-            <p class="text-slate-300 font-medium text-lg">효빈광역시청은 언제나 시민 여러분 곁에 있습니다.</p>
+            <h1 class="text-white text-4xl md:text-5xl font-black tracking-tight text-shadow-strong mb-2" id="sub-visual-title">효빈소개</h1>
+            <p class="text-slate-200 font-medium text-base md:text-lg" id="sub-visual-desc">효빈광역시청은 언제나 시민 여러분 곁에 있습니다.</p>
         </div>
     </div>
 
-    <main class="max-w-6xl mx-auto px-4 py-12 w-full mb-20">
+    <!-- 3. 본문 컨테이너 (좌측 LNB 사이드바 + 우측 본문) -->
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full flex-grow mb-16">
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div class="bg-white rounded-xl h-[450px] relative overflow-hidden border border-slate-300 shadow-sm">
-                <iframe 
-                    src="https://binia1.github.io/mymap/" 
-                    class="w-full h-full border-0" 
-                    title="효빈광역시 전자지도"
-                    loading="lazy"
-                    allowfullscreen>
-                </iframe>
+        <!-- 좌측 아코디언 LNB 사이드바 -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4" id="lnb-wrap-box">
+                <div class="lnb-title" id="lnb-main-title">효빈소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">해외자매도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single" id="lnb-slogan-link">시정구호</a></li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hall-label">시청안내</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="contact.html" class="current" id="lnb-current-link">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-symbol-label">시의상징</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html" id="lnb-bird-link">시조/시화/시목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html" id="lnb-day-link">시민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html" id="lnb-song-link">시민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-stat-label">효빈통계</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html" id="lnb-whitepaper-link">시정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hist-label">효빈의역사</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대시장.html" id="lnb-mayor-link">역대시장</a></li>
+                            <li><a href="history.html" id="lnb-origin-link">효빈의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 본문 영역 -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 flex-wrap">
+                <a href="index.html" id="bread-home" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-1">효빈소개</span> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-2">시청안내</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="bread-3">찾아오시는길</strong>
             </div>
 
-            <div class="space-y-8">
-                <div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="map-pin" class="w-6 h-6 mr-2 text-blue-600"></i> 주소</h3>
-                    <p class="text-slate-600 text-lg">(우) 79791<br>효빈광역시 북구 효빈로 79 (고송8동)</p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="phone" class="w-6 h-6 mr-2 text-green-600"></i> 연락처 안내</h3>
-                    <ul class="text-slate-600 text-lg space-y-2">
-                        <li><span class="font-bold w-24 inline-block">대표전화</span> 079-591-2548</li>
-                        <li><span class="font-bold w-24 inline-block">팩스</span> 079-591-2547</li>
-                        <li><span class="font-bold w-24 inline-block">당직실</span> 079-591-2546</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i data-lucide="bus" class="w-6 h-6 mr-2 text-orange-600"></i> 대중교통 이용 안내</h3>
-                    <ul class="text-slate-600 space-y-6">
-                        <li>
-                            <div class="flex flex-wrap items-center gap-2 mb-2">
-                                <span class="text-white text-xs px-2 py-1 rounded font-bold" style="background-color: #00ccaa;">도시철도 2호선</span>
-                                <span class="text-white text-xs px-2 py-1 rounded font-bold" style="background-color: #881188;">도시철도 6호선</span>
-                            </div>
-                            <p class="text-slate-700 font-medium ml-1">시청역 8, 9번 출구 (내부진입 가능)</p>
-                        </li>
-                        <li class="border-t border-slate-200 pt-4">
-                            <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded font-bold mb-3 inline-block">버스</span>
-                            <div class="text-sm space-y-3">
-                                <div class="flex flex-col sm:flex-row sm:items-start gap-1">
-                                    <span class="font-bold w-14 flex-shrink-0 text-slate-800">순방향:</span>
-                                    <span class="text-slate-600 leading-relaxed">25, 123, 232, 291, 522, 3000, 6000, 6666, A01</span>
-                                </div>
-                                <div class="flex flex-col sm:flex-row sm:items-start gap-1">
-                                    <span class="font-bold w-14 flex-shrink-0 text-slate-800">역방향:</span>
-                                    <span class="text-slate-600 leading-relaxed">52, 213, 322, 821, 252, 3000R, 6000R, 6666R, A01R</span>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+            <!-- 본문 타이틀 & 빠른 청사 전환 드롭다운 -->
+            <div class="content-title flex flex-col sm:flex-row sm:items-end justify-between gap-3" id="main-title-bar">
+                <h2 class="text-3xl font-black text-gray-900" id="page-main-heading">찾아오시는 길 & 문의</h2>
+                <div class="flex items-center gap-2">
+                    <label for="contact-scope-select" class="text-xs font-bold text-slate-500">청사 선택:</label>
+                    <select id="contact-scope-select" onchange="changeContactScope(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-700 bg-white outline-none focus:border-blue-600 cursor-pointer shadow-sm">
+                        <option value="">효빈광역시청 (본청 · 고송8동)</option>
+                        <option value="jung">중구청 (조유동 · 중구청역)</option>
+                        <option value="dong">동구청 (덕현2동 · 덕현역)</option>
+                        <option value="seo">서구청 (당선3동 · 주촌로 77)</option>
+                        <option value="nam">남구청 (평당3동 · 남구청역)</option>
+                        <option value="buk">북구청 (중수1동 · 북구청역)</option>
+                        <option value="cheongyeop">청엽구청 (청엽5동 · 청엽구청역)</option>
+                        <option value="ancheon">안천구청 (안천6동 본청 · 이자출장소)</option>
+                        <option value="changjeon">창전구청 (창전2동 · 창전구청역)</option>
+                        <option value="tanseong">탄성군청 (탄성읍 공리 · 탄성군청역)</option>
+                    </select>
                 </div>
             </div>
-        </div>
 
-    </main>
+            <!-- 상단 전자지도 + 핵심 주소/연락처 그리드 -->
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 mb-10">
+                
+                <!-- 좌측: 효빈광역시 전자지도 Iframe (7칸) -->
+                <div class="xl:col-span-7 flex flex-col">
+                    <div class="bg-slate-800 text-white px-4 py-3 rounded-t-xl flex flex-wrap justify-between items-center gap-2" id="map-header-bar">
+                        <div class="flex items-center gap-2 font-bold text-sm">
+                            <i data-lucide="map" class="w-4 h-4 text-sky-400"></i>
+                            <span id="map-header-title">효빈광역시청 전자지도 위치 안내</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyCurrentAddr()" class="bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-2.5 py-1 rounded transition flex items-center gap-1">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> 주소 복사
+                            </button>
+                            <a href="https://binia1.github.io/mymap/" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded transition flex items-center gap-1">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i> 전자지도 크게 보기
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-b-xl h-[480px] relative overflow-hidden border border-t-0 border-slate-300 shadow-sm">
+                        <iframe 
+                            id="hyobin-map-iframe"
+                            src="https://binia1.github.io/mymap/" 
+                            class="w-full h-full border-0" 
+                            title="효빈광역시 전자지도"
+                            loading="lazy"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-3.5 h-3.5 text-blue-600 shrink-0"></i>
+                        <span>전자지도 검색창에 <strong class="text-slate-800" id="map-search-hint">'효빈광역시청' 또는 '고송8동'</strong>을 입력하시면 상세 주변 시설과 버스 정류장을 확인하실 수 있습니다.</span>
+                    </p>
+                </div>
+
+                <!-- 우측: 주소 및 대표 연락처 상세 카드 (5칸) -->
+                <div class="xl:col-span-5 flex flex-col justify-between space-y-6">
+                    
+                    <!-- 1. 주소 카드 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="text-lg font-black text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center" id="icon-box-addr"><i data-lucide="map-pin" class="w-5 h-5"></i></span>
+                            <span id="addr-card-title">소재지 (주소)</span>
+                        </h3>
+                        <div id="addr-card-body" class="space-y-2 text-slate-700">
+                            <div class="text-xs font-bold text-slate-400">우편번호 : 79791</div>
+                            <div class="text-lg font-black text-slate-900 break-keep" id="main-addr-text">효빈광역시 북구 효빈로 79 (고송8동)</div>
+                            <div class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-2" id="sub-addr-note">
+                                ※ 2004년 중구 중보로(구시청)에서 북구 고송신도시 현 위치로 이전 완료
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 연락처 및 민원실 운영시간 카드 -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="text-lg font-black text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="phone-call" class="w-5 h-5"></i></span>
+                            <span>대표 연락처 및 운영시간 안내</span>
+                        </h3>
+                        <ul class="space-y-3 text-[0.95rem] text-slate-700">
+                            <li class="flex justify-between items-center py-1 border-b border-dashed border-slate-100">
+                                <span class="font-bold text-slate-500">대표전화 (콜센터)</span>
+                                <span class="font-black text-lg text-slate-900" id="contact-phone">079-591-2548 (국번없이 120)</span>
+                            </li>
+                            <li class="flex justify-between items-center py-1 border-b border-dashed border-slate-100">
+                                <span class="font-bold text-slate-500">대표 팩스(FAX)</span>
+                                <span class="font-bold text-slate-800" id="contact-fax">079-591-2547</span>
+                            </li>
+                            <li class="flex justify-between items-center py-1 border-b border-dashed border-slate-100">
+                                <span class="font-bold text-slate-500">야간·공휴일 당직실</span>
+                                <span class="font-bold text-blue-700" id="contact-duty">079-591-2546</span>
+                            </li>
+                            <li class="pt-1 text-xs text-slate-500 leading-relaxed">
+                                <strong class="text-slate-700 block mb-0.5">업무 시간:</strong> 평일 08:30 ~ 18:30 (점심시간 12:00~13:00 교대 민원창구 운영 / 토·일·공휴일 휴무, 시간 외는 당직실 연결)
+                            </li>
+                        </ul>
+                        <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100">
+                            <a href="행정전화번호.html" id="btn-link-tel" class="text-center py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1">
+                                <i data-lucide="book-user" class="w-3.5 h-3.5"></i> 부서별 전화번호부
+                            </a>
+                            <a href="city_hall.html" id="btn-link-hall" class="text-center py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition flex items-center justify-center gap-1">
+                                <i data-lucide="building-2" class="w-3.5 h-3.5"></i> 층별 청사안내 보기
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 3. 주차장 안내 요약 카드 -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-black text-slate-800 mb-2 flex items-center gap-2">
+                            <i data-lucide="car" class="w-5 h-5 text-indigo-600"></i> 부설주차장 이용 안내
+                        </h3>
+                        <p class="text-xs text-slate-600 leading-relaxed" id="parking-info-text">
+                            민원 방문 차량 최초 1시간 무료 (이후 10분당 300원 / 경차·저공해·다자녀·국가유공자 50% 감면). HAF 축제 기간 및 주말·공휴일에는 시민 편의를 위해 전면 무료 개방합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단: 대중교통(도시철도 & 시내버스 순방향/역방향) 상세 안내 섹션 -->
+            <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-12">
+                <div class="bg-slate-800 text-white px-6 py-4 flex items-center justify-between" id="transit-header-bar">
+                    <h3 class="text-lg font-black flex items-center gap-2">
+                        <i data-lucide="train-front" class="w-5 h-5 text-amber-300"></i>
+                        <span id="transit-section-title">대중교통 이용 안내 (효빈광역시청)</span>
+                    </h3>
+                    <span class="text-xs bg-white/15 px-2.5 py-1 rounded font-medium">3세대 스타더스트 시내버스 & 효빈 도시철도 공식 규격</span>
+                </div>
+
+                <div class="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+                    
+                    <!-- 1. 도시철도 (지하철·광역전철) -->
+                    <div class="lg:pr-6">
+                        <h4 class="text-base font-black text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="w-2 h-5 bg-blue-600 rounded-full inline-block" id="bar-subway"></span>
+                            도시철도 (지하철 · 광역전철)
+                        </h4>
+                        <div id="subway-detail-box" class="space-y-4">
+                            <!-- JS로 렌더링 -->
+                        </div>
+                    </div>
+
+                    <!-- 2. 시내버스 (순방향 / 역방향) -->
+                    <div class="pt-6 lg:pt-0 lg:pl-8">
+                        <h4 class="text-base font-black text-slate-800 mb-4 flex items-center gap-2">
+                            <span class="w-2 h-5 bg-emerald-600 rounded-full inline-block" id="bar-bus"></span>
+                            시내버스 (<span id="bus-stop-name">시청앞 / 효빈광역시청</span> 정류장)
+                        </h4>
+                        <div id="bus-detail-box" class="space-y-4">
+                            <!-- JS로 렌더링 -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 청사별 교통/방문 특화 팁 배너 -->
+                <div class="bg-amber-50/80 border-t border-amber-200 px-6 py-4 flex items-start gap-3">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+                    <div class="text-xs sm:text-sm text-slate-700 leading-relaxed" id="special-transit-tip">
+                        <!-- JS로 렌더링 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 관리부서 정보 -->
+            <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div id="dept-footer-info">담당부서 : 총무과 청사관리팀 | 대표문의 : 079-591-2548</div>
+                <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 10. 29.</div>
+            </div>
+
+        </main>
+    </div>
 
     <div id="common-footer"></div>
     <div id="common-modals"></div>
-    <script> lucide.createIcons(); </script>
-<script src="data.js"></script>
+
+    <script src="data.js"></script>
     <script src="script.js"></script>
     <script src="common121.js"></script>
+    <script>
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
+                    if(li.querySelector('.lnb-depth2')) {
+                        li.classList.remove('active');
+                        if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    }
+                });
+                parentLi.classList.add('active');
+                if(icon) icon.classList.add('rotate-180');
+            }
+        }
+
+        // 노선별 SVG 배지 생성 헬퍼 (사용자 지정 공식 색상 & SVG 경로 100% 준수)
+        const SUBWAY_META = {
+            "1": { name: "1호선", color: "#0077DD", text: "#fff", svg: "이미지/svg/효빈1호선.svg", link: "1호선.html" },
+            "2": { name: "2호선", color: "#00CCAA", text: "#fff", svg: "이미지/svg/효빈2호선.svg", link: "2호선.html" },
+            "3": { name: "3호선", color: "#FFCC11", text: "#111", svg: "이미지/svg/효빈3호선.svg", link: "3호선.html" },
+            "4": { name: "4호선", color: "#FF5522", text: "#fff", svg: "이미지/svg/효빈4호선.svg", link: "4호선.html" },
+            "5": { name: "5호선", color: "#EE0022", text: "#fff", svg: "이미지/svg/효빈5호선.svg", link: "5호선.html" },
+            "6": { name: "6호선", color: "#881188", text: "#fff", svg: "이미지/svg/효빈6호선.svg", link: "6호선.html" },
+            "7": { name: "7호선(트램)", color: "#FF8899", text: "#fff", svg: "이미지/svg/효빈7호선.svg", link: "7호선.html" },
+            "8": { name: "8호선", color: "#9856FF", text: "#fff", svg: "이미지/svg/효빈8호선.svg", link: "8호선.html" },
+            "빈": { name: "빈효선 광역전철", color: "#6677CC", text: "#fff", svg: "이미지/svg/빈효광역선.svg", link: "빈효선.html" },
+            "창": { name: "창전선(2027.09 개통예정)", color: "#33AAFF", text: "#fff", svg: "이미지/svg/창전선.svg", link: "창전선.html" }
+        };
+
+        // 시내버스 3세대(스타더스트 작전) 공식 도색 컬러
+        const BUS_COLORS = {
+            "급행": { bg: "#D81C2F", text: "#fff" },
+            "간선": { bg: "#01B7ED", text: "#fff" },
+            "지선": { bg: "#37B484", text: "#fff" },
+            "순환": { bg: "#E7D600", text: "#111" },
+            "좌석": { bg: "#FF5800", text: "#fff" },
+            "광역": { bg: "#485EC6", text: "#fff" },
+            "마을": { bg: "#A664A0", text: "#fff" },
+            "공항": { bg: "#84C36E", text: "#fff" },
+            "투어": { bg: "#7777AA", text: "#fff" }
+        };
+
+        function makeSubwayBadge(code) {
+            const m = SUBWAY_META[code];
+            if (!m) return '';
+            return `<a href="${m.link}" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-black shadow-sm mr-1.5 mb-1 hover:opacity-90 transition" style="background-color:${m.color}; color:${m.text};">
+                <img src="${m.svg}" alt="${m.name}" class="w-4 h-4 mr-1.5 object-contain bg-white rounded-full p-0.5" onerror="this.style.display='none'">
+                ${m.name}
+            </a>`;
+        }
+
+        function makeBusRow(type, nums) {
+            const c = BUS_COLORS[type] || { bg: "#475569", text: "#fff" };
+            return `<div class="flex items-start gap-2 text-xs sm:text-sm py-1">
+                <span class="bus-badge w-12" style="background-color:${c.bg}; color:${c.text};">${type}</span>
+                <span class="text-slate-700 font-semibold leading-snug flex-1">${nums}</span>
+            </div>`;
+        }
+
+        // =========================================================================
+        // 효빈광역시 본청 + 9개 자치구·군청 오시는 길 & 교통편 데이터베이스
+        // =========================================================================
+        const CONTACT_DB = {
+            "main": {
+                name: "효빈광역시", title: "효빈광역시청", role: "시장",
+                color: "#1e3a8a", subColor: "#172554",
+                zip: "79791", addr: "효빈광역시 북구 효빈로 79 (고송8동)",
+                addrNote: "※ 2004년 중구 중보로(구시청)에서 북구 고송8동 현 신청사(지상 26층)로 이전",
+                mapHint: "'효빈광역시청' 또는 '고송8동'",
+                phone: "079-591-2548", fax: "079-591-2547", duty: "079-591-2546",
+                parking: "지하 1~2층 총 1,500면 완비 (전기차 급속충전소 운영). 민원인 방문 시 1시간 무료, HAF 행사 기간 및 주말 무료 개방.",
+                subways: [
+                    { lines: ["2", "6"], station: "시청역", exit: "3번, 8번, 9번 출구 (시청 지하 2층 연결통로 직결 — 우천 시에도 우산 없이 내부 진입 가능)" },
+                    { lines: ["창"], station: "시청역 (창전선 2단계)", exit: "2027년 9월 창전선 개통 시 환승 연결 예정" }
+                ],
+                stopName: "효빈광역시청 앞",
+                busForward: [
+                    { type: "급행", nums: "02, 05" },
+                    { type: "간선", nums: "24, 25, 33, 62, 63, 65, 82" },
+                    { type: "지선", nums: "123, 232, 241, 251, 252, 271, 291, 522, 621, 631" },
+                    { type: "순환", nums: "20 (020)" },
+                    { type: "좌석", nums: "3333, 6666" },
+                    { type: "광역", nums: "2000, 3000, 6000" },
+                    { type: "공항", nums: "A01" },
+                    { type: "투어", nums: "T01 (중앙도심 순환 시티투어)" }
+                ],
+                busReverse: "52, 213, 322, 821, 252, 3000R, 6000R, 6666R, A01R (건너편 정류장)",
+                tip: "<strong>[청사 정류장 관람 포인트]</strong> 시청 앞 버스정류장에는 과거 두청운수 암흑기 시절 시민들을 고통스럽게 했던 갈색 버스의 '고통의 플라스틱 의자'가 역사적 교훈을 위한 기념물로 보존되어 있으며, 시청 1층 로비 공식 굿즈샵과 9층 시장실 옆 피규어 전시관은 평일 상시 개방됩니다."
+            },
+            "jung": {
+                name: "중구", title: "중구청", role: "구청장",
+                color: "#BB9955", subColor: "#8A6D2F",
+                zip: "79101", addr: "효빈광역시 중구 중보로 101 / 중앙로 101 (조유동)",
+                addrNote: "※ 1914년 효빈면사무소·효빈부청·구 효빈시청이 자리했던 효빈 근현대 행정의 발상지 (1963년 건립 최고령 구청사)",
+                mapHint: "'중구청', '중구청역' 또는 '조유동'",
+                phone: "079-242-8192", fax: "079-242-8199", duty: "079-242-8100",
+                parking: "청사 부설주차장 및 조유동 공영주차장 이용 (원도심 특성상 주차 공간이 협소하오니 가급적 1·7호선 중구청역을 이용해 주시기 바랍니다).",
+                subways: [
+                    { lines: ["1", "7"], station: "중구청역", exit: "1번, 4번 출구 도보 1분 (지하 2층 1호선과 지상 7호선 노면전차의 '시공 초월 낭만 환승역')" },
+                    { lines: ["7"], station: "조유동2가역 · 천석동2가역 (7호선 지선)", exit: "정류장 하차 후 중보로 방향 도보 3분" }
+                ],
+                stopName: "중구청역 / 중구청 앞",
+                busForward: [
+                    { type: "급행", nums: "01, 08" },
+                    { type: "간선", nums: "11, 12, 27" },
+                    { type: "지선", nums: "111, 281, 291, 612" },
+                    { type: "좌석", nums: "9999" }
+                ],
+                busReverse: "급행 01-1, 08-1 / 간선 21, 72 / 지선 11-1, 111-1, 821, 921, 612 / 좌석 9999R",
+                tip: "<strong>[중구청 방문 팁]</strong> 1호선 지하 승강장에서 지상으로 올라오면 1931년부터 달리는 7호선 분홍색 노면전차(트램)가 눈앞을 지나갑니다. 1층 로비에서 '뱁시계' 시간여행 스탬프를 찍고 리사동(리사 마트)·목동 청과물시장까지 도보로 투어하실 수 있습니다."
+            },
+            "dong": {
+                name: "동구", title: "동구청", role: "구청장",
+                color: "#00AA00", subColor: "#007700",
+                zip: "79205", addr: "효빈광역시 동구 덕현로 91 / 덕성로 12 (덕현2동)",
+                addrNote: "※ 1973년 개청한 옛 청사 골조를 살려 리모델링한 실용 청사 (주의: 덕북도 '덕현군 덕현읍'과 혼동 주의!)",
+                mapHint: "'동구청', '덕현역' 또는 '덕현2동'",
+                phone: "079-284-1193", fax: "079-284-1199", duty: "079-284-1100",
+                parking: "동구청 부설주차장 및 동구청공원 지하 공영주차장 이용 가능 (민원인 1시간 무료).",
+                subways: [
+                    { lines: ["3", "6"], station: "덕현역", exit: "2번 출구 도보 3분 (단일 법정동 인구 10만 덕현동의 핵심 환승 거점)" },
+                    { lines: ["창"], station: "덕현중앙역 (창전선 2단계 예정)", exit: "향후 창전선 개통 시 빈효선·5호선 연계 광역 접근성 대폭 향상" }
+                ],
+                stopName: "덕현역 / 동구청 앞",
+                busForward: [
+                    { type: "급행", nums: "01" },
+                    { type: "간선", nums: "15, 18" },
+                    { type: "지선", nums: "131, 172, 193, 371" },
+                    { type: "순환", nums: "10" },
+                    { type: "좌석", nums: "1111, 6666" },
+                    { type: "광역", nums: "1000, 2000, 3000, 6000" }
+                ],
+                busReverse: "급행 01-1 / 간선 51, 81 / 지선 131R, 172R, 193R, 371R / 좌석 1111R, 6666R",
+                tip: "<strong>[외지 민원인 필독 안내]</strong> 본 청사는 <strong>'효빈광역시 동구 덕현동'</strong>을 관할하는 동구청입니다. 덕북도 '덕현군(郡) 덕현읍' 토지대장이나 농지원부를 발급받으러 오신 어르신들께서는 1층 무인민원발급기(전국 어디서나 발급 가능)를 이용하시거나 안내데스크의 도움을 받으시기 바랍니다."
+            },
+            "seo": {
+                name: "서구", title: "서구청", role: "구청장",
+                color: "#00AABB", subColor: "#008899",
+                zip: "79310", addr: "효빈광역시 서구 주촌로 77 / 당선동 77 (당선3동 · 당선4동 경계)",
+                addrNote: "※ 구 사능면 2대 청사 부지에 2019년 제자리 재건축 완공된 효빈 최신식 통유리 커튼월 청사",
+                mapHint: "'서구청', '당선3동' 또는 '소장역'",
+                phone: "079-634-2201", fax: "079-634-2209", duty: "079-634-2200",
+                parking: "2019년 신축 지하 1~3층 대형 자주식 주차장 완비 (650면, 전기차 충전소 및 대학생 공유킥보드 전용 주차존 구비).",
+                subways: [
+                    { lines: ["2"], station: "소장역 (최단거리 역 · 약 1km)", exit: "1번 출구에서 서구청 방면 시내버스(11, 12, 111, 291번 등) 환승 후 3분 소요" },
+                    { lines: ["2", "5"], station: "당선역 (효빈대 대학로 거점)", exit: "4번 출구 정류장에서 순환 09번 또는 지선버스 환승 (※ 향후 9호선 서구청역 개통 시 코앞 직결 예정!)" }
+                ],
+                stopName: "서구청 앞",
+                busForward: [
+                    { type: "급행", nums: "06, 09" },
+                    { type: "간선", nums: "11, 12, 24, 28, 29" },
+                    { type: "지선", nums: "111, 162, 222, 232, 252, 261, 281, 291" },
+                    { type: "순환", nums: "09, 20" },
+                    { type: "좌석", nums: "2222" }
+                ],
+                busReverse: "급행 06-1 / 간선 11-1, 12-1 / 지선 111-1, 162R, 291-1 / 순환 09R",
+                tip: "<strong>[교통 이용 유의사항]</strong> 서구청은 현재 효빈시 9개 구·군청 중 유일하게 코앞에 지하철역이 없는 구청입니다(9호선 서구청역 신설 확정으로 탈출 예정). 도보 이동 시 소장역에서 약 12~15분이 소요되오니 비나 눈이 오는 날에는 반드시 서구청 앞 정류장 정차 버스를 이용해 주십시오."
+            },
+            "nam": {
+                name: "남구", title: "남구청", role: "구청장",
+                color: "#9856FF", subColor: "#6B21A8",
+                zip: "79422", addr: "효빈광역시 남구 평당관통로 33 / 평당중앙로 33 (평당3동)",
+                addrNote: "※ 1990년 구도심 어간동 초미니 구청사에서 평당신도시 현 위치(지상 9층)로 이전 완공",
+                mapHint: "'남구청', '남구청역' 또는 '평당3동'",
+                phone: "079-451-9034", fax: "079-451-9039", duty: "079-451-9000",
+                parking: "지상 및 지하 부설주차장 480면 운영 (민원인 1시간 무료 / 4·8호선 성지순례 패스 발권 방문객은 대중교통 이용 권장).",
+                subways: [
+                    { lines: ["1", "4", "8"], station: "남구청역 (트리플 역세권)", exit: "2번 출구 지하 연결통로 직결 (1호선·4호선·8호선이 모두 만나는 남부권 최대 교통 허브)" }
+                ],
+                stopName: "남구청역 · 남구청 앞",
+                busForward: [
+                    { type: "급행", nums: "04, 05, 09" },
+                    { type: "간선", nums: "19, 29, 39, 49, 59, 69, 79, 89" },
+                    { type: "지선", nums: "191, 192, 291, 292, 791, 793, 891, 991" },
+                    { type: "순환", nums: "90" },
+                    { type: "광역", nums: "3000" },
+                    { type: "공항", nums: "A02" }
+                ],
+                busReverse: "급행 04-1, 05-1, 09-1 / 간선 91, 92, 93 / 순환 90R / 공항 A02R",
+                tip: "<strong>[트리플 역세권 & 성지순례 안내]</strong> 남구청역에서 4호선을 타시면 빙천역(히카와 자매)·사야역(인더스트리얼 고딕)·이부역(무사도)으로, 8호선(#9856FF)을 타시면 운양중앙역 공식 굿즈샵으로 즉시 이동할 수 있습니다. 1층 로비에서 마스코트 '참도리' 스탬프를 만나보세요."
+            },
+            "buk": {
+                name: "북구", title: "북구청", role: "구청장",
+                color: "#6677CC", subColor: "#4338CA",
+                zip: "79511", addr: "효빈광역시 북구 중수로 110 / 고중로 2 (중수1동)",
+                addrNote: "※ 1986년 구 고송면사무소(현 고송5동)에서 중수지구 거대 법조·행정타운으로 이전 (맞은편 북구의회, 우측 북구보건소)",
+                mapHint: "'북구청', '북구청역' 또는 '중수1동'",
+                phone: "079-321-5042", fax: "079-321-5049", duty: "079-321-5000",
+                parking: "북구청·보건소 통합 지하주차장 550면 운영 (인근 효빈고등법원·광역공소청 방문 차량으로 혼잡하오니 1·6호선 이용을 적극 권장합니다).",
+                subways: [
+                    { lines: ["1", "6"], station: "북구청역", exit: "1번 출구 청사 지하보도 직결 (고송신도시 및 사능동에서 환승 없이 원스톱 접근 가능)" },
+                    { lines: ["2", "6"], station: "중수역 ('카스밍 구역')", exit: "3번 출구에서 중수 법조문화거리를 따라 도보 5분 (약 380m)" }
+                ],
+                stopName: "북구청 · 중수강변공원 앞",
+                busForward: [
+                    { type: "급행", nums: "02, 03, 05" },
+                    { type: "간선", nums: "13, 23, 25, 33, 34, 35, 38" },
+                    { type: "지선", nums: "131, 231, 232, 241, 251, 331, 334, 351, 362, 391, 522, 831" },
+                    { type: "광역", nums: "2000" },
+                    { type: "공항", nums: "A01" }
+                ],
+                busReverse: "급행 02-1, 03-1, 05-1 / 간선 31, 32, 52, 83 / 지선 231R, 331R, 522R / 광역 2000R",
+                tip: "<strong>[중수 법조·행정타운 이용 팁]</strong> 북구청 도보 5분 반경 내에 북구보건소, 효빈북부경찰서, 북효빈우체국, 그리고 효빈고등법원·광역공소청·중수청이 모두 밀집해 있습니다. 민원 업무 후 중수역 인근 빵집에서 명물 '카스미 콧페빵'을 맛보실 수 있습니다."
+            },
+            "cheongyeop": {
+                name: "청엽구", title: "청엽구청", role: "구청장",
+                color: "#006699", subColor: "#004D73",
+                zip: "79608", addr: "효빈광역시 청엽구 청엽로 51 (청엽5동 / 청엽1동 권역)",
+                addrNote: "※ 구 효빈군 청엽면사무소 → 1979년 남구 청엽출장소 → 1992년 현 매머드급 청사로 전면 재건축",
+                mapHint: "'청엽구청', '청엽구청역' 또는 '청엽5동'",
+                phone: "079-781-4920", fax: "079-781-4929", duty: "079-781-4900",
+                parking: "청사 지하 및 지상 주차장 520면 운영 (매년 9월 '청엽 브레드 페스티벌' 주간에는 광장 행사로 인해 대중교통 이용 필수).",
+                subways: [
+                    { lines: ["1", "3"], station: "청엽구청역", exit: "2번 출구 도보 1분 (지하 2층 대합실 내 '모카의 빵 나눔 냉장고' 및 효빈교통공사 공식 굿즈샵 위치)" }
+                ],
+                stopName: "청엽구청역 · 청엽베이커리거리 입구",
+                busForward: [
+                    { type: "급행", nums: "06" },
+                    { type: "간선", nums: "16, 17, 88, 89" },
+                    { type: "지선", nums: "141, 154, 162, 181, 404(빵도리 음성안내 버스), 692, 881, 891, 892" },
+                    { type: "순환", nums: "80" },
+                    { type: "광역", nums: "1000, 6000" }
+                ],
+                busReverse: "급행 06-1 / 간선 61, 71, 88R, 98 / 지선 141R, 181R, 404R / 순환 80R",
+                tip: "<strong>[베이커리 거리 & 빵 나눔 냉장고 안내]</strong> 청엽구청역에서 청엽역까지 이어지는 1.5km 구간은 전국 제빵 명인들이 모인 '청엽 베이커리 거리'입니다. 404번 지선버스를 타시면 하차벨을 누를 때 마스코트 빵도리의 \"모카 쨩 대핀치~!\" 안내음성을 들으실 수 있습니다."
+            },
+            "ancheon": {
+                name: "안천구", title: "안천구청", role: "구청장",
+                color: "#AA66DD", subColor: "#7E22CE",
+                zip: "79712", addr: "[본청] 효빈광역시 안천구 안천중앙로 52 (안천6동)\n[이자출장소] 효빈광역시 안천구 이자로 3 (이자4동)",
+                addrNote: "※ 본청은 1983년 구 안천시청 신청사로 짓던 건물을 편입 후 1985년 구청으로 완공 / 남부 이자권역은 '이자출장소(제2구청)'에서 동일하게 민원 처리 가능",
+                mapHint: "'안천구청', '팔망성역' 또는 '이자출장소'",
+                phone: "079-915-7732", fax: "079-915-7739", duty: "079-915-7700",
+                parking: "본청 지상·지하 600면 (구 시청 규격 대형 주차장) / 이자출장소 250면 완비.",
+                subways: [
+                    { lines: ["1"], station: "팔망성역 (안천구청 본청)", exit: "1번 출구에서 안천중앙로를 따라 직진 도보 300m (약 4분 소요)" },
+                    { lines: ["1", "4", "빈"], station: "이자출장소역 · 이자공원역 (이자출장소 방문 시)", exit: "이자지구(이자1~4동·이십기동) 주민께서는 안천6동 본청까지 오실 필요 없이 1호선 이자출장소역 앞 '안천구청 이자출장소'를 이용하시면 편리합니다." }
+                ],
+                stopName: "안천구청 앞 (본청 기준)",
+                busForward: [
+                    { type: "급행", nums: "03, 04, 05" },
+                    { type: "간선", nums: "15, 24, 34" },
+                    { type: "지선", nums: "241, 251, 341, 351, 441, 472, 481, 552, 582, 마을 악부01" },
+                    { type: "좌석", nums: "4004" },
+                    { type: "광역", nums: "4000, 7000" },
+                    { type: "공항", nums: "A01" }
+                ],
+                busReverse: "급행 03-1, 04-1, 05-1 / 간선 15-1, 34-1 / 지선 241R, 341R, 441R, 552R / 공항 A01R",
+                tip: "<strong>[안천본청 vs 이자출장소 방문 팁]</strong> 안천구는 북부 '안천지구'와 남부 '이자지구'로 생활권이 나뉘어 있습니다. 여권 발급, 세무, 건축 인허가 등 대부분의 구청 업무는 이자4동 '이자출장소(그랜드피아노가 있는 민원실)'에서도 100% 동일하게 처리됩니다."
+            },
+            "changjeon": {
+                name: "창전구", title: "창전구청", role: "구청장",
+                color: "#33AAFF", subColor: "#0284C7",
+                zip: "79804", addr: "효빈광역시 창전구 모포로 21 (창전2동 · 창전3동 경계)",
+                addrNote: "※ 1989년 창전구 분리 신설 후 1992년 현 위치에 건립된 모포로 행정·문화 중심 청사",
+                mapHint: "'창전구청', '창전구청역' 또는 '모포로 21'",
+                phone: "079-822-1594", fax: "079-822-1599", duty: "079-822-1500",
+                parking: "청사 지하 1~2층 주차장 450면 운영 (창전 블루 로즈 가든 및 시사이드 콘서트홀 공연일에는 혼잡하오니 전철 이용 권장).",
+                subways: [
+                    { lines: ["1", "창"], station: "창전구청역 (급행 정차 환승역)", exit: "1번 출구 바로 앞 (지상 1층 1호선 탄성지선 및 2027년 9월 개통 예정인 지상 3층 창전선 모노레일 입체 환승역)" },
+                    { lines: ["1"], station: "보통역 (보통동 평범박물관 연계)", exit: "창전구청역에서 1정거장 거리" }
+                ],
+                stopName: "창전구청역 (순방향 / 건너편 역방향)",
+                busForward: [
+                    { type: "급행", nums: "06, 07" },
+                    { type: "간선", nums: "14, 16, 17, 58, 66, 67, 69, 77, 79" },
+                    { type: "지선", nums: "171, 172, 581, 591, 592, 612, 671, 691, 692, 721, 791, 792" },
+                    { type: "순환", nums: "70" },
+                    { type: "광역", nums: "4000, 9000" }
+                ],
+                busReverse: "급행 06-1, 07-1 / 간선 41, 61, 71, 85, 66-1, 76, 96, 77-1, 97 / 순환 70-1 / 지선 711, 712, 851, 951, 952 / 광역 4000R, 9000R",
+                tip: "<strong>[모르포니카 공식 인증존 안내]</strong> 창전구청 1층 로비에는 부시로드 본사와의 공식 협약을 기념하는 Morfonica 전 멤버 성우 친필 사인 포스터와 바이올린 레플리카 포토존이 마련되어 있으며, 도보 5분 거리에 '창전 블루 로즈 가든'이 있습니다."
+            },
+            "tanseong": {
+                name: "탄성군", title: "탄성군청", role: "군수",
+                color: "#559900", subColor: "#3D7300",
+                zip: "79901", addr: "[군청 본청] 효빈광역시 탄성군 탄성읍 공리 24\n[앵내출장소] 효빈광역시 탄성군 도변읍 앵내리 (신도시 민원분소)",
+                addrNote: "※ 1935년 개청 당시 중구 원동3가에 더부살이하다가 1979년 탄성읍 공리 현 위치로 이전 완료",
+                mapHint: "'탄성군청', '탄성군청역' 또는 '탄성읍 공리'",
+                phone: "079-134-8821", fax: "079-134-8829", duty: "079-134-8800",
+                parking: "군청 광장 및 고무나무 그린 로드 주차장 400면 완비 (농어촌 방문 민원인 및 성지순례 렌터카 상시 무료 개방).",
+                subways: [
+                    { lines: ["1"], station: "탄성군청역 (1호선 탄성지선)", exit: "1번 출구 정문 코앞 직결! (대한민국 군청 중 광역철도가 아닌 진짜 '도시철도 지하철'이 군청 코앞에 서는 유일무이한 기적의 역)" },
+                    { lines: ["4", "5"], station: "도변역 · 앵내역 (도변읍 앵내출장소 방문 시)", exit: "인구 9만 거대 읍인 도변읍·흑택면 주민께서는 도변읍 '앵내출장소'에서도 민원 업무를 보실 수 있습니다." }
+                ],
+                stopName: "탄성군청 · 탄성군청역 앞",
+                busForward: [
+                    { type: "급행", nums: "03 (도변·앵내·안천 직결)" },
+                    { type: "간선", nums: "46" },
+                    { type: "지선", nums: "561, 681, 691, 692" },
+                    { type: "좌석", nums: "1111, 6666, 7777" },
+                    { type: "마을", nums: "탄성DRT (수요응답형 탄도리 전기미니버스), 탄성01, 정근02" }
+                ],
+                busReverse: "급행 03-1 / 간선 64 / 지선 561R, 681R, 691R, 692R / 좌석 1111R, 6666R, 7777R",
+                tip: "<strong>['한국의 누마즈' 탄성군청 방문 팁]</strong> 1호선 탄성군청역에서 내리면 군목인 '고무나무 그린 로드'를 따라 군청 정문까지 1분 만에 진입합니다. 1층 로비에는 고해역(치카)·도변역(요우)·루비역(루비)·도향역(모모카)의 <strong>'역명판 캐릭터 병기 특별 전시홀'</strong>이 상설 운영 중입니다."
+            }
+        };
+
+        let currentCopyAddr = "효빈광역시 북구 효빈로 79 (고송8동)";
+
+        function copyCurrentAddr() {
+            navigator.clipboard.writeText(currentCopyAddr).then(() => {
+                alert(`주소가 복사되었습니다:\n${currentCopyAddr}`);
+            }).catch(() => {
+                prompt("아래 주소를 복사해 주세요:", currentCopyAddr);
+            });
+        }
+
+        function changeContactScope(guKey) {
+            if (!guKey) {
+                window.location.href = 'contact.html';
+            } else {
+                window.location.href = `contact.html?gu=${guKey}`;
+            }
+        }
+
+        function renderContactPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+            const selectEl = document.getElementById('contact-scope-select');
+
+            const isGu = Boolean(guKey && CONTACT_DB[guKey]);
+            const c = isGu ? CONTACT_DB[guKey] : CONTACT_DB["main"];
+            if (selectEl) selectEl.value = isGu ? guKey : "";
+
+            currentCopyAddr = c.addr.replace(/\n/g, ' ');
+            const isGun = c.name.endsWith('군');
+            const prefix = isGu ? (isGun ? '군' : '구') : '시';
+
+            // 1. 상단 비주얼 & 좌측 LNB & 브레드크럼 동기화
+            document.title = `${prefix}청안내 - 찾아오시는길 | ${c.title} 공식 홈페이지`;
+            document.getElementById('sub-visual-bg').style.backgroundColor = `${c.subColor}D9`;
+            document.getElementById('sub-visual-title').textContent = isGu ? `${c.name}소개` : '효빈소개';
+            document.getElementById('sub-visual-desc').textContent = `${c.title}은 언제나 ${isGu ? (isGun ? '군민' : '구민') : '시민'} 여러분 곁에 있습니다.`;
+
+            document.getElementById('lnb-wrap-box').style.borderTopColor = c.color;
+            const lnbTitle = document.getElementById('lnb-main-title');
+            lnbTitle.textContent = isGu ? `${c.name}소개` : '효빈소개';
+            lnbTitle.style.backgroundColor = c.subColor;
+
+            document.getElementById('lnb-slogan-link').textContent = `${prefix}정구호`;
+            document.getElementById('lnb-hall-label').textContent = `${prefix}청안내`;
+            document.getElementById('lnb-symbol-label').textContent = `${prefix}의상징`;
+            document.getElementById('lnb-bird-link').textContent = `${prefix}조/${prefix}화/${prefix}목`;
+            document.getElementById('lnb-day-link').textContent = `${prefix}민의날`;
+            document.getElementById('lnb-song-link').textContent = `${prefix}민의노래`;
+            document.getElementById('lnb-stat-label').textContent = isGu ? `${c.name}통계` : '효빈통계';
+            document.getElementById('lnb-whitepaper-link').textContent = `${prefix}정백서`;
+            document.getElementById('lnb-hist-label').textContent = isGu ? `${c.name}의역사` : '효빈의역사';
+            document.getElementById('lnb-mayor-link').textContent = `역대${c.role}`;
+            if (isGu) {
+                document.getElementById('lnb-mayor-link').setAttribute('href', `역대구청장.html?gu=${guKey}`);
+            }
+            document.getElementById('lnb-origin-link').textContent = isGu ? `${c.name}의유래와연혁` : '효빈의유래와연혁';
+            document.getElementById('lnb-current-link').style.color = c.subColor;
+
+            // LNB 모든 링크에 ?gu= 유지
+            if (isGu) {
+                document.querySelectorAll('aside a[href]').forEach(a => {
+                    const rawHref = a.getAttribute('href').split('?')[0];
+                    a.setAttribute('href', `${rawHref}?gu=${guKey}`);
+                });
+            }
+
+            document.getElementById('bread-home').setAttribute('href', isGu ? `index.html?gu=${guKey}` : 'index.html');
+            document.getElementById('bread-1').textContent = isGu ? `${c.name}소개` : '효빈소개';
+            document.getElementById('bread-2').textContent = `${prefix}청안내`;
+            document.getElementById('bread-3').style.color = c.subColor;
+
+            document.getElementById('main-title-bar').style.borderBottomColor = c.subColor;
+            document.getElementById('page-main-heading').textContent = `${c.title} 찾아오시는 길 & 문의`;
+
+            // 2. 지도 헤더 & 주소·연락처 카드 업데이트
+            document.getElementById('map-header-bar').style.backgroundColor = c.subColor;
+            document.getElementById('map-header-title').textContent = `${c.title} 전자지도 위치 안내`;
+            document.getElementById('map-search-hint').textContent = c.mapHint;
+
+            const iconAddr = document.getElementById('icon-box-addr');
+            iconAddr.style.backgroundColor = `${c.color}22`;
+            iconAddr.style.color = c.subColor;
+            document.getElementById('addr-card-title').textContent = `${c.title} 소재지 (주소)`;
+            document.getElementById('addr-card-body').innerHTML = `
+                <div class="text-xs font-bold text-slate-400">우편번호 : ${c.zip}</div>
+                <div class="text-base sm:text-lg font-black text-slate-900 break-keep whitespace-pre-line leading-snug">${c.addr}</div>
+                <div class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-2 leading-relaxed">
+                    ${c.addrNote}
+                </div>
+            `;
+
+            document.getElementById('contact-phone').textContent = `${c.phone} (민원콜센터 120)`;
+            document.getElementById('contact-fax').textContent = c.fax;
+            document.getElementById('contact-duty').textContent = c.duty;
+            document.getElementById('contact-duty').style.color = c.subColor;
+
+            document.getElementById('btn-link-tel').setAttribute('href', isGu ? `행정전화번호.html?gu=${guKey}` : '행정전화번호.html');
+            const btnHall = document.getElementById('btn-link-hall');
+            btnHall.setAttribute('href', isGu ? `city_hall.html?gu=${guKey}` : 'city_hall.html');
+            btnHall.style.backgroundColor = c.subColor;
+
+            document.getElementById('parking-info-text').textContent = c.parking;
+
+            // 3. 하단 대중교통(도시철도 & 시내버스) 상세 렌더링
+            document.getElementById('transit-header-bar').style.backgroundColor = c.subColor;
+            document.getElementById('transit-section-title').textContent = `대중교통 이용 안내 (${c.title})`;
+            document.getElementById('bar-subway').style.backgroundColor = c.color;
+            document.getElementById('bar-bus').style.backgroundColor = c.subColor;
+            document.getElementById('bus-stop-name').textContent = c.stopName;
+
+            const subwayHtml = c.subways.map(s => {
+                const badges = s.lines.map(code => makeSubwayBadge(code)).join('');
+                return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex flex-wrap items-center mb-1.5">
+                            ${badges}
+                            <strong class="text-base font-black text-slate-900 ml-1">${s.station}</strong>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed pl-1">${s.exit}</p>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('subway-detail-box').innerHTML = subwayHtml;
+
+            const busForwardHtml = c.busForward.map(b => makeBusRow(b.type, b.nums)).join('');
+            document.getElementById('bus-detail-box').innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="text-xs font-black text-slate-500 uppercase tracking-wider mb-2 pb-1.5 border-b border-slate-200 flex items-center justify-between">
+                        <span>순방향 (${c.title} 앞 정류장)</span>
+                        <span class="text-[11px] font-normal text-slate-400">3세대 공식 노선색 적용</span>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                        ${busForwardHtml}
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs sm:text-sm">
+                    <strong class="text-slate-800 block mb-1">역방향 (${c.title} 건너편 정류장):</strong>
+                    <span class="text-slate-600 leading-relaxed">${c.busReverse}</span>
+                </div>
+            `;
+
+            document.getElementById('special-transit-tip').innerHTML = c.tip;
+            document.getElementById('dept-footer-info').textContent = `담당부서 : ${c.title} 자치행정과 청사관리팀 | 대표전화 : ${c.phone} | 소재지 : ${currentCopyAddr}`;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderContactPage();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

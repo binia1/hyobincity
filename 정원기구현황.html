@@ -12,11 +12,11 @@
     <style>
         /* 서브페이지 전용 디자인 */
         .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
-        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        .sub-visual-overlay { position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); transition: background-color 0.3s; }
         
         /* 아코디언 LNB 스타일 */
         .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
-        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
         .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
         .lnb-depth1 > li:last-child { border-bottom: none; }
         .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
@@ -31,20 +31,21 @@
         .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
         .lnb-single:hover, .lnb-single.current { background-color: #f8fafc; color: #1e3a8a; }
 
-        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 40px; border-bottom: 2px solid #1e3a8a; }
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
 
         /* 표 전용 관공서 스타일 (고도화) */
-        .stat-table { width: 100%; text-align: center; border-collapse: collapse; border-top: 2px solid #1e3a8a; margin-bottom: 2rem; }
-        .stat-table th, .stat-table td { border: 1px solid #cbd5e1; padding: 16px 8px; vertical-align: middle; }
+        .stat-table { width: 100%; text-align: center; border-collapse: collapse; border-top: 2px solid #1e3a8a; margin-bottom: 2rem; background: #fff; }
+        .stat-table th, .stat-table td { border: 1px solid #cbd5e1; padding: 15px 8px; vertical-align: middle; }
         .stat-table th { background-color: #f8fafc; color: #1e293b; font-weight: 700; font-size: 0.95rem; }
         .stat-table td { color: #334155; font-size: 1rem; }
         .stat-table th.sub-th { font-size: 0.85rem; font-weight: 600; color: #475569; padding: 12px 8px; background-color: #f1f5f9; }
         
         .stat-title { font-size: 1.25rem; font-weight: bold; color: #1e3a8a; display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
-        .stat-icon { width: 14px; height: 14px; border-radius: 50%; border: 4px solid #1e3a8a; box-sizing: border-box; }
+        .stat-icon { width: 14px; height: 14px; border-radius: 50%; border: 4px solid #1e3a8a; box-sizing: border-box; flex-shrink: 0; }
         
         /* 특정 셀 강조 효과 */
         .highlight-cell { background-color: #eff6ff !important; font-weight: bold; color: #1e40af !important; }
+        .gu-active-cell { background-color: #fef3c7 !important; font-weight: 900 !important; color: #b45309 !important; box-shadow: inset 0 0 0 2px #f59e0b; }
         .total-row td { background-color: #f8fafc; font-weight: bold; font-size: 1.05rem; }
         .grand-total-row td { background-color: #e0e7ff; font-weight: 900; font-size: 1.15rem; color: #1e3a8a; border-top: 2px solid #1e3a8a; }
     </style>
@@ -54,15 +55,16 @@
     <div id="common-header"></div>
 
     <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
-        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">효빈소개</h1>
+        <div class="sub-visual-overlay" id="sub-visual-bg"></div>
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong" id="sub-visual-title">효빈소개</h1>
     </div>
 
     <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
         
         <!-- 좌측 LNB -->
         <aside class="w-full md:w-64 shrink-0">
-            <div class="lnb-wrap sticky top-4">
-                <div class="lnb-title">효빈소개</div>
+            <div class="lnb-wrap sticky top-4" id="lnb-wrap-box">
+                <div class="lnb-title" id="lnb-main-title">효빈소개</div>
                 <ul class="lnb-depth1">
                     <li>
                         <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
@@ -73,12 +75,12 @@
                             <li><a href="sister_cities.html">해외자매도시</a></li>
                         </ul>
                     </li>
-                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li><a href="시정구호.html" class="lnb-single" id="lnb-slogan-link">시정구호</a></li>
                     <li class="active">
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hall-label">시청안내</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
                         <ul class="lnb-depth2">
                             <li><a href="행정조직도.html">행정조직도</a></li>
-                            <li><a href="정원기구현황.html" class="current">정원/기구현황</a></li>
+                            <li><a href="정원기구현황.html" class="current" id="lnb-current-link">정원/기구현황</a></li>
                             <li><a href="행정전화번호.html">행정전화번호</a></li>
                             <li><a href="행정팩스번호.html">행정팩스번호</a></li>
                             <li><a href="city_hall.html">청사안내</a></li>
@@ -86,19 +88,19 @@
                         </ul>
                     </li>
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-symbol-label">시의상징</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
-                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="시조시화시목.html" id="lnb-bird-link">시조/시화/시목</a></li>
                             <li><a href="상징물.html">상징물</a></li>
                             <li><a href="mascot.html">소통캐릭터</a></li>
-                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="시민의날.html" id="lnb-day-link">시민의날</a></li>
                             <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
-                            <li><a href="시민의노래.html">시민의노래</a></li>
+                            <li><a href="시민의노래.html" id="lnb-song-link">시민의노래</a></li>
                         </ul>
                     </li>
                     <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-stat-label">효빈통계</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
                             <li><a href="통계연보.html">통계연보</a></li>
                             <li><a href="인구통계.html">인구통계</a></li>
@@ -106,15 +108,15 @@
                             <li><a href="효빈사회조사.html">효빈사회조사</a></li>
                             <li><a href="지역통계.html">지역통계</a></li>
                             <li><a href="통계조사.html">통계조사</a></li>
-                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="시정백서.html" id="lnb-whitepaper-link">시정백서</a></li>
                             <li><a href="주요수상내역.html">주요수상내역</a></li>
                         </ul>
                     </li>
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hist-label">효빈의역사</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
-                            <li><a href="역대시장.html">역대시장</a></li>
-                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="역대시장.html" id="lnb-mayor-link">역대시장</a></li>
+                            <li><a href="history.html" id="lnb-origin-link">효빈의유래와연혁</a></li>
                             <li><a href="향토자료.html">향토자료</a></li>
                             <li><a href="세계속의효빈.html">세계속의효빈</a></li>
                             <li><a href="문화수도효빈.html">문화수도효빈</a></li>
@@ -129,222 +131,259 @@
         <!-- 우측 본문 -->
         <main class="flex-grow min-w-0">
             <!-- Breadcrumb -->
-            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
-                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 시청안내
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">정원/기구현황</strong>
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 flex-wrap">
+                <a href="index.html" id="bread-home" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-1">효빈소개</span> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-2">시청안내</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="bread-3">정원/기구현황</strong>
             </div>
 
             <!-- 본문 타이틀 (날짜 반영) -->
-            <h2 class="text-3xl font-black text-gray-900 content-title">
-                기구/정원 <span class="text-xl text-gray-500 font-medium ml-2 tracking-tighter">(2026.3.30.기준)</span>
-            </h2>
+            <div class="content-title flex flex-col sm:flex-row sm:items-end justify-between gap-3" id="main-title-bar">
+                <h2 class="text-3xl font-black text-gray-900">
+                    <span id="page-title-prefix">기구/정원</span> <span class="text-xl text-gray-500 font-medium ml-2 tracking-tighter">(2026.3.30.기준)</span>
+                </h2>
+                <!-- 구·군 빠른 전환 셀렉터 -->
+                <div class="flex items-center gap-2">
+                    <label for="org-scope-select" class="text-xs font-bold text-slate-500">기관 선택:</label>
+                    <select id="org-scope-select" onchange="changeOrgScope(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-700 bg-slate-50 outline-none focus:border-blue-600 cursor-pointer">
+                        <option value="">효빈광역시 본청 (전체 총괄)</option>
+                        <option value="jung">중구청 (정원 850명)</option>
+                        <option value="dong">동구청 (정원 880명)</option>
+                        <option value="seo">서구청 (정원 1,250명)</option>
+                        <option value="nam">남구청 (정원 1,120명)</option>
+                        <option value="buk">북구청 (정원 1,580명)</option>
+                        <option value="ancheon">안천구청 (정원 1,450명)</option>
+                        <option value="changjeon">창전구청 (정원 1,380명)</option>
+                        <option value="cheongyeop">청엽구청 (정원 1,520명)</option>
+                        <option value="tanseong">탄성군청 (정원 980명)</option>
+                    </select>
+                </div>
+            </div>
 
-            <!-- 기구현황 섹션 -->
-            <section class="mb-14">
-                <div class="flex justify-between items-end mb-2">
-                    <div class="stat-title"><div class="stat-icon"></div> 기구현황 (본청 및 직속기관)</div>
-                    <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
+            <!-- ========================================================================= -->
+            <!-- [A. 자치구·군 전용 기구/정원 상세 섹션] (?gu= 파라미터 접속 시 최상단 표출) -->
+            <!-- ========================================================================= -->
+            <div id="gu-exclusive-section" class="hidden mb-16 pb-12 border-b-2 border-dashed border-slate-300">
+                <!-- JS로 선택한 구·군의 본청/국/과/동/보건소/산하기관 및 정원 상세표가 렌더링됩니다 -->
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- [B. 효빈광역시 본청 및 광역 전체 총괄 섹션] (원본 100% 무손실 보존!) -->
+            <!-- ========================================================================= -->
+            <div id="city-master-section">
+                <div id="city-master-banner" class="hidden mb-6 bg-slate-100 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <i data-lucide="layers" class="w-5 h-5 text-slate-700"></i>
+                        <span class="font-black text-slate-800 text-base">효빈광역시 광역 전체 기구·정원 총괄 현황 (시 본청 및 8구 1군 비교)</span>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500">※ 현재 조회 중인 자치구·군이 하단 정원표에 강조 표시됩니다.</span>
                 </div>
 
-                <!-- 시본청 & 의회 표 -->
-                <div class="overflow-x-auto">
-                    <table class="stat-table">
-                        <colgroup>
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 20%;">
-                            <col style="width: 20%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th colspan="5">시본청</th>
-                                <th colspan="3">의회</th>
-                            </tr>
-                            <tr>
-                                <th class="sub-th">실</th>
-                                <th class="sub-th">국</th>
-                                <th class="sub-th">본부</th>
-                                <th class="sub-th">과(관,담당관)</th>
-                                <th class="sub-th">합의제행정기관</th>
-                                <th class="sub-th">처</th>
-                                <th class="sub-th">담당관</th>
-                                <th class="sub-th">전문위원</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>6</td>
-                                <td>14</td>
-                                <td>4</td>
-                                <td>105</td>
-                                <td>2</td>
-                                <td>1</td>
-                                <td>4</td>
-                                <td>9</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <!-- 1. 기구현황 섹션 (시본청 및 직속기관 원본) -->
+                <section class="mb-14">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="stat-title"><div class="stat-icon"></div> 기구현황 (시본청 및 직속기관)</div>
+                        <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
+                    </div>
 
-                <!-- 직속기관, 사업소, 출장소 표 -->
-                <div class="overflow-x-auto mt-6">
-                    <table class="stat-table">
-                        <colgroup>
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 20%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th colspan="6">직속기관</th>
-                                <th rowspan="2">사업소</th>
-                                <th rowspan="2" class="leading-snug">출장소<br><span class="text-xs font-normal text-gray-500">(경제자유구역청)</span></th>
-                            </tr>
-                            <tr>
-                                <th class="sub-th">원</th>
-                                <th class="sub-th">센터</th>
-                                <th class="sub-th">서울본부</th>
-                                <th class="sub-th">소방학교</th>
-                                <th class="sub-th">소방서</th>
-                                <th class="sub-th">소방기타</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td>1</td>
-                                <td class="highlight-cell text-lg">9</td>
-                                <td class="text-sm leading-snug">2<br><span class="text-gray-500 text-xs">(119특수대응단,<br>119안전체험관)</span></td>
-                                <td class="highlight-cell text-lg">32</td>
-                                <td>1</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                    <!-- 시본청 & 의회 표 -->
+                    <div class="overflow-x-auto">
+                        <table class="stat-table">
+                            <colgroup>
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 20%;">
+                                <col style="width: 20%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th colspan="5">시본청</th>
+                                    <th colspan="3">의회</th>
+                                </tr>
+                                <tr>
+                                    <th class="sub-th">실</th>
+                                    <th class="sub-th">국</th>
+                                    <th class="sub-th">본부</th>
+                                    <th class="sub-th">과(관,담당관)</th>
+                                    <th class="sub-th">합의제행정기관</th>
+                                    <th class="sub-th">처</th>
+                                    <th class="sub-th">담당관</th>
+                                    <th class="sub-th">전문위원</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>6</td>
+                                    <td>14</td>
+                                    <td>4</td>
+                                    <td>105</td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>4</td>
+                                    <td>9</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-            <!-- 공공기관 및 하부행정기관 현황 섹션 (메가시티 스케일 강조) -->
-            <section class="mb-14">
-                <div class="flex justify-between items-end mb-2">
-                    <div class="stat-title"><div class="stat-icon"></div> 하부행정기관 및 산하 공공기관 현황</div>
-                    <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
-                </div>
+                    <!-- 직속기관, 사업소, 출장소 표 -->
+                    <div class="overflow-x-auto mt-6">
+                        <table class="stat-table">
+                            <colgroup>
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 20%;">
+                                <col style="width: 15%;">
+                                <col style="width: 15%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th colspan="6">직속기관</th>
+                                    <th rowspan="2">사업소</th>
+                                    <th rowspan="2" class="leading-snug">출장소<br><span class="text-xs font-normal text-gray-500">(경제자유구역청)</span></th>
+                                </tr>
+                                <tr>
+                                    <th class="sub-th">원</th>
+                                    <th class="sub-th">센터</th>
+                                    <th class="sub-th">서울본부</th>
+                                    <th class="sub-th">소방학교</th>
+                                    <th class="sub-th">소방서</th>
+                                    <th class="sub-th">소방기타</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td class="highlight-cell text-lg">9</td>
+                                    <td class="text-sm leading-snug">2<br><span class="text-gray-500 text-xs">(119특수대응단,<br>119안전체험관)</span></td>
+                                    <td class="highlight-cell text-lg">32</td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-                <div class="overflow-x-auto">
-                    <table class="stat-table">
-                        <colgroup>
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 15%;">
-                            <col style="width: 20%;">
-                            <col style="width: 35%;">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th rowspan="2">자치구·군</th>
-                                <th rowspan="2">행정복지센터<br>(읍·면·동)</th>
-                                <th colspan="3">산하 공공기관 (총 25개)</th>
-                            </tr>
-                            <tr>
-                                <th class="sub-th text-blue-800">지방공기업</th>
-                                <th class="sub-th text-emerald-800">지방출연기관</th>
-                                <th class="sub-th text-orange-800">지방출자기관</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="font-bold text-lg">8구 1군</td>
-                                <td class="highlight-cell text-2xl">146</td>
-                                <td>8</td>
-                                <td>15</td>
-                                <td>2</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                <!-- 2. 공공기관 및 하부행정기관 현황 섹션 (원본 보존) -->
+                <section class="mb-14">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="stat-title"><div class="stat-icon"></div> 하부행정기관 및 산하 공공기관 현황 (광역 전체)</div>
+                        <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
+                    </div>
 
-            <!-- 정원현황 섹션 -->
-            <section class="mb-10">
-                <div class="flex justify-between items-end mb-2">
-                    <div class="stat-title"><div class="stat-icon"></div> 정원현황 (공무원)</div>
-                    <div class="text-sm text-gray-500 font-medium">* 산하 공공기관 임직원 제외 / (단위: 명)</div>
-                </div>
+                    <div class="overflow-x-auto">
+                        <table class="stat-table">
+                            <colgroup>
+                                <col style="width: 15%;">
+                                <col style="width: 15%;">
+                                <col style="width: 15%;">
+                                <col style="width: 20%;">
+                                <col style="width: 35%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">자치구·군</th>
+                                    <th rowspan="2">행정복지센터<br>(읍·면·동)</th>
+                                    <th colspan="3">산하 공공기관 (총 25개)</th>
+                                </tr>
+                                <tr>
+                                    <th class="sub-th text-blue-800">지방공기업</th>
+                                    <th class="sub-th text-emerald-800">지방출연기관</th>
+                                    <th class="sub-th text-orange-800">지방출자기관</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-bold text-lg">8구 1군</td>
+                                    <td class="highlight-cell text-2xl">146</td>
+                                    <td>8</td>
+                                    <td>15</td>
+                                    <td>2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-                <div class="overflow-x-auto custom-scrollbar pb-4">
-                    <!-- 8구 1군 체제이므로 가로가 깁니다. overflow-x-auto를 통해 스크롤 제공 -->
-                    <table class="stat-table min-w-[1100px]">
-                        <thead>
-                            <tr>
-                                <th colspan="6">시(市)</th>
-                                <th colspan="9">자치구·군</th>
-                            </tr>
-                            <tr>
-                                <th class="sub-th whitespace-nowrap">본청</th>
-                                <th class="sub-th whitespace-nowrap">의회</th>
-                                <th class="sub-th whitespace-nowrap">직속기관</th>
-                                <th class="sub-th whitespace-nowrap">사업소</th>
-                                <th class="sub-th whitespace-nowrap">출장소</th>
-                                <th class="sub-th whitespace-nowrap">합의제</th>
-                                
-                                <!-- 8구 1군 -->
-                                <th class="sub-th whitespace-nowrap">중구</th>
-                                <th class="sub-th whitespace-nowrap">동구</th>
-                                <th class="sub-th whitespace-nowrap">서구</th>
-                                <th class="sub-th whitespace-nowrap">남구</th>
-                                <th class="sub-th whitespace-nowrap">북구</th>
-                                <th class="sub-th whitespace-nowrap">안천구</th>
-                                <th class="sub-th whitespace-nowrap">창전구</th>
-                                <th class="sub-th whitespace-nowrap">청엽구</th>
-                                <th class="sub-th whitespace-nowrap">탄성군</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2,450</td>
-                                <td>150</td>
-                                <td>3,420</td>
-                                <td>1,280</td>
-                                <td>120</td>
-                                <td>80</td>
+                <!-- 3. 정원현황 섹션 (원본 보존 + 접속 구청 하이라이트 연동) -->
+                <section class="mb-10">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="stat-title"><div class="stat-icon"></div> 정원현황 (효빈광역시 전체 공무원)</div>
+                        <div class="text-sm text-gray-500 font-medium">* 산하 공공기관 임직원 제외 / (단위: 명)</div>
+                    </div>
 
-                                <td>850</td>
-                                <td>880</td>
-                                <td>1,250</td>
-                                <td>1,120</td>
-                                <td>1,580</td>
-                                <td>1,450</td>
-                                <td>1,380</td>
-                                <td>1,520</td>
-                                <td>980</td>
-                            </tr>
-                            <tr class="total-row">
-                                <td colspan="6" class="py-4 text-blue-900">시(市) 소계 : 7,500</td>
-                                <td colspan="9" class="py-4 text-emerald-900">자치구·군 소계 : 11,010</td>
-                            </tr>
-                            <tr class="grand-total-row">
-                                <td colspan="15" class="py-5">총 공무원 정원 : 18,510 명</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                    <div class="overflow-x-auto custom-scrollbar pb-4">
+                        <table class="stat-table min-w-[1100px]">
+                            <thead>
+                                <tr>
+                                    <th colspan="6">시(市)</th>
+                                    <th colspan="9">자치구·군</th>
+                                </tr>
+                                <tr>
+                                    <th class="sub-th whitespace-nowrap">본청</th>
+                                    <th class="sub-th whitespace-nowrap">의회</th>
+                                    <th class="sub-th whitespace-nowrap">직속기관</th>
+                                    <th class="sub-th whitespace-nowrap">사업소</th>
+                                    <th class="sub-th whitespace-nowrap">출장소</th>
+                                    <th class="sub-th whitespace-nowrap">합의제</th>
+                                    
+                                    <!-- 8구 1군 -->
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="jung">중구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="dong">동구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="seo">서구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="nam">남구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="buk">북구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="ancheon">안천구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="changjeon">창전구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="cheongyeop">청엽구</th>
+                                    <th class="sub-th whitespace-nowrap" data-gu-col="tanseong">탄성군</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2,450</td>
+                                    <td>150</td>
+                                    <td>3,420</td>
+                                    <td>1,280</td>
+                                    <td>120</td>
+                                    <td>80</td>
+
+                                    <td data-gu-col="jung">850</td>
+                                    <td data-gu-col="dong">880</td>
+                                    <td data-gu-col="seo">1,250</td>
+                                    <td data-gu-col="nam">1,120</td>
+                                    <td data-gu-col="buk">1,580</td>
+                                    <td data-gu-col="ancheon">1,450</td>
+                                    <td data-gu-col="changjeon">1,380</td>
+                                    <td data-gu-col="cheongyeop">1,520</td>
+                                    <td data-gu-col="tanseong">980</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="6" class="py-4 text-blue-900">시(市) 소계 : 7,500</td>
+                                    <td colspan="9" class="py-4 text-emerald-900">자치구·군 소계 : 11,010</td>
+                                </tr>
+                                <tr class="grand-total-row">
+                                    <td colspan="15" class="py-5">총 공무원 정원 : 18,510 명</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
             
             <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
-                <div>자료관리 담당자 : 기획조정실 조직담당관 | 연락처 : 079-613-2210</div>
+                <div id="manager-info">자료관리 담당자 : 기획조정실 조직담당관 | 연락처 : 079-613-2210</div>
                 <div class="mt-2 md:mt-0">최종업데이트 : 2026-03-30</div>
             </div>
 
@@ -357,6 +396,7 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script src="common121.js"></script>
     <script>
         // 아코디언 메뉴 작동 스크립트
         function toggleLnb(btn) {
@@ -365,7 +405,7 @@
             
             if (parentLi.classList.contains('active')) {
                 parentLi.classList.remove('active');
-                icon.classList.remove('rotate-180');
+                if(icon) icon.classList.remove('rotate-180');
             } else {
                 document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
                     if(li.querySelector('.lnb-depth2')) {
@@ -374,12 +414,401 @@
                     }
                 });
                 parentLi.classList.add('active');
-                icon.classList.add('rotate-180');
+                if(icon) icon.classList.add('rotate-180');
             }
         }
 
-        lucide.createIcons();
+        // =========================================================================
+        // 8구 1군 실제 행정조직도 및 정원(총합 11,010명 완벽 일치) 상세 데이터베이스
+        // =========================================================================
+        const GU_ORG_DB = {
+            "jung": {
+                name: "중구", title: "중구청", headTitle: "중구청장", headName: "구성연",
+                color: "#BB9955", subColor: "#9A7B3E", phone: "079-242-8192",
+                damdang: 2, guk: 4, gwa: 18, team: 78,
+                gukList: "2담당관(기획감사·홍보소통) / 4국(행정지원국·역사문화경제국·복지안전국·도시트램건설국)",
+                keyDepts: "대중교통과(7호선 트램전담), 문화유산과(개항기·성곽), 지역경제과(중앙동 금융·창선동 상권), 가로정비과 등 18개 과",
+                council: { guk: 1, damdang: 1, jeonmun: 3, seats: "9석" },
+                direct: { name: "중구보건소 (1소 2과)", sub: "보건행정과, 건강증진과 (조유동 소재)" },
+                biz: { count: 2, desc: "중구 통합도서관사업소, 근대역사문화전시사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 16, label: "동 행정복지센터", desc: "조유동, 중앙동, 창선동, 리사동, 삼각동, 내항동, 궁영동, 내조1·2동, 신덕동 등 16개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "중구시설관리공단", desc: "공영주차장, 구립체육시설, 리사동·중앙로 공공인프라 관리" },
+                    { type: "지방출연기관 (2)", name: "중구문화재단 · 중구상권활성화재단", desc: "개항기 문화제, 7호선 트램 스트리트 축제 및 원도심 노포·서브컬처 상생 지원" }
+                ],
+                quota: { total: 850, hq: 462, council: 22, health: 96, biz: 30, dong: 240, gen: 495, tech: 258, welfare: 82, etc: 15 }
+            },
+            "dong": {
+                name: "동구", title: "동구청", headTitle: "동구청장", headName: "조우영",
+                color: "#00AA00", subColor: "#008800", phone: "079-284-1193",
+                damdang: 2, guk: 4, gwa: 18, team: 76,
+                gukList: "2담당관(기획감사·홍보소통) / 4국(행정지원국·철도문화경제국·복지환경국·도시재생건설국)",
+                keyDepts: "철도관광과(효빈역 헤리티지), 문화체육과(전천 냥냥골목·사가당 좀비거리), 도시재생과, 교통행정과 등 18개 과",
+                council: { guk: 1, damdang: 1, jeonmun: 3, seats: "9석" },
+                direct: { name: "동구보건소 (1소 2과)", sub: "보건행정과, 건강증진과 (덕현동 소재)" },
+                biz: { count: 2, desc: "동구 구립도서관사업소, 효빈역전환승시설관리사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 14, label: "동 행정복지센터", desc: "덕현1~3동, 사가당1~4동, 전천1~3동, 보몽동, 가동 등 14개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "동구시설관리공단", desc: "효빈역 공영환승주차장, 경빈선 철도숲길 및 구립 체육시설 운영" },
+                    { type: "지방출연기관 (1)", name: "(재)동구도시재생·문화재단", desc: "역세권 성지순례(보몽·사가당·전천) 로컬 크리에이터 육성 및 구도심 재생" }
+                ],
+                quota: { total: 880, hq: 485, council: 22, health: 98, biz: 25, dong: 250, gen: 510, tech: 265, welfare: 90, etc: 15 }
+            },
+            "seo": {
+                name: "서구", title: "서구청", headTitle: "서구청장", headName: "부서원",
+                color: "#00AABB", subColor: "#008899", phone: "079-634-2201",
+                damdang: 2, guk: 5, gwa: 22, team: 96,
+                gukList: "2담당관(기획예산·홍보감사) / 5국(행정지원국·대학협력경제국·복지교육국·환경녹지국·도시트램교통국)",
+                keyDepts: "대학협력정책과(효빈대·HIST 관학협력), 상권활성화과(대학로 즈라맛집), 청년정책과, 교통관리과(캠퍼스 트램) 등 22개 과",
+                council: { guk: 1, damdang: 1, jeonmun: 4, seats: "13석" },
+                direct: { name: "서구보건소 (1소 3과)", sub: "보건행정과, 건강증진과, 감염병대응과 (당선동 소재)" },
+                biz: { count: 3, desc: "서구 통합도서관사업소, 과진사이언스파크관리사업소, 칠천공원관리사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 17, label: "동 행정복지센터", desc: "당선1~4동, 과진1~7동, 청덕1~3동, 사복1~2동, 북성동 등 17개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "서구시설관리공단", desc: "대학로·당선역 공영주차장, 청덕 체육테마파크 및 구립도서관 관리" },
+                    { type: "지방출연기관 (2)", name: "서구인재육성학술재단 · 서구문화재단", desc: "효빈대·HIST 청년 연구원 주거장학 지원 및 대학로 청춘문화 축제 운영" }
+                ],
+                quota: { total: 1250, hq: 680, council: 26, health: 124, biz: 40, dong: 380, gen: 720, tech: 375, welfare: 138, etc: 17 }
+            },
+            "nam": {
+                name: "남구", title: "남구청", headTitle: "남구청장", headName: "오전희",
+                color: "#9856FF", subColor: "#7E22CE", phone: "079-451-9034",
+                damdang: 2, guk: 4, gwa: 18, team: 86,
+                gukList: "2담당관(기획감사·홍보소통) / 4국(행정지원국·해양경제국·복지안전국·도시건설국)",
+                keyDepts: "해양항만물류과, 해양관광과(곽암·어간), 청년무역지원과, 복지정책과, 안전총괄과, 교통행정과 등 18개 과 (행정조직도 100% 일치)",
+                council: { guk: 1, damdang: 1, jeonmun: 4, seats: "12석" },
+                direct: { name: "남구보건소 (1소 2과)", sub: "보건행정과, 건강증진과 (평당동 소재)" },
+                biz: { count: 3, desc: "곽암·어간해수욕장관리사업소, 평당오션뷰도서관사업소, 어간수산시장현대화사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 16, label: "동 행정복지센터", desc: "평당1~7동, 어간1~3동, 곽산1~2동, 항1~3동, 월천동(신흥·포장·고간) 등 16개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "남구도시관리공단", desc: "곽암·어간 해양레저파크, 평당 워터파크 및 공영주차장 통합 운영" },
+                    { type: "지방출연기관 (2)", name: "남구해양문화재단 · 남구중소기업공단지원센터", desc: "빙천·사야 인더스트리얼 라이브하우스 지원 및 효빈공단 입주기업 복지 운영" }
+                ],
+                quota: { total: 1120, hq: 610, council: 25, health: 115, biz: 35, dong: 335, gen: 645, tech: 340, welfare: 118, etc: 17 }
+            },
+            "buk": {
+                name: "북구", title: "북구청", headTitle: "북구청장", headName: "김지언",
+                color: "#6677CC", subColor: "#4F5FA8", phone: "079-321-5042",
+                damdang: 3, guk: 6, gwa: 26, team: 118,
+                gukList: "3담당관(기획예산·감사법무·뉴미디어소통) / 6국(자치행정국·서브컬처경제국·펭귄케어복지국·문화체육관광국·환경녹지국·안전도시교통국)",
+                keyDepts: "문화관광과(고송 서브컬처특구), 스마트복지과(펭귄케어), 청년창업과, 해수욕장운영과(토모리), 주차관리과 등 26개 과",
+                council: { guk: 1, damdang: 2, jeonmun: 5, seats: "18석" },
+                direct: { name: "북구보건소 (1소 3과) + 고송건강생활지원센터", sub: "보건행정과, 건강증진과, 질병관리과 (중수동 소재)" },
+                biz: { count: 4, desc: "북구 통합도서관사업소, 토모리해수욕장·생태관사업소, 사능베이커리뮤지엄사업소, 채산공단환경사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 22, label: "동 행정복지센터", desc: "고송1~8동, 중수1~4동, 사능1~3동, 입희동, 진희동, 추산동, 소조동, 천왕사동, 남전동, 오내1~2동, 해서동 등 22개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "북구시설관리공단", desc: "고송신도시·중수 법조타운 공영주차장, 오내 수변캠핑장 및 구립 체육관 운영" },
+                    { type: "지방출연기관 (2)", name: "북구문화재단 · 북구상권진흥원", desc: "북구 코스프레 페스티벌, 고송 서브컬처 거리 및 사능동 빵지순례 상권 진흥" }
+                ],
+                quota: { total: 1580, hq: 850, council: 32, health: 158, biz: 60, dong: 480, gen: 910, tech: 465, welfare: 185, etc: 20 }
+            },
+            "ancheon": {
+                name: "안천구", title: "안천구청", headTitle: "안천구청장", headName: "이규희",
+                color: "#AA66DD", subColor: "#8844BB", phone: "079-915-7732",
+                damdang: 2, guk: 5, gwa: 24, team: 105,
+                gukList: "2담당관(기획감사·2.5차원홍보담당관) / 5국(행정지원국·특화산업경제국·복지교육국·생태문화관광국·안전도시건설국)",
+                keyDepts: "특화산업육성과(초음 대파·굿즈), 문화관광과(이자공원·타천마을), 국제교류과(누마즈 협력), 공원녹지과(북택 두루미습지) 등 24개 과",
+                council: { guk: 1, damdang: 2, jeonmun: 4, seats: "16석" },
+                direct: { name: "안천구보건소 (1소 3과)", sub: "보건행정과, 건강증진과, 의약위생과 (안천동 소재)" },
+                biz: { count: 3, desc: "안천 스틸야드체육사업소, 북택두루미생태습지사업소, 안천통합도서관사업소" },
+                chuljangso: { count: 1, desc: "안천구청 이자출장소 (인구 11만 명 거대 권역인 이자1~4동·이십기동 민원 및 리코 행정체험관 관할)" },
+                dong: { count: 19, label: "동 행정복지센터", desc: "안천1~7동, 이자1~4동, 당가1~2동, 북택동, 뇌전동, 백합동, 악부동(타천·초음), 이십기동, 칠채동(영색무) 등 19개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "안천구시설관리공단", desc: "안천 스틸야드, 이자 피아노 음악분수, 백합 플라워 돔 및 환승주차장 관리" },
+                    { type: "지방출연기관 (2)", name: "안천2.5차원문화재단 · 안천농수산유통센터", desc: "안천 국제 성지 페스티벌, 초음 대파 콜라보 직판 및 당가 초코바나나 특구 운영" }
+                ],
+                quota: { total: 1450, hq: 770, council: 30, health: 145, biz: 65, dong: 440, gen: 835, tech: 430, welfare: 165, etc: 20 }
+            },
+            "changjeon": {
+                name: "창전구", title: "창전구청", headTitle: "창전구청장", headName: "전역헌",
+                color: "#33AAFF", subColor: "#1188DD", phone: "079-822-1594",
+                damdang: 2, guk: 5, gwa: 22, team: 98,
+                gukList: "2담당관(기획감사·품격소통담당관) / 5국(행정지원국·금융패션경제국·명품교육복지국·문화예술공원국·도시철도안전국)",
+                keyDepts: "도시철도지원과(창전선 개통전담), 문화예술과(효빈아트센터·모르포니카), 공원관리과(블루로즈가든), 도로교통과 등 22개 과",
+                council: { guk: 1, damdang: 1, jeonmun: 4, seats: "14석" },
+                direct: { name: "창전구보건소 (1소 2과) + 칠심마음치유센터", sub: "보건행정과, 건강증진과 (창전동 소재)" },
+                biz: { count: 3, desc: "효빈아트센터·시사이드콘서트홀사업소, 보통동평범박물관사업소, 블루로즈온실식물원사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 16, label: "동 행정복지센터", desc: "창전1~5동, 칠심1~3동, 쌍엽1~2동, 진백동(시로), 동곡동(투자), 광정동(마시·보통), 팔조동, 유류동 등 16개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "창전구시설관리공단", desc: "창전 해안 공영주차장, 광정 효빈양궁장 및 구립 화이트가든 체육시설 관리" },
+                    { type: "지방출연기관 (2)", name: "창전문화예술재단 · 창전패션크리에이터진흥원", desc: "모포니카 클래식 시리즈, 동곡·투자동 패션위크 및 스텔스 관광 인프라 운영" }
+                ],
+                quota: { total: 1380, hq: 750, council: 28, health: 140, biz: 42, dong: 420, gen: 800, tech: 410, welfare: 152, etc: 18 }
+            },
+            "cheongyeop": {
+                name: "청엽구", title: "청엽구청", headTitle: "청엽구청장", headName: "권상남",
+                color: "#006699", subColor: "#004D73", phone: "079-781-4920",
+                damdang: 3, guk: 5, gwa: 25, team: 112,
+                gukList: "3담당관(기획예산·감사법무·베이커리홍보담당관) / 5국(행정지원국·베이커리경제국·따뜻한복지국·문화관광녹지국·안전도시교통국)",
+                keyDepts: "상권활성화과(청엽 베이커리거리), 관광마케팅과(아논타워·우전천 락페), 복지정책과(모카의 빵나눔냉장고), 공원녹지과 등 25개 과",
+                council: { guk: 1, damdang: 2, jeonmun: 5, seats: "17석" },
+                direct: { name: "청엽구보건소 (1소 3과) + 효빈동신도시건강센터", sub: "보건행정과, 건강증진과, 식품위생과(제과제빵 특화위생) (청엽동 소재)" },
+                biz: { count: 3, desc: "청엽구립도서관사업소, 우전천·우택호수공원관리사업소, 비마리유적지구박물관사업소" },
+                chuljangso: { count: 0, desc: "해당 없음" },
+                dong: { count: 17, label: "동 행정복지센터", desc: "청엽1~6동, 우전1~3동, 마잡1~2동, 우택동, 비마리동, 등동, 동리동, 입빈동(효빈동신도시), 사노동 등 17개 행정동" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "청엽구시설관리공단", desc: "남부시외버스터미널 환승주차장, 청엽 실내빙상장 부설시설 및 구립 체육시설 관리" },
+                    { type: "지방출연기관 (2)", name: "청엽베이커리진흥재단 · 청엽문화재단", desc: "청엽 브레드 페스티벌, 청년 파티시에 창업 지원 및 우전 리버사이드 락 페스티벌 주관" }
+                ],
+                quota: { total: 1520, hq: 825, council: 30, health: 150, biz: 45, dong: 470, gen: 875, tech: 450, welfare: 177, etc: 18 }
+            },
+            "tanseong": {
+                name: "탄성군", title: "탄성군청", headTitle: "탄성군수", headName: "성선설",
+                color: "#559900", subColor: "#3D7300", phone: "079-134-8821",
+                damdang: 2, guk: 4, gwa: 20, team: 88,
+                gukList: "2담당관(기획감사실·성지소통담당관) / 4국(행정지원국·농정특산품관광국·복지환경국·안전건설교통국)",
+                keyDepts: "농정특산품과(고해 미칸·도향 복숭아), 문화체육관광과(록구리 락페·도변 성지), 청년귀농정책과, 건설교통과(DRT 탄도리버스) 등 20개 과",
+                council: { guk: 1, damdang: 1, jeonmun: 3, seats: "11석" },
+                direct: { name: "탄성군보건소 (1소 2과) + 탄성군농업기술센터 (1센터 2과)", sub: "보건소(탄성읍) 및 농업기술센터(지도정책과·기술보급과·농기계임대사업소)" },
+                biz: { count: 3, desc: "도변스탬프몰·환승라운지사업소, 야진석탄산업기념공원사업소, 승남해양레저관리사업소" },
+                chuljangso: { count: 1, desc: "탄성군청 앵내출장소 (도변읍 앵내리 인구 3.9만 명 신도시 권역 민원·도시관리 전담)" },
+                dong: { count: 9, label: "읍·면 행정복지센터 (4읍 5면)", desc: "탄성읍, 도변읍, 고해읍, 서목읍, 야진읍 (이상 4읍과 앵내권) / 도향면, 흑택면, 소원면, 정근면 (4읍 5면 체제)" },
+                pubCorps: [
+                    { type: "지방공기업 (1)", name: "탄성군시설관리공단", desc: "야진 레일바이크, 도변역 대형 락커존, 승남 캠핑데크 및 공영주차장 운영" },
+                    { type: "지방출연기관 (2)", name: "탄성문화관광재단 · 탄성먹거리통합지원센터", desc: "고해 미칸·모모카 복숭아 사이다 콜라보 유통 및 서목 록 페스티벌·탄성 투어패스 운영" }
+                ],
+                quota: { total: 980, hq: 510, council: 22, health: 118, biz: 60, dong: 270, gen: 540, tech: 315, welfare: 105, etc: 20 }
+            }
+        };
+
+        function changeOrgScope(guKey) {
+            if (!guKey) {
+                window.location.href = '정원기구현황.html';
+            } else {
+                window.location.href = `정원기구현황.html?gu=${guKey}`;
+            }
+        }
+
+        function renderGuOrgSection() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+            const selectEl = document.getElementById('org-scope-select');
+
+            // 모든 하단 정원표 하이라이트 초기화
+            document.querySelectorAll('[data-gu-col]').forEach(el => el.classList.remove('gu-active-cell'));
+
+            if (!guKey || !GU_ORG_DB[guKey]) {
+                if (selectEl) selectEl.value = "";
+                document.getElementById('gu-exclusive-section').classList.add('hidden');
+                document.getElementById('city-master-banner').classList.add('hidden');
+                return;
+            }
+
+            if (selectEl) selectEl.value = guKey;
+            const g = GU_ORG_DB[guKey];
+            const isGun = g.name.endsWith('군');
+            const prefix = isGun ? '군' : '구';
+
+            // 1. 좌측 LNB, 서브비주얼, 브레드크럼을 해당 구·군에 맞게 완벽 치환
+            document.title = `${prefix}청안내 - 정원/기구현황 | ${g.title} 공식 홈페이지`;
+            document.getElementById('sub-visual-title').textContent = `${g.name}소개`;
+            document.getElementById('sub-visual-bg').style.backgroundColor = `${g.subColor}D9`;
+
+            document.getElementById('lnb-wrap-box').style.borderTopColor = g.color;
+            const lnbTitle = document.getElementById('lnb-main-title');
+            lnbTitle.textContent = `${g.name}소개`;
+            lnbTitle.style.backgroundColor = g.color;
+
+            document.getElementById('lnb-slogan-link').textContent = `${prefix}정구호`;
+            document.getElementById('lnb-hall-label').textContent = `${prefix}청안내`;
+            document.getElementById('lnb-symbol-label').textContent = `${prefix}의상징`;
+            document.getElementById('lnb-bird-link').textContent = `${prefix}조/${prefix}화/${prefix}목`;
+            document.getElementById('lnb-day-link').textContent = `${prefix}민의날`;
+            document.getElementById('lnb-song-link').textContent = `${prefix}민의노래`;
+            document.getElementById('lnb-stat-label').textContent = `${g.name}통계`;
+            document.getElementById('lnb-whitepaper-link').textContent = `${prefix}정백서`;
+            document.getElementById('lnb-hist-label').textContent = `${g.name}의역사`;
+            document.getElementById('lnb-mayor-link').textContent = `역대${isGun ? '군수' : '구청장'}`;
+            document.getElementById('lnb-mayor-link').setAttribute('href', `역대구청장.html?gu=${guKey}`);
+            document.getElementById('lnb-origin-link').textContent = `${g.name}의유래와연혁`;
+            document.getElementById('lnb-current-link').style.color = g.subColor;
+
+            document.getElementById('bread-home').setAttribute('href', `index.html?gu=${guKey}`);
+            document.getElementById('bread-1').textContent = `${g.name}소개`;
+            document.getElementById('bread-2').textContent = `${prefix}청안내`;
+            document.getElementById('bread-3').style.color = g.subColor;
+
+            document.getElementById('main-title-bar').style.borderBottomColor = g.color;
+            document.getElementById('page-title-prefix').textContent = `${g.title} 기구/정원`;
+            document.getElementById('manager-info').textContent = `자료관리 담당자 : ${g.title} 기획감사실 조직팀 | 연락처 : ${g.phone}`;
+
+            // 2. 자치구·군 전용 기구/정원 상세 섹션 HTML 생성
+            const guSec = document.getElementById('gu-exclusive-section');
+            guSec.classList.remove('hidden');
+            document.getElementById('city-master-banner').classList.remove('hidden');
+
+            const pubCorpsHtml = g.pubCorps.map(c => `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left">
+                    <span class="inline-block text-xs font-black px-2 py-0.5 rounded mb-1.5" style="background-color:${g.color}22; color:${g.subColor};">${c.type}</span>
+                    <h5 class="font-bold text-slate-800 text-base mb-1">${c.name}</h5>
+                    <p class="text-xs text-slate-600 leading-relaxed">${c.desc}</p>
+                </div>
+            `).join('');
+
+            guSec.innerHTML = `
+                <!-- 구청 요약 배너 -->
+                <div class="rounded-2xl p-6 mb-10 text-white shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4" style="background: linear-gradient(135deg, ${g.subColor} 0%, ${g.color} 100%);">
+                    <div>
+                        <span class="inline-block bg-black/25 text-white text-xs font-bold px-3 py-1 rounded-full mb-2 backdrop-blur-sm">효빈광역시 ${g.name} 자치조직 현황</span>
+                        <h3 class="text-2xl md:text-3xl font-black tracking-tight">${g.title} 기구 및 정원 상세 (${g.headTitle} ${g.headName})</h3>
+                        <p class="text-white/90 text-sm mt-1">${g.gukList}</p>
+                    </div>
+                    <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-xl px-5 py-3 text-right shrink-0">
+                        <span class="text-xs block text-white/80 font-medium">${g.title} 총 공무원 정원</span>
+                        <strong class="text-3xl font-black">${g.quota.total.toLocaleString()} <span class="text-base font-bold">명</span></strong>
+                    </div>
+                </div>
+
+                <!-- 1. 구청 기구현황 (본청, 의회, 직속기관, 사업소, 동 행정복지센터) -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="stat-title" style="color:${g.subColor};"><div class="stat-icon" style="border-color:${g.color};"></div> ${g.title} 기구현황 (본청·의회·직속기관·하부행정기관)</div>
+                        <div class="text-sm text-gray-500 font-medium">(단위: 개)</div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="stat-table" style="border-top-color:${g.color};">
+                            <thead>
+                                <tr>
+                                    <th colspan="4">${g.title} 본청</th>
+                                    <th colspan="3">${g.name}의회 (${g.council.seats})</th>
+                                    <th rowspan="2">직속기관<br><span class="text-xs font-normal text-slate-500">(보건소${isGun ? '·농기센터' : ''})</span></th>
+                                    <th rowspan="2">사업소</th>
+                                    <th rowspan="2">출장소</th>
+                                    <th rowspan="2">${g.dong.label}</th>
+                                </tr>
+                                <tr>
+                                    <th class="sub-th">담당관(실)</th>
+                                    <th class="sub-th">국</th>
+                                    <th class="sub-th">과</th>
+                                    <th class="sub-th">팀(계)</th>
+                                    <th class="sub-th">사무국(과)</th>
+                                    <th class="sub-th">담당관</th>
+                                    <th class="sub-th">전문위원</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-bold">${g.damdang}</td>
+                                    <td class="font-bold text-lg" style="color:${g.subColor};">${g.guk}</td>
+                                    <td class="highlight-cell text-lg">${g.gwa}</td>
+                                    <td>${g.team}</td>
+                                    <td>${g.council.guk}</td>
+                                    <td>${g.council.damdang}</td>
+                                    <td>${g.council.jeonmun}</td>
+                                    <td class="font-bold">${isGun ? '2' : '1'}</td>
+                                    <td class="font-bold">${g.biz.count}</td>
+                                    <td>${g.chuljangso.count}</td>
+                                    <td class="highlight-cell text-xl">${g.dong.count}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 소속기관 상세 내역 표 -->
+                    <div class="overflow-x-auto mt-4">
+                        <table class="stat-table text-left" style="border-top-color:${g.subColor};">
+                            <colgroup>
+                                <col style="width: 22%;">
+                                <col style="width: 78%;">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th class="text-center">본청 주요 편제</th>
+                                    <td class="px-5 text-sm leading-relaxed"><strong>${g.gukList}</strong><br><span class="text-slate-500">${g.keyDepts}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center">직속기관</th>
+                                    <td class="px-5 text-sm leading-relaxed"><strong>${g.direct.name}</strong> — <span class="text-slate-600">${g.direct.sub}</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center">사업소 및 출장소</th>
+                                    <td class="px-5 text-sm leading-relaxed"><strong>사업소(${g.biz.count}개소):</strong> ${g.biz.desc}<br><strong>출장소(${g.chuljangso.count}개소):</strong> ${g.chuljangso.desc}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-center">관할 ${g.dong.label} (${g.dong.count}개)</th>
+                                    <td class="px-5 text-sm leading-relaxed">${g.dong.desc}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. 구청 산하 공공기관 현황 -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-end mb-3">
+                        <div class="stat-title" style="color:${g.subColor};"><div class="stat-icon" style="border-color:${g.color};"></div> ${g.title} 산하 공공기관 (공단·출연기관) 현황</div>
+                        <a href="행정조직도.html?gu=${guKey}" class="text-xs font-bold hover:underline flex items-center gap-1" style="color:${g.subColor};">${g.title} 행정조직도 자세히 보기 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${pubCorpsHtml}
+                    </div>
+                </div>
+
+                <!-- 3. 구청 소속별·직렬별 공무원 정원 상세표 -->
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="stat-title" style="color:${g.subColor};"><div class="stat-icon" style="border-color:${g.color};"></div> ${g.title} 공무원 정원 상세 현황</div>
+                        <div class="text-sm text-gray-500 font-medium">* 효빈광역시 광역 정원표(${g.name} ${g.quota.total.toLocaleString()}명)와 100% 일치 / (단위: 명)</div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="stat-table" style="border-top-color:${g.color};">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="bg-slate-100">총 정원</th>
+                                    <th colspan="5">기관 구분별 정원</th>
+                                    <th colspan="4">주요 직종·직렬별 정원</th>
+                                </tr>
+                                <tr>
+                                    <th class="sub-th">${prefix} 본청</th>
+                                    <th class="sub-th">${prefix}의회 사무국</th>
+                                    <th class="sub-th">직속기관(보건소 등)</th>
+                                    <th class="sub-th">사업소·출장소</th>
+                                    <th class="sub-th">${g.dong.label}</th>
+                                    <th class="sub-th">일반행정직</th>
+                                    <th class="sub-th">기술·시설·환경직</th>
+                                    <th class="sub-th">사회복지·보건직</th>
+                                    <th class="sub-th">정무·별정·전문경력관</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="highlight-cell text-xl font-black">${g.quota.total.toLocaleString()}</td>
+                                    <td class="font-bold">${g.quota.hq.toLocaleString()}</td>
+                                    <td>${g.quota.council.toLocaleString()}</td>
+                                    <td>${g.quota.health.toLocaleString()}</td>
+                                    <td>${g.quota.biz.toLocaleString()}</td>
+                                    <td class="font-bold">${g.quota.dong.toLocaleString()}</td>
+                                    <td>${g.quota.gen.toLocaleString()}</td>
+                                    <td>${g.quota.tech.toLocaleString()}</td>
+                                    <td class="font-bold text-blue-800">${g.quota.welfare.toLocaleString()}</td>
+                                    <td>${g.quota.etc.toLocaleString()}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            // 3. 하단 광역 전체 정원표에서 현재 구·군 컬럼 강조 하이라이트
+            document.querySelectorAll(`[data-gu-col="${guKey}"]`).forEach(el => {
+                el.classList.add('gu-active-cell');
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGuOrgSection();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
     </script>
-    <script src="common121.js"></script>
 </body>
 </html>
