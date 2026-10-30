@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="이미지/logo.webp">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구정소개 - 역대구청장 | 효빈광역시 자치구·군 공식 홈페이지</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 분리한 커스텀 스타일 연결 -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        /* 서브페이지 전용 디자인 */
+        .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
+        .sub-visual-overlay { position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); transition: background-color 0.3s; }
+        
+        /* 아코디언 LNB 스타일 */
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
+        .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
+        .lnb-depth1 > li:last-child { border-bottom: none; }
+        .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
+        .lnb-toggle:hover, .lnb-depth1 > li.active .lnb-toggle { background-color: #f8fafc; color: #1e3a8a; }
+        .lnb-depth2 { display: none; background-color: #f8fafc; border-top: 1px solid #e5e7eb; }
+        .lnb-depth1 > li.active .lnb-depth2 { display: block; }
+        .lnb-depth2 > li > a { display: block; padding: 0.75rem 1.25rem 0.75rem 2rem; color: #6b7280; font-size: 0.9rem; position: relative; transition: color 0.2s; }
+        .lnb-depth2 > li > a::before { content: '-'; position: absolute; left: 1.25rem; color: #9ca3af; }
+        .lnb-depth2 > li > a:hover, .lnb-depth2 > li > a.current { color: #2563eb; font-weight: 700; }
+        .lnb-depth2 > li > a.current::before { color: #2563eb; font-weight: 700; }
+        
+        .lnb-single { width: 100%; display: block; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; }
+        .lnb-single:hover { background-color: #f8fafc; color: #1e3a8a; }
+
+        /* 타이틀 디자인 */
+        .content-title { position: relative; padding-bottom: 12px; margin-bottom: 24px; border-bottom: 2px solid #1e3a8a; }
+
+        /* 모달 애니메이션 및 기타 */
+        #modal-backdrop.open, #matrix-backdrop.open { display: flex; opacity: 1; pointer-events: auto; }
+        #modal-panel.open, #matrix-panel.open { opacity: 1; transform: scale(1); }
+
+        /* 커스텀 스크롤바 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .mayor-card { transition: all 0.3s ease; }
+        
+        /* 나무위키식 취소선 스타일 */
+        del { color: #9ca3af; text-decoration-color: #9ca3af; font-size: 0.9em; }
+
+        /* 구 선택 탭 */
+        .gu-tab-btn { transition: all 0.2s ease; }
+        .gu-tab-btn.active { font-weight: 900; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative text-gray-800">
+
+    <!-- 1. 최상단 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 2. 서브 비주얼 -->
+    <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
+        <div class="sub-visual-overlay" id="sub-visual-bg"></div>
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong" id="sub-visual-title">중구소개</h1>
+    </div>
+
+    <!-- 3. 본문 컨테이너 -->
+    <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
+        
+        <!-- 아코디언 LNB (좌측 메뉴) -->
+        <aside class="w-full md:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4" id="lnb-wrap-box">
+                <div class="lnb-title" id="lnb-main-title">중구소개</div>
+                <ul class="lnb-depth1">
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="intro.html">기본현황</a></li>
+                            <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
+                            <li><a href="행정구역.html">행정구역</a></li>
+                            <li><a href="sister_cities.html">자매결연도시</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="시정구호.html" class="lnb-single" id="lnb-slogan-link">구정구호</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hall-label">구청안내</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="행정조직도.html">행정조직도</a></li>
+                            <li><a href="정원기구현황.html">정원/기구현황</a></li>
+                            <li><a href="행정전화번호.html">행정전화번호</a></li>
+                            <li><a href="행정팩스번호.html">행정팩스번호</a></li>
+                            <li><a href="city_hall.html">청사안내</a></li>
+                            <li><a href="contact.html">찾아오시는길</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-symbol-label">구의상징</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="시조시화시목.html" id="lnb-bird-link">구조/구화/구목</a></li>
+                            <li><a href="상징물.html">상징물</a></li>
+                            <li><a href="mascot.html">소통캐릭터</a></li>
+                            <li><a href="시민의날.html" id="lnb-day-link">구민의날</a></li>
+                            <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
+                            <li><a href="시민의노래.html" id="lnb-song-link">구민의노래</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
+                    <li>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-stat-label">중구통계</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="통계연보.html">통계연보</a></li>
+                            <li><a href="인구통계.html">인구통계</a></li>
+                            <li><a href="경제통계.html">경제통계</a></li>
+                            <li><a href="효빈사회조사.html">효빈사회조사</a></li>
+                            <li><a href="지역통계.html">지역통계</a></li>
+                            <li><a href="통계조사.html">통계조사</a></li>
+                            <li><a href="시정백서.html" id="lnb-whitepaper-link">구정백서</a></li>
+                            <li><a href="주요수상내역.html">주요수상내역</a></li>
+                        </ul>
+                    </li>
+                    <li class="active">
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hist-label">중구의역사</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <ul class="lnb-depth2">
+                            <li><a href="역대구청장.html" class="current" id="lnb-current-head-link">역대구청장</a></li>
+                            <li><a href="history.html" id="lnb-origin-link">중구의유래와연혁</a></li>
+                            <li><a href="향토자료.html">향토자료</a></li>
+                            <li><a href="세계속의효빈.html">세계속의효빈</a></li>
+                            <li><a href="문화수도효빈.html">문화수도효빈</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="ebook.html" class="lnb-single">ebook</a></li>
+                    <li><a href="시청각자료실.html" class="lnb-single">시청각자료실</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow min-w-0">
+            <!-- Breadcrumb -->
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 flex-wrap">
+                <a href="index.html" id="bread-home-link" class="hover:text-blue-600 flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                <span id="bread-region-intro">중구소개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                <span id="bread-region-hist">중구의역사</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                <strong class="text-gray-800" id="bread-current-title">역대구청장</strong>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between content-title gap-3" id="main-title-bar">
+                <h2 class="text-3xl font-black text-gray-900" id="page-heading">역대 중구청장</h2>
+                <button onclick="openMatrixModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white hover:bg-slate-900 transition shadow-sm shrink-0">
+                    <i data-lucide="table" class="w-4 h-4"></i> 민선 1~9기 전체 자치구·군 총괄표 보기
+                </button>
+            </div>
+
+            <!-- 9개 구·군 빠른 전환 탭 바 -->
+            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm mb-8">
+                <div class="flex items-center justify-between mb-2 px-1">
+                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 자치구·군별 역대 단체장 바로가기</span>
+                    <a href="역대시장.html" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">효빈광역시장(본청) 역대시장 보기 <i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+                <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-1.5" id="gu-tabs-container">
+                    <!-- JS로 9개 구·군 탭 생성 -->
+                </div>
+            </div>
+
+            <!-- 도입부 -->
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-7 mb-10 flex flex-col md:flex-row items-center gap-6 shadow-sm" id="intro-banner-box">
+                <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center shrink-0" id="intro-icon-circle">
+                    <i data-lucide="landmark" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" id="intro-banner-title">구민과 함께 중구의 발전을 이끌어온 역대 구청장</h3>
+                    <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep" id="intro-banner-desc">
+                        1995년 민선 1기 지방자치 출범 이후, 원도심의 역사와 7호선 노면전차의 낭만을 수호하며 오늘날의 자치구를 만들어 온 역대 단체장들의 주요 재임 기록과 행정적 발자취를 안내합니다.<br>
+                        <span class="text-xs text-red-500 mt-1.5 inline-block font-medium">* 공공기관 기록물의 역사적 투명성 원칙 및 주민 알권리 보장에 따라, 재임 중 당선무효·파면(폭행 및 부정선거 등)으로 치러진 재보궐선거 이력과 시정 파행기(2006~2007)의 구정 저항사까지 가감 없이 기록하였습니다.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 구청장/군수 목록 그리드 -->
+            <div id="mayor-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10 min-h-[400px]">
+                <!-- 자바스크립트로 렌더링 됩니다 -->
+            </div>
+
+            <!-- 페이지네이션 컨트롤 -->
+            <div id="pagination" class="flex justify-center items-center gap-2 select-none mb-12">
+                <!-- 자바스크립트로 렌더링 됩니다 -->
+            </div>
+
+            <!-- 관리부서 정보 -->
+            <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                <div id="dept-info-text">담당부서 : 자치행정과 | 문의처 : 079-242-8192 | 책임자 : 기록물관리팀장</div>
+                <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 10. 29.</div>
+            </div>
+
+            <!-- 만족도 조사 컴포넌트 -->
+            <div class="bg-gray-50 border border-gray-200 rounded p-6 mt-8 page-satisfaction-survey">
+                <div class="font-bold text-gray-700 mb-3">이 페이지에서 제공하는 정보에 대하여 만족하십니까?</div>
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" checked> 매우만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 보통</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 불만족</label>
+                    <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 매우불만족</label>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" placeholder="페이지 품질 향상을 위한 의견을 남겨주세요." class="flex-grow border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500">
+                    <button onclick="alert('소중한 의견이 등록되었습니다. 감사합니다.')" class="bg-gray-800 hover:bg-black text-white px-5 py-2 rounded text-sm font-bold transition-colors whitespace-nowrap">평가등록</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 6. 페이지 하단 푸터 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+    
+    <!-- 역대 구청장/군수 상세정보 모달 HTML -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeModal()">
+        <div id="modal-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden transform scale-95 transition-all duration-300 opacity-0 flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div id="modal-header-bg" class="relative h-48 bg-slate-800 flex items-end p-6 shrink-0 transition-colors overflow-hidden">
+                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-white/70 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-2 transition-all z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
+                
+                <div class="relative z-10 w-full flex items-end gap-5">
+                     <img id="modal-img" src="" class="w-28 h-28 rounded-xl border-4 border-white shadow-xl bg-slate-200 object-cover shrink-0" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'">
+                     <div class="mb-1 flex-1 min-w-0 pb-1">
+                         <span id="modal-subtitle" class="text-xs font-bold text-indigo-100 bg-black/30 px-2.5 py-1 rounded mb-2 inline-block backdrop-blur-sm border border-white/10"></span>
+                         <h3 id="modal-title" class="text-3xl font-bold text-white leading-tight drop-shadow-md"></h3>
+                     </div>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <div class="p-8">
+                    <div id="modal-meta" class="flex flex-wrap gap-2 mb-6"></div>
+                    
+                    <div id="modal-quote-container" class="mb-6 relative">
+                        <i class="absolute -top-3 -left-2 text-4xl text-slate-200 serif font-serif">"</i>
+                        <p id="modal-quote" class="text-[1.15rem] font-bold text-slate-800 relative z-10 pl-6 border-l-4 border-blue-600 italic"></p>
+                    </div>
+
+                    <div class="prose prose-slate max-w-none">
+                        <p id="modal-desc" class="text-slate-600 leading-relaxed text-[0.95rem] break-keep mb-6 text-justify"></p>
+                        
+                        <div id="modal-achievements" class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                            <h5 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="award" class="w-4 h-4 text-blue-600" id="modal-award-icon"></i> <span id="modal-achievement-title">주요 구정 성과 및 이력</span>
+                            </h5>
+                            <div id="modal-detail" class="text-slate-600 text-sm leading-relaxed space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-slate-50 px-6 py-4 flex justify-end shrink-0 border-t border-slate-200">
+                <button onclick="closeModal()" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 민선 1~9기 전체 자치구·군 역대 단체장 총괄표 모달 -->
+    <div id="matrix-backdrop" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="closeMatrixModal()">
+        <div id="matrix-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl overflow-hidden transform scale-95 transition-all duration-300 opacity-0 flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="text-xl font-black flex items-center gap-2"><i data-lucide="table-2" class="w-5 h-5 text-blue-400"></i> 효빈광역시 민선 1~9기 자치구·군 역대 단체장 총괄표 (1995~2026)</h3>
+                    <p class="text-xs text-slate-400 mt-1">구·군명을 클릭하면 해당 지역의 역대 단체장 상세 페이지로 즉시 전환됩니다.</p>
+                </div>
+                <button onclick="closeMatrixModal()" class="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-auto custom-scrollbar flex-1">
+                <table class="w-full text-xs sm:text-sm border-collapse border border-slate-300 text-center min-w-[950px]">
+                    <thead class="bg-slate-100 text-slate-800 font-black">
+                        <tr>
+                            <th class="border border-slate-300 p-2.5 bg-slate-200">선거 연도 (기수)</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-amber-100" onclick="switchGu('jung'); closeMatrixModal();">중구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-green-100" onclick="switchGu('dong'); closeMatrixModal();">동구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-cyan-100" onclick="switchGu('seo'); closeMatrixModal();">서구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-purple-100" onclick="switchGu('nam'); closeMatrixModal();">남구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-indigo-100" onclick="switchGu('buk'); closeMatrixModal();">북구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-sky-100" onclick="switchGu('cheongyeop'); closeMatrixModal();">청엽구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-fuchsia-100" onclick="switchGu('ancheon'); closeMatrixModal();">안천구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-blue-100" onclick="switchGu('changjeon'); closeMatrixModal();">창전구</th>
+                            <th class="border border-slate-300 p-2.5 cursor-pointer hover:bg-lime-100" onclick="switchGu('tanseong'); closeMatrixModal();">탄성군</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">1995<br><span class="text-[11px] text-slate-500">(제1기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>박현만</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조원형</strong><br><span class="text-[11px] text-slate-500">(무소속)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>권수현</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>노선태</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고민현</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>문연민</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>도영만</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고안성</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정만춘</strong><br><span class="text-[11px] text-red-600">(민주자유당)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">1998<br><span class="text-[11px] text-slate-500">(제2기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신유림</strong><br><span class="text-[11px] text-emerald-700">(새정치국민회의)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정미현</strong><br><span class="text-[11px] text-teal-700">(자유민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조서원</strong><br><span class="text-[11px] text-teal-700">(자유민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신원심</strong><br><span class="text-[11px] text-emerald-700">(새정치국민회의)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>구임현</strong><br><span class="text-[11px] text-emerald-700">(새정치국민회의)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>문연민</strong><br><span class="text-[11px] text-emerald-700">(새정치국민회의)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>도영만</strong><br><span class="text-[11px] text-emerald-700">(새정치국민회의)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고안성</strong><br><span class="text-[11px] text-emerald-700">(새정치국민회의)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정만춘</strong><br><span class="text-[11px] text-red-600">(한나라당)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">2002<br><span class="text-[11px] text-slate-500">(제3기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신유림</strong><br><span class="text-[11px] text-emerald-600">(새천년민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정미현</strong><br><span class="text-[11px] text-teal-700">(자유민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조서원</strong><br><span class="text-[11px] text-teal-700">(자유민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>임유정</strong><br><span class="text-[11px] text-emerald-600">(새천년민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고민현</strong><br><span class="text-[11px] text-emerald-600">(새천년민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>문연민</strong><br><span class="text-[11px] text-emerald-600">(새천년민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>도영만</strong><br><span class="text-[11px] text-emerald-600">(새천년민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고안성</strong><br><span class="text-[11px] text-emerald-600">(새천년민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신영한</strong><br><span class="text-[11px] text-red-600">(한나라당)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">2006<br><span class="text-[11px] text-slate-500">(제4기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>김성민</strong><br><span class="text-[11px] text-amber-600">(열린우리당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정미현</strong><br><span class="text-[11px] text-red-600">(한나라당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>민영만</strong><br><span class="text-[11px] text-slate-500">(무소속)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>우중곤</strong><br><span class="text-[11px] text-red-600">(한나라당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>윤구희</strong><br><span class="text-[11px] text-amber-600">(열린우리당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신운연</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>천미남</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정창훈</strong><br><span class="text-[11px] text-amber-600">(열린우리당)</span></td>
+                            <td class="border border-slate-300 p-2 bg-amber-50/60"><strong>신영한</strong><span class="text-[10px] text-red-600">(한나라당)</span><br>→ '09 <strong>고안준</strong><span class="text-[10px] text-blue-600">(민주당)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">2010<br><span class="text-[11px] text-slate-500">(제5기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>김성민</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2 bg-amber-50/60"><strong>조현민</strong><span class="text-[10px] text-red-600">(새누리당)</span><br>→ '11 <strong>고영현</strong><span class="text-[10px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조영만</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>박아밀라</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정주연</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신운연</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>천미남</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정창훈</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고안준</strong><br><span class="text-[11px] text-blue-600">(민주당)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">2014<br><span class="text-[11px] text-slate-500">(제6기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고영민</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조양현</strong><br><span class="text-[11px] text-slate-500">(무소속)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>노서현</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>박아밀라</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정주연</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>신운연</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>천미남</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정창훈</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>심원식</strong><br><span class="text-[11px] text-sky-600">(새정치민주연합)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">2018<br><span class="text-[11px] text-slate-500">(제7기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>고영민</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2 bg-amber-50/60"><strong>조양현</strong><span class="text-[10px] text-red-600">(새누리당)</span><br>→ '20 <strong>우영철</strong><span class="text-[10px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>노서현</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>오전희</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>정주연</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>권상남</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>이규희</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>전역헌</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조왕현</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-bold bg-slate-50">2022<br><span class="text-[11px] text-slate-500">(제8기)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>구성연</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조우영</strong><br><span class="text-[11px] text-slate-600">(무소속)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>노서현</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2 bg-red-50/70"><strong>강덕수</strong><span class="text-[10px] text-red-600">(국민의힘)</span><br>→ '23 <strong>오전희</strong><span class="text-[10px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>김지언</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>권상남</strong><br><span class="text-[11px] text-slate-600">(무소속)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>이규희</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>전역헌</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>성선설</strong><br><span class="text-[11px] text-blue-700">(더불어민주당)</span></td>
+                        </tr>
+                        <tr class="bg-blue-50/40">
+                            <td class="border border-slate-300 p-2 font-black bg-blue-100/60">2026<br><span class="text-[11px] text-blue-800">(제9기·현직)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>구성연</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>조우영</strong><br><span class="text-[11px] text-sky-800 font-bold">(조국혁신당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>부서원</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>오전희</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>김지언</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>권상남</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>이규희</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>전역헌</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                            <td class="border border-slate-300 p-2"><strong>성선설</strong><br><span class="text-[11px] text-blue-700 font-bold">(더불어민주당)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-slate-50 px-6 py-3.5 flex justify-end border-t border-slate-200">
+                <button onclick="closeMatrixModal()" class="bg-slate-800 text-white font-bold py-2 px-6 rounded-lg text-sm hover:bg-slate-900">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 분리한 JS 파일 연결 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+    <script>
+        // =========================================================================
+        // 효빈광역시 9개 자치구·군 역대 단체장 (1995 제1기 ~ 2026 제9기 + 재보궐 전수 수록)
+        // =========================================================================
+        const GU_MAYORS_DB = {
+            "jung": {
+                name: "중구", title: "중구청", role: "구청장", fullRole: "중구청장",
+                color: "#BB9955", subColor: "#9A7B3E", phone: "079-242-8192",
+                introDesc: "1995년 민선 1기 초대 박현만 구청장 출범 이래, 개항기 근대문화유산과 대한민국 유일의 노면전차(7호선 트램)를 지켜내며 원도심 르네상스와 서브컬처의 조화를 일궈낸 역대 중구청장들의 발자취입니다.",
+                list: [
+                    {
+                        term: "제40대 (민선 9기 · 현직)", name: "구성연", period: "2026.07.01 ~ 현재", party: "더불어민주당", isCurrent: true,
+                        slogan: "시간을 걷는 트램, 꿈이 현실이 되는 낭만 중구!",
+                        desc: "민선 8기에 이어 제9회 전국동시지방선거에서 재선에 성공하며 원도심 르네상스 2.0 시대를 열었습니다. 천주고와 덕북대 물리학과 학생회장 출신다운 치밀한 데이터 행정으로 7호선 노면전차 심야 연장 운행(01:30까지)과 구민 골드포인트 페이백을 정착시켰으며, 중앙동 금융특구와 리사동·창선동 서브컬처 상권을 유기적으로 결합해 원도심 유동인구 역대 최고치를 경신하고 있습니다.",
+                        achievements: [
+                            "<strong>[7호선 트램 야간 연장]</strong> 효빈교통공사와 협약을 통해 7호선 노면전차 자정 이후 심야 연장 운행 전면 시행",
+                            "<strong>[시간여행 스탬프 투어]</strong> 1930년대 개항기 효빈성 유적과 리사동 굿즈 거리를 잇는 '뱁시계 투어' 고도화",
+                            "<strong>[상생 임대차 협약]</strong> 리사동·조유동 청년 크리에이터 입주 공간 지원 및 젠트리피케이션 방지 협약 체결"
+                        ]
+                    },
+                    {
+                        term: "제39대 (민선 8기)", name: "구성연", period: "2022.07.01 ~ 2026.06.30", party: "더불어민주당",
+                        slogan: "원도심의 가치 재발견, 다시 뛰는 금융·문화 중구",
+                        desc: "제7대 효빈광역시의회 의원(중구 제1선거구)과 더불어민주당 중구지역위원장을 거쳐 민선 8기 중구청장에 당선되었습니다. 취임 직후 노후화된 원도심 상권을 개항기 레트로 감성과 BanG Dream!(Roselia 이마이 리사 등)·케이온(우이동) 성지순례 코스로 리브랜딩하고, 중구 공식 마스코트 '뱁시계'를 론칭하여 중구 재정자립도를 크게 끌어올렸습니다.",
+                        achievements: [
+                            "<strong>[마스코트 리뉴얼]</strong> 구조(區鳥) 뱁새와 7호선 차장 모티브를 결합한 마스코트 '뱁시계' 전격 데뷔",
+                            "<strong>[리사동·삼각동 특화거리]</strong> 리사역 쿠키 파빌리온 및 삼각역 미디어아트 보행환경 개선 사업 완수",
+                            "<strong>[근대건축물 보존]</strong> 구 세관 및 창선동 100년 간판박물관 일대 역사문화벨트 조성"
+                        ]
+                    },
+                    {
+                        term: "제38대 (민선 7기)", name: "고영민", period: "2018.07.01 ~ 2022.06.30", party: "더불어민주당",
+                        slogan: "역사와 미래가 공존하는 품격 있는 중구",
+                        desc: "민선 6기에 이어 재선에 성공하며 중구 원도심 도시재생 뉴딜 사업을 본궤도에 올렸습니다. 코로나19 팬데믹 시기에는 중앙로 지하상가와 전통시장(색수시장·내항시장) 소상공인을 위한 임대료 감면 운동과 중구형 긴급 경영안정자금을 전국 최초로 집행하여 원도심 상권 붕괴를 막아냈습니다.",
+                        achievements: [
+                            "<strong>[도람동 차고지 복원]</strong> 1931년 개통 초기 노면전차 차고지를 '도람동 전차차고지 복원 박물관'으로 건립",
+                            "<strong>[소상공인 방역 지원]</strong> 중앙로 지하상가 및 창선동 상권 대상 선제적 상생 지원금 지급",
+                            "<strong>[효빈성 둘레길 정비]</strong> 궁영동·내조동 일대 효빈성 성곽 야간 경관조명 및 보행로 정비"
+                        ]
+                    },
+                    {
+                        term: "제37대 (민선 6기)", name: "고영민", period: "2014.07.01 ~ 2018.06.30", party: "새정치민주연합",
+                        slogan: "사람이 모이는 따뜻한 원도심 중구",
+                        desc: "김성민 전 구청장이 효빈광역시장으로 영전하면서 바통을 이어받아 민선 6기 중구청장으로 취임했습니다. 외곽 신도시 개발로 인한 원도심 인구 유출을 막기 위해 조유동·천석동 노후 주거지 재생 사업과 내항 창고예술센터 건립을 주도하며 문화도시 중구의 기틀을 다졌습니다.",
+                        achievements: [
+                            "<strong>[내항 문화재생]</strong> 방치된 내항동 폐창고를 복합문화공간 '내항 창고예술센터'로 리모델링",
+                            "<strong>[국립현대미술관 유치 공조]</strong> 중앙로2가 국립현대미술관 효빈관 건립 부지 확보 및 행정 지원",
+                            "<strong>[보행환경 개선]</strong> 중보로 노면전차 전용지구 대중교통 중심 보행환경 정비"
+                        ]
+                    },
+                    {
+                        term: "제36대 (민선 5기)", name: "김성민", period: "2010.07.01 ~ 2014.06.30", party: "민주당",
+                        slogan: "시민이 주인인 정의로운 원도심, 트램이 달리는 중구",
+                        desc: "민선 4기에 이어 압도적 지지로 재선에 성공한 뒤, 윤대환 시정 파행기 동안 훼손되었던 중구 원도심 가로망과 7호선 노면전차 인프라를 완벽하게 현대화했습니다. 이때 축적한 탄탄한 행정력과 시민들의 두터운 신망을 바탕으로 2014년 제7대(민선 6기) 효빈광역시장에 당선되었습니다.",
+                        achievements: [
+                            "<strong>[7호선 현대화 완성]</strong> 저상 노면전차 신형 전동차 도입 지원 및 중구 구간 우선신호 시스템 구축",
+                            "<strong>[참여예산제 선도 도입]</strong> 훗날 효빈시 전역으로 확대된 '주민참여예산제'를 중구에서 최초 안착",
+                            "<strong>[우이문화촌 조성]</strong> 일향동·우이동 일대 구도심 골목을 청년 예술·서브컬처 마을로 재생"
+                        ]
+                    },
+                    {
+                        term: "제35대 (민선 4기)", name: "김성민", period: "2006.07.01 ~ 2010.06.30", party: "열린우리당",
+                        slogan: "전차의 종소리를 지키는 구민의 방패",
+                        desc: "훗날 민선 6·7기 효빈광역시장을 역임하는 인물입니다. 민선 4기 재임 당시 윤대환 시장이 두청운수의 이익을 위해 7호선 노면전차(트램)를 강제 폐선하고 선로를 콘크리트로 덮으려 하자, 구청 전 직원 및 중보로 상인·구민들과 함께 빗자루를 들고 선로를 지키는 결사 항전을 벌여 마침내 7호선을 사수해 낸 '트램의 수호자'로 역사에 남았습니다.",
+                        achievements: [
+                            "<strong>[7호선 노면전차 사수]</strong> 윤대환 시장의 불법 트램 철거 용역 투입에 맞서 구청 차원의 행정명령 및 물리적 방어 성공",
+                            "<strong>[두청운수 폭리 고발]</strong> 중구 경유 두청운수 노선의 불법 요금 징수 및 과적 운행 채증 자료 검찰 제출",
+                            "<strong>[중앙동 금융가 정비]</strong> 중정동·중앙동 일대 금융기관 집적지 보행자 전용거리 조성"
+                        ]
+                    },
+                    {
+                        term: "제34대 (민선 3기)", name: "신유림", period: "2002.07.01 ~ 2006.06.30", party: "새천년민주당",
+                        slogan: "전통과 현대가 조화로운 문화 중심 중구",
+                        desc: "민선 2기에 이어 재선에 성공하며 개항기 근대건축물 보존 조례를 제정하고, 2002 한일 월드컵 기간 중구 중앙로 거리응원전을 성공적으로 지원했습니다. 구시청사(중보로)의 북구 고송동 이전에 따른 원도심 공동화를 막기 위해 구시청 건물을 '역사문화관'으로 전환하는 결단을 내렸습니다.",
+                        achievements: [
+                            "<strong>[청사 이전 공동화 방어]</strong> 효빈시청의 북구 이전에 대비한 중앙로·창선동 상권 활성화 종합대책 수립",
+                            "<strong>[근대문화유산 보존]</strong> 고도동 구 세관 및 완동1가 근대건축물 등록문화재 지정 추진",
+                            "<strong>[전통시장 현대화]</strong> 효빈서부시장 및 색수시장 아케이드 설치 공사 완료"
+                        ]
+                    },
+                    {
+                        term: "제33대 (민선 2기)", name: "신유림", period: "1998.07.01 ~ 2002.06.30", party: "새정치국민회의",
+                        slogan: "위기를 넘어 상업 중심지의 자존심 회복",
+                        desc: "박현만 초대 구청장이 민선 2기 효빈광역시장에 출마하면서 바통을 이어받아 당선되었습니다. IMF 외환위기로 직격탄을 맞은 중앙동·창선동 상권을 살리기 위해 전국 최초의 구 단위 소상공인 특례보증 제도를 도입하고, 박현만 시장과 공조하여 7호선 노면전차 존치 및 개량 사업을 뒷받침했습니다.",
+                        achievements: [
+                            "<strong>[IMF 상권 구제]</strong> 창선동·중앙로 영세 상인 대상 긴급 경영안정자금 및 지방세 유예 단행",
+                            "<strong>[지하상가 리모델링]</strong> 1·2호선 중앙로역 개통과 연계한 중앙로 지하상가 현대화 사업 추진",
+                            "<strong>[복지 인프라 확충]</strong> 조유동 종합사회복지관 및 노인주간보호센터 건립"
+                        ]
+                    },
+                    {
+                        term: "제32대 (민선 1기 · 초대)", name: "박현만", period: "1995.07.01 ~ 1998.06.30", party: "민주당",
+                        slogan: "풀뿌리 지방자치의 시작, 효빈의 심장 중구",
+                        desc: "훗날 효빈광역시장 4선(민선 2·3·4기 보궐·5기)의 전설을 쓰는 '대부' 박현만의 선출직 데뷔 시절입니다. 초대 민선 중구청장으로 취임하자마자 당시 철거 위기에 놓여 있던 구 효빈전차(현 7호선)를 '근대 역사 자산'으로 규정하여 보존 기틀을 마련했으며, 권위적인 구청 담장을 허물고 시민 광장으로 개방해 지방자치의 모범을 보였습니다.",
+                        achievements: [
+                            "<strong>[민선 자치 기틀 확립]</strong> 초대 민선 중구청장으로서 구청 담장 철거 및 열린 종합민원실 도입",
+                            "<strong>[노면전차 보존 선언]</strong> 도로 확장을 이유로 폐선 논의되던 전차 노선의 역사적 가치를 재조명하여 존치 결정",
+                            "<strong>[개항지 공원화]</strong> 내항동·개항지 일대 무허가 창고 정비 및 개항지공원 조성 착수"
+                        ]
+                    }
+                ]
+            },
+            "dong": {
+                name: "동구", title: "동구청", role: "구청장", fullRole: "동구청장",
+                color: "#00AA00", subColor: "#008800", phone: "079-284-1193",
+                introDesc: "보수와 진보, 제3지대가 치열하게 격돌해 온 정치 일번지이자 철도의 심장 효빈역을 품은 동구의 역대 구청장 기록입니다. 두 차례의 재보궐선거와 0.62%p 초박빙 승부 등 파란만장한 역사를 담고 있습니다.",
+                list: [
+                    {
+                        term: "제30대 (민선 9기 · 현직)", name: "조우영", period: "2026.07.01 ~ 현재", party: "조국혁신당", isCurrent: true,
+                        slogan: "바꾸는 사람, 바로서는 동구! 철도와 서브컬처가 공존하는 활력 도시",
+                        desc: "2024년 조국혁신당에 입당하여 전국 유일의 조국혁신당 소속 현직 기초단체장이 된 후, 2026년 제9회 지방선거에서 더불어민주당 우영철 후보와의 피 말리는 리턴매치 끝에 41.72% 대 41.10%(불과 0.62%p 격차)로 신승하며 재선에 성공했습니다. '생존왕'이라는 별명답게 정당 조직력을 넘어선 탄탄한 개인기로 전천 냥냥 골목, 사가당 좀비 거리, 보몽 핑크 로드 등 역세권 성지순례 특화 사업을 안정적으로 이끌고 있습니다.",
+                        achievements: [
+                            "<strong>[0.62%p 신승 재선]</strong> 거대 양당 구도를 뚫고 제3지대(조국혁신당) 간판으로 동구청장 재선 달성",
+                            "<strong>[효빈역 철도 헤리티지]</strong> 효빈역 광장 증기기관차·비둘기호 열차카페 및 The Rail Shop 확대 개편",
+                            "<strong>[전천 냥냥 골목 고도화]</strong> 전천동 생선구이 골목과 길고양이 공존 특구 조성 및 '냥냥선장' 마스코트 정착"
+                        ]
+                    },
+                    {
+                        term: "제29대 (민선 8기)", name: "조우영", period: "2022.07.01 ~ 2026.06.30", party: "무소속 → 조국혁신당",
+                        slogan: "정당보다 인물! 원도심을 살리는 도시재생 전문가",
+                        desc: "1980년생으로 중촌대 사회학과 졸업 후 동구도시재생지원센터 이사와 제8대 효빈시의원(바른미래당, 교육문화위원장)을 지냈습니다. 2022년 제8회 지선에서 무소속으로 출마하여 현역 우영철(더불어민주당, 38.27%) 후보와 임체제(국민의힘) 후보를 모두 꺾고 46.01%로 당선되는 대파란을 일으켰습니다.",
+                        achievements: [
+                            "<strong>[무소속 당선 신화]</strong> 양당 후보를 모두 제치고 46.01% 득표율로 민선 8기 동구청장 당선",
+                            "<strong>[사가당 좀비 거리 기획]</strong> 슬럼화된 사가당동 상권을 '좀비 랜드 사가' 모티브의 테마 거리 및 좀비빵 명소로 부활",
+                            "<strong>[보몽역 핑크빛 거리]</strong> 1호선 보몽(步夢)역 일대 500m 구간 가로등 및 보행로를 핑크빛 성지로 리모델링"
+                        ]
+                    },
+                    {
+                        term: "제28대 (민선 7기 재보궐)", name: "우영철", period: "2020.04.16 ~ 2022.06.30", party: "더불어민주당",
+                        slogan: "동구의 든든한 맏형, 중단 없는 구정 발전",
+                        desc: "전임 조양현 구청장의 당선무효로 치러진 2020년 4.15 재보궐선거에서 55.4%의 득표율로 당선되어 구정을 수습했습니다. 효빈시의회 3선 의원 및 부의장 출신다운 노련함으로 코로나19 방역과 전천동 청년 창업 거리 조성을 이끌었으나, 8회·9회 지선에서 조우영에게 연이어 석패하며 아쉬움을 남겼습니다.",
+                        achievements: [
+                            "<strong>[구정 공백 조기 수습]</strong> 코로나19 위기 속 동구 자체 재난지원금 신속 편성 및 전통시장 방역망 구축",
+                            "<strong>[전천동 청년창업거리]</strong> 5·6호선 전천중앙역 일대 빈 점포를 활용한 청년 창업 인큐베이팅 타운 조성",
+                            "<strong>[골목상권 활성화]</strong> 사가당동·덕현동 노후 골목상권 환경개선 및 주차장 확충"
+                        ]
+                    },
+                    {
+                        term: "제27대 (민선 7기)", name: "조양현", period: "2018.07.01 ~ 2020.01 (당선무효)", party: "새누리당(자유한국당)",
+                        slogan: "힘 있는 재선 구청장, 동구 재개발 완성",
+                        desc: "2018년 제7회 지방선거 당시 전국적인 민주당 열풍 속에서도 동구 원도심의 보수 결집과 현역 프리미엄을 바탕으로 재선에 성공했으나, 선거 과정에서의 회계 부정 및 공직선거법 위반 혐의가 적발되어 2020년 초 대법원에서 당선무효형이 확정되며 중도 하차했습니다.",
+                        achievements: [
+                            "<strong>[덕현지구 재개발]</strong> 덕현1~3동 노후 주택가 대규모 아파트 단지 재개발 인허가 추진",
+                            "<strong>[불명예 중도 퇴진]</strong> 공직선거법 위반 확정판결로 구청장직 상실 및 2020년 재보궐선거 유발"
+                        ]
+                    },
+                    {
+                        term: "제26대 (민선 6기)", name: "조양현", period: "2014.07.01 ~ 2018.06.30", party: "무소속",
+                        slogan: "오직 동구 구민만 바라보는 실용 행정",
+                        desc: "2014년 제6회 지방선거에서 보수 성향 무소속 후보로 출마하여 여야 정당 후보들을 꺾고 당선되었습니다. 재임 중 경빈선 폐선 부지를 활용한 '경빈선 철도숲길' 조성 사업을 시작하여 구민들의 휴식 공간을 확충했습니다.",
+                        achievements: [
+                            "<strong>[경빈선 철도숲길 착공]</strong> 전천동 일대 폐선 부지를 도심 산책로 및 자전거길로 전환하는 그린웨이 사업 착수",
+                            "<strong>[효빈역 광장 정비]</strong> 효빈역 전면부 노점상 정비 및 택시·버스 환승 동선 개선"
+                        ]
+                    },
+                    {
+                        term: "제25대 (민선 5기 재보궐)", name: "고영현", period: "2011.04.28 ~ 2014.06.30", party: "민주당",
+                        slogan: "깨끗한 구정, 정의롭게 바로 세우는 동구",
+                        desc: "전임 조현민 구청장이 취임 9개월 만에 선거법 위반으로 낙마하면서 치러진 2011년 상반기 재보궐선거에서 민주당 후보로 출마해 당선되었습니다. 민선 1기 이후 16년 만에 동구청에 입성한 민주 진영 구청장으로서, 6호선 덕현역·전덕역 구간 조기 착공과 동구 산업노동역사관 건립을 이끌었습니다.",
+                        achievements: [
+                            "<strong>[16년 만의 민주계 입성]</strong> 2011년 재보궐선거 승리로 보수 텃밭이던 동구 정치 지형 변화 주도",
+                            "<strong>[산업노동역사관 건립]</strong> 전천동에 철도·항만 노동자들의 역사를 기리는 '효빈 동구 산업노동역사관' 개관",
+                            "<strong>[6호선 동구 구간 지원]</strong> 도시철도 6호선 덕현~전천중앙~가동사거리 구간 역세권 정비"
+                        ]
+                    },
+                    {
+                        term: "제24대 (민선 5기)", name: "조현민", period: "2010.07.01 ~ 2011.02 (당선무효)", party: "한나라당(새누리당)",
+                        slogan: "동구 경제 재도약, 검증된 보수의 힘",
+                        desc: "3선 연임 제한으로 물러난 정미현 전 구청장의 조직을 물려받아 2010년 제5회 지방선거에서 당선되었으나, 경선 및 본선 과정에서의 금품 살포(공직선거법 위반)가 드러나 취임 8개월 만에 대법원 당선무효형을 선고받고 불명예 퇴진했습니다.",
+                        achievements: [
+                            "<strong>[단명 구청장 흑역사]</strong> 선거법 위반으로 임기 1년도 채우지 못하고 당선무효 처리되어 구정 공백 초래"
+                        ]
+                    },
+                    {
+                        term: "제21·22·23대 (민선 2·3·4기)", name: "정미현", period: "1998.07.01 ~ 2010.06.30", party: "자유민주연합 → 한나라당",
+                        slogan: "섬세하고 든든한 살림꾼, 12년 도약의 동구",
+                        desc: "효빈광역시 최초의 여성 기초단체장이자 동구 최초의 3선 연임(민선 2·3·4기) 구청장입니다. 1998년과 2002년에는 자유민주연합(자민련) 간판으로, 2006년에는 한나라당 소속으로 내리 3선에 성공하며 12년간 동구를 통치했습니다. 다만 민선 4기(2006~2007) 당시 같은 당 소속이었던 윤대환 시장의 철도 말살 정책에 미온적으로 대처해 철도 중심지인 효빈역 상인들과 갈등을 빚기도 했습니다.",
+                        achievements: [
+                            "<strong>[헌정 최초 여성 3선]</strong> 효빈광역시 최초의 여성 구청장으로 민선 2·3·4기 12년 연속 재임",
+                            "<strong>[덕현2동 신청사 건립]</strong> 협소했던 구 동구청사를 현재의 덕성로 12(덕현역 역세권) 신청사로 이전 건립",
+                            "<strong>[동자천 생태하천 복원]</strong> 복개 논의가 있던 동자천을 수변 산책로 및 피크닉 데크로 정비"
+                        ]
+                    },
+                    {
+                        term: "제20대 (민선 1기 · 초대)", name: "조원형", period: "1995.07.01 ~ 1998.06.30", party: "무소속",
+                        slogan: "화합하는 동구, 철도 교통의 중심지",
+                        desc: "1995년 제1회 전국동시지방선거에서 정당 공천을 배제하고 무소속으로 출마하여 초대 민선 동구청장에 당선되었습니다. 효빈역 역전 광장 정비와 사가당동·전천동 일대 상하수도 보급률 100% 달성에 주력하며 지방자치 초석을 다졌습니다.",
+                        achievements: [
+                            "<strong>[초대 무소속 당선]</strong> 효빈시 9개 구·군 중 유일하게 무소속으로 초대 민선 단체장 당선",
+                            "<strong>[역전 인프라 정비]</strong> 효빈역 광장 시내버스 환승 정류장 및 지하보도 확충 사업 완수"
+                        ]
+                    }
+                ]
+            },
+            "seo": {
+                name: "서구", title: "서구청", role: "구청장", fullRole: "서구청장",
+                color: "#00AABB", subColor: "#008899", phone: "079-634-2201",
+                introDesc: "효빈대학교와 효빈과학기술원(HIST)을 품은 지성의 요람이자, 7호선 캠퍼스 트램을 온몸으로 지켜낸 낭만과 소신의 도시 서구를 이끌어온 역대 구청장들의 기록입니다.",
+                list: [
+                    {
+                        term: "제41대 (민선 9기 · 현직)", name: "부서원", period: "2026.07.01 ~ 현재", party: "더불어민주당", isCurrent: true,
+                        slogan: "낭만이 달리는 트램도시, 소신을 품은 지성 서구",
+                        desc: "효빈고와 효빈대 경영학과를 졸업하고 청하건설 대표이사를 지낸 실물경제 전문가입니다. 과거 보수 정당(국민의힘) 청년위원장 및 당협위원장을 지냈으나 윤대환·윤재훈 일가의 패악질과 R&D 예산 삭감 사태에 환멸을 느끼고 민주당으로 당적을 옮긴 뒤, 3선 연임 제한으로 물러난 노서현 전 청장의 뒤를 이어 2026년 제9회 지선에서 압도적으로 당선되었습니다. 대학생 트램 반값 정기권('구스장 즈라 패스')을 즉시 도입하며 청년층의 열렬한 지지를 받고 있습니다.",
+                        achievements: [
+                            "<strong>[구스장 즈라 패스 도입]</strong> 효빈대·HIST 재학생 및 휴학생, 청년 연구원 대상 7호선 트램 무제한 정기권 50% 지원",
+                            "<strong>[대학로 즈라 가이드]</strong> 당선역 백화점 팝업스토어와 효빈대 대학로 가성비 식당가를 연계한 상생 할인망 구축",
+                            "<strong>[산학연 클러스터 고도화]</strong> 과진동 HIST 스타트업 밸리 청년 연구원 주거안정 월세 지원 확대"
+                        ]
+                    },
+                    {
+                        term: "제38·39·40대 (민선 6·7·8기)", name: "노서현", period: "2014.07.01 ~ 2026.06.30", party: "새정치민주연합 → 더불어민주당",
+                        slogan: "청년과 대학이 숨 쉬는 스마트 교육특구 서구",
+                        desc: "민선 6기, 7기, 8기 내리 3선(12년)을 역임하며 서구의 황금기를 이끈 입지전적인 구청장입니다. 취임 직후인 2015년, 윤대환 시절 살해 협박으로 강제 적용되었던 촌스러운 서구 흑역사 로고를 폐기하고 현재의 세련된 청록색(#00AABB) CI와 '구스장' 마스코트를 탄생시켰습니다. 청덕 판자촌 재개발과 사복동 대단지 아파트 조성을 성공시켜 서구 재정을 완전히 정상화했습니다.",
+                        achievements: [
+                            "<strong>[윤대환 흑역사 로고 폐기]</strong> 2015년 서구민들의 PTSD였던 구 로고를 폐기하고 청록색(#00AABB) 현행 CI 및 '구스장' 제정",
+                            "<strong>[효빈가사키 브랜딩]</strong> 효빈대 당선캠퍼스 본관(빅사이트)과 캠퍼스 트램, 화환역(하나마루)을 잇는 글로벌 성지화 완수",
+                            "<strong>[청덕·사복 지구 대개발]</strong> 청덕 백합 테마정원 및 사복동 복지지구 개발로 구 재정자립도 수직 상승 견인"
+                        ]
+                    },
+                    {
+                        term: "제37대 (민선 5기)", name: "조영만", period: "2010.07.01 ~ 2014.06.30", party: "민주당",
+                        slogan: "상처를 치유하고 다시 달리는 교육도시 서구",
+                        desc: "민선 4기 윤대환 시정 파행으로 멈춰 섰던 서구 관내 도시철도 및 대학가 인프라를 복구하는 데 전력을 쏟았습니다. 박현만 시장과 협력하여 도시철도 5호선(화환역~당선역~과진역~효빈과기원역)을 2011년 성공적으로 개통시켰으며, 구 칠천군사기지 부지를 시민 공원으로 반환받는 성과를 거두었습니다.",
+                        achievements: [
+                            "<strong>[5호선 서구 구간 개통]</strong> 2011년 5호선 개통 지원 및 당선역 멀티환승 역세권 상권 활성화",
+                            "<strong>[칠천군사기지 공원화]</strong> 오랜 군사보호구역이던 칠천동 기지를 '구 칠천군사기지공원'으로 시민에게 개방"
+                        ]
+                    },
+                    {
+                        term: "제36대 (민선 4기)", name: "민영만", period: "2006.07.01 ~ 2010.06.30", party: "무소속",
+                        slogan: "풀뿌리 무소속의 소신, 구민과 학생의 안전이 최우선",
+                        desc: "2006년 제4회 지방선거에서 무소속으로 당선되었으나, 취임 직후 윤대환 시장 일당으로부터 '두청운수 버스 전용차로 확보를 위한 7호선 효빈대 캠퍼스 트램 폐선 동의서'와 '괴작 로고 강제 변경'을 요구받으며 끔찍한 살해 협박에 시달렸습니다. 로고는 강압에 의해 눈물을 머금고 교체되었으나, 7호선 트램 폐선만큼은 효빈대 학생들과 함께 선로에 드러누우며 끝까지 결재 서류를 거부해 서구민들의 영웅이 되었습니다.",
+                        achievements: [
+                            "<strong>[효빈대 캠퍼스 트램 사수]</strong> 윤대환 측의 협박에도 끝까지 폐선 동의서 날인을 거부하며 학생들과 선로 사수",
+                            "<strong>[5호선 공사 중단 피해 구제]</strong> 5호선 공사 중단으로 임금이 체불된 건설 노동자 대상 서구청 긴급 구호양곡 지원"
+                        ]
+                    },
+                    {
+                        term: "제34·35대 (민선 2·3기)", name: "조서원", period: "1998.07.01 ~ 2006.06.30", party: "자유민주연합",
+                        slogan: "첨단 과학과 전통 성곽이 어우러진 서구",
+                        desc: "자유민주연합 소속으로 민선 2기와 3기 연임에 성공했습니다. 과진동 일대에 효빈과학기술원(HIST) 연구단지와 스타트업 밸리 조성을 적극 뒷받침했으며, 북성동 효빈성 북문 복원 사업과 당선선착장 유람선 운항 기반을 마련했습니다.",
+                        achievements: [
+                            "<strong>[HIST 연구단지 지원]</strong> 과진동 효빈과학기술원 캠퍼스 확장 및 산학협력 도로망 개설",
+                            "<strong>[효빈성 북문 복원]</strong> 내성동·북성동 일대 근대 성곽 유적 정비 및 북문로 시간여행 거리 기획"
+                        ]
+                    },
+                    {
+                        term: "제33대 (민선 1기 · 초대)", name: "권수현", period: "1995.07.01 ~ 1998.06.30", party: "민주당",
+                        slogan: "대학과 시민이 함께 여는 지방자치 서구",
+                        desc: "서구의 초대 민선 구청장으로, 효빈대학교 캠퍼스 담장 허물기 사업과 대학로 보행자 환경 개선을 최초로 추진하여 관학(官學) 협력의 모델을 제시했습니다.",
+                        achievements: [
+                            "<strong>[관학 협력 모델 구축]</strong> 효빈대학교-서구청 상설 정책협의회 창설 및 대학로 문화거리 지정",
+                            "<strong>[기초 복지망 확충]</strong> 사복동 사회복지타운 부지 조성 및 구립 어린이집 확충"
+                        ]
+                    }
+                ]
+            },
+            "nam": {
+                name: "남구", title: "남구청", role: "구청장", fullRole: "남구청장",
+                color: "#9856FF", subColor: "#7E22CE", phone: "079-451-9034",
+                introDesc: "효빈항과 곽암해수욕장, 평당신도시와 해운산업지구를 품은 활력 남구의 역대 구청장 기록입니다. 아달라 이사금의 후손 박아밀라 전 청장부터, 시민 폭행범 강덕수를 몰아내고 화려하게 3선으로 복귀한 오전희 현 구청장까지 드라마틱한 역사가 살아 숨 쉽니다.",
+                list: [
+                    {
+                        term: "제40·41대 (민선 8기 재보궐 · 민선 9기 현직)", name: "오전희", period: "2023.10.12 ~ 현재 (통산 3선)", party: "더불어민주당", isCurrent: true,
+                        slogan: "바다를 품고 미래로 도약하는 활력 남구! 돌아온 남구의 맏딸",
+                        desc: "1975년 남구 곽산동 출생(곽산여고·삼선대 생물학과 졸)의 진성 남구 토박이입니다. 2022년 8회 지선에서 민주 진영 4분열로 인해 국민의힘 강덕수에게 0.5%p(1,072표) 차로 석패했으나, 강덕수가 8호선 지연 항의 시민 폭행 및 선거법 위반으로 1년 만에 쫓겨나자 2023년 10월 재보궐선거에서 무려 <strong>69.69%</strong>라는 압도적 득표율로 화려하게 복귀했습니다. 이어 2026년 제9회 지선에서도 66.50%로 가볍게 3선 고지에 올랐습니다. 박효빈 시장과 공조하여 '평당 아르티엠 4,120건 악성 매크로 민원 및 한우 다이닝 갑질 사태'를 징벌적 행정 철퇴로 참교육하고 가족돌봄청년(김유영)을 구제한 일화는 전설로 꼽힙니다.",
+                        achievements: [
+                            "<strong>[왕의 귀환 및 3선 달성]</strong> 2023년 재보궐 69.69% 압승 복귀 및 2026년 민선 9기 66.50% 득표로 통산 3선 완성",
+                            "<strong>[도시철도 8호선 개통 완수]</strong> 평당신도시 주민 분담금 갈등을 해결하고 연보라색(#9856FF) 8호선 성공적 개통",
+                            "<strong>[참도리 리뉴얼 & 성지화]</strong> 괴작 '짹수색대원'을 폐기하고 '참도리'를 데뷔시켰으며, 빙천·사야·이부역 및 운양중앙역 서브컬처 특구 조성",
+                            "<strong>[아르티엠 악성 민원 철퇴]</strong> 가족돌봄청년을 괴롭힌 평당 아르티엠의 4,120건 매크로 테러를 일괄 반려·고발하고 불법 펜스 이행강제금 폭탄 부과"
+                        ]
+                    },
+                    {
+                        term: "제39대 (민선 8기 · 당선무효)", name: "강덕수", period: "2022.07.01 ~ 2023.08.01 (직위상실)", party: "국민의힘", isDisgraced: true,
+                        slogan: "평당의 자존심, 힘 있는 여당 구청장",
+                        desc: `<strong class="text-red-600">"운은 좋았으나 자격은 없었던 구청장. 남구 보수 정당의 이미지를 나락으로 보낸 장본인."</strong><br>
+                        2022년 제8회 지방선거 당시 민주당 성향 무소속 후보들이 난립(권영성·상술현 등 4분열)하는 바람에 어부지리로 <strong>33.51%(효빈시 역사상 최저 득표율)</strong>를 얻어 오전희 후보를 0.5%p 차로 누르고 로또 당선되었습니다. 그러나 정통성 부족으로 식물 구청장 상태에 머물다, 2022년 말 술자리에서 <strong>8호선 공사 지연을 항의하는 구민에게 "내가 구청장인데 감히!"라며 안면을 가격한 '시민 폭행 사건'</strong>을 일으켰습니다. 결국 폭행 사건과 허위사실 유포(선거법 위반)가 겹쳐 2023년 대법원에서 당선무효형이 확정되어 1년 만에 쫓겨났습니다.`,
+                        achievements: [
+                            "<strong>[33.51% 어부지리 당선]</strong> 민주 진영 표 분산 덕분에 역대 최저 득표율로 당선 <del>(오전희에게 1년 휴가를 준 조연)</del>",
+                            "<strong>[8호선 항의 시민 폭행]</strong> 만취 상태로 민원인의 얼굴을 가격하는 초유의 폭행 사건으로 구민 공분 유발",
+                            "<strong>[1년 만의 당선무효]</strong> 공직선거법 위반 및 폭행 여파로 임기 1년 만에 직위 상실"
+                        ]
+                    },
+                    {
+                        term: "제38대 (민선 7기)", name: "오전희", period: "2018.07.01 ~ 2022.06.30", party: "더불어민주당",
+                        slogan: "준비된 여성 구청장, 해양과 도심이 함께 웃는 남구",
+                        desc: "남구의회 의원(2선)과 효빈시의회 의원(2선)을 거치며 탄탄한 실력을 쌓은 뒤, 박아밀라 전 구청장의 전폭적인 지지를 받아 2018년 제7회 지방선거에서 56.20%를 득표해 초선 구청장에 당선되었습니다. 효빈항 제1·2국제여객터미널 주변 정비와 평당신도시 교육·도서관 인프라 확충을 성공적으로 이끌었습니다.",
+                        achievements: [
+                            "<strong>[평당 오션뷰 도서관 건립]</strong> 평당신도시 해안가에 바다를 조망하는 복합문화도서관 건립",
+                            "<strong>[효빈항 크루즈 거리 조성]</strong> 항동1~3가 구도심 벽화길 및 힙스터 팩토리 타운 도시재생 추진"
+                        ]
+                    },
+                    {
+                        term: "제36·37대 (민선 5·6기)", name: "박아밀라", period: "2010.07.01 ~ 2018.06.30", party: "민주당 → 새정치민주연합",
+                        slogan: "행정은 묵직하게, 추진력은 불도저처럼!",
+                        desc: "1953년 어간동 출생의 상남자 행정가이자, 본명 <strong>박아밀라(朴雅密羅)</strong>로 전국구 밈이 된 전설의 구청장입니다. 실제 밀양 박씨 <strong>신라 제8대 아달라 이사금(박아달라)의 직계 후손</strong>이라는 사실이 밝혀져 '조상은 박아달라, 후손은 박아밀라'라는 1800년 혈통 밈을 탄생시켰습니다. 2010년 제5회 지선에서 한나라당 우중곤을 압도적 표차로 밀어내고 남구청장을 탈환했으며, 민선 6기까지 재선하며 어간수산시장 현대화와 평당신도시 안정화를 완수한 뒤 2018년 후배 오전희에게 길을 터주며 명예롭게 정계를 은퇴(현 탄성군 고해읍 귀농)했습니다.",
+                        achievements: [
+                            "<strong>[남구청 탈환 및 재선]</strong> 민선 4기 보수 정당에 넘어갔던 남구청을 탈환하고 민선 5·6기 연속 안정적 구정 운영",
+                            "<strong>[어간수산시장 현대화]</strong> 고향 어간동의 숙원이던 수산시장 아케이드·냉동창고 현대화 및 옥상전망대 건립 ('밀라 형님' 칭호 획득)",
+                            "<strong>[아름다운 세대교체]</strong> 3선 도전이 유력했음에도 후배 오전희를 위해 불출마 선언 후 고해읍으로 귀농 <del>('이제 구정 대신 밭고랑을 밀라')</del>"
+                        ]
+                    },
+                    {
+                        term: "제35대 (민선 4기)", name: "우중곤", period: "2006.07.01 ~ 2010.06.30", party: "한나라당",
+                        slogan: "해운산업 중심지, 기업하기 좋은 남구",
+                        desc: "2006년 제4회 지방선거 당시 열린우리당과 민주당의 분열에 힘입어 당선되었습니다. 그러나 재임 중 해운산업지구 홍보를 명목으로 기괴하기 짝이 없는 괴작 마스코트 <strong>'짹수색대원'</strong>(어린이들에게 익룡·심해괴수 트라우마를 안긴 흑역사)을 강행하고, 윤대환 시장의 2호선 어간지선 공사 중단에 항의조차 하지 못해 남구민들의 거센 비판을 받았습니다.",
+                        achievements: [
+                            "<strong>[짹수색대원 흑역사]</strong> 참새가 아니라 익룡이라는 쌍욕을 먹은 괴작 마스코트 제작으로 예산 낭비 논란",
+                            "<strong>[평당택지지구 입주 지원]</strong> 평당신도시 초기 입주 단지 도로망 및 상하수도 기반시설 준공"
+                        ]
+                    },
+                    {
+                        term: "제34대 (민선 3기)", name: "임유정", period: "2002.07.01 ~ 2006.06.30", party: "새천년민주당",
+                        slogan: "청정 해변과 첨단 공단이 조화로운 남구",
+                        desc: "곽암해수욕장과 어간해수욕장의 수질 개선 및 해안 산책로 정비를 주도하고, 박산동·포장동 노후 공업단지의 환경 오염 저감 시설 도입을 지원했습니다.",
+                        achievements: [
+                            "<strong>[곽암해수욕장 관광지 지정]</strong> 곽암포구~해수욕장 해안 데크 및 썸머 비치 페스티벌 창설",
+                            "<strong>[운양천 생태복원]</strong> 공단 폐수로 오염되었던 운양천 수질 정화 및 생태학습공원 조성"
+                        ]
+                    },
+                    {
+                        term: "제33대 (민선 2기)", name: "신원심", period: "1998.07.01 ~ 2002.06.30", party: "새정치국민회의",
+                        slogan: "항만 물류 일번지, 일자리가 넘치는 남구",
+                        desc: "IMF 외환위기 시기 효빈항 항만 하역 노동자 및 공단 근로자들을 위한 공공근로 사업과 남구실내체육관 주변 생활체육 인프라 확충에 힘썼습니다.",
+                        achievements: [
+                            "<strong>[공단 고용안정 대책]</strong> 효빈공단 중소기업 긴급 운전자금 지원 및 실직자 재취업 훈련센터 개소",
+                            "<strong>[월천동 사격장 건립]</strong> 1999년 남구 월천동 종합 실내외 사격장 준공"
+                        ]
+                    },
+                    {
+                        term: "제32대 (민선 1기 · 초대)", name: "노선태", period: "1995.07.01 ~ 1998.06.30", party: "민주당",
+                        slogan: "바다로 세계로, 구민과 함께 여는 남구 시대",
+                        desc: "민선 1기 초대 남구청장으로, 당시 탄성군에서 편입된 어간·곽산 권역과 기존 항동·월천 권역 간의 행정 통합 및 교통망 연결에 주력했습니다.",
+                        achievements: [
+                            "<strong>[도농·항만 행정 통합]</strong> 항동 구도심과 어간·곽산 해안 지역의 행정 서비스 격차 해소",
+                            "<strong>[효빈문화회관 건립 지원]</strong> 평당동 효빈문화회관(1998 개관) 건립 부지 조성"
+                        ]
+                    }
+                ]
+            },
+            "buk": {
+                name: "북구", title: "북구청", role: "구청장", fullRole: "북구청장",
+                color: "#6677CC", subColor: "#4F5FA8", phone: "079-321-5042",
+                introDesc: "효빈광역시청을 품은 행정 수도이자 고송신도시·사능동을 중심으로 한 '보수의 무덤', 그리고 전국 최대 서브컬처 상권(효빈의 아키하바라)으로 도약한 북구의 역대 구청장 기록입니다.",
+                list: [
+                    {
+                        term: "제18·19대 (민선 8·9기 · 현직)", name: "김지언", period: "2022.07.01 ~ 현재", party: "더불어민주당", isCurrent: true,
+                        slogan: "꽃피는 고송, 미래를 여는 북구! 준비된 젊은 구청장",
+                        desc: "1993년 북구 오내동 출생(효빈서여고·전북대 사회복지학과 졸)으로, 제8대 북구의원을 거쳐 2022년 제8회 지선에서 국민의힘이 후보조차 내지 못해 <strong>무투표 당선</strong>으로 만 29세에 구청장에 입성했습니다. 이어 2026년 제9회 지선에서는 국민의힘 신항문 후보(9.98%)를 상대로 무려 <strong>79.79%</strong>라는 경이적인 득표율을 기록하며 재선에 성공했습니다. 박효빈 시장보다 3살 많은 누나이자 '타카마츠 토모리 오시'로서 완벽한 호흡을 맞추며, 고송신도시 서브컬처 특구 지정(애니메이트·애니플러스 유치), 데이터 기반 '펭귄 케어' 복지, 원클릭 QR 민원 행정을 성공시켰습니다.",
+                        achievements: [
+                            "<strong>[무투표 당선 & 79.79% 재선]</strong> 8회 지선 무투표 당선에 이어 9회 지선 79.79% 압승으로 북구의 절대적 신망 입증",
+                            "<strong>[고송 서브컬처 특구]</strong> 고송교차로 일대를 '효빈의 아키하바라'로 브랜딩하고 굿즈샵·콜라보카페 지방세 감면 조례 통과",
+                            "<strong>[데이터 기반 '펭귄 케어']</strong> 사회복지 전공을 살려 독거노인 IoT 고독사 예방 센서 및 은둔 청년 마음건강 바우처 도입",
+                            "<strong>[제비도리 마스코트 교체]</strong> 윤대환 시절의 흉물 '돈불라' 잔재를 완전히 세척하고 고퀄리티 SVG 마스코트 '제비도리' 직접 제작"
+                        ]
+                    },
+                    {
+                        term: "제15·16·17대 (민선 5·6·7기)", name: "정주연", period: "2010.07.01 ~ 2022.06.30", party: "민주당 → 새정치민주연합 → 더불어민주당",
+                        slogan: "메가시티 북구의 완성, 구민이 행복한 명품 자치구",
+                        desc: "민선 5기, 6기, 7기 내리 3선(12년)을 연임하며 북구를 인구 50만 명 규모의 효빈 최대 자치구로 성장시킨 거물 행정가입니다. 고송신도시 2·3단계 완공, 도시철도 6호선(고송~중수~북구청) 개통 지원, 중수동 법조타운 안착 및 사능동 베이커리 거리(야마부키 사아야 성지) 육성을 주도한 뒤 3선 연임 제한으로 후배 김지언에게 바통을 넘겼습니다.",
+                        achievements: [
+                            "<strong>[도시철도 6호선 개통]</strong> 2015년 6호선 개통과 연계하여 고송교차로역·중수역·북구청역 역세권 상권 대개발",
+                            "<strong>[사능동 빵지순례 육성]</strong> 사능역 일대 제과점 거리 활성화 및 사능 전차기억 정원 조성",
+                            "<strong>[입희동 스포츠·컨벤션 벨트]</strong> HSCO 제2전시장 확충 및 효빈 e스포츠 아레나(2020) 유치"
+                        ]
+                    },
+                    {
+                        term: "제14대 (민선 4기)", name: "윤구희", period: "2006.07.01 ~ 2010.06.30", party: "열린우리당",
+                        slogan: "행정 중심도시 북구, 굴하지 않는 구민의 자존심",
+                        desc: "2006년 제4회 지방선거에서 당선된 후, 윤대환 시장이 북구청 앞과 시청 광장에 흉물 갈매기 마스코트 '돈불라'를 강제 설치하고 6호선 고송신도시 구간 설계도를 소각장에 태워버리는 만행을 저지르자 이에 정면으로 맞서 싸웠습니다. 특히 사능동 주민들을 무시하고 예산을 전액 삭감한 윤대환 시정에 맞서 구 자체 예산으로 사능동 복지회관을 건립해 북구가 '보수의 무덤'이 되는 결정적 계기를 만들었습니다.",
+                        achievements: [
+                            "<strong>[6호선 설계도 백업본 확보]</strong> 시청 소각장에서 파쇄될 뻔한 6호선 북구 구간 지질조사 사본을 구청 금고에 은닉·보존하여 2008년 공사 재개에 결정적 기여",
+                            "<strong>[사능동 주민 보호]</strong> 윤대환 시장의 보복성 예산 삭감에 맞서 북구 예비비로 사능동·치남동 생활 인프라 독자 구축"
+                        ]
+                    },
+                    {
+                        term: "제13대 (민선 3기)", name: "고민현", period: "2002.07.01 ~ 2006.06.30", party: "새천년민주당",
+                        slogan: "효빈시청 이전과 함께 도약하는 새로운 중심 북구",
+                        desc: "민선 1기 초대 구청장을 지낸 후 2002년 제3회 지방선거에서 징검다리 재선에 성공했습니다. 2004년 효빈광역시청 본청의 북구 고송8동 이전을 완벽하게 뒷받침하고, 2002 한일 월드컵 당시 입희동 효빈월드컵경기장 주변 교통·숙박 행정을 총괄했습니다.",
+                        achievements: [
+                            "<strong>[효빈시청 고송동 시대 개막]</strong> 2004년 시청사 이전 지원 및 시청 앞 광장·고송대로 기반시설 완비",
+                            "<strong>[해서동 종합버스터미널 정비]</strong> 고속·시외버스터미널 복합화 및 신세계백화점 입점 행정 지원"
+                        ]
+                    },
+                    {
+                        term: "제12대 (민선 2기)", name: "구임현", period: "1998.07.01 ~ 2002.06.30", party: "새정치국민회의",
+                        slogan: "고송신도시 개발의 첫 삽, 미래로 달리는 북구",
+                        desc: "고송신도시 1단계 택지개발 사업과 입희동 효빈종합운동장·월드컵경기장(2001 준공) 건립 시기의 구정을 이끌었으며, 평전동·채산동 공업단지의 첨단산업 전환을 지원했습니다.",
+                        achievements: [
+                            "<strong>[고송신도시 1단계 입주]</strong> 대단위 아파트 단지 입주에 맞춘 초·중·고 학군 및 북구시립도서관 확충",
+                            "<strong>[중수동 법조타운 기반 조성]</strong> 효빈지방법원·검찰청 이전 부지 정비"
+                        ]
+                    },
+                    {
+                        term: "제11대 (민선 1기 · 초대)", name: "고민현", period: "1995.07.01 ~ 1998.06.30", party: "민주당",
+                        slogan: "구민 중심의 자치행정, 북구 발전의 원년",
+                        desc: "1995년 민선 1기 초대 북구청장으로 당선되어 중수1동 북구청사 민원실 개방과 오내동·진희동·추산동 등 외곽 지역의 도로 포장 및 상수도 확충에 주력했습니다.",
+                        achievements: [
+                            "<strong>[초대 민선 구정 출범]</strong> 북구 장기발전계획 수립 및 주민자치센터 시범 운영"
+                        ]
+                    }
+                ]
+            },
+            "cheongyeop": {
+                name: "청엽구", title: "청엽구청", role: "구청장", fullRole: "청엽구청장",
+                color: "#006699", subColor: "#004D73", phone: "079-781-4920",
+                introDesc: "민선 1~3기 문연민, 4~6기 신운연, 7~9기 권상남까지 역대 세 명의 구청장이 모두 3선 연임(12년)을 달성한 놀라운 행정 안정성의 자치구! '푸른 잎에 빵 향기가 물드는 성지' 청엽구의 역대 구청장 기록입니다.",
+                list: [
+                    {
+                        term: "제17·18·19대 (민선 7·8·9기 · 현직)", name: "권상남", period: "2018.07.01 ~ 현재 (3선)", party: "더불어민주당 → 무소속 → 더불어민주당", isCurrent: true,
+                        slogan: "푸른 잎에 빵 향기가 물드는 성지, 활력 청엽!",
+                        desc: "효빈중앙고와 효빈해양대 해사대학을 졸업하고 제1대 중구의원을 지낸 특이한 이력의 소유자입니다. 2018년 민선 7기 더불어민주당 후보로 당선된 후, 2022년 8회 지선에서는 공천 갈등 끝에 무소속으로 출마하여 정당 후보들을 모두 꺾고 재선에 성공했으며, 이후 복당하여 2026년 9회 지선에서 3선 고지에 올랐습니다. 청엽구 제과점 조합과 손잡고 1.5km에 달하는 '청엽 베이커리 거리'(아오바 모카 성지)와 '빵도리' 마스코트, 청엽구청역 '모카의 빵 나눔 냉장고', 아논타워(55층) 라이트업을 대히트시킨 '베이커리노믹스'의 창시자입니다.",
+                        achievements: [
+                            "<strong>[베이커리노믹스 완성]</strong> 청엽구청역~청엽역 1.5km 구간을 전국 최대 빵지순례 특구로 육성 및 브레드 뮤지엄 개관",
+                            "<strong>[모카의 빵 나눔 냉장고]</strong> 관내 45개 동네 빵집과 결식아동·독거노인을 잇는 복지 모델 구축 및 '빵도리' 마스코트 론칭",
+                            "<strong>[아논타워 & 우전천 락페]</strong> 55층 아논타워 야간 경관 명소화 및 우전천 사운드 브리지·리버사이드 락 페스티벌 정례화",
+                            "<strong>[효빈 슈퍼 아레나 개장 지원]</strong> 2024년 등동 해안대로에 18,000석 규모의 음향 특화 '효빈 슈퍼 아레나' 및 오션 드림씨어터 건립 지원"
+                        ]
+                    },
+                    {
+                        term: "제14·15·16대 (민선 4·5·6기)", name: "신운연", period: "2006.07.01 ~ 2018.06.30 (3선)", party: "민주당 → 새정치민주연합",
+                        slogan: "명문 학군과 쾌적한 생태하천이 어우러진 교육·주거 일번지",
+                        desc: "2006년 제4회 지방선거에서 당시 열린우리당이 아닌 민주당 간판으로 출마해 당선된 후 내리 3선(12년)을 역임했습니다. 우전동·우택동 일대 명문 학군 및 청엽국제학교 유치, 효빈동신도시(입빈동) 택지 개발, 우택호수공원 수변 정비 및 2014년 효빈 실내빙상경기장 건립을 이끌어내며 청엽구를 남부권 최대 주거 중심지로 도약시켰습니다.",
+                        achievements: [
+                            "<strong>[우택·우전 교육특구 조성]</strong> 청엽국제학교 개교 지원 및 우택호수공원 스터디 라운지·도서관 벨트 구축",
+                            "<strong>[효빈동신도시 개발]</strong> 입빈동 일대 스마트 신도시 조성 및 빈효선 광역전철 역세권 확충",
+                            "<strong>[마잡 차량기지 갤러리화]</strong> 기피시설이던 6호선 마잡차량기지 외곽을 레일워크 갤러리 및 공원으로 조성"
+                        ]
+                    },
+                    {
+                        term: "제11·12·13대 (민선 1·2·3기 · 초대)", name: "문연민", period: "1995.07.01 ~ 2006.06.30 (3선)", party: "민주당 → 새정치국민회의 → 새천년민주당",
+                        slogan: "1기 신도시 청엽의 기틀, 구민과 함께 만드는 푸른 도시",
+                        desc: "1995년 민선 1기 초대 청엽구청장으로 취임하여 민선 3기까지 11년간 재임한 청엽구 행정의 기틀 설계자입니다. 청엽 1기 신도시 아파트 단지의 초기 인프라 안정화, 우전1동 남부시외버스터미널 건립, 헌이송 공업단지의 친환경 업종 전환 및 비마리 고대유적지구 보존 사업을 완수했습니다.",
+                        achievements: [
+                            "<strong>[청엽 신도시 조기 안착]</strong> 청엽1~6동 대단지 입주에 맞춘 도로·공원·상하수도 및 청엽구청 신청사 건립",
+                            "<strong>[남부시외버스터미널 개장]</strong> 우전1동에 남부권 광역버스터미널을 건립하여 교통 요충지 위상 확립",
+                            "<strong>[비마리 유적지구 보존]</strong> 택지 개발 중 발굴된 비마동 고대 유적을 역사공원으로 보존 결정"
+                        ]
+                    }
+                ]
+            },
+            "ancheon": {
+                name: "안천구", title: "안천구청", role: "구청장", fullRole: "안천구청장",
+                color: "#AA66DD", subColor: "#8844BB", phone: "079-915-7732",
+                introDesc: "과거 탄성군 안천읍에서 안천시를 거쳐 광역시 자치구로 편입된 역동적인 도시이자, 이자동·당가동·타천동·초음동 등 '지명의 기적'을 2.5차원 테마도시 행정으로 승화시킨 역대 안천구청장들의 발자취입니다.",
+                list: [
+                    {
+                        term: "제18·19·20대 (민선 7·8·9기 · 현직)", name: "이규희", period: "2018.07.01 ~ 현재 (3선)", party: "더불어민주당", isCurrent: true,
+                        slogan: "덕심으로 하나 되는 안천, 현실이 되는 2.5차원 테마도시!",
+                        desc: "이자고와 삼선대 경영학과(총학생회장 출신)를 졸업하고 안천구의원(제5대)과 효빈시의원(제6·7대)을 거친 '성공한 덕후(사쿠라우치 리코 오시)' 구청장입니다. 2018년 초선 당선 후 2022년 8회 지선에서는 북구 김지언과 함께 <strong>무투표 당선</strong>되었으며, 2026년 9회 지선에서도 압승하며 3선 고지에 올랐습니다. 취임 직후 사쿠라 핑크 스카프를 두른 마스코트 '안두리'를 데뷔시키고, 일본 누마즈시와의 교류기념관 건립, 이자공원 피아노 분수대, 당가동 초코바나나 거리(탕 쿠쿠), 타천동 입국심사대(요하네), 초음동 대파 팜마켓을 정식 라이선스 사업으로 안착시켰습니다.",
+                        achievements: [
+                            "<strong>[2.5차원 테마도시 완성]</strong> 이자동(리코)·당가동(쿠쿠)·타천동(요하네)·영색무동(MyGO)을 잇는 '2.5차원 루프 패스' 및 누마즈 교류기념관 개관",
+                            "<strong>[초음동 대파 농가 대박]</strong> 안천구 CI의 대파 닮은꼴 논란을 역이용해 초음동(初音) 대파 콜라보 직거래 장터를 열어 농가 소득 300% 증대",
+                            "<strong>[안천 스틸야드 건립]</strong> 2022년 창건동에 그라운드 간격 6m의 22,000석 규모 축구전용구장 '안천 스틸야드' 개장",
+                            "<strong>[마스코트 안두리 리뉴얼]</strong> 두루미에 초음 대파와 사쿠라 핑크 스카프를 매치한 공식 마스코트 '안두리' 론칭"
+                        ]
+                    },
+                    {
+                        term: "제15·16·17대 (민선 4·5·6기)", name: "천미남", period: "2006.07.01 ~ 2018.06.30 (3선)", party: "민주당 → 새정치민주연합",
+                        slogan: "생태와 교육이 조화로운 서북권 중심 도시 안천",
+                        desc: "민선 4기부터 6기까지 12년간 재임하며 안천구의 도시 인프라를 비약적으로 발전시킨 3선 구청장입니다. 특히 민선 4기 당시 윤대환 시장이 빈효선 광역전철 분담금을 거부하며 안천역·당가역·이자역 공사를 중단시키려 하자 시민들과 함께 시청 항의 방문을 주도해 공사를 지켜냈으며, 북택동 해안 두루미 생태탐방로와 백합동 화훼단지(플라워 돔), 이자지구 대단지 주거타운 조성을 완수했습니다.",
+                        achievements: [
+                            "<strong>[빈효선 광역전철 사수]</strong> 안천구를 관통하는 대동맥 빈효선 광역전철 및 4호선 연장 구간 조기 개통 완수",
+                            "<strong>[북택 두루미 습지 보전]</strong> 구조(區鳥) 두루미 도래지인 북택동 해안 갯벌 생태공원 및 관찰타워 건립",
+                            "<strong>[백합 플라워 돔 건립]</strong> 백합동 화훼농가 지원을 위한 사계절 실내 식물원 및 꽃 도매시장 현대화"
+                        ]
+                    },
+                    {
+                        term: "제12·13·14대 (민선 1·2·3기 · 초대)", name: "도영만", period: "1995.07.01 ~ 2006.06.30 (3선)", party: "민주당 → 새정치국민회의 → 새천년민주당",
+                        slogan: "통합과 화합으로 여는 새 안천 시대",
+                        desc: "과거 안천시에서 효빈광역시 안천구로 편입된 이후 치러진 1995년 제1회 지방선거에서 초대 민선 구청장으로 당선되어 내리 3선을 역임했습니다. 옛 안천공항(무로동)의 효빈국제공항 이전에 따른 고도제한 해제와 구 공군기지(군청동·천본동) 이전 부지 도시계획 수립, 뇌전동 농수산물 도매물류시장 건립 등 현대 안천구의 뼈대를 세웠습니다.",
+                        achievements: [
+                            "<strong>[구 공항·군사기지 부지 재생]</strong> 무로동 옛 민항 부지 및 군청동 군사시설 이전에 따른 고도제한 완화 및 택지 개발",
+                            "<strong>[안천구청 신청사 건립]</strong> 안천6동(팔망성역 인근) 행정타운 조성 및 뇌전동 종합도매물류시장 개장"
+                        ]
+                    }
+                ]
+            },
+            "changjeon": {
+                name: "창전구", title: "창전구청", role: "구청장", fullRole: "창전구청장",
+                color: "#33AAFF", subColor: "#1188DD", phone: "079-822-1594",
+                introDesc: "효빈 최고의 해안 부촌이자 '창전 리버럴'이라 불리는 높은 시민의식과 문화예술 인프라, 그리고 푸른 나비(Morfonica)와 창전선(#33AAFF)의 환상이 현실이 되는 창전구의 역대 구청장 기록입니다.",
+                list: [
+                    {
+                        term: "제11·12·13대 (민선 7·8·9기 · 현직)", name: "전역헌", period: "2018.07.01 ~ 현재 (3선)", party: "더불어민주당", isCurrent: true,
+                        slogan: "푸른 날갯짓으로 도약하는 품격, 환상이 현실이 되는 창전!",
+                        desc: "칠심고와 평천대 심리학과를 졸업하고 창전마음치유센터장을 지낸 심리·문화 행정 전문가입니다. 민선 7·8·9기 3선 연임에 성공하며 창전구를 명실상부한 '클래식·서브컬처 융복합 명품 부촌'으로 만들었습니다. 특히 창전구의 나비 모양 CI가 BanG Dream!의 밴드 Morfonica 엠블럼과 99.9% 일치해 표절 논란이 일자, 창전구 CI가 15년 먼저 제정되었음을 입증한 뒤 오히려 부시로드 본사와 공식 자매결연 라이선스 협약을 체결해버리는 신의 한 수를 두었습니다. 여세를 몰아 요정 마스코트 '모르도리' 데뷔, 창전 블루 로즈 가든 조성, 2021년 효빈 아트센터(빈야드 스타일 2,500석) 개관, 그리고 2027년 9월 개통 예정인 도시철도 창전선(#33AAFF) 유치를 확정 지었습니다.",
+                        achievements: [
+                            "<strong>[부시로드 공식 협약 & 모르도리]</strong> CI 우연의 일치를 공식 라이선스 협약으로 승화시키고 나비 요정 마스코트 '모르도리' 론칭",
+                            "<strong>[도시철도 창전선 유치 확정]</strong> 팔조~신창전~창전구청~칠심~우택~효빈역~토모리해수욕장을 잇는 창전선(#33AAFF, 2027.09 개통) 착공",
+                            "<strong>[효빈 아트센터 & 오르골 박물관]</strong> 진백동에 2,500석 정통 클래식 홀 '효빈 아트센터' 건립 및 창전 블루 로즈 가든 조성",
+                            "<strong>[보통동 평범박물관 대히트]</strong> 칠심(나나미)·보통동 지명을 살린 스텔스 성지 '평범박물관' 개관으로 흑자 행정 달성"
+                        ]
+                    },
+                    {
+                        term: "제8·9·10대 (민선 4·5·6기)", name: "정창훈", period: "2006.07.01 ~ 2018.06.30 (3선)", party: "열린우리당 → 민주당 → 새정치민주연합",
+                        slogan: "품격 있는 교육·문화, 바다와 숲이 숨 쉬는 명품 창전",
+                        desc: "2006년 제4회 지방선거에서 열린우리당 후보로 당선된 이래 민선 6기까지 12년간 창전구를 이끈 3선 구청장입니다. 소득 수준은 높지만 보수 정당의 막말과 천박한 행정에는 가차 없이 철퇴를 내리는 이른바 <strong>'창전 리버럴(강남 좌파의 효빈판)'</strong> 정치 지형을 공고히 다졌습니다. 팔조동 법조·금융타운 스카이라인 완성, 동곡·투자동 패션 크리에이터 거리 조성, 진백~유류 해안 트레일 및 2012년 효빈간송미술관 유치를 성사시켰습니다.",
+                        achievements: [
+                            "<strong>[효빈간송미술관 유치]</strong> 진백동에 공사립 합작으로 국보급 문화재를 전시하는 효빈간송미술관 건립",
+                            "<strong>[팔조 금융·법조타운 완성]</strong> 3호선 팔조역 차량기지 일대 복합개발 및 철도박물관 연계 문화벨트 구축",
+                            "<strong>[동곡·투자동 패션특구]</strong> 동곡역·투자역 일대를 신진 디자이너 및 크리에이터 패션 스트리트로 육성"
+                        ]
+                    },
+                    {
+                        term: "제5·6·7대 (민선 1·2·3기 · 초대)", name: "고안성", period: "1995.07.01 ~ 2006.06.30 (3선)", party: "민주당 → 새정치국민회의 → 새천년민주당",
+                        slogan: "푸른 바다와 쾌적한 전원, 미래형 명품 주거도시 창전",
+                        desc: "1995년 민선 1기 초대 창전구청장으로 취임하여 3선 연임한 창전구 도시계획의 아버지입니다. 재임 중이던 2000년대 초반, 오늘날 Morfonica 성지화의 기원이 된 <strong>'스카이 블루(#33AAFF) 나비 문양 창전구 CI'</strong>를 최초로 제정했습니다. 창전해변 고급 주거단지 개발과 난개발 방지를 위한 엄격한 경관 조례 제정, 광정동 효빈양궁장(2005) 건립을 주도했습니다.",
+                        achievements: [
+                            "<strong>[예언적 나비 CI 제정]</strong> 해안선과 도약을 상징하는 스카이 블루 나비 로고 제정 <del>(15년 뒤 부시로드가 깜짝 놀란 그 로고)</del>",
+                            "<strong>[창전 해안경관 조례]</strong> 무분별한 해안 난개발을 막고 스카이라인을 보존하는 선진 도시계획 확립",
+                            "<strong>[효빈양궁장 건립]</strong> 2005년 광정동에 국제 규격 양궁 경기장 준공"
+                        ]
+                    }
+                ]
+            },
+            "tanseong": {
+                name: "탄성군", title: "탄성군청", role: "군수", fullRole: "탄성군수",
+                color: "#559900", subColor: "#3D7300", phone: "079-134-8821",
+                introDesc: "폐광과 농어촌 인구 감소의 위기를 딛고, 5개 철도 노선과 세계적인 서브컬처 성지(Aqours·RAS·걸즈 밴드 크라이·MyGO)를 결합해 인구가 역주행하는 기적을 쓴 역대 탄성군수들의 파란만장한 기록입니다.",
+                list: [
+                    {
+                        term: "제35·36대 (민선 8·9기 · 현직)", name: "성선설", period: "2022.07.01 ~ 현재 (재선)", party: "더불어민주당", isCurrent: true,
+                        slogan: "낭만이 공명하는 탄력 도시, 환상이 현실이 되는 탄성! 덕질하듯 진심으로!",
+                        desc: "1997년 탄성군 흑택면 루비리 출생(도변고·효빈대 경영학과 총학생회장 출신)으로, 이름부터 맹자의 <strong>성선설(成善說)</strong>과 같고 출생지(루비리)·언니 이름(성디아)·신체 스펙(154cm)까지 쿠로사와 루비와 완벽히 일치하는 '운명적 성덕' 군수입니다. 2022년 제8회 지선에서 만 24세로 출마해, '오타쿠 유치한 짓'이라며 비하하던 국민의힘 <strong>양악설(3위, 9.02%)</strong> 후보를 상대로 '성선설 vs 성악설 철학 대전'을 벌여 <strong>71.18%</strong>로 압승하며 효빈 최연소 기초단체장 기록을 세웠습니다. 2026년 제9회 지선에서도 또 나온 양악설(8.04%)을 꺾고 <strong>66.65%</strong>로 여유롭게 재선에 성공했습니다. 전철 역명판 캐릭터 병기, 고해읍 치카 미칸 패키지(농산물 매출 200% 폭증), 도향면 모모카 복숭아 사이다 팩토리, 서목읍 록구리 RAS 락페스티벌, 마스코트 '탄도리' 리뉴얼 등 덕업일치 행정의 신화를 쓰고 있습니다.",
+                        achievements: [
+                            "<strong>[성선설 vs 양악설 철학대전 연승]</strong> 8회(71.18%)·9회(66.65%) 지선 연속 압승 및 혐오 네거티브 세력(양악설) 완전 평정",
+                            "<strong>[역명판 캐릭터 병기 & 탄도리]</strong> 고해·도변·루비·흑택·도향역 등 관내 전철역 캐릭터 콜라보 및 16연타 야광봉 딱따구리 '탄도리' 론칭",
+                            "<strong>[농특산물 200% 대박]</strong> 고해읍 감귤(미칸) 캐릭터 박스 및 도향면(桃香) 모모카 복숭아 사이다 팩토리로 농가 소득 2배 달성",
+                            "<strong>[글로벌 락 & 성지 인프라]</strong> 서목읍 록구리 상설 락페 광장, 정근면 '니나 로드' 트레킹, 도변 스탬프몰 및 대형 락커존 구축"
+                        ]
+                    },
+                    {
+                        term: "제34대 (민선 7기)", name: "조왕현", period: "2018.07.01 ~ 2022.06.30", party: "더불어민주당",
+                        slogan: "사통팔달 광역철도망, 도농복합 성장거점 탄성",
+                        desc: "2018년 제7회 지방선거에서 현역 심원식(바른미래당) 군수 등을 꺾고 당선되었습니다. 도변읍·서목읍·앵내리 일대 대규모 신도시 택지 개발에 따른 교통난을 해소하기 위해 도시철도 4호선·5호선 탄성군 연장 구간 역세권 정비와 야진읍 폐광지역 도시재생 뉴딜 사업을 추진하며 청년 인구 유입의 발판을 마련했습니다.",
+                        achievements: [
+                            "<strong>[도변·앵내 신도시 기반 확충]</strong> 젊은 층 유입이 급증한 도변읍·앵내출장소 권역 복합문화센터 및 학군 확충",
+                            "<strong>[야진읍 폐광 재생]</strong> 야진 석탄산업 기념공원 및 폐광선 활용 야진 레일바이크 개장"
+                        ]
+                    },
+                    {
+                        term: "제33대 (민선 6기)", name: "심원식", period: "2014.07.01 ~ 2018.06.30", party: "새정치민주연합",
+                        slogan: "정당이 아니라 오직 군민만 바라보는 실용 농정!",
+                        desc: "1958년 탄성읍 공리 출생으로 탄성농고·효빈대 농업경제학과를 졸업하고 탄성농협 조합장 3선을 지낸 '농협맨'이자 중도 실용주의 정치인입니다. 2014년 제6회 지선에서 새정치민주연합 소속으로 출마해 42.5%를 득표하며 보수 텃밭이던 탄성군에서 당선되었습니다. 이후 국민의당·민생당·무소속을 거치며 단 한 번도 보수 정당(국민의힘 계열)에 입당하지 않은 '탄성의 중도 지킴이'로 남았으며, 2022년 8회 지선에서도 무소속으로 2위(14.50%)를 기록해 양악설(3위)을 참패시키는 데 결정적 역할을 하고 2026년 정계를 은퇴했습니다.",
+                        achievements: [
+                            "<strong>[도변·서목 택지개발 초석]</strong> 오늘날 탄성군 인구 증가의 핵심인 도변·서목지구 스마트 택지개발 기본계획 수립",
+                            "<strong>[실용 농업 유통망 구축]</strong> 고해읍 감귤, 도향면 복숭아, 흑택면 관광농원 직거래 유통센터 건립",
+                            "<strong>[청년 정치인 옹호]</strong> 8회 지선 당시 양악설의 인신공격으로부터 20대 성선설 후보를 품격 있게 옹호한 군정 원로"
+                        ]
+                    },
+                    {
+                        term: "제31·32대 (민선 4기 재보궐 · 민선 5기)", name: "고안준", period: "2009.04.30 ~ 2014.06.30", party: "민주당",
+                        slogan: "깨끗한 군정 복원, 도시철도가 달리는 탄성군",
+                        desc: "전임 신영한 군수가 뇌물수수 및 선거법 위반으로 군수직을 상실하면서 치러진 <strong>2009년 4월 재보궐선거</strong>에서 당선되어, 1995년 민선 출범 이후 14년 만에 처음으로 한나라당의 탄성군 독점을 깨뜨린 인물입니다. 이어 2010년 제5회 지선에서도 재선에 성공했으며, 박현만 효빈시장과 긴밀히 공조하여 도시철도 1호선 탄성지선 및 4·5호선 탄성군 연장 협약을 체결하는 역사적 업적을 남겼습니다.",
+                        achievements: [
+                            "<strong>[14년 보수 독점 타파]</strong> 2009년 재보궐선거 승리로 탄성군 최초의 민주계 군수 시대를 개막",
+                            "<strong>[도시철도 탄성 연장 협약]</strong> 박현만 시장과 광역 행정 공조를 통해 1·4·5호선의 탄성군(탄성읍·도변·고해·루비) 연장 확정"
+                        ]
+                    },
+                    {
+                        term: "제29·30대 (민선 3·4기)", name: "신영한", period: "2002.07.01 ~ 2009.01 (직위상실)", party: "한나라당",
+                        slogan: "힘 있는 개발, 부자 농어촌 탄성",
+                        desc: "2002년 제3회 지선과 2006년 제4회 지선에서 한나라당 후보로 연임에 성공했습니다. 민선 3기에는 소원면 운전면허시험장 및 리조트 유치를 추진했으나, 민선 4기 시절 윤대환 시장의 전철 축소 정책에 동조하고 관내 골프장·석산 개발 인허가 과정에서 거액의 뇌물을 수수한 혐의가 적발되어 2009년 초 대법원 유죄 확정으로 군수직을 상실했습니다.",
+                        achievements: [
+                            "<strong>[비리 낙마 및 재보궐 유발]</strong> 개발 인허가 뇌물수수로 임기 중 구속·직위상실되어 탄성군 보수 세력 몰락 자초"
+                        ]
+                    },
+                    {
+                        term: "제27·28대 (민선 1·2기 · 초대)", name: "정만춘", period: "1995.07.01 ~ 2002.06.30", party: "민주자유당 → 한나라당",
+                        slogan: "전통을 지키는 농어촌, 화합하는 탄성군민",
+                        desc: "1995년 민선 1기 초대 탄성군수로 당선되어 민선 2기까지 연임했습니다. 탄성군청사(탄성읍 공리) 정비 및 야진읍 탄광 폐광에 따른 대체 산업 육성, 고무나무 가로수길 및 복사꽃 군민공원 조성의 기틀을 마련했습니다.",
+                        achievements: [
+                            "<strong>[탄성 복사꽃 군민공원 조성]</strong> 군화(복사꽃)와 군목(고무나무)을 테마로 한 탄성읍 대표 휴식 공간 조성",
+                            "<strong>[농어촌 도로망 정비]</strong> 9개 읍·면 간 지방도 확포장 및 농어촌버스 노선 체계화"
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const GU_ORDER = ["jung", "dong", "seo", "nam", "buk", "cheongyeop", "ancheon", "changjeon", "tanseong"];
+        let currentGu = "jung";
+        let currentPage = 1;
+        const itemsPerPage = 6;
+
+        // 아코디언 메뉴 작동 스크립트
+        function toggleLnb(btn) {
+            const parentLi = btn.parentElement;
+            const icon = btn.querySelector('i');
+            if (parentLi.classList.contains('active')) {
+                parentLi.classList.remove('active');
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                document.querySelectorAll('.lnb-depth1 > li.active').forEach(li => {
+                    li.classList.remove('active');
+                    let activeIcon = li.querySelector('.lnb-toggle i');
+                    if(activeIcon) activeIcon.classList.remove('rotate-180');
+                });
+                parentLi.classList.add('active');
+                if(icon) icon.classList.add('rotate-180');
+            }
+        }
+
+        // 9개 구·군 상단 선택 탭 렌더링
+        function renderGuTabs() {
+            const container = document.getElementById('gu-tabs-container');
+            container.innerHTML = '';
+            GU_ORDER.forEach(key => {
+                const g = GU_MAYORS_DB[key];
+                const isActive = (key === currentGu);
+                const btn = document.createElement('button');
+                btn.className = `gu-tab-btn py-2 px-2 rounded-lg text-xs sm:text-sm border transition ${isActive ? 'active text-white border-transparent' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 font-bold'}`;
+                if (isActive) {
+                    btn.style.backgroundColor = g.color;
+                }
+                btn.textContent = g.name;
+                btn.onclick = () => switchGu(key);
+                container.appendChild(btn);
+            });
+        }
+
+        // 구·군 전환 실행 함수
+        function switchGu(guKey, pushHistory = true) {
+            if (!GU_MAYORS_DB[guKey]) guKey = "jung";
+            currentGu = guKey;
+            currentPage = 1;
+
+            if (pushHistory) {
+                const newUrl = `${window.location.pathname}?gu=${guKey}`;
+                window.history.pushState({ gu: guKey }, '', newUrl);
+            }
+
+            const g = GU_MAYORS_DB[guKey];
+            const isGun = g.name.endsWith('군');
+            const prefix = isGun ? '군' : '구';
+
+            // 1. 문서 타이틀 및 LNB/브레드크럼 텍스트 변경
+            document.title = `${g.name}소개 - 역대${g.role} | ${g.title} 공식 홈페이지`;
+            document.getElementById('sub-visual-title').textContent = `${g.name}소개`;
+            document.getElementById('sub-visual-bg').style.backgroundColor = `${g.subColor}D9`;
+
+            document.getElementById('lnb-wrap-box').style.borderTopColor = g.color;
+            const lnbTitle = document.getElementById('lnb-main-title');
+            lnbTitle.textContent = `${g.name}소개`;
+            lnbTitle.style.backgroundColor = g.color;
+
+            document.getElementById('lnb-slogan-link').textContent = `${prefix}정구호`;
+            document.getElementById('lnb-hall-label').textContent = `${prefix}청안내`;
+            document.getElementById('lnb-symbol-label').textContent = `${prefix}의상징`;
+            document.getElementById('lnb-bird-link').textContent = `${prefix}조/${prefix}화/${prefix}목`;
+            document.getElementById('lnb-day-link').textContent = `${prefix}민의날`;
+            document.getElementById('lnb-song-link').textContent = `${prefix}민의노래`;
+            document.getElementById('lnb-stat-label').textContent = `${g.name}통계`;
+            document.getElementById('lnb-whitepaper-link').textContent = `${prefix}정백서`;
+            document.getElementById('lnb-hist-label').textContent = `${g.name}의역사`;
+            
+            const currentHeadLink = document.getElementById('lnb-current-head-link');
+            currentHeadLink.textContent = `역대${g.role}`;
+            currentHeadLink.style.color = g.color;
+            document.getElementById('lnb-origin-link').textContent = `${g.name}의유래와연혁`;
+
+            // 브레드크럼 & 본문 타이틀
+            document.getElementById('bread-home-link').href = `index.html?gu=${guKey}`;
+            document.getElementById('bread-region-intro').textContent = `${g.name}소개`;
+            document.getElementById('bread-region-hist').textContent = `${g.name}의역사`;
+            document.getElementById('bread-current-title').textContent = `역대${g.role}`;
+            document.getElementById('bread-current-title').style.color = g.color;
+
+            document.getElementById('main-title-bar').style.borderBottomColor = g.color;
+            document.getElementById('page-heading').textContent = `역대 ${g.fullRole}`;
+
+            // 도입부 배너 업데이트
+            const iconCircle = document.getElementById('intro-icon-circle');
+            iconCircle.style.backgroundColor = `${g.color}22`;
+            iconCircle.style.color = g.color;
+            document.getElementById('intro-banner-title').textContent = `${prefix}민과 함께 ${g.name}의 발전을 이끌어온 역대 ${g.role}`;
+            document.getElementById('intro-banner-desc').innerHTML = `
+                ${g.introDesc}<br>
+                <span class="text-xs text-red-500 mt-1.5 inline-block font-medium">* 공공기관 기록물의 역사적 투명성 원칙 및 주민 알권리 보장에 따라, 재임 중 당선무효·직위상실 및 재보궐선거 이력까지 가감 없이 상세히 기록하였습니다.</span>
+            `;
+
+            document.getElementById('dept-info-text').textContent = `담당부서 : 자치행정과 | 문의처 : ${g.phone} | 책임자 : 기록물관리팀장`;
+
+            // LNB 내부 링크들에 ?gu= 파라미터 동기화
+            document.querySelectorAll('aside a[href]').forEach(a => {
+                const rawHref = a.getAttribute('href').split('?')[0];
+                a.setAttribute('href', `${rawHref}?gu=${guKey}`);
+            });
+
+            renderGuTabs();
+            updateView();
+
+            // common121.js의 전역 헤더/푸터 패치 함수가 있으면 호출하여 상단바 색상도 즉시 동기화
+            if (typeof runMasterGuPatch === 'function') {
+                setTimeout(runMasterGuPatch, 10);
+            }
+        }
+
+        // 역대 단체장 카드 렌더링
+        function renderMayors(page) {
+            const g = GU_MAYORS_DB[currentGu];
+            const mayors = g.list;
+            const listContainer = document.getElementById('mayor-list');
+            listContainer.innerHTML = '';
+
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = mayors.slice(start, end);
+
+            pageData.forEach((mayor) => {
+                const card = document.createElement('div');
+                card.className = 'mayor-card bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col md:flex-row group cursor-pointer shadow-sm hover:shadow-lg';
+                card.onmouseover = () => card.style.borderColor = g.color;
+                card.onmouseout = () => card.style.borderColor = '#e5e7eb';
+                card.onclick = () => openModal(mayor, g);
+                
+                const imgPath = `이미지/${mayor.name}.webp`;
+                const plainDesc = mayor.desc.replace(/<[^>]*>?/gm, '');
+
+                let badgeStyle = `background-color: #f3f4f6; color: #4b5563; border-color: #e5e7eb;`;
+                if (mayor.isCurrent) {
+                    badgeStyle = `background-color: ${g.color}22; color: ${g.subColor}; border-color: ${g.color}66;`;
+                } else if (mayor.isDisgraced) {
+                    badgeStyle = `background-color: #fef2f2; color: #dc2626; border-color: #fecaca;`;
+                }
+
+                card.innerHTML = `
+                    <div class="w-full md:w-44 h-56 md:h-auto bg-gray-100 flex-shrink-0 flex items-center justify-center relative overflow-hidden border-r border-gray-100">
+                        <img src="${imgPath}" alt="${mayor.name} ${g.role}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="absolute inset-0 bg-slate-100 hidden items-center justify-center text-slate-400 flex-col gap-2">
+                            <i data-lucide="user" class="w-10 h-10"></i>
+                            <span class="text-xs font-bold">${mayor.name} ${g.role}</span>
+                        </div>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                             <span class="bg-white/95 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm border border-slate-200 flex items-center gap-1">
+                                상세 이력 보기 <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                             </span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center">
+                        <div class="flex justify-between items-start mb-2 gap-2">
+                            <div>
+                                <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded mb-1.5 tracking-tight border" style="${badgeStyle}">${mayor.term}</span>
+                                <h4 class="text-2xl font-bold text-gray-800 transition-colors tracking-tight flex items-center gap-2">
+                                    <span>${mayor.name} <span class="text-sm font-medium text-gray-500 ml-0.5 tracking-normal">${g.role}</span></span>
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">${mayor.party}</span>
+                                </h4>
+                                <p class="text-xs text-slate-400 font-medium mt-0.5">재임기간: ${mayor.period}</p>
+                            </div>
+                        </div>
+                        <p class="font-bold text-[0.85rem] mb-3 px-2.5 py-1 inline-block rounded w-fit break-all line-clamp-1" style="background-color: ${g.color}15; color: ${g.subColor};">"${mayor.slogan}"</p>
+                        <p class="text-gray-500 text-sm leading-relaxed break-keep line-clamp-3 text-justify">${plainDesc}</p>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const g = GU_MAYORS_DB[currentGu];
+            const mayors = g.list;
+            const paginationContainer = document.getElementById('pagination');
+            const totalPages = Math.ceil(mayors.length / itemsPerPage);
+            paginationContainer.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" class="w-5 h-5"></i>';
+            prevBtn.className = `p-2 rounded-lg transition-colors ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'}`;
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; updateView(true); } };
+            paginationContainer.appendChild(prevBtn);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.innerText = i;
+                pageBtn.className = `w-10 h-10 rounded-lg font-bold transition-all ${i === currentPage ? 'text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`;
+                if (i === currentPage) pageBtn.style.backgroundColor = g.color;
+                pageBtn.onclick = () => { currentPage = i; updateView(true); };
+                paginationContainer.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" class="w-5 h-5"></i>';
+            nextBtn.className = `p-2 rounded-lg transition-colors ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-100'}`;
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; updateView(true); } };
+            paginationContainer.appendChild(nextBtn);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function updateView(scroll = false) { 
+            renderMayors(currentPage); 
+            renderPagination(); 
+            if (scroll) {
+                const target = document.getElementById('mayor-list');
+                const offsetPosition = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+            }
+        }
+
+        // 상세 모달 열기 함수
+        function openModal(data, g) {
+            const backdrop = document.getElementById('modal-backdrop');
+            const panel = document.getElementById('modal-panel');
+            const title = document.getElementById('modal-title');
+            const subtitle = document.getElementById('modal-subtitle');
+            const img = document.getElementById('modal-img');
+            const desc = document.getElementById('modal-desc');
+            const quote = document.getElementById('modal-quote');
+            const meta = document.getElementById('modal-meta');
+            const detailDiv = document.getElementById('modal-detail');
+            const headerBg = document.getElementById('modal-header-bg');
+
+            meta.innerHTML = '';
+            
+            title.innerText = `${data.name} ${g.fullRole}`;
+            subtitle.innerText = data.term;
+            img.src = `이미지/${data.name}.webp`;
+            desc.innerHTML = data.desc;
+            quote.innerText = data.slogan;
+            quote.style.borderLeftColor = g.color;
+
+            const isGun = g.name.endsWith('군');
+            document.getElementById('modal-achievement-title').textContent = `주요 ${isGun ? '군정' : '구정'} 성과 및 이력`;
+            document.getElementById('modal-award-icon').style.color = g.color;
+
+            const partyBadge = document.createElement('span');
+            partyBadge.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-gray-100 text-gray-700 border border-gray-300 shadow-sm';
+            partyBadge.innerText = "소속정당: " + data.party;
+            meta.appendChild(partyBadge);
+
+            const periodBadge = document.createElement('span');
+            periodBadge.className = 'px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm';
+            periodBadge.style.backgroundColor = `${g.color}18`;
+            periodBadge.style.color = g.subColor;
+            periodBadge.style.borderColor = `${g.color}55`;
+            periodBadge.innerText = "재임기간: " + data.period;
+            meta.appendChild(periodBadge);
+
+            if (data.achievements && data.achievements.length > 0) {
+                detailDiv.innerHTML = data.achievements.map(item => 
+                    `<div class="flex items-start gap-2.5 bg-white p-3 rounded-lg border border-gray-100 shadow-sm"><i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 mt-0.5" style="color:${g.color}"></i><span class="text-[0.9rem]">${item}</span></div>`
+                ).join('');
+            }
+
+            headerBg.style.backgroundColor = data.isDisgraced ? '#475569' : g.subColor;
+
+            backdrop.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.add('open');
+                panel.classList.add('open');
+            }, 10);
+            document.body.style.overflow = 'hidden'; 
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function closeModal() {
+            const backdrop = document.getElementById('modal-backdrop');
+            const panel = document.getElementById('modal-panel');
+            backdrop.classList.remove('open');
+            panel.classList.remove('open');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // 민선 1~9기 전체 총괄표 모달 제어
+        function openMatrixModal() {
+            const backdrop = document.getElementById('matrix-backdrop');
+            const panel = document.getElementById('matrix-panel');
+            backdrop.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.add('open');
+                panel.classList.add('open');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function closeMatrixModal() {
+            const backdrop = document.getElementById('matrix-backdrop');
+            const panel = document.getElementById('matrix-panel');
+            backdrop.classList.remove('open');
+            panel.classList.remove('open');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeModal();
+                closeMatrixModal();
+            }
+        });
+        
+        // 초기 로드 시 ?gu= 파라미터 감지하여 해당 구·군 즉시 렌더링
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guParam = urlParams.get('gu');
+            const initialGu = (guParam && GU_MAYORS_DB[guParam]) ? guParam : 'jung';
+            switchGu(initialGu, false);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

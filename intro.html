@@ -531,41 +531,592 @@
         </div>
     </div>
 
-    <!-- 분리한 JS 파일 연결 -->
+<!-- 분리한 JS 파일 연결 (intro.html 맨 아래 </body> 직전에 덮어쓰기) -->
     <script src="data.js"></script>
     <script src="script.js"></script>
     <script>
-        // 아코디언 메뉴(LNB 데스크탑) 작동 스크립트
+        // 1. 데스크탑 LNB & 모바일 메뉴 아코디언 작동 스크립트
         function toggleLnb(btn) {
             const parentLi = btn.parentElement;
             const icon = btn.querySelector('i');
-            
             if (parentLi.classList.contains('active')) {
                 parentLi.classList.remove('active');
-                icon.classList.remove('rotate-180');
+                if (icon) icon.classList.remove('rotate-180');
             } else {
                 document.querySelectorAll('.lnb-depth1 > li.active').forEach(li => {
                     li.classList.remove('active');
-                    if(li.querySelector('i')) li.querySelector('i').classList.remove('rotate-180');
+                    const activeIcon = li.querySelector('i');
+                    if (activeIcon) activeIcon.classList.remove('rotate-180');
                 });
                 parentLi.classList.add('active');
-                icon.classList.add('rotate-180');
+                if (icon) icon.classList.add('rotate-180');
             }
         }
 
-        // 모바일 아코디언 전체 메뉴 토글 스크립트
         function toggleMobileMenu(btn) {
             const submenu = btn.nextElementSibling;
             const icon = btn.querySelector('i');
-            
+            if (!submenu) return;
             if (submenu.classList.contains('hidden')) {
                 submenu.classList.remove('hidden');
-                icon.classList.add('rotate-180');
+                if (icon) icon.classList.add('rotate-180');
             } else {
                 submenu.classList.add('hidden');
-                icon.classList.remove('rotate-180');
+                if (icon) icon.classList.remove('rotate-180');
             }
         }
+
+        // =========================================================================
+        // 2. 9개 자치구·군 실제 행정동 지도 기반 4극단 & 기본현황 마스터 DB
+        // =========================================================================
+const GU_INTRO_MASTER = {
+            "jung": {
+                name: "중구", hanja: "中區", eng: "Jung-gu", title: "중구청",
+                color: "#BB9955", subColor: "#8A6D2F", phone: "079-242-8120",
+                mapImg: "중구 행정동 지도.webp",
+                area: "11.46 ㎢", pop: "80,212 명 (2026.04. 기준 / 2025년 79,801명)", density: "6,964.22 명/㎢",
+                adminDiv: "11개 행정동 / 60개 법정동 (215통 1,329반)",
+                hallAddr: "효빈광역시 중구 중보로 101 (조유동2가)",
+                head: "구성연 (더불어민주당 · 재선)",
+                assembly: "국회의원 김성민(중구·동구) / 시의원 1석 / 구의원 7석(민주 6, 국힘 1)",
+                symbols: "구화: 장미 / 구목: 소나무 / 구조: 뱁새 / 마스코트: 뱁시계",
+                grdp: "종합 S등급 (1인당 GRDP 1억 2,000만 원 · 재정자립도 72.10% · 재정력지수 1.35)",
+                slogan: "시간을 걷는 트램, 꿈이 현실이 되는 낭만 중구",
+                overview1: "효빈광역시 중서부에 위치한 자치구로, 동구 사가당동과 함께 효빈의 원도심 역할을 수행하고 있습니다. 면적(11.46㎢)과 상주인구(80,212명)는 효빈시 자치구 중 가장 적지만, 주간 유동인구는 압도적으로 많으며 상권과 근대 역사 관광지가 고밀도로 결합된 효빈 금융·유통·교통의 심장부입니다.",
+                overview2: "2004년 시청사가 북구 고송동으로 이전하기 전까지 중보로에 시청이 자리했던 근본 중심지입니다. 도심 공동화로 2018년 한때 인구가 7만 명 아래로 감소하기도 했으나, 최근 중동 재개발, 오주·목동 지구 개발, 소장지구 재개발 등에 힘입어 인구가 8만 명 선을 회복하며 제2의 전성기를 맞이하고 있습니다.",
+                locDesc: "북쪽으로 서구(북성동)·북구(사능동)와 접하고, 동쪽으로 동구(사가당동)·청엽구(비마동·동리동)와 맞닿아 있으며, 남쪽으로는 남구(항동·월천동), 서쪽으로는 서해 바다(내항)를 바라보고 있습니다. 북부 궁영동·조유동과 서구 북성동에 걸쳐 옛 효빈읍성(孝彬邑城)이 자리 잡고 있었습니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "중앙동 북단 · 조유동 (서구·북구 경계)", coord: "북위 34°55′15″ / 동경 126°01′20″" },
+                    { dir: "극남 (極南)", dong: "약맥동 · 신덕동 남단 (남구·청엽구 경계)", coord: "북위 34°52′45″ / 동경 126°01′50″" },
+                    { dir: "극서 (極西)", dong: "내항동 서해안 (갑문·내항 끝단)", coord: "북위 34°53′30″ / 동경 125°59′50″" },
+                    { dir: "극동 (極東)", dong: "내조1동 · 내조2동 · 신덕동 동단 (동구 경계)", coord: "북위 34°54′20″ / 동경 126°02′55″" }
+                ],
+                structureDesc: "11개 행정동이 각기 뚜렷한 기능을 분담하고 있습니다. ▲금융·업무 중심지인 <strong>중앙동·중정동(중앙로 금융가·구시청)</strong>, ▲백화점·명품 유통의 코어인 <strong>창선동·삼각동</strong>, ▲서브컬처 성지순례와 주거가 결합된 <strong>유내동(리사동·리사마트)·약맥동(목동·오주동)·고도동(십덕동·우이동)</strong>, ▲성곽 역사 및 주거지인 <strong>궁영동·내조1·2동·조유동·신덕동</strong>, ▲해양 친수공간인 <strong>내항동</strong>으로 구성되어 있습니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "십덕역, 약맥역, 창선역, 중앙로역, 중구청역, 내조역(본선) / 창선역, 오석역, 장원역(창선지선)" },
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "중앙로역, 심동역, 고도역, 내항역" },
+                    { code: "4", name: "4호선", color: "#FF5522", stations: "삼각역, 오석역, 장원역, 신덕역" },
+                    { code: "7", name: "7호선", color: "#FF8899", stations: "갑문, 명일, 내항, 내항시장, 만마루, 구 세관, 고도리, 시북, 시남, 우이, 우이문화촌, 심동1가, 심동2가, 중앙로1가, 개항지, 중앙로3가, 중앙로, 원동4가, 중보로, 효빈은행, 구시청앞, 경동, 유내, 리사, 도람, 궁정, 상원초등학교, 효빈성앞, 내조, 중앙고등학교, 내조공원 (본선) / 사중역 제외 전 구간 (중보지선)" },
+                    { code: "빈", name: "빈효선", color: "#6677CC", stations: "신덕역" }
+                ]
+            },
+            "dong": {
+                name: "동구", hanja: "東區", eng: "Dong-gu", title: "동구청",
+                color: "#00AA00", subColor: "#007700", phone: "079-284-1120",
+                mapImg: "동구 행정동 지도.webp",
+                area: "18.00 ㎢", pop: "171,012 명", density: "9,500.67 명/㎢",
+                adminDiv: "14개 행정동 / 3개 법정동 (428통 2,850반)",
+                hallAddr: "효빈광역시 동구 덕현로 91 / 덕성로 12 (덕현2동)",
+                head: "조우영 (조국혁신당 · 재선)",
+                assembly: "국회의원 김성민(중구·동구) / 시의원 2석 / 구의원 9석",
+                symbols: "구화: 무궁화 / 구목: 은행나무 / 구조: 참새 / 마스코트: 냥냥선장",
+                grdp: "철도 교통 허브(효빈역) 및 역세권 핑크 이코노미(보몽·사가당·전천) 상권 특화",
+                slogan: "철도와 서브컬처가 공존하는, 꿈꾸는 활력 동구",
+                overview1: "효빈광역시 도심 동측에 위치한 면적 18.00㎢, 인구 171,012명의 자치구입니다. 1973년 중수면 전천·덕현 일대와 사가당동을 통합해 개청했으며, 경빈선 철도와 4개 도시철도가 만나는 '효빈역(사가당1동)'을 품은 관문 도시입니다.",
+                overview2: "법정동은 덕현동(103,906명), 사가당동(49,915명), 전천동(17,191명) 단 3개뿐이지만, 단일 법정동 인구가 10만 명을 넘는 덕현동이 9개 행정동(덕현1~7, 9, 11동)으로 세분화되어 총 14개 행정동 체제로 운영됩니다. 보몽역 핑크로드, 사가당 좀비거리, 전천 냥냥 골목 등 서브컬처 도시재생으로 원도심 활력을 되찾았습니다.",
+                locDesc: "북쪽으로 북구(오내동·채산동)와 접하고, 서쪽으로 중구(내조동·신덕동), 남쪽으로 청엽구(청엽동·비마동), 동쪽으로 안천구(북택동·뇌전동) 및 남동쪽 창전구 모서리와 맞닿아 있는 내륙 교통 요충지입니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "전천동 북단 (북구 오내2동·천왕사동 경계)", coord: "북위 34°55′35″ / 동경 126°03′50″" },
+                    { dir: "극남 (極南)", dong: "사가당4동 · 사가당2동 남단 (청엽구 경계)", coord: "북위 34°53′05″ / 동경 126°03′40″" },
+                    { dir: "극서 (極西)", dong: "사가당1동 서단 (중구 신덕동·내조2동 경계)", coord: "북위 34°53′40″ / 동경 126°02′45″" },
+                    { dir: "극동 (極東)", dong: "덕현7동 · 덕현11동 동단 (안천구 북택동 경계)", coord: "북위 34°54′50″ / 동경 126°05′20″" }
+                ],
+                structureDesc: "북부의 <strong>전천동(경빈선 철도숲길·전천 냥냥 골목·청년창업거리)</strong>, 남서부의 <strong>사가당1~4동(효빈역·AK플라자·홈플러스·사가당 좀비거리)</strong>, 그리고 중동부를 가득 채운 대규모 아파트 주거단지인 <strong>덕현1~7·9·11동(동구청·덕현역 역세권)</strong>의 3대 권역으로 명확히 구분됩니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "효빈, 보몽, 전천" },
+                    { code: "3", name: "3호선", color: "#FFCC11", textColor: "#111", stations: "사가당, 덕현, 효빈" },
+                    { code: "4", name: "4호선", color: "#FF5522", stations: "가동사거리, 사가당, 동덕현" },
+                    { code: "5", name: "5호선", color: "#EE0022", stations: "전천, 전천중앙, 덕현중앙, 동덕현" },
+                    { code: "6", name: "6호선", color: "#881188", stations: "가동사거리, 덕현, 전덕, 전천중앙" },
+                    { code: "7", name: "7호선", color: "#FF8899", stations: "효빈, 사가당공원" },
+                    { code: "빈", name: "빈효광역전철", color: "#6677CC", stations: "효빈, 전덕, 덕현중앙, 하성천" }
+                ]
+            },
+            "seo": {
+                name: "서구", hanja: "西區", eng: "Seo-gu", title: "서구청",
+                color: "#00AABB", subColor: "#008899", phone: "079-634-2100",
+                mapImg: "서구 행정동 지도.webp",
+                area: "22.41 ㎢", pop: "270,388 명", density: "12,065.51 명/㎢",
+                adminDiv: "17개 행정동 / 10개 법정동 (675통 4,506반)",
+                hallAddr: "효빈광역시 서구 주촌로 77 / 당선동 77 (당선3동)",
+                head: "부서원 (더불어민주당 · 초선)",
+                assembly: "국회의원 지선진(서구) / 시의원 3석 / 구의원 13석",
+                symbols: "구화: 백합 / 구목: 은행나무 / 구조: 거위 / 마스코트: 구스장",
+                grdp: "효빈대학교(효빈가사키) & 효빈과학기술원(HIST) 산학연 R&D·교육 특구",
+                slogan: "낭만이 달리는 트램도시, 소신을 품은 지성 서구",
+                overview1: "효빈광역시 서북부 해안에 자리한 면적 22.41㎢, 인구 270,388명의 자치구입니다. 거점 국립대인 효빈대학교 당선캠퍼스와 효빈과학기술원(HIST), 해총대학교가 밀집해 있어 도시 전체에 청년 인구와 학구열이 넘치는 대한민국 대표 학원도시입니다.",
+                overview2: "1941~1949년 사능면 편입과 1963년 고송면 남부(과진·청덕·사복리) 통합으로 개청했습니다. 2006년 윤대환 시장의 7호선 캠퍼스 트램 폐선 시도를 온몸으로 막아낸 소신의 도시이며, 2019년 당선3동에 지상 10층 유리궁전 신청사를 완공했습니다.",
+                locDesc: "서쪽과 남서쪽은 서해 바다와 맞닿아 아름다운 해안선(낙조 보드워크)을 이루며, 북동쪽으로는 북구(고송동·사능동)와 길게 접하고, 남동쪽 끝단(북성동)은 중구(조유동·중앙동)와 연결됩니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "청덕3동 북단 (북구 고송1동·3동 경계 해안)", coord: "북위 34°57′25″ / 동경 125°59′55″" },
+                    { dir: "극남 (極南)", dong: "북성동 남단 (중구 조유동·중앙동 경계)", coord: "북위 34°54′35″ / 동경 126°01′10″" },
+                    { dir: "극서 (極西)", dong: "청덕1동 서해안 곶(串) 끝단", coord: "북위 34°56′05″ / 동경 125°58′40″" },
+                    { dir: "극동 (極東)", dong: "사복1동 · 사복2동 · 당선1동 동단 (북구 사능동 경계)", coord: "북위 34°55′30″ / 동경 126°02′25″" }
+                ],
+                structureDesc: "북서부 해안의 <strong>청덕1~3동(청덕 백합정원·화환역)</strong>, 중부 핵심 인구 밀집지이자 HIST가 위치한 <strong>과진1~7동(법정동 과진동 단일 인구 9만 명)</strong>, 동부 복지·교육타운인 <strong>사복1~2동</strong>, 남부 대학로 상권과 구청사가 있는 <strong>당선1~4동(효빈대·갤러리아백화점)</strong>, 그리고 최남단 성곽 유적지인 <strong>북성동(내성동1~3가·북문동1~2가·칠천동)</strong>으로 구성됩니다.",
+                subways: [
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "청덕, 과진중앙, 사복, 당선, 효빈대학교, 칠천, 소장" },
+                    { code: "3", name: "3호선", color: "#FFCC11", textColor: "#111", stations: "효빈복지대학교, 과진, 청덕, 송덕" },
+                    { code: "5", name: "5호선", color: "#EE0022", stations: "청덕공원, 화환, 효빈과학기술원, 당선" },
+                    { code: "7", name: "7호선", color: "#FF8899", stations: "북문로, 효빈성북문, 구 칠천군사기지앞, 당선원마을, 효빈대학교입구" }
+                ]
+            },
+            "nam": {
+                name: "남구", hanja: "南區", eng: "Nam-gu", title: "남구청",
+                color: "#9856FF", subColor: "#6B21A8", phone: "079-451-9020",
+                mapImg: "남구 행정동 지도.webp",
+                area: "88.24 ㎢", pop: "372,589 명", density: "4,222.45 명/㎢",
+                adminDiv: "18개 행정동 / 12개 법정동 (912통 6,081반)",
+                hallAddr: "효빈광역시 남구 평당관통로 33 / 평당중앙로 33 (평당3동)",
+                head: "오전희 (더불어민주당 · 3선)",
+                assembly: "국회의원 2명(남구 갑·을) / 시의원 4석 / 구의원 12석",
+                symbols: "구화: 진달래 / 구목: 해송 / 구조: 참새 / 마스코트: 참도리",
+                grdp: "효빈항 국제여객터미널 · 국가산단(효빈공단) · 평당신도시 3대 성장축",
+                slogan: "바다를 품고 미래로 도약하는 활력 남구",
+                overview1: "효빈광역시 서남부 반도에 넓게 자리 잡은 면적 88.24㎢, 인구 372,589명의 거대 자치구입니다. 1942년 공단 지역 편입과 1955년 어간면 전역 통합을 거쳐 1963년 남구로 개청했으며, 1990년 평당3동 현 위치에 지상 9층 규모의 신청사를 건립했습니다.",
+                overview2: "법정동 단일 인구 16.4만 명의 '평당신도시(평당1~7동)'와 수출입의 심장인 '효빈항(항1~4동)', 거대 제조업 기지인 '효빈공단(월천·박산·신흥·포장동)', 그리고 '어간수산시장·곽암해수욕장(어간1~3동·곽산1~2동)'이 어우러져 막강한 재정력을 자랑합니다.",
+                locDesc: "북동쪽으로 중구(내항동·약맥동) 및 청엽구(입빈동·등동)와 접하며, 북서쪽(항2동 반도 끝단)부터 남쪽(곽산2동 해안)까지 삼면이 서해 바다로 길게 뻗어 나간 역동적인 반도 지형입니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "항2동 북서단 반도 끝 (서해안)", coord: "북위 34°53′50″ / 동경 125°56′10″" },
+                    { dir: "극남 (極南)", dong: "곽산2동 · 곽산1동 남단 곶(串)", coord: "북위 34°47′40″ / 동경 126°01′20″" },
+                    { dir: "극서 (極西)", dong: "항2동 서단 (법정동 항동2가 · 효빈시 전체 극서점!)", coord: "북위 34°52′40″ / 동경 125°55′30″" },
+                    { dir: "극동 (極東)", dong: "월천동 동단 (중구·청엽구 입빈동 경계)", coord: "북위 34°52′30″ / 동경 126°05′40″" }
+                ],
+                structureDesc: "서북부 반도 줄기를 따라 <strong>항2·3·4·1동 및 어간1~3동(효빈항 국제여객터미널·어간수산시장·어간해수욕장)</strong>이 펼쳐지고, 동북부에는 <strong>월천동·고당동(효빈공단·빙천공구단지)</strong>이, 중앙에서 남단까지는 <strong>평당1~7동(평당신도시·남구청)과 곽산1~2동(곽암해수욕장·곽산차량기지)</strong>이 자리 잡고 있습니다.",
+                subways: [
+                    { code: "1", name: "효빈 1호선", color: "#0077DD", stations: "곽암해수욕장, 곽산, 회산, 남당, 평당, 남구청, 신거, 효빈항, 효빈항물류지구, 월천" },
+                    { code: "2", name: "효빈 2호선(어간지선)", color: "#00CCAA", stations: "월천, 서신포, 운양, 어간항, 어간수산시장, 어간중앙, 어간, 항동1가, 효빈항국제여객터미널" },
+                    { code: "4", name: "효빈 4호선", color: "#FF5522", stations: "해운산업지구, 이부, 남구청, 빙천, 고당, 사야, 신흥, 진월천" },
+                    { code: "7", name: "효빈 7호선", color: "#FF8899", stations: "어간중앙, 어간초등학교, 항동3가, 항만해변, 산홍, 효빈항, 효빈항동부, 분덕, 항동문화회관, 월천" },
+                    { code: "8", name: "효빈 8호선", color: "#9856FF", stations: "전체 역이 모두 남구에 위치함." },
+                    { code: "빈", name: "빈효광역선", color: "#6677CC", stations: "진월천, 동신, 효빈항물류지구, 효빈항" }
+                ]
+            },
+            "buk": {
+                name: "북구", hanja: "北區", eng: "Buk-gu", title: "북구청",
+                color: "#6677CC", subColor: "#4338CA", phone: "079-321-5020",
+                mapImg: "북구 행정동 지도.webp",
+                area: "78.92 ㎢", pop: "548,537 명 (2026.04. 기준 556,832명 · 효빈시 1위!)", density: "6,950.54 명/㎢",
+                adminDiv: "24개 행정동 / 30개 법정동 (1,344통 8,914반)",
+                hallAddr: "효빈광역시 북구 중수로 110 / 고중로 2 (중수1동)",
+                head: "김지언 (더불어민주당 · 재선 · 79.79% 득표)",
+                assembly: "국회의원 3명(북구 갑·을·병) / 시의원 5석 / 구의원 18석",
+                symbols: "구화: 찔레꽃 / 구목: 느티나무 / 구조: 제비 / 마스코트: 제비도리",
+                grdp: "효빈광역시청 본청 · 고등법원(중수법조타운) · 고송 서브컬처 특구 · HSCO 컨벤션",
+                slogan: "꽃피는 고송, 미래를 여는 북구",
+                overview1: "효빈광역시 북부 해안과 내륙을 아우르는 면적 78.92㎢, 인구 55만 명의 명실상부한 효빈시 최대(1위) 메가 자치구입니다. 1971년 고송·당가면과 사능·사가당동을 묶어 신설되었으며, 1973년 중수면 흡수 및 1986년 중수1동 청사 이전을 거쳐 발전했습니다.",
+                overview2: "2004년 고송8동에 효빈광역시청 본청이 이전해 오고 고송신도시(법정동 고송동 단일 인구 23만 명, 효빈시 전체 1위!)가 대성공을 거두면서 2019년 청엽구를 제치고 인구 1위에 등극했습니다. 애니메이트·애니플러스가 입점한 고송교차로와 토모리해수욕장, 사능동 빵지순례 등 서브컬처 수도의 핵심지입니다.",
+                locDesc: "북쪽으로는 서해 바다(토모리해수욕장·중수해안)와 넓게 면하고, 서쪽으로는 서구(청덕·과진·사복·당선동), 남쪽으로는 중구(조유·내조동) 및 동구(사가당·전천동), 동쪽으로는 안천구(당가·북택·악부동)와 경계를 맞대고 있습니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "고송1동 북서단 반도 끝 (서해안)", coord: "북위 34°58′10″ / 동경 126°00′20″" },
+                    { dir: "극남 (極南)", dong: "사능1동 남단 (중구 조유동·동구 사가당1동 경계)", coord: "북위 34°54′05″ / 동경 126°02′35″" },
+                    { dir: "극서 (極西)", dong: "고송1동 · 고송3동 서단 (서구 청덕3동 경계)", coord: "북위 34°57′30″ / 동경 126°00′05″" },
+                    { dir: "극동 (極東)", dong: "채산동 동단 (안천구 악부동·탄성군 경계)", coord: "북위 34°55′40″ / 동경 126°07′15″" }
+                ],
+                structureDesc: "북서부의 초거대 행정·상업 신도시인 <strong>고송1~8동(효빈시청·고송교차로·토모리해수욕장)</strong>, 중북부 해안·내륙의 <strong>진희동·포산동·청능동·산고동(추산동)</strong>, 중동부 법조·행정타운인 <strong>중수1~4동·남전동·오내1~2동</strong>, 남서부 전통 주거지인 <strong>소조동·천왕사동·사능1~3동(입희동·해서동 터미널)</strong>, 그리고 동부 광활한 산업·생태지대인 <strong>채산동(면적 21.92㎢, 평전·실본·아자동)</strong>으로 이루어져 있습니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "천왕사, 백천, 입희, 추산, 서도, 북구청, 등기, 평전, 아진" },
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "과송, 고송교차로, 시청, 북효빈, 입선, 입희, 사연, 중수, 남전, 채산, 신영" },
+                    { code: "3", name: "3호선", color: "#FFCC11", textColor: "#111", stations: "토모리해수욕장, 고송나루, 청능, 북효빈, 고속버스터미널, 사능" },
+                    { code: "5", name: "5호선", color: "#EE0022", stations: "고속버스터미널, 소조" },
+                    { code: "6", name: "6호선", color: "#881188", stations: "고송나루, 건강보험공단, 고송, 고송교차로, 시청, 동고송, 진희, 효빈종합고, 장포, 포산, 북구청, 중수, 오내, 오내사거리" },
+                    { code: "7", name: "7호선", color: "#FF8899", stations: "가족센터, 치남, 사능동3가, 사능복지관, 사능동1가, 북구서부어린이회관, 사중" }
+                ]
+            },
+            "cheongyeop": {
+                name: "청엽구", hanja: "靑葉區", eng: "Cheongyeop-gu", title: "청엽구청",
+                color: "#006699", subColor: "#004D73", phone: "079-781-4910",
+                mapImg: "청엽구 행정동 지도.webp",
+                area: "42.37 ㎢", pop: "470,043 명 (효빈시 인구 2위)", density: "11,093.77 명/㎢",
+                adminDiv: "16개 행정동 / 15개 법정동 (1,154통 7,701반)",
+                hallAddr: "효빈광역시 청엽구 청엽로 51 (청엽5동)",
+                head: "권상남 (더불어민주당 · 3선)",
+                assembly: "국회의원 2명(청엽 갑·을) / 시의원 4석 / 구의원 21석",
+                symbols: "구화: 철쭉 / 구목: 푸른잎 느티나무 / 구조: 참새 / 마스코트: 빵도리",
+                grdp: "1.5km 청엽 베이커리 거리(Bread City) · 55층 아논타워 · 효빈 슈퍼 아레나(18,000석)",
+                slogan: "푸른 잎에 빵 향기가 물드는 성지, 활력 청엽",
+                overview1: "효빈광역시 중남부에 위치한 면적 42.37㎢, 인구 470,043명의 거대 자치구입니다. 1955년 청엽면 전역이 효빈시로 편입된 후 남구 출장소를 거쳐 1979년 청엽구로 독립 개청했으며, 1995년 동남부 해안 권역을 창전구로 분구시키고도 효빈시 인구 2위의 위용을 자랑합니다.",
+                overview2: "법정동 단일 인구 17.1만 명의 청엽동(청엽1~6동)과 9.9만 명의 우전동(우전1~3동)을 양대 축으로 하며, 서부 해안·신도시 권역인 입빈동(효빈동신도시)·등동·마잡1~2동까지 빈틈없이 발달한 '베이커리노믹스'와 Afterglow 성지의 본산입니다.",
+                locDesc: "북쪽으로 중구(약맥·유내·신덕동) 및 동구(사가당·덕현동)와 접하고, 북동쪽 끝(우택동)은 안천구(북택동)와 맞닿으며, 서쪽으로는 남구(월천동)와 서해 바다(등동·마잡2동 해안), 남동쪽으로는 창전구(동곡·쌍엽·유류·칠심·진백동)와 길게 경계를 이룹니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "우택동 북단 꼭짓점 (동구 덕현동·안천구 북택동 경계)", coord: "북위 34°54′45″ / 동경 126°05′35″" },
+                    { dir: "극남 (極南)", dong: "마잡2동 남단 해안 (창전구 동곡동 경계)", coord: "북위 34°50′55″ / 동경 126°02′10″" },
+                    { dir: "극서 (極西)", dong: "입빈동 · 등동 서단 (남구 월천동 경계 및 해안)", coord: "북위 34°52′15″ / 동경 126°00′50″" },
+                    { dir: "극동 (極東)", dong: "우택동 동단 (창전구 진백동·안천구 경계)", coord: "북위 34°54′10″ / 동경 126°06′05″" }
+                ],
+                structureDesc: "지도상 서부에는 <strong>입빈동(효빈동신도시)·동리동·등동(효빈슈퍼아레나·엽월대)·마잡1~2동(헌이송공단·마잡차량기지)</strong>이 위치하고, 중앙부에는 <strong>비마리동(비마동·사노동 유적지구)</strong>이 남북을 잇고 있으며, 동부 핵심 도심에는 <strong>청엽1~6동(청엽구청·베이커리거리·아논타워)·우전1~3동(남부터미널·우전천)·우택동(우택호수·청엽국제학교)</strong>이 밀집해 있습니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "동리, 비마리유적지구, 사노, 청엽구청, 아논타워, 우전" },
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "입동, 등동, 헌이송, 마잡, 우전" },
+                    { code: "3", name: "3호선", color: "#FFCC11", textColor: "#111", stations: "효빈남부시외버스터미널, 청엽구청, 청엽" },
+                    { code: "4", name: "4호선", color: "#FF5522", stations: "우택" },
+                    { code: "5", name: "5호선", color: "#EE0022", stations: "청엽국제학교, 남우택" },
+                    { code: "6", name: "6호선", color: "#881188", stations: "마잡, 비동, 비마, 사노" },
+                    { code: "빈", name: "빈효광역선", color: "#6677CC", stations: "오주, 효빈동신도시, 장원" },
+                    { code: "창", name: "창전선(2027.09 개통예정)", color: "#33AAFF", stations: "남우택, 우택중앙, 우택" }
+                ]
+            },
+            "ancheon": {
+                name: "안천구", hanja: "安川區", eng: "Ancheon-gu", title: "안천구청",
+                color: "#AA66DD", subColor: "#7E22CE", phone: "079-915-7710",
+                mapImg: "안천구 행정동 지도.webp",
+                area: "90.38 ㎢ (자치구 중 면적 1위!)", pop: "450,286 명", density: "4,982.14 명/㎢",
+                adminDiv: "21개 행정동 / 40개 법정동 (1,126통 7,484반 / 이자출장소 운영)",
+                hallAddr: "[본청] 안천중앙로 52 (안천6동) / [이자출장소] 이자로 3 (이자4동)",
+                head: "이규희 (더불어민주당 · 3선)",
+                assembly: "국회의원 2명(안천 갑·을) / 시의원 4석 / 구의원 20석(더불어민주당 100% 전석 석권!)",
+                symbols: "구화: 산세베리아 / 구목: 오동나무 / 구조: 두루미 / 마스코트: 안두리",
+                grdp: "안천지구(본청) + 이자지구(출장소) 양대 도심 · 누마즈 교류기념관 · 안천 스틸야드",
+                slogan: "덕심으로 하나 되는 안천, 현실이 되는 2.5차원 테마도시",
+                overview1: "효빈광역시 동북부에 위치한 면적 90.38㎢(8개 자치구 중 면적 1위), 인구 450,286명의 거대 자치구입니다. 1979년 시(市)로 독립 승격되었던 '안천시'와 거대 읍이던 '이자읍', 그리고 당가·뇌전·북택동이 1983년 대통합하여 출범한 독자적 역사를 지니고 있습니다.",
+                overview2: "서부의 안천1~7동·당가1~2동 권역(본청 관할)과 동부의 이자1~4동·이십기동·창건동·성저동 권역(이자출장소 관할)이라는 두 개의 거대한 도심 핵을 보유하고 있으며, 이자동(리코)·당가동(쿠쿠)·타천동(요하네)·초음동(미쿠) 등 지명 일치를 살린 2.5차원 테마도시입니다.",
+                locDesc: "북쪽으로는 서해 바다(악부동 해안)와 면하고, 서쪽으로는 북구(채산동)·동구(덕현동)·청엽구(우택동), 남서쪽으로는 창전구(진백동), 그리고 북동쪽·동쪽·남동쪽 외곽 전체는 탄성군(소원면·고해읍·도변읍·흑택면) 및 선곡군에 둘러싸여 있습니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "악부동 북단 서해안 (북구 채산동·탄성군 소원면 사이 해안)", coord: "북위 34°57′45″ / 동경 126°07′40″" },
+                    { dir: "극남 (極南)", dong: "뇌전동 남단 · 성저동 남단 (창전구·탄성군 경계)", coord: "북위 34°52′10″ / 동경 126°06′50″" },
+                    { dir: "극서 (極西)", dong: "북택동 서단 뾰족한 끝 (동구 덕현7동·청엽구 우택동 경계)", coord: "북위 34°54′30″ / 동경 126°05′10″" },
+                    { dir: "극동 (極東)", dong: "칠채동 동단 (탄성군 고해읍·도변읍 전추리 경계)", coord: "북위 34°55′20″ / 동경 126°11′55″" }
+                ],
+                structureDesc: "지도상 서부에는 <strong>북택동·뇌전동·당가1~2동·안천1~7동(안천구청 본청)·백합동</strong>이 밀집해 있고, 중북부의 광활한 면적(22.21㎢)은 <strong>악부동(타천·초음·팔망성·군청·천문동)</strong>이 차지하며, 동부에는 <strong>이십기동·이자1~4동(단일 법정동 11.8만 명·이자출장소)·창건동(안천 스틸야드)·성저동·칠채동(영색무·월삼·서수·남동)</strong>이 거대한 생활권을 형성하고 있습니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "당안, 안천, 팔망성, 추자, 이자출장소, 과남, 이자공원, 정치, 영색무, 능릉" },
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "상가, 하가, 당가" },
+                    { code: "4", name: "4호선", color: "#FF5522", stations: "치구, 뇌전, 하가, 백합공원, 탄자, 이자공원, 이자, 서수" },
+                    { code: "빈", name: "빈효광역선", color: "#6677CC", stations: "북택, 수포, 당가, 안천, 타천, 리의, 이자, 영색무" }
+                ]
+            },
+            "changjeon": {
+                name: "창전구", hanja: "倉田區", eng: "Changjeon-gu", title: "창전구청",
+                color: "#33AAFF", subColor: "#0284C7", phone: "079-822-1510",
+                mapImg: "창전구 행정동 지도.webp",
+                area: "45.72 ㎢", pop: "350,348 명", density: "7,662.90 명/㎢",
+                adminDiv: "16개 행정동 / 13개 법정동 (865통 5,771반)",
+                hallAddr: "효빈광역시 창전구 모포로 21 (창전2동)",
+                head: "전역헌 (더불어민주당 · 3선)",
+                assembly: "국회의원 2명(창전 갑·을) / 시의원 3석 / 구의원 14석",
+                symbols: "구화: 부레옥잠(푸른장미) / 구목: 벚나무 / 구조: 흰머리수리(파랑새) / 마스코트: 모르도리",
+                grdp: "효빈 최고 소득 해안 부촌 · 팔조 금융법조타운 · 효빈 아트센터 · 2027 창전선 개통",
+                slogan: "푸른 날갯짓으로 도약하는 품격, 환상이 현실이 되는 창전",
+                overview1: "효빈광역시 남동부 해안에 위치한 면적 45.72㎢, 인구 350,348명의 자치구입니다. 1963년 창전면 편입과 1973년 흑택면(시로·광정리) 편입을 거쳐 청엽구 관할로 있다가, 1989~1995년 청엽구에서 분리 독립하여 탄생한 효빈 최고의 명품 부촌입니다.",
+                overview2: "관내 13개 모든 법정동(창전·진백·시로·마시·동곡·투자·광정·칠심·보통·쌍엽·팔조·유류·생덕)이 밴드 Morfonica와 완벽히 일치하며, 2027년 9월 도시철도 창전선(#33AAFF) 개통을 앞두고 있습니다.",
+                locDesc: "북서쪽으로 청엽구(마잡2동·비마동·우전동·우택동)와 길게 맞닿고, 북동쪽 끝(진백동)은 안천구(뇌전동)와 접하며, 동쪽으로는 탄성군(흑택면·탄성읍), 남서쪽으로는 푸른 서해 바다(창전해변·동곡·팔조 해안)를 품고 있습니다.",
+                poles: [
+                    { dir: "극북 (極北)", dong: "진백동 북단 꼭짓점 (안천구 뇌전동·청엽구 우택동 경계)", coord: "북위 34°54′15″ / 동경 126°06′15″" },
+                    { dir: "극남 (極南)", dong: "광정동 남단 · 팔조동 남단 해안", coord: "북위 34°50′10″ / 동경 126°05′50″" },
+                    { dir: "극서 (極西)", dong: "동곡동 서단 해안 (청엽구 마잡2동 경계)", coord: "북위 34°51′10″ / 동경 126°02′15″" },
+                    { dir: "극동 (極東)", dong: "광정동 동단 돌출부 (탄성군 흑택면 경계)", coord: "북위 34°51′50″ / 동경 126°07′45″" }
+                ],
+                structureDesc: "지도상 서부 해안에는 <strong>동곡동(투자동 패션거리)·팔조동(법조금융타운·차량기지)·쌍엽1~2동</strong>이 자리하고, 중앙부에는 <strong>유류동·창전1~5동(창전구청·블루로즈가든·모포니카 스트리트)·칠심1~3동(장인의 골목)</strong>이 밀집해 있으며, 북동부~남동부 축에는 면적이 넓은 <strong>진백동(시로동 화이트가든·효빈아트센터)과 광정동(마시동·보통동 평범박물관)</strong>이 펼쳐져 있습니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "창전, 창전구청, 보통" },
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "동곡, 쌍엽, 엽천, 유류, 칠심, 시로" },
+                    { code: "3", name: "3호선", color: "#FFCC11", textColor: "#111", stations: "팔조, 투자, 동곡" },
+                    { code: "5", name: "5호선", color: "#EE0022", stations: "진백, 시로" },
+                    { code: "창", name: "창전선(2027.09 개통예정)", color: "#33AAFF", stations: "팔조, 신팔조, 쌍엽중앙, 신쌍엽, 창엽, 신창전, 창전구청, 칠심중앙, 칠심, 진백중앙" }
+                ]
+            },
+            "tanseong": {
+                name: "탄성군", hanja: "彈城郡", eng: "Tanseong-gun", title: "탄성군청",
+                color: "#559900", subColor: "#3D7300", phone: "079-134-8821",
+                mapImg: "탄성군 읍면 지도.webp",
+                area: "329.02 ㎢ (위키 세부 측량 331.02㎢ · 효빈시 전체 면적의 45%!)", pop: "255,102 명 (2026.04. 기준 259,231명)", density: "770.65 명/㎢ (전국 군 인구밀도 2위)",
+                adminDiv: "5읍 4면 67법정리 (643행정리 4,260반 / 도변읍 앵내출장소 운영)",
+                hallAddr: "효빈광역시 탄성군 탄성읍 공리 24 (1호선 탄성군청역 코앞)",
+                head: "성선설 (더불어민주당 · 재선)",
+                assembly: "국회의원 박청권(탄성군 단독 · 헌정 최연소) / 시의원 3석 / 군의원 13석",
+                symbols: "군화: 복사꽃 / 군목: 고무나무 / 군조: 딱따구리 / 마스코트: 탄도리",
+                grdp: "종합 B+등급 (재정자립도 55.70% · 1인당 GRDP 5,100만 원 · 누마즈 성지 & 고부가 특산물)",
+                slogan: "낭만이 공명하는 탄력 도시, 환상이 현실이 되는 탄성",
+                overview1: "효빈광역시 동부와 남부를 거대하게 감싸는 유일한 자치군(郡)입니다. 인구수(259,231명)는 대구 달성군에 이어 전국 군 2위, 인구밀도(770.65명/㎢)는 부산 기장군에 이어 전국 2위로, 이름만 군이지 사실상 어지간한 광역시 자치구를 압도하는 체급을 자랑합니다. 읍(탄성·도변·서목·고해·야진 5개)이 면(흑택·소원·도향·정근 4개)보다 많은 비범한 행정구역입니다.",
+                overview2: "1914년 효빈군에 합군되었다가 1935년 효빈부 분리와 함께 부활했으며, 1995년 효빈광역시로 편입되었습니다. 도변읍 앵내리와 고해읍 전추리 사이가 안천구와 바다 사이에 탯줄처럼 얇게 붙어 있는 '조랭이떡 목구멍' 지형 탓에 생활권이 4개 권역으로 파편화되어 있으나, 군청이 있는 '탄성읍(5만 명)'과 상업·서브컬처 수도인 '도변읍(9.1만 명, 전국 읍 6위)' 두 개의 심장이 군 전체를 힘차게 견인하고 있습니다.",
+                locDesc: "서북쪽으로는 북구(채산동) 및 안천구(악부·이자·성저·칠채동)를 거대한 U자 형태로 감싸 안고 있으며, 서쪽으로는 창전구(광정동), 동북쪽으로는 덕빈북도 약산시, 남동쪽으로는 바다와 덕빈북도 선곡군과 광범위하게 경계를 마주하고 있습니다. 효빈광역시의 극북·극남·극동 끝단이 모두 탄성군에 속합니다!",
+                poles: [
+                    { dir: "극북 (極北)", dong: "소원면 부우리 북단 (효빈광역시 전체 극북점!)", coord: "북위 34°58′30″ / 동경 126°08′45″" },
+                    { dir: "극남 (極南)", dong: "서목읍 파래리 · 승남리 남서단 곶 (효빈광역시 전체 극남점!)", coord: "북위 34°45′10″ / 동경 126°05′20″" },
+                    { dir: "극서 (極西)", dong: "서목읍 남서단 해안 및 탄성읍 서단 (창전구 경계)", coord: "북위 34°46′15″ / 동경 126°04′10″" },
+                    { dir: "극동 (極東)", dong: "정근면 회층리 동단 (약산시 경계 · 효빈광역시 전체 극동점!)", coord: "북위 34°50′15″ / 동경 126°15′10″" }
+                ],
+                structureDesc: "지도상 4대 생활권으로 나뉩니다. ①북동부 해안·산간 축인 <strong>소원면(이자권 베드타운·면허시험장) · 고해읍(2.4만 명, 타카미 치카 성지·고해역) · 도향면(8,017명, 모모카 복숭아 사이다·2025년 야진읍 인구 추월!) · 정근면(2,890명, 최대면적 청정산간·니나 로드)</strong>, ②'조랭이떡 목구멍(전추리~앵내리)'을 건너 이어지는 중부 핵심 신도시 <strong>도변읍(90,909명, 요우리·앵내출장소·도변역 애니메이트) · 흑택면(22,706명, 루비지구·빙과호·트레이더스 예정)</strong>, ③군청이 위치한 본토 중심 <strong>탄성읍(49,977명, 공리 군청·탄성군립도서관) · 야진읍(7,937명, 구 탄광촌·레일바이크)</strong>, ④최남단 해안·락페스티벌 거점인 <strong>서목읍(35,344명, 승남해수욕장·록구리·파래리)</strong>으로 구성됩니다.",
+                subways: [
+                    { code: "1", name: "1호선", color: "#0077DD", stations: "(본선) 고해, 도향 / (탄성지선) 고무, 탄성, 탄성군청, 야진입구, 서목, 승남해수욕장" },
+                    { code: "2", name: "2호선", color: "#00CCAA", stations: "흑택" },
+                    { code: "4", name: "4호선", color: "#FF5522", stations: "요우, 도변, 잠재, 앵내, 소원, 천가, 고해" },
+                    { code: "5", name: "5호선", color: "#EE0022", stations: "루비, 도변, 포성산, 야진" },
+                    { code: "빈", name: "빈효광역선", color: "#6677CC", stations: "고해" }
+                ]
+            }
+        };
+        const INTRO_GU_ORDER = ["", "jung", "dong", "seo", "nam", "buk", "cheongyeop", "ancheon", "changjeon", "tanseong"];
+
+        function switchIntroGu(guKey) {
+            if (!guKey) {
+                window.location.href = 'intro.html';
+            } else {
+                window.location.href = `intro.html?gu=${guKey}`;
+            }
+        }
+
+        function initIntroPage() {
+            // 0. 하단 만족도 조사 박스 중복 방지
+            const surveyBoxes = Array.from(document.querySelectorAll('div')).filter(el => 
+                el.textContent && el.textContent.includes('이 페이지에서 제공하는 정보에 대하여 만족하십니까?') && el.children.length <= 4
+            );
+            if (surveyBoxes.length > 1) {
+                for (let i = 1; i < surveyBoxes.length; i++) {
+                    surveyBoxes[i].style.display = 'none';
+                }
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+            const isGu = Boolean(guKey && GU_INTRO_MASTER[guKey]);
+
+            // 1. 본문 H2 타이틀 바로 아래에 '본청 + 9개 구·군 빠른 전환 탭 바' 생성
+            const mainEl = document.querySelector('main');
+            const titleEl = mainEl ? mainEl.querySelector('h2.content-title') : null;
+
+            if (titleEl && !document.getElementById('intro-gu-nav')) {
+                const navBar = document.createElement('div');
+                navBar.id = 'intro-gu-nav';
+                navBar.className = 'bg-slate-50 p-3 rounded-xl border border-slate-200 mb-8 shadow-sm';
+                const btnsHtml = INTRO_GU_ORDER.map(k => {
+                    const label = k === "" ? "효빈광역시(본청 총괄)" : GU_INTRO_MASTER[k].name;
+                    const active = (k === (isGu ? guKey : ""));
+                    const bgColor = active ? (k === "" ? "#1e3a8a" : GU_INTRO_MASTER[k].subColor) : "#ffffff";
+                    const txtColor = active ? "#ffffff" : "#334155";
+                    return `<button onclick="switchIntroGu('${k}')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold border border-slate-200 transition shadow-sm hover:opacity-90" style="background-color:${bgColor}; color:${txtColor};">${label}</button>`;
+                }).join('');
+                navBar.innerHTML = `
+                    <div class="text-xs font-bold text-slate-500 mb-2 flex items-center gap-1.5">
+                        <i data-lucide="compass" class="w-3.5 h-3.5 text-blue-600"></i> 효빈광역시 본청 및 9개 자치구·군 기본현황(지형·4극단·도시구조·철도망) 바로가기
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">${btnsHtml}</div>
+                `;
+                titleEl.insertAdjacentElement('afterend', navBar);
+            }
+
+            // 본청이면 기존 HTML 5개 섹션 그대로 유지!
+            if (!isGu) return;
+
+            const g = GU_INTRO_MASTER[guKey];
+            const isGun = g.name.endsWith('군');
+            const prefix = isGun ? '군' : '구';
+
+            // 2. 상단 타이틀, 서브비주얼, 좌측 사이드바(LNB), 브레드크럼 동기화 (querySelector 사용으로 ID 없어도 100% 작동!)
+            document.title = `${g.name}소개 - 기본현황 | ${g.title} 공식 홈페이지`;
+            const subVisualH1 = document.querySelector('.sub-visual h1');
+            if (subVisualH1) subVisualH1.textContent = `${g.name}소개`;
+
+            const lnbWrap = document.querySelector('.lnb-wrap');
+            if (lnbWrap) lnbWrap.style.borderTopColor = g.color;
+            const lnbTitle = document.querySelector('.lnb-title');
+            if (lnbTitle) {
+                lnbTitle.textContent = `${g.name}소개`;
+                lnbTitle.style.backgroundColor = g.subColor;
+            }
+
+            const asideEl = document.querySelector('aside');
+            if (asideEl) {
+                asideEl.querySelectorAll('a[href]').forEach(a => {
+                    const rawHref = a.getAttribute('href').split('?')[0];
+                    if (rawHref === '역대시장.html' || rawHref === 'mayor.html') {
+                        a.textContent = `역대${isGun ? '군수' : '구청장'}`;
+                        a.setAttribute('href', `역대구청장.html?gu=${guKey}`);
+                    } else if (!rawHref.startsWith('http')) {
+                        a.setAttribute('href', `${rawHref}?gu=${guKey}`);
+                    }
+                    if (rawHref === 'intro.html') a.style.color = g.subColor;
+                    if (rawHref === '시정구호.html') a.textContent = `${prefix}정구호`;
+                    if (rawHref === '시조시화시목.html') a.textContent = `${prefix}조/${prefix}화/${prefix}목`;
+                    if (rawHref === '시민의날.html') a.textContent = `${prefix}민의날`;
+                    if (rawHref === '시민의노래.html') a.textContent = `${prefix}민의노래`;
+                    if (rawHref === '시정백서.html') a.textContent = `${prefix}정백서`;
+                    if (rawHref === 'history.html') a.textContent = `${g.name}의유래와연혁`;
+                });
+                asideEl.querySelectorAll('.lnb-toggle').forEach(btn => {
+                    if (btn.textContent.includes('시청안내')) btn.childNodes[0].nodeValue = `${prefix}청안내 `;
+                    if (btn.textContent.includes('시의상징')) btn.childNodes[0].nodeValue = `${prefix}의상징 `;
+                    if (btn.textContent.includes('효빈통계')) btn.childNodes[0].nodeValue = `${g.name}통계 `;
+                    if (btn.textContent.includes('효빈의역사')) btn.childNodes[0].nodeValue = `${g.name}의역사 `;
+                });
+            }
+
+            const breadDiv = mainEl.querySelector('div.text-sm.text-gray-500');
+            if (breadDiv) {
+                breadDiv.innerHTML = `
+                    <a href="index.html?gu=${guKey}" class="hover:text-blue-600 flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a>
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i> ${g.name}소개
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i> 일반현황
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong style="color:${g.subColor}">기본현황</strong>
+                `;
+            }
+            if (titleEl) {
+                titleEl.textContent = `${g.name} 기본현황 (${g.hanja} · ${g.eng})`;
+                titleEl.style.borderBottomColor = g.subColor;
+            }
+
+            // 3. 본청 기본 5개 section 숨기고, 구·군 맞춤형 5개 섹션 렌더링
+            const defaultSections = mainEl.querySelectorAll(':scope > section');
+            defaultSections.forEach(sec => sec.classList.add('hidden'));
+
+            let guContainer = document.getElementById('gu-intro-dynamic-box');
+            if (!guContainer) {
+                guContainer = document.createElement('div');
+                guContainer.id = 'gu-intro-dynamic-box';
+                // 직계 자식(:scope > div)이면서 고유 여백 클래스(.mt-10)를 가진 요소로 특정
+const footerBar = mainEl.querySelector(':scope > div.border-t.border-gray-300.mt-10');
+                mainEl.insertBefore(guContainer, footerBar);
+            }
+
+            const polesRowsHtml = g.poles.map(p => `
+                <tr>
+                    <th class="bg-gray-50 font-bold">${p.dir}</th>
+                    <td class="text-left font-bold text-slate-800 px-4">${p.dong}</td>
+                    <td class="font-medium text-slate-600">${p.coord}</td>
+                </tr>
+            `).join('');
+
+            const subwayRowsHtml = g.subways.map(s => {
+                const svgFile = s.code === '빈' ? '빈효광역선' : (s.code === '창' ? '창전선' : `효빈${s.code}호선`);
+                return `
+                    <tr class="hover:bg-white">
+                        <td class="py-3 px-4 font-bold whitespace-nowrap">
+                            <span class="line-badge" style="background-color:${s.color}; color:${s.textColor || '#fff'};">
+                                <img src="이미지/svg/${svgFile}.svg" class="w-4 h-4 mr-1.5 object-contain bg-white rounded-full p-0.5" onerror="this.style.display='none'">
+                                ${s.name}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-left text-slate-700 font-medium leading-relaxed">${s.stations}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            guContainer.innerHTML = `
+                <!-- [1] 구·군 주요현황 및 총괄 요약표 -->
+                <section class="mb-14">
+                    <h3 class="bullet-title" style="color:${g.subColor};">${g.name} 주요현황 및 특성</h3>
+                    <p class="text-gray-700 leading-loose mb-4 text-justify indent-2">${g.overview1}</p>
+                    <p class="text-gray-700 leading-loose mb-6 text-justify indent-2">${g.overview2}</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="data-table" style="border-top-color:${g.subColor};">
+                            <caption class="text-left font-bold mb-2 text-sm text-gray-600">■ ${g.name} 기본 행정·재정 지표 총괄 (2026년 기준)</caption>
+                            <colgroup>
+                                <col style="width:18%;"><col style="width:32%;"><col style="width:18%;"><col style="width:32%;">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>관할 면적</th><td class="text-left px-4 font-bold text-slate-900">${g.area}</td>
+                                    <th>주민등록 인구</th><td class="text-left px-4 font-bold text-blue-800">${g.pop}</td>
+                                </tr>
+                                <tr>
+                                    <th>인구 밀도</th><td class="text-left px-4">${g.density}</td>
+                                    <th>하위 행정구역</th><td class="text-left px-4 font-semibold">${g.adminDiv}</td>
+                                </tr>
+                                <tr>
+                                    <th>청사 소재지</th><td class="text-left px-4">${g.hallAddr}</td>
+                                    <th>현직 단체장</th><td class="text-left px-4 font-bold">${g.head}</td>
+                                </tr>
+                                <tr>
+                                    <th>의회 및 선거구</th><td class="text-left px-4 text-sm">${g.assembly}</td>
+                                    <th>상징물 · 마스코트</th><td class="text-left px-4 text-sm font-medium">${g.symbols}</td>
+                                </tr>
+                                <tr>
+                                    <th>경제·재정 위상</th><td colspan="3" class="text-left px-4 font-semibold text-emerald-800 bg-emerald-50/40">${g.grdp}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- [2] 행정구역 지도 및 위치·4극단 (업로드된 지도 이미지 100% 반영) -->
+                <section class="mb-14">
+                    <h3 class="bullet-title" style="color:${g.subColor};">위치·지형 및 ${g.name} 4극단 (행정구역 지도 기준)</h3>
+                    <p class="text-gray-700 leading-loose mb-6 text-justify indent-2">${g.locDesc}</p>
+
+                    <!-- 구·군 행정동 지도 이미지 박스 -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8 text-center shadow-sm">
+                        <div class="text-sm font-black text-slate-700 mb-3 flex items-center justify-center gap-2">
+                            <i data-lucide="map" class="w-4 h-4" style="color:${g.subColor};"></i> 효빈광역시 ${g.name} 관할 행정${isGun ? '읍·면' : '동'} 안내도
+                        </div>
+                        <img src="이미지/${g.mapImg}" alt="${g.name} 행정동 지도" class="max-h-[420px] w-auto mx-auto rounded-lg border border-slate-200 shadow-sm bg-white p-2" onerror="this.src='${g.mapImg}'; this.onerror=function(){this.style.display='none';}">
+                        <p class="text-xs text-slate-500 mt-3">* 아래 4극단(극북·극남·극서·극동)은 위 ${g.name} 공식 행정구역 지도의 실제 경계 끝단을 기준으로 산출되었습니다.</p>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="data-table" style="border-top-color:${g.subColor};">
+                            <caption class="text-left font-bold mb-2 text-sm text-gray-600">■ ${g.name} 4극단 (지도상 동서남북 최외곽 경계 행정구역)</caption>
+                            <thead>
+                                <tr>
+                                    <th width="18%">방위</th>
+                                    <th width="47%">해당 행정구역 (지도상 극점 위치)</th>
+                                    <th width="35%">극점 좌표</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${polesRowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- [3] 영역 및 생활권 도시구조 -->
+                <section class="mb-14">
+                    <h3 class="bullet-title" style="color:${g.subColor};">${g.name} 권역별 공간 구조 및 지역 특징</h3>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-gray-700 leading-loose text-justify shadow-sm">
+                        ${g.structureDesc}
+                    </div>
+                </section>
+
+                <!-- [4] 기후 (효빈지방기상청 관측 공유) -->
+                <section class="mb-14">
+                    <h3 class="bullet-title" style="color:${g.subColor};">기후 현황</h3>
+                    <p class="text-gray-700 leading-loose mb-4 text-justify indent-2">
+                        ${g.name} 지역은 서남해안 반도에 위치한 효빈광역시의 지리적 특성상 쾨펜의 기후 구분상 <strong>온난 습윤 기후(Cfa)</strong>를 띠며, 해양성 기후의 영향으로 겨울철 한파가 동위도 내륙에 비해 온화합니다. 효빈지방기상청 평년값 기준 <strong>연평균 기온 14.5℃(8월 평균 26.8℃, 1월 평균 1.8℃), 연평균 강수량 1,485.5mm</strong>를 기록하고 있습니다.
+                    </p>
+                </section>
+
+                <!-- [5] 관내 도시철도망 및 대중교통 인프라 -->
+                <section class="mb-14">
+                    <h3 class="bullet-title" style="color:${g.subColor};">${g.name} 관내 도시철도·광역전철망 및 대중교통</h3>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <h4 class="font-bold text-lg mb-3 flex items-center gap-2" style="color:${g.subColor};">
+                            <i data-lucide="train-front" class="w-5 h-5"></i> ${g.name} 경유 도시철도 노선 및 정차역 현황
+                        </h4>
+                        <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
+                            <table class="w-full text-sm text-left">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-gray-300 text-gray-800">
+                                        <th class="py-3 px-4 font-bold text-center w-44">노선명</th>
+                                        <th class="py-3 px-4 font-bold">관내 주요 정차역</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${subwayRowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-3 justify-end">
+                            <a href="행정구역.html?gu=${guKey}" class="text-xs font-bold px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 transition">${g.name} 행정동·법정동 인구표 보기 →</a>
+                            <a href="history.html?gu=${guKey}" class="text-xs font-bold px-3.5 py-2 rounded-lg text-white transition" style="background-color:${g.subColor};">${g.name} 유래와 연혁 자세히 보기 →</a>
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            // 직계 자식(:scope > div)이면서 고유 여백 클래스(.mt-10)를 가진 요소로 특정
+const footerBar = mainEl.querySelector(':scope > div.border-t.border-gray-300.mt-10');
+            if (footerBar && footerBar.firstElementChild) {
+                footerBar.firstElementChild.textContent = `자료관리 담당부서 : ${g.title} 기획감사실 | 연락처 : ${g.phone}`;
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initIntroPage();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
     </script>
 <script src="common121.js"></script>
 </body>

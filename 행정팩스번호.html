@@ -8,14 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
         /* 서브페이지 전용 디자인 */
-        .sub-visual { background: url('효빈광역시청사배경.webp') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
-        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        .sub-visual { background: url('이미지/main_bg.webp') center/cover no-repeat, linear-gradient(to right, #1e3a8a, #3b82f6); position: relative; }
+        .sub-visual-overlay { position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); transition: background-color 0.3s; }
         
         /* 아코디언 LNB 스타일 */
         .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
-        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
         .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
         .lnb-depth1 > li:last-child { border-bottom: none; }
         .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
@@ -33,23 +35,24 @@
         .content-title { position: relative; padding-bottom: 12px; margin-bottom: 30px; border-bottom: 2px solid #1e3a8a; }
 
         /* 전화/팩스번호부 테이블 전용 스타일 */
-        .fax-table th { background-color: #f8fafc; color: #334155; font-weight: 700; text-align: center; border-bottom: 2px solid #cbd5e1; padding: 12px 8px; }
-        .fax-table td { padding: 12px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-        .fax-table tr:hover td { background-color: #f1f5f9; }
-        .task-column { text-align: left; line-height: 1.5; color: #475569; word-break: keep-all; }
-        .fax-column { font-weight: 700; color: #15803d; text-align: center; white-space: nowrap; }
-        .name-column { font-weight: 600; color: #1e293b; text-align: center; white-space: nowrap; }
-        .dept-column { text-align: center; color: #64748b; font-size: 0.9rem; }
-        .title-column { text-align: center; color: #334155; font-weight: 500; font-size: 0.95rem; white-space: nowrap; }
+        .fax-table th { background-color: #f8fafc; color: #334155; font-weight: 700; text-align: center; border-bottom: 2px solid #cbd5e1; padding: 13px 10px; font-size: 0.92rem; }
+        .fax-table td { padding: 13px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        .fax-table tr:hover td { background-color: #f8fafc; }
+        .task-column { text-align: left; line-height: 1.5; color: #475569; word-break: keep-all; font-size: 0.92rem; }
+        .fax-column { font-weight: 700; color: #15803d; text-align: center; white-space: nowrap; cursor: pointer; }
+        .fax-column:hover { text-decoration: underline; }
+        .name-column { font-weight: 700; color: #1e293b; text-align: center; white-space: nowrap; }
+        .dept-column { text-align: center; color: #334155; font-weight: 600; font-size: 0.9rem; }
+        .title-column { text-align: center; color: #475569; font-weight: 500; font-size: 0.9rem; white-space: nowrap; }
 
         /* 검색 폼 스타일 */
-        .search-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; margin-bottom: 30px; }
+        .search-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 28px; }
         
         /* 페이징 스타일 */
-        .pagination a, .pagination button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 4px; transition: all 0.2s; margin: 0 2px; }
-        .pagination a:hover, .pagination button:hover { border-color: #3b82f6; color: #3b82f6; }
-        .pagination .active { background: #1e3a8a; color: #fff; border-color: #1e3a8a; }
-        .pagination .active:hover { color: #fff; }
+        .pagination button { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 6px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; margin: 0 2px; }
+        .pagination button:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; background: #f8fafc; }
+        .pagination button.active { background: #1e3a8a; color: #fff; border-color: #1e3a8a; }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
     </style>
 </head>
 <body class="bg-white min-h-screen flex flex-col relative text-gray-800 scroll-smooth font-sans">
@@ -59,16 +62,17 @@
 
     <!-- 타이틀 배너 -->
     <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
-        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg">효빈소개</h1>
+        <div class="sub-visual-overlay" id="sub-visual-bg"></div>
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight drop-shadow-lg" id="sub-visual-title">효빈소개</h1>
     </div>
 
     <!-- 본문 레이아웃 -->
-    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full">
+    <div class="max-w-[1400px] mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10 relative z-10 w-full flex-grow mb-16">
         
         <!-- 좌측 LNB -->
-        <aside class="w-full md:w-64 shrink-0">
-            <div class="lnb-wrap sticky top-4">
-                <div class="lnb-title">효빈소개</div>
+        <aside class="w-full lg:w-64 shrink-0">
+            <div class="lnb-wrap sticky top-4" id="lnb-wrap-box">
+                <div class="lnb-title" id="lnb-main-title">효빈소개</div>
                 <ul class="lnb-depth1">
                     <li>
                         <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
@@ -79,32 +83,32 @@
                             <li><a href="sister_cities.html">해외자매도시</a></li>
                         </ul>
                     </li>
-                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li><a href="시정구호.html" class="lnb-single" id="lnb-slogan-link">시정구호</a></li>
                     <li class="active">
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hall-label">시청안내</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
                         <ul class="lnb-depth2">
                             <li><a href="행정조직도.html">행정조직도</a></li>
                             <li><a href="정원기구현황.html">정원/기구현황</a></li>
                             <li><a href="행정전화번호.html">행정전화번호</a></li>
-                            <li><a href="행정팩스번호.html" class="current">행정팩스번호</a></li>
+                            <li><a href="행정팩스번호.html" class="current" id="lnb-current-link">행정팩스번호</a></li>
                             <li><a href="city_hall.html">청사안내</a></li>
                             <li><a href="contact.html">찾아오시는길</a></li>
                         </ul>
                     </li>
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-symbol-label">시의상징</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
-                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="시조시화시목.html" id="lnb-bird-link">시조/시화/시목</a></li>
                             <li><a href="상징물.html">상징물</a></li>
                             <li><a href="mascot.html">소통캐릭터</a></li>
-                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="시민의날.html" id="lnb-day-link">시민의날</a></li>
                             <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
-                            <li><a href="시민의노래.html">시민의노래</a></li>
+                            <li><a href="시민의노래.html" id="lnb-song-link">시민의노래</a></li>
                         </ul>
                     </li>
                     <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-stat-label">효빈통계</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
                             <li><a href="통계연보.html">통계연보</a></li>
                             <li><a href="인구통계.html">인구통계</a></li>
@@ -112,15 +116,15 @@
                             <li><a href="효빈사회조사.html">효빈사회조사</a></li>
                             <li><a href="지역통계.html">지역통계</a></li>
                             <li><a href="통계조사.html">통계조사</a></li>
-                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="시정백서.html" id="lnb-whitepaper-link">시정백서</a></li>
                             <li><a href="주요수상내역.html">주요수상내역</a></li>
                         </ul>
                     </li>
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hist-label">효빈의역사</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
-                            <li><a href="역대시장.html">역대시장</a></li>
-                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="역대시장.html" id="lnb-mayor-link">역대시장</a></li>
+                            <li><a href="history.html" id="lnb-origin-link">효빈의유래와연혁</a></li>
                             <li><a href="향토자료.html">향토자료</a></li>
                             <li><a href="세계속의효빈.html">세계속의효빈</a></li>
                             <li><a href="문화수도효빈.html">문화수도효빈</a></li>
@@ -135,117 +139,129 @@
         <!-- 우측 본문 (행정팩스번호부 영역) -->
         <main class="flex-grow min-w-0">
             <!-- Breadcrumb -->
-            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
-                <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 시청안내
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">행정팩스번호</strong>
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 flex-wrap">
+                <a href="index.html" id="bread-home" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-1">효빈소개</span> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-2">시청안내</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="bread-3">행정팩스번호</strong>
             </div>
 
-            <!-- 본문 타이틀 -->
-            <h2 class="text-3xl font-black text-gray-900 content-title flex items-center gap-3">
-                행정팩스번호
-            </h2>
+            <!-- 본문 타이틀 & 구·군 빠른 전환 셀렉터 -->
+            <div class="content-title flex flex-col sm:flex-row sm:items-end justify-between gap-3" id="main-title-bar">
+                <h2 class="text-3xl font-black text-gray-900" id="page-main-heading">행정팩스번호</h2>
+                <div class="flex items-center gap-2">
+                    <label for="fax-region-select" class="text-xs font-bold text-slate-500">조회 기관 전환:</label>
+                    <select id="fax-region-select" onchange="changeFaxRegion(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-700 bg-white outline-none focus:border-blue-600 cursor-pointer shadow-sm">
+                        <option value="">효빈광역시청 (본청 및 산하 전체)</option>
+                        <option value="jung">중구청 (국번 079-242)</option>
+                        <option value="dong">동구청 (국번 079-284)</option>
+                        <option value="seo">서구청 (국번 079-634)</option>
+                        <option value="nam">남구청 (국번 079-451)</option>
+                        <option value="buk">북구청 (국번 079-321)</option>
+                        <option value="cheongyeop">청엽구청 (국번 079-781)</option>
+                        <option value="ancheon">안천구청 (국번 079-915)</option>
+                        <option value="changjeon">창전구청 (국번 079-822)</option>
+                        <option value="tanseong">탄성군청 (국번 079-134)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 기관 대표 팩스 요약 배너 -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-sm" id="rep-fax-banner">
+                <div class="flex items-center gap-2.5">
+                    <span class="px-2.5 py-1 rounded text-xs font-black text-white bg-slate-800" id="rep-fax-badge">효빈광역시청</span>
+                    <span class="text-slate-700 font-medium" id="rep-fax-desc">종합민원실·문서접수처 대표 팩스 : <strong class="text-emerald-700 font-black text-base">079-591-2547</strong></span>
+                </div>
+                <span class="text-xs text-slate-500">* 팩스번호를 클릭하면 클립보드에 자동 복사됩니다.</span>
+            </div>
 
             <!-- 검색 박스 -->
             <div class="search-box">
-                <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <!-- 기관 분류 선택 -->
+                <div class="flex flex-col md:flex-row gap-3 items-center">
+                    <!-- 기관 내 세부 분류 선택 -->
                     <div class="w-full md:w-1/4">
-                        <select id="orgFilter" class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="">전체 기관</option>
-                            <option value="본청">효빈광역시 본청</option>
-                            <option value="직속기관">직속기관/사업소</option>
-                            <option value="소방">소방재난본부/소방서</option>
-                            <option value="의회">효빈광역시의회</option>
-                            <option value="구군">구/군청</option>
+                        <select id="orgFilter" onchange="executeFaxSearch()" class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">전체 부서/기관</option>
                         </select>
                     </div>
                     
                     <!-- 검색 카테고리 및 입력창 -->
                     <div class="w-full md:w-3/4 flex flex-col sm:flex-row gap-2">
-                        <select id="searchType" class="border border-gray-300 rounded-md px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white sm:w-1/3">
+                        <select id="searchType" class="border border-gray-300 rounded-md px-4 py-3 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white sm:w-1/3">
                             <option value="all">전체검색</option>
-                            <option value="dept">부서명</option>
-                            <option value="name">성명</option>
-                            <option value="task">담당업무</option>
+                            <option value="dept">부서명/기관명</option>
+                            <option value="name">성명(부서장)</option>
+                            <option value="task">담당업무(수발신 문서)</option>
                             <option value="fax">팩스번호</option>
                         </select>
                         <div class="flex w-full relative">
-                            <input type="text" id="searchInput" placeholder="검색어를 입력하세요." class="w-full border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" onkeypress="if(event.key==='Enter') executeFaxSearch()">
-                            <button onclick="executeFaxSearch()" class="bg-blue-800 text-white px-6 py-3 rounded-r-md hover:bg-blue-900 transition flex items-center gap-2 shrink-0 font-bold">
+                            <input type="text" id="searchInput" placeholder="부서명, 성명, 담당업무 또는 팩스번호 뒷자리를 입력하세요." class="w-full border border-gray-300 rounded-l-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" onkeypress="if(event.key==='Enter') executeFaxSearch()">
+                            <button id="searchBtn" onclick="executeFaxSearch()" class="bg-blue-800 text-white px-6 py-3 rounded-r-md hover:bg-blue-900 transition flex items-center gap-2 shrink-0 font-bold">
                                 <i data-lucide="search" class="w-5 h-5"></i> 검색
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 text-sm text-gray-500 flex items-center gap-2">
-                    <i data-lucide="info" class="w-4 h-4"></i> 공문 발송 및 문서 접수 처리를 위한 각 부서별 대표 팩스 번호입니다.
+                <div class="mt-3.5 text-xs sm:text-sm text-gray-500 flex items-center justify-between flex-wrap gap-2">
+                    <span class="flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4 text-blue-600"></i> 공문 발송 및 민원 서류 팩스 접수 처리를 위한 부서별 공식 전자팩스 번호입니다.</span>
+                    <button onclick="resetFaxSearch()" class="text-xs font-bold text-slate-600 hover:text-slate-900 underline">검색 필터 초기화</button>
                 </div>
             </div>
 
             <!-- 데이터 안내 바 -->
             <div class="flex justify-between items-center mb-4">
                 <div class="font-bold text-gray-700">
-                    총 <span id="totalCount" class="text-blue-600">0</span>건의 연락처가 있습니다.
+                    총 <span id="totalCount" class="text-blue-600 font-black">0</span>건의 연락처가 있습니다.
                 </div>
-                <button class="flex items-center gap-1 text-sm border border-gray-300 px-3 py-1.5 rounded bg-white hover:bg-gray-50 transition text-gray-600">
-                    <i data-lucide="download" class="w-4 h-4"></i> 팩스번호부 전체 다운로드
+                <button onclick="downloadFaxCSV()" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold border border-gray-300 px-3.5 py-2 rounded-lg bg-white hover:bg-gray-50 transition text-gray-700 shadow-sm">
+                    <i data-lucide="download" class="w-4 h-4 text-emerald-600"></i> 팩스번호부 전체 다운로드 (CSV)
                 </button>
             </div>
 
             <!-- 팩스번호부 테이블 -->
-            <div class="overflow-x-auto bg-white border border-gray-200 rounded-t-lg shadow-sm mb-6">
-                <table class="w-full fax-table min-w-[800px]">
+            <div class="overflow-x-auto bg-white border border-gray-200 rounded-t-xl shadow-sm mb-6">
+                <table class="w-full fax-table min-w-[820px]" id="faxMainTable">
                     <colgroup>
-                        <col style="width: 18%;">
+                        <col style="width: 20%;">
                         <col style="width: 15%;">
-                        <col style="width: 12%;">
-                        <col style="width: 40%;">
-                        <col style="width: 15%;">
+                        <col style="width: 11%;">
+                        <col style="width: 38%;">
+                        <col style="width: 16%;">
                     </colgroup>
                     <thead>
                         <tr>
                             <th>소속(부서명)</th>
                             <th>직위</th>
                             <th>성명</th>
-                            <th>담당업무</th>
+                            <th>담당업무 (주요 수발신 문서)</th>
                             <th>팩스번호</th>
                         </tr>
                     </thead>
                     <tbody id="faxTableBody">
                         <!-- JS로 렌더링 -->
-                        <!-- [추가 데이터 삽입 장소 1] 자바스크립트를 통하지 않고 수동으로 <tr> 태그를 추가하려면 이곳에 작성하세요. -->
                     </tbody>
                 </table>
                 <!-- 데이터가 없을 때 -->
                 <div id="emptyState" class="hidden py-20 text-center text-gray-500">
                     <i data-lucide="folder-search" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
-                    <p class="text-lg">검색 결과가 없습니다.</p>
+                    <p class="text-lg font-bold">검색 결과가 없습니다.</p>
+                    <p class="text-sm text-gray-400 mt-1">검색어나 기관 분류 필터를 변경해 보세요.</p>
                 </div>
             </div>
 
-            <!-- 페이징 (퍼블리싱용 UI) -->
-            <div class="flex justify-center pagination">
-                <button disabled class="opacity-50 cursor-not-allowed"><i data-lucide="chevrons-left" class="w-4 h-4"></i></button>
-                <button disabled class="opacity-50 cursor-not-allowed"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                <button class="active">1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <button>5</button>
-                <button><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
-                <button><i data-lucide="chevrons-right" class="w-4 h-4"></i></button>
-            </div>
+            <!-- 실제 작동하는 동적 페이징 -->
+            <div class="flex justify-center pagination mb-10" id="paginationContainer"></div>
 
         </main>
     </div>
 
-    <!-- 공통 푸터/모달 영역 (common121.js가 렌더링) -->
+    <!-- 공통 푸터/모달 영역 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
 
-    <script src="효빈광역시로고.webp" onerror="this.remove()"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
     <script>
         // 아코디언 메뉴 스크립트
         function toggleLnb(btn) {
@@ -254,7 +270,7 @@
             
             if (parentLi.classList.contains('active')) {
                 parentLi.classList.remove('active');
-                icon.classList.remove('rotate-180');
+                if(icon) icon.classList.remove('rotate-180');
             } else {
                 document.querySelectorAll('.lnb-depth1 > li').forEach(li => {
                     if(li.querySelector('.lnb-depth2')) {
@@ -263,12 +279,18 @@
                     }
                 });
                 parentLi.classList.add('active');
-                icon.classList.add('rotate-180');
+                if(icon) icon.classList.add('rotate-180');
             }
         }
 
-        // 초기 데이터 세팅 (시장 및 주요 인사 위주 - 팩스용)
-        const faxDirectoryData = [
+        // =========================================================================
+        // 1. 효빈광역시 본청 및 광역 전체 팩스번호부 (기존 13건 100% 보존 + 핵심부서 확장)
+        // =========================================================================
+// =========================================================================
+        // 1. 효빈광역시 본청 및 광역 전체 팩스번호부 (현실적인 공무원 성명 적용)
+        // =========================================================================
+        const CITY_FAX_DATA = [
+            // [기존 원본 13건 100% 유지]
             { org: '본청', dept: '시장실', title: '효빈광역시장', name: '박효빈', task: '시정 총괄 및 대외 업무', fax: '079-591-2009' },
             { org: '본청', dept: '행정부시장실', title: '행정부시장', name: '강휴석', task: '일반 행정 사무 총괄', fax: '079-591-2019' },
             { org: '본청', dept: '미래혁신부시장실', title: '미래혁신부시장', name: '최대현', task: '미래혁신 정책 및 사무 총괄', fax: '079-591-2029' },
@@ -281,80 +303,540 @@
             { org: '소방', dept: '소방재난본부', title: '소방본부장', name: '최강수', task: '소방재난 행정 공문서 수발신', fax: '079-119-0009' },
             { org: '소방', dept: '119종합상황실', title: '상황실장', name: '안재원', task: '관제 및 비상 연락 수발신', fax: '079-119-1199' },
             { org: '직속기관', dept: '인재개발원', title: '원장', name: '송민재', task: '교육 안내 및 협조 공문', fax: '079-600-1009' },
-            { org: '의회', dept: '시의회 의장실', title: '시의회의장', name: '조명수', task: '시의회 의정 업무 관련 접수', fax: '079-500-1009' }
-            
-            // [추가 데이터 삽입 장소 2] 자바스크립트 배열에 새로운 행정팩스번호 데이터를 이곳에 추가하세요.
-            // 형식: { org: '소속분류', dept: '부서명', title: '직위', name: '이름', task: '업무', fax: '팩스번호' }
+            { org: '의회', dept: '시의회 의장실', title: '시의회의장', name: '조명수', task: '시의회 의정 업무 관련 접수', fax: '079-500-1009' },
+            // [시 본청 주요 실·국·과 및 구·군 대표 팩스]
+            { org: '본청', dept: '행정자치국 통합민원과', title: '통합민원과장', name: '한서윤', task: '시청 1층 종합민원실·여권발급 팩스 민원 접수', fax: '079-591-2547' },
+            { org: '본청', dept: '문화체육국 애니메이션산업과', title: '애니메이션산업과장', name: '오건우', task: 'HAF 축제·L-Project 및 글로벌 IP 라이선스 협약 공문', fax: '079-591-3109' },
+            { org: '본청', dept: '사회복지여성가족국 복지정책과', title: '복지정책과장', name: '윤선미', task: '효빈 하우스·가족돌봄청년(영케어러) 지원 서류 접수', fax: '079-591-3209' },
+            { org: '본청', dept: '교통혁신국 대중교통과', title: '대중교통과장', name: '장기철', task: '3세대 스타더스트 시내버스 준공영제 및 노선 인허가', fax: '079-591-3309' },
+            { org: '본청', dept: '교통혁신국 도시철도운영과', title: '도시철도운영과장', name: '신현준', task: '도시철도 1~8호선·빈효선·창전선 건설 및 운영 공문', fax: '079-591-3359' },
+            { org: '본청', dept: '관광마이스/청년산학국 관광정책과', title: '관광정책과장', name: '유지연', task: '효빈시티투어버스(T-Tour) 및 성지순례 관광특구 지정', fax: '079-591-3509' },
+            { org: '직속기관', dept: '상수도사업본부', title: '상수도본부장', name: '백정수', task: '광역 상수도 급수 공사 및 수질검사 성적서 팩스', fax: '079-610-4009' },
+            { org: '직속기관', dept: '차량등록사업소', title: '차량등록소장', name: '차민호', task: '자동차 등록·말소·랩핑 구조변경 승인 서류 접수', fax: '079-620-5009' },
+            { org: '구군', dept: '중구청 (대표팩스)', title: '중구청장', name: '구성연', task: '중구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-242-8199' },
+            { org: '구군', dept: '동구청 (대표팩스)', title: '동구청장', name: '조우영', task: '동구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-284-1199' },
+            { org: '구군', dept: '서구청 (대표팩스)', title: '서구청장', name: '부서원', task: '서구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-634-2209' },
+            { org: '구군', dept: '남구청 (대표팩스)', title: '남구청장', name: '오전희', task: '남구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-451-9039' },
+            { org: '구군', dept: '북구청 (대표팩스)', title: '북구청장', name: '김지언', task: '북구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-321-5049' },
+            { org: '구군', dept: '청엽구청 (대표팩스)', title: '청엽구청장', name: '권상남', task: '청엽구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-781-4929' },
+            { org: '구군', dept: '창전구청 (대표팩스)', title: '창전구청장', name: '전역헌', task: '창전구청 본청 문서수발실 및 종합민원 대표 팩스', fax: '079-822-1599' },
+            { org: '구군', dept: '안천구청 (대표팩스)', title: '안천구청장', name: '이규희', task: '안천구청 본청 및 이자출장소 종합민원 대표 팩스', fax: '079-915-7739' },
+            { org: '구군', dept: '탄성군청 (대표팩스)', title: '탄성군수', name: '성선설', task: '탄성군청 본청 및 앵내출장소 종합민원 대표 팩스', fax: '079-134-8829' }
         ];
 
-        // 테이블 렌더링 함수
-        function renderTable(data) {
+        // =========================================================================
+        // 2. 9개 자치구·군청별 실전 행정조직도 맞춤형 팩스번호부 (현실 성명 100% 반영)
+        // =========================================================================
+        const GU_FAX_DB = {
+            "jung": {
+                name: "중구", title: "중구청", color: "#BB9955", subColor: "#8A6D2F", repFax: "079-242-8199",
+                categories: [
+                    { val: "본청", label: "중구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "중구보건소 · 사업소" },
+                    { val: "의회", label: "중구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (16개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '중구청장실', title: '중구청장', name: '구성연', task: '구정 총괄 및 대외 기관 협약 공문 수발신', fax: '079-242-8109' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '김영선', task: '구정 일반행정 조정 및 국별 업무 보고', fax: '079-242-8119' },
+                    { org: '본청', dept: '기획감사실', title: '기획감사실장', name: '정원석', task: '구정 주요 기획·예산 편성·법무 및 감사 청구 접수', fax: '079-242-8129' },
+                    { org: '본청', dept: '홍보소통담당관', title: '홍보소통담당관', name: '이수진', task: '구정 보도자료 배포 및 마스코트(뱁시계) 라이선스 관리', fax: '079-242-8139' },
+                    { org: '본청', dept: '행정지원국 총무과', title: '총무과장', name: '박철민', task: '인사·복무·청사관리 및 당직실(079-242-8100) 문서 수발', fax: '079-242-8149' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '최은정', task: '어디서나 민원팩스, 여권발급 및 가족관계등록 통합접수', fax: '079-242-8199' },
+                    { org: '본청', dept: '행정지원국 세무과', title: '세무과장', name: '오상혁', task: '중앙동 금융특구 법인지방소득세·재산세 팩스 증명 발급', fax: '079-242-8169' },
+                    { org: '본청', dept: '역사문화경제국 문화유산과', title: '문화유산과장', name: '한도윤', task: '개항기 근대건축물·효빈성 보존 및 시간여행 스탬프투어', fax: '079-242-8209' },
+                    { org: '본청', dept: '역사문화경제국 지역경제과', title: '지역경제과장', name: '남궁현', task: '창선동·중앙로 지하상가·리사동 상권 활성화 지원', fax: '079-242-8219' },
+                    { org: '본청', dept: '복지안전국 사회복지과', title: '사회복지과장', name: '서지혜', task: '원도심 기초생활보장, 긴급복지 및 노인돌봄 서류 접수', fax: '079-242-8309' },
+                    { org: '본청', dept: '도시트램건설국 대중교통과', title: '대중교통과장', name: '류성현', task: '7호선 노면전차(트램) 심야연장·우선신호 및 선로변 주정차 단속', fax: '079-242-8409' },
+                    { org: '본청', dept: '도시트램건설국 가로정비과', title: '가로정비과장', name: '황보석', task: '중보로 노면전차 전용지구 관리 및 동절기 선로 제설 대책', fax: '079-242-8419' },
+                    { org: '직속사업소', dept: '중구보건소 보건행정과', title: '중구보건소장', name: '문혜림', task: '보건증 발급, 감염병 신고 및 식품위생업소 인허가 팩스', fax: '079-242-8509' },
+                    { org: '직속사업소', dept: '근대역사문화전시사업소', title: '사업소장', name: '노기훈', task: '도람동 전차차고지 복원박물관 및 구 세관 대관 업무', fax: '079-242-8559' },
+                    { org: '의회', dept: '중구의회 의회사무국', title: '사무국장', name: '양승호', task: '중구의회(9석) 본회의·상임위 의사일정 및 청원서 접수', fax: '079-242-8609' },
+                    { org: '행정복지센터', dept: '조유동 행정복지센터', title: '조유동장', name: '김태완', task: '중구청 소재지 행정동 민원팩스 및 주민자치 프로그램', fax: '079-242-8701' },
+                    { org: '행정복지센터', dept: '중앙동 행정복지센터', title: '중앙동장', name: '이경재', task: '중앙로 금융가·지하상가 일대 제증명 민원팩스 수발', fax: '079-242-8702' },
+                    { org: '행정복지센터', dept: '창선동 행정복지센터', title: '창선동장', name: '박소연', task: '창선동 백화점·100년 간판거리 권역 민원팩스 수발', fax: '079-242-8703' },
+                    { org: '행정복지센터', dept: '리사동 행정복지센터', title: '리사동장', name: '최유리', task: '리사역·리사마트 권역 통합민원 팩스', fax: '079-242-8704' },
+                    { org: '행정복지센터', dept: '내항동 행정복지센터', title: '내항동장', name: '정해성', task: '내항 관광지구·만마루역 권역 제증명 민원팩스 수발', fax: '079-242-8705' }
+                ]
+            },
+            "dong": {
+                name: "동구", title: "동구청", color: "#00AA00", subColor: "#007700", repFax: "079-284-1199",
+                categories: [
+                    { val: "본청", label: "동구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "동구보건소 · 사업소" },
+                    { val: "의회", label: "동구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (14개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '동구청장실', title: '동구청장', name: '조우영', task: '구정 총괄 및 대외 기관 협조 공문 수발신', fax: '079-284-1109' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '이상훈', task: '구정 일반행정 총괄 및 부서 간 업무 조정', fax: '079-284-1119' },
+                    { org: '본청', dept: '기획감사실', title: '기획감사실장', name: '배진우', task: '구정 예산 편성, 규제개혁 및 공직기강 감사 접수', fax: '079-284-1129' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '신미경', task: '동구청 대표 민원팩스(덕현군 민원 오인 이송 전담 창구)', fax: '079-284-1199' },
+                    { org: '본청', dept: '철도문화경제국 철도관광과', title: '철도관광과장', name: '김철진', task: '효빈역 철도 헤리티지(증기기관차·비둘기호 카페) 및 철도문화제', fax: '079-284-1209' },
+                    { org: '본청', dept: '철도문화경제국 문화체육과', title: '문화체육과장', name: '고은정', task: '전천 냥냥 골목, 보몽 핑크로드, 사가당 테마거리 축제 총괄', fax: '079-284-1219' },
+                    { org: '본청', dept: '철도문화경제국 일자리경제과', title: '일자리경제과장', name: '손영민', task: '역세권 청년 로컬 크리에이터 지원 및 전통시장 현대화', fax: '079-284-1229' },
+                    { org: '본청', dept: '복지환경국 사회복지과', title: '사회복지과장', name: '유정화', task: '덕현·사가당권 기초생활보장 및 취약계층 지원 서류 접수', fax: '079-284-1309' },
+                    { org: '본청', dept: '복지환경국 환경위생과', title: '환경위생과장', name: '전성배', task: '전천동 길고양이 공존 급식소 관리 및 식품위생 인허가', fax: '079-284-1319' },
+                    { org: '본청', dept: '도시재생건설국 도시재생과', title: '도시재생과장', name: '구본석', task: '사가당·전천 도시재생 뉴딜 및 경빈선 철도숲길 관리', fax: '079-284-1409' },
+                    { org: '본청', dept: '도시재생건설국 도로교통과', title: '도로교통과장', name: '차명수', task: '효빈역 복합환승센터 주변 도로점용 및 주정차 단속 의견진술', fax: '079-284-1419' },
+                    { org: '직속사업소', dept: '동구보건소 보건행정과', title: '동구보건소장', name: '허준영', task: '의료기관 개설신고, 예방접종 및 방역 소독 신청 팩스', fax: '079-284-1509' },
+                    { org: '의회', dept: '동구의회 의회사무국', title: '사무국장', name: '권기태', task: '동구의회(9석) 의정 자료 접수 및 주민조례청구 수발', fax: '079-284-1609' },
+                    { org: '행정복지센터', dept: '덕현2동 행정복지센터', title: '덕현2동장', name: '안병호', task: '동구청 소재지(덕현역 역세권) 통합민원 팩스', fax: '079-284-1702' },
+                    { org: '행정복지센터', dept: '사가당1동 행정복지센터', title: '사가당1동장', name: '민정식', task: '효빈역·사가당 테마거리 권역 제증명 민원팩스 수발', fax: '079-284-1704' },
+                    { org: '행정복지센터', dept: '전천1동 행정복지센터', title: '전천1동장', name: '박수현', task: '전천 냥냥 골목(생선구이 특화거리) 권역 민원팩스 수발', fax: '079-284-1708' },
+                    { org: '행정복지센터', dept: '보몽동 행정복지센터', title: '보몽동장', name: '우지훈', task: '1호선 보몽역(핑크로드) 권역 제증명 민원팩스', fax: '079-284-1711' }
+                ]
+            },
+            "seo": {
+                name: "서구", title: "서구청", color: "#00AABB", subColor: "#008899", repFax: "079-634-2209",
+                categories: [
+                    { val: "본청", label: "서구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "서구보건소 · 사업소" },
+                    { val: "의회", label: "서구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (17개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '서구청장실', title: '서구청장', name: '부서원', task: '구정 총괄 및 대학·연구기관 산학협력 협약 수발신', fax: '079-634-2208' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '최현우', task: '구정 일반행정 총괄 및 국별 주요 시책 조정', fax: '079-634-2219' },
+                    { org: '본청', dept: '기획예산실', title: '기획예산실장', name: '한지성', task: '교육특화지구 예산 편성 및 청년 소신 정책제안단 운영', fax: '079-634-2229' },
+                    { org: '본청', dept: '행정지원국 원스톱민원과', title: '원스톱민원과장', name: '김민수', task: '서구청 대표 민원팩스 및 대학생 전입신고 패스트트랙 접수', fax: '079-634-2209' },
+                    { org: '본청', dept: '대학협력경제국 대학협력정책과', title: '대학협력정책과장', name: '박진호', task: '효빈대·효빈과기원(HIST) 관학협력 및 구스장 즈라 패스(트램 정기권) 지원', fax: '079-634-2309' },
+                    { org: '본청', dept: '대학협력경제국 상권활성화과', title: '상권활성화과장', name: '이유진', task: '효빈대 대학로 가성비 식당가(즈라 가이드) 및 당선역 팝업 연계', fax: '079-634-2319' },
+                    { org: '본청', dept: '복지교육국 청년정책과', title: '청년정책과장', name: '정소연', task: '과진동 스타트업 밸리 청년 연구원 주거안정 월세 지원 서류', fax: '079-634-2409' },
+                    { org: '본청', dept: '복지교육국 사회복지과', title: '사회복지과장', name: '오창석', task: '사복동 복지타운 연계 기초생활보장 및 장애인 복지 팩스', fax: '079-634-2419' },
+                    { org: '본청', dept: '환경녹지국 공원녹지과', title: '공원녹지과장', name: '성연호', task: '청덕공원 거위 생태보호구역 및 구 칠천군사기지공원 관리', fax: '079-634-2509' },
+                    { org: '본청', dept: '도시트램교통국 교통관리과', title: '교통관리과장', name: '전병철', task: '7호선 효빈대 캠퍼스 트램 안전관리 및 9호선 서구청역 신설 추진', fax: '079-634-2609' },
+                    { org: '직속사업소', dept: '서구보건소 보건행정과', title: '서구보건소장', name: '유현정', task: '대학생 무료 건강검진, 보건증 발급 및 감염병 관리 팩스', fax: '079-634-2709' },
+                    { org: '직속사업소', dept: '서구 트램·환경뮤지엄사업소', title: '사업소장', name: '고승민', task: '사복동 서구 트램 역사관 전시 및 단체관람 예약 공문', fax: '079-634-2759' },
+                    { org: '의회', dept: '서구의회 의회사무국', title: '사무국장', name: '강민주', task: '서구의회(13석) 의사일정 및 청년 조례 제정 청원 접수', fax: '079-634-2809' },
+                    { org: '행정복지센터', dept: '당선1동 행정복지센터', title: '당선1동장', name: '김도현', task: '효빈대 당선캠퍼스 권역 학생 민원팩스', fax: '079-634-2901' },
+                    { org: '행정복지센터', dept: '당선3동 행정복지센터', title: '당선3동장', name: '이준영', task: '서구청 소재지(주촌로 77) 권역 통합민원 팩스', fax: '079-634-2903' },
+                    { org: '행정복지센터', dept: '과진6동 행정복지센터', title: '과진6동장', name: '최윤성', task: '효빈과학기술원(HIST)·사이언스파크 권역 민원팩스', fax: '079-634-2909' },
+                    { org: '행정복지센터', dept: '청덕1동 행정복지센터', title: '청덕1동장', name: '국정훈', task: '5호선 화환역·청덕 백합정원 권역 통합민원 팩스', fax: '079-634-2912' }
+                ]
+            },
+            "nam": {
+                name: "남구", title: "남구청", color: "#9856FF", subColor: "#6B21A8", repFax: "079-451-9039",
+                categories: [
+                    { val: "본청", label: "남구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "남구보건소 · 사업소" },
+                    { val: "의회", label: "남구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (16개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '남구청장실', title: '남구청장', name: '오전희', task: '구정 총괄 및 해운·항만·도시철도 대외 협약 공문 수발신', fax: '079-451-9009' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '이현', task: '구정 일반행정 총괄 및 국별 주요 사업 조정', fax: '079-451-9019' },
+                    { org: '본청', dept: '기획감사실', title: '기획감사실장', name: '박정훈', task: '구정 예산 편성, 법무 소송 및 악성 매크로 민원 일괄 반려·고발', fax: '079-451-9029' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '김성진', task: '남구청 대표 민원팩스, 여권발급 및 철도 성지패스 안내', fax: '079-451-9039' },
+                    { org: '본청', dept: '행정지원국 세무1·2과', title: '세무과장', name: '최세정', task: '효빈공단(월천동)·해운산업지구 법인지방소득세 및 취득세 팩스', fax: '079-451-9059' },
+                    { org: '본청', dept: '해양경제국 해양항만물류과', title: '해양항만물류과장', name: '한승우', task: '효빈항 국제여객터미널 및 문화콘텐츠 무역 물류 통관 지원', fax: '079-451-9109' },
+                    { org: '본청', dept: '해양경제국 해양관광과', title: '해양관광과장', name: '유지훈', task: '곽암·어간해수욕장 야간 상영회 및 4호선 빙천·사야·이부역 성지 관리', fax: '079-451-9119' },
+                    { org: '본청', dept: '해양경제국 지역경제과', title: '지역경제과장', name: '고영석', task: '빙천공구단지×피규어 마켓 및 8호선 운양중앙역 공식 굿즈샵 상권', fax: '079-451-9129' },
+                    { org: '본청', dept: '복지안전국 복지정책과', title: '복지정책과장', name: '한지영', task: '평당신도시 공공임대 상생 복지 및 가족돌봄청년(영케어러) 긴급 지원', fax: '079-451-9209' },
+                    { org: '본청', dept: '도시건설국 건축과', title: '건축과장', name: '강태욱', task: '공동주택 관리 감독 및 불법 보행방해 펜스 징벌적 이행강제금 부과', fax: '079-451-9309' },
+                    { org: '본청', dept: '도시건설국 교통행정과', title: '교통행정과장', name: '윤재민', task: '도시철도 8호선(#9856FF) 연계 환승 및 해안도로 버스 노선 관리', fax: '079-451-9319' },
+                    { org: '직속사업소', dept: '남구보건소 보건행정과', title: '남구보건소장', name: '양선영', task: '보건증 발급, 공단 근로자 건강검진 및 방역 소독 신청 팩스', fax: '079-451-9509' },
+                    { org: '직속사업소', dept: '어간수산시장현대화사업소', title: '사업소장', name: '박종수', task: '어간항 수산시장 위생·냉동시설 관리 및 옥상전망대 운영', fax: '079-451-9559' },
+                    { org: '의회', dept: '남구의회 의회사무국', title: '사무국장', name: '조원빈', task: '남구의회(12석) 의사일정 및 구민 청원서 팩스 접수', fax: '079-451-9609' },
+                    { org: '행정복지센터', dept: '평당3동 행정복지센터', title: '평당3동장', name: '송민규', task: '남구청역 트리플 역세권·평당신도시 중심권 민원팩스', fax: '079-451-9703' },
+                    { org: '행정복지센터', dept: '어간1동 행정복지센터', title: '어간1동장', name: '강동준', task: '어간수산시장·어간해수욕장 권역 제증명 민원팩스', fax: '079-451-9708' },
+                    { org: '행정복지센터', dept: '곽산2동 행정복지센터', title: '곽산2동장', name: '임수연', task: '1·8호선 곽산역·곽암해수욕장 권역 통합민원 팩스', fax: '079-451-9711' },
+                    { org: '행정복지센터', dept: '항2동 행정복지센터', title: '항2동장', name: '배정호', task: '효빈항 국제여객터미널·오션스카이워크 권역 민원팩스', fax: '079-451-9714' }
+                ]
+            },
+            "buk": {
+                name: "북구", title: "북구청", color: "#6677CC", subColor: "#4338CA", repFax: "079-321-5049",
+                categories: [
+                    { val: "본청", label: "북구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "북구보건소 · 사업소" },
+                    { val: "의회", label: "북구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (22개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '북구청장실', title: '북구청장', name: '김지언', task: '54만 메가시티 북구 구정 총괄 및 대외 협약 공문 수발신', fax: '079-321-5009' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '이현진', task: '구정 일반행정 총괄 및 6개 국 주요 업무 조정', fax: '079-321-5019' },
+                    { org: '본청', dept: '기획예산실', title: '기획예산실장', name: '장성민', task: '구정 주요 시책 기획, 예산 편성 및 고송신도시 인프라 투자', fax: '079-321-5029' },
+                    { org: '본청', dept: '뉴미디어소통담당관', title: '소통담당관', name: '고은비', task: '구정 홍보, 마스코트(제비도리) 및 원클릭 QR 민원 시스템 운영', fax: '079-321-5039' },
+                    { org: '본청', dept: '자치행정국 종합민원과', title: '종합민원과장', name: '박준혁', task: '북구청 대표 민원팩스, 여권발급 및 중수 법조타운 제증명 연계', fax: '079-321-5049' },
+                    { org: '본청', dept: '서브컬처경제국 문화관광과', title: '문화관광과장', name: '김도윤', task: '고송신도시(효빈의 아키하바라) 서브컬처 특구 및 북구 코스프레 페스티벌', fax: '079-321-5109' },
+                    { org: '본청', dept: '서브컬처경제국 지역경제과', title: '지역경제과장', name: '양승민', task: '사능동 빵지순례(야마부키 베이커리) 및 굿즈샵 지방세 감면 심사', fax: '079-321-5119' },
+                    { org: '본청', dept: '펭귄케어복지국 스마트복지과', title: '스마트복지과장', name: '전혜진', task: '독거노인 IoT 고독사 예방(펭귄 케어) 및 은둔 청년 마음건강 바우처', fax: '079-321-5209' },
+                    { org: '본청', dept: '문화체육관광국 해수욕장운영과', title: '해수욕장운영과장', name: '반석훈', task: '3호선 토모리해수욕장·펭귄 생태전시관 및 해변 버스킹 무대 대관', fax: '079-321-5309' },
+                    { org: '본청', dept: '안전도시교통국 주차관리과', title: '주차관리과장', name: '나윤재', task: '고송교차로 애니메이트·애니플러스 주변 불법주정차 단속 및 오픈런 질서', fax: '079-321-5409' },
+                    { org: '본청', dept: '안전도시교통국 교통행정과', title: '교통행정과장', name: '심규현', task: '창전선(북고송~토모리해수욕장) 역세권 정비 및 시내버스 지선 개편', fax: '079-321-5419' },
+                    { org: '직속사업소', dept: '북구보건소 보건행정과', title: '북구보건소장', name: '최유경', task: '보건증 발급, 감염병 대응 및 고송건강생활지원센터 공문 수발', fax: '079-321-5509' },
+                    { org: '직속사업소', dept: '사능베이커리뮤지엄사업소', title: '사업소장', name: '박미선', task: '사능 베이커리 뮤지엄·사능 전차기억 정원 운영 및 제빵 클래스', fax: '079-321-5559' },
+                    { org: '의회', dept: '북구의회 의회사무국', title: '사무국장', name: '윤상철', task: '북구의회(18석) 의사일정 및 구민 조례안 청구 팩스 접수', fax: '079-321-5609' },
+                    { org: '행정복지센터', dept: '중수1동 행정복지센터', title: '중수1동장', name: '김하늘', task: '북구청·북구청역·중수 법조타운 권역 통합민원 팩스', fax: '079-321-5701' },
+                    { org: '행정복지센터', dept: '고송5동 행정복지센터', title: '고송5동장', name: '이승환', task: '고송교차로역·현대백화점(애니메이트·애니플러스) 권역 민원팩스', fax: '079-321-5705' },
+                    { org: '행정복지센터', dept: '고송8동 행정복지센터', title: '고송8동장', name: '박태림', task: '효빈광역시청 본청 소재지 권역 제증명 민원팩스', fax: '079-321-5708' },
+                    { org: '행정복지센터', dept: '사능1동 행정복지센터', title: '사능1동장', name: '황지선', task: '3호선 사능역·사능동 제과제빵 거리 권역 민원팩스', fax: '079-321-5712' },
+                    { org: '행정복지센터', dept: '입희동 행정복지센터', title: '입희동장', name: '신종찬', task: '효빈종합운동장(타키의 스타디움)·e스포츠 경기장 권역 민원팩스', fax: '079-321-5715' }
+                ]
+            },
+            "cheongyeop": {
+                name: "청엽구", title: "청엽구청", color: "#006699", subColor: "#004D73", repFax: "079-781-4929",
+                categories: [
+                    { val: "본청", label: "청엽구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "청엽구보건소 · 사업소" },
+                    { val: "의회", label: "청엽구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (17개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '청엽구청장실', title: '청엽구청장', name: '권상남', task: '구정 총괄 및 청엽 베이커리 조합·대외 기관 협약 수발신', fax: '079-781-4909' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '정우성', task: '구정 일반행정 조정 및 5개 국 업무 보고 수발', fax: '079-781-4919' },
+                    { org: '본청', dept: '베이커리홍보담당관', title: '홍보담당관', name: '안유진', task: 'Bread City 청엽 홍보 및 마스코트(빵도리) 굿즈·음성벨 관리', fax: '079-781-4939' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '김영환', task: '청엽구청 대표 민원팩스, 여권발급 및 가족관계 등록 접수', fax: '079-781-4929' },
+                    { org: '본청', dept: '베이커리경제국 상권활성화과', title: '상권활성화과장', name: '손기준', task: '1.5km 청엽 베이커리 거리 특구 및 모카 브레드 페스티벌 총괄', fax: '079-781-5109' },
+                    { org: '본청', dept: '베이커리경제국 청년정책과', title: '청년정책과장', name: '제갈훈', task: '청년 파티시에 창업 아카데미 및 점포 리모델링 지원금 접수', fax: '079-781-5119' },
+                    { org: '본청', dept: '따뜻한복지국 복지정책과', title: '복지정책과장', name: '나윤미', task: '청엽구청역 [모카의 빵 나눔 냉장고] 기부 세액공제 및 취약계층 지원', fax: '079-781-5209' },
+                    { org: '본청', dept: '문화관광녹지국 관광마케팅과', title: '관광마케팅과장', name: '지하늘', task: '청엽동 아논타워(55층) 라이트업, 비마리 핑크 스카이워크 및 우전천 락페', fax: '079-781-5309' },
+                    { org: '본청', dept: '문화관광녹지국 공원녹지과', title: '공원녹지과장', name: '하성민', task: '우전천 사운드(드럼) 브리지, 우택호수공원 및 동리 산책길 관리', fax: '079-781-5319' },
+                    { org: '본청', dept: '안전도시교통국 교통행정과', title: '교통행정과장', name: '차재현', task: '남부시외버스터미널 연계 교통, 창전선(우택~남우택) 지원 및 404번 버스', fax: '079-781-5409' },
+                    { org: '직속사업소', dept: '청엽구보건소 식품위생과', title: '청엽구보건소장', name: '위성혜', task: '제과제빵 특화 위생등급 지정, 보건증 신속 발급 및 방역 팩스', fax: '079-781-5509' },
+                    { org: '직속사업소', dept: '우전천·우택호수공원사업소', title: '사업소장', name: '우종석', task: '우전역 간이 드럼연습실·수변 합주부스 예약 및 공원 시설물 관리', fax: '079-781-5559' },
+                    { org: '의회', dept: '청엽구의회 의회사무국', title: '사무국장', name: '박의석', task: '청엽구의회(21석) 본회의·상임위 의사일정 및 구민 청원 접수', fax: '079-781-5609' },
+                    { org: '행정복지센터', dept: '청엽1동 행정복지센터', title: '청엽1동장', name: '김다인', task: '청엽 베이커리 거리·아논타워역(하라주쿠존) 권역 민원팩스', fax: '079-781-5701' },
+                    { org: '행정복지센터', dept: '청엽5동 행정복지센터', title: '청엽5동장', name: '이창호', task: '청엽구청 소재지·청엽구청역 권역 통합민원 팩스', fax: '079-781-5705' },
+                    { org: '행정복지센터', dept: '우전1동 행정복지센터', title: '우전1동장', name: '최현수', task: '남부시외버스터미널·우전천 수변공원 권역 제증명 민원팩스', fax: '079-781-5707' },
+                    { org: '행정복지센터', dept: '우택동 행정복지센터', title: '우택동장', name: '정지윤', task: '우택호수공원 카공 라운지·청엽국제학교 권역 민원팩스', fax: '079-781-5710' },
+                    { org: '행정복지센터', dept: '비마리동 행정복지센터', title: '비마리동장', name: '홍서영', task: '비마리 유적지구·노을 스카이워크 권역 통합민원 팩스', fax: '079-781-5712' }
+                ]
+            },
+            "ancheon": {
+                name: "안천구", title: "안천구청", color: "#AA66DD", subColor: "#7E22CE", repFax: "079-915-7739",
+                categories: [
+                    { val: "본청", label: "안천구청 본청 (안천6동)" },
+                    { val: "이자출장소", label: "안천구청 이자출장소 (제2구청)" },
+                    { val: "직속사업소", label: "안천구보건소 · 사업소" },
+                    { val: "의회", label: "안천구의회 (20석)" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (19개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '안천구청장실', title: '안천구청장', name: '이규희', task: '구정 총괄 및 일본 누마즈시 자매결연·공식 라이선스 협약 수발신', fax: '079-915-7709' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '박성준', task: '안천지구(본청) 및 이자지구(출장소) 이원화 행정 총괄 조정', fax: '079-915-7719' },
+                    { org: '본청', dept: '2.5차원홍보담당관', title: '홍보담당관', name: '최지원', task: '구정 홍보, 대파 로고 마케팅 및 마스코트(안두리) 라이선스 관리', fax: '079-915-7729' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '김정호', task: '안천구청 본청(안천6동) 대표 민원팩스 및 여권발급 접수', fax: '079-915-7739' },
+                    { org: '본청', dept: '특화산업경제국 특화산업육성과', title: '특화산업육성과장', name: '하승원', task: '초음동(初音) 대파 팜마켓, 이자동 청춘의 배즙, 하구동 고로케 패키징', fax: '079-915-7809' },
+                    { org: '본청', dept: '특화산업경제국 세무과', title: '세무과장', name: '강현석', task: '굿즈샵·피규어 카페·코스프레 공방 창업 취득세·등록면허세 50% 감면 심사', fax: '079-915-7819' },
+                    { org: '본청', dept: '생태문화관광국 문화관광과', title: '문화관광과장', name: '천정우', task: '안천 2.5차원 루프 패스, 타천동 입국심사대, 당가 초코바나나 거리, 영색무 빛거리', fax: '079-915-7909' },
+                    { org: '본청', dept: '생태문화관광국 공원녹지과', title: '공원녹지과장', name: '두진수', task: '북택동 해안 두루미 생태탐방로·백합 플라워 돔 및 산세베리아 온실', fax: '079-915-7919' },
+                    { org: '이자출장소', dept: '이자출장소장실 (제2구청)', title: '이자출장소장', name: '서경민', task: '남부 이자지구(인구 21만) 행정 총괄 및 리코 행정체험관 운영', fax: '079-915-8009' },
+                    { org: '이자출장소', dept: '이자출장소 민원여권과', title: '민원여권과장', name: '표정아', task: '이자출장소 대표 민원팩스 (1층 그랜드피아노 민원실 제증명·여권 접수)', fax: '079-915-8039' },
+                    { org: '이자출장소', dept: '이자출장소 도시건축과', title: '도시건축과장', name: '문기태', task: '이자1~4동·이십기동 신축 아파트 단지 건축 인허가 및 도로 관리', fax: '079-915-8059' },
+                    { org: '직속사업소', dept: '안천구보건소 보건행정과', title: '안천구보건소장', name: '오세영', task: '보건증 발급, 방역 소독 및 의료기관 개설 신고 팩스', fax: '079-915-8509' },
+                    { org: '직속사업소', dept: '안천 스틸야드체육사업소', title: '사업소장', name: '강민철', task: '창건동 안천 스틸야드(22,000석 축구전용구장) 대관 및 시설 관리', fax: '079-915-8559' },
+                    { org: '의회', dept: '안천구의회 의회사무국', title: '사무국장', name: '민병직', task: '안천구의회(20석) 본회의 의사일정 및 구민 청원 접수', fax: '079-915-8609' },
+                    { org: '행정복지센터', dept: '안천1동 행정복지센터', title: '안천1동장', name: '원종훈', task: '안천역(누마즈 교류기념관) 권역 통합민원 팩스', fax: '079-915-8701' },
+                    { org: '행정복지센터', dept: '당가1동 행정복지센터', title: '당가1동장', name: '당현규', task: '당가역 초코바나나 거리(사신동상 포토존) 권역 민원팩스', fax: '079-915-8708' },
+                    { org: '행정복지센터', dept: '이자3동 행정복지센터', title: '이자3동장', name: '박수빈', task: '효빈시 인구 1위 행정동·이자공원 피아노분수 권역 민원팩스', fax: '079-915-8713' },
+                    { org: '행정복지센터', dept: '악부동 행정복지센터', title: '악부동장', name: '태윤호', task: '타천동(입국심사대)·초음동(대파밭)·팔망성동 관할 민원팩스', fax: '079-915-8716' },
+                    { org: '행정복지센터', dept: '칠채동 행정복지센터', title: '칠채동장', name: '유세진', task: '영색무동(실루엣댄스)·월삼동·남동·서수동 관할 통합민원 팩스', fax: '079-915-8719' }
+                ]
+            },
+            "changjeon": {
+                name: "창전구", title: "창전구청", color: "#33AAFF", subColor: "#0284C7", repFax: "079-822-1599",
+                categories: [
+                    { val: "본청", label: "창전구청 본청 (실·국·과)" },
+                    { val: "직속사업소", label: "창전구보건소 · 사업소" },
+                    { val: "의회", label: "창전구의회" },
+                    { val: "행정복지센터", label: "동 행정복지센터 (16개 동)" }
+                ],
+                list: [
+                    { org: '본청', dept: '창전구청장실', title: '창전구청장', name: '전역헌', task: '구정 총괄 및 부시로드(Morfonica) 공식 라이선스 협약 공문 수발신', fax: '079-822-1509' },
+                    { org: '본청', dept: '부구청장실', title: '부구청장', name: '류성호', task: '구정 일반행정 총괄 및 국별 주요 사업 조정', fax: '079-822-1519' },
+                    { org: '본청', dept: '품격소통담당관', title: '소통담당관', name: '구민정', task: '구정 홍보, 나비 CI 및 요정 마스코트(모르도리) 브랜드 관리', fax: '079-822-1529' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '김창섭', task: '창전구청 대표 민원팩스, 여권발급 및 블루 나비 관광패스 안내', fax: '079-822-1599' },
+                    { org: '본청', dept: '도시철도안전국 도시철도지원과', title: '도시철도지원과장', name: '심재원', task: '도시철도 창전선(#33AAFF, 2027.09 개통예정) 역세권 정비 및 환승 연계', fax: '079-822-1609' },
+                    { org: '본청', dept: '도시철도안전국 도로교통과', title: '도로교통과장', name: '차준혁', task: '쌍엽동·진백동 급경사 구간 동절기 자동 염수분사 및 도로열선 관제', fax: '079-822-1619' },
+                    { org: '본청', dept: '문화예술공원국 문화예술과', title: '문화예술과장', name: '양승연', task: '효빈 아트센터(2,500석), 시사이드 콘서트홀 및 바이올린 협주회 대관', fax: '079-822-1709' },
+                    { org: '본청', dept: '문화예술공원국 공원관리과', title: '공원관리과장', name: '정장미', task: '창전 블루 로즈 가든(푸른 장미 온실) 및 진백 화이트 가든 관리', fax: '079-822-1719' },
+                    { org: '본청', dept: '금융패션경제국 지역경제과', title: '지역경제과장', name: '기태영', task: '팔조동 금융·법조타운 지원 및 동곡·투자동 패션위크 스트리트 육성', fax: '079-822-1809' },
+                    { org: '본청', dept: '명품교육복지국 청년교육과', title: '청년교육과장', name: '황지운', task: '창전 청년 클래식·실용음악 아카데미 및 예술인 창작장려금 바우처', fax: '079-822-1909' },
+                    { org: '직속사업소', dept: '창전구보건소 보건행정과', title: '창전구보건소장', name: '백은주', task: '보건증 발급, 감염병 예방 및 칠심마음치유센터 심리상담 연계 팩스', fax: '079-822-2009' },
+                    { org: '직속사업소', dept: '보통동 평범박물관사업소', title: '평범박물관장', name: '하진우', task: '보통동 평범박물관 전시 및 보통왕 스텔스 챌린지 운영', fax: '079-822-2059' },
+                    { org: '의회', dept: '창전구의회 의회사무국', title: '사무국장', name: '고석현', task: '창전구의회(14석) 의사일정 및 구민 조례 청원 팩스 접수', fax: '079-822-2109' },
+                    { org: '행정복지센터', dept: '창전2동 행정복지센터', title: '창전2동장', name: '박진우', task: '창전구청 소재지·모포니카 스트리트 권역 통합민원 팩스', fax: '079-822-2202' },
+                    { org: '행정복지센터', dept: '진백동 행정복지센터', title: '진백동장', name: '백시현', task: '진백동·시로동(화이트 가든·효빈아트센터) 권역 민원팩스', fax: '079-822-2206' },
+                    { org: '행정복지센터', dept: '칠심1동 행정복지센터', title: '칠심1동장', name: '김보성', task: '칠심역(유도 업어치기 포토존)·장인의 골목 권역 민원팩스', fax: '079-822-2208' },
+                    { org: '행정복지센터', dept: '동곡동 행정복지센터', title: '동곡동장', name: '이투진', task: '동곡동·투자동(패션거리) 권역 제증명 민원팩스', fax: '079-822-2211' },
+                    { org: '행정복지센터', dept: '팔조동 행정복지센터', title: '팔조동장', name: '최법민', task: '3호선 팔조역·창전선 기점·효빈철도박물관 권역 민원팩스', fax: '079-822-2215' }
+                ]
+            },
+            "tanseong": {
+                name: "탄성군", title: "탄성군청", color: "#559900", subColor: "#3D7300", repFax: "079-134-8829",
+                categories: [
+                    { val: "본청", label: "탄성군청 본청 (탄성읍 공리)" },
+                    { val: "앵내출장소", label: "탄성군청 앵내출장소 (도변읍)" },
+                    { val: "직속사업소", label: "보건소 · 농업기술센터 · 사업소" },
+                    { val: "의회", label: "탄성군의회 (11석)" },
+                    { val: "행정복지센터", label: "읍·면 행정복지센터 (5읍 4면)" }
+                ],
+                list: [
+                    { org: '본청', dept: '탄성군수실', title: '탄성군수', name: '성선설', task: '군정 총괄 및 누마즈 교류·전철 역명판 캐릭터 병기 대외 협약 수발신', fax: '079-134-8809' },
+                    { org: '본청', dept: '부군수실', title: '부군수', name: '김태호', task: '군정 일반행정 총괄 및 5읍 4면·앵내출장소 업무 조정', fax: '079-134-8819' },
+                    { org: '본청', dept: '성지소통담당관', title: '소통담당관', name: '이지혜', task: '군정 홍보, 마스코트(탄도리) 및 군청 로비 역명판 전시홀', fax: '079-134-8839' },
+                    { org: '본청', dept: '행정지원국 종합민원과', title: '종합민원과장', name: '정민수', task: '탄성군청 대표 민원팩스, 여권발급 및 지적·토지대장 통합접수', fax: '079-134-8829' },
+                    { org: '본청', dept: '농정특산품관광국 농정특산품과', title: '농정특산품과장', name: '조현우', task: '고해읍 감귤(미칸) 패키지, 도향면 복숭아 사이다 팩토리 유통', fax: '079-134-8909' },
+                    { org: '본청', dept: '농정특산품관광국 문화체육관광과', title: '문화체육관광과장', name: '윤서준', task: '도변 해안전망대, 서목 록구리 상설 락페스티벌, 정근면 니나 로드 트레킹', fax: '079-134-8919' },
+                    { org: '본청', dept: '농정특산품관광국 청년귀농정책과', title: '청년귀농정책과장', name: '강다연', task: '청년 귀농·귀촌 스마트팜 및 테마 카페 창업 정착금 지원', fax: '079-134-8929' },
+                    { org: '본청', dept: '복지환경국 사회복지과', title: '사회복지과장', name: '오정숙', task: '농어촌 어르신 맞춤 돌봄, 효빈 반다비 체육센터 및 기초생활보장 팩스', fax: '079-134-9009' },
+                    { org: '본청', dept: '안전건설교통국 건설교통과', title: '건설교통과장', name: '마성진', task: '관내 5개 전철노선 연계 탄성 투어패스 및 수요응답형(DRT) 탄도리버스 운영', fax: '079-134-9109' },
+                    { org: '앵내출장소', dept: '탄성군청 앵내출장소 (도변읍)', title: '앵내출장소장', name: '안재현', task: '인구 9만 도변읍·앵내리 신도시 권역 제증명·여권·건축 인허가 대표 팩스', fax: '079-134-9209' },
+                    { org: '직속사업소', dept: '탄성군보건소 보건행정과', title: '탄성군보건소장', name: '최윤서', task: '찾아가는 농어촌 닥터버스, 보건증 발급 및 방역 소독 신청 팩스', fax: '079-134-9309' },
+                    { org: '직속사업소', dept: '탄성군 농업기술센터', title: '농기센터소장', name: '심재호', task: '감귤·복숭아 당도 품질인증, 콜라보 박스 포장라인 및 농기계 임대사업소', fax: '079-134-9359' },
+                    { org: '직속사업소', dept: '도변스탬프몰·환승라운지사업소', title: '사업소장', name: '노경완', task: '도변역 대형 굿즈 락커존·샤워부스 및 스탬프몰 입점 상가 관리', fax: '079-134-9389' },
+                    { org: '의회', dept: '탄성군의회 의회사무과', title: '의회사무과장', name: '정상훈', task: '탄성군의회(11석) 본회의 의사일정 및 군민 청원서 팩스 접수', fax: '079-134-9409' },
+                    { org: '행정복지센터', dept: '탄성읍 행정복지센터', title: '탄성읍장', name: '고정수', task: '탄성군청 소재지(공리·탄성리 복사꽃공원) 통합민원 팩스', fax: '079-134-9501' },
+                    { org: '행정복지센터', dept: '도변읍 행정복지센터', title: '도변읍장', name: '유승민', task: '도변리·요우리(네소베리 파크)·잠재리·조일리 관할 민원팩스', fax: '079-134-9502' },
+                    { org: '행정복지센터', dept: '고해읍 행정복지센터', title: '고해읍장', name: '고진아', task: '고해리(석양 귤 전망공원)·천가리(애니송 힐링센터) 관할 민원팩스', fax: '079-134-9503' },
+                    { org: '행정복지센터', dept: '서목읍 행정복지센터', title: '서목읍장', name: '박동현', task: '서목리(락페 광장)·록구리(포토부스)·잠금리·파래리 관할 민원팩스', fax: '079-134-9504' },
+                    { org: '행정복지센터', dept: '야진읍 행정복지센터', title: '야진읍장', name: '남기석', task: '야진리(석탄기념공원·레일바이크) 권역 제증명 민원팩스', fax: '079-134-9505' },
+                    { org: '행정복지센터', dept: '흑택면 행정복지센터', title: '흑택면장', name: '홍지연', task: '루비리(5호선 루비역 열차카페)·흑택리(한옥스테이) 관할 민원팩스', fax: '079-134-9506' },
+                    { org: '행정복지센터', dept: '도향면 행정복지센터', title: '도향면장', name: '강민영', task: '분음리(복숭아 사이다 팩토리)·춘일경리·벽천리 민원팩스', fax: '079-134-9507' },
+                    { org: '행정복지센터', dept: '소원면 행정복지센터', title: '소원면장', name: '송원석', task: '소원리·부우리(운전면허시험장·샤이니리조트) 관할 민원팩스', fax: '079-134-9508' },
+                    { org: '행정복지센터', dept: '정근면 행정복지센터', title: '정근면장', name: '이서윤', task: '구생리(니나 로드)·안경리(두루미 습지) 관할 민원팩스', fax: '079-134-9509' }
+                ]
+            }
+        };
+        let activeDataset = CITY_FAX_DATA;
+        let filteredDataset = [...CITY_FAX_DATA];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let currentAccentColor = "#1e3a8a";
+
+        function changeFaxRegion(guKey) {
+            if (!guKey) {
+                window.location.href = '행정팩스번호.html';
+            } else {
+                window.location.href = `행정팩스번호.html?gu=${guKey}`;
+            }
+        }
+
+        function copyFaxNum(faxNum) {
+            navigator.clipboard.writeText(faxNum).then(() => {
+                alert(`팩스번호가 복사되었습니다: ${faxNum}`);
+            }).catch(() => {
+                prompt("아래 팩스번호를 복사해 주세요:", faxNum);
+            });
+        }
+
+        function downloadFaxCSV() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+            const regionTitle = (guKey && GU_FAX_DB[guKey]) ? GU_FAX_DB[guKey].title : '효빈광역시청';
+
+            let csvContent = "\uFEFF소속분류,부서명,직위,성명,담당업무,팩스번호\n";
+            filteredDataset.forEach(r => {
+                csvContent += `"${r.org}","${r.dept}","${r.title}","${r.name}","${r.task}","${r.fax}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${regionTitle}_행정팩스번호부_2026.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function initFaxPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+            const regionSelect = document.getElementById('fax-region-select');
+            const orgFilter = document.getElementById('orgFilter');
+
+            const isGu = Boolean(guKey && GU_FAX_DB[guKey]);
+
+            if (isGu) {
+                const g = GU_FAX_DB[guKey];
+                const isGun = g.name.endsWith('군');
+                const prefix = isGun ? '군' : '구';
+                currentAccentColor = g.subColor;
+
+                if (regionSelect) regionSelect.value = guKey;
+                activeDataset = g.list;
+
+                // 1. 상단 비주얼 & LNB & 브레드크럼 동기화
+                document.title = `${prefix}청안내 - 행정팩스번호 | ${g.title} 공식 홈페이지`;
+                document.getElementById('sub-visual-bg').style.backgroundColor = `${g.subColor}D9`;
+                document.getElementById('sub-visual-title').textContent = `${g.name}소개`;
+
+                document.getElementById('lnb-wrap-box').style.borderTopColor = g.color;
+                const lnbTitle = document.getElementById('lnb-main-title');
+                lnbTitle.textContent = `${g.name}소개`;
+                lnbTitle.style.backgroundColor = g.subColor;
+
+                document.getElementById('lnb-slogan-link').textContent = `${prefix}정구호`;
+                document.getElementById('lnb-hall-label').textContent = `${prefix}청안내`;
+                document.getElementById('lnb-symbol-label').textContent = `${prefix}의상징`;
+                document.getElementById('lnb-bird-link').textContent = `${prefix}조/${prefix}화/${prefix}목`;
+                document.getElementById('lnb-day-link').textContent = `${prefix}민의날`;
+                document.getElementById('lnb-song-link').textContent = `${prefix}민의노래`;
+                document.getElementById('lnb-stat-label').textContent = `${g.name}통계`;
+                document.getElementById('lnb-whitepaper-link').textContent = `${prefix}정백서`;
+                document.getElementById('lnb-hist-label').textContent = `${g.name}의역사`;
+                document.getElementById('lnb-mayor-link').textContent = `역대${isGun ? '군수' : '구청장'}`;
+                document.getElementById('lnb-mayor-link').setAttribute('href', `역대구청장.html?gu=${guKey}`);
+                document.getElementById('lnb-origin-link').textContent = `${g.name}의유래와연혁`;
+                document.getElementById('lnb-current-link').style.color = g.subColor;
+
+                document.querySelectorAll('aside a[href]').forEach(a => {
+                    const rawHref = a.getAttribute('href').split('?')[0];
+                    a.setAttribute('href', `${rawHref}?gu=${guKey}`);
+                });
+
+                document.getElementById('bread-home').setAttribute('href', `index.html?gu=${guKey}`);
+                document.getElementById('bread-1').textContent = `${g.name}소개`;
+                document.getElementById('bread-2').textContent = `${prefix}청안내`;
+                document.getElementById('bread-3').style.color = g.subColor;
+
+                document.getElementById('main-title-bar').style.borderBottomColor = g.subColor;
+                document.getElementById('page-main-heading').textContent = `${g.title} 행정팩스번호`;
+                document.getElementById('searchBtn').style.backgroundColor = g.subColor;
+                document.getElementById('totalCount').style.color = g.subColor;
+
+                // 대표 팩스 배너 업데이트
+                const badgeEl = document.getElementById('rep-fax-badge');
+                badgeEl.textContent = g.title;
+                badgeEl.style.backgroundColor = g.subColor;
+                document.getElementById('rep-fax-desc').innerHTML = `${g.title} 종합민원실·문서접수처 대표 팩스 : <strong class="text-emerald-700 font-black text-base cursor-pointer hover:underline" onclick="copyFaxNum('${g.repFax}')">${g.repFax}</strong>`;
+
+                // 기관 분류 드롭다운을 해당 구·군 전용 카테고리로 교체
+                orgFilter.innerHTML = `<option value="">${g.title} 전체 부서/기관</option>` +
+                    g.categories.map(c => `<option value="${c.val}">${c.label}</option>`).join('');
+            } else {
+                // 효빈광역시 본청 기본 세팅
+                if (regionSelect) regionSelect.value = "";
+                activeDataset = CITY_FAX_DATA;
+                orgFilter.innerHTML = `
+                    <option value="">전체 기관</option>
+                    <option value="본청">효빈광역시 본청</option>
+                    <option value="직속기관">직속기관/사업소</option>
+                    <option value="소방">소방재난본부/소방서</option>
+                    <option value="의회">효빈광역시의회</option>
+                    <option value="구군">자치구·군청 (대표팩스)</option>
+                `;
+            }
+
+            filteredDataset = [...activeDataset];
+            currentPage = 1;
+            renderTablePage();
+        }
+
+        function renderTablePage() {
             const tbody = document.getElementById('faxTableBody');
             const emptyState = document.getElementById('emptyState');
             const totalCount = document.getElementById('totalCount');
             
             tbody.innerHTML = '';
-            totalCount.innerText = data.length;
+            totalCount.innerText = filteredDataset.length;
 
-            if (data.length === 0) {
+            if (filteredDataset.length === 0) {
                 emptyState.classList.remove('hidden');
                 emptyState.classList.add('block');
-            } else {
-                emptyState.classList.add('hidden');
-                emptyState.classList.remove('block');
-                
-                data.forEach(item => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="dept-column">${item.dept}</td>
-                        <td class="title-column">${item.title}</td>
-                        <td class="name-column">${item.name}</td>
-                        <td class="task-column">${item.task}</td>
-                        <td class="fax-column"><i data-lucide="printer" class="w-4 h-4 inline-block mr-1 text-green-700"></i>${item.fax}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                lucide.createIcons(); // 동적 렌더링 후 아이콘 재생성
+                document.getElementById('paginationContainer').innerHTML = '';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                return;
             }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('block');
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const pageItems = filteredDataset.slice(startIdx, startIdx + itemsPerPage);
+            
+            pageItems.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="dept-column">${item.dept}</td>
+                    <td class="title-column">${item.title}</td>
+                    <td class="name-column">${item.name}</td>
+                    <td class="task-column">${item.task}</td>
+                    <td class="fax-column" title="클릭하여 팩스번호 복사" onclick="copyFaxNum('${item.fax}')">
+                        <i data-lucide="printer" class="w-4 h-4 inline-block mr-1 text-emerald-700"></i>${item.fax}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderPagination();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // 검색 실행 함수
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            container.innerHTML = '';
+            const totalPages = Math.ceil(filteredDataset.length / itemsPerPage);
+            if (totalPages <= 1) return;
+
+            const makeBtn = (html, targetPage, disabled = false, isActive = false) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = html;
+                btn.disabled = disabled;
+                if (isActive) {
+                    btn.classList.add('active');
+                    btn.style.backgroundColor = currentAccentColor;
+                    btn.style.borderColor = currentAccentColor;
+                }
+                if (!disabled) {
+                    btn.onclick = () => {
+                        currentPage = targetPage;
+                        renderTablePage();
+                    };
+                }
+                return btn;
+            };
+
+            container.appendChild(makeBtn('<i data-lucide="chevrons-left" class="w-4 h-4"></i>', 1, currentPage === 1));
+            container.appendChild(makeBtn('<i data-lucide="chevron-left" class="w-4 h-4"></i>', currentPage - 1, currentPage === 1));
+
+            for (let i = 1; i <= totalPages; i++) {
+                container.appendChild(makeBtn(i, i, false, i === currentPage));
+            }
+
+            container.appendChild(makeBtn('<i data-lucide="chevron-right" class="w-4 h-4"></i>', currentPage + 1, currentPage === totalPages));
+            container.appendChild(makeBtn('<i data-lucide="chevrons-right" class="w-4 h-4"></i>', totalPages, currentPage === totalPages));
+        }
+
         function executeFaxSearch() {
-            const orgFilter = document.getElementById('orgFilter').value;
+            const orgVal = document.getElementById('orgFilter').value;
             const searchType = document.getElementById('searchType').value;
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
-            const filteredData = faxDirectoryData.filter(item => {
-                // 기관 필터 매칭
-                const matchOrg = orgFilter === "" || item.org === orgFilter;
-                
-                // 검색어 매칭
+            filteredDataset = activeDataset.filter(item => {
+                const matchOrg = (orgVal === "" || item.org === orgVal);
                 let matchKeyword = false;
                 if (keyword === "") {
                     matchKeyword = true;
+                } else if (searchType === 'all') {
+                    matchKeyword = item.dept.toLowerCase().includes(keyword) || 
+                                   item.title.toLowerCase().includes(keyword) ||
+                                   item.name.toLowerCase().includes(keyword) || 
+                                   item.task.toLowerCase().includes(keyword) || 
+                                   item.fax.includes(keyword);
                 } else {
-                    if (searchType === 'all') {
-                        matchKeyword = item.dept.toLowerCase().includes(keyword) || 
-                                       item.name.toLowerCase().includes(keyword) || 
-                                       item.task.toLowerCase().includes(keyword) || 
-                                       item.fax.includes(keyword);
-                    } else {
-                        matchKeyword = item[searchType] && item[searchType].toLowerCase().includes(keyword);
-                    }
+                    matchKeyword = item[searchType] && item[searchType].toLowerCase().includes(keyword);
                 }
-                
                 return matchOrg && matchKeyword;
             });
 
-            renderTable(filteredData);
+            currentPage = 1;
+            renderTablePage();
         }
 
-        // 초기 실행
+        function resetFaxSearch() {
+            document.getElementById('orgFilter').value = "";
+            document.getElementById('searchType').value = "all";
+            document.getElementById('searchInput').value = "";
+            executeFaxSearch();
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
-            renderTable(faxDirectoryData);
+            initFaxPage();
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     </script>
-    <script src="common121.js"></script>
 </body>
 </html>

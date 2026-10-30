@@ -4,7 +4,7 @@
     <link rel="icon" href="이미지/logo.webp">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>효빈소개 - 홍보영상 | 효빈광역시 공식 홈페이지</title>
+    <title id="window-title">효빈소개 - 홍보영상 | 효빈광역시 공식 홈페이지</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts (Noto Sans KR) -->
@@ -21,8 +21,8 @@
         .sub-visual::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px; opacity: 0.15; }
         
         /* 아코디언 LNB 스타일 */
-        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
-        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; transition: border-color 0.3s; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
         .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
         .lnb-depth1 > li:last-child { border-bottom: none; }
         .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
@@ -64,8 +64,10 @@
 
     <!-- 2. 서브 비주얼 -->
     <div class="sub-visual h-48 md:h-56 flex items-center justify-center text-center px-4 shrink-0">
+        <!-- 구청 모드 시 색상 변경을 위한 오버레이 레이어 -->
+        <div id="visual-overlay" class="absolute inset-0 opacity-80" style="background-color: transparent; mix-blend-mode: multiply; transition: background-color 0.3s;"></div>
         <div class="relative z-10 w-full max-w-4xl">
-            <h1 class="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight text-shadow-strong">효빈소개</h1>
+            <h1 id="top-title" class="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight text-shadow-strong">효빈소개</h1>
         </div>
     </div>
 
@@ -74,8 +76,8 @@
         
         <!-- 아코디언 LNB (좌측 메뉴) -->
         <aside class="w-full md:w-64 shrink-0">
-            <div class="lnb-wrap sticky top-4 z-10">
-                <div class="lnb-title">효빈소개</div>
+            <div id="lnb-wrap" class="lnb-wrap sticky top-4 z-10">
+                <div id="lnb-title" class="lnb-title">효빈소개</div>
                 <ul class="lnb-depth1">
                     <li>
                         <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
@@ -109,8 +111,8 @@
                             <li><a href="시민의노래.html">시민의노래</a></li>
                         </ul>
                     </li>
-                    <!-- 현재 페이지 활성화 (current 클래스 추가 및 li 백그라운드 색상) -->
-                    <li class="bg-slate-50 border-l-4 border-blue-600"><a href="홍보영상.html" class="lnb-single current text-blue-700">홍보영상</a></li>
+                    <!-- 현재 페이지 활성화 -->
+                    <li id="lnb-active-item" class="bg-slate-50 border-l-4 border-blue-600"><a id="lnb-active-text" href="홍보영상.html" class="lnb-single current text-blue-700">홍보영상</a></li>
                     <li>
                         <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
@@ -146,212 +148,223 @@
             <!-- Breadcrumb -->
             <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 shrink-0">
                 <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-1">효빈소개</span> 
                 <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">홍보영상</strong>
             </div>
 
-            <h2 class="text-3xl font-black text-gray-900 content-title shrink-0">홍보영상</h2>
+            <h2 id="content-main-title" class="text-3xl font-black text-gray-900 content-title shrink-0">홍보영상</h2>
 
-            <!-- 상단 소개 배너 -->
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-8 mb-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
-                <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center shrink-0">
-                    <i data-lucide="video" class="w-8 h-8"></i>
+            <!-- ========================================== -->
+            <!-- [본청(시청) 모드] 원본 콘텐츠 100% 보존 -->
+            <!-- ========================================== -->
+            <div id="content-city">
+                <!-- 상단 소개 배너 -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-8 mb-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center shrink-0">
+                        <i data-lucide="video" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">효빈의 다이내믹한 오늘과 내일을 영상으로 만나보세요</h3>
+                        <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep text-justify mb-2">
+                            효빈광역시청 대변인실에서 제작한 공식 홍보영상, 주요 시정 소식, 다채로운 축제 현장, 그리고 300만 시민과 함께하는 활기찬 일상을 생생한 영상으로 제공합니다.
+                        </p>
+                        <p class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md inline-block border border-blue-100 mt-2">
+                            <i data-lucide="film" class="w-3 h-3 inline-block -mt-0.5 mr-1"></i> 효빈광역시 공식 유튜브 채널 '효빈 튜브'에서도 확인하실 수 있습니다.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">효빈의 다이내믹한 오늘과 내일을 영상으로 만나보세요</h3>
-                    <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep text-justify mb-2">
-                        효빈광역시청 대변인실에서 제작한 공식 홍보영상, 주요 시정 소식, 다채로운 축제 현장, 그리고 300만 시민과 함께하는 활기찬 일상을 생생한 영상으로 제공합니다.
-                    </p>
-                    <p class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md inline-block border border-blue-100 mt-2">
-                        <i data-lucide="film" class="w-3 h-3 inline-block -mt-0.5 mr-1"></i> 효빈광역시 공식 유튜브 채널 '효빈 튜브'에서도 확인하실 수 있습니다.
-                    </p>
-                </div>
-            </div>
 
-            <!-- 메인 홍보영상 (Featured Video) -->
-            <div class="mb-14">
-                <h3 class="text-2xl font-bold text-gray-900 mb-6 border-l-4 border-blue-600 pl-3">최신 홍보영상</h3>
-                <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-200 video-card cursor-pointer group relative" onclick="openVideoModal('https://www.youtube.com/embed/dQw4w9WgXcQ', '2026 효빈광역시 공식 홍보영상: 모두의 밝은 미래, 함께 열어가는 효빈')">
-                    <div class="w-full aspect-video bg-slate-900 relative overflow-hidden flex items-center justify-center">
-                        <img src="이미지/효빈시청_굿즈샵.webp" alt="2026 효빈광역시 공식 홍보영상 썸네일" class="absolute inset-0 w-full h-full object-cover opacity-80" onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000';">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
-                        <!-- 재생 버튼 오버레이 -->
-                        <div class="play-icon w-20 h-20 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-10 h-10 ml-2"></i>
-                        </div>
-                        <div class="absolute bottom-6 left-6 md:bottom-8 md:left-10 z-10">
-                            <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded mb-3 inline-block shadow-md">공식 홍보영상</span>
-                            <h4 class="text-2xl md:text-4xl font-black text-white drop-shadow-lg break-keep leading-tight mb-2">2026 효빈광역시 공식 홍보영상<br>"다이내믹 효빈, 새로운 르네상스"</h4>
-                            <div class="flex items-center gap-4 text-slate-300 text-sm font-medium drop-shadow-md">
-                                <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> 03:45</span>
-                                <span class="flex items-center gap-1.5"><i data-lucide="eye" class="w-4 h-4"></i> 152만 회</span>
-                                <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> 2026. 01. 01</span>
+                <!-- 메인 홍보영상 (Featured Video) -->
+                <div class="mb-14">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6 border-l-4 border-blue-600 pl-3">최신 홍보영상</h3>
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-200 video-card cursor-pointer group relative" onclick="openVideoModal('https://www.youtube.com/embed/dQw4w9WgXcQ', '2026 효빈광역시 공식 홍보영상: 모두의 밝은 미래, 함께 열어가는 효빈')">
+                        <div class="w-full aspect-video bg-slate-900 relative overflow-hidden flex items-center justify-center">
+                            <img src="이미지/효빈시청_굿즈샵.webp" alt="2026 효빈광역시 공식 홍보영상 썸네일" class="absolute inset-0 w-full h-full object-cover opacity-80" onerror="this.src='https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                            <!-- 재생 버튼 오버레이 -->
+                            <div class="play-icon w-20 h-20 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-10 h-10 ml-2"></i>
+                            </div>
+                            <div class="absolute bottom-6 left-6 md:bottom-8 md:left-10 z-10">
+                                <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded mb-3 inline-block shadow-md">공식 홍보영상</span>
+                                <h4 class="text-2xl md:text-4xl font-black text-white drop-shadow-lg break-keep leading-tight mb-2">2026 효빈광역시 공식 홍보영상<br>"다이내믹 효빈, 새로운 르네상스"</h4>
+                                <div class="flex items-center gap-4 text-slate-300 text-sm font-medium drop-shadow-md">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> 03:45</span>
+                                    <span class="flex items-center gap-1.5"><i data-lucide="eye" class="w-4 h-4"></i> 152만 회</span>
+                                    <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> 2026. 01. 01</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- 영상 카테고리 필터 -->
+                <div class="flex gap-2 w-full overflow-x-auto no-scrollbar pb-2 mb-6 border-b border-slate-200" id="video-filters">
+                    <button onclick="filterVideos('전체')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-blue-600 text-white font-bold text-sm shrink-0 transition">전체영상</button>
+                    <button onclick="filterVideos('시정홍보')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">시정홍보</button>
+                    <button onclick="filterVideos('문화축제')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">문화/축제(HAF)</button>
+                    <button onclick="filterVideos('교통인프라')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">교통/인프라</button>
+                    <button onclick="filterVideos('시민소통')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">시민소통</button>
+                </div>
+
+                <!-- 비디오 갤러리 그리드 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12" id="video-grid">
+                    <!-- Video Item 1 -->
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="문화축제" onclick="openVideoModal('https://www.youtube.com/watch?v=c-pL3BlxZmY', '제18회 효빈 애니메이션 페스티벌(HAF) 공식 애프터무비')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="이미지/당가동_디저트_거리.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1540039155732-d68a183b06a5?q=80&w=600';">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">05:20</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded">문화/축제(HAF)</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">제18회 효빈 애니메이션 페스티벌(HAF) 공식 애프터무비</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 85만 회</span>
+                                <span>2025. 11. 15</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Item 2 -->
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="교통인프라" onclick="openVideoModal('https://www.youtube.com/watch?v=BEXF6B3V94M&t=5s', '새로운 지평을 열다: 도시철도 1호선 연장 및 7호선 현대화 사업')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="이미지/HAF2026포스터.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1473220464502-d958d5786bce?q=80&w=600';">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">04:12</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold bg-sky-100 text-sky-700 px-2 py-0.5 rounded">교통/인프라</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">새로운 지평을 열다: 도시철도 1호선 연장 및 7호선 전차 현대화 사업</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 32만 회</span>
+                                <span>2025. 09. 20</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Item 3 -->
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="시민소통" onclick="openVideoModal('https://www.youtube.com/watch?v=IHSUgM4rVQg&list=RDIHSUgM4rVQg&start_radio=1', '[시장실 브이로그] 박효빈 시장의 일일 인턴 체험기')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="이미지/박효빈_유세.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1551818255-e6e10975bc17?q=80&w=600';">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">12:30</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">시민소통</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">[브이로그] 박효빈 시장의 일일 인턴 체험기: 종합민원실 편</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 110만 회</span>
+                                <span>2025. 08. 05</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Item 4 -->
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="시정홍보" onclick="openVideoModal('https://www.youtube.com/embed/y7Yy4ShWmus', '효빈항 제2여객터미널 준공식: 아시아 물류 허브로의 도약')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="이미지/효빈항국제여객터미널_전경.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1559144490-83020610ce54?q=80&w=600';">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">06:15</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded">시정홍보</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">효빈항 제2국제여객터미널 개장: 아시아 해양 물류 허브로의 도약</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 15만 회</span>
+                                <span>2025. 07. 12</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Item 5 -->
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="시민소통" onclick="openVideoModal('https://www.youtube.com/embed/Hqg8IeZWZJk', '한바다 주무관과 함께하는 올바른 재활용 분리배출 캠페인')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="이미지/홍보영상_썸네일5.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1532996122724-e3c354a0b15f?q=80&w=600';">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">03:00</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">캠페인</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">한바다 주무관과 함께하는 올바른 재활용 분리배출 캠페인</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 45만 회</span>
+                                <span>2025. 06. 05</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Item 6 -->
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="문화축제" onclick="openVideoModal('https://www.youtube.com/embed/eciZRF-aDaY', '효빈시민의 날 전야제: 불꽃과 레이저로 수놓은 아름다운 밤')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="이미지/한바다_블레이드1.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=600';">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">08:45</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded">문화/축제(HAF)</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">시민의 날 축제 스케치: 불꽃과 레이저로 수놓은 아름다운 밤</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 22만 회</span>
+                                <span>2024. 10. 10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 더보기 버튼 -->
+                <div class="flex justify-center mb-10">
+                    <button class="bg-white border-2 border-slate-200 text-slate-600 font-bold px-10 py-3.5 rounded-full hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300 transition shadow-sm flex items-center gap-2">
+                        영상 더보기 <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- 관리부서 정보 -->
+                <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                    <div>담당부서 : 대변인실 | 문의처 : 079-591-2015 | 책임자 : 뉴미디어홍보팀장</div>
+                    <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
+                </div>
             </div>
 
-            <!-- 영상 카테고리 필터 -->
-            <div class="flex gap-2 w-full overflow-x-auto no-scrollbar pb-2 mb-6 border-b border-slate-200" id="video-filters">
-                <button onclick="filterVideos('전체')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-blue-600 text-white font-bold text-sm shrink-0 transition">전체영상</button>
-                <button onclick="filterVideos('시정홍보')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">시정홍보</button>
-                <button onclick="filterVideos('문화축제')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">문화/축제(HAF)</button>
-                <button onclick="filterVideos('교통인프라')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">교통/인프라</button>
-                <button onclick="filterVideos('시민소통')" class="video-filter-btn px-5 py-2.5 rounded-t-lg bg-transparent text-slate-500 hover:text-blue-600 hover:bg-blue-50 font-medium text-sm shrink-0 transition">시민소통</button>
+            <!-- ========================================== -->
+            <!-- [구청/군청 모드] 동적 주입 컨테이너 -->
+            <!-- ========================================== -->
+            <div id="content-gu" style="display:none;">
+                <!-- JS가 이 안에 구청 전용 영상 콘텐츠를 렌더링합니다 -->
             </div>
 
-            <!-- 비디오 갤러리 그리드 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12" id="video-grid">
-                <!-- Video Item 1 -->
-                <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="문화축제" onclick="openVideoModal('https://www.youtube.com/watch?v=c-pL3BlxZmY', '제18회 효빈 애니메이션 페스티벌(HAF) 공식 애프터무비')">
-                    <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                        <img src="이미지/당가동_디저트_거리.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1540039155732-d68a183b06a5?q=80&w=600';">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-5 h-5 ml-1"></i>
-                        </div>
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">05:20</span>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded">문화/축제(HAF)</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">제18회 효빈 애니메이션 페스티벌(HAF) 공식 애프터무비</h4>
-                        <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 85만 회</span>
-                            <span>2025. 11. 15</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Video Item 2 -->
-                <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="교통인프라" onclick="openVideoModal('https://www.youtube.com/watch?v=BEXF6B3V94M&t=5s', '새로운 지평을 열다: 도시철도 1호선 연장 및 7호선 현대화 사업')">
-                    <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                        <img src="이미지/HAF2026포스터.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1473220464502-d958d5786bce?q=80&w=600';">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-5 h-5 ml-1"></i>
-                        </div>
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">04:12</span>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[10px] font-bold bg-sky-100 text-sky-700 px-2 py-0.5 rounded">교통/인프라</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">새로운 지평을 열다: 도시철도 1호선 연장 및 7호선 전차 현대화 사업</h4>
-                        <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 32만 회</span>
-                            <span>2025. 09. 20</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Video Item 3 -->
-                <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="시민소통" onclick="openVideoModal('https://www.youtube.com/watch?v=IHSUgM4rVQg&list=RDIHSUgM4rVQg&start_radio=1', '[시장실 브이로그] 박효빈 시장의 일일 인턴 체험기')">
-                    <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                        <img src="이미지/박효빈_유세.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1551818255-e6e10975bc17?q=80&w=600';">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-5 h-5 ml-1"></i>
-                        </div>
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">12:30</span>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">시민소통</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">[브이로그] 박효빈 시장의 일일 인턴 체험기: 종합민원실 편</h4>
-                        <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 110만 회</span>
-                            <span>2025. 08. 05</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Video Item 4 -->
-                <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="시정홍보" onclick="openVideoModal('https://www.youtube.com/embed/y7Yy4ShWmus', '효빈항 제2여객터미널 준공식: 아시아 물류 허브로의 도약')">
-                    <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                        <img src="이미지/효빈항국제여객터미널_전경.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1559144490-83020610ce54?q=80&w=600';">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-5 h-5 ml-1"></i>
-                        </div>
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">06:15</span>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded">시정홍보</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">효빈항 제2국제여객터미널 개장: 아시아 해양 물류 허브로의 도약</h4>
-                        <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 15만 회</span>
-                            <span>2025. 07. 12</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Video Item 5 -->
-                <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="시민소통" onclick="openVideoModal('https://www.youtube.com/embed/Hqg8IeZWZJk', '한바다 주무관과 함께하는 올바른 재활용 분리배출 캠페인')">
-                    <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                        <img src="이미지/홍보영상_썸네일5.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1532996122724-e3c354a0b15f?q=80&w=600';">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-5 h-5 ml-1"></i>
-                        </div>
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">03:00</span>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">캠페인</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">한바다 주무관과 함께하는 올바른 재활용 분리배출 캠페인</h4>
-                        <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 45만 회</span>
-                            <span>2025. 06. 05</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Video Item 6 -->
-                <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="문화축제" onclick="openVideoModal('https://www.youtube.com/embed/eciZRF-aDaY', '효빈시민의 날 전야제: 불꽃과 레이저로 수놓은 아름다운 밤')">
-                    <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                        <img src="이미지/한바다_블레이드1.webp" alt="썸네일" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=600';">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
-                            <i data-lucide="play" class="w-5 h-5 ml-1"></i>
-                        </div>
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">08:45</span>
-                    </div>
-                    <div class="p-5 flex-grow flex flex-col">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded">문화/축제(HAF)</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">시민의 날 축제 스케치: 불꽃과 레이저로 수놓은 아름다운 밤</h4>
-                        <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
-                            <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> 22만 회</span>
-                            <span>2024. 10. 10</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- 더보기 버튼 -->
-            <div class="flex justify-center mb-10">
-                <button class="bg-white border-2 border-slate-200 text-slate-600 font-bold px-10 py-3.5 rounded-full hover:bg-slate-50 hover:text-blue-600 hover:border-blue-300 transition shadow-sm flex items-center gap-2">
-                    영상 더보기 <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <!-- 관리부서 정보 -->
-            <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
-                <div>담당부서 : 대변인실 | 문의처 : 079-591-2015 | 책임자 : 뉴미디어홍보팀장</div>
-                <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
-            </div>
-
-            <!-- 만족도 조사 컴포넌트 -->
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mt-8">
+            <!-- 만족도 조사 컴포넌트 (공통) -->
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mt-8 shrink-0">
                 <div class="font-bold text-gray-700 mb-3">이 페이지에서 제공하는 정보에 대하여 만족하십니까?</div>
                 <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
                     <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" checked> 매우만족</label>
@@ -385,7 +398,6 @@
             </div>
             <!-- Body (16:9 래퍼) -->
             <div class="relative w-full pb-[56.25%] bg-black">
-                <!-- 실제 운영 시에는 iframe을 삽입. 여기선 UI 데모를 위해 이미지+플레이어 버튼으로 대체 구성 -->
                 <iframe id="video-iframe" class="absolute inset-0 w-full h-full border-none" src="" title="Video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
@@ -427,37 +439,29 @@
         });
     };
 
-// 3. 비디오 모달 열기 (어떤 형식의 유튜브 URL이든 자동 변환)
+    // 3. 비디오 모달 열기
     window.openVideoModal = function(url, title) {
         const backdrop = document.getElementById('video-modal-backdrop');
         const panel = document.getElementById('video-modal-panel');
         const iframe = document.getElementById('video-iframe');
         const titleEl = document.getElementById('video-modal-title');
 
-        if(!backdrop || !panel) {
-            console.error("HTML 구조 확인: 모달 요소가 없습니다.");
-            return;
-        }
+        if(!backdrop || !panel) return;
 
-        // 유튜브 URL에서 고유 영상 ID 11자리 추출
         let videoId = '';
         const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
         if (match && match[1]) {
             videoId = match[1];
         } else {
-            // URL이 아니라 ID만 직접 넘어왔을 경우 대응
             videoId = url;
         }
 
         titleEl.innerText = title;
-        // iframe 표준 임베드 규격으로 주소 조립
         iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
 
         backdrop.classList.remove('hidden');
-        backdrop.style.opacity = '0';
         backdrop.style.display = 'flex';
         
-        // 애니메이션 강제 적용
         setTimeout(() => {
             backdrop.style.opacity = '1';
             panel.classList.remove('scale-95');
@@ -467,6 +471,7 @@
         
         document.body.style.overflow = 'hidden';
     };
+
     // 4. 비디오 모달 닫기
     window.closeVideoModal = function() {
         const backdrop = document.getElementById('video-modal-backdrop');
@@ -475,6 +480,8 @@
 
         backdrop.style.opacity = '0';
         panel.style.opacity = '0';
+        panel.classList.remove('scale-100');
+        panel.classList.add('scale-95');
 
         setTimeout(() => {
             backdrop.classList.add('hidden');
@@ -484,14 +491,203 @@
         }, 300);
     };
 
-    // 키보드 종료
     document.addEventListener('keydown', function(event) {
         if (event.key === "Escape") window.closeVideoModal();
     });
 
-    // 아이콘 로드 및 초기화
-    document.addEventListener('DOMContentLoaded', () => {
+    // 5. 구청/군청별 맞춤 영상 데이터 생성 및 렌더링 스크립트
+    const GU_VIDEO_DATA = {
+        "jung": {
+            name: "중구", role: "구청", themeColor: "#BB9955", tag: "역사문화",
+            desc: "효빈의 심장 중구, 원도심의 역사와 새롭게 달리는 트램을 영상으로 만나보세요.",
+            mainVideo: { title: "개항장 문화지구 야행, 잠들지 않는 역사", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "원도심 트램 도입 시민 설명회 현장", category: "교통인프라", tag: "트램", time: "05:12", views: "1.2만 회" },
+                { title: "효빈상회, 골목상권 활성화 프로젝트", category: "문화축제", tag: "골목상권", time: "04:30", views: "3.5천 회" }
+            ]
+        },
+        "buk": {
+            name: "북구", role: "구청", themeColor: "#6677CC", tag: "서브컬처",
+            desc: "청년들의 열정과 서브컬처 특구로 도약하는 다이내믹 북구의 일상을 전해드립니다.",
+            mainVideo: { title: "효빈 서브컬처 특구 비전 선포식", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "청년 거버넌스 출범! 청년이 그리는 북구", category: "시민소통", tag: "청년지원", time: "06:20", views: "2.8만 회" },
+                { title: "북구 생태공원 가을 페스티벌 스케치", category: "문화축제", tag: "생태공원", time: "03:45", views: "8.1천 회" }
+            ]
+        },
+        "dong": {
+            name: "동구", role: "구청", themeColor: "#00AA00", tag: "철도관광",
+            desc: "철도 교통의 중심이자 역사적 성지순례 명소, 동구의 아름다운 영상을 감상하세요.",
+            mainVideo: { title: "동구, 철도문화 관광도시로의 힘찬 도약", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "효빈 성지순례 명소 탐방 VLOG", category: "문화축제", tag: "성지순례", time: "08:15", views: "4.5만 회" },
+                { title: "동구 도시재생 뉴딜사업 추진 현황", category: "시정홍보", tag: "도시재생", time: "04:50", views: "5.2천 회" }
+            ]
+        },
+        "seo": {
+            name: "서구", role: "구청", themeColor: "#00AABB", tag: "경제진흥",
+            desc: "실물경제 진흥과 지식산업 클러스터 중심지, 활기찬 서구의 혁신 비전을 소개합니다.",
+            mainVideo: { title: "산학연 첨단 클러스터 조성 계획 마스터플랜", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "서구 실물경제 청년창업 지원센터 오픈", category: "시정홍보", tag: "청년창업", time: "05:40", views: "1.5만 회" },
+                { title: "지식산업센터 입주기업 탐방기", category: "시민소통", tag: "기업지원", time: "10:20", views: "7.7천 회" }
+            ]
+        },
+        "nam": {
+            name: "남구", role: "구청", themeColor: "#DDBBFF", tag: "해양물류",
+            desc: "해양 항만물류의 중심이자 푸른 바다를 품은 남구의 발전하는 모습을 담았습니다.",
+            mainVideo: { title: "남구 해양항만물류 중심지 비전 선포", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "바다와 함께하는 남구 시민 문화제", category: "문화축제", tag: "해양관광", time: "06:10", views: "2.1만 회" },
+                { title: "청년무역지원과 글로벌 진출 세미나", category: "시정홍보", tag: "청년무역", time: "03:55", views: "3.4천 회" }
+            ]
+        },
+        "cheongyeop": {
+            name: "청엽구", role: "구청", themeColor: "#006699", tag: "문화관광",
+            desc: "글로벌 마천루 뷰와 맛있는 제과제빵이 어우러진 매력적인 청엽구를 만나보세요.",
+            mainVideo: { title: "제과제빵의 메카, 청엽구 빵지순례 다큐", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "글로벌 마천루 스카이라인 드론 영상", category: "시정홍보", tag: "마천루", time: "04:15", views: "5.5만 회" },
+                { title: "청엽구청장과 함께하는 민원 소통 간담회", category: "시민소통", tag: "현장소통", time: "07:30", views: "4.1천 회" }
+            ]
+        },
+        "changjeon": {
+            name: "창전구", role: "구청", themeColor: "#33AAFF", tag: "예술음악",
+            desc: "예술과 음악이 흐르는 낭만의 도시, 환승역세권의 거점 창전구의 생생한 스토리입니다.",
+            mainVideo: { title: "문화예술이 흐르는 음악도시, 창전구", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "창전구 환승역세권 개발 및 비전 브리핑", category: "교통인프라", tag: "역세권", time: "06:45", views: "1.8만 회" },
+                { title: "마음치유복지센터 개소식 현장스케치", category: "시정홍보", tag: "복지치유", time: "03:20", views: "2.9천 회" }
+            ]
+        },
+        "ancheon": {
+            name: "안천구", role: "구청", themeColor: "#AA66DD", tag: "팬덤문화",
+            desc: "글로벌 팬덤 성지이자 2.5차원 문화의 중심, 안천구의 특별한 홍보영상을 감상하세요.",
+            mainVideo: { title: "안천구, 글로벌 2.5차원 문화의 중심에 서다", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "글로벌 팬덤 지원 및 투어리즘 가이드", category: "문화축제", tag: "글로벌", time: "07:15", views: "8.2만 회" },
+                { title: "스마트 유통 단지 스마트화 현장 점검", category: "교통인프라", tag: "스마트유통", time: "05:00", views: "4.4천 회" }
+            ]
+        },
+        "tanseong": {
+            name: "탄성군", role: "군청", themeColor: "#BBFF64", tag: "스마트농업",
+            desc: "첨단 스마트농업과 아름다운 자연 생태가 조화로운 탄성군의 밝은 미래를 담았습니다.",
+            mainVideo: { title: "자연과 기술의 만남, 탄성군 스마트농업", url: "dQw4w9WgXcQ" },
+            videos: [
+                { title: "탄성군 청년 귀농귀촌 성공 사례 인터뷰", category: "시민소통", tag: "청년귀농", time: "09:30", views: "1.1만 회" },
+                { title: "자연과 함께하는 생태축제 드론 하이라이트", category: "문화축제", tag: "생태축제", time: "04:40", views: "9.5천 회" }
+            ]
+        }
+    };
+
+    document.addEventListener("DOMContentLoaded", function() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
+        
+        const params = new URLSearchParams(window.location.search);
+        const guKey = params.get('gu');
+        
+        if (guKey && GU_VIDEO_DATA[guKey]) {
+            const data = GU_VIDEO_DATA[guKey];
+            const titlePrefix = data.name + (data.role === '군청' ? '' : '청');
+            const themeColor = data.themeColor === '#BBFF64' ? '#559900' : data.themeColor;
+            
+            // 텍스트 및 메타데이터 업데이트
+            document.getElementById('window-title').textContent = `${data.name}소개 - 홍보영상 | ${titlePrefix} 공식 홈페이지`;
+            document.getElementById('top-title').textContent = `${data.name}소개`;
+            document.getElementById('lnb-title').textContent = `${data.name}소개`;
+            document.getElementById('bread-1').textContent = `${data.name}소개`;
+            
+            // 테마 색상 적용
+            document.getElementById('visual-overlay').style.backgroundColor = data.themeColor;
+            document.getElementById('lnb-title').style.backgroundColor = themeColor;
+            document.getElementById('lnb-wrap').style.borderTopColor = themeColor;
+            document.getElementById('content-main-title').style.borderBottomColor = themeColor;
+            document.getElementById('lnb-active-item').style.borderLeftColor = themeColor;
+            document.getElementById('lnb-active-text').className = `lnb-single current font-bold`;
+            document.getElementById('lnb-active-text').style.color = themeColor;
+
+            // 본청(content-city) 숨기고 구청(content-gu) 보이기
+            document.getElementById('content-city').style.display = 'none';
+            document.getElementById('content-gu').style.display = 'block';
+
+            // 구청 전용 영상 콘텐츠 동적 생성
+            let guHtml = `
+                <!-- 상단 소개 배너 -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-8 mb-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center shrink-0" style="background-color: ${themeColor}20; color: ${themeColor};">
+                        <i data-lucide="video" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${data.name}의 다이내믹한 오늘과 내일을 영상으로 만나보세요</h3>
+                        <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep text-justify mb-2">${data.desc}</p>
+                    </div>
+                </div>
+
+                <!-- 메인 홍보영상 -->
+                <div class="mb-14">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6 border-l-4 pl-3" style="border-color: ${themeColor}">최신 홍보영상</h3>
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-200 video-card cursor-pointer group relative" onclick="openVideoModal('${data.mainVideo.url}', '${data.mainVideo.title}')">
+                        <div class="w-full aspect-video bg-slate-900 relative overflow-hidden flex items-center justify-center">
+                            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000" alt="메인영상 썸네일" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent"></div>
+                            <div class="play-icon w-20 h-20 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-10 h-10 ml-2"></i>
+                            </div>
+                            <div class="absolute bottom-6 left-6 md:bottom-8 md:left-10 z-10">
+                                <span class="text-white text-xs font-bold px-3 py-1.5 rounded mb-3 inline-block shadow-md" style="background-color: ${themeColor}">${data.name} 공식 홍보영상</span>
+                                <h4 class="text-2xl md:text-4xl font-black text-white drop-shadow-lg break-keep leading-tight mb-2">${data.mainVideo.title}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 비디오 갤러리 그리드 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12" id="gu-video-grid">
+            `;
+
+            data.videos.forEach(v => {
+                guHtml += `
+                    <div class="video-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm video-card flex flex-col cursor-pointer" data-category="${v.category}" onclick="openVideoModal('dQw4w9WgXcQ', '${v.title}')">
+                        <div class="aspect-video relative bg-slate-100 overflow-hidden flex items-center justify-center border-b border-slate-100">
+                            <img src="https://images.unsplash.com/photo-1540039155732-d68a183b06a5?q=80&w=600" alt="썸네일" class="absolute inset-0 w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="play-icon w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg relative z-10 text-slate-800">
+                                <i data-lucide="play" class="w-5 h-5 ml-1"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 rounded">${v.time}</span>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded" style="background-color: ${themeColor}15; color: ${themeColor}">${v.tag}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[0.95rem] mb-3 line-clamp-2 leading-snug break-keep">${v.title}</h4>
+                            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 font-medium">
+                                <span><i data-lucide="eye" class="w-3.5 h-3.5 inline-block -mt-0.5 mr-0.5"></i> ${v.views}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            guHtml += `
+                </div>
+                <!-- 더보기 버튼 -->
+                <div class="flex justify-center mb-10">
+                    <button class="bg-white border-2 border-slate-200 text-slate-600 font-bold px-10 py-3.5 rounded-full hover:bg-slate-50 transition shadow-sm flex items-center gap-2" style="border-color: ${themeColor}50">
+                        영상 더보기 <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <!-- 관리부서 정보 -->
+                <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                    <div>담당부서 : 홍보소통담당관 | 문의처 : 079-591-2015</div>
+                    <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
+                </div>
+            `;
+
+            document.getElementById('content-gu').innerHTML = guHtml;
+            // 새롭게 추가된 DOM의 아이콘 렌더링
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
     });
 </script>
 <script src="common121.js"></script>

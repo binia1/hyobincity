@@ -691,7 +691,7 @@ const headerHTML = `
                                     <li><a href="정원기구현황.html" class="hover:text-blue-600">정원/기구현황</a></li>
                                     <li><a href="행정전화번호.html" class="hover:text-blue-600">행정전화번호</a></li>
                                     <li><a href="행정팩스번호.html" class="hover:text-blue-600">행정팩스번호</a></li>
-                                    <li><a href="청사안내.html" class="hover:text-blue-600">청사안내</a></li>
+                                    <li><a href="city_hall.html" class="hover:text-blue-600">청사안내</a></li>
                                     <li><a href="contact.html" class="hover:text-blue-600">찾아오시는길</a></li>
                                 </ul>
                             </div>
@@ -2399,22 +2399,31 @@ function runMasterGuPatch() {
     const headerEl = document.getElementById('common-header');
 
     // 0. 유관기관 드롭다운 새 창 열기
+// 0. 유관기관 드롭다운 새 창 열기 (최종 수정 버전)
     if (footerEl) {
         const selectEl = footerEl.querySelector('select');
-        const moveBtn = Array.from(footerEl.querySelectorAll('button, a')).find(el => el.textContent.trim() === '이동');
-        if (selectEl && moveBtn && !moveBtn.dataset.newTabPatched) {
-            moveBtn.dataset.newTabPatched = "true";
+        const moveBtn = Array.from(footerEl.querySelectorAll('button')).find(el => el.textContent.trim() === '이동');
+        
+        if (selectEl && moveBtn && !moveBtn.dataset.fixedNewTab) {
+            moveBtn.dataset.fixedNewTab = "true";
+            
+            // 기존에 걸려있는 모든 클릭 이벤트를 무력화하기 위해 onclick 속성 제거
             moveBtn.removeAttribute('onclick');
-            moveBtn.addEventListener('click', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                const targetUrl = selectEl.value;
-                if (targetUrl && targetUrl !== '' && targetUrl !== '#') window.open(targetUrl, '_blank');
-                else alert("이동할 기관을 선택해주세요.");
-            }, true);
+            
+            // 새로운 클릭 이벤트 리스너 부착
+            moveBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopImmediatePropagation(); // 다른 이벤트 리스너들의 개입 차단
+                
+                const selectedUrl = selectEl.value;
+                if (selectedUrl && selectedUrl !== "" && selectedUrl !== "#") {
+                    window.open(selectedUrl, '_blank');
+                } else {
+                    alert("이동하실 유관기관을 선택해 주세요.");
+                }
+            }, true); // 캡처링 단계에서 먼저 가로채어 실행
         }
-    }
-
-    // 1. 모든 링크에 ?gu= 파라미터 강제 유지 + 휠/Ctrl 클릭 새 창 패치
+    }    // 1. 모든 링크에 ?gu= 파라미터 강제 유지 + 휠/Ctrl 클릭 새 창 패치
     if (guKey) {
         document.querySelectorAll('a[href]').forEach(a => {
             const href = a.getAttribute('href');
@@ -2883,4 +2892,70 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(runMasterGuPatch, 50);
     setTimeout(runMasterGuPatch, 150);
     setTimeout(runMasterGuPatch, 400);
+});
+// 유관기관 이동 버튼 및 셀렉트 박스 강제 바인딩 처리 (2907행 부근 대체 코드)
+(function fixFamilySiteBinding() {
+    const checkExist = setInterval(function() {
+        // 페이지 전체에서 select와 '이동' 텍스트를 가진 버튼을 탐색
+        const selectEl = document.querySelector('select');
+        const buttons = document.querySelectorAll('button');
+        let moveBtn = null;
+        
+        buttons.forEach(btn => {
+            if (btn.textContent.trim() === '이동') {
+                moveBtn = btn;
+            }
+        });
+
+        // 요소들을 찾았을 때만 실행
+        if (selectEl && moveBtn) {
+            clearInterval(checkExist); // 반복 체크 중지
+            
+            // 중복 이벤트 방지를 위해 버튼 복제 후 교체
+            const newBtn = moveBtn.cloneNode(true);
+            moveBtn.parentNode.replaceChild(newBtn, moveBtn);
+
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const targetUrl = selectEl.value;
+                
+                if (targetUrl && targetUrl !== '' && targetUrl !== '#') {
+                    // 현재 주소의 파라미터(?gu=dong 등) 유지하면서 이동
+                    let finalUrl = targetUrl;
+                    const currentSearch = window.location.search;
+                    
+                    if (currentSearch) {
+                        finalUrl += (targetUrl.includes('?') ? '&' : '') + currentSearch.substring(1);
+                    }
+                    
+                    window.open(finalUrl, '_blank');
+                } else {
+                    alert("이동하실 유관기관을 선택해 주세요.");
+                }
+            }, true);
+            
+            console.log("유관기관 이동 버튼 바인딩 성공!");
+        }
+    }, 100); // 0.1초마다 요소가 로드되었는지 확인
+})();
+
+document.addEventListener("DOMContentLoaded", function() {
+    lucide.createIcons();
+    
+    // Agbiruk kadagiti URL parameters manipud iti address bar
+    const params = new URLSearchParams(window.location.search);
+    const guKey = params.get('gu');
+    
+    // No adda ti gu parameter, otomatikon a i-append daytoy kadamin amin a LNB links tapno saan a mapukaw
+    if (guKey) {
+        document.querySelectorAll('.lnb-depth2 a, .lnb-single').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && !href.includes('gu=')) {
+                const separator = href.includes('?') ? '&' : '?';
+                link.setAttribute('href', `${href}${separator}gu=${guKey}`);
+            }
+        });
+    }
 });

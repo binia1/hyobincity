@@ -16,11 +16,11 @@
     <style>
         /* 서브페이지 전용 디자인 */
         .sub-visual { background: url('https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat; position: relative; }
-        .sub-visual::before { content: ''; position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); }
+        .sub-visual-overlay { position: absolute; inset: 0; background: rgba(23, 37, 84, 0.85); transition: background-color 0.3s; }
         
         /* 아코디언 LNB 스타일 */
         .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
-        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
         .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
         .lnb-depth1 > li:last-child { border-bottom: none; }
         .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
@@ -48,14 +48,16 @@
         
         /* 통계 현황표 전용 스타일 (관공서 이미지 벤치마킹 완벽 반영) */
         .stat-table { width: 100%; border-top: 2px solid #475569; border-collapse: collapse; font-size: 0.95rem; text-align: center; margin-bottom: 3.5rem; background-color: #fff; }
-        .stat-table th, .stat-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 14px 8px; vertical-align: middle; }
+        .stat-table th, .stat-table td { border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 13px 8px; vertical-align: middle; }
         .stat-table th:last-child, .stat-table td:last-child { border-right: none; }
-        .stat-table th { background-color: #fdf2f2; /* 옅은 붉은계열 배경 */ color: #334155; font-weight: 700; }
+        .stat-table th { background-color: #fdf2f2; color: #334155; font-weight: 700; }
         .stat-table td { color: #475569; }
         .stat-table tr:hover td { background-color: #f8fafc; }
         
         .red-dot-title { font-size: 1.15rem; font-weight: 700; color: #e11d48; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
         .red-dot-title::before { content: ''; display: inline-block; width: 8px; height: 8px; border: 2px solid #e11d48; border-radius: 50%; }
+
+        .gu-Highlight-row td { background-color: #fef3c7 !important; font-weight: 800 !important; color: #92400e !important; }
     </style>
 </head>
 <body class="bg-white min-h-screen flex flex-col relative text-gray-800">
@@ -65,16 +67,17 @@
 
     <!-- 3. 서브 비주얼 -->
     <div class="sub-visual h-48 md:h-56 flex items-center justify-center">
-        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong">효빈소개</h1>
+        <div class="sub-visual-overlay" id="sub-visual-bg"></div>
+        <h1 class="relative z-10 text-white text-4xl md:text-5xl font-bold tracking-tight text-shadow-strong" id="sub-visual-title">효빈소개</h1>
     </div>
 
     <!-- 4. 본문 컨테이너 -->
-    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10">
+    <div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row gap-10 relative z-10 w-full">
         
         <!-- 아코디언 LNB (좌측 메뉴) -->
         <aside class="w-full md:w-64 shrink-0">
-            <div class="lnb-wrap sticky top-4">
-                <div class="lnb-title">효빈소개</div>
+            <div class="lnb-wrap sticky top-4" id="lnb-wrap-box">
+                <div class="lnb-title" id="lnb-main-title">효빈소개</div>
                 <ul class="lnb-depth1">
                     <li class="active">
                         <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
@@ -82,23 +85,23 @@
                             <li><a href="intro.html">기본현황</a></li>
                             <li><a href="행정구역로마자표기법.html">행정구역로마자표기법</a></li>
                             <li>
-                                <a href="행정구역.html" class="current">행정구역</a>
-                                <!-- 복구된 3뎁스 사이드바: 향후 작성될 페이지 링크 및 외부 링크 -->
+                                <a href="행정구역.html" class="current" id="lnb-current-link">행정구역</a>
+                                <!-- 복구된 3뎁스 사이드바: 구·군별 행정구역 파라미터 연결 -->
                                 <ul class="lnb-depth3 flex flex-col gap-1">
-                                    <li><a href="행정구역.html" class="anchor-link current-sub">종합 행정구역 현황</a></li>
+                                    <li><a href="행정구역.html" class="anchor-link" data-lnb-gu="">종합 행정구역 현황</a></li>
                                     <li><a href="구군청사현황.html" class="anchor-link font-medium">구·군 목록 및 청사 현황</a></li>
                                     <li><a href="행정동법정동매칭표.html" class="anchor-link font-medium">행정읍면동 및 법정동 매칭표</a></li>
                                     
-                                    <!-- 8구 1군 개별 상세 페이지 연결 예정 링크 -->
-                                    <li><a href="중구소개.html" class="gu-link">중구</a></li>
-                                    <li><a href="동구소개.html" class="gu-link">동구</a></li>
-                                    <li><a href="서구소개.html" class="gu-link">서구</a></li>
-                                    <li><a href="남구소개.html" class="gu-link">남구</a></li>
-                                    <li><a href="북구소개.html" class="gu-link">북구</a></li>
-                                    <li><a href="안천구소개.html" class="gu-link">안천구</a></li>
-                                    <li><a href="창전구소개.html" class="gu-link">창전구</a></li>
-                                    <li><a href="청엽구소개.html" class="gu-link">청엽구</a></li>
-                                    <li><a href="탄성군소개.html" class="gu-link">탄성군</a></li>
+                                    <!-- 8구 1군 개별 상세 연결 링크 -->
+                                    <li><a href="행정구역.html?gu=jung" class="gu-link" data-lnb-gu="jung">중구</a></li>
+                                    <li><a href="행정구역.html?gu=dong" class="gu-link" data-lnb-gu="dong">동구</a></li>
+                                    <li><a href="행정구역.html?gu=seo" class="gu-link" data-lnb-gu="seo">서구</a></li>
+                                    <li><a href="행정구역.html?gu=nam" class="gu-link" data-lnb-gu="nam">남구</a></li>
+                                    <li><a href="행정구역.html?gu=buk" class="gu-link" data-lnb-gu="buk">북구</a></li>
+                                    <li><a href="행정구역.html?gu=ancheon" class="gu-link" data-lnb-gu="ancheon">안천구</a></li>
+                                    <li><a href="행정구역.html?gu=changjeon" class="gu-link" data-lnb-gu="changjeon">창전구</a></li>
+                                    <li><a href="행정구역.html?gu=cheongyeop" class="gu-link" data-lnb-gu="cheongyeop">청엽구</a></li>
+                                    <li><a href="행정구역.html?gu=tanseong" class="gu-link" data-lnb-gu="tanseong">탄성군</a></li>
                                     
                                     <!-- 전자지도 새창 링크 -->
                                     <li class="mt-2 pt-2 border-t border-gray-200">
@@ -111,10 +114,10 @@
                             <li><a href="sister_cities.html">해외자매도시</a></li>
                         </ul>
                     </li>
-                    <li><a href="시정구호.html" class="lnb-single">시정구호</a></li>
+                    <li><a href="시정구호.html" class="lnb-single" id="lnb-slogan-link">시정구호</a></li>
                     <!-- 시청안내 -->
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시청안내 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hall-label">시청안내</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
                             <li><a href="행정조직도.html">행정조직도</a></li>
                             <li><a href="정원기구현황.html">정원/기구현황</a></li>
@@ -126,20 +129,20 @@
                     </li>
                     <!-- 시의상징 -->
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-symbol-label">시의상징</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
-                            <li><a href="시조시화시목.html">시조/시화/시목</a></li>
+                            <li><a href="시조시화시목.html" id="lnb-bird-link">시조/시화/시목</a></li>
                             <li><a href="상징물.html">상징물</a></li>
                             <li><a href="mascot.html">소통캐릭터</a></li>
-                            <li><a href="시민의날.html">시민의날</a></li>
+                            <li><a href="시민의날.html" id="lnb-day-link">시민의날</a></li>
                             <li><a href="효빈문화울림체.html">효빈문화울림체</a></li>
-                            <li><a href="시민의노래.html">시민의노래</a></li>
+                            <li><a href="시민의노래.html" id="lnb-song-link">시민의노래</a></li>
                         </ul>
                     </li>
                     <li><a href="홍보영상.html" class="lnb-single">홍보영상</a></li>
                     <!-- 효빈통계 -->
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈통계 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-stat-label">효빈통계</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
                             <li><a href="통계연보.html">통계연보</a></li>
                             <li><a href="인구통계.html">인구통계</a></li>
@@ -147,17 +150,16 @@
                             <li><a href="효빈사회조사.html">효빈사회조사</a></li>
                             <li><a href="지역통계.html">지역통계</a></li>
                             <li><a href="통계조사.html">통계조사</a></li>
-                            <li><a href="시정백서.html">시정백서</a></li>
+                            <li><a href="시정백서.html" id="lnb-whitepaper-link">시정백서</a></li>
                             <li><a href="주요수상내역.html">주요수상내역</a></li>
                         </ul>
                     </li>
                     <!-- 효빈의역사 -->
                     <li>
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">효빈의역사 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
+                        <button class="lnb-toggle" onclick="toggleLnb(this)"><span id="lnb-hist-label">효빈의역사</span> <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
                         <ul class="lnb-depth2">
-                               <li><a href="역대시장.html">역대시장</a></li>
-
-                            <li><a href="history.html">효빈의유래와연혁</a></li>
+                            <li><a href="역대시장.html" id="lnb-mayor-link">역대시장</a></li>
+                            <li><a href="history.html" id="lnb-origin-link">효빈의유래와연혁</a></li>
                             <li><a href="향토자료.html">향토자료</a></li>
                             <li><a href="세계속의효빈.html">세계속의효빈</a></li>
                             <li><a href="문화수도효빈.html">문화수도효빈</a></li>
@@ -172,27 +174,96 @@
         <!-- Main Content -->
         <main class="flex-grow min-w-0">
             <!-- Breadcrumb -->
-            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2">
-                <i data-lucide="home" class="w-4 h-4"></i> 홈 <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 <i data-lucide="chevron-right" class="w-4 h-4"></i> 일반현황 <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">행정구역</strong>
+            <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 flex-wrap">
+                <a href="index.html" id="bread-home" class="hover:text-blue-600 flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-1">효빈소개</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span>일반현황</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="bread-3">행정구역</strong>
             </div>
 
-            <h2 class="text-3xl font-black text-gray-900 content-title">행정구역</h2>
+            <div class="content-title flex flex-col sm:flex-row sm:items-end justify-between gap-3" id="main-title-bar">
+                <h2 class="text-3xl font-black text-gray-900" id="page-main-heading">행정구역</h2>
+            </div>
+
+            <!-- 상단 구·군 빠른 전환 탭 바 -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-8 shadow-sm">
+                <div class="text-xs font-bold text-slate-500 mb-2 flex items-center justify-between flex-wrap gap-2">
+                    <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-600"></i> 효빈광역시 본청 및 8구 1군 행정동·법정동 상세 현황 바로가기</span>
+                    <div class="flex gap-2">
+                        <a href="구군청사현황.html" class="text-blue-600 hover:underline">구·군 청사 현황 →</a>
+                        <a href="행정동법정동매칭표.html" class="text-blue-600 hover:underline">행정·법정동 매칭표 →</a>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-1.5" id="gu-switch-tabs"></div>
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- [A. 자치구·군별 행정동(읍·면·동) & 법정동(리) 상세 현황 섹션] (?gu= 접속 시 표출) -->
+            <!-- ========================================================================= -->
+            <section id="gu-detail-section" class="hidden mb-14 pb-10 border-b-2 border-dashed border-slate-300">
+                <div class="rounded-xl p-5 mb-8 text-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" id="gu-summary-banner">
+                    <div>
+                        <span class="text-xs font-bold bg-black/25 px-2.5 py-1 rounded-full inline-block mb-1.5" id="gu-banner-badge">자치구 행정구역 현황</span>
+                        <h3 class="text-2xl font-black tracking-tight" id="gu-banner-title">남구 관할 행정동 및 법정동 현황</h3>
+                    </div>
+                    <div class="flex gap-3 text-right" id="gu-banner-stats"></div>
+                </div>
+
+                <!-- 1. 구·군별 행정동 / 읍·면·동 현황 표 -->
+                <div class="flex justify-between items-end mb-3 border-b border-gray-300 pb-2">
+                    <h4 class="red-dot-title mb-0" id="gu-haeng-title">행정동 현황 (인구 · 면적 · 인구밀도 · 통/반)</h4>
+                    <span class="text-sm text-gray-500 font-medium">(2026.01.01.기준)</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="stat-table" id="gu-haeng-table">
+                        <thead>
+                            <tr>
+                                <th width="14%">구·군</th>
+                                <th width="20%">행정동 / 읍·면·동</th>
+                                <th width="18%">인구</th>
+                                <th width="16%">면적(㎢)</th>
+                                <th width="16%">인구밀도</th>
+                                <th width="16%">행정리/통, 반개수</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gu-haeng-tbody"></tbody>
+                    </table>
+                </div>
+
+                <!-- 2. 구·군별 법정동·리 인구 및 비고 현황 표 -->
+                <div class="flex justify-between items-end mb-3 border-b border-gray-300 pb-2 mt-10">
+                    <h4 class="red-dot-title mb-0" id="gu-beop-title">법정동·리별 인구 현황</h4>
+                    <span class="text-sm text-gray-500 font-medium">(2025.07.기준)</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="stat-table" id="gu-beop-table">
+                        <thead>
+                            <tr>
+                                <th width="16%">구·군</th>
+                                <th width="26%">법정동 · 법정리</th>
+                                <th width="22%">인구(25.7)</th>
+                                <th width="36%">비고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gu-beop-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
 
             <!-- ============================================== -->
-            <!-- 종합 행정구역 현황 (개괄, 지도, 면적, 인구표) -->
-            <!-- 본문은 요청하신 이미지 형태 그대로 유지 -->
+            <!-- [B. 종합 행정구역 현황 (본청 원본 100% 보존)] -->
             <!-- ============================================== -->
-            <section class="mb-14">
+            <section class="mb-14" id="city-master-section">
                 
                 <!-- 1. 행정구역구분 (지도 이미지 삽입 영역) -->
-                <div class="font-bold text-gray-800 text-lg mb-6 ml-1">행정구역구분</div>
+                <div class="font-bold text-gray-800 text-lg mb-6 ml-1">행정구역구분 (효빈광역시 8구 1군 총괄)</div>
                 <div class="w-full flex justify-center mb-12">
                     <img src="이미지/행정구역구분지도.webp" alt="효빈광역시 행정구역 8구 1군 안내도" class="max-w-full h-auto mx-auto border border-gray-100 rounded-lg shadow-sm">
                 </div>
 
                 <!-- 2. 행정구역 현황 표 -->
                 <div class="flex justify-between items-end mb-3 border-b border-gray-300 pb-2">
-                    <h4 class="red-dot-title mb-0">행정구역 현황</h4>
+                    <h4 class="red-dot-title mb-0">행정구역 현황 (효빈광역시 전체)</h4>
                     <span class="text-sm text-gray-500 font-medium">(2026.01.01.기준)</span>
                 </div>
                 <div class="overflow-x-auto">
@@ -214,22 +285,22 @@
                             <tr class="font-bold bg-gray-50 text-gray-900">
                                 <td>계</td><td>726.52</td><td>250</td><td>146</td><td>7,362</td><td>48,896</td>
                             </tr>
-                            <tr><td>중구</td><td>11.46</td><td>60</td><td>11</td><td>215</td><td>1,329</td></tr>
-                            <tr><td>동구</td><td>18.00</td><td>3</td><td>14</td><td>428</td><td>2,850</td></tr>
-                            <tr><td>서구</td><td>22.41</td><td>10</td><td>17</td><td>675</td><td>4,506</td></tr>
-                            <tr><td>남구</td><td>88.24</td><td>12</td><td>18</td><td>912</td><td>6,081</td></tr>
-                            <tr><td>북구</td><td>78.92</td><td>30</td><td>24</td><td>1,344</td><td>8,914</td></tr>
-                            <tr><td>안천구</td><td>90.38</td><td>40</td><td>21</td><td>1,126</td><td>7,484</td></tr>
-                            <tr><td>창전구</td><td>45.72</td><td>13</td><td>16</td><td>865</td><td>5,771</td></tr>
-                            <tr><td>청엽구</td><td>42.37</td><td>15</td><td>16</td><td>1,154</td><td>7,701</td></tr>
-                            <tr><td>탄성군</td><td>329.02</td><td>67</td><td>9</td><td>643</td><td>4,260</td></tr>
+                            <tr data-city-row="jung" class="cursor-pointer" onclick="switchAdminGu('jung')"><td>중구</td><td>11.46</td><td>60</td><td>11</td><td>215</td><td>1,329</td></tr>
+                            <tr data-city-row="동구" data-gu-key="dong" class="cursor-pointer" onclick="switchAdminGu('dong')"><td>동구</td><td>18.00</td><td>3</td><td>14</td><td>428</td><td>2,850</td></tr>
+                            <tr data-gu-key="seo" class="cursor-pointer" onclick="switchAdminGu('seo')"><td>서구</td><td>22.41</td><td>10</td><td>17</td><td>675</td><td>4,506</td></tr>
+                            <tr data-gu-key="nam" class="cursor-pointer" onclick="switchAdminGu('nam')"><td>남구</td><td>88.24</td><td>12</td><td>18</td><td>912</td><td>6,081</td></tr>
+                            <tr data-gu-key="buk" class="cursor-pointer" onclick="switchAdminGu('buk')"><td>북구</td><td>78.92</td><td>30</td><td>24</td><td>1,344</td><td>8,914</td></tr>
+                            <tr data-gu-key="ancheon" class="cursor-pointer" onclick="switchAdminGu('ancheon')"><td>안천구</td><td>90.38</td><td>40</td><td>21</td><td>1,126</td><td>7,484</td></tr>
+                            <tr data-gu-key="changjeon" class="cursor-pointer" onclick="switchAdminGu('changjeon')"><td>창전구</td><td>45.72</td><td>13</td><td>16</td><td>865</td><td>5,771</td></tr>
+                            <tr data-gu-key="cheongyeop" class="cursor-pointer" onclick="switchAdminGu('cheongyeop')"><td>청엽구</td><td>42.37</td><td>15</td><td>16</td><td>1,154</td><td>7,701</td></tr>
+                            <tr data-gu-key="tanseong" class="cursor-pointer" onclick="switchAdminGu('tanseong')"><td>탄성군</td><td>329.02</td><td>67</td><td>9</td><td>643</td><td>4,260</td></tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- 3. 인구 현황 표 -->
                 <div class="flex justify-between items-end mb-3 border-b border-gray-300 pb-2 mt-12">
-                    <h4 class="red-dot-title mb-0">인구 현황</h4>
+                    <h4 class="red-dot-title mb-0">인구 현황 (효빈광역시 전체)</h4>
                     <span class="text-sm text-gray-500 font-medium">(2026.01.01.기준)</span>
                 </div>
                 <div class="overflow-x-auto">
@@ -250,15 +321,15 @@
                             <tr class="font-bold bg-gray-50 text-gray-900">
                                 <td>계</td><td>2,968,106</td><td>1,475,960</td><td>1,492,146</td><td>1,291,682</td>
                             </tr>
-                            <tr><td>중구</td><td>79,801</td><td>39,501</td><td>40,300</td><td>40,923</td></tr>
-                            <tr><td>동구</td><td>171,012</td><td>88,926</td><td>82,086</td><td>83,420</td></tr>
-                            <tr><td>서구</td><td>270,388</td><td>129,786</td><td>140,602</td><td>142,309</td></tr>
-                            <tr><td>남구</td><td>372,589</td><td>196,727</td><td>175,862</td><td>173,297</td></tr>
-                            <tr><td>북구</td><td>548,537</td><td>274,268</td><td>274,269</td><td>219,414</td></tr>
-                            <tr><td>안천구</td><td>450,286</td><td>220,640</td><td>229,646</td><td>191,611</td></tr>
-                            <tr><td>창전구</td><td>350,348</td><td>169,919</td><td>180,429</td><td>143,000</td></tr>
-                            <tr><td>청엽구</td><td>470,043</td><td>226,091</td><td>243,952</td><td>184,330</td></tr>
-                            <tr><td>탄성군</td><td>255,102</td><td>130,102</td><td>125,000</td><td>113,378</td></tr>
+                            <tr data-gu-key="jung" class="cursor-pointer" onclick="switchAdminGu('jung')"><td>중구</td><td>79,801</td><td>39,501</td><td>40,300</td><td>40,923</td></tr>
+                            <tr data-gu-key="dong" class="cursor-pointer" onclick="switchAdminGu('dong')"><td>동구</td><td>171,012</td><td>88,926</td><td>82,086</td><td>83,420</td></tr>
+                            <tr data-gu-key="seo" class="cursor-pointer" onclick="switchAdminGu('seo')"><td>서구</td><td>270,388</td><td>129,786</td><td>140,602</td><td>142,309</td></tr>
+                            <tr data-gu-key="nam" class="cursor-pointer" onclick="switchAdminGu('nam')"><td>남구</td><td>372,589</td><td>196,727</td><td>175,862</td><td>173,297</td></tr>
+                            <tr data-gu-key="buk" class="cursor-pointer" onclick="switchAdminGu('buk')"><td>북구</td><td>548,537</td><td>274,268</td><td>274,269</td><td>219,414</td></tr>
+                            <tr data-gu-key="ancheon" class="cursor-pointer" onclick="switchAdminGu('ancheon')"><td>안천구</td><td>450,286</td><td>220,640</td><td>229,646</td><td>191,611</td></tr>
+                            <tr data-gu-key="changjeon" class="cursor-pointer" onclick="switchAdminGu('changjeon')"><td>창전구</td><td>350,348</td><td>169,919</td><td>180,429</td><td>143,000</td></tr>
+                            <tr data-gu-key="cheongyeop" class="cursor-pointer" onclick="switchAdminGu('cheongyeop')"><td>청엽구</td><td>470,043</td><td>226,091</td><td>243,952</td><td>184,330</td></tr>
+                            <tr data-gu-key="tanseong" class="cursor-pointer" onclick="switchAdminGu('tanseong')"><td>탄성군</td><td>255,102</td><td>130,102</td><td>125,000</td><td>113,378</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -266,13 +337,13 @@
             </section>
             
             <!-- 관리부서 정보 -->
-            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+            <div class="border-t border-gray-300 pt-4 mt-10 text-sm text-gray-500 flex flex-col md:flex-row justify-between" id="dept-footer-bar">
                 <div>자료관리 담당자 담당부서 : 자치행정과 | 연락처 : 079-613-2911</div>
                 <div class="mt-2 md:mt-0">최종업데이트 : 2026-03-30</div>
             </div>
 
             <!-- 만족도 조사 컴포넌트 -->
-            <div class="bg-gray-50 border border-gray-200 rounded p-6 mt-8">
+            <div class="bg-gray-50 border border-gray-200 rounded p-6 mt-8 page-satisfaction-survey">
                 <div class="font-bold text-gray-700 mb-3">이 페이지에서 제공하는 정보에 대하여 만족하십니까?</div>
                 <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
                     <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction" checked> 매우만족</label>
@@ -282,8 +353,8 @@
                     <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="satisfaction"> 매우불만족</label>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" placeholder="벤치마킹 디자인에 맞게 만족도 컴포넌트를 구현했습니다." class="flex-grow border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500">
-                    <button class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded text-sm font-bold transition-colors">평점주기</button>
+                    <input type="text" placeholder="의견을 남겨주시면 페이지 품질 향상에 반영하겠습니다." class="flex-grow border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500">
+                    <button onclick="alert('소중한 의견이 등록되었습니다.')" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded text-sm font-bold transition-colors">평점주기</button>
                 </div>
             </div>
 
@@ -297,6 +368,7 @@
     <!-- 분리한 JS 파일 연결 -->
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script src="common121.js"></script>
     <script>
         // 아코디언 메뉴 작동 스크립트
         function toggleLnb(btn) {
@@ -317,11 +389,641 @@
             }
         }
 
-        // 아이콘 렌더링
+        // =========================================================================
+        // 1. 구·군 메타 정보
+        // =========================================================================
+        const GU_META = {
+            "jung": { name: "중구", title: "중구청", color: "#BB9955", subColor: "#8A6D2F", phone: "079-242-8192" },
+            "dong": { name: "동구", title: "동구청", color: "#00AA00", subColor: "#007700", phone: "079-284-1193" },
+            "seo": { name: "서구", title: "서구청", color: "#00AABB", subColor: "#008899", phone: "079-634-2201" },
+            "nam": { name: "남구", title: "남구청", color: "#9856FF", subColor: "#6B21A8", phone: "079-451-9034" },
+            "buk": { name: "북구", title: "북구청", color: "#6677CC", subColor: "#4338CA", phone: "079-321-5042" },
+            "ancheon": { name: "안천구", title: "안천구청", color: "#AA66DD", subColor: "#7E22CE", phone: "079-915-7732" },
+            "changjeon": { name: "창전구", title: "창전구청", color: "#33AAFF", subColor: "#0284C7", phone: "079-822-1594" },
+            "cheongyeop": { name: "청엽구", title: "청엽구청", color: "#006699", subColor: "#004D73", phone: "079-781-4920" },
+            "tanseong": { name: "탄성군", title: "탄성군청", color: "#559900", subColor: "#3D7300", phone: "079-134-8821" }
+        };
+
+        // =========================================================================
+        // 2. 사용자 제공 행정동 / 읍·면·동 원본 데이터 (145개 행 100% 무손실 수록)
+        // [구/군, 행정동/읍면동, 인구, 면적, 인구밀도, 통/리 및 반개수]
+        // =========================================================================
+        const HAENGJEONG_DONG_RAW = [
+            ["남구","고당동","19,895명","3.62㎢","5,495.9명/㎢","44통 198반"],
+            ["남구","곽산1동","10,503명","6.49㎢","1,618.3명/㎢","23통 104반"],
+            ["남구","곽산2동","27,784명","6.12㎢","4,539.9명/㎢","62통 279반"],
+            ["남구","어간1동","12,818명","4.05㎢","3,164.9명/㎢","28통 126반"],
+            ["남구","어간2동","25,326명","4.67㎢","5,423.1명/㎢","56통 252반"],
+            ["남구","어간3동","27,392명","4.86㎢","5,636.2명/㎢","61통 275반"],
+            ["남구","월천동","24,110명","14.77㎢","1,632.4명/㎢","54통 243반"],
+            ["남구","평당1동","15,040명","1.31㎢","11,480.9명/㎢","33통 149반"],
+            ["남구","평당2동","20,447명","1.68㎢","12,170.8명/㎢","45통 203반"],
+            ["남구","평당3동","13,247명","2.51㎢","5,277.7명/㎢","29통 131반"],
+            ["남구","평당4동","6,954명","3.30㎢","2,107.3명/㎢","15통 68반"],
+            ["남구","평당5동","21,046명","2.55㎢","8,253.3명/㎢","47통 212반"],
+            ["남구","평당6동","17,436명","4.18㎢","4,171.3명/㎢","39통 176반"],
+            ["남구","평당7동","60,193명","6.69㎢","8,997.5명/㎢","134통 603반"],
+            ["남구","항1동","4,222명","3.64㎢","1,159.9명/㎢","9통 41반"],
+            ["남구","항2동","30,022명","10.22㎢","2,937.6명/㎢","67통 302반"],
+            ["남구","항3동","23,122명","3.20㎢","7,225.6명/㎢","51통 230반"],
+            ["남구","항4동","12,832명","4.43㎢","2,896.6명/㎢","29통 131반"],
+            ["동구","덕현11동","13,907명","0.86㎢","16,170.9명/㎢","31통 140반"],
+            ["동구","덕현1동","12,550명","1.28㎢","9,804.7명/㎢","28통 126반"],
+            ["동구","덕현2동","19,898명","0.93㎢","21,395.7명/㎢","44통 198반"],
+            ["동구","덕현3동","10,494명","1.13㎢","9,286.7명/㎢","23통 104반"],
+            ["동구","덕현4동","9,632명","0.77㎢","12,509.1명/㎢","21통 95반"],
+            ["동구","덕현5동","10,622명","1.35㎢","7,868.1명/㎢","24통 108반"],
+            ["동구","덕현6동","14,845명","0.93㎢","15,962.4명/㎢","33통 149반"],
+            ["동구","덕현7동","8,494명","1.46㎢","5,817.8명/㎢","19통 86반"],
+            ["동구","덕현9동","4,464명","1.36㎢","3,282.4명/㎢","10통 45반"],
+            ["동구","사가당1동","15,910명","2.19㎢","7,264.8명/㎢","35통 158반"],
+            ["동구","사가당2동","8,337명","0.88㎢","9,473.9명/㎢","19통 86반"],
+            ["동구","사가당3동","13,934명","0.75㎢","18,578.7명/㎢","31통 140반"],
+            ["동구","사가당4동","11,734명","0.47㎢","24,966.0명/㎢","26통 117반"],
+            ["동구","전천동","17,191명","3.66㎢","4,697.0명/㎢","38통 171반"],
+            ["북구","고송1동","46,225명","2.47㎢","18,714.6명/㎢","103통 464반"],
+            ["북구","고송2동","11,651명","1.23㎢","9,472.4명/㎢","26통 117반"],
+            ["북구","고송3동","7,923명","0.80㎢","9,903.8명/㎢","18통 81반"],
+            ["북구","고송4동","30,900명","1.57㎢","19,681.5명/㎢","69통 311반"],
+            ["북구","고송5동","18,374명","1.22㎢","15,060.7명/㎢","41통 185반"],
+            ["북구","고송6동","52,540명","2.04㎢","25,754.9명/㎢","117통 527반"],
+            ["북구","고송7동","44,232명","1.94㎢","22,800.0명/㎢","98통 441반"],
+            ["북구","고송8동","18,954명","1.10㎢","17,230.9명/㎢","42통 189반"],
+            ["북구","남전동","13,244명","2.10㎢","6,306.7명/㎢","29통 131반"],
+            ["북구","사능1동","8,632명","2.93㎢","2,946.1명/㎢","19통 86반"],
+            ["북구","사능2동","10,321명","1.35㎢","7,645.2명/㎢","23통 104반"],
+            ["북구","산고동","7,810명","4.15㎢","1,881.9명/㎢","17통 77반"],
+            ["북구","소조동","18,493명","2.05㎢","9,021.0명/㎢","41통 185반"],
+            ["북구","오내1동","25,828명","2.40㎢","10,761.7명/㎢","57통 257반"],
+            ["북구","오내2동","26,566명","2.18㎢","12,186.2명/㎢","59통 266반"],
+            ["북구","중수1동","30,258명","2.27㎢","13,329.5명/㎢","67통 302반"],
+            ["북구","중수2동","26,785명","2.05㎢","13,065.9명/㎢","60통 270반"],
+            ["북구","중수3동","33,325명","1.68㎢","19,836.3명/㎢","74통 333반"],
+            ["북구","중수4동","40,690명","2.08㎢","19,562.5명/㎢","90통 405반"],
+            ["북구","진희동","24,110명","6.23㎢","3,870.0명/㎢","54통 243반"],
+            ["북구","채산동","11,510명","21.92㎢","525.1명/㎢","26통 117반"],
+            ["북구","천왕사동","13,085명","5.28㎢","2,478.2명/㎢","29통 131반"],
+            ["북구","청능동","12,848명","6.14㎢","2,092.5명/㎢","29통 131반"],
+            ["북구","포산동","14,233명","1.94㎢","7,336.6명/㎢","32통 144반"],
+            ["서구","과진1동","5,135명","0.37㎢","13,878.4명/㎢","11통 50반"],
+            ["서구","과진2동","13,419명","0.50㎢","26,838.0명/㎢","30통 135반"],
+            ["서구","과진3동","14,039명","0.70㎢","20,055.7명/㎢","31통 140반"],
+            ["서구","과진4동","10,115명","0.86㎢","11,761.6명/㎢","22통 99반"],
+            ["서구","과진5동","11,815명","0.57㎢","20,728.1명/㎢","26통 117반"],
+            ["서구","과진6동","28,435명","1.80㎢","15,797.2명/㎢","63통 284반"],
+            ["서구","과진7동","7,771명","0.77㎢","10,092.2명/㎢","17통 77반"],
+            ["서구","당선1동","14,285명","1.76㎢","8,116.5명/㎢","32통 144반"],
+            ["서구","당선2동","15,461명","1.80㎢","8,589.4명/㎢","34통 153반"],
+            ["서구","당선3동","23,689명","1.57㎢","15,088.5명/㎢","53통 239반"],
+            ["서구","당선4동","16,055명","2.09㎢","7,681.8명/㎢","36통 162반"],
+            ["서구","북성동","4,322명","1.21㎢","3,571.9명/㎢","10통 45반"],
+            ["서구","사복1동","17,481명","0.98㎢","17,837.8명/㎢","39통 176반"],
+            ["서구","사복2동","23,782명","1.21㎢","19,654.5명/㎢","53통 239반"],
+            ["서구","청덕1동","24,997명","2.63㎢","9,504.6명/㎢","56통 252반"],
+            ["서구","청덕2동","7,656명","1.82㎢","4,206.6명/㎢","17통 77반"],
+            ["서구","청덕3동","31,931명","2.08㎢","15,351.4명/㎢","71통 320반"],
+            ["안천구","뇌전동","13,486명","10.97㎢","1,229.4명/㎢","30통 135반"],
+            ["안천구","당가1동","20,522명","2.04㎢","10,059.8명/㎢","46통 207반"],
+            ["안천구","당가2동","17,051명","1.58㎢","10,791.8명/㎢","38통 171반"],
+            ["안천구","백합동","5,433명","3.82㎢","1,422.3명/㎢","12통 54반"],
+            ["안천구","북택동","31,708명","3.60㎢","8,807.8명/㎢","70통 315반"],
+            ["안천구","성저동","15,111명","3.53㎢","4,280.7명/㎢","34통 153반"],
+            ["안천구","악부동","27,545명","22.21㎢","1,240.2명/㎢","61통 275반"],
+            ["안천구","안천1동","5,856명","0.44㎢","13,309.1명/㎢","13통 59반"],
+            ["안천구","안천2동","20,863명","0.74㎢","28,193.2명/㎢","46통 207반"],
+            ["안천구","안천3동","15,270명","0.70㎢","21,814.3명/㎢","34통 153반"],
+            ["안천구","안천4동","25,376명","0.94㎢","26,995.7명/㎢","56통 252반"],
+            ["안천구","안천5동","12,604명","0.66㎢","19,097.0명/㎢","28통 126반"],
+            ["안천구","안천6동","23,448명","0.96㎢","24,425.0명/㎢","52통 234반"],
+            ["안천구","안천7동","15,208명","0.43㎢","35,367.4명/㎢","34통 153반"],
+            ["안천구","이십기동","12,906명","6.87㎢","1,878.6명/㎢","29통 131반"],
+            ["안천구","이자1동","38,888명","3.53㎢","11,016.4명/㎢","86통 387반"],
+            ["안천구","이자2동","11,929명","1.34㎢","8,902.2명/㎢","27통 122반"],
+            ["안천구","이자3동","83,399명","5.34㎢","15,617.8명/㎢","185통 833반"],
+            ["안천구","이자4동","22,148명","1.34㎢","16,528.4명/㎢","49통 221반"],
+            ["안천구","창건동","20,202명","3.24㎢","6,235.2명/㎢","45통 203반"],
+            ["안천구","칠채동","11,333명","16.07㎢","705.2명/㎢","25통 113반"],
+            ["중구","고도동","8,556명","1.65㎢","5,185.5명/㎢","19통 86반"],
+            ["중구","궁영동","2,333명","0.49㎢","4,761.2명/㎢","5통 23반"],
+            ["중구","내조1동","9,522명","0.44㎢","21,640.9명/㎢","21통 95반"],
+            ["중구","내조2동","10,022명","0.36㎢","27,838.9명/㎢","22통 99반"],
+            ["중구","내항동","5,202명","2.15㎢","2,419.5명/㎢","12통 54반"],
+            ["중구","신덕동","5,690명","0.73㎢","7,794.5명/㎢","13통 59반"],
+            ["중구","약맥동","8,984명","1.43㎢","6,282.5명/㎢","20통 90반"],
+            ["중구","유내동","10,288명","0.56㎢","18,371.4명/㎢","23통 104반"],
+            ["중구","조유동","8,089명","1.22㎢","6,630.3명/㎢","18통 81반"],
+            ["중구","중앙동","5,268명","1.57㎢","3,355.4명/㎢","20통 90반"],
+            ["중구","중정동","5,847명","1.41㎢","4,146.8명/㎢","13통 59반"],
+            ["창전구","광정동","10,222명","10.31㎢","991.5명/㎢","23통 104반"],
+            ["창전구","동곡동","25,749명","6.45㎢","3,992.1명/㎢","57통 257반"],
+            ["창전구","쌍엽1동","38,406명","1.90㎢","20,213.7명/㎢","85통 383반"],
+            ["창전구","쌍엽2동","13,309명","1.79㎢","7,435.2명/㎢","30통 135반"],
+            ["창전구","유류동","7,223명","2.20㎢","3,283.2명/㎢","16통 72반"],
+            ["창전구","진백동","31,914명","8.58㎢","3,719.6명/㎢","71통 320반"],
+            ["창전구","창전1동","19,815명","1.30㎢","15,242.3명/㎢","44통 198반"],
+            ["창전구","창전2동","15,821명","1.06㎢","14,925.5명/㎢","35통 158반"],
+            ["창전구","창전3동","46,316명","1.46㎢","31,723.3명/㎢","103통 464반"],
+            ["창전구","창전4동","27,881명","0.96㎢","29,042.7명/㎢","62통 279반"],
+            ["창전구","창전5동","13,961명","1.22㎢","11,443.4명/㎢","31통 140반"],
+            ["창전구","칠심1동","32,486명","1.39㎢","23,371.2명/㎢","72통 324반"],
+            ["창전구","칠심2동","30,735명","1.49㎢","20,627.5명/㎢","68통 306반"],
+            ["창전구","칠심3동","20,050명","1.37㎢","14,635.0명/㎢","45통 203반"],
+            ["창전구","팔조동","16,460명","4.34㎢","3,792.6명/㎢","37통 167반"],
+            ["청엽구","동리동","16,139명","2.81㎢","5,743.4명/㎢","36통 162반"],
+            ["청엽구","등동","21,208명","2.89㎢","7,338.4명/㎢","47통 212반"],
+            ["청엽구","마잡1동","18,061명","2.28㎢","7,921.5명/㎢","40통 180반"],
+            ["청엽구","마잡2동","29,233명","8.24㎢","3,547.7명/㎢","65통 293반"],
+            ["청엽구","비마리동","45,074명","4.88㎢","9,236.5명/㎢","100통 450반"],
+            ["청엽구","우전1동","28,009명","1.36㎢","20,594.9명/㎢","62통 279반"],
+            ["청엽구","우전2동","45,929명","1.47㎢","31,244.2명/㎢","102통 459반"],
+            ["청엽구","우전3동","25,803명","1.26㎢","20,478.6명/㎢","57통 257반"],
+            ["청엽구","우택동","30,464명","4.41㎢","6,907.9명/㎢","68통 306반"],
+            ["청엽구","입빈동","39,058명","5.80㎢","6,734.1명/㎢","87통 392반"],
+            ["청엽구","청엽1동","49,575명","1.74㎢","28,491.4명/㎢","110통 495반"],
+            ["청엽구","청엽2동","22,194명","0.90㎢","24,660.0명/㎢","49통 221반"],
+            ["청엽구","청엽3동","8,689명","0.86㎢","10,103.5명/㎢","19통 86반"],
+            ["청엽구","청엽4동","26,728명","1.02㎢","26,203.9명/㎢","59통 266반"],
+            ["청엽구","청엽5동","33,830명","1.19㎢","28,428.6명/㎢","75통 338반"],
+            ["청엽구","청엽6동","30,049명","1.41㎢","21,311.3명/㎢","67통 302반"],
+            ["탄성군","고해읍","23,621명","47.58㎢","496.4명/㎢","54행정리 281반"],
+            ["탄성군","도변읍","90,238명","37.24㎢","2,423.1명/㎢","131행정리 681반"],
+            ["탄성군","도향면","7,332명","31.79㎢","230.6명/㎢","25행정리 130반"],
+            ["탄성군","서목읍","35,382명","43.90㎢","806.0명/㎢","80행정리 416반"],
+            ["탄성군","소원면","16,422명","26.19㎢","627.0명/㎢","35행정리 182반"],
+            ["탄성군","야진읍","7,239명","40.60㎢","178.3명/㎢","22행정리 114반"],
+            ["탄성군","정근면","2,933명","48.31㎢","60.7명/㎢","20행정리 104반"],
+            ["탄성군","탄성읍","49,998명","31.17㎢","1,604.0명/㎢","95행정리 494반"],
+            ["탄성군","흑택면","21,937명","22.31㎢","983.3명/㎢","46행정리 239반"]
+        ];
+
+        // =========================================================================
+        // 3. 사용자 제공 법정동·리 원본 데이터 (246개 행 100% 무손실 수록)
+        // [구/군, 법정동·리, 인구(25.7), 비고]
+        // =========================================================================
+        const BEOPJEONG_DONG_RAW = [
+            ["남구","고간동","9,991명",""],
+            ["남구","곽산동","38,287명",""],
+            ["남구","박산동","6,481명",""],
+            ["남구","신흥동","8,321명",""],
+            ["남구","어간동","52,825명",""],
+            ["남구","운양동","12,711명",""],
+            ["남구","월천동","9,399명",""],
+            ["남구","평당동","164,267명","남구 1위"],
+            ["남구","포장동","109명","남구최소"],
+            ["남구","항동1가","44,091명",""],
+            ["남구","항동2가","21,311명",""],
+            ["남구","항동3가","4,796명",""],
+            ["동구","덕현동","103,906명","동구 1위"],
+            ["동구","사가당동","49,915명",""],
+            ["동구","전천동","17,191명","동구최소"],
+            ["북구","고송동","230,799명","효빈시 전체 1위, 북구 1위"],
+            ["북구","곡진동","431명",""],
+            ["북구","남전동","13,244명",""],
+            ["북구","등기동","2,710명",""],
+            ["북구","사능동1가","2,155명",""],
+            ["북구","사능동2가","11,132명",""],
+            ["북구","사능동3가","2,553명",""],
+            ["북구","사연동","3,800명",""],
+            ["북구","생곡동","2,223명",""],
+            ["북구","서도동","2,010명",""],
+            ["북구","소조동","18,493명",""],
+            ["북구","수포동","321명",""],
+            ["북구","습지동","410명",""],
+            ["북구","신영동","1,911명",""],
+            ["북구","실본동","111명","북구 최소"],
+            ["북구","아자동","631명",""],
+            ["북구","아진동","521명",""],
+            ["북구","오내동","52,394명",""],
+            ["북구","입선동","1,891명",""],
+            ["북구","입희동","5,153명",""],
+            ["북구","중수동","131,058명",""],
+            ["북구","진희동","21,013명",""],
+            ["북구","채산동","2,453명",""],
+            ["북구","천왕사동","10,853명",""],
+            ["북구","청능동","8,901명",""],
+            ["북구","추산동","2,000명",""],
+            ["북구","치남동","890명",""],
+            ["북구","평전동","2,011명",""],
+            ["북구","포산동","14,233명",""],
+            ["북구","해서동","2,232명",""],
+            ["서구","과진동","90,729명","서구 1위"],
+            ["서구","내성동1가","1,290명",""],
+            ["서구","내성동2가","768명",""],
+            ["서구","내성동3가","1,222명",""],
+            ["서구","당선동","68,015명",""],
+            ["서구","북문동1가","491명","서구 최소"],
+            ["서구","북문동2가","551명",""],
+            ["서구","사복동","41,263명",""],
+            ["서구","청덕동","64,584명",""],
+            ["서구","칠천동","1,475명",""],
+            ["안천구","광상동","138명",""],
+            ["안천구","군청동","0명","공군부대 소재지 (효빈시전체 공동 꼴등,안천구 꼴등)"],
+            ["안천구","남동","561명",""],
+            ["안천구","뇌전동","1,221명",""],
+            ["안천구","능릉동","1,012명",""],
+            ["안천구","당가동","37,573명",""],
+            ["안천구","리의동","5,112명",""],
+            ["안천구","무로동","2,002명",""],
+            ["안천구","백합동","4,322명",""],
+            ["안천구","북택동","18,171명",""],
+            ["안천구","상가동","2,112명",""],
+            ["안천구","상점동","1,111명",""],
+            ["안천구","서수동","3,211명",""],
+            ["안천구","성저동","15,111명",""],
+            ["안천구","세익동","1,034명",""],
+            ["안천구","신동","4,912명",""],
+            ["안천구","심회동","71명",""],
+            ["안천구","악부동","3,417명",""],
+            ["안천구","안천동","118,625명","안천구 1위"],
+            ["안천구","영색무동","5,311명",""],
+            ["안천구","월삼동","533명",""],
+            ["안천구","융문동","81명",""],
+            ["안천구","이십기동","5,711명",""],
+            ["안천구","이자동","118,541명",""],
+            ["안천구","일화동","77명",""],
+            ["안천구","정치동","211명",""],
+            ["안천구","제택동","8,511명",""],
+            ["안천구","창건동","20,202명",""],
+            ["안천구","천문동","31명",""],
+            ["안천구","천본동","2명","안천구 인구 거주지중 최하위"],
+            ["안천구","초음동","222명",""],
+            ["안천구","추자동","2,012명",""],
+            ["안천구","치장동","722명",""],
+            ["안천구","칠채동","413명",""],
+            ["안천구","타천동","122명",""],
+            ["안천구","탄자동","32,911명",""],
+            ["안천구","팔망성동","13,023명",""],
+            ["안천구","팔월동","781명",""],
+            ["안천구","하가동","7,616명",""],
+            ["안천구","하구동","13,537명",""],
+            ["중구","경동","4,887명",""],
+            ["중구","고도동","765명",""],
+            ["중구","궁정동","11명",""],
+            ["중구","내조동","19,544명","중구 1위"],
+            ["중구","내항동","2,202명",""],
+            ["중구","도람동","21명",""],
+            ["중구","리사동","1,766명",""],
+            ["중구","만실동","0명","효빈성 공원만 위치 (효빈시전체, 중구 공동꼴등)"],
+            ["중구","목동","2,530명",""],
+            ["중구","삼각동","554명",""],
+            ["중구","서남동","922명",""],
+            ["중구","소장동1가","0명","전역 재개발중 (효빈시전체, 중구 공동꼴등)"],
+            ["중구","소장동2가","569명",""],
+            ["중구","시남동","3,456명",""],
+            ["중구","시북동","1,680명",""],
+            ["중구","신덕동","5,690명",""],
+            ["중구","심동1가","1,217명",""],
+            ["중구","심동2가","2,024명",""],
+            ["중구","십덕동","768명",""],
+            ["중구","약맥동","1,033명",""],
+            ["중구","영동1가","889명",""],
+            ["중구","영동2가","1,412명",""],
+            ["중구","오석동","2,302명",""],
+            ["중구","오주동","4,546명",""],
+            ["중구","완동1가","55명",""],
+            ["중구","완동2가","22명",""],
+            ["중구","완동3가","178명",""],
+            ["중구","우이동","1,665명",""],
+            ["중구","원동1가","421명",""],
+            ["중구","원동2가","12명",""],
+            ["중구","원동3가","23명",""],
+            ["중구","원동4가","3명",""],
+            ["중구","유내동","1,778명",""],
+            ["중구","일동","3,000명",""],
+            ["중구","일향동","321명",""],
+            ["중구","정동","1,857명",""],
+            ["중구","조유동1가","1,222명",""],
+            ["중구","조유동2가","112명",""],
+            ["중구","조유동3가","332명",""],
+            ["중구","조유동4가","1,232명",""],
+            ["중구","조유동5가","2,322명",""],
+            ["중구","중동1가","2,068명",""],
+            ["중구","중동2가","12명",""],
+            ["중구","중동3가","312명",""],
+            ["중구","중보로","898명",""],
+            ["중구","중앙로1가","78명",""],
+            ["중구","중앙로2가","90명",""],
+            ["중구","중앙로3가","2명","중구 인구 거주지중 공동 최하위"],
+            ["중구","중앙로4가","277명",""],
+            ["중구","중앙로5가","123명",""],
+            ["중구","중앙로6가","321명",""],
+            ["중구","지유동1가","20명",""],
+            ["중구","지유동2가","30명",""],
+            ["중구","창선동1가","15명",""],
+            ["중구","창선동2가","33명",""],
+            ["중구","창선동3가","8명",""],
+            ["중구","천석동1가","1,723명",""],
+            ["중구","천석동2가","322명",""],
+            ["중구","천석동3가","124명",""],
+            ["중구","훈동","2명","중구 인구 거주지중 공동 최하위"],
+            ["창전구","광정동","1,161명",""],
+            ["창전구","동곡동","17,931명",""],
+            ["창전구","마시동","1,528명",""],
+            ["창전구","보통동","7,412명",""],
+            ["창전구","생덕동","121명","창전구 최소"],
+            ["창전구","시로동","11,112명",""],
+            ["창전구","쌍엽동","51,715명",""],
+            ["창전구","유류동","7,223명",""],
+            ["창전구","진백동","20,802명",""],
+            ["창전구","창전동","123,794명","창전구 1위"],
+            ["창전구","칠심동","83,271명",""],
+            ["창전구","투자동","7,818명",""],
+            ["창전구","팔조동","16,460명",""],
+            ["청엽구","동리동","16,139명",""],
+            ["청엽구","등동","21,208명",""],
+            ["청엽구","마잡동","30,892명",""],
+            ["청엽구","비마동","27,642명",""],
+            ["청엽구","사노동","17,432명",""],
+            ["청엽구","서증동","2,111명",""],
+            ["청엽구","우전동","99,741명",""],
+            ["청엽구","우택동","30,464명",""],
+            ["청엽구","입동1가","1,398명","청엽구 최소"],
+            ["청엽구","입동2가","1,892명",""],
+            ["청엽구","입동3가","4,181명",""],
+            ["청엽구","청엽동","171,065명","청엽구 1위"],
+            ["청엽구","헌이송동","14,291명",""],
+            ["청엽구","효빈동1가","25,156명",""],
+            ["청엽구","효빈동2가","6,431명",""],
+            ["탄성군","고해읍 고해리","7,190명","고해읍사무소 소재지"],
+            ["탄성군","고해읍 율일리","545명",""],
+            ["탄성군","고해읍 은진원리","23명","탄성군 최소"],
+            ["탄성군","고해읍 이식리","525명",""],
+            ["탄성군","고해읍 이와리","7,778명",""],
+            ["탄성군","고해읍 장심리","224명",""],
+            ["탄성군","고해읍 전추리","233명",""],
+            ["탄성군","고해읍 정명리","525명",""],
+            ["탄성군","고해읍 천가리","6,578명",""],
+            ["탄성군","도변읍 계층리","3,442명",""],
+            ["탄성군","도변읍 도변리","21,342명","도변읍사무소 소재지"],
+            ["탄성군","도변읍 앵내리","39,521명","탄성군 1위, 도변읍 앵내출장소 소재지"],
+            ["탄성군","도변읍 요우리","22,211명",""],
+            ["탄성군","도변읍 잠재리","2,311명",""],
+            ["탄성군","도변읍 조일리","289명",""],
+            ["탄성군","도변읍 표명리","1,122명",""],
+            ["탄성군","도향면 미로리","442명",""],
+            ["탄성군","도향면 반주리","32명",""],
+            ["탄성군","도향면 벽천리","213명",""],
+            ["탄성군","도향면 분음리","3,432명","도향면사무소 소재지"],
+            ["탄성군","도향면 시초리","1,324명",""],
+            ["탄성군","도향면 영왕리","322명",""],
+            ["탄성군","도향면 일일리","112명",""],
+            ["탄성군","도향면 일하리","232명",""],
+            ["탄성군","도향면 초반리","342명",""],
+            ["탄성군","도향면 춘일경리","537명",""],
+            ["탄성군","도향면 하공리","344명",""],
+            ["탄성군","서목읍 록구리","2,122명",""],
+            ["탄성군","서목읍 마희리","232명",""],
+            ["탄성군","서목읍 서목리","12,145명","서목읍사무소 소재지"],
+            ["탄성군","서목읍 소춘리","1,720명",""],
+            ["탄성군","서목읍 승남리","7,244명",""],
+            ["탄성군","서목읍 음일리","233명",""],
+            ["탄성군","서목읍 일회리","1,232명",""],
+            ["탄성군","서목읍 입리","4,454명",""],
+            ["탄성군","서목읍 잠금리","1,233명",""],
+            ["탄성군","서목읍 조산리","232명",""],
+            ["탄성군","서목읍 파래리","4,535명",""],
+            ["탄성군","소원면 라면리","2,023명",""],
+            ["탄성군","소원면 부우리","634명",""],
+            ["탄성군","소원면 소원리","8,444명","소원면사무소 소재지"],
+            ["탄성군","소원면 윤부리","5,321명",""],
+            ["탄성군","야진읍 미우리","2,325명",""],
+            ["탄성군","야진읍 신리","426명",""],
+            ["탄성군","야진읍 아득리","133명",""],
+            ["탄성군","야진읍 야진리","3,933명","야진읍사무소소재지"],
+            ["탄성군","야진읍 원심리","422명",""],
+            ["탄성군","정근면 구생리","232명",""],
+            ["탄성군","정근면 사촌리","347명",""],
+            ["탄성군","정근면 안경리","422명",""],
+            ["탄성군","정근면 익목리","132명",""],
+            ["탄성군","정근면 처구리","44명",""],
+            ["탄성군","정근면 촌주리","353명",""],
+            ["탄성군","정근면 층부리","1,211명","정근면사무소 소재지"],
+            ["탄성군","정근면 회층리","192명",""],
+            ["탄성군","탄성읍 고무리","12,344명",""],
+            ["탄성군","탄성읍 공리","11,233명","탄성군청소재지"],
+            ["탄성군","탄성읍 명무리","323명",""],
+            ["탄성군","탄성읍 무성리","453명",""],
+            ["탄성군","탄성읍 미성리","5,982명",""],
+            ["탄성군","탄성읍 성규리","2,111명",""],
+            ["탄성군","탄성읍 탄성리","17,552명","탄성읍 사무소 소재지"],
+            ["탄성군","흑택면 루비리","10,553명",""],
+            ["탄성군","흑택면 보습리","899명",""],
+            ["탄성군","흑택면 은염리","1,233명",""],
+            ["탄성군","흑택면 명현리","543명",""],
+            ["탄성군","흑택면 흑택리","8,709명","흑택면사무소 소재지"]
+        ];
+
+        const ADMIN_GU_ORDER = ["", "jung", "dong", "seo", "nam", "buk", "ancheon", "changjeon", "cheongyeop", "tanseong"];
+
+        function switchAdminGu(guKey) {
+            if (!guKey) {
+                window.location.href = '행정구역.html';
+            } else {
+                window.location.href = `행정구역.html?gu=${guKey}`;
+            }
+        }
+
+        function initAdminDistrictsPage() {
+            // 0. 하단 만족도 조사 박스 중복 방지
+            const surveyBoxes = Array.from(document.querySelectorAll('div')).filter(el => 
+                el.textContent && el.textContent.includes('이 페이지에서 제공하는 정보에 대하여 만족하십니까?') && el.children.length <= 4
+            );
+            if (surveyBoxes.length > 1) {
+                for (let i = 1; i < surveyBoxes.length; i++) {
+                    surveyBoxes[i].style.display = 'none';
+                }
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+            const isGu = Boolean(guKey && GU_META[guKey]);
+
+            // 상단 빠른 전환 탭 버튼 생성
+            const tabsBox = document.getElementById('gu-switch-tabs');
+            if (tabsBox) {
+                tabsBox.innerHTML = ADMIN_GU_ORDER.map(k => {
+                    const label = k === "" ? "효빈광역시(전체 총괄)" : GU_META[k].name;
+                    const active = (k === (isGu ? guKey : ""));
+                    const bgColor = active ? (k === "" ? "#1e3a8a" : GU_META[k].subColor) : "#ffffff";
+                    const txtColor = active ? "#ffffff" : "#334155";
+                    return `<button onclick="switchAdminGu('${k}')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold border border-slate-200 transition shadow-sm hover:opacity-90" style="background-color:${bgColor}; color:${txtColor};">${label}</button>`;
+                }).join('');
+            }
+
+            // 좌측 LNB 3뎁스 현재 선택 표시
+            document.querySelectorAll('[data-lnb-gu]').forEach(a => {
+                if (a.dataset.lnbGu === (isGu ? guKey : "")) {
+                    a.classList.add('current-sub');
+                } else {
+                    a.classList.remove('current-sub');
+                }
+            });
+
+            // 하단 광역 총괄표 하이라이트 초기화
+            document.querySelectorAll('[data-gu-key]').forEach(tr => tr.classList.remove('gu-Highlight-row'));
+
+            if (!isGu) {
+                document.getElementById('gu-detail-section').classList.add('hidden');
+                return;
+            }
+
+            const g = GU_META[guKey];
+            const isGun = g.name.endsWith('군');
+            const prefix = isGun ? '군' : '구';
+
+            // 1. 문서 타이틀, 서브비주얼, 좌측 사이드바(LNB), 브레드크럼 동기화
+            document.title = `${g.name}소개 - 행정구역 | ${g.title} 공식 홈페이지`;
+            document.getElementById('sub-visual-bg').style.backgroundColor = `${g.subColor}D9`;
+            document.getElementById('sub-visual-title').textContent = `${g.name}소개`;
+
+            document.getElementById('lnb-wrap-box').style.borderTopColor = g.color;
+            const lnbTitle = document.getElementById('lnb-main-title');
+            lnbTitle.textContent = `${g.name}소개`;
+            lnbTitle.style.backgroundColor = g.subColor;
+
+            document.getElementById('lnb-slogan-link').textContent = `${prefix}정구호`;
+            document.getElementById('lnb-hall-label').textContent = `${prefix}청안내`;
+            document.getElementById('lnb-symbol-label').textContent = `${prefix}의상징`;
+            document.getElementById('lnb-bird-link').textContent = `${prefix}조/${prefix}화/${prefix}목`;
+            document.getElementById('lnb-day-link').textContent = `${prefix}민의날`;
+            document.getElementById('lnb-song-link').textContent = `${prefix}민의노래`;
+            document.getElementById('lnb-stat-label').textContent = `${g.name}통계`;
+            document.getElementById('lnb-whitepaper-link').textContent = `${prefix}정백서`;
+            document.getElementById('lnb-hist-label').textContent = `${g.name}의역사`;
+            document.getElementById('lnb-mayor-link').textContent = `역대${isGun ? '군수' : '구청장'}`;
+            document.getElementById('lnb-mayor-link').setAttribute('href', `역대구청장.html?gu=${guKey}`);
+            document.getElementById('lnb-origin-link').textContent = `${g.name}의유래와연혁`;
+            document.getElementById('lnb-current-link').style.color = g.subColor;
+
+            // LNB 내부 일반 링크(3뎁스 구 선택 링크 제외)에 ?gu= 유지
+            document.querySelectorAll('aside a[href]').forEach(a => {
+                if (a.hasAttribute('data-lnb-gu') || a.getAttribute('href').startsWith('http')) return;
+                const rawHref = a.getAttribute('href').split('?')[0];
+                if (rawHref === '역대시장.html') {
+                    a.setAttribute('href', `역대구청장.html?gu=${guKey}`);
+                } else {
+                    a.setAttribute('href', `${rawHref}?gu=${guKey}`);
+                }
+            });
+
+            document.getElementById('bread-home').setAttribute('href', `index.html?gu=${guKey}`);
+            document.getElementById('bread-1').textContent = `${g.name}소개`;
+            document.getElementById('bread-3').textContent = `${g.name} 행정구역`;
+            document.getElementById('bread-3').style.color = g.subColor;
+
+            document.getElementById('main-title-bar').style.borderBottomColor = g.subColor;
+            document.getElementById('page-main-heading').textContent = `${g.name} 행정구역 현황`;
+
+            // 2. 해당 구·군의 행정동/읍·면·동 표 및 법정동·리 표 필터링 & 렌더링
+            const haengRows = HAENGJEONG_DONG_RAW.filter(r => r[0] === g.name);
+            const beopRows = BEOPJEONG_DONG_RAW.filter(r => r[0] === g.name);
+
+            // 합계 자동 계산
+            let sumPop = 0;
+            let sumArea = 0;
+            let sumTong = 0;
+            let sumBan = 0;
+            haengRows.forEach(r => {
+                sumPop += parseInt(r[2].replace(/[^0-9]/g, ''), 10) || 0;
+                sumArea += parseFloat(r[3].replace(/[^0-9.]/g, '')) || 0;
+                const tbMatch = r[5].match(/(\d+)(?:통|행정리)\s*(\d+)반/);
+                if (tbMatch) {
+                    sumTong += parseInt(tbMatch[1], 10);
+                    sumBan += parseInt(tbMatch[2], 10);
+                }
+            });
+            const avgDensity = sumArea > 0 ? (sumPop / sumArea).toFixed(1) : "0.0";
+            const tongUnit = isGun ? "행정리" : "통";
+
+            const guSec = document.getElementById('gu-detail-section');
+            guSec.classList.remove('hidden');
+
+            const banner = document.getElementById('gu-summary-banner');
+            banner.style.background = `linear-gradient(135deg, ${g.subColor} 0%, ${g.color} 100%)`;
+            document.getElementById('gu-banner-badge').textContent = `효빈광역시 ${g.name} 관할 행정구역`;
+            document.getElementById('gu-banner-title').textContent = `${g.name} 행정${isGun ? '읍·면' : '동'} (${haengRows.length}개) 및 법정${isGun ? '리' : '동'} (${beopRows.length}개) 상세 현황`;
+            document.getElementById('gu-banner-stats').innerHTML = `
+                <div class="bg-white/15 backdrop-blur-sm px-3.5 py-2 rounded-lg border border-white/20">
+                    <span class="text-[11px] block text-white/80">관할 면적 합계</span>
+                    <strong class="text-lg font-black">${sumArea.toFixed(2)} ㎢</strong>
+                </div>
+                <div class="bg-white/15 backdrop-blur-sm px-3.5 py-2 rounded-lg border border-white/20">
+                    <span class="text-[11px] block text-white/80">행정${isGun ? '읍·면' : '동'} 인구 합계</span>
+                    <strong class="text-lg font-black">${sumPop.toLocaleString()} 명</strong>
+                </div>
+            `;
+
+            document.getElementById('gu-haeng-title').textContent = `${g.name} 관할 행정${isGun ? '읍·면' : '동'} 현황 (${haengRows.length}개 ${isGun ? '읍·면' : '행정동'})`;
+            const haengTbody = document.getElementById('gu-haeng-tbody');
+            haengTbody.innerHTML = `
+                <tr class="font-bold bg-gray-50 text-gray-900">
+                    <td>${g.name} 합계</td>
+                    <td>${haengRows.length}개 ${isGun ? '읍·면' : '행정동'}</td>
+                    <td class="text-blue-800">${sumPop.toLocaleString()}명</td>
+                    <td>${sumArea.toFixed(2)}㎢</td>
+                    <td>${Number(avgDensity).toLocaleString()}명/㎢</td>
+                    <td>${sumTong.toLocaleString()}${tongUnit} ${sumBan.toLocaleString()}반</td>
+                </tr>
+            ` + haengRows.map(r => `
+                <tr>
+                    <td class="font-medium text-slate-500">${r[0]}</td>
+                    <td class="font-bold text-slate-800">${r[1]}</td>
+                    <td class="font-semibold text-slate-800">${r[2]}</td>
+                    <td>${r[3]}</td>
+                    <td>${r[4]}</td>
+                    <td>${r[5]}</td>
+                </tr>
+            `).join('');
+
+            // 법정동·리 합계 계산
+            let sumBeopPop = 0;
+            beopRows.forEach(r => {
+                sumBeopPop += parseInt(r[2].replace(/[^0-9]/g, ''), 10) || 0;
+            });
+
+            document.getElementById('gu-beop-title').textContent = `${g.name} 관할 법정${isGun ? '리(읍·면 소속)' : '동'}별 인구 및 비고 현황 (${beopRows.length}개 법정${isGun ? '리' : '동'})`;
+// ▼ 여기서부터 잘린 맨 아랫부분을 이어 붙이시면 됩니다!
+            const beopTbody = document.getElementById('gu-beop-tbody');
+            beopTbody.innerHTML = `
+                <tr class="font-bold bg-gray-50 text-gray-900">
+                    <td>${g.name} 합계</td>
+                    <td>총 ${beopRows.length}개 법정${isGun ? '리' : '동'}</td>
+                    <td class="text-blue-800">${sumBeopPop.toLocaleString()}명</td>
+                    <td class="text-xs text-slate-500">2025.07. 집계 기준</td>
+                </tr>
+            ` + beopRows.map(r => {
+                const noteHtml = r[3]
+                    ? `<span class="inline-block bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold px-2.5 py-0.5 rounded-full">${r[3]}</span>`
+                    : `<span class="text-slate-300">-</span>`;
+                return `
+                    <tr>
+                        <td class="font-medium text-slate-500">${r[0]}</td>
+                        <td class="font-bold text-slate-800">${r[1]}</td>
+                        <td class="font-semibold text-slate-800">${r[2]}</td>
+                        <td>${noteHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 3. 하단 광역 전체 총괄표에서 현재 선택된 구·군 행(Row) 강조 표시
+            document.querySelectorAll(`[data-gu-key="${guKey}"], [data-city-row="${guKey}"]`).forEach(tr => {
+                tr.classList.add('gu-Highlight-row');
+            });
+
+            // 4. 하단 담당부서 연락처 동기화
+            const footerBar = document.getElementById('dept-footer-bar');
+            if (footerBar && footerBar.firstElementChild) {
+                footerBar.firstElementChild.textContent = `자료관리 담당부서 : ${g.title} 자치행정과 | 연락처 : ${g.phone}`;
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 아이콘 렌더링 및 페이지 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+            initAdminDistrictsPage();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     </script>
-    <script src="common121.js"></script>
 </body>
 </html>

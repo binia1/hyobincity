@@ -4,7 +4,7 @@
     <link rel="icon" href="이미지/logo.webp">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시의상징 - 시조/시화/시목 | 효빈광역시 공식 홈페이지</title>
+    <title id="window-title">시의상징 - 시조/시화/시목 | 효빈광역시 공식 홈페이지</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts (Noto Sans KR) -->
@@ -21,8 +21,8 @@
         .sub-visual::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 30px 30px; opacity: 0.15; }
         
         /* 아코디언 LNB 스타일 */
-        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; }
-        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; }
+        .lnb-wrap { border: 1px solid #d1d5db; border-top: 3px solid #1e3a8a; border-radius: 4px; background: #fff; transition: border-color 0.3s; }
+        .lnb-title { background: #1e3a8a; color: #fff; font-size: 1.5rem; font-weight: 700; padding: 1.5rem 1.25rem; text-align: center; transition: background-color 0.3s; }
         .lnb-depth1 > li { border-bottom: 1px solid #e5e7eb; }
         .lnb-depth1 > li:last-child { border-bottom: none; }
         .lnb-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; font-weight: 600; color: #374151; transition: background-color 0.2s; cursor: pointer; }
@@ -57,8 +57,10 @@
 
     <!-- 2. 서브 비주얼 -->
     <div class="sub-visual h-48 md:h-56 flex items-center justify-center text-center px-4 shrink-0">
+        <!-- 구청 모드 시 색상 변경을 위한 오버레이 레이어 -->
+        <div id="visual-overlay" class="absolute inset-0 opacity-80" style="background-color: transparent; mix-blend-mode: multiply; transition: background-color 0.3s;"></div>
         <div class="relative z-10 w-full max-w-4xl">
-            <h1 class="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight text-shadow-strong">효빈소개</h1>
+            <h1 id="top-title" class="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight text-shadow-strong">효빈소개</h1>
         </div>
     </div>
 
@@ -67,8 +69,8 @@
         
         <!-- 아코디언 LNB (좌측 메뉴) -->
         <aside class="w-full md:w-64 shrink-0">
-            <div class="lnb-wrap sticky top-4 z-10">
-                <div class="lnb-title">효빈소개</div>
+            <div id="lnb-wrap" class="lnb-wrap sticky top-4 z-10">
+                <div id="lnb-title" class="lnb-title">효빈소개</div>
                 <ul class="lnb-depth1">
                     <li>
                         <button class="lnb-toggle" onclick="toggleLnb(this)">일반현황 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200"></i></button>
@@ -91,10 +93,10 @@
                             <li><a href="contact.html">찾아오시는길</a></li>
                         </ul>
                     </li>
-                    <li class="active">
-                        <button class="lnb-toggle" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
+                    <li id="lnb-active-item" class="active border-l-4 bg-slate-50 border-blue-600">
+                        <button id="lnb-current-text" class="lnb-toggle text-blue-900" onclick="toggleLnb(this)">시의상징 <i data-lucide="chevron-down" class="w-5 h-5 transform transition-transform duration-200 rotate-180"></i></button>
                         <ul class="lnb-depth2">
-                            <li><a href="시조시화시목.html" class="current">시조/시화/시목</a></li>
+                            <li><a id="lnb-active-text" href="시조시화시목.html" class="current text-blue-700">시조/시화/시목</a></li>
                             <li><a href="상징물.html">상징물</a></li>
                             <li><a href="mascot.html">소통캐릭터</a></li>
                             <li><a href="시민의날.html">시민의날</a></li>
@@ -138,111 +140,122 @@
             <!-- Breadcrumb -->
             <div class="text-sm text-gray-500 mb-6 flex items-center gap-2 shrink-0">
                 <a href="index.html" class="hover:text-blue-600 transition-colors flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> 홈</a> 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 효빈소개 
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> 시의상징
-                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800">시조·시화·시목</strong>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-1">효빈소개</span> 
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <span id="bread-2">시의상징</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i> <strong class="text-gray-800" id="bread-3">시조·시화·시목</strong>
             </div>
 
-            <h2 class="text-3xl font-black text-gray-900 content-title shrink-0">시조·시화·시목</h2>
+            <h2 id="content-main-title" class="text-3xl font-black text-gray-900 content-title shrink-0 border-blue-900">시조·시화·시목</h2>
 
-            <!-- 상단 소개 안내문 -->
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-8 mb-12 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
-                <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center shrink-0">
-                    <i data-lucide="leaf" class="w-8 h-8"></i>
+            <!-- ========================================== -->
+            <!-- [본청(시청) 모드] 원본 콘텐츠 100% 보존 -->
+            <!-- ========================================== -->
+            <div id="content-city">
+                <!-- 상단 소개 안내문 -->
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-8 mb-12 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center shrink-0">
+                        <i data-lucide="leaf" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">자연과 함께 숨 쉬며 미래로 도약하는 효빈</h3>
+                        <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep text-justify">
+                            효빈광역시의 맑고 푸른 자연환경 속에서 함께 자생하며 시민들에게 사랑받아 온 기러기, 해바라기, 오동나무는 우리 시의 변치 않는 상징입니다. 이 상징물들은 각각 <strong>'화합과 평화(기러기)'</strong>, <strong>'밝은 희망과 열정(해바라기)'</strong>, 그리고 <strong>'굳건한 발전과 번영(오동나무)'</strong>을 의미하며, 300만 효빈 시민의 단합된 마음과 밝은 미래를 향한 역동적인 기상을 대변하고 있습니다.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">자연과 함께 숨 쉬며 미래로 도약하는 효빈</h3>
-                    <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep text-justify">
-                        효빈광역시의 맑고 푸른 자연환경 속에서 함께 자생하며 시민들에게 사랑받아 온 기러기, 해바라기, 오동나무는 우리 시의 변치 않는 상징입니다. 이 상징물들은 각각 <strong>'화합과 평화(기러기)'</strong>, <strong>'밝은 희망과 열정(해바라기)'</strong>, 그리고 <strong>'굳건한 발전과 번영(오동나무)'</strong>을 의미하며, 300만 효빈 시민의 단합된 마음과 밝은 미래를 향한 역동적인 기상을 대변하고 있습니다.
-                    </p>
+
+                <!-- 시조 (City Bird) -->
+                <section class="mb-12">
+                    <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+                        <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-sky-50 overflow-hidden relative">
+                            <img src="이미지/기러기.webp" alt="효빈시 시조 기러기" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1549479361-b52bba99c0a6?q=80&w=1000';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                            <div class="absolute bottom-4 left-6 text-white">
+                                <span class="text-xs font-bold bg-sky-500 px-2 py-1 rounded">City Bird</span>
+                            </div>
+                        </div>
+                        <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+                            <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
+                                시조 (市鳥) : 기러기
+                            </h3>
+                            <p class="text-sky-600 font-bold mb-5 tracking-tight">"서로를 의지하며 미래를 향해 날아오르는 화합의 상징"</p>
+                            <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
+                                <p>
+                                    V자 대형을 이루며 멀고 험한 비행을 서로 격려하며 함께하는 <strong>기러기</strong>는 효빈 시민들의 강인한 <strong>'협동 정신'</strong>과 <strong>'화합'</strong>을 상징합니다.
+                                </p>
+                                <p>
+                                    해안 반도 지형을 띠어 철새들의 훌륭한 쉼터가 되어주는 효빈시의 청정 자연 생태계를 대표하며, 동북아 해양 및 항공 교통의 중심지로서 전 세계로 힘차게 날아오르는 <strong>효빈광역시의 글로벌 네트워크와 개척 정신</strong>을 의미합니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 시화 (City Flower) -->
+                <section class="mb-12">
+                    <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row-reverse">
+                        <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-amber-50 overflow-hidden relative">
+                            <img src="이미지/해바라기.webp" alt="효빈시 시화 해바라기" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1597848212624-a19eb35e2651?q=80&w=1000';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                            <div class="absolute bottom-4 left-6 md:left-auto md:right-6 text-white">
+                                <span class="text-xs font-bold bg-amber-500 px-2 py-1 rounded">City Flower</span>
+                            </div>
+                        </div>
+                        <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+                            <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
+                                시화 (市花) : 해바라기
+                            </h3>
+                            <p class="text-amber-600 font-bold mb-5 tracking-tight">"찬란한 태양을 향해 활짝 핀 무한한 긍정과 열정"</p>
+                            <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
+                                <p>
+                                    오직 태양만을 바라보며 밝고 탐스럽게 피어나는 <strong>해바라기</strong>는 효빈 시민들의 <strong>'뜨거운 열정'</strong>과 미래를 향한 <strong>'긍정적인 에너지'</strong>를 상징합니다.
+                                </p>
+                                <p>
+                                    수많은 씨앗을 품고 결실을 맺는 해바라기의 넉넉한 모습은 첨단 산업과 다채로운 문화가 만개하여 풍요로운 번영을 이루어 나가는 <strong>효빈광역시의 밝고 희망찬 내일</strong>을 고스란히 담아내고 있습니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 시목 (City Tree) -->
+                <section class="mb-16">
+                    <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+                        <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-emerald-50 overflow-hidden relative">
+                            <img src="이미지/오동나무.webp" alt="효빈시 시목 오동나무" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1542224566-6e85f2e6772f?q=80&w=1000';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                            <div class="absolute bottom-4 left-6 text-white">
+                                <span class="text-xs font-bold bg-emerald-600 px-2 py-1 rounded">City Tree</span>
+                            </div>
+                        </div>
+                        <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+                            <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
+                                시목 (市木) : 오동나무
+                            </h3>
+                            <p class="text-emerald-700 font-bold mb-5 tracking-tight">"뿌리 깊은 전통 위에서 드높이 솟아오르는 굳건한 발전"</p>
+                            <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
+                                <p>
+                                    예로부터 상서로운 나무로 여겨져 온 <strong>오동나무</strong>는 어떤 척박한 토양에서도 크고 웅장하게 성장하는 뛰어난 생명력을 자랑하며, 이는 <strong>어떠한 시련에도 굴하지 않고 굳건히 발전</strong>해 온 효빈광역시의 역사를 대변합니다.
+                                </p>
+                                <p>
+                                    넓은 잎으로 시민들에게 넉넉한 그늘을 제공하는 오동나무처럼, 시민 모두를 따뜻하게 포용하는 <strong>든든한 복지 기반과 튼튼한 경제적 토대</strong>를 의미하며 영원불멸의 번영을 기원하는 징표입니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                    <div>담당부서 : 대변인실 | 문의처 : 079-591-2015 | 책임자 : 시정홍보팀장</div>
+                    <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
                 </div>
             </div>
 
-            <!-- 시조 (City Bird) -->
-            <section class="mb-12">
-                <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
-                    <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-sky-50 overflow-hidden relative">
-                        <img src="이미지/기러기.webp" alt="효빈시 시조 기러기" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1549479361-b52bba99c0a6?q=80&w=1000';">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                        <div class="absolute bottom-4 left-6 text-white">
-                            <span class="text-xs font-bold bg-sky-500 px-2 py-1 rounded">City Bird</span>
-                        </div>
-                    </div>
-                    <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
-                        <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
-                            시조 (市鳥) : 기러기
-                        </h3>
-                        <p class="text-sky-600 font-bold mb-5 tracking-tight">"서로를 의지하며 미래를 향해 날아오르는 화합의 상징"</p>
-                        <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
-                            <p>
-                                V자 대형을 이루며 멀고 험한 비행을 서로 격려하며 함께하는 <strong>기러기</strong>는 효빈 시민들의 강인한 <strong>'협동 정신'</strong>과 <strong>'화합'</strong>을 상징합니다.
-                            </p>
-                            <p>
-                                해안 반도 지형을 띠어 철새들의 훌륭한 쉼터가 되어주는 효빈시의 청정 자연 생태계를 대표하며, 동북아 해양 및 항공 교통의 중심지로서 전 세계로 힘차게 날아오르는 <strong>효빈광역시의 글로벌 네트워크와 개척 정신</strong>을 의미합니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 시화 (City Flower) -->
-            <section class="mb-12">
-                <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row-reverse">
-                    <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-amber-50 overflow-hidden relative">
-                        <img src="이미지/해바라기.webp" alt="효빈시 시화 해바라기" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1597848212624-a19eb35e2651?q=80&w=1000';">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                        <div class="absolute bottom-4 left-6 md:left-auto md:right-6 text-white">
-                            <span class="text-xs font-bold bg-amber-500 px-2 py-1 rounded">City Flower</span>
-                        </div>
-                    </div>
-                    <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
-                        <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
-                            시화 (市花) : 해바라기
-                        </h3>
-                        <p class="text-amber-600 font-bold mb-5 tracking-tight">"찬란한 태양을 향해 활짝 핀 무한한 긍정과 열정"</p>
-                        <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
-                            <p>
-                                오직 태양만을 바라보며 밝고 탐스럽게 피어나는 <strong>해바라기</strong>는 효빈 시민들의 <strong>'뜨거운 열정'</strong>과 미래를 향한 <strong>'긍정적인 에너지'</strong>를 상징합니다.
-                            </p>
-                            <p>
-                                수많은 씨앗을 품고 결실을 맺는 해바라기의 넉넉한 모습은 첨단 산업과 다채로운 문화가 만개하여 풍요로운 번영을 이루어 나가는 <strong>효빈광역시의 밝고 희망찬 내일</strong>을 고스란히 담아내고 있습니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 시목 (City Tree) -->
-            <section class="mb-16">
-                <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
-                    <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-emerald-50 overflow-hidden relative">
-                        <img src="이미지/오동나무.webp" alt="효빈시 시목 오동나무" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1542224566-6e85f2e6772f?q=80&w=1000';">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                        <div class="absolute bottom-4 left-6 text-white">
-                            <span class="text-xs font-bold bg-emerald-600 px-2 py-1 rounded">City Tree</span>
-                        </div>
-                    </div>
-                    <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
-                        <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
-                            시목 (市木) : 오동나무
-                        </h3>
-                        <p class="text-emerald-700 font-bold mb-5 tracking-tight">"뿌리 깊은 전통 위에서 드높이 솟아오르는 굳건한 발전"</p>
-                        <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
-                            <p>
-                                예로부터 상서로운 나무로 여겨져 온 <strong>오동나무</strong>는 어떤 척박한 토양에서도 크고 웅장하게 성장하는 뛰어난 생명력을 자랑하며, 이는 <strong>어떠한 시련에도 굴하지 않고 굳건히 발전</strong>해 온 효빈광역시의 역사를 대변합니다.
-                            </p>
-                            <p>
-                                넓은 잎으로 시민들에게 넉넉한 그늘을 제공하는 오동나무처럼, 시민 모두를 따뜻하게 포용하는 <strong>든든한 복지 기반과 튼튼한 경제적 토대</strong>를 의미하며 영원불멸의 번영을 기원하는 징표입니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 관리부서 정보 -->
-            <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
-                <div>담당부서 : 대변인실 | 문의처 : 079-591-2015 | 책임자 : 시정홍보팀장</div>
-                <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
+            <!-- ========================================== -->
+            <!-- [구청/군청 모드] 동적 주입 컨테이너 -->
+            <!-- ========================================== -->
+            <div id="content-gu" style="display:none;">
+                <!-- JS가 이 안에 구청/군청 전용 상징물 콘텐츠를 렌더링합니다 -->
             </div>
 
             <!-- 만족도 조사 컴포넌트 -->
@@ -264,16 +277,15 @@
         </main>
     </div>
 
-    <!-- 6. 페이지 하단 푸터 -->
+    <!-- 6. 페이지 하단 푸터 및 모달 -->
     <div id="common-footer"></div>
     <div id="common-modals"></div>
 
+    <!-- 필수 외부 스크립트 복구 및 연결 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
     <script>
-        // 아이콘 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-        });
-
         // 아코디언 메뉴 작동 스크립트
         function toggleLnb(btn) {
             const parentLi = btn.parentElement;
@@ -293,7 +305,208 @@
                 if(icon) icon.classList.add('rotate-180');
             }
         }
+
+        // 구/군청별 맞춤 상징물 데이터
+        const GU_SYMBOL_DATA = {
+            "jung": {
+                name: "중구", role: "구", themeColor: "#BB9955",
+                bird: { name: "뱁새", desc: "작고 귀여운 모습으로 원도심 곳곳을 누비며 중구민의 친근함과 부지런함을 상징합니다.", img: "이미지/뱁새.webp" },
+                flower: { name: "장미", desc: "정열적이고 진취적인 중구민의 기상과 원도심 문화의 아름다움을 나타냅니다.", img: "이미지/장미.webp" },
+                tree: { name: "소나무", desc: "사철 푸른 절개와 강인한 생명력으로 변치 않는 중구의 굳건한 발전을 상징합니다.", img: "이미지/소나무.webp" }
+            },
+            "buk": {
+                name: "북구", role: "구", themeColor: "#6677CC",
+                bird: { name: "제비", desc: "봄을 알리는 희망의 전령사로, 새롭게 비상하는 북구의 활기찬 르네상스를 상징합니다.", img: "이미지/제비.webp" },
+                flower: { name: "나팔꽃", desc: "아침을 여는 밝은 기운으로, 서브컬처 중심지 북구의 역동적인 젊은 에너지를 의미합니다.", img: "이미지/나팔꽃.webp" },
+                tree: { name: "은행나무", desc: "아름다운 단풍과 튼튼한 자생력으로 북구의 풍요로운 경제적 번영과 결실을 상징합니다.", img: "이미지/은행나무.webp" }
+            },
+            "dong": {
+                name: "동구", role: "구", themeColor: "#00AA00",
+                bird: { name: "참새", desc: "시민들의 일상에 친숙하게 스며드는 참새처럼 친근하고 활기찬 동구의 모습을 상징합니다.", img: "이미지/참새.webp" },
+                flower: { name: "철쭉", desc: "척박한 환경에서도 화려하게 피어나는 철쭉처럼 동구민들의 뜨거운 열정을 뜻합니다.", img: "이미지/철쭉.webp" },
+                tree: { name: "단풍나무", desc: "가을을 붉게 물들이는 아름다움으로 동구의 다채로운 매력과 관광 거점으로서의 가치를 뜻합니다.", img: "이미지/단풍나무.webp" }
+            },
+            "seo": {
+                name: "서구", role: "구", themeColor: "#00AABB",
+                bird: { name: "거위", desc: "무리를 지어 서로를 지키는 거위처럼 서구민의 끈끈한 연대와 경제적 풍요를 뜻합니다.", img: "이미지/거위.webp" },
+                flower: { name: "백합", desc: "순백의 우아함으로 지식산업 클러스터를 이끄는 서구의 내실 있는 성장을 상징합니다.", img: "이미지/백합.webp" },
+                tree: { name: "참나무", desc: "단단하고 쓰임새 많은 참나무처럼 서구 경제와 산업의 든든한 버팀목을 상징합니다.", img: "이미지/참나무.webp" }
+            },
+            "nam": {
+                name: "남구", role: "구", themeColor: "#DDBBFF",
+                bird: { name: "참새", desc: "시민들의 일상에 친숙하게 스며드는 참새처럼 친근하고 활기찬 남구의 모습을 상징합니다.", img: "이미지/참새.webp" },
+                flower: { name: "철쭉", desc: "척박한 환경에서도 화려하게 피어나는 철쭉처럼 남구민들의 뜨거운 열정을 뜻합니다.", img: "이미지/철쭉.webp" },
+                tree: { name: "단풍나무", desc: "가을을 붉게 물들이는 아름다움으로 남구의 다채로운 매력과 관광 거점으로서의 가치를 뜻합니다.", img: "이미지/단풍나무.webp" }
+            },
+            "cheongyeop": {
+                name: "청엽구", role: "구", themeColor: "#006699",
+                bird: { name: "참새", desc: "시민들의 일상에 친숙하게 스며드는 참새처럼 친근하고 활기찬 청엽구의 모습을 상징합니다.", img: "이미지/참새.webp" },
+                flower: { name: "철쭉", desc: "척박한 환경에서도 화려하게 피어나는 철쭉처럼 청엽구민들의 뜨거운 열정을 뜻합니다.", img: "이미지/철쭉.webp" },
+                tree: { name: "단풍나무", desc: "가을을 붉게 물들이는 아름다움으로 청엽구의 다채로운 매력과 관광 거점으로서의 가치를 뜻합니다.", img: "이미지/단풍나무.webp" }
+            },
+            "changjeon": {
+                name: "창전구", role: "구", themeColor: "#33AAFF",
+                bird: { name: "흰머리수리", desc: "하늘의 제왕 흰머리수리처럼 예술과 교통의 거점인 창전구의 강한 비상을 상징합니다.", img: "이미지/흰머리수리.webp" },
+                flower: { name: "부레옥잠", desc: "수질을 정화하는 부레옥잠처럼 맑고 치유가 넘치는 창전구의 복지를 뜻합니다.", img: "이미지/부레옥잠.webp" },
+                tree: { name: "자작나무", desc: "하얗게 빛나는 수피처럼 예술과 문화가 숲을 이루는 창전구의 고귀함을 뜻합니다.", img: "이미지/자작나무.webp" }
+            },
+            "ancheon": {
+                name: "안천구", role: "구", themeColor: "#AA66DD",
+                bird: { name: "두루미", desc: "고고하고 기품 있는 자태로 글로벌 팬덤과 문화를 선도하는 안천구의 위상을 나타냅니다.", img: "이미지/두루미.webp" },
+                flower: { name: "산세베리아", desc: "뛰어난 공기정화 능력과 강인한 생명력으로 끝없이 진화하는 안천구의 스마트 혁신을 뜻합니다.", img: "이미지/산세베리아.webp" },
+                tree: { name: "오동나무", desc: "시련에도 굴하지 않고 웅장하게 자라나는 오동나무처럼 안천구의 굳건한 발전을 의미합니다.", img: "이미지/오동나무.webp" }
+            },
+            "tanseong": {
+                name: "탄성군", role: "군", themeColor: "#BBFF64",
+                bird: { name: "딱따구리", desc: "부지런히 숲을 가꾸는 딱따구리처럼 친환경 생태 도시를 일구어가는 탄성군의 기상을 뜻합니다.", img: "이미지/딱따구리.webp" },
+                flower: { name: "복사꽃", desc: "봄을 알리는 화사함으로 스마트 농업을 선도하는 탄성군의 희망을 의미합니다.", img: "이미지/복사꽃.webp" },
+                tree: { name: "고무나무", desc: "사철 푸른 잎과 공기정화 능력으로 자연 친화적 생태 도시 탄성군의 푸른 비전을 상징합니다.", img: "이미지/고무나무.webp" }
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", function() {
+            lucide.createIcons();
+            
+            const params = new URLSearchParams(window.location.search);
+            const guKey = params.get('gu');
+            
+            // LNB 내부의 모든 a 태그에 현재 ?gu= 파라미터를 동적으로 자동 장착
+            if (guKey) {
+                document.querySelectorAll('.lnb-depth2 a, .lnb-single').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && !href.includes('gu=')) {
+                        const separator = href.includes('?') ? '&' : '?';
+                        link.setAttribute('href', `${href}${separator}gu=${guKey}`);
+                    }
+                });
+            }
+            
+            if (guKey && GU_SYMBOL_DATA[guKey]) {
+                const data = GU_SYMBOL_DATA[guKey];
+                const titlePrefix = data.name + (data.role === '군' ? '청' : '청'); 
+                const isGun = data.role === '군';
+                const labelBird = isGun ? '군조 (郡鳥)' : '구조 (區鳥)';
+                const labelFlower = isGun ? '군화 (郡花)' : '구화 (區花)';
+                const labelTree = isGun ? '군목 (郡木)' : '구목 (區木)';
+                const roleText = isGun ? '군' : '구';
+                
+                const themeColor = data.themeColor === '#BBFF64' ? '#559900' : data.themeColor;
+                const themeColorLight = data.themeColor === '#BBFF64' ? '#F0FFD0' : `${data.themeColor}15`;
+
+                // 텍스트 및 메타데이터 업데이트
+                document.getElementById('window-title').textContent = `시의상징 - ${isGun?'군조/군화/군목':'구조/구화/구목'} | ${titlePrefix} 공식 홈페이지`;
+                document.getElementById('top-title').textContent = `${data.name}소개`;
+                document.getElementById('lnb-title').textContent = `${data.name}소개`;
+                document.getElementById('bread-1').textContent = `${data.name}소개`;
+                document.getElementById('bread-2').textContent = `${roleText}의상징`;
+                document.getElementById('bread-3').textContent = `${labelBird.split(' ')[0]}·${labelFlower.split(' ')[0]}·${labelTree.split(' ')[0]}`;
+                document.getElementById('content-main-title').textContent = `${labelBird.split(' ')[0]}·${labelFlower.split(' ')[0]}·${labelTree.split(' ')[0]}`;
+                document.getElementById('lnb-active-text').textContent = `${labelBird.split(' ')[0]}/${labelFlower.split(' ')[0]}/${labelTree.split(' ')[0]}`;
+                
+                // 테마 색상 적용
+                document.getElementById('visual-overlay').style.backgroundColor = data.themeColor;
+                document.getElementById('lnb-title').style.backgroundColor = themeColor;
+                document.getElementById('lnb-wrap').style.borderTopColor = themeColor;
+                document.getElementById('content-main-title').style.borderBottomColor = themeColor;
+                document.getElementById('lnb-active-item').style.borderLeftColor = themeColor;
+                document.getElementById('lnb-active-text').className = `lnb-single current font-bold`;
+                document.getElementById('lnb-active-text').style.color = themeColor;
+
+                // 본청 숨기고 구/군청 보이기
+                document.getElementById('content-city').style.display = 'none';
+                document.getElementById('content-gu').style.display = 'block';
+
+                // 구/군청 콘텐츠 생성
+                let guHtml = `
+                    <!-- 상단 소개 안내문 -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-8 mb-12 flex flex-col sm:flex-row items-center sm:items-start gap-6 shadow-sm">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center shrink-0" style="background-color: ${themeColorLight}; color: ${themeColor};">
+                            <i data-lucide="leaf" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">자연과 함께 숨 쉬며 미래로 도약하는 ${data.name}</h3>
+                            <p class="text-gray-600 leading-relaxed text-[0.95rem] break-keep text-justify">
+                                ${data.name}의 아름다운 자연환경 속에서 함께 자생하며 구민들에게 사랑받아 온 ${data.bird.name}, ${data.flower.name}, ${data.tree.name}는 우리 ${roleText}의 변치 않는 상징입니다. 이 상징물들은 ${data.name}의 단합된 마음과 밝은 미래를 향한 역동적인 기상을 대변하고 있습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 구조/군조 -->
+                    <section class="mb-12">
+                        <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+                            <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-slate-50 overflow-hidden relative">
+                                <img src="${data.bird.img}" alt="${data.name} ${labelBird.split(' ')[0]} ${data.bird.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1549479361-b52bba99c0a6?q=80&w=1000';">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                <div class="absolute bottom-4 left-6 text-white">
+                                    <span class="text-xs font-bold px-2 py-1 rounded" style="background-color: ${themeColor}">${roleText.charAt(0).toUpperCase() + roleText.slice(1)} Bird</span>
+                                </div>
+                            </div>
+                            <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+                                <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
+                                    ${labelBird} : ${data.bird.name}
+                                </h3>
+                                <p class="font-bold mb-5 tracking-tight" style="color: ${themeColor}">"${data.bird.name}처럼 힘차게 날아오르는 ${data.name}의 비상"</p>
+                                <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
+                                    <p>${data.bird.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 구화/군화 -->
+                    <section class="mb-12">
+                        <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row-reverse">
+                            <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-slate-50 overflow-hidden relative">
+                                <img src="${data.flower.img}" alt="${data.name} ${labelFlower.split(' ')[0]} ${data.flower.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1597848212624-a19eb35e2651?q=80&w=1000';">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                <div class="absolute bottom-4 left-6 md:left-auto md:right-6 text-white">
+                                    <span class="text-xs font-bold px-2 py-1 rounded" style="background-color: ${themeColor}">${roleText.charAt(0).toUpperCase() + roleText.slice(1)} Flower</span>
+                                </div>
+                            </div>
+                            <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+                                <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
+                                    ${labelFlower} : ${data.flower.name}
+                                </h3>
+                                <p class="font-bold mb-5 tracking-tight" style="color: ${themeColor}">"아름답게 피어나는 ${data.flower.name}과 긍정적인 에너지"</p>
+                                <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
+                                    <p>${data.flower.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 구목/군목 -->
+                    <section class="mb-16">
+                        <div class="symbol-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+                            <div class="md:w-5/12 h-64 md:h-auto symbol-img-wrap bg-slate-50 overflow-hidden relative">
+                                <img src="${data.tree.img}" alt="${data.name} ${labelTree.split(' ')[0]} ${data.tree.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1542224566-6e85f2e6772f?q=80&w=1000';">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                <div class="absolute bottom-4 left-6 text-white">
+                                    <span class="text-xs font-bold px-2 py-1 rounded" style="background-color: ${themeColor}">${roleText.charAt(0).toUpperCase() + roleText.slice(1)} Tree</span>
+                                </div>
+                            </div>
+                            <div class="md:w-7/12 p-8 md:p-10 flex flex-col justify-center">
+                                <h3 class="text-3xl font-black text-slate-800 mb-2 flex items-center gap-3">
+                                    ${labelTree} : ${data.tree.name}
+                                </h3>
+                                <p class="font-bold mb-5 tracking-tight" style="color: ${themeColor}">"뿌리 깊은 전통 위에서 드높이 솟아오르는 굳건한 발전"</p>
+                                <div class="space-y-4 text-slate-600 text-[0.95rem] leading-relaxed break-keep text-justify">
+                                    <p>${data.tree.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <div class="border-t border-gray-300 pt-4 mt-6 text-sm text-gray-500 flex flex-col md:flex-row justify-between">
+                        <div>담당부서 : 홍보소통담당관 | 문의처 : 079-591-2015</div>
+                        <div class="mt-2 md:mt-0 font-medium">최종 업데이트 : 2026. 03. 30.</div>
+                    </div>
+                `;
+
+                document.getElementById('content-gu').innerHTML = guHtml;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        });
     </script>
-    <script src="common121.js"></script>
 </body>
 </html>

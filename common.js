@@ -691,7 +691,7 @@ const headerHTML = `
                                     <li><a href="정원기구현황.html" class="hover:text-blue-600">정원/기구현황</a></li>
                                     <li><a href="행정전화번호.html" class="hover:text-blue-600">행정전화번호</a></li>
                                     <li><a href="행정팩스번호.html" class="hover:text-blue-600">행정팩스번호</a></li>
-                                    <li><a href="청사안내.html" class="hover:text-blue-600">청사안내</a></li>
+                                    <li><a href="city_hall.html" class="hover:text-blue-600">청사안내</a></li>
                                     <li><a href="contact.html" class="hover:text-blue-600">찾아오시는길</a></li>
                                 </ul>
                             </div>
