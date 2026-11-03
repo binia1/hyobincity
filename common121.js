@@ -1008,9 +1008,9 @@ const modalsHTML = `
                         <h4 class="font-bold text-lg text-blue-700 border-b-2 border-blue-200 pb-2 mb-3">공기업</h4>
                         <ul class="space-y-4">
                             <li>
-                                <button onclick="location.href='HyobinMetro/index.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="HyobinMetro/index.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>1. 효빈교통공사</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영/안전</strong></li>
                                     <li><a href="교통공사_기획조정실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">기획조정실</a></li>
@@ -1036,9 +1036,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='city_dev_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="city_dev_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>2. 효빈도시공사</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획본부</strong></li>
                                     <li><a href="도시공사_기획경영본부.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">기획경영본부</a></li>
@@ -1050,9 +1050,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='facility_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="facility_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>3. 효빈시설공단</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영안전본부</strong></li>
                                     <li><a href="시설공단_경영지원실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">경영지원실</a></li>
@@ -1066,9 +1066,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='env_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="env_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>4. 효빈환경공단</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획시설본부</strong></li>
                                     <li><a href="환경공단_기획전략실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">기획전략실</a></li>
@@ -1082,9 +1082,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='tour_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="tour_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>5. 효빈관광공사</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영전략실</strong></li>
                                     <li><a href="관광공사_총무인사팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">총무인사팀</a></li>
@@ -1098,9 +1098,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='culture_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="culture_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>6. 효빈문화공사</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영지원실</strong></li>
                                     <li><a href="문화공사_총무기획팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">총무기획팀</a></li>
@@ -1114,9 +1114,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='water_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="water_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>7. 효빈광역시상수도</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획운영처</strong></li>
                                     <li><a href="상수도_인사기획팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">인사기획팀</a></li>
@@ -1130,9 +1130,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='sewage_corp.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="sewage_corp.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>8. 효빈광역시하수도</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영기획처</strong></li>
                                     <li><a href="하수도_경영전략팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">경영전략팀</a></li>
@@ -1151,9 +1151,9 @@ const modalsHTML = `
                         <h4 class="font-bold text-lg text-blue-700 border-b-2 border-blue-200 pb-2 mb-3">출연기관 (1)</h4>
                         <ul class="space-y-4">
                             <li>
-                                <button onclick="location.href='hospital.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="hospital.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>9. 효빈의료원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">진료부</strong></li>
                                     <li><a href="의료원_내과계열.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">내과계열</a></li>
@@ -1171,9 +1171,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='ani_hall.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="ani_hall.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>10. 만화애니메이션의전당</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영지원부</strong></li>
                                     <li><a href="애니전당_총무기획팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">총무기획팀</a></li>
@@ -1185,9 +1185,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='animation_hq.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="animation_hq.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>11. 효빈애니메이션본부</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">전략기획실</strong></li>
                                     <li><a href="애니본부_본부장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">본부장실</a></li>
@@ -1200,9 +1200,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='techno.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="techno.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>12. 효빈테크노파크</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">지원본부</strong></li>
                                     <li><a href="테크노_원장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">원장실</a></li>
@@ -1215,9 +1215,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='info_promotion.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="info_promotion.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>13. 효빈정보산업진흥원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영기획단</strong></li>
                                     <li><a href="정보진흥원_총무재무팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">총무재무팀</a></li>
@@ -1230,9 +1230,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='econ_promotion.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="econ_promotion.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>14. 효빈경제진흥원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영기획실</strong></li>
                                     <li><a href="경제진흥원_기획예산팀.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">기획예산팀</a></li>
@@ -1245,9 +1245,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='credit.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="credit.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>15. 효빈신용보증재단</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획리스크부</strong></li>
                                     <li><a href="신보_이사장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">이사장실</a></li>
@@ -1268,9 +1268,9 @@ const modalsHTML = `
                         <h4 class="font-bold text-lg text-blue-700 border-b-2 border-blue-200 pb-2 mb-3">출연기관 (2) & 출자기관</h4>
                         <ul class="space-y-4">
                             <li>
-                                <button onclick="location.href='research.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="research.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>16. 효빈연구원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획조정실</strong></li>
                                     <li><a href="연구원_원장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">원장실</a></li>
@@ -1283,9 +1283,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='science.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="science.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>17. 효빈산업과학혁신원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획조정실</strong></li>
                                     <li><a href="혁신원_원장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">원장실</a></li>
@@ -1297,9 +1297,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='social_service.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="social_service.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>18. 효빈광역시사회서비스원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">행정지원본부</strong></li>
                                     <li><a href="사서원_원장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">원장실</a></li>
@@ -1312,9 +1312,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='edu_promotion.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="edu_promotion.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>19. 효빈성평등가족평생교육진흥원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영기획실</strong></li>
                                     <li><a href="평생교육_원장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">원장실</a></li>
@@ -1327,9 +1327,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='global.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="global.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>20. 효빈글로벌도시재단</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">기획행정실</strong></li>
                                     <li><a href="글로벌_이사장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">이사장실</a></li>
@@ -1342,9 +1342,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='design.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="design.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>21. 효빈디자인진흥원</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영지원팀</strong></li>
                                     <li><a href="디자인_원장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">원장실</a></li>
@@ -1357,9 +1357,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='culture_foundation.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="culture_foundation.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>22. 효빈문화재단</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영기획본부</strong></li>
                                     <li><a href="문화재단_대표이사실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">대표이사실</a></li>
@@ -1372,9 +1372,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='culture_center.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="culture_center.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-slate-100 p-2 rounded hover:bg-blue-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>23. 효빈문화회관</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-slate-200 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">행정지원과</strong></li>
                                     <li><a href="문화회관_관장실.html" class="block w-full p-1 hover:bg-slate-100 hover:text-blue-600 rounded transition">관장실</a></li>
@@ -1386,9 +1386,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='hsco.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-yellow-50 p-2 rounded hover:bg-yellow-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="hsco.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-yellow-50 p-2 rounded hover:bg-yellow-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>24. HSCO (출자기관)</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-yellow-300 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영마케팅본부</strong></li>
                                     <li><a href="HSCO_대표이사실.html" class="block w-full p-1 hover:bg-yellow-50 hover:text-blue-600 rounded transition">대표이사실</a></li>
@@ -1401,9 +1401,9 @@ const modalsHTML = `
                                 </ul>
                             </li>
                             <li>
-                                <button onclick="location.href='leisure.html'" class="w-full flex justify-between items-center font-bold text-slate-800 bg-yellow-50 p-2 rounded hover:bg-yellow-100 hover:text-blue-700 transition cursor-pointer">
+                                <a href="leisure.html" class="w-full flex justify-between items-center font-bold text-slate-800 bg-yellow-50 p-2 rounded hover:bg-yellow-100 hover:text-blue-700 transition cursor-pointer">
                                     <span>25. 효빈컬쳐레스풀 (출자기관)</span><i data-lucide="external-link" class="w-4 h-4"></i>
-                                </button>
+                                </a>
                                 <ul class="pl-2 mt-2 space-y-1 border-l-2 border-yellow-300 text-xs">
                                     <li><strong class="text-blue-600 block mt-1 mb-1">경영관리팀</strong></li>
                                     <li><a href="컬쳐_대표이사실.html" class="block w-full p-1 hover:bg-yellow-50 hover:text-blue-600 rounded transition">대표이사실</a></li>
@@ -1590,7 +1590,7 @@ const modalsHTML = `
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">동부소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="동부_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="동부_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="동부_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="동부_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="동부_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">서부소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="서부_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="서부_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="서부_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="서부_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="서부_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">남부소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="남부_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="남부_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="남부_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="남부_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="남부_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
-                                            <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">북부소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="북부_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="북부_예방안전과.html" class="block p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="북부_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="북부_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="북부_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
+                                            <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">북부소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="북부_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="북부_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="북부_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="북부_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="북부_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">안천소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="안천_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="안천_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="안천_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="안천_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="안천_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">창전소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="창전_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="창전_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="창전_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="창전_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="창전_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
                                             <li><button class="w-full flex justify-between items-center p-1 hover:text-blue-400 transition-colors" onclick="toggleMobileMenu(this)">청엽소방서 (서장실) <i data-lucide="chevron-down" class="w-3 h-3"></i></button><ul class="hidden pl-2 space-y-1 text-[9px] text-slate-400"><li><a href="청엽_소방행정과.html" class="block w-full p-1 hover:text-blue-500">- 소방행정과</a></li><li><a href="청엽_예방안전과.html" class="block w-full p-1 hover:text-blue-500">- 예방안전과</a></li><li><a href="청엽_현장대응단.html" class="block w-full p-1 hover:text-blue-500">- 현장대응단</a></li><li><a href="청엽_119안전센터.html" class="block w-full p-1 hover:text-blue-500">- 관할 119안전센터</a></li><li><a href="청엽_119구조대.html" class="block w-full p-1 hover:text-blue-500">- 119구조대</a></li></ul></li>
@@ -1713,8 +1713,6 @@ const modalsHTML = `
         </div>
     </div>
 `;
-
-
 
 
 // ==========================================
@@ -2893,54 +2891,87 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(runMasterGuPatch, 150);
     setTimeout(runMasterGuPatch, 400);
 });
-// 유관기관 이동 버튼 및 셀렉트 박스 강제 바인딩 처리 (2907행 부근 대체 코드)
-(function fixFamilySiteBinding() {
-    const checkExist = setInterval(function() {
-        // 페이지 전체에서 select와 '이동' 텍스트를 가진 버튼을 탐색
-        const selectEl = document.querySelector('select');
-        const buttons = document.querySelectorAll('button');
+// ==========================================
+// [최종 패치] 유관기관 바로가기 새 창 이동 완벽 고정 및 구별 마스터 패치
+// ==========================================
+
+(function () {
+    // 1. 유관기관 이동 버튼 및 셀렉트 박스 강제 바인딩 처리 (충돌 원천 차단)
+    function initFamilySiteRedirect() {
+        const selectEl = document.getElementById('family-site') || document.querySelector('footer select');
+        const buttons = document.querySelectorAll('footer button');
         let moveBtn = null;
-        
+
         buttons.forEach(btn => {
             if (btn.textContent.trim() === '이동') {
                 moveBtn = btn;
             }
         });
 
-        // 요소들을 찾았을 때만 실행
         if (selectEl && moveBtn) {
-            clearInterval(checkExist); // 반복 체크 중지
-            
-            // 중복 이벤트 방지를 위해 버튼 복제 후 교체
+            // 기존 이벤트 제거를 위해 노드 복제 교체
             const newBtn = moveBtn.cloneNode(true);
             moveBtn.parentNode.replaceChild(newBtn, moveBtn);
 
-            newBtn.addEventListener('click', function(e) {
+            newBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                e.stopPropagation();
-                
+                e.stopImmediatePropagation();
+
                 const targetUrl = selectEl.value;
-                
-                if (targetUrl && targetUrl !== '' && targetUrl !== '#') {
-                    // 현재 주소의 파라미터(?gu=dong 등) 유지하면서 이동
+                if (targetUrl && targetUrl !== "" && targetUrl !== "#") {
                     let finalUrl = targetUrl;
                     const currentSearch = window.location.search;
-                    
-                    if (currentSearch) {
-                        finalUrl += (targetUrl.includes('?') ? '&' : '') + currentSearch.substring(1);
+
+                    // 현재 주소의 구 파라미터(?gu=...)가 있다면 유지한 채로 새 창 열기
+                    if (currentSearch && !finalUrl.includes('gu=')) {
+                        finalUrl += (targetUrl.includes('?') ? '&' : '?') + currentSearch.substring(1);
                     }
-                    
+
                     window.open(finalUrl, '_blank');
                 } else {
                     alert("이동하실 유관기관을 선택해 주세요.");
                 }
             }, true);
-            
-            console.log("유관기관 이동 버튼 바인딩 성공!");
         }
-    }, 100); // 0.1초마다 요소가 로드되었는지 확인
-})();
+    }
 
+    // 2. LNB 및 내부 링크에 ?gu= 파라미터 자동 상속 처리
+    function applyGuParameterToLinks() {
+        const params = new URLSearchParams(window.location.search);
+        const guKey = params.get('gu');
+
+        if (guKey) {
+            document.querySelectorAll('a[href]').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.includes('.html') && !href.startsWith('http') && !href.startsWith('#')) {
+                    if (!href.includes(`gu=${guKey}`)) {
+                        const parts = href.split('#');
+                        const cleanUrl = parts[0] + (parts[0].includes('?') ? '&' : '?') + `gu=${guKey}`;
+                        link.setAttribute('href', parts[1] ? `${cleanUrl}#${parts[1]}` : cleanUrl);
+                    }
+                }
+            });
+        }
+    }
+
+    // DOM 로드 완료 시 안전하게 실행
+    document.addEventListener("DOMContentLoaded", function () {
+        if (typeof runMasterGuPatch === 'function') {
+            runMasterGuPatch();
+        }
+        initFamilySiteRedirect();
+        applyGuParameterToLinks();
+
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+
+    // 동적 로딩 지연 방어 실행
+    window.addEventListener('load', function () {
+        initFamilySiteRedirect();
+    });
+})();
 document.addEventListener("DOMContentLoaded", function() {
     lucide.createIcons();
     

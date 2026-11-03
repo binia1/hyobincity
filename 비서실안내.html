@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="이미지/logo.webp">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비서실 안내 - 효빈광역시 시민 경청</title>
+    
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 미리 분리해 둔 커스텀 스타일 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        hyobin: {
+                            blue: '#005bac', 
+                            light: '#f3f8fd',
+                            dark: '#1a365d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 서브 비주얼 (타이틀 배너) */
+        .sub-visual {
+            background-image: linear-gradient(to bottom, rgba(0, 25, 60, 0.75), rgba(15, 23, 42, 0.9)), url('이미지/시장실배경.webp');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* LNB 사이드바 스타일 */
+        .lnb-depth1 > li > a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .lnb-depth1 > li > a:hover,
+        .lnb-depth1 > li.active > a {
+            background-color: #005bac;
+            color: white;
+            font-weight: 700;
+        }
+        .lnb-depth1 > li:last-child > a { border-bottom: none; }
+
+        /* 본문 타이틀 스타일 */
+        .content-title {
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1a365d;
+            color: #1e293b;
+        }
+
+        /* 테이블 스타일 */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; background: white; border-top: 2px solid #1a365d; }
+        .data-table th { background-color: #f1f5f9; color: #1e293b; font-weight: 700; padding: 0.95rem 1rem; border-bottom: 1px solid #cbd5e1; text-align: center; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; vertical-align: middle; }
+        .data-table tr:hover td { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- 외부 스크립트로 렌더링될 공통 헤더 -->
+    <div id="common-header"></div>
+
+    <!-- 서브 비주얼 배너 -->
+    <div class="sub-visual w-full h-48 md:h-56 flex flex-col items-center justify-center text-white relative overflow-hidden bg-slate-800">
+        <div class="relative z-10 text-center px-4 w-full">
+            <h1 id="banner-title" class="text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg mb-4">열린비서실 안내</h1>
+            <p id="banner-slogan" class="text-lg md:text-xl font-light opacity-90">"권위와 의전의 벽을 허물고, 가장 낮은 현장과 가장 엄격한 원칙으로 보좌합니다"</p>
+        </div>
+    </div>
+
+    <!-- 본문 레이아웃 -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex-1 flex flex-col lg:flex-row gap-8 lg:gap-10">
+        
+        <!-- 좌측 LNB 사이드바 -->
+        <aside class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-8">
+                <h2 class="text-xl font-black text-white bg-hyobin-blue p-5 mb-0" id="lnb-title">
+                    시민 경청
+                </h2>
+                <ul class="lnb-depth1">
+                    <li><a href="시장실.html" id="lnb-room">시장실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li class="active"><a href="비서실안내.html" id="lnb-sec">비서실 안내 <i data-lucide="chevron-right" class="w-4 h-4 text-white"></i></a></li>
+                    <li><a href="시장에게바란다.html" id="lnb-petition">시장에게 바란다 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="통합자료실.html">통합자료실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="질의답변.html">질의답변 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                    <li><a href="일일브리핑.html">일일 브리핑 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i></a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <!-- Breadcrumb -->
+            <div class="flex flex-wrap items-center text-sm text-gray-500 font-medium border-b border-slate-200 pb-4 mb-8" id="breadcrumb-wrap">
+                <a href="index.html" class="hover:text-hyobin-blue"><i data-lucide="home" class="w-4 h-4"></i></a>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>소통·참여</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span>시민 경청</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i>
+                <span class="text-hyobin-blue font-bold" id="breadcrumb-last">비서실 안내</span>
+            </div>
+
+            <h2 id="content-title" class="text-3xl font-black content-title">효빈광역시장 비서실 운영 및 직무 안내</h2>
+
+            <!-- 1. 왜 효빈광역시 비서실은 특별한가? (특수성 선언 배너) -->
+            <div class="bg-gradient-to-br from-slate-900 via-hyobin-dark to-slate-900 rounded-2xl p-7 md:p-9 text-white shadow-lg mb-12 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                    <i data-lucide="shield-alert" class="w-64 h-64"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/40 text-blue-200 px-3.5 py-1 rounded-full text-xs font-extrabold mb-4">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 전국 지자체 최초 '전면 투명 공개형 실전 기동 비서실'
+                    </div>
+                    <h3 id="special-banner-title" class="text-2xl md:text-3xl font-black mb-4 leading-snug break-keep">
+                        "효빈광역시 비서실에는 <span class="text-amber-300">우산을 대신 씌워주는 의전 인력</span>이 없습니다."
+                    </h3>
+                    <p id="special-banner-desc" class="text-slate-200 text-[15px] md:text-[16px] leading-relaxed mb-6 break-keep">
+                        일반적인 관공서 비서실이 단체장의 일정을 가리고 심기를 보좌하는 '방패막이'에 머물렀다면, 민선 8·9기 효빈광역시장 비서실은 <strong>누가, 어떤 기준으로, 어떻게 일하는지 시민에게 100% 공개하는 '야전 상황실 겸 준법 감시 기구'</strong>로 운영됩니다.<br class="hidden md:inline">
+                        취임 첫날부터 관용차 대신 1호선 전철로 출근하고 재난 상황 시 VIP 특식 도시락을 전면 폐지한 박효빈 시장의 시정 철학에 발맞추어, 비서실 전 직원은 과잉 의전을 법적으로 금지하고 <strong>① 24시간 재난·민생 현장 기동, ② 1원 단위 청탁금지법·선거법 철벽 검증, ③ 일선 공직자 및 시민 안전 보호</strong>의 3대 핵심 과업을 수행하고 있습니다.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/15 text-sm">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                            <div class="text-amber-300 font-black text-xs mb-1">PRINCIPLE 01 · 무(無)의전 원칙</div>
+                            <div class="font-bold text-white">전용 우산·특식·과잉 수행 전면 폐지 및 구내식당·대중교통 일상화</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                            <div class="text-sky-300 font-black text-xs mb-1">PRINCIPLE 02 · 무결점 준법 레이더</div>
+                            <div class="font-bold text-white">공직선거법·청탁금지법 0.1초 사전 판독 및 1원 단위 더치페이 정산 공시</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                            <div class="text-emerald-300 font-black text-xs mb-1">PRINCIPLE 03 · 현장·문화 수호</div>
+                            <div class="font-bold text-white">악성 민원·왜곡 보도 즉각 법적 대응 및 글로벌 서브컬처 외교 전담</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 비서실장 프로필 및 인사말 (천성현 비서실장 집중 조명 - 본청 전용, 구청장일 때 자동 변환) -->
+            <div id="chief-section" class="mb-16">
+                <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center border-l-4 border-hyobin-blue pl-4" id="chief-heading">
+                    비서실장 소개 및 보좌 철학
+                </h3>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="flex flex-col lg:flex-row">
+                        <!-- 좌측: 천성현 비서실장 프로필 카드 -->
+                        <div class="w-full lg:w-1/3 bg-slate-50 p-7 border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-20 h-24 rounded-xl overflow-hidden border-2 border-hyobin-blue shadow-md bg-white flex-shrink-0">
+                                        <img src="이미지/천성현.webp" alt="천성현 비서실장" class="w-full h-full object-cover" onerror="this.src='이미지/logo.webp'">
+                                    </div>
+                                    <div>
+                                        <span class="inline-block bg-hyobin-blue text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded mb-1">효빈광역시청 비서실장 (4급 상당)</span>
+                                        <h4 class="text-2xl font-black text-slate-900 whitespace-nowrap">천 성 현 <span class="text-xs font-normal text-slate-500">千聖賢</span></h4>
+                                        <p class="text-xs font-bold text-blue-700 mt-0.5">"치카의 활력과 리코의 전문성으로 보좌합니다"</p>
+                                    </div>
+                                </div>
+
+                                <ul class="text-[13.5px] space-y-2.5 text-slate-700 border-t border-slate-200 pt-4">
+                                    <li class="flex items-start">
+                                        <strong class="w-20 flex-shrink-0 text-slate-900">출생·출신</strong>
+                                        <span>1991년 10월 22일<br><span class="text-xs text-slate-500">(효빈광역시 탄성군 탄성읍 명무리)</span></span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <strong class="w-20 flex-shrink-0 text-slate-900">학력사항</strong>
+                                        <span>탄성고등학교 졸업<br>동구대학교 정치외교학과 학사</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <strong class="w-20 flex-shrink-0 text-slate-900">주요경력</strong>
+                                        <span>효빈광역시청 정무비서관 (민선 8기)<br>효빈광역시청 비서실장 (특별승진 ~ 현직)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <strong class="w-20 flex-shrink-0 text-slate-900">상훈내역</strong>
+                                        <span class="font-bold text-hyobin-blue">🏆 효빈 시민 안전 공로 대상 (최고 등급)<br><span class="text-xs font-normal text-slate-500">(효빈대 베르데 홀 행사장 난동 제압 및 시민·문화자산 육탄 수호 공로)</span></span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <strong class="w-20 flex-shrink-0 text-slate-900">전담영역</strong>
+                                        <span>시정 정무·법률 총괄, 청탁금지법·공직선거법 감시, 가짜뉴스 법무 대응, 한·일 자매도시(누마즈 등) 특사 의전</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="mt-6 bg-blue-50/80 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-950 leading-relaxed">
+                                <strong class="block text-hyobin-blue mb-1">💡 시청 내 공식 별칭 안내</strong>
+                                일선 공무원 및 시민들 사이에서 <strong>'걸어 다니는 김영란법 판독기'</strong>, <strong>'우치우라의 기사(시정의 수호자)'</strong>로 불리며, 시장의 급격한 현장 강행군 일정을 조율하는 유일한 정무적 브레이크 역할을 수행합니다.
+                            </div>
+                        </div>
+
+                        <!-- 우측: 비서실장의 직무 브리핑 -->
+                        <div class="w-full lg:w-2/3 p-7 md:p-9 flex flex-col justify-between">
+                            <div>
+                                <div class="inline-flex items-center gap-1.5 text-xs font-extrabold text-hyobin-blue bg-blue-50 px-3 py-1 rounded-md mb-3">
+                                    <i data-lucide="terminal" class="w-3.5 h-3.5"></i> CHIEF OF STAFF BRIEFING
+                                </div>
+                                <h4 class="text-xl md:text-2xl font-black text-slate-800 mb-4 leading-snug break-keep">
+                                    "비서실은 시장 개인을 경호하는 곳이 아니라,<br>
+                                    <span class="text-hyobin-blue">효빈시의 청렴 철학과 300만 시민의 일상</span>을 지키는 최전선입니다."
+                                </h4>
+                                <div class="space-y-4 text-[15px] text-slate-600 leading-relaxed break-keep">
+                                    <p>
+                                        안녕하십니까, 효빈광역시장 비서실장 <strong>천성현</strong>입니다. 많은 시민과 외부 방문객 여러분께서 <em>"왜 효빈시청은 비서실 직원의 실명과 세부 업무 매뉴얼까지 홈페이지에 낱낱이 공개하느냐"</em>고 묻곤 하십니다. 대답은 명확합니다. 비서실이 투명해야 시정 전체에 부패와 특혜가 발붙일 수 없기 때문입니다.
+                                    </p>
+                                    <p>
+                                        우리 비서실은 박효빈 시장님의 폭발적인 현장 추진력(치카와 같은 긍정적 활력)이 행정적 완성도(리코와 같은 치밀한 전문성)로 온전히 결실을 맺을 수 있도록 뒷받침하는 정밀 톱니바퀴입니다. 시장님께서 새벽 2시 제설 현장이나 배수펌프장으로 달려가실 때 의전 차량 대신 작업용 장화와 현장 데이터를 먼저 챙기고, 사적인 친분이나 외부 단체의 식사 자리에서는 <strong>단 1원의 공직선거법·청탁금지법 위반 소지도 발생하지 않도록 영수증과 전자세금계산서를 실시간으로 교차 검증</strong>합니다.
+                                    </p>
+                                    <p>
+                                        또한, 우리 시의 핵심 미래 자산인 <strong>글로벌 서브컬처 인프라(L-Project, HAF, 도시철도 캐릭터 시설물)</strong>를 훼손하려는 물리적 폭력이나 악의적인 허위·왜곡 보도, 그리고 일선 당직 공무원과 사회복무요원들을 괴롭히는 악성 민원에 대해서는 비서실이 직접 법적 방패가 되어 <strong>무관용 원칙(즉시 채증 및 형사 고발·언론중재위 제소)</strong>으로 단호히 대처하고 있습니다.
+                                    </p>
+                                    <p>
+                                        집무실 한켠의 문화 콘텐츠 전시물 밀도를 관리하는 소소한 일상부터, 일본 누마즈시(우치우라)·필리핀 케손시티 등 해외 자매도시 사절단을 통역 없이 직접 맞이하는 글로벌 외교 실무까지, 언제나 시민 여러분께 부끄럽지 않은 가장 유능하고 청렴한 비서실이 되겠습니다.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
+                                <span>📌 <strong>직통 핫라인:</strong> 079-591-2001 (비서실 총괄) / 079-591-2004 (청렴·준법 검증팀)</span>
+                                <span class="font-bold text-slate-800 whitespace-nowrap">효빈광역시장 비서실장 <strong class="text-hyobin-blue text-sm ml-1">천 성 현</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 효빈시 비서실만의 4대 특수 수행 업무 (What & How We Work) -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-black text-slate-800 mb-2 flex items-center border-l-4 border-hyobin-blue pl-4" id="work-heading">
+                    비서실 4대 핵심 기능 및 업무 수행 방식
+                </h3>
+                <p class="text-sm text-slate-500 mb-6 pl-5">
+                    의전을 줄인 자리에 '실전 행정, 준법 감시, 현장 보호, 문화 외교'를 채워 넣은 효빈광역시 비서실의 실제 작동 매뉴얼입니다.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="work-container">
+                    <!-- JS에서 동적 렌더링 -->
+                </div>
+            </div>
+
+            <!-- 4. 비서실 구성원 및 세부 업무 분장표 (Who Works Here) -->
+            <div class="mb-16">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-800 flex items-center border-l-4 border-hyobin-blue pl-4" id="staff-heading">
+                            비서실 구성원 및 담당 업무 현황
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-2 pl-5" id="staff-subdesc">
+                            효빈광역시 비서실은 정무·법률·현장기동·총무시설·소통 등 각 분야의 실무 전문가 7인으로 구성된 정예 조직입니다.
+                        </p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg self-start md:self-auto">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i> 전 직원 청탁금지법 준수 서약 및 직무 실명제 적용 완료
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="w-28">직위 / 직급</th>
+                                <th class="w-28">성명</th>
+                                <th>담당 직무 및 실제 수행 방식 (특수 과업 포함)</th>
+                                <th class="w-36">직통 번호</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-table-body">
+                            <!-- JS에서 동적 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. 비서실 24시 표준 업무 프로세스 & 이색 행정 규율 (본청 전용 섹션) -->
+            <div id="special-rules-section" class="mb-16">
+                <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center border-l-4 border-hyobin-blue pl-4">
+                    효빈시장실 특수 내규 및 일일 가동 프로세스
+                </h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 내규 1 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-extrabold px-2.5 py-1 rounded">특수내규 제1호</span>
+                                <i data-lucide="scale" class="w-5 h-5 text-amber-600"></i>
+                            </div>
+                            <h4 class="font-black text-lg text-slate-800 mb-2">더치페이 및 외부 식사 철칙</h4>
+                            <p class="text-[13.5px] text-slate-600 leading-relaxed break-keep">
+                                시장이 과거 보육·교육 멘토 시절의 제자(지역아동센터 출신 청년 등)나 지인과 식사할 경우, 비서실 회계검증팀이 사전 동석하거나 즉시 영수증을 회수하여 <strong>시장 본인 식사분(1원 단위 칼정산)을 개인 카드로 분리 결제</strong>하고 증빙을 영구 보존합니다. 정치 브로커들의 악의적인 선거법(기부행위) 무고 고발을 45분 이내에 무혐의 종결시키는 핵심 방어 체계입니다.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-slate-500">
+                            ✔ 담당: 비서실장 천성현 · 회계검증 주무관
+                        </div>
+                    </div>
+
+                    <!-- 내규 2 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-purple-100 text-purple-800 text-xs font-extrabold px-2.5 py-1 rounded">특수내규 제2호</span>
+                                <i data-lucide="package-check" class="w-5 h-5 text-purple-600"></i>
+                            </div>
+                            <h4 class="font-black text-lg text-slate-800 mb-2">집무실 문화전시물(굿즈) 밀도 관리</h4>
+                            <p class="text-[13.5px] text-slate-600 leading-relaxed break-keep">
+                                해외 자매도시 및 문화 기업으로부터 기증받은 서브컬처 기념품이나 시장 개인 사비로 구매한 캐릭터 봉제인형(네소베리)·피규어가 집무실 결재 동선을 침범하지 않도록, 총무주무관(D 주무관)이 매주 <strong>'집무실 전시물 인구밀도 상한선 점검'</strong>을 실시합니다. 한도 초과 물품은 청년 공유주택 '효빈 하우스' 1층 전시관 또는 시청 홍보관으로 순환 배치됩니다.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-slate-500">
+                            ✔ 담당: 총무·시설관리 주무관 (행정 6급)
+                        </div>
+                    </div>
+
+                    <!-- 내규 3 -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-blue-100 text-hyobin-blue text-xs font-extrabold px-2.5 py-1 rounded">특수내규 제3호</span>
+                                <i data-lucide="dumbbell" class="w-5 h-5 text-hyobin-blue"></i>
+                            </div>
+                            <h4 class="font-black text-lg text-slate-800 mb-2">심야 체력단련 소음·진동 관리 및 당직 보호</h4>
+                            <p class="text-[13.5px] text-slate-600 leading-relaxed break-keep">
+                                야간 격무 후 시장실 부속 휴게 공간에서 사비로 설치한 웨이트 기구(하프랙 및 바벨)로 체력을 단련할 때 아래층 당직실에 진동이 전달되지 않도록 <strong>고밀도 충격 흡수 매트(50mm 이중 시공)를 상시 관리</strong>합니다. 아울러 심야 당직실에 폭언·협박 민원이 걸려올 경우 즉시 비서실 직통 채증 라인으로 전환하여 일선 당직 공무원의 인권을 보호합니다.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-slate-500">
+                            ✔ 담당: 정무·현장기동 비서관 · 당직상황실
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 방문 및 면담 신청 절차 안내 -->
+            <div class="bg-white p-7 md:p-8 rounded-2xl border border-slate-200 shadow-sm mb-10">
+                <h3 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-hyobin-blue"></i> 비서실 위치 및 공식 면담 신청 절차
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-600">
+                    <div class="space-y-2.5">
+                        <p><strong class="text-slate-900 inline-block w-28">위치 안내:</strong> <span id="loc-text">효빈광역시 북구 효빈로 79 (고송8동), 효빈광역시청 본관 3층 열린시장실 내</span></p>
+                        <p><strong class="text-slate-900 inline-block w-28">운영 시간:</strong> 평일 08:30 ~ 18:30 <span class="text-xs text-blue-700 font-semibold">(※ 재난·폭설·불법광고물 합동단속 시 24시간 비상 가동)</span></p>
+                        <p><strong class="text-slate-900 inline-block w-28">대표 연락처:</strong> 전화 079-591-2001 / 팩스 079-591-2099</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs leading-relaxed text-slate-600">
+                        <strong class="text-slate-900 block mb-1.5 text-sm">📌 투명 면담 기록제 (Open Log System) 안내</strong>
+                        효빈광역시 비서실은 밀실 청탁을 원천 차단하기 위해 모든 외부 기관·단체의 면담 신청을 공식 전자문서 또는 온라인 시민 경청 창구로만 접수하며, 면담 일시·참석자·주요 논의 요지를 정보공개포털에 투명하게 공개하고 있습니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 바로가기 버튼 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-slate-200">
+                <button class="bg-white border-2 border-slate-200 text-slate-700 py-4 px-6 rounded-xl font-black text-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-sm flex items-center justify-center gap-2 group" onclick="location.href='시장실.html'" id="btn-room-link">
+                    <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform text-slate-400 mr-1"></i>
+                    <span id="btn-room-text">열린시장실(인사말·정책) 돌아가기</span>
+                </button>
+                <button class="bg-hyobin-blue text-white py-4 px-6 rounded-xl font-black text-lg hover:bg-blue-800 transition shadow-md flex items-center justify-center gap-2 group" onclick="location.href='시장에게바란다.html'" id="btn-petition-link">
+                    <i data-lucide="message-square" class="w-5 h-5"></i> <span id="btn-petition-text">시장에게 바란다 (민원·제안 직통)</span> 
+                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2"></i>
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 외부 스크립트로 렌더링될 공통 푸터 및 모달 -->
+    <div id="common-footer"></div>
+    <div id="common-modals"></div>
+
+    <!-- 필수 스크립트 로드 -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="common121.js"></script>
+    
+    <!-- 비서실 안내 맞춤형 렌더링 스크립트 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guKey = urlParams.get('gu');
+
+            // 본청(박효빈 시장 비서실) 4대 핵심 기능 데이터
+            const DEFAULT_WORKS = [
+                {
+                    icon: "shield-check",
+                    badge: "준법·법무 방어",
+                    title: "1. 무결점 청탁금지법·선거법 사전 판독 및 사법 대응",
+                    desc: "천성현 비서실장의 총괄 아래 시장의 모든 대외 일정, 간담회, 지인·멘티 면담 시 발생할 수 있는 공직선거법(제113조 기부행위 제한) 및 청탁금지법 저촉 여부를 0.1초 단위로 사전 검토합니다. 모든 식사 및 다과 비용은 1원 단위까지 더치페이 영수증과 전자세금계산서로 실시간 증빙·보관하여 악의적인 정치적 무고를 원천 차단하며, 가짜뉴스 및 왜곡 보도 발생 시 즉시 블록체인 회계 기록과 원본 CCTV를 바탕으로 언론중재위원회 제소 및 형사 고발을 집행합니다."
+                },
+                {
+                    icon: "zap",
+                    badge: "24시 야전 기동",
+                    title: "2. 의전 제로(Zero) 현장 기동 및 재난·인프라 직결 보좌",
+                    desc: "관용차 의전이나 우산 대리 수행, VIP용 특식 도시락 등 권위주의적 의전을 전면 폐지했습니다. 대신 기상청 예보를 뛰어넘는 폭설·태풍 등 자연재난 발생 시 새벽 2시 재난안전대책본부 및 상습 침수 배수펌프장, 도로 열선 가동 현장에 시장과 함께 작업복 차림으로 즉각 투입됩니다. 또한 시장이 직접 전산 서버(H-Pass 등)나 시정 홈페이지 코드를 점검할 때 IT 부서와의 핫라인을 즉각 개설합니다."
+                },
+                {
+                    icon: "globe-2",
+                    badge: "글로벌 문화 외교",
+                    title: "3. 서브컬처 메가 이벤트(HAF) 및 해외 자매도시 특별 의전",
+                    desc: "효빈광역시의 핵심 미래 먹거리인 'L-Project', '효빈 애니메이션 페스티벌(HAF)', 『철도부! 팬미팅』 등 대규모 문화 행사와 관련하여 국내외 아티스트·성우진 및 일본 누마즈시(우치우라)·필리핀 케손시티 등 해외 자매도시 대표단 방문 시 통역관을 거치지 않는 고도의 전문 문화 외교 의전을 수행합니다. 행사장 내 문화 자산(등신대 패널 등)과 관람객의 안전을 위협하는 소란 행위에는 비서실이 현장 안전요원과 함께 즉각 개입하여 보호합니다."
+                },
+                {
+                    icon: "heart-handshake",
+                    badge: "일선 공무원·청년 보호",
+                    title: "4. 악성 민원(포상금 헌터) 차단 및 블루버드 청년 멘토링",
+                    desc: "일선 구청 공무원과 사회복무요원의 업무를 마비시키는 악성 반복·조작 민원이나 심야 당직실 폭언 전화를 비서실·감사관실 합동 채증망으로 이관받아 기관장 명의의 법적 고발로 일선 직원을 보호합니다. 아울러 '블루 버드 멘토단' 행정 실무 트랙으로 선발된 취약계층 대학생 멘토들을 비서실 정책 기획 회의에 직접 참여시켜 예비 공직자 및 전문가로 육성하고 있습니다."
+                }
+            ];
+
+            // 본청 비서실 구성원 상세 데이터
+            const DEFAULT_STAFF = [
+                {
+                    role: "비서실장<br><span class='text-xs font-normal text-blue-700'>(4급 상당)</span>",
+                    name: "천 성 현",
+                    work: "<strong class='text-slate-900 block mb-1'>[비서실 업무 총괄 및 정무·법무 컨트롤타워]</strong>• 시장 정무·정책 보좌 총괄 및 시의회·정당·시민사회 정무 조율<br>• <strong>공직선거법·청탁금지법 사전 적법성 판독</strong> 및 더치페이 정산 증빙 최종 검수<br>• 시정 왜곡 보도·가짜뉴스 대응(언론중재위 제소 및 형사 사법 절차 총괄 지휘)<br>• 일본 시즈오카현 누마즈시 등 글로벌 문화 자매도시 외교 사절단 특별 의전 및 브리핑",
+                    tel: "079-591-2001"
+                },
+                {
+                    role: "정무·현장기동 비서관<br><span class='text-xs font-normal text-slate-500'>(별정 5급)</span>",
+                    name: "강 도 현",
+                    work: "<strong class='text-slate-900 block mb-1'>[24시간 재난·민생 현장 무의전 기동 및 공정 질서 확립]</strong>• 심야 폭설·집중호우 시 배수펌프장·제설 전진기지 및 올빼미 버스(N1~N4) 노선 현장 점검 수행<br>• 법정 기한 만료 및 불법 현수막 합동 정비(00시 00분 01초 원칙) 구·군 단속반 핫라인 조율<br>• 일선 당직실 및 사회복무요원 대상 악성·협박 민원 녹취 채증 및 법무담당관실 고발 인계",
+                    tel: "079-591-2002"
+                },
+                {
+                    role: "정책·메시지 비서관<br><span class='text-xs font-normal text-slate-500'>(별정 6급)</span>",
+                    name: "윤 하 영",
+                    work: "<strong class='text-slate-900 block mb-1'>[시정 연설문·메시지 기획 및 글로벌 문화콘텐츠 의전]</strong>• 시장 취임사, 신년사, 주요 정책(H-Pass, 영 케어러 지원 등) 발표문 및 브리핑 자료 작성<br>• <strong>효빈 애니메이션 페스티벌(HAF) 및 효빈교통공사 캐릭터 IP 행사</strong> 국내외 초청 인사 의전 조율<br>• 시민 직통 온라인 소통 창구(공식 SNS, 디스코드 타운홀, 스레드 팩트체크 채널) 메시지 관리",
+                    tel: "079-591-2003"
+                },
+                {
+                    role: "총무·시설관리 주무관<br><span class='text-xs font-normal text-slate-500'>(행정 6급 / D 주무관)</span>",
+                    name: "도 진 우",
+                    work: "<strong class='text-slate-900 block mb-1'>[시장실 보안·서무 행정 및 집무실 특수 시설물 밀도 관리]</strong>• 열린시장실 문서 수발, 보안 점검, 기관 운영비 투명 집행 및 공무직 휴게 환경 점검<br>• <strong>집무실 내 기증 기념품 및 문화 콘텐츠 전시물(네소베리 봉제인형·등신대·피규어) 공간 밀도 상한 관리</strong> 및 효빈 하우스 전시관 순환 배치<br>• 시장실 부속 체력단련 공간(사비 반입 하프랙·바벨 120kg 세트) 안전 점검 및 심야 층간진동 방지 매트 유지보수",
+                    tel: "079-591-2004"
+                },
+                {
+                    role: "일정·회계검증 주무관<br><span class='text-xs font-normal text-slate-500'>(행정 7급)</span>",
+                    name: "박 서 연",
+                    work: "<strong class='text-slate-900 block mb-1'>[투명 일정 공시 및 1원 단위 클린 회계 교차 검증]</strong>• 시장 공식 일정 관리, 외부 기관 면담 오픈 로그(Open Log) 기록 및 정보공개포털 공시<br>• 외부 간담회 및 시민·멘티 오찬 시 <strong>1원 단위 더치페이 분리 결제 영수증·전자세금계산서 실시간 검증</strong><br>• 가족돌봄청년(영 케어러) 및 위기 아동 긴급 민원 접수 시 복지국 원스톱 직통 이관",
+                    tel: "079-591-2005"
+                },
+                {
+                    role: "시민경청·민원 주무관<br><span class='text-xs font-normal text-slate-500'>(사회복지 7급)</span>",
+                    name: "한 지 민",
+                    work: "<strong class='text-slate-900 block mb-1'>[현장 민원 심층 상담 및 취약계층 핫라인 운영]</strong>• '시장에게 바란다' 직통 민원 분석 및 현장 방문(당가동 상권, 우전동 상생 클러스터 등) 사전 실태 조사<br>• 든든-편의점(CV) 위기 청소년 긴급 보호 알림 및 달빛 어린이병원 심야 이송 체계 모니터링<br>• 자문위원 위촉 시 '다중 십자포화식 인사 검증 시스템' 1차 실무 체크리스트 점검",
+                    tel: "079-591-2006"
+                },
+                {
+                    role: "블루버드 실무멘토<br><span class='text-xs font-normal text-emerald-600'>(청년 행정인턴)</span>",
+                    name: "강 수 경 외 1명",
+                    work: "<strong class='text-slate-900 block mb-1'>[블루 버드 멘토단 행정실무 트랙 파견 대학생 멘토]</strong>• 단순 문서 파쇄·복사 배제 조례에 의거, 비서실 정책 데이터 크롤링 및 청년 정책 체감도 분석 실무 수행<br>• 청년 안심 주택(효빈 하우스), 쿠쿠 클로젯, 클린-핏 바우처 이용 청년층 현장 피드백 수집 및 개선안 제안<br>• 비서실장 및 현직 주무관과의 1:1 직무 멘토링을 통한 공공행정 실무 역량 강화",
+                    tel: "079-591-2007"
+                }
+            ];
+
+            // 구청장/군수 페이지 연동용 데이터 매핑
+            const GU_SEC_DATA = {
+                "jung": { role: "중구청장", shortRole: "구청장", name: "구성연", color: "#BB9955", loc: "효빈광역시 중구 중앙로 100, 중구청 본관 2층 구청장실 내", telPrefix: "079-210" },
+                "buk": { role: "북구청장", shortRole: "구청장", name: "김지언", color: "#6677CC", loc: "효빈광역시 북구 고송대로 55, 북구청 본관 3층 구청장실 내", telPrefix: "079-310" },
+                "dong": { role: "동구청장", shortRole: "구청장", name: "조우영", color: "#00AA00", loc: "효빈광역시 동구 전천로 30, 동구청 본관 2층 구청장실 내", telPrefix: "079-250" },
+                "seo": { role: "서구청장", shortRole: "구청장", name: "부서원", color: "#00AABB", loc: "효빈광역시 서구 대학로 88, 서구청 본관 2층 구청장실 내", telPrefix: "079-280" },
+                "nam": { role: "남구청장", shortRole: "구청장", name: "오전희", color: "#9856FF", loc: "효빈광역시 남구 평당대로 120, 남구청 본관 3층 구청장실 내", telPrefix: "079-340" },
+                "cheongyeop": { role: "청엽구청장", shortRole: "구청장", name: "권상남", color: "#006699", loc: "효빈광역시 청엽구 청엽로 45, 청엽구청 본관 3층 구청장실 내", telPrefix: "079-370" },
+                "changjeon": { role: "창전구청장", shortRole: "구청장", name: "전역헌", color: "#33AAFF", loc: "효빈광역시 창전구 칠심로 77, 창전구청 본관 3층 구청장실 내", telPrefix: "079-400" },
+                "ancheon": { role: "안천구청장", shortRole: "구청장", name: "이규희", color: "#AA66DD", loc: "효빈광역시 안천구 이자로 60, 안천구청 본관 3층 구청장실 내", telPrefix: "079-430" },
+                "tanseong": { role: "탄성군수", shortRole: "군수", name: "성선설", color: "#559900", loc: "효빈광역시 탄성군 탄성읍 군청길 15, 탄성군청 본관 2층 군수실 내", telPrefix: "079-460" }
+            };
+
+            const guInfo = guKey ? GU_SEC_DATA[guKey] : null;
+            const themeColor = guInfo ? guInfo.color : '#005bac';
+
+            // 1. 구청장/군수 모드일 때 UI 변환
+            if (guInfo) {
+                const lnbTitle = document.getElementById('lnb-title');
+                if(lnbTitle) lnbTitle.style.backgroundColor = themeColor;
+
+                const lnbRoom = document.getElementById('lnb-room');
+                if(lnbRoom) {
+                    lnbRoom.href = `시장실.html?gu=${guKey}`;
+                    lnbRoom.innerHTML = `${guInfo.role}실 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>`;
+                }
+                const lnbSec = document.getElementById('lnb-sec');
+                if(lnbSec) {
+                    lnbSec.href = `비서실안내.html?gu=${guKey}`;
+                    lnbSec.parentElement.style.backgroundColor = themeColor;
+                }
+                const lnbPetition = document.getElementById('lnb-petition');
+                if(lnbPetition) {
+                    lnbPetition.href = `시장에게바란다.html?gu=${guKey}`;
+                    lnbPetition.innerHTML = `${guInfo.shortRole}에게 바란다 <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>`;
+                }
+
+                const breadWrap = document.getElementById('breadcrumb-wrap');
+                if(breadWrap) {
+                    breadWrap.innerHTML = `<a href="index.html?gu=${guKey}" class="hover:text-blue-600 transition"><i data-lucide="home" class="w-4 h-4"></i></a><i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i><span>소통·참여</span><i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i><span>시민 경청</span><i data-lucide="chevron-right" class="w-4 h-4 mx-2 flex-shrink-0"></i><span class="font-bold" style="color:${themeColor}">${guInfo.role} 비서실 안내</span>`;
+                }
+
+                document.getElementById('banner-title').textContent = `열린${guInfo.role} 비서실`;
+                const contentTitle = document.getElementById('content-title');
+                contentTitle.textContent = `${guInfo.role} 비서실 운영 및 직무 안내`;
+                contentTitle.style.borderBottomColor = themeColor;
+
+                document.getElementById('special-banner-title').innerHTML = `"${guInfo.name} ${guInfo.role} 비서실은 <span class="text-amber-300">현장 중심·구민 경청 행정</span>을 최우선으로 실천합니다."`;
+                document.getElementById('special-banner-desc').innerHTML = `효빈광역시 시정 혁신 원칙에 발맞추어, 우리 비서실은 불필요한 의전을 지양하고 구민의 민원 현장과 골목 상권, 문화 특화 거리를 직접 발로 뛰며 보좌하는 실무형 열린 비서실로 운영됩니다.`;
+
+                // 본청 전용 섹션 숨김
+                const chiefSec = document.getElementById('chief-section');
+                if(chiefSec) chiefSec.style.display = 'none';
+                const specialRulesSec = document.getElementById('special-rules-section');
+                if(specialRulesSec) specialRulesSec.style.display = 'none';
+
+                document.getElementById('work-heading').style.borderLeftColor = themeColor;
+                document.getElementById('staff-heading').style.borderLeftColor = themeColor;
+                document.getElementById('loc-text').textContent = guInfo.loc;
+
+                const btnRoomLink = document.getElementById('btn-room-link');
+                btnRoomLink.setAttribute('onclick', `location.href='시장실.html?gu=${guKey}'`);
+                document.getElementById('btn-room-text').textContent = `열린${guInfo.role}실 돌아가기`;
+
+                const btnPetitionLink = document.getElementById('btn-petition-link');
+                btnPetitionLink.style.backgroundColor = themeColor;
+                btnPetitionLink.setAttribute('onclick', `location.href='시장에게바란다.html?gu=${guKey}'`);
+                document.getElementById('btn-petition-text').textContent = `${guInfo.shortRole}에게 바란다 바로가기`;
+            }
+
+            // 2. 4대 핵심 기능 카드 렌더링
+            const workContainer = document.getElementById('work-container');
+            if (workContainer) {
+                let wHTML = '';
+                DEFAULT_WORKS.forEach(w => {
+                    wHTML += `
+                    <div class="bg-white p-6 md:p-7 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-full text-xs font-extrabold" style="background-color:${themeColor}18; color:${themeColor};">${w.badge}</span>
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color:${themeColor}12; color:${themeColor};">
+                                    <i data-lucide="${w.icon}" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                            <h4 class="font-black text-lg text-slate-800 mb-3 leading-snug break-keep">${w.title}</h4>
+                            <p class="text-[14px] text-slate-600 leading-relaxed break-keep">${w.desc}</p>
+                        </div>
+                    </div>`;
+                });
+                workContainer.innerHTML = wHTML;
+            }
+
+            // 3. 비서실 직원 테이블 렌더링
+            const staffBody = document.getElementById('staff-table-body');
+            if (staffBody) {
+                let sHTML = '';
+                if (!guInfo) {
+                    DEFAULT_STAFF.forEach(s => {
+                        sHTML += `
+                        <tr>
+                            <td class="text-center font-bold text-slate-800">${s.role}</td>
+                            <td class="text-center font-black text-base text-hyobin-dark whitespace-nowrap">${s.name}</td>
+                            <td class="text-left text-[13.5px] leading-relaxed break-keep">${s.work}</td>
+                            <td class="text-center font-semibold text-slate-700 whitespace-nowrap">${s.tel}</td>
+                        </tr>`;
+                    });
+                } else {
+                    const guStaff = [
+                        { role: "비서실장 (5급)", name: "이 현 우", work: `• ${guInfo.role}실 업무 총괄 및 구정 주요 현안 정무·정책 보좌<br>• 구의회 및 시 본청 비서실 연계 협력 총괄`, tel: `${guInfo.telPrefix}-2001` },
+                        { role: "일정·공보 주무관 (6급)", name: "김 민 서", work: `• ${guInfo.role} 공식 일정 관리, 현장 행정 수행 및 구민 소통 메시지 기획`, tel: `${guInfo.telPrefix}-2002` },
+                        { role: "민원·서무 주무관 (7급)", name: "정 태 윤", work: `• '${guInfo.shortRole}에게 바란다' 직통 민원 접수·이관 및 열린${guInfo.role}실 예산·회계 투명 집행`, tel: `${guInfo.telPrefix}-2003` },
+                        { role: "블루버드 실무멘토", name: "청년멘토단", work: `• 관내 특화 정책 모니터링 및 청년·구민 현장 의견 수렴 실무 지원`, tel: `${guInfo.telPrefix}-2004` }
+                    ];
+                    guStaff.forEach(s => {
+                        sHTML += `
+                        <tr>
+                            <td class="text-center font-bold text-slate-800">${s.role}</td>
+                            <td class="text-center font-black text-base text-slate-900 whitespace-nowrap">${s.name}</td>
+                            <td class="text-left text-[13.5px] leading-relaxed break-keep">${s.work}</td>
+                            <td class="text-center font-semibold text-slate-700 whitespace-nowrap">${s.tel}</td>
+                        </tr>`;
+                    });
+                }
+                staffBody.innerHTML = sHTML;
+            }
+
+            // 아이콘 리렌더링
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
